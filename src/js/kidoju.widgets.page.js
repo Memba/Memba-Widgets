@@ -32,6 +32,7 @@
         },
 
         //Miscellaneous
+        POINTER = 'pointer',
         CLASS = 'k-widget kj-page',
 
         DEBUG = true,
@@ -214,25 +215,116 @@
         _layout: function () {
             var that = this;
             that._clear();
+            //Setup page
             $(that.element)
                 .addClass(CLASS)
                 .css('position', 'relative') //!important
                 .css('overflow', 'hidden')
                 .css('height', that.height() + 'px')
                 .css('width', that.width() + 'px');
+            //Implement click event
             $(that.element).on(CLICK, function(e) {
+                //TODO test mode
                 if(DEBUG && global.console) {
                     global.console.log(MODULE + 'page clicked at (' + e.offsetX + ',' + e.offsetY + ')');
+                }
+                var id = that.options.tools.get('active');
+                if (id !== POINTER) {
+                    var tool = that.options.tools[id];
+                    that._addPageElement(tool, undefined, e.offsetX, e.offsetY);
+
+                    that.options.tools.set('active', POINTER);
+                } else {
+                    var tool = that.options.tools[id];
+                    //TODO: maybe trigger a click on the page
+                    tool._hideHandles(that.element);
                 }
             });
         },
 
-        _addElement: function(tool, x, y) {
-
+        /**
+         * Add an element to the page either on a click or from persistence
+         * @param tool
+         * @param item
+         * @param x1
+         * @param y1
+         * @private
+         */
+        _addPageElement: function(tool, item, x1, y1, x2, y2) {
+            var that = this;
+            if (tool instanceof kidoju.Tool) {
+                var pageItem = tool.getPageItem(item);
+                if ($.type(x1) === NUMBER) {
+                    pageItem.left = x1;
+                }
+                if ($.type(y1) === NUMBER) {
+                    pageItem.top = y1;
+                }
+                //TODO: x2, y2 are for setting height and width when dragging
+                tool.draw(that.element, pageItem);
+            }
         },
 
-        _removeElement: function() {
+        /*
+        _addWidget: function(tool, position, properties) {
+            var that = this;
+            if ((tool instanceof kidoju.Tool) && $.isFunction(tool.draw)) {
+                position = $.extend({top: 10, left: 10, width: 200, height: 100}, position);
+                var widget = $(kendo.format(
+                    '<div id={0} class="kj-widget" data-tool="{1}" style="position:absolute; top:{2}px; left:{3}px; width:{4}px; height:{5}px"></div>',
+                    kendo.guid(),
+                    tool.id,
+                    position.top,
+                    position.left,
+                    position.width,
+                    position.height
+                ));
+                tool.draw(widget);
+                var find = that.element.find('.kj-widget');
+                if (find.length > 0) {
+                    find.last().after(widget);
+                } else {
+                    $(that.element).prepend(widget);
+                }
+                widget
+                    .on(constants.CLICK, function(e) {
+                        if(that._currentWidget) {
+                            that._enableEdit(that._currentWidget, false);
+                            that._hideHandles();
+                        }
+                        var targetWidget = $(e.target).closest('.kj-widget').get();
+                        if (targetWidget !== that._currentWidget) {
+                            that._currentWidget = targetWidget;
+                            that._prepareContextMenu();
+                        }
+                        that._prepareHandles();
+                        that._showHandles();
+                        e.preventDefault();
+                        e.stopPropagation();
+                    })
+                    .on(constants.DBLCLICK, function(e){
+                        var widget = $(e.target).closest('.kj-widget');
+                        that._enableEdit(that._currentWidget, true);
+                    })
+                    .on('blur', function(e) {
+                        that._enableEdit(that._currentWidget, false);
+                        kendo.logToConsole('blur from ' + e.target.toString());
+                    })
+                    .on('focusout', function(e) {
+                        that._enableEdit(that._currentWidget, false);
+                        kendo.logToConsole('focusout from ' + e.target.toString());
+                    });
+                widget.trigger(constants.CLICK);
+            }
+        },
+        */
 
+        /**
+         * Remove an element from the page
+         * @private
+         */
+        _removePageElement: function() {
+            //TODO remove from value and call refresh
         },
 
         /**
@@ -245,11 +337,7 @@
                 $.each(that.value(), function(index, item) {
                     if ($.type(item.tool) === STRING) {
                         var tool = kidoju.tools[item.tool];
-                        if (tool instanceof kidoju.Tool) {
-                            var pageItem = tool.create(item);
-                            tool.draw(that.element, pageItem, that.mode());
-                            tool.addClickHandler(that.element, pageItem);
-                        }
+                        that._addPageElement(tool, item);
                     }
                 })
             }

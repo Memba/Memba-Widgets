@@ -1,0 +1,34 @@
+{
+    "name": "kidoju.widgets",
+    "description": "Widgets for the Kidoju learning platform",
+    "version": "0.1.0",
+    "copyright": "Copyright ©2013-2014 Memba® Sarl. All rights reserved.",
+    "keywords": ["Memba", "Kidoju", "Kendo UI", "Javascript", "Widgets"],
+    "homepage": "http://widgets.kidoju.com",
+    "author": "Memba Sarl",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Memba/Kidoju-Widgets.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Memba/Kidoju-Widgets/issues"
+    },
+    "licenses": [
+        {
+            "type": "GPL",
+            "url": "https://raw.github.com/Memba/Kidoju-Widgets/master/LICENSE-GPL"
+        }
+    ],
+    "devDependencies": {
+        "grunt": "~0.4.2",
+        "grunt-contrib-uglify": "~0.2.7",
+        "grunt-contrib-qunit": "~0.3.0",
+        "grunt-contrib-concat": "~0.3.0",
+        "grunt-contrib-jshint": "~0.8.0",
+        "grunt-contrib-watch": "~0.5.3",
+        "grunt-contrib-cssmin": "~0.7.0",
+        "grunt-contrib-csslint": "~0.2.0",
+        "grunt-contrib-yuidoc": "~0.5.0",
+        "grunt-kendo-lint": "0.0.3"
+    }
+}

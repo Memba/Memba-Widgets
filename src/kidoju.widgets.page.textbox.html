@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TextBox</title>
+    <link rel="stylesheet" href="styles/2013.3.1424/kendo.common.min.css">
+    <link rel="stylesheet" href="styles/2013.3.1424/kendo.default.min.css">
+    <link rel="stylesheet" href="styles/kidoju.widgets.page.css">
+    <link rel="stylesheet" href="styles/kidoju.widgets.toolbox.css">
+    <script src="js/2013.3.1424/jquery.min.js"></script>
+    <script src="js/2013.3.1424/kendo.all.min.js"></script>
+    <script src="js/vendor/jquery.transit.js"></script>
+    <script src="js/kidoju.tools.js"></script>
+    <script src="js/kidoju.widgets.toolbox.js"></script>
+    <!--script src="js/kifoju.widgets.navigation.js"></script-->
+    <script src="js/kidoju.widgets.page.js"></script>
+    <style>
+        body {background-color:darkgrey;}
+    </style>
+</head>
+<body>
+<input id="slider" value="100" />
+<div id="toolbox"></div>
+<div id="page"></div>
+</body>
+<script>
+    $(document).ready(function() {
+        var page = $('#page').kendoPage({
+            value: [
+                { id:'F33AB504-4CE0-498C-A827-43BEB7244853', tool : 'textbox', top: 150, left: 50, height: 100, width: 300, rotate: 45, defaults: { text: '' }, solutions: { text: 'Hello'} },
+                { id:'386410A7-77E1-4730-922A-5A5CFCA3F997', tool : 'textbox', top: 50, left: 350, height: 100, width: 300, rotate: 315, defaults: { text: '' }, solutions: { text: 'World' } }
+            ]
+        }).data('kendoPage');
+        $("#slider").kendoSlider({
+            increaseButtonTitle: "Zoom in",
+            decreaseButtonTitle: "Zoom out",
+            min: 0,
+            max: 100,
+            smallStep: 1,
+            largeStep: 10,
+            change: function(e) {
+                page.scale(e.value/100);
+            }
+        });
+        $('#toolbox').kendoToolbox();
+    });
+</script>
+</html>

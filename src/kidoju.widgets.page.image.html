@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image</title>
+    <link rel="stylesheet" href="styles/2013.3.1424/kendo.common.min.css">
+    <link rel="stylesheet" href="styles/2013.3.1424/kendo.default.min.css">
+    <link rel="stylesheet" href="styles/kidoju.widgets.page.css">
+    <link rel="stylesheet" href="styles/kidoju.widgets.toolbox.css">
+    <script src="js/2013.3.1424/jquery.min.js"></script>
+    <script src="js/2013.3.1424/kendo.all.min.js"></script>
+    <script src="js/vendor/jquery.transit.js"></script>
+    <script src="js/kidoju.tools.js"></script>
+    <script src="js/kidoju.widgets.toolbox.js"></script>
+    <!--script src="js/kifoju.widgets.navigation.js"></script-->
+    <script src="js/kidoju.widgets.page.js"></script>
+    <style>
+        body {background-color:darkgrey;}
+    </style>
+</head>
+<body>
+<input id="slider" value="100" />
+<div id="toolbox"></div>
+<div id="page"></div>
+</body>
+<script>
+    $(document).ready(function() {
+        var page = $('#page').kendoPage({
+            value: [
+                { id: '339C574A-5324-4D79-85F5-E9CF38999123', tool : 'image', top: 50, left: 50, height: 250, width: 250, rotate: 45, properties: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
+                { id: '779F1D71-3676-45DD-B2D1-B03B78733255', tool : 'image', top: 300, left: 300, height: 250, width: 250, rotate: 315, properties: { src: 'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg' } }
+            ]
+        }).data('kendoPage');
+        $('#slider').kendoSlider({
+            increaseButtonTitle: 'Zoom in',
+            decreaseButtonTitle: 'Zoom out',
+            min: 0,
+            max: 100,
+            smallStep: 1,
+            largeStep: 10,
+            change: function(e) {
+                page.scale(e.value/100);
+            }
+        });
+        $('#toolbox').kendoToolbox();
+    });
+</script>
+</html>

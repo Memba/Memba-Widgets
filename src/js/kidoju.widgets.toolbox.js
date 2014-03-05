@@ -13,7 +13,6 @@
         kidoju = global.kidoju,
 
         //TYPES
-        FUNCTION = 'function',
         STRING = 'string',
 
         //EVENTS
@@ -80,10 +79,10 @@
                 }
                 if (id !== that.options.tool) {
                     that.options.tools.set(ACTIVE_TOOL, id);
+                    //the change handler refreshes the widget
                     if(DEBUG && global.console) {
                         global.console.log(MODULE + 'tool changed for ' + id);
                     }
-                    //that.refresh();
                 }
             } else {
                 return that.options.tools.get(ACTIVE_TOOL);
@@ -108,6 +107,7 @@
             $(that.element).addClass(WIDGET_CLASS);
             $.each(that.options.tools, function(index, tool) {
                 if (tool instanceof kidoju.Tool && that.options.tools.hasOwnProperty(tool.id)) {
+                    //TODO Translate tooltips and consider SVG alternatives
                     var toolElement = $(kendo.format(IMAGE, that.options.path + tool.icon + '.svg', 'TODO: Translate'))
                         .attr(DATA_TOOL, tool.id)
                         .addClass(IMAGE_CLASS)
@@ -124,7 +124,11 @@
                     }
             });
             that.refresh();
-            that.options.tools.bind(CHANGE, $.proxy(that.refresh, that));
+            if ($.isFunction(that._refreshHandler)) {
+                that.options.tools.unbind(CHANGE, that._refreshHandler);
+            }
+            that._refreshHandler = $.proxy(that.refresh, that);
+            that.options.tools.bind(CHANGE, that._refreshHandler);
         },
 
         /**
@@ -133,8 +137,8 @@
          */
         refresh: function() {
             var that = this;
-            $(that.element).find('[' + DATA_SELECTED + ']').removeAttr(DATA_SELECTED);
-            $(that.element).find('[' + DATA_TOOL + '=' + that.tool() + ']').attr(DATA_SELECTED, true);
+            $(that.element).find('[' + DATA_SELECTED + ']').removeProp(DATA_SELECTED);
+            $(that.element).find('[' + DATA_TOOL + '=' + that.tool() + ']').prop(DATA_SELECTED, true);
         },
 
         /**
@@ -161,8 +165,10 @@
          */
         destroy: function () {
             var that = this;
-            //TODO: that.options.tools.bind(CHANGE, $.proxy(that.refresh, that));
-            thar._clear();
+            if ($.isFunction(that._refreshHandler)) {
+                that.options.tools.unbind(CHANGE, that._refreshHandler);
+            }
+            that._clear();
         }
 
     });

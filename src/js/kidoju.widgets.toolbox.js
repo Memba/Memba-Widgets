@@ -59,7 +59,7 @@
         options: {
             name: 'Toolbox',
             size: DEFAULT_SIZE,
-            path: './styles/images/',
+            path: './styles/images/toolbox/',
             tools: kidoju.tools
         },
 

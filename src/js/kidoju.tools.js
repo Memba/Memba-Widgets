@@ -128,43 +128,24 @@
         },
 
         /**
-         * create a pageItem (with methods) from a dataItem (persisted without methods)
-         * TODO: not sure this method belongs here
-         * @method create
-         * @param dataItem
-         * @returns {*}
-         */
-        getPageItem: function(dataItem) {
-            if (dataItem instanceof PageItem) {
-                return dataItem;
-            } else if (dataItem === undefined) {
-                return new PageItem({ id: kendo.guid(), tool: this.id });
-            } else if ($.isPlainObject(dataItem) && dataItem.tool === this.id) {
-                return new PageItem(dataItem);
-            } else {
-                throw new TypeError(); //We do not really know what to do with dataItem
-            }
-        },
-
-        /**
          * Returns a generic wrapper div for the page element derived from the page item
          * @method _getPageElementWrapper
-         * @param pageItem
+         * @param item
          * @private
          */
-        _getPageElementWrapper: function(pageItem) {
+        _getPageElementWrapper: function(item) {
             var that = this,
-                wrapper = $(kendo.format(WRAPPER, pageItem.id, pageItem.tool))
+                wrapper = $(kendo.format(WRAPPER, item.id, item.tool))
                 .css(POSITION, ABSOLUTE)
-                //.css('top', pageItem.top + PX)
-                //.css('left', pageItem.left + PX)
+                //.css('top', item.top + PX)
+                //.css('left', item.left + PX)
                 //.css(TOP, DEFAULT_TOP + PX)
                 //.css(LEFT, DEFAULT_LEFT + PX)
-                .css(HEIGHT, pageItem.height + PX)
-                .css(WIDTH, pageItem.width + PX)
+                .css(HEIGHT, item.height + PX)
+                .css(WIDTH, item.width + PX)
                 //http://www.paulirish.com/2012/why-moving-elements-with-translate-is-better-than-posabs-topleft/
-                //.css({rotate: pageItem.rotate})
-                .css({ translate: [pageItem.left, pageItem.top] , rotate: pageItem.rotate})
+                //.css({rotate: item.rotate})
+                .css({ translate: [item.left, item.top] , rotate: item.rotate})
                 .on(CLICK, $.proxy(that._clickHandler, that));
             return wrapper;
         },
@@ -238,12 +219,12 @@
                                     .height(size.height);
                                 that.resize(page, that._transform.id);
                             }
-                            else if (that._transform.type === 'rotate') {
-                                var degrees = ((that._transform.angle - that._transform.offset + Math.atan2(e.originalEvent.clientY - that._transform.origin.y, e.originalEvent.clientX - that._transform.origin.x))*180/Math.PI + 360) % 360;
+                            else if (that._transform.type === ROTATE) {
+                                var rotate = (that._transform.rotate - that._transform.offset + Math.atan2(e.originalEvent.clientY - that._transform.origin.y, e.originalEvent.clientX - that._transform.origin.x))*180/Math.PI;
                                 $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, that._transform.id))
-                                    .css(ROTATE, degrees + 'deg');
+                                    .css({rotate: rotate + 'deg'});
                                 $(page).find(HANDLER_SELECTOR)
-                                    .css(ROTATE, degrees + 'deg');
+                                    .css({rotate : rotate + 'deg'});
 
                                 // $('#console').html(
                                 // 'originX: ' + that._transform.origin.x + '<br/>' +
@@ -329,9 +310,9 @@
                             var originX = Math.round($(that._currentWidget).position().left + ($(that._currentWidget).width()*Math.abs(Math.cos(currentAngle)) + $(that._currentWidget).height()*Math.abs(Math.sin(currentAngle)))/2),
                                 originY = Math.round($(that._currentWidget).position().top + ($(that._currentWidget).width()*Math.abs(Math.sin(currentAngle)) + $(that._currentWidget).height()*Math.abs(Math.cos(currentAngle)))/2);
                             */
-                            var angle = parseInt(pageElement.css(ROTATE))*Math.PI/180,
-                                originX = (pageElement.position().left + pageElement.width()*Math.cos(angle) + pageElement.height()*Math.sin(angle))/2,
-                                originY = (pageElement.position().top + pageElement.width()*Math.sin(angle) + pageElement.height()*Math.cos(angle))/2;
+                            var rotate = parseInt(pageElement.css(ROTATE))*Math.PI/180,
+                                originX = (pageElement.position().left + pageElement.width()*Math.cos(rotate) + pageElement.height()*Math.sin(rotate))/2,
+                                originY = (pageElement.position().top + pageElement.width()*Math.sin(rotate) + pageElement.height()*Math.cos(rotate))/2;
                             that._transform = {
                                 type: ROTATE,
                                 id: id,
@@ -340,7 +321,7 @@
                                     x: originX,
                                     y: originY
                                 },
-                                angle: angle,
+                                rotate: rotate,
                                 //The offset angle takes into account the position of the handle that drives the rotation
                                 offset: Math.atan2(e.originalEvent.clientY - originY, e.originalEvent.clientX - originX)
                             };
@@ -395,92 +376,48 @@
         /**
          * @method draw
          * @param page
-         * @param pageItem
-         * @param mode
+         * @param item
          */
-        draw: function(page, pageItem, mode) {
-            $.noop();
+        draw: function(page, item) {
+            if(DEBUG && global.console) {
+                global.console.log(MODULE + 'drawing ' + item.tool + ' ' + item.id);
+            }
         },
 
         /**
          * @method resize
          * @param page
-         * @param pageItem
+         * @param item
          */
-        resize: function(page, pageItem) {
+        resize: function(page, item) {
             $.noop();
         },
 
         /**
          * @method edit
-         * @param pageItem
-         * @param mode
+         * @param item
+         * @param enable
          */
-        edit: function(pageItem, mode) {
+        edit: function(item, enable) {
             $.noop();
         },
 
         /**
          * @method validate
-         * @param pageItem
+         * @param item
          * @returns {boolean}
          */
-        validate: function(pageItem) {
+        validate: function(item) {
             return false;
-        }
-    });
+        },
 
-    /**
-     * A PageItem is what we store and a PageElement is what we display
-     * @class PageItem
-     * @type {void|*}
-     * TODO: Probably use a model rather than a class
-     */
-    var PageItem = kidoju.PageItem = kendo.Class.extend({
-        id: null,
-        tool: null,
-        top: DEFAULT_TOP,
-        left: DEFAULT_LEFT,
-        height: DEFAULT_HEIGHT,
-        width: DEFAULT_WIDTH,
-        rotate: DEFAULT_ROTATE,
-        properties: {},
-        fields: {},
-        defaults: {},
-        solutions: {},
-        init: function(dataItem) {
-            if (dataItem) {
-                if ($.type(dataItem.id) === STRING) {
-                    this.id = dataItem.id;
-                }
-                if ($.type(dataItem.tool) === STRING) {
-                    this.tool = dataItem.tool;
-                }
-                if ($.type(dataItem.top) === NUMBER) {
-                    this.top = dataItem.top;
-                }
-                if ($.type(dataItem.left) === NUMBER) {
-                    this.left = dataItem.left;
-                }
-                if ($.type(dataItem.height) === NUMBER) {
-                    this.height = dataItem.height;
-                }
-                if ($.type(dataItem.width) === NUMBER) {
-                    this.width = dataItem.width;
-                }
-                if ($.type(dataItem.rotate) === NUMBER) {
-                    this.rotate = dataItem.rotate; //TODO modulo 360
-                }
-                if($.isPlainObject(dataItem.properties) && !$.isEmptyObject(dataItem.properties)) {
-                    for (var prop in dataItem.properties) {
-                        if (dataItem.properties.hasOwnProperty(prop)) {
-                            this.properties[prop] = dataItem.properties[prop];
-                        }
-                    }
-                }
-                //TODO fields
-                //TODO: defaults
-                //TODO: solutions
+        /**
+         * @method remove
+         * @param item
+         */
+        remove: function (item) {
+            if(DEBUG && global.console) {
+                global.console.log(MODULE + 'removing ' + item.tool + ' ' + item.id);
             }
         }
     });
@@ -513,30 +450,55 @@
         id: 'label',
         icon: 'document_orientation_landscape',
         cursor: CURSOR_CROSSHAIR,
+        //Use template
         properties: [
             {id: 'text', type: 'text'},
             {id: 'font', type: 'font'},
             {id: 'color', type: 'color'}
         ],
+        /**
+         * Label constructor
+         * @param options
+         */
         init: function(options) {
             kidoju.Tool.fn.init.call(this, options);
         },
-        draw: function(page, pageItem, mode) {
-            var pageElement = this._getPageElementWrapper(pageItem),
-                innerElement = $(kendo.format('<span>{0}</span>',pageItem.properties.text));
-            innerElement.css('font-family', pageItem.properties.font);
-            innerElement.css('color', pageItem.properties.color);
+        /**
+         * Draws an item on a page
+         * TODO: use kendo templates
+         * @param page
+         * @param item
+         */
+        draw: function(page, item) {
+            kidoju.Tool.fn.draw.call(this, page, item);
+            var pageElement = this._getPageElementWrapper(item),
+                properties = JSON.parse(item.properties),
+                innerElement = $(kendo.format('<span>{0}</span>',properties.text));
+            innerElement.css('font-family', properties.font);
+            innerElement.css('color', properties.color);
             pageElement.append(innerElement);
             $(page).append(pageElement);
-            this.resize(page, pageItem.id);
+            this.resize(page, item.id);
         },
+        /**
+         * Resizes the content
+         * @param page
+         * @param id
+         */
         resize: function(page, id) {
+            kidoju.Tool.fn.resize.call(this, page, id);
             var pageElement = $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, id));
             pageElement.fitText();
         },
-        edit: function(pageItem, mode, enabled) {
-            //if ($(pageItem).hasClass('kj-widget')) {
-            //    $(pageItem).prop('contenteditable', enabled);
+        /**
+         * Switch edit mode on/off
+         * @param item
+         * @param enabled
+         */
+        edit: function(item, enabled) {
+            kidoju.Tool.fn.edit.call(this, item, enabled);
+            //if ($(item).hasClass('kj-widget')) {
+            //    $(item).prop('contenteditable', enabled);
             //}
         }
     });
@@ -553,12 +515,13 @@
         init: function(options) {
             kidoju.Tool.fn.init.call(this, options);
         },
-        draw: function(page, pageItem, mode) {
-            var pageElement = this._getPageElementWrapper(pageItem),
-                innerElement = $(kendo.format('<img src="{0}">', pageItem.properties.src));
+        draw: function(page, item) {
+            var pageElement = this._getPageElementWrapper(item),
+                properties = JSON.parse(item.properties),
+                innerElement = $(kendo.format('<img src="{0}">', properties.src));
             pageElement.append(innerElement);
             $(page).append(pageElement);
-            this.resize(page, pageItem.id);
+            this.resize(page, item.id);
         },
         resize: function(page, id) {
             var pageElement = $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, id)),
@@ -566,7 +529,7 @@
             innerElement.width(pageElement.width());
             innerElement.height(pageElement.height());
         },
-        edit: function(pageItem, mode, enabled) {
+        edit: function(item, enabled) {
         }
     });
     kidoju.tools.register(Image);
@@ -591,12 +554,13 @@
         init: function(options) {
             kidoju.Tool.fn.init.call(this, options);
         },
-        draw: function(page, pageItem, mode) {
-            var pageElement = this._getPageElementWrapper(pageItem),
+        draw: function(page, item) {
+            var pageElement = this._getPageElementWrapper(item),
+                //properties = JSON.parse(item.properties),
                 innerElement = $('<input type="text">');
             pageElement.append(innerElement);
             $(page).append(pageElement);
-            this.resize(page, pageItem.id);
+            this.resize(page, item.id);
         },
         resize: function(page, id) {
             var pageElement = $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, id)),
@@ -605,13 +569,13 @@
             innerElement.height(pageElement.height());
             innerElement.css('font-size', Math.floor(0.9*pageElement.height())); //TODO: review ratio
         },
-        edit: function(pageItem, mode, enabled) {
+        edit: function(item, enabled) {
             /*
-            if ($(pageItem).hasClass('kj-widget')) {
+            if ($(item).hasClass('kj-widget')) {
                 if(enabled) {
-                    $(pageItem).find('input').removeProp('disabled');
+                    $(item).find('input').removeProp('disabled');
                 } else {
-                    $(pageItem).find('input').prop('disabled', !enabled);
+                    $(item).find('input').prop('disabled', !enabled);
                 }
             }
             */

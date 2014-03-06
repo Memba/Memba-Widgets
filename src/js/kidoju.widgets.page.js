@@ -19,6 +19,7 @@
 
         //Events
         CLICK = 'click',
+        CHANGE= 'change',
 
         //Size
         DEFAULT_SCALE = 1,
@@ -68,8 +69,9 @@
             if(DEBUG && global.console) {
                 global.console.log(MODULE + 'widget initialized');
             }
+            that._dataSource();
             that._layout();
-            that.refresh();
+            //that.refresh();
         },
 
         /**
@@ -77,12 +79,13 @@
          */
         options: {
             name: "Page",
+            autoBind: true,
             mode: MODE.PLAY,
             scale: DEFAULT_SCALE,
             height: DEFAULT_HEIGHT,
             width: DEFAULT_WIDTH,
             tools: kidoju.tools,
-            value: null
+            dataSource: null
         },
 
         /**
@@ -97,7 +100,7 @@
                     throw new TypeError();
                 }
                 //TODO: test range
-                if(that.options.mode !== value) {
+                if(value !== that.options.mode) {
                     that.options.mode = value;
                     that.refresh();
                 }
@@ -115,10 +118,13 @@
         scale: function (value) {
             var that = this;
             if (value) {
-                if($.type(value) !== NUMBER || value <=0) {
+                if($.type(value) !== NUMBER) {
                     throw new TypeError();
                 }
-                if(that.options.scale !== value) {
+                if (value < 0) {
+                    throw new RangeError();
+                }
+                if(value !== that.options.scale) {
                     that.options.scale = value;
                     if(DEBUG && global.console) {
                         global.console.log(MODULE + 'scale changed to: ' + value);
@@ -142,7 +148,12 @@
                 if($.type(value) !== NUMBER) {
                     throw new TypeError();
                 }
-                that.options.height = value;
+                if (value < 0) {
+                    throw new RangeError();
+                }
+                if (value !== that.options.height) {
+                    that.options.height = value;
+                }
             }
             else {
                 return that.options.height;
@@ -160,7 +171,12 @@
                 if($.type(value) !== NUMBER) {
                     throw new TypeError();
                 }
-                that.options.width = value;
+                if (value < 0) {
+                    throw new RangeError();
+                }
+                if(value !== that.options.width) {
+                    that.options.width = value;
+                }
             }
             else {
                 return that.options.width;
@@ -168,45 +184,46 @@
         },
 
         /**
-         * Value of the widget
-         * @param value
-         * @returns {*}
+         * Changes the dataSource
+         * @method setDataSource
+         * @param dataSource
          */
-        value:  function (value) {
-            var that = this;
-            if (value) {
-                //TODO: we need a well formatted object
-                that.options.value = value;
-            }
-            else {
-                return that.options.value;
-            }
+        setDataSource: function(dataSource) {
+            // set the internal datasource equal to the one passed in by MVVM
+            this.options.dataSource = dataSource;
+            // rebuild the datasource if necessary, or just reassign
+            this._dataSource();
         },
 
         /**
-         * Returns the size for internal use
-         * @returns {*}
-        _getSize: function() {
-            var that = this,
-                element = that.element,
-                size = kendo.dimensions(this.element);
-
-             if(element.width()>0){
-                size.width = element.width();
-            }
-            if(element.height()>0){
-                size.height = element.height();
-            }
-            if(that.options.width){
-                size.width = that.options.width;
-            }
-            if(that.options.height){
-                size.height = that.options.height;
-            }
-
-            return size;
-        },
+         * Binds the widget to the change event of the dataSource
+         * See http://docs.telerik.com/kendo-ui/howto/create-custom-kendo-widget
+         * @method _dataSource
+         * @private
          */
+        _dataSource: function() {
+            var that = this;
+            // if the DataSource is defined and the _refreshHandler is wired up, unbind because
+            // we need to rebuild the DataSource
+            if ( that.dataSource instanceof kendo.data.DataSource && that._refreshHandler ) {
+                that.dataSource.unbind(CHANGE, that._refreshHandler);
+            }
+            else {
+                that._refreshHandler = $.proxy(that.refresh, that);
+            }
+
+            if (that.options.dataSource) {
+                // returns the datasource OR creates one if using array or configuration object
+                that.dataSource = kendo.data.DataSource.create(that.options.dataSource);
+
+                // bind to the change event to refresh the widget
+                that.dataSource.bind( CHANGE, that._refreshHandler );
+
+                if (that.options.autoBind) {
+                    that.dataSource.fetch();
+                }
+            }
+        },
 
         /**
          * Builds the widget layout
@@ -231,37 +248,52 @@
                 var id = that.options.tools.get('active');
                 if (id !== POINTER) {
                     var tool = that.options.tools[id];
-                    that._addPageElement(tool, undefined, e.offsetX, e.offsetY);
-
+                    //TODO: show creation dialog and test OK/Cancel
+                    /*
+                    All default properties are missing when created as follows
+                    var item = new kidoju.PageItem({
+                        id: kendo.guid(),
+                        tool: id,
+                        left:  e.offsetX,
+                        top: e.offsetY
+                    });
+                    */
+                    var item = new kidoju.PageItem();
+                    item.id = kendo.guid();
+                    item.tool = id;
+                    item.left = e.offsetX,
+                    item.top = e.offsetY,
+                    that.dataSource.add(item);
                     that.options.tools.set('active', POINTER);
                 } else {
-                    var tool = that.options.tools[id];
-                    //TODO: maybe trigger a click on the page
-                    tool._hideHandles(that.element);
+                    var tool = that.options.tools[POINTER];
+                    if ($.isFunction(tool._hideHandles)) {
+                        tool._hideHandles(that.element);
+                    }
                 }
             });
         },
 
         /**
          * Add an element to the page either on a click or from persistence
-         * @param tool
          * @param item
-         * @param x1
-         * @param y1
+         * @param left
+         * @param top
          * @private
          */
-        _addPageElement: function(tool, item, x1, y1, x2, y2) {
+        _addPageElement: function(item, left, top) {
             var that = this;
-            if (tool instanceof kidoju.Tool) {
-                var pageItem = tool.getPageItem(item);
-                if ($.type(x1) === NUMBER) {
-                    pageItem.left = x1;
+            if (item instanceof kidoju.PageItem) {
+                var tool = kidoju.tools[item.tool];
+                if (tool instanceof kidoju.Tool) {
+                    if ($.type(left) === NUMBER) {
+                        item.set('left', left);
+                    }
+                    if ($.type(top) === NUMBER) {
+                        item.set('top', top);
+                    }
+                    tool.draw(that.element, item);
                 }
-                if ($.type(y1) === NUMBER) {
-                    pageItem.top = y1;
-                }
-                //TODO: x2, y2 are for setting height and width when dragging
-                tool.draw(that.element, pageItem);
             }
         },
 
@@ -323,8 +355,12 @@
          * Remove an element from the page
          * @private
          */
-        _removePageElement: function() {
-            //TODO remove from value and call refresh
+        _removePageElement: function(id) {
+            var that = this;
+            //TODO hide handles where necessary
+            //TODO use a tool method to avoid leaks (remove all event handlers, ...)
+            $(that.element).find(kendo.format('[data-id="{0}"]', id))
+                .remove();
         },
 
         /**
@@ -332,15 +368,42 @@
          */
         refresh: function(e) {
             var that = this;
-            //TODO: clear or only redraw what needs to be redrawn
-            if ($.isArray(that.value())) { //TODO: Maybe an observable array
-                $.each(that.value(), function(index, item) {
-                    if ($.type(item.tool) === STRING) {
-                        var tool = kidoju.tools[item.tool];
-                        that._addPageElement(tool, item);
+            if (e === undefined || e.action === undefined) {
+                if (that.dataSource instanceof kendo.data.DataSource) {
+                    var data = that.dataSource.data();
+                    for (var i = 0; i < data.length; i++) {
+                        var item = data[i];
+                        if ($.type(item.tool) === STRING) {
+                            //TODO: clear or only redraw what needs to be redrawn
+                            that._addPageElement(item);
+                        }
                     }
-                })
+                }
+            } else if (e.action === 'add') {
+                for (var i = 0; i < e.items.length; i++) {
+                    that._addPageElement(e.items[i]);
+                }
+            } else if (e.action === 'remove') {
+                for (var i = 0; i < e.items.length; i++) {
+                    that._removePageElement(e.items[i].id);
+                }
+            } else if (e.action === 'itemchange') {
+                for (var i = 0; i < e.items.length; i++) {
+                    //TODO test e.field
+
+                    //that._removePageElement(e.items[i].id);
+                }
             }
+        },
+
+        /**
+         * Page Elements
+         * @method items
+         * @returns {XMLList|*}
+         */
+        items: function() {
+            //TODO: do not return handler
+            return this.element.children();
         },
 
         /**
@@ -366,6 +429,8 @@
         destroy: function () {
             var that = this;
             that._clear();
+            that.setDataSource(null);
+            Widget.fn.destroy.call(this);
         }
 
     });

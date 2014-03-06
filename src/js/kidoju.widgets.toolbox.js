@@ -169,6 +169,7 @@
                 that.options.tools.unbind(CHANGE, that._refreshHandler);
             }
             that._clear();
+            Widget.fn.destroy.call(this);
         }
 
     });

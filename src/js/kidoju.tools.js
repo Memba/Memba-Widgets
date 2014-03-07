@@ -38,7 +38,8 @@
         DEFAULT_MARGIN = 20,
 
         //Miscellaneous
-        WRAPPER = '<div data-id="{0}" data-tool="{1}" class="kj-element"></div>',
+        ELEMENT = '<div data-id="{0}" data-tool="{1}" class="kj-element"></div>',
+        ELEMENT_CLASS = 'kj-element',
         DATA_ID = 'data-id',
         DATA_TOOL = 'data-tool',
         DATA_ELEMENT = 'data-element',
@@ -102,6 +103,8 @@
         id: null,
         icon: null,
         cursor: null,
+        height: 250,
+        width: 250,
         playBar: [],
         designBar: [],
         properties: {},
@@ -118,35 +121,49 @@
                 if ($.type(options.icon) === STRING) {
                     this.icon = options.icon;
                 }
-                if ($.type(options.name) === STRING) {
-                    this.name = options.name;
-                }
+                //if ($.type(options.name) === STRING) {
+                //    this.name = options.name;
+                //}
                 if ($.type(options.cursor) === STRING) {
                     this.cursor = options.cursor;
                 }
+                if ($.type(options.height) === NUMBER) {
+                    this.height = options.height;
+                }
+                if ($.type(options.width) === NUMBER) {
+                    this.width = options.width;
+                }
             }
         },
-
+        /**
+         * Initializes properties
+         * @private
+         */
+        _getProperties: function() {
+            var properties = {};
+            //make sure any new property is added
+            for(var field in this.properties) {
+                properties[field] = this.properties[field].value;
+            }
+            return properties;
+        },
         /**
          * Returns a generic wrapper div for the page element derived from the page item
-         * @method _getPageElementWrapper
+         * @method _getWrapper
          * @param item
          * @private
          */
-        _getPageElementWrapper: function(item) {
+        _getWrapper: function(item) {
             var that = this,
-                wrapper = $(kendo.format(WRAPPER, item.id, item.tool))
+                wrapper = $(kendo.format(ELEMENT, item.id, item.tool))
                 .css(POSITION, ABSOLUTE)
-                //.css('top', item.top + PX)
-                //.css('left', item.left + PX)
-                //.css(TOP, DEFAULT_TOP + PX)
-                //.css(LEFT, DEFAULT_LEFT + PX)
                 .css(HEIGHT, item.height + PX)
                 .css(WIDTH, item.width + PX)
                 //http://www.paulirish.com/2012/why-moving-elements-with-translate-is-better-than-posabs-topleft/
                 //.css({rotate: item.rotate})
                 .css({ translate: [item.left, item.top] , rotate: item.rotate})
-                .on(CLICK, $.proxy(that._clickHandler, that));
+                .on(CLICK, that._clickHandler)
+                .on(RESIZE, that.onResize);
             return wrapper;
         },
 
@@ -158,17 +175,24 @@
          */
         _clickHandler: function(e) {
             //TODO, we need to consider the mode here too
-            var page = $(e.currentTarget).closest(kendo.roleSelector('page'));
-            var id = $(e.currentTarget).attr(DATA_ID);
-            if ($.type(id) === STRING) {
-                if (DEBUG && global.console) {
-                    global.console.log(MODULE + 'click on ' + id);
+            var element = $(e.currentTarget);
+            if (element.hasClass(ELEMENT_CLASS)) {
+                var page = element.closest(kendo.roleSelector('page')),
+                    elementId = element.attr(DATA_ID),
+                    toolId = element.attr(DATA_TOOL);
+                if ($.type(elementId) === STRING) {
+                    if (DEBUG && global.console) {
+                        global.console.log(MODULE + 'click on ' + elementId);
+                    }
+                    var tool = kidoju.tools[toolId];
+                    if (tool instanceof kidoju.Tool) {
+                        tool._prepareHandles(page);
+                        tool._showHandles(page, elementId);
+                    }
+                    //prevent click event to bubble on page
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
-                this._prepareHandles(page);
-                this._showHandles(page, id);
-                //prevent click event to bubble on page
-                e.preventDefault();
-                e.stopPropagation();
             }
         },
 
@@ -213,11 +237,13 @@
                                     //.css('width', Math.round(that._transform.offset.x + e.originalEvent.clientX) + 'px')
                                     //.css('height', Math.round(that._transform.offset.y + e.originalEvent.clientY) + 'px');
                                     .width(size.width)
-                                    .height(size.height);
+                                    .height(size.height)
+                                    //Trigger a resize event to resize the content
+                                    .trigger(RESIZE, size);
                                 $(page).find(HANDLER_SELECTOR)
                                     .width(size.width)
                                     .height(size.height);
-                                that.resize(page, that._transform.id);
+                                //that.resize(page, that._transform.id);
                             }
                             else if (that._transform.type === ROTATE) {
                                 var rotate = (that._transform.rotate - that._transform.offset + Math.atan2(e.originalEvent.clientY - that._transform.origin.y, e.originalEvent.clientX - that._transform.origin.x))*180/Math.PI;
@@ -382,49 +408,86 @@
             if(DEBUG && global.console) {
                 global.console.log(MODULE + 'drawing ' + item.tool + ' ' + item.id);
             }
+            var wrapper = this._getWrapper(item),
+                content = this.getHtml(item);
+            wrapper.append(content);
+            $(page).append(wrapper);
+            //trigger resize
+            //this.resize(page, item);
         },
 
         /**
-         * @method resize
-         * @param page
+         * method getHtml
          * @param item
+         * @param mode
+         * @returns {string}
          */
-        resize: function(page, item) {
+        getHtml: function(item, mode) {
+            return '';
+        },
+        /**
+         * onResize Event Handler
+         * @method onResize
+         * @param e
+         */
+        onResize: function(e) {
             $.noop();
         },
 
-        /**
-         * @method edit
-         * @param item
-         * @param enable
-         */
-        edit: function(item, enable) {
-            $.noop();
-        },
-
-        /**
-         * @method validate
-         * @param item
-         * @returns {boolean}
-         */
-        validate: function(item) {
-            return false;
-        },
-
-        /**
-         * @method remove
-         * @param item
-         */
-        remove: function (item) {
-            if(DEBUG && global.console) {
-                global.console.log(MODULE + 'removing ' + item.tool + ' ' + item.id);
-            }
-        }
     });
 
     /*******************************************************************************************
-     * TODO Editor classes
+     * Property classes
      *******************************************************************************************/
+    var properties = kidoju.properties = kidoju.properties || {};
+
+    var Property = properties.Property = kendo.Class.extend({
+        value: undefined,
+        init: function(value) {
+            this.value = value;
+        },
+        getEditor: function(enabled) {
+            return '';
+        }
+        //validation????????
+    });
+
+    var TextProperty = properties.TextProperty = properties.Property.extend({
+        init: function(value) {
+            this.value = value;
+        },
+        getEditor: function(enabled) {
+            return '';
+        }
+    });
+
+    var IntegerProperty = properties.IntegerProperty = properties.Property.extend({
+        value: 0,
+        init: function(value) {
+            this.value = value;
+        },
+        getEditor: function(enabled) {
+            return '';
+        }
+    });
+
+    var BooleanProperty = properties.BooleanProperty = properties.Property.extend({
+        value: false,
+        init: function(value) {
+            this.value = value;
+        },
+        getEditor: function(enabled) {
+            return '';
+        }
+    });
+
+    var FontProperty = properties.FontProperty = properties.Property.extend({
+
+    });
+
+    var ColorProperty = properties.ColorProperty = properties.Property.extend({
+
+    });
 
 
     /*******************************************************************************************
@@ -450,56 +513,76 @@
         id: 'label',
         icon: 'document_orientation_landscape',
         cursor: CURSOR_CROSSHAIR,
-        //Use template
-        properties: [
-            {id: 'text', type: 'text'},
-            {id: 'font', type: 'font'},
-            {id: 'color', type: 'color'}
-        ],
-        /**
-         * Label constructor
-         * @param options
-         */
-        init: function(options) {
-            kidoju.Tool.fn.init.call(this, options);
+        templates: {
+            default: '<span style="font-family: #= font #; color: #= color#;">#= text#</span>'
+        },
+        height: 250,
+        width: 250,
+        properties: {
+            text: new properties.TextProperty('Label'),
+            font: new properties.TextProperty('Georgia, serif'),
+            color: new properties.TextProperty('#FF0000')
         },
         /**
-         * Draws an item on a page
-         * TODO: use kendo templates
-         * @param page
+         * Get Html content
+         * @method getHtml
          * @param item
+         * @param mode
+         * @returns {*}
          */
-        draw: function(page, item) {
-            kidoju.Tool.fn.draw.call(this, page, item);
-            var pageElement = this._getPageElementWrapper(item),
-                properties = JSON.parse(item.properties),
-                innerElement = $(kendo.format('<span>{0}</span>',properties.text));
-            innerElement.css('font-family', properties.font);
-            innerElement.css('color', properties.color);
-            pageElement.append(innerElement);
-            $(page).append(pageElement);
-            this.resize(page, item.id);
+        getHtml: function(item, mode) {
+            var template = kendo.template(this.templates.default);
+            return template(item.getProperties());
         },
         /**
-         * Resizes the content
-         * @param page
-         * @param id
+         * onResize Event Handler
+         * @method onResize
+         * @param e
+         * @param size
          */
-        resize: function(page, id) {
-            kidoju.Tool.fn.resize.call(this, page, id);
-            var pageElement = $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, id));
-            pageElement.fitText();
-        },
-        /**
-         * Switch edit mode on/off
-         * @param item
-         * @param enabled
-         */
-        edit: function(item, enabled) {
-            kidoju.Tool.fn.edit.call(this, item, enabled);
-            //if ($(item).hasClass('kj-widget')) {
-            //    $(item).prop('contenteditable', enabled);
-            //}
+        onResize: function(e, size) {
+            var element = $(e.currentTarget);
+            if(element.hasClass(ELEMENT_CLASS)) {
+                var content = element.find('>input');
+                if ($.isPlainObject(size)) {
+                    if ($.type(size.width) === NUMBER) {
+                        content.width(size.width);
+                    }
+                    if ($.type(size.height) === NUMBER) {
+                        content.height(size.height);
+                        content.css('font-size', Math.floor(0.75*size.height));
+                    }
+                    /*
+                    var size = parseInt(element.css('font-size'));
+                    var width = element.width();
+                    var height = element.height();
+                    // parseFloat(settings.maxFontSize)), parseFloat(settings.minFontSize)
+                    var clone = element.clone()
+                        .hide()
+                        .css(POSITION, ABSOLUTE)
+                        //.css('overflow', 'visible')
+                        .css('height', 'auto')
+                        .css('border', '1px solid red')
+                        .width(width);
+                    element.after(clone);
+                    //if no overflow, increase until overflow
+                    while(clone.height() < height) {
+                        size++;
+                        clone.css('font-size', size + PX);
+                    }
+                    //if overflow, decrease until no overflow
+                    while(clone.height() > height) {
+                        size--;
+                        clone.css('font-size', size + PX);
+                    }
+                    clone.remove();
+                    element.css('font-size', size + PX);
+                    */
+                }
+                //prevent click event to bubble on page
+                e.preventDefault();
+                e.stopPropagation();
+            }
         }
     });
     kidoju.tools.register(Label);
@@ -512,24 +595,47 @@
         id: 'image',
         icon: 'painting_landscape',
         cursor: CURSOR_CROSSHAIR,
-        init: function(options) {
-            kidoju.Tool.fn.init.call(this, options);
+        templates: {
+            default: '<img src="#= src #" alt="#= alt #">'
         },
-        draw: function(page, item) {
-            var pageElement = this._getPageElementWrapper(item),
-                properties = JSON.parse(item.properties),
-                innerElement = $(kendo.format('<img src="{0}">', properties.src));
-            pageElement.append(innerElement);
-            $(page).append(pageElement);
-            this.resize(page, item.id);
+        height: 250,
+        width: 250,
+        properties: {
+            src: new properties.TextProperty(''),
+            alt: new properties.TextProperty('')
         },
-        resize: function(page, id) {
-            var pageElement = $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, id)),
-                innerElement = pageElement.find('>img');
-            innerElement.width(pageElement.width());
-            innerElement.height(pageElement.height());
+        /**
+         * Get Html content
+         * @method getHtml
+         * @param item
+         * @param mode
+         * @returns {*}
+         */
+        getHtml: function(item) {
+            var template = kendo.template(this.templates.default);
+            return template(item.getProperties());
         },
-        edit: function(item, enabled) {
+        /**
+         * onResize Event Handler
+         * @method onResize
+         * @param e
+         */
+        onResize: function(e, size) {
+            var element = $(e.currentTarget);
+            if(element.hasClass(ELEMENT_CLASS)) {
+                var content = element.find('>img');
+                if ($.isPlainObject(size)) {
+                    if ($.type(size.width) === NUMBER) {
+                        content.width(size.width);
+                    }
+                    if ($.type(size.height) === NUMBER) {
+                        content.height(size.height);
+                    }
+                }
+                //prevent click event to bubble on page
+                e.preventDefault();
+                e.stopPropagation();
+            }
         }
     });
     kidoju.tools.register(Image);
@@ -542,46 +648,104 @@
         id: 'textbox',
         icon: 'text_field',
         cursor: CURSOR_CROSSHAIR,
-        fields: {
-            text: ''
+        templates: {
+            default: '<input type="text">'
         },
-        defaults: {
-            text: null
+        height: 250,
+        width: 250,
+        properties: {
         },
-        solutions: {
-            text: null
+        /**
+         * Get Html content
+         * @method getHtml
+         * @param item
+         * @param mode
+         * @returns {*}
+         */
+        getHtml: function(item, mode) {
+            var template = kendo.template(this.templates.default);
+            return template(item.getProperties());
         },
-        init: function(options) {
-            kidoju.Tool.fn.init.call(this, options);
-        },
-        draw: function(page, item) {
-            var pageElement = this._getPageElementWrapper(item),
-                //properties = JSON.parse(item.properties),
-                innerElement = $('<input type="text">');
-            pageElement.append(innerElement);
-            $(page).append(pageElement);
-            this.resize(page, item.id);
-        },
-        resize: function(page, id) {
-            var pageElement = $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, id)),
-                innerElement = pageElement.find('>input');
-            innerElement.width(pageElement.width());
-            innerElement.height(pageElement.height());
-            innerElement.css('font-size', Math.floor(0.9*pageElement.height())); //TODO: review ratio
-        },
-        edit: function(item, enabled) {
-            /*
-            if ($(item).hasClass('kj-widget')) {
-                if(enabled) {
-                    $(item).find('input').removeProp('disabled');
-                } else {
-                    $(item).find('input').prop('disabled', !enabled);
+        /**
+         * onResize Event Handler
+         * @method onResize
+         * @param e
+         * @param size
+         */
+        onResize: function(e, size) {
+            var element = $(e.currentTarget);
+            if(element.hasClass(ELEMENT_CLASS)) {
+                var content = element.find('>input');
+                if ($.isPlainObject(size)) {
+                    if ($.type(size.width) === NUMBER) {
+                        content.width(size.width);
+                    }
+                    if ($.type(size.height) === NUMBER) {
+                        content.height(size.height);
+                        content.css('font-size', Math.floor(0.75*size.height));
+                    }
                 }
+                //prevent click event to bubble on page
+                e.preventDefault();
+                e.stopPropagation();
             }
-            */
         }
     });
     kidoju.tools.register(Textbox);
+
+    /**
+     * @class Button tool
+     * @type {void|*}
+     */
+    var Button = kidoju.Tool.extend({
+        id: 'button',
+        icon: 'button',
+        cursor: CURSOR_CROSSHAIR,
+        templates: {
+            default: '<button type="button">#= text #</button>'
+        },
+        height: 250,
+        width: 250,
+        properties: {
+            text: new properties.TextProperty('Button')
+        },
+        getHtml: function(item, mode) {
+            var template = kendo.template(this.templates.default);
+            return template(item.getProperties());
+        },
+        addEvents: function(item, mode) {
+
+        },
+        removeEvents: function(item, mode) {
+
+        },
+        /**
+         * onResize Event Handler
+         * @method onResize
+         * @param e
+         * @param size
+         */
+        onResize: function(e, size) {
+            var element = $(e.currentTarget);
+            if(element.hasClass(ELEMENT_CLASS)) {
+                var content = element.find('>button');
+                if ($.isPlainObject(size)) {
+                    if ($.type(size.width) === NUMBER) {
+                        content.width(size.width);
+                    }
+                    if ($.type(size.height) === NUMBER) {
+                        content.height(size.height);
+                        content.css('font-size', Math.floor(0.75*size.height));
+                    }
+                }
+                //prevent click event to bubble on page
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }
+    });
+    kidoju.tools.register(Button);
+
 
     /**
      * We could also consider
@@ -601,69 +765,5 @@
      * MathJax
      * Grid
      */
-
-
-    /*******************************************************************************************
-     * jQuery fitText plugin
-     *******************************************************************************************/
-
-    $.fn.fitText = function(/*options*/) {
-        //we could use bigtext, fittext or slabtext
-        //https://github.com/zachleat/BigText
-        //https://github.com/davatron5000/FitText.js/
-        //https://github.com/freqDec/slabText/
-
-        // Setup options
-        /*
-        var settings = $.extend({
-                'minFontSize' : Number.NEGATIVE_INFINITY,
-                'maxFontSize' : Number.POSITIVE_INFINITY
-            }, options);
-        */
-
-        return this.each(function(){
-
-            //http://stackoverflow.com/questions/783899/how-can-i-count-text-lines-inside-an-dom-element-can-i
-            //http://jsfiddle.net/C3hTV/
-            // Reference the element
-            var element = $(this);
-
-            // Resizer() resizes text
-            var resizer = function () {
-                var size = parseInt(element.css('font-size'));
-                var width = element.width();
-                var height = element.height();
-                // parseFloat(settings.maxFontSize)), parseFloat(settings.minFontSize)
-                var clone = element.clone()
-                    .hide()
-                    .css(POSITION, ABSOLUTE)
-                    //.css('overflow', 'visible')
-                    .css('height', 'auto')
-                    .css('border', '1px solid red')
-                    .width(width);
-                element.after(clone);
-                //if no overflow, increase until overflow
-                while(clone.height() < height) {
-                    size++;
-                    clone.css('font-size', size + PX);
-                }
-                //if overflow, decrease until no overflow
-                while(clone.height() > height) {
-                    size--;
-                    clone.css('font-size', size + PX);
-                }
-                clone.remove();
-                element.css('font-size', size + PX);
-            };
-
-            // Call once to set.
-            resizer();
-
-            // Call on resize. Opera debounces their resize by default.
-            //$(window).on('resize orientationchange', resizer);
-
-        });
-
-    };
 
 }(jQuery));

@@ -28,8 +28,12 @@
 
         //Modes
         MODE = {
-            PLAY: 0,
-            DESIGN: 1 //TODO
+            THUMBNAIL: 0,
+            DESIGN: 1,
+            SOLUTION: 2,
+            //Play modes
+            LEARN: 3,
+            TEST: 4
         },
 
         //Miscellaneous
@@ -74,13 +78,23 @@
             //that.refresh();
         },
 
+        modes: {
+            thumbnail: MODE.THUMBNAIL,
+            design: MODE.DESIGN,
+            solution: MODE.SOLUTION,
+            //Play modes
+            learn: MODE.LEARN,
+            test: MODE.TEST
+            //We could consider TEST_WITH_HINTS
+        },
+
         /**
          * Widget options
          */
         options: {
             name: "Page",
             autoBind: true,
-            mode: MODE.PLAY,
+            mode: MODE.TEST,
             scale: DEFAULT_SCALE,
             height: DEFAULT_HEIGHT,
             width: DEFAULT_WIDTH,
@@ -249,20 +263,12 @@
                 if (id !== POINTER) {
                     var tool = that.options.tools[id];
                     //TODO: show creation dialog and test OK/Cancel
-                    /*
-                    All default properties are missing when created as follows
                     var item = new kidoju.PageItem({
                         id: kendo.guid(),
                         tool: id,
-                        left:  e.offsetX,
-                        top: e.offsetY
+                        left: e.offsetX,
+                        top: e.offsetY,
                     });
-                    */
-                    var item = new kidoju.PageItem();
-                    item.id = kendo.guid();
-                    item.tool = id;
-                    item.left = e.offsetX,
-                    item.top = e.offsetY,
                     that.dataSource.add(item);
                     that.options.tools.set('active', POINTER);
                 } else {
@@ -298,58 +304,58 @@
         },
 
         /*
-        _addWidget: function(tool, position, properties) {
-            var that = this;
-            if ((tool instanceof kidoju.Tool) && $.isFunction(tool.draw)) {
-                position = $.extend({top: 10, left: 10, width: 200, height: 100}, position);
-                var widget = $(kendo.format(
-                    '<div id={0} class="kj-widget" data-tool="{1}" style="position:absolute; top:{2}px; left:{3}px; width:{4}px; height:{5}px"></div>',
-                    kendo.guid(),
-                    tool.id,
-                    position.top,
-                    position.left,
-                    position.width,
-                    position.height
-                ));
-                tool.draw(widget);
-                var find = that.element.find('.kj-widget');
-                if (find.length > 0) {
-                    find.last().after(widget);
-                } else {
-                    $(that.element).prepend(widget);
-                }
-                widget
-                    .on(constants.CLICK, function(e) {
-                        if(that._currentWidget) {
-                            that._enableEdit(that._currentWidget, false);
-                            that._hideHandles();
-                        }
-                        var targetWidget = $(e.target).closest('.kj-widget').get();
-                        if (targetWidget !== that._currentWidget) {
-                            that._currentWidget = targetWidget;
-                            that._prepareContextMenu();
-                        }
-                        that._prepareHandles();
-                        that._showHandles();
-                        e.preventDefault();
-                        e.stopPropagation();
-                    })
-                    .on(constants.DBLCLICK, function(e){
-                        var widget = $(e.target).closest('.kj-widget');
-                        that._enableEdit(that._currentWidget, true);
-                    })
-                    .on('blur', function(e) {
-                        that._enableEdit(that._currentWidget, false);
-                        kendo.logToConsole('blur from ' + e.target.toString());
-                    })
-                    .on('focusout', function(e) {
-                        that._enableEdit(that._currentWidget, false);
-                        kendo.logToConsole('focusout from ' + e.target.toString());
-                    });
-                widget.trigger(constants.CLICK);
-            }
-        },
-        */
+         _addWidget: function(tool, position, properties) {
+         var that = this;
+         if ((tool instanceof kidoju.Tool) && $.isFunction(tool.draw)) {
+         position = $.extend({top: 10, left: 10, width: 200, height: 100}, position);
+         var widget = $(kendo.format(
+         '<div id={0} class="kj-widget" data-tool="{1}" style="position:absolute; top:{2}px; left:{3}px; width:{4}px; height:{5}px"></div>',
+         kendo.guid(),
+         tool.id,
+         position.top,
+         position.left,
+         position.width,
+         position.height
+         ));
+         tool.draw(widget);
+         var find = that.element.find('.kj-widget');
+         if (find.length > 0) {
+         find.last().after(widget);
+         } else {
+         $(that.element).prepend(widget);
+         }
+         widget
+         .on(constants.CLICK, function(e) {
+         if(that._currentWidget) {
+         that._enableEdit(that._currentWidget, false);
+         that._hideHandles();
+         }
+         var targetWidget = $(e.target).closest('.kj-widget').get();
+         if (targetWidget !== that._currentWidget) {
+         that._currentWidget = targetWidget;
+         that._prepareContextMenu();
+         }
+         that._prepareHandles();
+         that._showHandles();
+         e.preventDefault();
+         e.stopPropagation();
+         })
+         .on(constants.DBLCLICK, function(e){
+         var widget = $(e.target).closest('.kj-widget');
+         that._enableEdit(that._currentWidget, true);
+         })
+         .on('blur', function(e) {
+         that._enableEdit(that._currentWidget, false);
+         kendo.logToConsole('blur from ' + e.target.toString());
+         })
+         .on('focusout', function(e) {
+         that._enableEdit(that._currentWidget, false);
+         kendo.logToConsole('focusout from ' + e.target.toString());
+         });
+         widget.trigger(constants.CLICK);
+         }
+         },
+         */
 
         /**
          * Remove an element from the page

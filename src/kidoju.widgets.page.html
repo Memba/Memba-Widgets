@@ -19,7 +19,13 @@
     </style>
 </head>
 <body>
-<input id="slider" value="100" />
+<div>
+    <input id="slider" value="100" />
+    <input id="design" type="radio" name="mode" value="design" checked=true /><label for="design">design</label>
+    <input id="solution" type="radio" name="mode" value="solution" /><label for="solution">solution</label>
+    <input id="learn" type="radio" name="mode" value="test" /><label for="learn">learn</label>
+    <input id="test" type="radio" name="mode" value="test" /><label for="test">test</label>
+</div>
 <div id="toolbox"></div>
 <div id="page"></div>
 <div id="grid"></div>
@@ -114,7 +120,23 @@
 
         $('#toolbox').kendoToolbox();
 
-        dataSource.read();
+        $('input[name=mode]').on('change', function(e) {
+            switch(e.currentTarget.value) {
+                case "design":
+                    page.mode(kendo.ui.Page.fn.modes.design);
+                    break;
+                case "solution":
+                    page.mode(kendo.ui.Page.fn.modes.solution);
+                    break;
+                case "learn":
+                    page.mode(kendo.ui.Page.fn.modes.learn);
+                    break;
+                case "test":
+                    page.mode(kendo.ui.Page.fn.modes.test);
+                    break;
+            }
+        });
+
     });
 </script>
 </html>

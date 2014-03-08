@@ -361,7 +361,7 @@
          */
         _hasHandles: function(page, id) {
             return ($(page).find(HANDLER_SELECTOR).attr(DATA_ELEMENT) === id);
-        }
+        },
 
         /**
          * Hide handles

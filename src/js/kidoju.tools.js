@@ -30,20 +30,15 @@
         DROP = 'drop',
 
         //Defaults
-        DEFAULT_TOP = 0,
-        DEFAULT_LEFT = 0,
-        DEFAULT_HEIGHT = 100,
-        DEFAULT_WIDTH = 300,
-        DEFAULT_ROTATE = 0,
-        DEFAULT_MARGIN = 20,
+        HANDLER_MARGIN = 20,
 
         //Miscellaneous
         ELEMENT = '<div data-id="{0}" data-tool="{1}" class="kj-element"></div>',
         ELEMENT_CLASS = 'kj-element',
+        ELEMENT_SELECTOR = '.kj-element[data-id="{0}"]',
         DATA_ID = 'data-id',
         DATA_TOOL = 'data-tool',
         DATA_ELEMENT = 'data-element',
-        ATTRIBUTE_SELECTOR = '[{0}="{1}"]',
         HANDLER = '<div class="kj-handler"></div>',
         HANDLER_SELECTOR = '.kj-handler',
         HANDLER_DRAG = '<span class="kj-handler-button kj-drag-button"></span>',
@@ -141,9 +136,10 @@
          */
         _getProperties: function() {
             var properties = {};
-            //make sure any new property is added
             for(var field in this.properties) {
-                properties[field] = this.properties[field].value;
+                if (this.properties.hasOwnProperty(field)) {
+                    properties[field] = this.properties[field].value;
+                }
             }
             return properties;
         },
@@ -160,40 +156,12 @@
                 .css(HEIGHT, item.height + PX)
                 .css(WIDTH, item.width + PX)
                 //http://www.paulirish.com/2012/why-moving-elements-with-translate-is-better-than-posabs-topleft/
-                //.css({rotate: item.rotate})
                 .css({ translate: [item.left, item.top] , rotate: item.rotate})
-                .on(CLICK, that._clickHandler)
-                .on(RESIZE, that.onResize);
+                .on(CLICK, that.onClick)
+                .on(TRANSLATE, that.onTranslate)
+                .on(RESIZE, that.onResize)
+                .on(ROTATE, that.onRotate)
             return wrapper;
-        },
-
-        /**
-         * Click handler on page element
-         * Displays the handlers
-         * @param e
-         * @private
-         */
-        _clickHandler: function(e) {
-            //TODO, we need to consider the mode here too
-            var element = $(e.currentTarget);
-            if (element.hasClass(ELEMENT_CLASS)) {
-                var page = element.closest(kendo.roleSelector('page')),
-                    elementId = element.attr(DATA_ID),
-                    toolId = element.attr(DATA_TOOL);
-                if ($.type(elementId) === STRING) {
-                    if (DEBUG && global.console) {
-                        global.console.log(MODULE + 'click on ' + elementId);
-                    }
-                    var tool = kidoju.tools[toolId];
-                    if (tool instanceof kidoju.Tool) {
-                        tool._prepareHandles(page);
-                        tool._showHandles(page, elementId);
-                    }
-                    //prevent click event to bubble on page
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }
         },
 
         /**
@@ -217,14 +185,21 @@
                     .on(DRAGOVER, function (e) {
                         //TODO Implement mode
                         if ($.isPlainObject(that._transform) && $.type(that._transform.id) === STRING)  {
+                            var handler = $(page).find(HANDLER_SELECTOR),
+                                element = $(page).find(kendo.format(ELEMENT_SELECTOR, that._transform.id));
                             if (that._transform.type === TRANSLATE) {
                                 //TODO check the bounds of container
-                                //TODO: snap to grid option
-                                var translate = (that._transform.offset.x + e.originalEvent.clientX) + PX + ',' + (that._transform.offset.y + e.originalEvent.clientY) + PX;
-                                $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, that._transform.id))
+                                //TODO: snap to grid option (use modulo size of the grid)
+                                var position = {
+                                        left: that._transform.offset.x + e.originalEvent.clientX,
+                                        top: that._transform.offset.y + e.originalEvent.clientY
+                                    },
+                                    translate = position.left + PX + ',' + position.top + PX;
+                                handler
                                     .css(TRANSLATE, translate);
-                                $(page).find(HANDLER_SELECTOR)
-                                    .css(TRANSLATE, translate);
+                                element
+                                    .css(TRANSLATE, translate)
+                                    .trigger(TRANSLATE, position);
                             }
                             else if (that._transform.type === RESIZE) {
                                 //TODO check the bounds of container
@@ -233,31 +208,21 @@
                                     width: that._transform.offset.x + e.originalEvent.clientX,
                                     height: that._transform.offset.y + e.originalEvent.clientY
                                 };
-                                $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, that._transform.id))
-                                    //.css('width', Math.round(that._transform.offset.x + e.originalEvent.clientX) + 'px')
-                                    //.css('height', Math.round(that._transform.offset.y + e.originalEvent.clientY) + 'px');
-                                    .width(size.width)
-                                    .height(size.height)
-                                    //Trigger a resize event to resize the content
-                                    .trigger(RESIZE, size);
-                                $(page).find(HANDLER_SELECTOR)
+                                handler
                                     .width(size.width)
                                     .height(size.height);
-                                //that.resize(page, that._transform.id);
+                                element
+                                    .width(size.width)
+                                    .height(size.height)
+                                    .trigger(RESIZE, size);
                             }
                             else if (that._transform.type === ROTATE) {
                                 var rotate = (that._transform.rotate - that._transform.offset + Math.atan2(e.originalEvent.clientY - that._transform.origin.y, e.originalEvent.clientX - that._transform.origin.x))*180/Math.PI;
-                                $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, that._transform.id))
-                                    .css({rotate: rotate + 'deg'});
-                                $(page).find(HANDLER_SELECTOR)
-                                    .css({rotate : rotate + 'deg'});
-
-                                // $('#console').html(
-                                // 'originX: ' + that._transform.origin.x + '<br/>' +
-                                // 'originY: ' + that._transform.origin.y + '<br/>' +
-                                // 'angle: ' + angle + '<br/>'
-                                // );
-
+                                handler
+                                    .css(ROTATE, rotate + 'deg');
+                                element
+                                    .css(ROTATE, rotate + 'deg')
+                                    .trigger(ROTATE, rotate);
                             }
                         }
                         e.preventDefault();
@@ -277,7 +242,7 @@
                         //if found
                         if ($.type(id) === STRING) {
                             //get the page element
-                            var pageElement = $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, id));
+                            var pageElement = $(page).find(kendo.format(ELEMENT_SELECTOR, id));
                             //find the current position
                             var position = pageElement.css(TRANSLATE).split(',');
                             //create a transformation object
@@ -300,7 +265,7 @@
                         //if found
                         if ($.type(id) === STRING) {
                             //get the page element
-                            var pageElement = $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, id));
+                            var pageElement = $(page).find(kendo.format(ELEMENT_SELECTOR, id));
                             //create a transformation object
                             that._transform = {
                                 type: RESIZE,
@@ -320,7 +285,7 @@
                         //if found
                         if ($.type(id) === STRING) {
                             //get the page element
-                            var pageElement = $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, id));
+                            var pageElement = $(page).find(kendo.format(ELEMENT_SELECTOR, id));
                             /*
                             var cssTransform = $(that._currentWidget).css('transform'),
                                 pos1 = cssTransform.indexOf('('),
@@ -375,19 +340,28 @@
          * @private
          */
         _showHandles: function(page, id){
-            var pageElement = $(page).find(kendo.format(ATTRIBUTE_SELECTOR, DATA_ID, id));
+            var pageElement = $(page).find(kendo.format(ELEMENT_SELECTOR, id));
             $(page).find(HANDLER_SELECTOR)
-                //.css(TOP, pageElement.css(TOP))
-                //.css(LEFT, pageElement.css(LEFT))
                 .css(HEIGHT, pageElement.css(HEIGHT))
                 .css(WIDTH, pageElement.css(WIDTH))
-                .css(PADDING, DEFAULT_MARGIN + PX)
-                .css(MARGIN, '-' + DEFAULT_MARGIN + PX)
+                .css(PADDING, HANDLER_MARGIN + PX)
+                .css(MARGIN, '-' + HANDLER_MARGIN + PX)
                 .css(TRANSLATE, pageElement.css(TRANSLATE))
                 .css(ROTATE, pageElement.css(ROTATE))
                 .css(DISPLAY, BLOCK)
                 .attr(DATA_ELEMENT, id);
         },
+
+        /**
+         * Test handles for a page element
+         * @param page
+         * @param id
+         * @returns {boolean}
+         * @private
+         */
+        _hasHandles: function(page, id) {
+            return ($(page).find(HANDLER_SELECTOR).attr(DATA_ELEMENT) === id);
+        }
 
         /**
          * Hide handles
@@ -403,8 +377,10 @@
          * @method draw
          * @param page
          * @param item
+         * @returns {*}
+         * @private
          */
-        draw: function(page, item) {
+        _draw: function(page, item) {
             if(DEBUG && global.console) {
                 global.console.log(MODULE + 'drawing ' + item.tool + ' ' + item.id);
             }
@@ -412,8 +388,16 @@
                 content = this.getHtml(item);
             wrapper.append(content);
             $(page).append(wrapper);
-            //trigger resize
-            //this.resize(page, item);
+            wrapper.trigger(RESIZE, { height: item.height, width: item.width });
+            return wrapper;
+        },
+
+        _updateContent: function() {
+
+        },
+
+        _removeContent: function() {
+
         },
 
         /**
@@ -425,19 +409,47 @@
         getHtml: function(item, mode) {
             return '';
         },
+
+        /**
+         * Click handler on page element
+         * @method onClick
+         * @param e
+         */
+        onClick: function(e) {
+            //TODO, we need to consider the mode here too
+            var element = $(e.currentTarget);
+            if (element.hasClass(ELEMENT_CLASS)) {
+                var page = element.closest(kendo.roleSelector('page')),
+                    elementId = element.attr(DATA_ID),
+                    toolId = element.attr(DATA_TOOL);
+                if ($.type(elementId) === STRING) {
+                    if (DEBUG && global.console) {
+                        global.console.log(MODULE + 'click on ' + elementId);
+                    }
+                    var tool = kidoju.tools[toolId];
+                    if (tool instanceof kidoju.Tool) {
+                        tool._prepareHandles(page);
+                        tool._showHandles(page, elementId);
+                    }
+                    //prevent click event to bubble on page
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        },
+
         /**
          * onResize Event Handler
          * @method onResize
          * @param e
          */
         onResize: function(e) {
-            $.noop();
+            var element = $(e.currentTarget);
         },
-
     });
 
     /*******************************************************************************************
-     * Property classes
+     * PropertyAdapter classes
      *******************************************************************************************/
     var properties = kidoju.properties = kidoju.properties || {};
 
@@ -449,6 +461,7 @@
         getEditor: function(enabled) {
             return '';
         }
+        //Toolbar???????????????
         //validation????????
     });
 
@@ -489,6 +502,10 @@
 
     });
 
+    /*******************************************************************************************
+     * FieldAdapter classes
+     *******************************************************************************************/
+
 
     /*******************************************************************************************
      * Tool classes
@@ -516,8 +533,8 @@
         templates: {
             default: '<span style="font-family: #= font #; color: #= color#;">#= text#</span>'
         },
-        height: 250,
-        width: 250,
+        height: 100,
+        width: 300,
         properties: {
             text: new properties.TextProperty('Label'),
             font: new properties.TextProperty('Georgia, serif'),
@@ -543,44 +560,37 @@
         onResize: function(e, size) {
             var element = $(e.currentTarget);
             if(element.hasClass(ELEMENT_CLASS)) {
-                var content = element.find('>input');
+                var content = element.find('>span');
                 if ($.isPlainObject(size)) {
                     if ($.type(size.width) === NUMBER) {
                         content.width(size.width);
                     }
                     if ($.type(size.height) === NUMBER) {
                         content.height(size.height);
-                        content.css('font-size', Math.floor(0.75*size.height));
                     }
-                    /*
-                    var size = parseInt(element.css('font-size'));
-                    var width = element.width();
-                    var height = element.height();
-                    // parseFloat(settings.maxFontSize)), parseFloat(settings.minFontSize)
-                    var clone = element.clone()
+                    var fontSize = parseInt(content.css('font-size'));
+                    var clone = content.clone()
                         .hide()
                         .css(POSITION, ABSOLUTE)
-                        //.css('overflow', 'visible')
                         .css('height', 'auto')
-                        .css('border', '1px solid red')
-                        .width(width);
+                        .width(size.width);
                     element.after(clone);
                     //if no overflow, increase until overflow
-                    while(clone.height() < height) {
-                        size++;
-                        clone.css('font-size', size + PX);
+                    while(clone.height() < size.height) {
+                        fontSize++;
+                        clone.css('font-size', fontSize + PX);
                     }
                     //if overflow, decrease until no overflow
-                    while(clone.height() > height) {
-                        size--;
-                        clone.css('font-size', size + PX);
+                    while(clone.height() > size.height) {
+                        fontSize--;
+                        clone.css('font-size', fontSize + PX);
                     }
                     clone.remove();
-                    element.css('font-size', size + PX);
-                    */
+                    content.css('font-size', fontSize + PX);
                 }
-                //prevent click event to bubble on page
+                //prevent any side effect
                 e.preventDefault();
+                //prevent event to bubble on page
                 e.stopPropagation();
             }
         }
@@ -632,8 +642,9 @@
                         content.height(size.height);
                     }
                 }
-                //prevent click event to bubble on page
+                //prevent any side effect
                 e.preventDefault();
+                //prevent event to bubble on page
                 e.stopPropagation();
             }
         }
@@ -651,8 +662,8 @@
         templates: {
             default: '<input type="text">'
         },
-        height: 250,
-        width: 250,
+        height: 100,
+        width: 300,
         properties: {
         },
         /**
@@ -685,8 +696,9 @@
                         content.css('font-size', Math.floor(0.75*size.height));
                     }
                 }
-                //prevent click event to bubble on page
+                //prevent any side effect
                 e.preventDefault();
+                //prevent event to bubble on page
                 e.stopPropagation();
             }
         }
@@ -704,8 +716,8 @@
         templates: {
             default: '<button type="button">#= text #</button>'
         },
-        height: 250,
-        width: 250,
+        height: 100,
+        width: 300,
         properties: {
             text: new properties.TextProperty('Button')
         },
@@ -738,8 +750,9 @@
                         content.css('font-size', Math.floor(0.75*size.height));
                     }
                 }
-                //prevent click event to bubble on page
+                //prevent any side effect
                 e.preventDefault();
+                //prevent event to bubble on page
                 e.stopPropagation();
             }
         }
@@ -765,5 +778,9 @@
      * MathJax
      * Grid
      */
+
+    /*****************************************************************************
+    * TODO: Behaviours
+    ******************************************************************************/
 
 }(jQuery));

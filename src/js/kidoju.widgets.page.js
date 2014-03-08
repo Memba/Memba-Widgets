@@ -19,9 +19,18 @@
 
         //Events
         CLICK = 'click',
-        CHANGE= 'change',
+        CHANGE = 'change',
+        TRANSLATE = 'translate',
+        RESIZE = 'resize',
+        ROTATE = 'rotate',
 
         //Size
+        POSITION = 'position',
+        RELATIVE = 'relative',
+        TOP = 'top',
+        LEFT = 'left',
+        HEIGHT = 'height',
+        WIDTH = 'width',
         DEFAULT_SCALE = 1,
         DEFAULT_WIDTH = 1024,
         DEFAULT_HEIGHT = 768,
@@ -39,6 +48,7 @@
         //Miscellaneous
         POINTER = 'pointer',
         CLASS = 'k-widget kj-page',
+        ELEMENT_SELECTOR = '.kj-element[data-id="{0}"]',
 
         DEBUG = true,
         MODULE = 'kidoju.widgets.page: ';
@@ -244,40 +254,45 @@
          * @private
          */
         _layout: function () {
-            var that = this;
+            var that = this,
+                page = $(that.element);
             that._clear();
             //Setup page
-            $(that.element)
+            //TODO: Implement an innner DIV containing all page elements
+            //and have the handler set outside this div
+            page
                 .addClass(CLASS)
-                .css('position', 'relative') //!important
+                .css(POSITION, RELATIVE) //!important
                 .css('overflow', 'hidden')
-                .css('height', that.height() + 'px')
-                .css('width', that.width() + 'px');
-            //Implement click event
-            $(that.element).on(CLICK, function(e) {
-                //TODO test mode
-                if(DEBUG && global.console) {
-                    global.console.log(MODULE + 'page clicked at (' + e.offsetX + ',' + e.offsetY + ')');
-                }
-                var id = that.options.tools.get('active');
-                if (id !== POINTER) {
-                    var tool = that.options.tools[id];
-                    //TODO: show creation dialog and test OK/Cancel
-                    var item = new kidoju.PageItem({
-                        id: kendo.guid(),
-                        tool: id,
-                        left: e.offsetX,
-                        top: e.offsetY,
-                    });
-                    that.dataSource.add(item);
-                    that.options.tools.set('active', POINTER);
-                } else {
-                    var tool = that.options.tools[POINTER];
-                    if ($.isFunction(tool._hideHandles)) {
-                        tool._hideHandles(that.element);
+                .css(HEIGHT, that.height() + 'px')
+                .css(WIDTH, that.width() + 'px')
+                .on(CLICK, function(e) {
+                    //TODO test mode
+                    if(DEBUG && global.console) {
+                        global.console.log(MODULE + 'page clicked at (' + e.offsetX + ',' + e.offsetY + ')');
                     }
-                }
-            });
+                    var id = that.options.tools.get('active');
+                    if (id !== POINTER) {
+                        var tool = that.options.tools[id];
+                        //TODO: show creation dialog and test OK/Cancel
+                        var item = new kidoju.PageItem({
+                            id: kendo.guid(),
+                            tool: id,
+                            left: e.offsetX,
+                            top: e.offsetY,
+                            width: tool.width,
+                            height: tool.height
+                            //rotate: tool.rotate?
+                        });
+                        that.dataSource.add(item);
+                        that.options.tools.set('active', POINTER);
+                    } else {
+                        var tool = that.options.tools[POINTER];
+                        if ($.isFunction(tool._hideHandles)) {
+                            tool._hideHandles(that.element);
+                        }
+                    }
+                })
         },
 
         /**
@@ -288,84 +303,69 @@
          * @private
          */
         _addPageElement: function(item, left, top) {
-            var that = this;
+            var that = this,
+                page = $(that.element);
             if (item instanceof kidoju.PageItem) {
                 var tool = kidoju.tools[item.tool];
                 if (tool instanceof kidoju.Tool) {
                     if ($.type(left) === NUMBER) {
-                        item.set('left', left);
+                        item.set(LEFT, left);
                     }
                     if ($.type(top) === NUMBER) {
-                        item.set('top', top);
+                        item.set(TOP, top);
                     }
-                    tool.draw(that.element, item);
+                    var pageElement = tool._draw(page, item);
+                    /*
+                     tool.draw(widget);
+                     var find = that.element.find('.kj-widget');
+                     if (find.length > 0) {
+                     find.last().after(widget);
+                     } else {
+                     $(that.element).prepend(widget);
+                     }
+                     */
+                    pageElement
+                        .on(TRANSLATE, function (e, position) {
+                            var pageElement = $(e.currentTarget),
+                                page = pageElement.closest(kendo.roleSelector('page')),
+                                widget = page.data('kendoPage'),
+                                id = pageElement.data('id'),
+                                item = widget.dataSource.get(id);
+                            item.set(TOP, position.top);
+                            item.set(LEFT, position.left);
+                        })
+                        .on(RESIZE, function(e, size) {
+                            var pageElement = $(e.currentTarget),
+                                page = pageElement.closest(kendo.roleSelector('page')),
+                                widget = page.data('kendoPage'),
+                                id = pageElement.data('id'),
+                                item = widget.dataSource.get(id);
+                            item.set(HEIGHT, size.height);
+                            item.set(WIDTH, size.width);
+                        })
+                        .on(ROTATE, function(e, rotate) {
+                            var pageElement = $(e.currentTarget),
+                                page = pageElement.closest(kendo.roleSelector('page')),
+                                widget = page.data('kendoPage'),
+                                id = pageElement.data('id'),
+                                item = widget.dataSource.get(id);
+                            item.set(ROTATE, rotate);
+                        });
                 }
             }
         },
-
-        /*
-         _addWidget: function(tool, position, properties) {
-         var that = this;
-         if ((tool instanceof kidoju.Tool) && $.isFunction(tool.draw)) {
-         position = $.extend({top: 10, left: 10, width: 200, height: 100}, position);
-         var widget = $(kendo.format(
-         '<div id={0} class="kj-widget" data-tool="{1}" style="position:absolute; top:{2}px; left:{3}px; width:{4}px; height:{5}px"></div>',
-         kendo.guid(),
-         tool.id,
-         position.top,
-         position.left,
-         position.width,
-         position.height
-         ));
-         tool.draw(widget);
-         var find = that.element.find('.kj-widget');
-         if (find.length > 0) {
-         find.last().after(widget);
-         } else {
-         $(that.element).prepend(widget);
-         }
-         widget
-         .on(constants.CLICK, function(e) {
-         if(that._currentWidget) {
-         that._enableEdit(that._currentWidget, false);
-         that._hideHandles();
-         }
-         var targetWidget = $(e.target).closest('.kj-widget').get();
-         if (targetWidget !== that._currentWidget) {
-         that._currentWidget = targetWidget;
-         that._prepareContextMenu();
-         }
-         that._prepareHandles();
-         that._showHandles();
-         e.preventDefault();
-         e.stopPropagation();
-         })
-         .on(constants.DBLCLICK, function(e){
-         var widget = $(e.target).closest('.kj-widget');
-         that._enableEdit(that._currentWidget, true);
-         })
-         .on('blur', function(e) {
-         that._enableEdit(that._currentWidget, false);
-         kendo.logToConsole('blur from ' + e.target.toString());
-         })
-         .on('focusout', function(e) {
-         that._enableEdit(that._currentWidget, false);
-         kendo.logToConsole('focusout from ' + e.target.toString());
-         });
-         widget.trigger(constants.CLICK);
-         }
-         },
-         */
 
         /**
          * Remove an element from the page
          * @private
          */
         _removePageElement: function(id) {
-            var that = this;
+            var that = this,
+                page = $(that.element);
             //TODO hide handles where necessary
             //TODO use a tool method to avoid leaks (remove all event handlers, ...)
-            $(that.element).find(kendo.format('[data-id="{0}"]', id))
+            page.find(kendo.format(ELEMENT_SELECTOR, id))
+                .off()
                 .remove();
         },
 
@@ -394,10 +394,29 @@
                     that._removePageElement(e.items[i].id);
                 }
             } else if (e.action === 'itemchange') {
+                var page = $(that.element);
                 for (var i = 0; i < e.items.length; i++) {
-                    //TODO test e.field
-
-                    //that._removePageElement(e.items[i].id);
+                    //NOTE e.field cannot be relied upon, especially when resizing
+                    //e.field takes a value of height or width when both change
+                    //id and tool are not supposed to change
+                    var pageElement = page.find(kendo.format(ELEMENT_SELECTOR, e.items[i].id));
+                    //id is not suppoed to change
+                    //tool is not supposed to change
+                    if(pageElement.css(TRANSLATE) != e.items[i].left + 'px,' + e.items[i].top + 'px') {
+                        pageElement.css(TRANSLATE, e.items[i].left + 'px,' + e.items[i].top + 'px');
+                    }
+                    if(pageElement.height() !== e.items[i].height || pageElement.width() !== e.items[i].width) {
+                        pageElement.height(e.items[i].height);
+                        pageElement.width(e.items[i].width);
+                        //We need to trigger the resize event to ensure the content is resized
+                        //but this will update the item triggering a refresh and potentially creating an infinite loop and a stack overflow.
+                        //In order to prevent it we test a change of value hereabove, so that the loop stops when values are equal
+                        pageElement.trigger(RESIZE, { height: e.items[i].height, width: e.items[i].width });
+                    }
+                    if(pageElement.css(ROTATE) != e.items[i].rotate) {
+                        pageElement.css(ROTATE, e.items[i].rotate + 'deg');
+                    }
+                    //TODO properties
                 }
             }
         },

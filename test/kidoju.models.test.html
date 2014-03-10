@@ -2,13 +2,19 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Models Tests</title>
+    <title>Kidoju.models tests</title>
     <link href="./qunit/qunit.css" rel="stylesheet">
     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="./qunit/qunit.js"></script>
-    <script src="kendo.all.js"></script>
+    <script src="./qunit/blanket.min.js"></script>
+    <!--script src="./qunit/blanket.js" data-cover-flags="debug"></script-->
+    <!--script src="http://cdn.kendostatic.com/2013.3.1324/js/kendo.all.min.js"></script-->
+    <script src="./kendo/kendo.core.js"></script>
+    <script src="./kendo/kendo.data.js"></script>
+    <script src="./kendo/kendo.binder.js"></script>
+    <script src="./kendo/kendo.scheduler.js"></script>
     <script src="../src/js/kidoju.tools.js"></script>
-    <script src="../src/js/kidoju.models.js"></script>
+    <script src="../src/js/kidoju.models.js" data-cover></script>
 </head>
 <body>
 <div id="qunit"></div>

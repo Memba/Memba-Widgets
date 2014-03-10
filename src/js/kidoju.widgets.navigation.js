@@ -1,4 +1,4 @@
-//Copyright ©2011-2012 Memba® Sarl. All rights reserved.
+//Copyright ©2013-2014 Memba® Sarl. All rights reserved.
 /*jslint browser:true*/
 /*jshint browser:true*/
 

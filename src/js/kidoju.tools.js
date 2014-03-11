@@ -79,6 +79,9 @@
             if($.type(Class.fn) === OBJECT) {
                 var obj = new Class();
                 if(obj instanceof Tool && $.type(obj.id) === STRING) {
+                    if (obj.id === 'active') {
+                        throw new Error('You cannot name your tool [active]');
+                    }
                     if (!this[obj.id]) { //make sure our system tools are not replaced
                         this[obj.id] = obj;
                         if (obj.id === POINTER) {
@@ -495,11 +498,17 @@
     });
 
     var FontProperty = properties.FontProperty = properties.Property.extend({
-
+        //TODO
     });
 
     var ColorProperty = properties.ColorProperty = properties.Property.extend({
-
+        value: false,
+        init: function(value) {
+            this.value = value;
+        },
+        getEditor: function(enabled) {
+            return '';
+        }
     });
 
     /*******************************************************************************************

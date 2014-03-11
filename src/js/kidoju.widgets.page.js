@@ -47,7 +47,7 @@
 
         //Miscellaneous
         POINTER = 'pointer',
-        CLASS = 'k-widget kj-page',
+        WIDGET_CLASS = 'k-widget kj-page',
         ELEMENT_SELECTOR = '.kj-element[data-id="{0}"]',
 
         DEBUG = true,
@@ -261,7 +261,7 @@
             //TODO: Implement an innner DIV containing all page elements
             //and have the handler set outside this div
             page
-                .addClass(CLASS)
+                .addClass(WIDGET_CLASS)
                 .css(POSITION, RELATIVE) //!important
                 .css('overflow', 'hidden')
                 .css(HEIGHT, that.height() + 'px')
@@ -441,11 +441,10 @@
             //kendo.unbind($(that.element));
             //unbind all other events
             $(that.element).find('*').off();
-            $(that.element).off();
-            //remove descendants
-            $(that.element).empty();
-            //remove element classes
-            $(that.element).removeClass(CLASS);
+            $(that.element)
+                .off()
+                .empty()
+                .removeClass(WIDGET_CLASS);
         },
 
         /**
@@ -453,9 +452,10 @@
          */
         destroy: function () {
             var that = this;
+            Widget.fn.destroy.call(that);
             that._clear();
             that.setDataSource(null);
-            Widget.fn.destroy.call(this);
+            kendo.destroy(that.element);
         }
 
     });

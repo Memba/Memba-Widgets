@@ -165,11 +165,12 @@
          */
         destroy: function () {
             var that = this;
+            Widget.fn.destroy.call(that);
+            that._clear();
             if ($.isFunction(that._refreshHandler)) {
                 that.options.tools.unbind(CHANGE, that._refreshHandler);
             }
-            that._clear();
-            Widget.fn.destroy.call(this);
+            kendo.destroy(that.element);
         }
 
     });

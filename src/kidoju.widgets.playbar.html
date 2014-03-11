@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>kidoju.widgets.playbar</title>
+    <link rel="stylesheet" href="styles/2013.3.1424/kendo.common.min.css">
+    <link rel="stylesheet" href="styles/2013.3.1424/kendo.default.min.css">
+    <link rel="stylesheet" href="styles/kidoju.widgets.playbar.css">
+    <script src="js/2013.3.1424/jquery.min.js"></script>
+    <script src="js/2013.3.1424/kendo.all.min.js"></script>
+    <script src="js/vendor/jquery.transit.js"></script>
+    <script src="js/kidoju.models.js"></script>
+    <script src="js/kidoju.tools.js"></script>
+    <script src="js/kidoju.widgets.playbar.js"></script>
+</head>
+<body>
+<div id="playbar1"></div>
+<!--div id="playbar2" data-role="playbar"></div-->
+<!-- TODO select data-bind=""></select-->
+</body>
+<script>
+    var pageCollectionData = [
+        {
+            id: '29c14ae2-496b-49f5-9551-e0d7e4aa6032',
+            items: []
+        },
+        {
+            id: 'c0878ced-8e3f-4161-a83a-049caed02d53',
+            items: []
+        },
+        {
+            id: '1a195c9b-44b2-4241-978a-7fefc0e93994',
+            items: []
+        },
+        {
+            id: '5f897a69-94b3-4c3a-b39b-c5ee0f9a4424',
+            items: []
+        },
+        {
+            id: 'dee7e01e-6b0a-43ea-a46f-c7d270fbacea',
+            items: []
+        },
+        {
+            id: '78a61473-d74e-4ef4-a962-6eb50c94d565',
+            items: []
+        },
+        {
+            id: '5bf4a471-7e17-4360-a2fa-e3766e622c47',
+            items: []
+        },
+        {
+            id: 'ffab38ff-939d-4684-b3e4-1274b4dee29a',
+            items: []
+        },
+        {
+            id: 'c10b791d-6327-44c1-b6f0-d3d8c388ef49',
+            items: []
+        },
+        {
+            id: '909ce2a5-32d6-4526-abb9-e1bfba3e76ea',
+            items: []
+        }
+    ];
+    var pageCollectionDataSource = new kidoju.PageCollectionDataSource({ data:pageCollectionData });
+
+    $(document).ready(function() {
+        $('#playbar1').kendoPlaybar({
+            dataSource: pageCollectionDataSource,
+            buttonCount: 3
+        });
+        //kendo.bind('body', viewModel);
+    });
+</script>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>kidoju.widget.toolbox</title>
+    <link rel="stylesheet" href="styles/2013.3.1424/kendo.common.min.css">
+    <link rel="stylesheet" href="styles/2013.3.1424/kendo.default.min.css">
+    <link rel="stylesheet" href="styles/kidoju.widgets.toolbox.css">
+    <script src="js/2013.3.1424/jquery.min.js"></script>
+    <script src="js/2013.3.1424/kendo.all.min.js"></script>
+    <script src="js/vendor/jquery.transit.js"></script>
+    <script src="js/kidoju.models.js"></script>
+    <script src="js/kidoju.tools.js"></script>
+    <script src="js/kidoju.widgets.toolbox.js"></script>
+</head>
+<body>
+<div id="toolbox1"></div>
+<div id="toolbox2" data-role="toolbox" data-size="64"></div>
+<select data-bind="value: active, source: getTools"></select>
+<div data-bind="text: active"></div>
+</body>
+<script>
+    $(document).ready(function() {
+        $('#toolbox1').kendoToolbox();
+        if (kidoju.tools) {
+            kidoju.tools.getTools = function() {
+                var ret = [];
+                for (var prop in kidoju.tools) {
+                    if (kidoju.tools[prop] instanceof kidoju.Tool) {
+                        ret.push(prop);
+                    }
+                }
+                return ret;
+            };
+            kendo.bind('body', kidoju.tools);
+        }
+    });
+</script>
+</html>

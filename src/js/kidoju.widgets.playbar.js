@@ -105,6 +105,7 @@
             if(DEBUG && global.console) {
                 global.console.log(MODULE + 'widget initialized');
             }
+            that._index = that.options.index || 0;
             that._templates();
             that._layout();
             that._dataSource();
@@ -223,13 +224,9 @@
                     that.trigger(CHANGE, { index: value });
                 }
             } else {
-                if (!that._index) {
-                    that._index = that.options.index;
-                }
                 return that._index;
             }
         },
-        _index: undefined, //this is the selected index
 
         /**
          * @method id
@@ -241,14 +238,31 @@
             if (value !== undefined) {
                 var item = that.dataSource.get(value);
                 if (item !== undefined) {
-                    var index = that.dataSource.indexOf(item);
+                    var index = that.dataSource.indexOf(item); //index = -1 if not found
                     that.index(index);
                 }
             } else {
-                if (!that._index) {
-                    that._index = that.options.index;
+                var item = that.dataSource.at(that._index);
+                if (item && item.idField) {
+                    return item[item.idField];
+                } else {
+                    return undefined;
                 }
-                return that.dataSource.at(that._index)
+            }
+        },
+
+        /**
+         * @method value
+         * @param value
+         * @returns {*}
+         */
+        value: function(value) {
+            var that = this;
+            if (value !== undefined) {
+                var index = that.dataSource.indexOf(value);  //index = -1 if not found
+                that.index(index);
+            } else {
+                return that.dataSource.at(that._index);
             }
         },
 

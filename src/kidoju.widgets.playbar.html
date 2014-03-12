@@ -7,15 +7,20 @@
     <link rel="stylesheet" href="styles/kidoju.widgets.playbar.css">
     <script src="js/2013.3.1424/jquery.min.js"></script>
     <script src="js/2013.3.1424/kendo.all.min.js"></script>
-    <script src="js/vendor/jquery.transit.js"></script>
+    <!--script src="../temp/Kendo/kendo.core.js"></script>
+    <script src="../temp/Kendo/kendo.data.js"></script>
+    <script src="../temp/Kendo/kendo.binder.js"></script>
+    <script src="../temp/Kendo/kendo.pager.js"></script-->
     <script src="js/kidoju.models.js"></script>
     <script src="js/kidoju.tools.js"></script>
+    <script src="js/kidoju.widgets.bindings.js"></script>
     <script src="js/kidoju.widgets.playbar.js"></script>
 </head>
 <body>
-<div id="playbar1"></div>
-<!--div id="playbar2" data-role="playbar"></div-->
-<!-- TODO select data-bind=""></select-->
+<!--div id="playbar1"></div-->
+<div id="playbar" data-role="playbar" data-bind="source: pages, index: index, id: id" data-button-count="5"></div>
+<input data-role="dropdownlist" data-bind="value: id, source: pages" data-text-field="id" data-value-field="id" style="width: 400px"></select>
+<input data-role="numerictextbox" data-bind="value: index" data-min="0" data-max="10" data-format="#" />
 </body>
 <script>
     var pageCollectionData = [
@@ -61,13 +66,23 @@
         }
     ];
     var pageCollectionDataSource = new kidoju.PageCollectionDataSource({ data:pageCollectionData });
+    var viewModel = window.viewModel = kendo.observable({
+        index: 0,
+        id: '',
+        pages: pageCollectionDataSource
+    });
 
     $(document).ready(function() {
+        /*
         $('#playbar1').kendoPlaybar({
-            dataSource: pageCollectionDataSource,
-            buttonCount: 3
+            dataSource: viewModel.pages,
+            buttonCount: 3,
+            change: function(e) {
+                console.log(e.index);
+            }
         });
-        //kendo.bind('body', viewModel);
+        */
+        kendo.bind('body', viewModel);
     });
 </script>
 </html>

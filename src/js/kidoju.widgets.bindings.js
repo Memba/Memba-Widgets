@@ -10,30 +10,57 @@
     var fn = Function,
         global = fn('return this')(),
         kendo = global.kendo,
-        ui = kendo.ui;
+        data = kendo.data,
+        binders = data.binders,
+        Binder = data.Binder,
+        ui = kendo.ui,
+        
+        CHANGE = 'change',
+        
+        DEBUG = true,
+        MODULE = 'kidoju.widgets.bindings: ';
 
     /**
      * Enable binding the index value of a Playbar widget
      * @type {*|void}
      */
-    kendo.data.binders.widget.index = kendo.data.Binder.extend({
+    binders.widget.index = Binder.extend({
         init: function(widget, bindings, options) {
-            //call the base constructor
-            kendo.data.Binder.fn.init.call(this, widget.element[0], bindings, options);
+            Binder.fn.init.call(this, widget.element[0], bindings, options);
+            this.widget = widget;
+            this._change = $.proxy(this.change, this);
+            this.widget.bind(CHANGE, this._change);
+        },
+        change: function() {
+            this.bindings.index.set(this.widget.index());
         },
         refresh: function() {
-            var that = this,
-                value = that.bindings.index.get(), //get the value from the View-Model
-                widget = kendo.widgetInstance($(that.element));
-            if (widget instanceof ui.Playbar) {
-                widget.index(value); //update our widget
-            } else if ($.isFunction(widget.index)) { //try not to mess with other widgets
-                try {
-                    widget.index(value);
-                } catch(err) {
-                    $.noop();
-                }
-            }
+            this.widget.index(this.bindings.index.get());
+        },
+        destroy: function() {
+            this.widget.unbind(CHANGE, this._change);
+        }
+    });
+
+    /**
+     * Enable binding the id value of a Playbar widget
+     * @type {*|void}
+     */
+    binders.widget.id = Binder.extend({
+        init: function(widget, bindings, options) {
+            Binder.fn.init.call(this, widget.element[0], bindings, options);
+            this.widget = widget;
+            this._change = $.proxy(this.change, this);
+            this.widget.bind(CHANGE, this._change);
+        },
+        change: function() {
+            this.bindings.id.set(this.widget.id());
+        },
+        refresh: function() {
+            this.widget.id(this.bindings.id.get());
+        },
+        destroy: function() {
+            this.widget.unbind(CHANGE, this._change);
         }
     });
 

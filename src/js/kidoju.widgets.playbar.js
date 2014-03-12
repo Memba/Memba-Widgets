@@ -10,10 +10,12 @@
     var fn = Function,
         global = fn('return this')(),
         kendo = global.kendo,
+        data = kendo.data,
         Widget = kendo.ui.Widget,
 
         //Types
         NUMBER = 'number',
+        NULL = null,
 
         //Events
         CHANGE = 'change',
@@ -67,16 +69,18 @@
     }
 
     function prev(element, index) {
-        update(element, PREV, Math.max(1, index - 1), index <= 1);
+        //update(element, PREV, Math.max(1, index - 1), index <= 1);
+        update(element, PREV, Math.max(0, index - 1), index <= 0);
     }
 
     function next(element, index, length) {
-        update(element, NEXT, Math.min(length, index + 1), index >= length);
+        //update(element, NEXT, Math.min(length, index + 1), index >= length);
+        update(element, NEXT, Math.min(length - 1, index + 1), index >= length - 1);
     }
 
     function last(element, index, length) {
         //update(element, LAST, length, index >= length);
-        update(element, LAST, length-1, index >= length-1);
+        update(element, LAST, length - 1, index >= length - 1);
     }
 
 
@@ -124,8 +128,8 @@
             input: false,
             previousNext: true,
             refresh: true,
-            value: null,
-            dataSource: null,
+            value: NULL,
+            dataSource: undefined, //Important undefined is required for _SetDataSource to initialize a dataSource
             messages: {
                 empty: 'No page to display',
                 page: 'Page',
@@ -175,16 +179,18 @@
             var that = this;
             // if the DataSource is defined and the _refreshHandler is wired up, unbind because
             // we need to rebuild the DataSource
+
+            //There is no reason why, in its current state, it would not work with any dataSource
+            //if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
             if ( that.dataSource instanceof kidoju.PageCollectionDataSource && that._refreshHandler ) {
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
             }
-            else {
-                that._refreshHandler = $.proxy(that.refresh, that);
-            }
 
-            if (that.options.dataSource) {
+            if (that.options.dataSource !== NULL) {  //use null to explicitely destroy the dataSource bindings
                 // returns the datasource OR creates one if using array or configuration object
                 that.dataSource = kidoju.PageCollectionDataSource.create(that.options.dataSource);
+
+                that._refreshHandler = $.proxy(that.refresh, that);
 
                 // bind to the change event to refresh the widget
                 that.dataSource.bind(CHANGE, that._refreshHandler);
@@ -196,7 +202,7 @@
         },
 
         /**
-         * index is 0 based, whereas diplayed numbers are 1 based
+         * index is 0 based, whereas displayed numbers are 1 based
          * @method index
          * @param value
          * @returns {*}
@@ -209,12 +215,12 @@
                 }
                 if ($.type(value) !== NUMBER) {
                     throw new TypeError();
-                } else if (value < 0 || value >= that.length()) { //TODO: what if that.length() === 0
+                } else if (value < 0 || (value > 0 && value >= that.length())) {
                     throw new RangeError();
                 } else if (value !== that._index) {
                     that._index = value;
-                    that.trigger(CHANGE, { index: value });
                     that.refresh(); //TODO review when MVVM
+                    that.trigger(CHANGE, { index: value });
                 }
             } else {
                 if (!that._index) {
@@ -223,7 +229,28 @@
                 return that._index;
             }
         },
-        _index: undefined,
+        _index: undefined, //this is the selected index
+
+        /**
+         * @method id
+         * @param value
+         * @returns {*}
+         */
+        id: function (value) {
+            var that = this;
+            if (value !== undefined) {
+                var item = that.dataSource.get(value);
+                if (item !== undefined) {
+                    var index = that.dataSource.indexOf(item);
+                    that.index(index);
+                }
+            } else {
+                if (!that._index) {
+                    that._index = that.options.index;
+                }
+                return that.dataSource.at(that._index)
+            }
+        },
 
         /**
          * @method total()
@@ -241,6 +268,8 @@
         _layout: function () {
             /* TODO: Display vertical or horizontal
              * TODO: Add timer (play/pause)
+             * TODO: Add progress bar
+             * TODO: Add tooltips with thumbnails
              */
             var that = this,
                 playbar = that.element,
@@ -302,7 +331,7 @@
                 }
             }
 
-            //Add timer
+            //TODO Add timer
 
             playbar
                 .on(CLICK + NS , 'a', $.proxy(that._indexClick, that))
@@ -326,27 +355,28 @@
                 options = that.options,
                 index = that.index(),
                 length = that.length(),
-                pos, start = 1, end,
-                html = '', reminder;
+                idx, start = 0, end,
+                html = '', position;
 
             if (e && e.action == 'itemchange') {
                 return; //we only update the playbar on 'add' and 'remove'
             }
 
             if (options.numeric) {
-                if (index + 1 > options.buttonCount) {
-                    reminder = ((index + 1) % options.buttonCount);
-                    start = (reminder === 0) ? (index + 1 - options.buttonCount) + 1 : (index + 1 - reminder) + 1;
+                //start is the index of the first numeric button
+                //end is the index of the last numeric button
+                if (index > options.buttonCount - 1) {
+                    start = index - index % options.buttonCount;
                 }
-                end = Math.min((start + options.buttonCount) - 1, length);
-                if (start > 1) {
+                end = Math.min(start + options.buttonCount - 1, length - 1);
+                if (start > 0) {
                     html += button(that.linkTemplate, start - 1, "...", false, options.messages.morePages);
                 }
-                for (pos = start; pos <= end; pos++) {
-                    html += button(pos == index + 1 ? that.selectTemplate : that.linkTemplate, pos, pos, true);
+                for (idx = start; idx <= end; idx++) {
+                    html += button(idx === index ? that.selectTemplate : that.linkTemplate, idx, idx + 1, true);
                 }
-                if (end < length) {
-                    html += button(that.linkTemplate, pos, "...", false, options.messages.morePages);
+                if (end < length - 1) { //idx = end + 1 here
+                    html += button(that.linkTemplate, idx, "...", false, options.messages.morePages);
                 }
                 if (html === '') {
                     html = that.selectTemplate({ text: 0 });
@@ -355,9 +385,10 @@
             }
 
             if (options.info) {
+                //TODO: we could consider a progress bar?
                 if (length > 0) {
                     html = options.messages.page +
-                        ' ' + index + 1 + ' ' +
+                        ' ' + (index + 1) + ' ' +
                         kendo.format(options.messages.of, length);
                 } else {
                     html = options.messages.empty;
@@ -366,15 +397,14 @@
             }
 
             if (options.input) {
-                that.element
-                .find(".k-pager-input")
-                .html(options.messages.page +
-                    '<input class="k-textbox">' +
-                    kendo.format(options.messages.of, length))
-                .find("input")
-                .val(index)
-                .attr('disabled', length < 1)
-                .toggleClass("k-state-disabled", length < 1);
+                that.element.find(".k-pager-input")
+                    .html(options.messages.page +
+                        '<input class="k-textbox">' +
+                        kendo.format(options.messages.of, length))
+                    .find("input")
+                        .val(index + 1)
+                        .attr('disabled', length < 1)
+                        .toggleClass("k-state-disabled", length < 1);
             }
 
             if (options.previousNext) {
@@ -388,12 +418,12 @@
         _keydown: function(e) {
             if (e.keyCode === kendo.keys.ENTER) {
                 var input = this.element.find(".k-pager-input").find("input"),
-                    index = parseInt(input.val(), 10);
-                if (isNaN(index) || index < 1 || index > this.length()) {
-                    index = this.index();
+                    pageNum = parseInt(input.val(), 10);
+                if (isNaN(pageNum) || pageNum < 1 || pageNum > this.length()) {
+                    pageNum = this.index() + 1;
                 }
-                input.val(index);
-                this.index(index);
+                input.val(pageNum);
+                this.index(pageNum - 1);
             }
         },
 
@@ -406,7 +436,7 @@
             var target = $(e.currentTarget);
             e.preventDefault();
             if (!target.is(".k-state-disabled")) {
-                this.index(parseInt(target.attr(kendo.attr("index"))));
+                this.index(parseInt(target.attr(kendo.attr("index")), 10));
             }
         },
 
@@ -433,7 +463,7 @@
             var that = this;
             Widget.fn.destroy.call(that);
             that._clear();
-            that.setDataSource(null);
+            that.setDataSource(NULL);
             kendo.destroy(that.element);
         }
 

@@ -16,6 +16,7 @@
         FUNCTION = 'function',
         STRING = 'string',
         NUMBER = 'number',
+        NULL = null,
 
         //Events
         CLICK = 'click',
@@ -109,7 +110,7 @@
             height: DEFAULT_HEIGHT,
             width: DEFAULT_WIDTH,
             tools: kidoju.tools,
-            dataSource: null
+            dataSource: undefined
         },
 
         /**
@@ -229,19 +230,21 @@
             var that = this;
             // if the DataSource is defined and the _refreshHandler is wired up, unbind because
             // we need to rebuild the DataSource
-            if ( that.dataSource instanceof kendo.data.DataSource && that._refreshHandler ) {
+
+            //There is no reason why, in its current state, it would not work with any dataSource
+            //if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
+            if ( that.dataSource instanceof kidoju.PageItemCollectionDataSource && that._refreshHandler ) {
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
             }
-            else {
-                that._refreshHandler = $.proxy(that.refresh, that);
-            }
 
-            if (that.options.dataSource) {
+            if (that.options.dataSource !== NULL) {  //use null to explicitely destroy the dataSource bindings
                 // returns the datasource OR creates one if using array or configuration object
-                that.dataSource = kendo.data.DataSource.create(that.options.dataSource);
+                that.dataSource = kidoju.PageItemCollectionDataSource.create(that.options.dataSource);
+
+                that._refreshHandler = $.proxy(that.refresh, that);
 
                 // bind to the change event to refresh the widget
-                that.dataSource.bind( CHANGE, that._refreshHandler );
+                that.dataSource.bind(CHANGE, that._refreshHandler);
 
                 if (that.options.autoBind) {
                     that.dataSource.fetch();
@@ -454,7 +457,7 @@
             var that = this;
             Widget.fn.destroy.call(that);
             that._clear();
-            that.setDataSource(null);
+            that.setDataSource(NULL);
             kendo.destroy(that.element);
         }
 

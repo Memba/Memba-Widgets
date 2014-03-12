@@ -423,6 +423,7 @@
             var element = $(e.currentTarget);
             if (element.hasClass(ELEMENT_CLASS)) {
                 var page = element.closest(kendo.roleSelector('page')),
+                    widget = page.data('kendoPage'),
                     elementId = element.attr(DATA_ID),
                     toolId = element.attr(DATA_TOOL);
                 if ($.type(elementId) === STRING) {
@@ -430,7 +431,7 @@
                         global.console.log(MODULE + 'click on ' + elementId);
                     }
                     var tool = kidoju.tools[toolId];
-                    if (tool instanceof kidoju.Tool) {
+                    if (tool instanceof kidoju.Tool && widget.mode() === widget.modes.design) {
                         tool._prepareHandles(page);
                         tool._showHandles(page, elementId);
                     }
@@ -448,7 +449,7 @@
          */
         onResize: function(e) {
             var element = $(e.currentTarget);
-        },
+        }
     });
 
     /*******************************************************************************************

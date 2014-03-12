@@ -84,6 +84,7 @@
             if(DEBUG && global.console) {
                 global.console.log(MODULE + 'widget initialized');
             }
+            that._mode = that.options.mode;
             that._dataSource();
             that._layout();
             //that.refresh();
@@ -125,13 +126,13 @@
                     throw new TypeError();
                 }
                 //TODO: test range
-                if(value !== that.options.mode) {
-                    that.options.mode = value;
+                if(value !== that._mode) {
+                    that._mode = value;
                     that.refresh();
                 }
             }
             else {
-                return that.options.mode;
+                return that._mode;
             }
         },
 
@@ -258,7 +259,7 @@
          */
         _layout: function () {
             var that = this,
-                page = $(that.element);
+                page = that.element;
             that._clear();
             //Setup page
             //TODO: Implement an innner DIV containing all page elements
@@ -307,7 +308,7 @@
          */
         _addPageElement: function(item, left, top) {
             var that = this,
-                page = $(that.element);
+                page = that.element;
             if (item instanceof kidoju.PageItem) {
                 var tool = kidoju.tools[item.tool];
                 if (tool instanceof kidoju.Tool) {
@@ -327,6 +328,7 @@
                      $(that.element).prepend(widget);
                      }
                      */
+                    //TODO Add event namespace TRANSLATE + NS
                     pageElement
                         .on(TRANSLATE, function (e, position) {
                             var pageElement = $(e.currentTarget),
@@ -354,6 +356,8 @@
                                 item = widget.dataSource.get(id);
                             item.set(ROTATE, rotate);
                         });
+
+                    //TODO: add behaviours here!!!
                 }
             }
         },
@@ -364,11 +368,11 @@
          */
         _removePageElement: function(id) {
             var that = this,
-                page = $(that.element);
+                page = that.element;
             //TODO hide handles where necessary
             //TODO use a tool method to avoid leaks (remove all event handlers, ...)
             page.find(kendo.format(ELEMENT_SELECTOR, id))
-                .off()
+                .off()//TODO namespace .off(NS)
                 .remove();
         },
 
@@ -378,14 +382,19 @@
         refresh: function(e) {
             var that = this;
             if (e === undefined || e.action === undefined) {
-                if (that.dataSource instanceof kendo.data.DataSource) {
-                    var data = that.dataSource.data();
-                    for (var i = 0; i < data.length; i++) {
-                        var item = data[i];
-                        if ($.type(item.tool) === STRING) {
-                            //TODO: clear or only redraw what needs to be redrawn
-                            that._addPageElement(item);
-                        }
+                var data = [];
+                if (e=== undefined && that.dataSource instanceof kendo.data.PageItemCollectionDataSource) {
+                    data = that.dataSource.data();
+                } else if (e && e.items instanceof kendo.data.ObservableArray) {
+                    data = e.items;
+                }
+                //kendo.unbind
+                that.element.find('*').off();
+                that.element.empty();
+                for (var i = 0; i < data.length; i++) {
+                    var item = data[i];
+                    if ($.type(item.tool) === STRING) {
+                        that._addPageElement(item);
                     }
                 }
             } else if (e.action === 'add') {
@@ -397,7 +406,7 @@
                     that._removePageElement(e.items[i].id);
                 }
             } else if (e.action === 'itemchange') {
-                var page = $(that.element);
+                var page = that.element;
                 for (var i = 0; i < e.items.length; i++) {
                     //NOTE e.field cannot be relied upon, especially when resizing
                     //e.field takes a value of height or width when both change
@@ -443,8 +452,8 @@
             //unbind kendo
             //kendo.unbind($(that.element));
             //unbind all other events
-            $(that.element).find('*').off();
-            $(that.element)
+            that.element.find('*').off();
+            that.element
                 .off()
                 .empty()
                 .removeClass(WIDGET_CLASS);

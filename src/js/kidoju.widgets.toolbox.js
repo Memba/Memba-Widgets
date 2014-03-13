@@ -1,6 +1,7 @@
-//Copyright ©2013-2014 Memba® Sarl. All rights reserved.
-/*jslint browser:true*/
-/*jshint browser:true*/
+/* Copyright ©2013-2014 Memba® Sarl. All rights reserved. */
+/* jslint browser:true */
+/* jshint browser:true */
+/* global jQuery */
 
 (function ($, undefined) {
 

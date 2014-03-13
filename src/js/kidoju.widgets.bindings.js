@@ -1,6 +1,7 @@
-//Copyright ©2013-2014 Memba® Sarl. All rights reserved.
-/*jslint browser:true, jquery:true*/
-/*jshint browser:true, jquery:true*/
+/* Copyright ©2013-2014 Memba® Sarl. All rights reserved. */
+/* jslint browser:true */
+/* jshint browser:true */
+/* global jQuery */
 
 (function ($, undefined) {
 
@@ -63,5 +64,30 @@
             this.widget.unbind(CHANGE, this._change);
         }
     });
+
+    /**
+     * Enable binding the fields value of a Page widget
+     * @type {*|void}
+     */
+    binders.widget.fields = Binder.extend({
+        init: function(widget, bindings, options) {
+            Binder.fn.init.call(this, widget.element[0], bindings, options);
+            this.widget = widget;
+            this._change = $.proxy(this.change, this);
+            this.widget.bind(CHANGE, this._change);
+        },
+        change: function() {
+            this.bindings.fields.set(this.widget.fields());
+        },
+        refresh: function() {
+            this.widget.fields(this.bindings.fields.get());
+        },
+        destroy: function() {
+            this.widget.unbind(CHANGE, this._change);
+        }
+    });
+
+
+
 
 } (jQuery));

@@ -1,6 +1,7 @@
-﻿//Copyright ©2013-2014 Memba® Sarl. All rights reserved.
-/*jslint browser:true*/
-/*jshint browser:true*/
+﻿/* Copyright ©2013-2014 Memba® Sarl. All rights reserved. */
+/* jslint browser:true */
+/* jshint browser:true */
+/* global jQuery */
 
 (function ($, undefined) {
 
@@ -74,11 +75,11 @@
      */
     kidoju.tools = kendo.observable({
         active: null,
-        register : function(Class) {
+        register: function(Class) {
             //if(Class instanceof constructor) {
             if($.type(Class.fn) === OBJECT) {
                 var obj = new Class();
-                if(obj instanceof Tool && $.type(obj.id) === STRING) {
+                if (obj instanceof Tool && $.type(obj.id) === STRING) {
                     if (obj.id === 'active') {
                         throw new Error('You cannot name your tool [active]');
                     }
@@ -92,6 +93,18 @@
             }
         }
     });
+
+    /**
+     * Fixes handler translation considering page dimensions
+     * @param page
+     * @param translate
+     */
+    function fixHandlerTranslation(page, translate) {
+        //we actually need to substract page height from Y
+        //we assume here translate in the form "Xpx,Ypx"
+        var pos = translate.split(',');
+        return parseInt(pos[0]) + PX + ',' + (parseInt(pos[1]) - $(page).height()) + PX;
+    }
 
     /**
      * @class Tool
@@ -148,11 +161,11 @@
         },
         /**
          * Returns a generic wrapper div for the page element derived from the page item
-         * @method _getWrapper
+         * @method _getElementWrapper
          * @param item
          * @private
          */
-        _getWrapper: function(item) {
+        _getElementWrapper: function(item) {
             var that = this,
                 wrapper = $(kendo.format(ELEMENT, item.id, item.tool))
                 .css(POSITION, ABSOLUTE)
@@ -163,15 +176,17 @@
                 .on(CLICK, that.onClick)
                 .on(TRANSLATE, that.onTranslate)
                 .on(RESIZE, that.onResize)
-                .on(ROTATE, that.onRotate)
+                .on(ROTATE, that.onRotate);
             return wrapper;
         },
 
         /**
          * Prepare handles
+         * @method _prepareHandler
+         * @param page
          * @private
          */
-        _prepareHandles: function(page) {
+        _prepareHandler: function(page) {
             var that = this;
             if($(page).find(HANDLER_SELECTOR).length === 0) {
                 var handler = $(HANDLER)
@@ -186,7 +201,6 @@
                         e.stopPropagation();
                     })
                     .on(DRAGOVER, function (e) {
-                        //TODO Implement mode
                         if ($.isPlainObject(that._transform) && $.type(that._transform.id) === STRING)  {
                             var handler = $(page).find(HANDLER_SELECTOR),
                                 element = $(page).find(kendo.format(ELEMENT_SELECTOR, that._transform.id));
@@ -199,7 +213,7 @@
                                     },
                                     translate = position.left + PX + ',' + position.top + PX;
                                 handler
-                                    .css(TRANSLATE, translate);
+                                    .css(TRANSLATE, fixHandlerTranslation(page, translate));
                                 element
                                     .css(TRANSLATE, translate)
                                     .trigger(TRANSLATE, position);
@@ -337,40 +351,43 @@
         },
 
         /**
-         * Show handles on a page element
+         * Show handler on a page element
+         * @method _showHandler
          * @param page
          * @param id
          * @private
          */
-        _showHandles: function(page, id){
+        _showHandler: function(page, id){
             var pageElement = $(page).find(kendo.format(ELEMENT_SELECTOR, id));
             $(page).find(HANDLER_SELECTOR)
                 .css(HEIGHT, pageElement.css(HEIGHT))
                 .css(WIDTH, pageElement.css(WIDTH))
                 .css(PADDING, HANDLER_MARGIN + PX)
                 .css(MARGIN, '-' + HANDLER_MARGIN + PX)
-                .css(TRANSLATE, pageElement.css(TRANSLATE))
+                .css(TRANSLATE, fixHandlerTranslation(page, pageElement.css(TRANSLATE)))
                 .css(ROTATE, pageElement.css(ROTATE))
                 .css(DISPLAY, BLOCK)
                 .attr(DATA_ELEMENT, id);
         },
 
         /**
-         * Test handles for a page element
+         * Test handler for a page element/item
+         * @method _hasHandler
          * @param page
          * @param id
          * @returns {boolean}
          * @private
          */
-        _hasHandles: function(page, id) {
+        _hasHandler: function(page, id) {
             return ($(page).find(HANDLER_SELECTOR).attr(DATA_ELEMENT) === id);
         },
 
         /**
-         * Hide handles
+         * Hide handler
+         * @method _hideHandler
          * @private
          */
-        _hideHandles: function(page){
+        _hideHandler: function(page){
             $(page).find(HANDLER_SELECTOR)
                 .css(DISPLAY, NONE)
                 .removeAttr(DATA_ELEMENT);
@@ -378,19 +395,19 @@
 
         /**
          * @method draw
-         * @param page
+         * @param container
          * @param item
          * @returns {*}
          * @private
          */
-        _draw: function(page, item) {
+        _draw: function(container, item) {
             if(DEBUG && global.console) {
                 global.console.log(MODULE + 'drawing ' + item.tool + ' ' + item.id);
             }
-            var wrapper = this._getWrapper(item),
+            var wrapper = this._getElementWrapper(item),
                 content = this.getHtml(item);
             wrapper.append(content);
-            $(page).append(wrapper);
+            $(container).append(wrapper);
             wrapper.trigger(RESIZE, { height: item.height, width: item.width });
             return wrapper;
         },
@@ -432,8 +449,8 @@
                     }
                     var tool = kidoju.tools[toolId];
                     if (tool instanceof kidoju.Tool && widget.mode() === widget.modes.design) {
-                        tool._prepareHandles(page);
-                        tool._showHandles(page, elementId);
+                        tool._prepareHandler(page);
+                        tool._showHandler(page, elementId);
                     }
                     //prevent click event to bubble on page
                     e.preventDefault();
@@ -469,7 +486,7 @@
         //validation????????
     });
 
-    var TextProperty = properties.TextProperty = properties.Property.extend({
+    var TextProperty = properties.TextProperty = Property.extend({
         init: function(value) {
             this.value = value;
         },
@@ -478,7 +495,7 @@
         }
     });
 
-    var IntegerProperty = properties.IntegerProperty = properties.Property.extend({
+    var IntegerProperty = properties.IntegerProperty = Property.extend({
         value: 0,
         init: function(value) {
             this.value = value;
@@ -488,7 +505,7 @@
         }
     });
 
-    var BooleanProperty = properties.BooleanProperty = properties.Property.extend({
+    var BooleanProperty = properties.BooleanProperty = Property.extend({
         value: false,
         init: function(value) {
             this.value = value;
@@ -498,7 +515,7 @@
         }
     });
 
-    var FontProperty = properties.FontProperty = properties.Property.extend({
+    var FontProperty = properties.FontProperty = Property.extend({
         //TODO
     });
 
@@ -515,7 +532,17 @@
     /*******************************************************************************************
      * FieldAdapter classes
      *******************************************************************************************/
+    var fields = kidoju.fields = kidoju.fields || {};
 
+    var FieldAdapter = kendo.Class.extend({
+        init: function(value) {
+
+        }
+    });
+
+    var TextFieldAdapter = fields.TextFieldAdapter = FieldAdapter.extend({
+
+    });
 
     /*******************************************************************************************
      * Tool classes
@@ -541,7 +568,7 @@
         icon: 'document_orientation_landscape',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<span style="font-family: #= font #; color: #= color#;">#= text#</span>'
+            default: '<span style="font-family: #= properties.font #; color: #= properties.color#;">#= properties.text#</span>'
         },
         height: 100,
         width: 300,
@@ -559,7 +586,8 @@
          */
         getHtml: function(item, mode) {
             var template = kendo.template(this.templates.default);
-            return template(item.getProperties());
+            var data = { properties: item.getProperties(), fields: item.getDataFields() };
+            return template(data);
         },
         /**
          * onResize Event Handler
@@ -616,7 +644,7 @@
         icon: 'painting_landscape',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<img src="#= src #" alt="#= alt #">'
+            default: '<img src="#= properties.src #" alt="#= properties.alt #">'
         },
         height: 250,
         width: 250,
@@ -633,7 +661,8 @@
          */
         getHtml: function(item) {
             var template = kendo.template(this.templates.default);
-            return template(item.getProperties());
+            var data = { properties: item.getProperties(), fields: item.getDataFields() };
+            return template(data);
         },
         /**
          * onResize Event Handler
@@ -670,7 +699,7 @@
         icon: 'text_field',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<input type="text">'
+            default: '<input type="text" data-bind="value: #= fields.text.name #">'
         },
         height: 100,
         width: 300,
@@ -685,7 +714,8 @@
          */
         getHtml: function(item, mode) {
             var template = kendo.template(this.templates.default);
-            return template(item.getProperties());
+            var data = { properties: item.getProperties(), fields: item.getDataFields() };
+            return template(data);
         },
         /**
          * onResize Event Handler

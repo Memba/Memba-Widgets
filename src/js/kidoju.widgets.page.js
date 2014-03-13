@@ -1,6 +1,7 @@
-//Copyright ©2013-2014 Memba® Sarl. All rights reserved.
-/*jslint browser:true*/
-/*jshint browser:true*/
+/* Copyright ©2013-2014 Memba® Sarl. All rights reserved. */
+/* jslint browser:true */
+/* jshint browser:true */
+/* global jQuery */
 
 (function ($, undefined) {
 
@@ -38,18 +39,20 @@
 
         //Modes
         MODE = {
-            THUMBNAIL: 0,
-            DESIGN: 1,
-            SOLUTION: 2,
+            THUMBNAIL: 'thumbnail',
+            DESIGN: 'design',
+            SOLUTION: 'solution',
             //Play modes
-            LEARN: 3,
-            TEST: 4
+            LEARN: 'learn',
+            ASSESS: 'assess'
         },
 
         //Miscellaneous
         POINTER = 'pointer',
         WIDGET_CLASS = 'k-widget kj-page',
         ELEMENT_SELECTOR = '.kj-element[data-id="{0}"]',
+        CONTAINER_DIV = '<div class="kj-container"></div>',
+        //CONTAINER_SELECTOR = '.kj-container',
 
         DEBUG = true,
         MODULE = 'kidoju.widgets.page: ';
@@ -79,15 +82,14 @@
          */
         init: function (element, options) {
             var that = this;
-            options = options || {};
             Widget.fn.init.call(that, element, options);
             if(DEBUG && global.console) {
                 global.console.log(MODULE + 'widget initialized');
             }
+            //TODO: check that that.options.mode is a valid value
             that._mode = that.options.mode;
-            that._dataSource();
             that._layout();
-            //that.refresh();
+            that._dataSource();
         },
 
         modes: {
@@ -95,9 +97,10 @@
             design: MODE.DESIGN,
             solution: MODE.SOLUTION,
             //Play modes
-            learn: MODE.LEARN,
-            test: MODE.TEST
-            //We could consider TEST_WITH_HINTS
+            learn: MODE.LEARN, //in learn mode, you can flip the page and see the solution
+            assess: MODE.ASSESS //in test mode, you cannot see the solution
+            //We could also consider a test mode with hints
+            //and a correction mode displaying correct vs. incorrect answers
         },
 
         /**
@@ -106,7 +109,7 @@
         options: {
             name: "Page",
             autoBind: true,
-            mode: MODE.TEST,
+            mode: MODE.ASSESS,
             scale: DEFAULT_SCALE,
             height: DEFAULT_HEIGHT,
             width: DEFAULT_WIDTH,
@@ -122,7 +125,7 @@
         mode: function (value) {
             var that = this;
             if (value) {
-                if($.type(value) !== NUMBER) {
+                if($.type(value) !== STRING) {
                     throw new TypeError();
                 }
                 //TODO: test range
@@ -210,6 +213,26 @@
         },
 
         /**
+         * Fields
+         * @param value
+         * @returns {*}
+         */
+        fields:  function (value) {
+            var that = this;
+            if (value) {
+                //if(!(value instanceof kendo.data.ObervableObject)) {
+                //    throw new TypeError();
+                //}
+                if(value !== that._fields) {
+                    that._fields = value;
+                }
+            }
+            else {
+                return that._fields;
+            }
+        },
+
+        /**
          * Changes the dataSource
          * @method setDataSource
          * @param dataSource
@@ -258,20 +281,22 @@
          * @private
          */
         _layout: function () {
-            var that = this,
-                page = that.element;
+            var that = this;
             that._clear();
-            //Setup page
-            //TODO: Implement an innner DIV containing all page elements
-            //and have the handler set outside this div
-            page
+            that._container = $(CONTAINER_DIV)
+                .css(POSITION, RELATIVE) //!important
+                .css(HEIGHT, that.height() + 'px')
+                .css(WIDTH, that.width() + 'px');
+            that.element
                 .addClass(WIDGET_CLASS)
                 .css(POSITION, RELATIVE) //!important
                 .css('overflow', 'hidden')
                 .css(HEIGHT, that.height() + 'px')
                 .css(WIDTH, that.width() + 'px')
-                .on(CLICK, function(e) {
-                    //TODO test mode
+                .append(that._container);
+            //Click handler to select or create page elements from page items in design mode
+            if(that.mode() === that.modes.design) {
+                that._container.on(CLICK, function(e) {
                     if(DEBUG && global.console) {
                         global.console.log(MODULE + 'page clicked at (' + e.offsetX + ',' + e.offsetY + ')');
                     }
@@ -292,11 +317,12 @@
                         that.options.tools.set('active', POINTER);
                     } else {
                         var tool = that.options.tools[POINTER];
-                        if ($.isFunction(tool._hideHandles)) {
-                            tool._hideHandles(that.element);
+                        if ($.isFunction(tool._hideHandler)) {
+                            tool._hideHandler(that.element);
                         }
                     }
-                })
+                });
+            }
         },
 
         /**
@@ -307,10 +333,9 @@
          * @private
          */
         _addPageElement: function(item, left, top) {
-            var that = this,
-                page = that.element;
+            var that = this;
             if (item instanceof kidoju.PageItem) {
-                var tool = kidoju.tools[item.tool];
+                var tool = that.options.tools[item.tool];
                 if (tool instanceof kidoju.Tool) {
                     if ($.type(left) === NUMBER) {
                         item.set(LEFT, left);
@@ -318,16 +343,7 @@
                     if ($.type(top) === NUMBER) {
                         item.set(TOP, top);
                     }
-                    var pageElement = tool._draw(page, item);
-                    /*
-                     tool.draw(widget);
-                     var find = that.element.find('.kj-widget');
-                     if (find.length > 0) {
-                     find.last().after(widget);
-                     } else {
-                     $(that.element).prepend(widget);
-                     }
-                     */
+                    var pageElement = tool._draw(that._container, item);
                     //TODO Add event namespace TRANSLATE + NS
                     pageElement
                         .on(TRANSLATE, function (e, position) {
@@ -367,11 +383,10 @@
          * @private
          */
         _removePageElement: function(id) {
-            var that = this,
-                page = that.element;
+            var that = this;
             //TODO hide handles where necessary
             //TODO use a tool method to avoid leaks (remove all event handlers, ...)
-            page.find(kendo.format(ELEMENT_SELECTOR, id))
+            that._container.find(kendo.format(ELEMENT_SELECTOR, id))
                 .off()//TODO namespace .off(NS)
                 .remove();
         },
@@ -388,13 +403,20 @@
                 } else if (e && e.items instanceof kendo.data.ObservableArray) {
                     data = e.items;
                 }
-                //kendo.unbind
-                that.element.find('*').off();
-                that.element.empty();
+                if (that.mode() === that.modes.assess) {
+                    kendo.unbind(that._container, that.fields());
+                }
+                that._container.find('*').off();
+                that._container.empty();
                 for (var i = 0; i < data.length; i++) {
                     var item = data[i];
                     if ($.type(item.tool) === STRING) {
                         that._addPageElement(item);
+                    }
+                }
+                if(that.mode() === that.modes.assess) {
+                    if (that.fields() instanceof kendo.data.ObservableObject) {
+                        kendo.bind(that._container, that.fields());
                     }
                 }
             } else if (e.action === 'add') {
@@ -406,12 +428,11 @@
                     that._removePageElement(e.items[i].id);
                 }
             } else if (e.action === 'itemchange') {
-                var page = that.element;
                 for (var i = 0; i < e.items.length; i++) {
                     //NOTE e.field cannot be relied upon, especially when resizing
                     //e.field takes a value of height or width when both change
                     //id and tool are not supposed to change
-                    var pageElement = page.find(kendo.format(ELEMENT_SELECTOR, e.items[i].id));
+                    var pageElement = that._container.find(kendo.format(ELEMENT_SELECTOR, e.items[i].id));
                     //id is not suppoed to change
                     //tool is not supposed to change
                     if(pageElement.css(TRANSLATE) != e.items[i].left + 'px,' + e.items[i].top + 'px') {
@@ -440,7 +461,7 @@
          */
         items: function() {
             //TODO: do not return handler
-            return this.element.children();
+            return this._container.children();
         },
 
         /**
@@ -450,7 +471,7 @@
         _clear: function() {
             var that = this;
             //unbind kendo
-            //kendo.unbind($(that.element));
+            kendo.unbind(that.element);
             //unbind all other events
             that.element.find('*').off();
             that.element

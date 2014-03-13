@@ -1,6 +1,7 @@
-//Copyright ©2013-2014 Memba® Sarl. All rights reserved.
-/*jslint browser:true*/
-/*jshint browser:true*/
+/* Copyright ©2013-2014 Memba® Sarl. All rights reserved. */
+/* jslint browser:true */
+/* jshint browser:true */
+/* global jQuery */
 
 (function ($, undefined) {
 
@@ -76,6 +77,7 @@
                 type: STRING,
                 defaultValue: null
             },
+            //TODO: check whether we can have a properties field of type OBJECT
             properties: {
                 type: STRING,
                 defaultValue: JSON.stringify({}),
@@ -89,12 +91,21 @@
                         return JSON.stringify({});
                     }
                 }
-            }
-            /*
-            fields: {
-                type: STRING
-                //parse: function (value) { return value; }
             },
+            dataFields: {
+                type: STRING,
+                defaultValue: JSON.stringify({}),
+                parse: function (value) {
+                    //Enforce valid JSON
+                    try {
+                        JSON.parse(value);
+                        return value;
+                    }
+                    catch(e) {
+                        return JSON.stringify({});
+                    }
+                }
+            }/*,
             defaults: {
                 type: STRING
                 //parse: function (value) { return value; }
@@ -133,17 +144,36 @@
                 this.set(field, item[field]);
             }
         },
-        setProperty: function(key, value) {
-            var properties = JSON.parse(this.get('properties'));
-            properties[key] = value;
-            this.set('properties', properties);
-        },
-        getProperty: function(key) {
-            var properties = JSON.parse(this.get('properties'));
-            return properties[key];
+        prop: function(key, value) {
+            if (value !== undefined) {
+                var properties = this.getProperties();
+                properties[key] = value;
+                this.set('properties', JSON.stringify(properties));
+            } else {
+                var properties = this.getProperties();
+                return properties[key];
+            }
         },
         getProperties: function() {
-            return JSON.parse(this.get('properties'));
+            var props = this.get('properties');
+            if ($.type(props) === STRING) {
+                return JSON.parse(props);
+            } else {
+                return {};
+            }
+        },
+        /*
+        data: function(key, value) {
+            //TODO
+            throw new Error('Not implemented');
+        },*/
+        getDataFields: function() {
+            var data = this.get('dataFields');
+            if ($.type(data) === STRING) {
+                return JSON.parse(data);
+            } else {
+                return {};
+            }
         }
     });
 
@@ -543,8 +573,25 @@
 
         remove: function(model) {
             return data.DataSource.fn.remove.call(this, model);
-        }
+        },
 
+        getDataObject: function() {
+            var fields = {},
+                pages = this.data();
+            for (var i = 0; i < pages.length; i++) {
+                pages[i].load();
+                var items = pages[i].items.data();
+                for (var j = 0; j < items.length; j++) {
+                    var dataFields = items[j].getDataFields() || {};
+                    for (var field in dataFields) {
+                        if (dataFields.hasOwnProperty(field)) {
+                            fields[dataFields[field].name] = dataFields[field].value;
+                        }
+                    }
+                }
+            }
+            return kendo.observable (fields);
+        }
     });
 
     /**

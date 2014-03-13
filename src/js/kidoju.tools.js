@@ -118,8 +118,8 @@
         width: 250,
         playBar: [],
         designBar: [],
+        attributes: {},
         properties: {},
-        fields: {},
         /**
          * Constructor
          * @param options
@@ -147,17 +147,17 @@
             }
         },
         /**
-         * Initializes properties
+         * Initializes attributes
          * @private
          */
-        _getProperties: function() {
-            var properties = {};
-            for(var field in this.properties) {
-                if (this.properties.hasOwnProperty(field)) {
-                    properties[field] = this.properties[field].value;
+        _getAttributes: function() {
+            var attributes = {};
+            for(var attr in this.attributes) {
+                if (this.attributes.hasOwnProperty(attr)) {
+                    attributes[attr] = this.attributes[attr].value;
                 }
             }
-            return properties;
+            return attributes;
         },
         /**
          * Returns a generic wrapper div for the page element derived from the page item
@@ -470,11 +470,11 @@
     });
 
     /*******************************************************************************************
-     * PropertyAdapter classes
+     * AttributeAdapter classes
      *******************************************************************************************/
-    var properties = kidoju.properties = kidoju.properties || {};
+    var attributes = kidoju.attributes = kidoju.attributes || {};
 
-    var Property = properties.Property = kendo.Class.extend({
+    var AttributeAdapter = attributes.AttributeAdapter = kendo.Class.extend({
         value: undefined,
         init: function(value) {
             this.value = value;
@@ -486,7 +486,7 @@
         //validation????????
     });
 
-    var TextProperty = properties.TextProperty = Property.extend({
+    var TextAttributeAdapter = attributes.TextAttributeAdapter = AttributeAdapter.extend({
         init: function(value) {
             this.value = value;
         },
@@ -495,7 +495,7 @@
         }
     });
 
-    var IntegerProperty = properties.IntegerProperty = Property.extend({
+    var IntegerAttributeAdapter = attributes.IntegerAttributeAdapter = AttributeAdapter.extend({
         value: 0,
         init: function(value) {
             this.value = value;
@@ -505,7 +505,7 @@
         }
     });
 
-    var BooleanProperty = properties.BooleanProperty = Property.extend({
+    var BooleanAttributeAdapter = attributes.BooleanAttributeAdapter = AttributeAdapter.extend({
         value: false,
         init: function(value) {
             this.value = value;
@@ -515,11 +515,11 @@
         }
     });
 
-    var FontProperty = properties.FontProperty = Property.extend({
+    var FontAttributeAdapter = attributes.FontAttributeAdapter = AttributeAdapter.extend({
         //TODO
     });
 
-    var ColorProperty = properties.ColorProperty = properties.Property.extend({
+    var ColorAttributeAdapter = attributes.ColorAttributeAdapter = AttributeAdapter.extend({
         value: false,
         init: function(value) {
             this.value = value;
@@ -530,17 +530,17 @@
     });
 
     /*******************************************************************************************
-     * FieldAdapter classes
+     * PropertyAdapter classes
      *******************************************************************************************/
-    var fields = kidoju.fields = kidoju.fields || {};
+    var properties = kidoju.properties = kidoju.properties || {};
 
-    var FieldAdapter = kendo.Class.extend({
+    var PropertyAdapter = properties.PropertyAdapter = kendo.Class.extend({
         init: function(value) {
 
         }
     });
 
-    var TextFieldAdapter = fields.TextFieldAdapter = FieldAdapter.extend({
+    var TextPropertyAdapter = properties.TextPropertyAdapter = PropertyAdapter.extend({
 
     });
 
@@ -568,14 +568,14 @@
         icon: 'document_orientation_landscape',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<span style="font-family: #= properties.font #; color: #= properties.color#;">#= properties.text#</span>'
+            default: '<span style="font-family: #= attributes.font #; color: #= attributes.color#;">#= attributes.text#</span>'
         },
         height: 100,
         width: 300,
-        properties: {
-            text: new properties.TextProperty('Label'),
-            font: new properties.TextProperty('Georgia, serif'),
-            color: new properties.TextProperty('#FF0000')
+        attributes: {
+            text: new attributes.TextAttributeAdapter('Label'),
+            font: new attributes.TextAttributeAdapter('Georgia, serif'),
+            color: new attributes.TextAttributeAdapter('#FF0000')
         },
         /**
          * Get Html content
@@ -586,7 +586,7 @@
          */
         getHtml: function(item, mode) {
             var template = kendo.template(this.templates.default);
-            var data = { properties: item.getProperties(), fields: item.getDataFields() };
+            var data = { attributes: item.getAttributes(), properties: item.getProperties() };
             return template(data);
         },
         /**
@@ -644,13 +644,13 @@
         icon: 'painting_landscape',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<img src="#= properties.src #" alt="#= properties.alt #">'
+            default: '<img src="#= attributes.src #" alt="#= attributes.alt #">'
         },
         height: 250,
         width: 250,
-        properties: {
-            src: new properties.TextProperty(''),
-            alt: new properties.TextProperty('')
+        attributes: {
+            src: new attributes.TextAttributeAdapter(''),
+            alt: new attributes.TextAttributeAdapter('')
         },
         /**
          * Get Html content
@@ -661,7 +661,7 @@
          */
         getHtml: function(item) {
             var template = kendo.template(this.templates.default);
-            var data = { properties: item.getProperties(), fields: item.getDataFields() };
+            var data = { attributes: item.getAttributes(), properties: item.getProperties() };
             return template(data);
         },
         /**
@@ -699,11 +699,11 @@
         icon: 'text_field',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<input type="text" data-bind="value: #= fields.text.name #">'
+            default: '<input type="text" data-bind="value: #= properties.text.name #">'
         },
         height: 100,
         width: 300,
-        properties: {
+        attributes: {
         },
         /**
          * Get Html content
@@ -714,7 +714,7 @@
          */
         getHtml: function(item, mode) {
             var template = kendo.template(this.templates.default);
-            var data = { properties: item.getProperties(), fields: item.getDataFields() };
+            var data = { attributes: item.getAttributes(), properties: item.getProperties() };
             return template(data);
         },
         /**
@@ -754,16 +754,17 @@
         icon: 'button',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<button type="button">#= text #</button>'
+            default: '<button type="button">#= attributes.text #</button>'
         },
         height: 100,
         width: 300,
-        properties: {
-            text: new properties.TextProperty('Button')
+        attributes: {
+            text: new attributes.TextAttributeAdapter('Button')
         },
         getHtml: function(item, mode) {
             var template = kendo.template(this.templates.default);
-            return template(item.getProperties());
+            var data = { attributes: item.getAttributes(), properties: item.getProperties() };
+            return template(data);
         },
         addEvents: function(item, mode) {
 

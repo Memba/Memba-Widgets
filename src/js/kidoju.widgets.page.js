@@ -449,6 +449,7 @@
                     if(pageElement.css(ROTATE) != e.items[i].rotate) {
                         pageElement.css(ROTATE, e.items[i].rotate + 'deg');
                     }
+                    //TODO attributes
                     //TODO properties
                 }
             }

@@ -77,8 +77,8 @@
                 type: STRING,
                 defaultValue: null
             },
-            //TODO: check whether we can have a properties field of type OBJECT
-            properties: {
+            //TODO: check whether we can have a attributes field of type OBJECT
+            attributes: {
                 type: STRING,
                 defaultValue: JSON.stringify({}),
                 parse: function (value) {
@@ -92,7 +92,7 @@
                     }
                 }
             },
-            dataFields: {
+            properties: {
                 type: STRING,
                 defaultValue: JSON.stringify({}),
                 parse: function (value) {
@@ -119,7 +119,7 @@
         //See SchedulerEvent and Node in kendo.all.js
         init: function(item) {
             var that = this;
-            //If we call the following, somme properties are not initialized
+            //If we call the following, some properties are not initialized
             //kendo.data.Model.fn.init.call(that, item);
             kendo.data.Model.fn.init.call(that, undefined);
             for (var prop in item) {
@@ -130,18 +130,36 @@
             if (kidoju.tools && $.type(that.tool) === STRING) {
                 var tool = kidoju.tools[that.tool];
                 if (tool instanceof kidoju.Tool) {
-                    var properties = tool._getProperties();
+                    var attributes = tool._getAttributes();
                     try {
-                        //the tool might have been updated to implement some new properties
-                        $.extend(properties, JSON.parse(that.properties));
+                        //the tool might have been updated to implement some new attributes
+                        $.extend(attributes, JSON.parse(that.attributes));
                     } catch (err) {}
-                    that.properties = JSON.stringify(properties);
+                    that.attributes = JSON.stringify(attributes);
                 }
             }
         },
         update: function(item) {
             for (var field in item) {
                 this.set(field, item[field]);
+            }
+        },
+        attr: function(key, value) {
+            if (value !== undefined) {
+                var attributes = this.getAttributes();
+                attributes[key] = value;
+                this.set('attributes', JSON.stringify(attributes));
+            } else {
+                var attributes = this.getAttributes();
+                return attributes[key];
+            }
+        },
+        getAttributes: function() {
+            var attributes = this.get('attributes');
+            if ($.type(attributes) === STRING) {
+                return JSON.parse(attributes);
+            } else {
+                return {};
             }
         },
         prop: function(key, value) {
@@ -155,22 +173,9 @@
             }
         },
         getProperties: function() {
-            var props = this.get('properties');
-            if ($.type(props) === STRING) {
-                return JSON.parse(props);
-            } else {
-                return {};
-            }
-        },
-        /*
-        data: function(key, value) {
-            //TODO
-            throw new Error('Not implemented');
-        },*/
-        getDataFields: function() {
-            var data = this.get('dataFields');
-            if ($.type(data) === STRING) {
-                return JSON.parse(data);
+            var properties = this.get('properties');
+            if ($.type(properties) === STRING) {
+                return JSON.parse(properties);
             } else {
                 return {};
             }
@@ -575,22 +580,22 @@
             return data.DataSource.fn.remove.call(this, model);
         },
 
-        getDataObject: function() {
-            var fields = {},
+        getObjectFromProperties: function() {
+            var obj = {},
                 pages = this.data();
             for (var i = 0; i < pages.length; i++) {
                 pages[i].load();
                 var items = pages[i].items.data();
                 for (var j = 0; j < items.length; j++) {
-                    var dataFields = items[j].getDataFields() || {};
-                    for (var field in dataFields) {
-                        if (dataFields.hasOwnProperty(field)) {
-                            fields[dataFields[field].name] = dataFields[field].value;
+                    var properties = items[j].getProperties() || {};
+                    for (var prop in properties) {
+                        if (properties.hasOwnProperty(prop)) {
+                            obj[properties[prop].name] = properties[prop].value;
                         }
                     }
                 }
             }
-            return kendo.observable (fields);
+            return kendo.observable (obj);
         }
     });
 

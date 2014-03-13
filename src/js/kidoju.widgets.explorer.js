@@ -15,14 +15,14 @@
         Widget = kendo.ui.Widget,
 
         DEBUG = true,
-        MODULE = 'kidoju.widgets.navigation: ';
+        MODULE = 'kidoju.widgets.explorer: ';
 
     /**
-     * Navigation widget
+     * Explorer widget
      * *class
      * @type {*}
      */
-    var Navigation = Widget.extend({
+    var Explorer = Widget.extend({
 
         init: function(element, options) {
             var that = this;
@@ -35,7 +35,7 @@
         },
 
         options: {
-            name: 'Navigation'
+            name: 'Explorer'
         },
 
         /**
@@ -55,6 +55,6 @@
 
     });
 
-    kendo.ui.plugin(Navigation);
+    kendo.ui.plugin(Explorer);
 
 }(jQuery));

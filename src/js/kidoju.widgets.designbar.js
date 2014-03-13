@@ -8,26 +8,34 @@
     "use strict";
 
     // shorten references to variables for uglification
-    var kendo = window.kendo,
-        ui = kendo.ui,
-        Widget = ui.Widget
+    var fn = Function,
+        global = fn('return this')(),
+        kendo = global.kendo,
+        data = kendo.data,
+        Widget = kendo.ui.Widget,
+
+        DEBUG = true,
+        MODULE = 'kidoju.widgets.designbar: ';
 
     /**
-     * Toolbar widget
+     * Designbar widget
      * *class
      * @type {*}
      */
-    var Toolbar = Widget.extend({
+    var Designbar = Widget.extend({
 
         init: function(element, options) {
             var that = this;
             // base call to widget initialization
             Widget.fn.init.call(this, element, options);
+            if(DEBUG && global.console) {
+                global.console.log(MODULE + 'widget initialized');
+            }
             that._layout();
         },
 
         options: {
-            name: 'Toolbar'
+            name: 'Designbar'
         },
 
         /**
@@ -47,6 +55,6 @@
 
     });
 
-    ui.plugin(Toolbar);
+    kendo.ui.plugin(Designbar);
 
 }(jQuery));

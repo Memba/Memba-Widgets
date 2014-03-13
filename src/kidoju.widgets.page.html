@@ -8,11 +8,14 @@
     <link rel="stylesheet" href="./styles/kidoju.widgets.toolbox.css">
     <script src="./js/2013.3.1424/jquery.min.js"></script>
     <script src="./js/2013.3.1424/kendo.all.min.js"></script>
+    <!--script src="../temp/Kendo/kendo.core.js"></script>
+    <script src="../temp/Kendo/kendo.data.js"></script>
+    <script src="../temp/Kendo/kendo.binder.js"></script-->
     <script src="./js/vendor/jquery.transit.js"></script>
     <script src="./js/kidoju.models.js"></script>
     <script src="./js/kidoju.tools.js"></script>
     <script src="./js/kidoju.widgets.toolbox.js"></script>
-    <!--script src="./js/kifoju.widgets.navigation.js"></script-->
+    <!--script src="./js/kidoju.widgets.navigation.js"></script-->
     <script src="./js/kidoju.widgets.page.js"></script>
     <style>
         body {background-color:darkgrey;}
@@ -23,8 +26,8 @@
     <input id="slider" value="100" />
     <input id="design" type="radio" name="mode" value="design" checked=true /><label for="design">design</label>
     <input id="solution" type="radio" name="mode" value="solution" /><label for="solution">solution</label>
-    <input id="learn" type="radio" name="mode" value="test" /><label for="learn">learn</label>
-    <input id="test" type="radio" name="mode" value="test" /><label for="test">test</label>
+    <input id="learn" type="radio" name="mode" value="learn" /><label for="learn">learn</label>
+    <input id="assess" type="radio" name="mode" value="assess" /><label for="assess">assess</label>
 </div>
 <div id="toolbox"></div>
 <div id="page"></div>
@@ -32,7 +35,7 @@
 </body>
 <script>
     $(document).ready(function() {
-        var dataSource = new kidoju.PageItemCollectionDataSource({
+        var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({
             data: [
                 { id: 'be1935d0-ff0e-4818-a5a8-762127f3b506', tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, properties: '{ "src": "http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png" }' },
                 { id: '75cecd51-dff0-4633-a421-dcdb5220fed5', tool : 'image', top: 300, left: 300, height: 250, width: 250, rotate: 315, properties: '{ "src": "http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg" }' },
@@ -41,20 +44,16 @@
             ]
         });
 
-        var viewModel = kendo.observable({
-            id: '93926F23-0D0D-4EA5-891D-DDADF995704C',
-            items: dataSource
-        });
-
         var page = $('#page').kendoPage({
-            dataSource: viewModel.items
+            dataSource: pageItemCollectionDataSource,
+            mode: 'design'
         }).data('kendoPage');
 
         $('#grid').kendoGrid({
-            dataSource: viewModel.items,
+            dataSource: pageItemCollectionDataSource,
             height: 300,
             selectable: true,
-            editable: true,
+            //editable: true,
             columns: [
                 {
                     field: "id",
@@ -91,10 +90,12 @@
                     title: "Rot.",
                     width: 60
                 },
+                //tag
                 {
                     field: "properties",
                     title: "Properties"
                 },
+                //dataFields
                 {
                     command: "destroy",
                     title: "&nbsp;",
@@ -128,8 +129,8 @@
                 case "learn":
                     page.mode(kendo.ui.Page.fn.modes.learn);
                     break;
-                case "test":
-                    page.mode(kendo.ui.Page.fn.modes.test);
+                case "assess":
+                    page.mode(kendo.ui.Page.fn.modes.assess);
                     break;
             }
         });

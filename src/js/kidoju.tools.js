@@ -146,19 +146,47 @@
                 }
             }
         },
+
         /**
          * Initializes attributes
+         * @method _initAttributes
+         * @returns {{}}
          * @private
          */
-        _getAttributes: function() {
+        _initAttributes: function() {
             var attributes = {};
             for(var attr in this.attributes) {
                 if (this.attributes.hasOwnProperty(attr)) {
-                    attributes[attr] = this.attributes[attr].value;
+                    if (this.attributes[attr] instanceof adapters.AttributeAdapter) {
+                        attributes[attr] = this.attributes[attr].value;
+                    }
                 }
             }
             return attributes;
         },
+
+        /**
+         * Initializes properties
+         * @method _initProperties
+         * @returns {{}}
+         * @private
+         */
+        _initProperties: function() {
+            var properties = {};
+            for(var prop in this.properties) {
+                if (this.properties.hasOwnProperty(prop)) {
+                    if (this.properties[prop] instanceof adapters.PropertyAdapter) {
+                        properties[prop] = {
+                            name: this.properties[prop].getName(),
+                            value: this.properties[prop].getValue()
+                        };
+                    }
+                }
+            }
+            return properties;
+        },
+
+
         /**
          * Returns a generic wrapper div for the page element derived from the page item
          * @method _getElementWrapper
@@ -465,16 +493,16 @@
          * @param e
          */
         onResize: function(e) {
-            var element = $(e.currentTarget);
+            $.noop();
         }
     });
 
     /*******************************************************************************************
      * AttributeAdapter classes
      *******************************************************************************************/
-    var attributes = kidoju.attributes = kidoju.attributes || {};
+    var adapters = kidoju.adapters = kidoju.adapters || {};
 
-    var AttributeAdapter = attributes.AttributeAdapter = kendo.Class.extend({
+    var AttributeAdapter = adapters.AttributeAdapter = kendo.Class.extend({
         value: undefined,
         init: function(value) {
             this.value = value;
@@ -486,7 +514,7 @@
         //validation????????
     });
 
-    var TextAttributeAdapter = attributes.TextAttributeAdapter = AttributeAdapter.extend({
+    var TextAttributeAdapter = adapters.TextAttributeAdapter = AttributeAdapter.extend({
         init: function(value) {
             this.value = value;
         },
@@ -495,7 +523,7 @@
         }
     });
 
-    var IntegerAttributeAdapter = attributes.IntegerAttributeAdapter = AttributeAdapter.extend({
+    var IntegerAttributeAdapter = adapters.IntegerAttributeAdapter = AttributeAdapter.extend({
         value: 0,
         init: function(value) {
             this.value = value;
@@ -505,7 +533,7 @@
         }
     });
 
-    var BooleanAttributeAdapter = attributes.BooleanAttributeAdapter = AttributeAdapter.extend({
+    var BooleanAttributeAdapter = adapters.BooleanAttributeAdapter = AttributeAdapter.extend({
         value: false,
         init: function(value) {
             this.value = value;
@@ -515,11 +543,11 @@
         }
     });
 
-    var FontAttributeAdapter = attributes.FontAttributeAdapter = AttributeAdapter.extend({
+    var FontAttributeAdapter = adapters.FontAttributeAdapter = AttributeAdapter.extend({
         //TODO
     });
 
-    var ColorAttributeAdapter = attributes.ColorAttributeAdapter = AttributeAdapter.extend({
+    var ColorAttributeAdapter = adapters.ColorAttributeAdapter = AttributeAdapter.extend({
         value: false,
         init: function(value) {
             this.value = value;
@@ -532,16 +560,30 @@
     /*******************************************************************************************
      * PropertyAdapter classes
      *******************************************************************************************/
-    var properties = kidoju.properties = kidoju.properties || {};
 
-    var PropertyAdapter = properties.PropertyAdapter = kendo.Class.extend({
-        init: function(value) {
-
+    var PropertyAdapter = adapters.PropertyAdapter = kendo.Class.extend({
+        _prefix: 'prop',
+        value: undefined,
+        init: function(options) {
+            $.noop()
+        },
+        getName: function() {
+            //TODO: we should actually keep a counter and increment it to have prop_1, prop_2, ...
+            //or better, several counters, to have textbox1, label2, ... like in Visual Studio
+            var s = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                name = this._prefix;
+            for (var i = 0; i < 4; i++) {
+                name += s.charAt(Math.floor(s.length*Math.random()));
+            }
+            return name;
+        },
+        getValue: function() {
+            return this.value;
         }
     });
 
-    var TextPropertyAdapter = properties.TextPropertyAdapter = PropertyAdapter.extend({
-
+    var TextPropertyAdapter = adapters.TextPropertyAdapter = PropertyAdapter.extend({
+        _prefix: 'textbox_'
     });
 
     /*******************************************************************************************
@@ -573,9 +615,9 @@
         height: 100,
         width: 300,
         attributes: {
-            text: new attributes.TextAttributeAdapter('Label'),
-            font: new attributes.TextAttributeAdapter('Georgia, serif'),
-            color: new attributes.TextAttributeAdapter('#FF0000')
+            text: new adapters.TextAttributeAdapter('Label'),
+            font: new adapters.TextAttributeAdapter('Georgia, serif'),
+            color: new adapters.TextAttributeAdapter('#FF0000')
         },
         /**
          * Get Html content
@@ -649,8 +691,8 @@
         height: 250,
         width: 250,
         attributes: {
-            src: new attributes.TextAttributeAdapter(''),
-            alt: new attributes.TextAttributeAdapter('')
+            src: new adapters.TextAttributeAdapter(''),
+            alt: new adapters.TextAttributeAdapter('')
         },
         /**
          * Get Html content
@@ -703,7 +745,8 @@
         },
         height: 100,
         width: 300,
-        attributes: {
+        properties: {
+            text: new adapters.TextPropertyAdapter()
         },
         /**
          * Get Html content
@@ -759,7 +802,7 @@
         height: 100,
         width: 300,
         attributes: {
-            text: new attributes.TextAttributeAdapter('Button')
+            text: new adapters.TextAttributeAdapter('Button')
         },
         getHtml: function(item, mode) {
             var template = kendo.template(this.templates.default);

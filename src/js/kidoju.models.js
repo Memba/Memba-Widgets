@@ -130,12 +130,20 @@
             if (kidoju.tools && $.type(that.tool) === STRING) {
                 var tool = kidoju.tools[that.tool];
                 if (tool instanceof kidoju.Tool) {
-                    var attributes = tool._getAttributes();
+                    //Attributes
+                    var attributes = tool._initAttributes();
                     try {
                         //the tool might have been updated to implement some new attributes
                         $.extend(attributes, JSON.parse(that.attributes));
                     } catch (err) {}
                     that.attributes = JSON.stringify(attributes);
+                    //Properties
+                    var properties = tool._initProperties();
+                    try {
+                        //the tool might have been updated to implement some new properties
+                        $.extend(properties, JSON.parse(that.properties));
+                    } catch (err) {}
+                    that.properties = JSON.stringify(properties);
                 }
             }
         },

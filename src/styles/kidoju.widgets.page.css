@@ -11,6 +11,9 @@
 .kj-page {
     position: relative;
 }
+.kj-container {
+    position: relative;
+}
 .kj-element {
 
 }

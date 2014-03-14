@@ -156,6 +156,14 @@
         },
 
         /**
+         * @method setOptions
+         * @param options
+         */
+        //setOptions: function(options) {
+        //    Widget.fn.setOptions.call(this, options);
+        //},
+
+        /**
          * @property events
          */
         events: [
@@ -227,6 +235,8 @@
          * @param value
          * @returns {*}
          */
+            //TODO IMPORTANT: rename value into selection
+            //value binding requires valueTextField
         value: function(value) {
             var that = this;
             if (value !== undefined) {
@@ -399,8 +409,8 @@
                 idx, start = 0, end,
                 html = '', position;
 
-            if (e && e.action == 'itemchange') {
-                return; //we only update the playbar on 'add' and 'remove'
+            if (e && e.action === 'itemchange') {
+                return; //we only update the playbar on loading, 'add' and 'remove'
             }
 
             if (options.numeric) {
@@ -468,14 +478,25 @@
             }
         },
 
+        /**
+         * @method _refreshClick
+         * @param e
+         * @private
+         */
         _refreshClick: function(e) {
             e.preventDefault();
             this.dataSource.read();
         },
 
+        /**
+         * @method _indexClick
+         * @param e
+         * @private
+         */
         _indexClick: function(e) {
             var target = $(e.currentTarget);
             e.preventDefault();
+            //TODO: would it be more reliable to use the id instead of index (requires an update of templates)
             if (!target.is(".k-state-disabled")) {
                 this.index(parseInt(target.attr(kendo.attr("index")), 10));
             }

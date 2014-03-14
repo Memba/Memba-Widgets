@@ -90,6 +90,28 @@
     });
 
     /**
+     * Enable binding the selection value of a Playbar widget
+     * @type {*|void}
+     */
+    binders.widget.selection = Binder.extend({
+        init: function(widget, bindings, options) {
+            Binder.fn.init.call(this, widget.element[0], bindings, options);
+            this.widget = widget;
+            this._change = $.proxy(this.change, this);
+            this.widget.bind(CHANGE, this._change);
+        },
+        change: function() {
+            this.bindings.selection.set(this.widget.selection());
+        },
+        refresh: function() {
+            this.widget.selection(this.bindings.selection.get());
+        },
+        destroy: function() {
+            this.widget.unbind(CHANGE, this._change);
+        }
+    });
+
+    /**
      * Enable binding the properties value of a Page widget
      * @type {*|void}
      */

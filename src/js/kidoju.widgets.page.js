@@ -213,22 +213,22 @@
         },
 
         /**
-         * Fields
+         * Properties
          * @param value
          * @returns {*}
          */
-        fields:  function (value) {
+        properties:  function (value) {
             var that = this;
             if (value) {
                 //if(!(value instanceof kendo.data.ObervableObject)) {
                 //    throw new TypeError();
                 //}
-                if(value !== that._fields) {
-                    that._fields = value;
+                if(value !== that._properties) {
+                    that._properties = value;
                 }
             }
             else {
-                return that._fields;
+                return that._properties;
             }
         },
 
@@ -404,7 +404,7 @@
                     data = e.items;
                 }
                 if (that.mode() === that.modes.assess) {
-                    kendo.unbind(that._container, that.fields());
+                    kendo.unbind(that._container, that.properties());
                 }
                 that._container.find('*').off();
                 that._container.empty();
@@ -415,8 +415,8 @@
                     }
                 }
                 if(that.mode() === that.modes.assess) {
-                    if (that.fields() instanceof kendo.data.ObservableObject) {
-                        kendo.bind(that._container, that.fields());
+                    if (that.properties() instanceof kendo.data.ObservableObject) {
+                        kendo.bind(that._container, that.properties());
                     }
                 }
             } else if (e.action === 'add') {

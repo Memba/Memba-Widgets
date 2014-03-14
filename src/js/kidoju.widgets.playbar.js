@@ -15,6 +15,7 @@
         Widget = kendo.ui.Widget,
 
         //Types
+        STRING = 'string',
         NUMBER = 'number',
         NULL = null,
 
@@ -34,9 +35,14 @@
         DEBUG = true,
         MODULE = 'kidoju.widgets.playbar: ';
 
-    /**
+    /*********************************************************************************
      * Helpers
-     */
+     *********************************************************************************/
+
+    function isGuid(value) {
+        //http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
+        return  ($.type(value) === STRING) && (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value));
+    }
 
     function button(template, idx, text, numeric, title) {
         return template( {
@@ -84,6 +90,9 @@
         update(element, LAST, length - 1, index >= length - 1);
     }
 
+    /*********************************************************************************
+     * Widget
+     *********************************************************************************/
 
     /**
      * Toolbar widget
@@ -106,6 +115,7 @@
             if(DEBUG && global.console) {
                 global.console.log(MODULE + 'widget initialized');
             }
+            //TODO: review how index is set
             that._index = that.options.index || 0;
             that._templates();
             that._layout();
@@ -123,14 +133,14 @@
             linkTemplate: '<li><a tabindex="-1" href="\\#" class="k-link" data-#=ns#index="#=idx#" #if (title !== "") {# title="#=title#" #}#>#=text#</a></li>',
             buttonCount: 10,
             autoBind: true,
-            index: 0,
+            index: 0, //TODO: do we need id too?
             numeric: true,
             info: true,
             timer: true,
             input: false,
             previousNext: true,
             refresh: true,
-            value: NULL,
+            //value: NULL, //TODO: we do not seem to have a use for value
             dataSource: undefined, //Important undefined is required for _SetDataSource to initialize a dataSource
             messages: {
                 empty: 'No page to display',
@@ -151,6 +161,94 @@
         events: [
             CHANGE
         ],
+
+        /**
+         * IMPORTANT: index is 0 based, whereas playbar page numbers are 1 based
+         * @method index
+         * @param value
+         * @returns {*}
+         */
+        index: function(value) {
+            var that = this;
+            if(value !== undefined) {
+                if (DEBUG && global.console) {
+                    global.console.log(MODULE + 'index set to ' + value);
+                }
+                if ($.type(value) !== NUMBER) {
+                    throw new TypeError();
+                } else if (value < 0 || (value > 0 && value >= that.length())) {
+                    throw new RangeError();
+                } else if (value !== that._index) {
+                    that._index = value;
+                    that.refresh(); //TODO review when MVVM
+                    var page = that.dataSource.at(that._index);
+                    that.trigger(CHANGE, {
+                        index: value,
+                        id: (page instanceof kidoju.Page) ? page[page.idField] : undefined,
+                        value: page
+                    });
+                }
+            } else {
+                return that._index;
+            }
+        },
+
+        /**
+         * @method id
+         * @param value
+         * @returns {*}
+         */
+        id: function (value) {
+            var that = this;
+            if (value !== undefined) {
+                if (!isGuid(value)) {
+                    throw new TypeError();
+                }
+                var page = that.dataSource.get(value);
+                if (page !== undefined) {
+                    var index = that.dataSource.indexOf(page);
+                    if (index >= 0) { //index = -1 if not found
+                        that.index(index);
+                    }
+                    //if page not found, we do nothing
+                }
+            } else {
+                var page = that.dataSource.at(that._index);
+                if (page instanceof kidoju.Page) {
+                    return page[page.idField];
+                } else {
+                    return undefined;
+                }
+            }
+        },
+
+        /**
+         * @method value
+         * @param value
+         * @returns {*}
+         */
+        value: function(value) {
+            var that = this;
+            if (value !== undefined) {
+                var index = that.dataSource.indexOf(value);
+                if (index >= 0) { //index = -1 if not found
+                    that.index(index);
+                }
+                //if page not found, we do nothing
+            } else {
+                return that.dataSource.at(that._index);
+                //This returns undefined if not found
+            }
+        },
+
+        /**
+         * @method total()
+         * @returns {*}
+         */
+        length: function() {
+            return (this.dataSource instanceof kidoju.PageCollectionDataSource) ? this.dataSource.total() : 0;
+        },
+
 
         _templates: function() {
             var that = this;
@@ -201,78 +299,6 @@
                     that.dataSource.fetch();
                 }
             }
-        },
-
-        /**
-         * index is 0 based, whereas displayed numbers are 1 based
-         * @method index
-         * @param value
-         * @returns {*}
-         */
-        index: function(value) {
-            var that = this;
-            if(value !== undefined) {
-                if (DEBUG && global.console) {
-                   global.console.log(MODULE + 'index set to ' + value);
-                }
-                if ($.type(value) !== NUMBER) {
-                    throw new TypeError();
-                } else if (value < 0 || (value > 0 && value >= that.length())) {
-                    throw new RangeError();
-                } else if (value !== that._index) {
-                    that._index = value;
-                    that.refresh(); //TODO review when MVVM
-                    that.trigger(CHANGE, { index: value });
-                }
-            } else {
-                return that._index;
-            }
-        },
-
-        /**
-         * @method id
-         * @param value
-         * @returns {*}
-         */
-        id: function (value) {
-            var that = this;
-            if (value !== undefined) {
-                var item = that.dataSource.get(value);
-                if (item !== undefined) {
-                    var index = that.dataSource.indexOf(item); //index = -1 if not found
-                    that.index(index);
-                }
-            } else {
-                var item = that.dataSource.at(that._index);
-                if (item && item.idField) {
-                    return item[item.idField];
-                } else {
-                    return undefined;
-                }
-            }
-        },
-
-        /**
-         * @method value
-         * @param value
-         * @returns {*}
-         */
-        value: function(value) {
-            var that = this;
-            if (value !== undefined) {
-                var index = that.dataSource.indexOf(value);  //index = -1 if not found
-                that.index(index);
-            } else {
-                return that.dataSource.at(that._index);
-            }
-        },
-
-        /**
-         * @method total()
-         * @returns {*}
-         */
-        length: function() {
-            return (this.dataSource instanceof kidoju.PageCollectionDataSource) ? this.dataSource.total() : 0;
         },
 
         /**

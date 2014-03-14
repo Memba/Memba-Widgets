@@ -118,6 +118,14 @@
         },
 
         /**
+         * @method setOptions
+         * @param options
+         */
+        //setOptions: function(options) {
+        //    Widget.fn.setOptions.call(this, options);
+        //},
+
+        /**
          * Mode defines the operating mode of the Page Widget
          * @param value
          * @return {*}
@@ -345,6 +353,7 @@
                     }
                     var pageElement = tool._draw(that._container, item);
                     //TODO Add event namespace TRANSLATE + NS
+                    //EVents could be added on the page itself
                     pageElement
                         .on(TRANSLATE, function (e, position) {
                             var pageElement = $(e.currentTarget),

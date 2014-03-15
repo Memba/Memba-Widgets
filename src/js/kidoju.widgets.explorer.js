@@ -81,7 +81,7 @@
             index: 0,
             id: null,
             autoBind: true,
-            itemTemplate: '<li data-uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item kj-explorer-item"><span class="k-in"><img class="k-image kj-explorer-icon" alt="" src="#= icon #">#= tool #</span></li>',
+            itemTemplate: '<li data-uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item kj-explorer-item"><span class="k-in"><img class="k-image kj-explorer-icon" alt="#= tool #" src="#= icon #">#= tool #</span></li>',
             iconPath: './styles/images/toolbox/',
             messages: {
                 empty: 'No item to display'

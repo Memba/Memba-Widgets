@@ -81,8 +81,8 @@
             index: 0,
             id: null,
             autoBind: true,
-            itemTemplate: '<li data-uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item"><span class="k-in">#= tool #</span></li>',
-            imageTemplate: '<img>', //TODO image template
+            itemTemplate: '<li data-uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item"><span class="k-in"><img class="k-image kj-explorer-icon" alt="" src="#= icon #">#= tool #</span></li>',
+            iconPath: './styles/images/toolbox/',
             messages: {
                 empty: 'No item to display'
             }
@@ -169,7 +169,7 @@
                     throw new TypeError();
                 }
                 //This might be executed before the dataSource is actually read
-                //In this case, we should store the value temporarily
+                //In this case, we should store the value temporarily to only assign it in the refresh method
                 if (!isGuid(that._selectedUid) && that.dataSource.total() === 0) {
                     that._tmp = value;
                 } else {
@@ -182,7 +182,7 @@
                                 id: value[value.idField],
                                 value: value
                             });
-                            that.refresh(e); //TODO review when MVVM
+                            that.refresh(e);
                             that.trigger(CHANGE, e);
                         }
                     }
@@ -216,7 +216,6 @@
         _templates: function() {
             var that = this;
             that.itemTemplate = kendo.template(that.options.itemTemplate);
-            that.imageTemplate = kendo.template(that.options.imageTemplate);
         },
 
         /**
@@ -292,7 +291,7 @@
                 html = '';
 
             if (e && e.action === 'itemchange') {
-                return; //we only update the playbar on loading, 'add' and 'remove'
+                return; //we only update the explorer on loading, 'add' and 'remove' because the item's tool is not supposed to change
             }
 
             if (e === undefined || e.type !== CHANGE) {
@@ -304,9 +303,15 @@
                     data = e.items;
                 }
                 for (var i = 0; i < data.length; i++) {
-                    html += that.itemTemplate(data[i]);
+                    var tool = kidoju.tools[data[i].tool];
+                    if (tool instanceof kidoju.Tool) {
+                        html += that.itemTemplate({
+                            uid: data[i].uid,
+                            tool: data[i].tool, //also tool.id
+                            icon: that.options.iconPath + tool.icon + '.svg'
+                        });
+                    }
                 }
-                that.list.html(html);
 
                 //See selection method:
                 //MVVM might bind selection before dataSource is read
@@ -314,7 +319,11 @@
                 if(html.length > 0 && that._tmp instanceof kidoju.PageItem) {
                     that.selection(that._tmp);
                     delete that._tmp;
+                } else if (html.length === 0) {
+                    html = that.options.messages.empty; //TODO: improve
                 }
+
+                that.list.html(html);
             }
 
             that.list.find(ALLITEMS_SELECTOR)

@@ -29,12 +29,12 @@
         NS = ".kendoExplorer",
 
         //Widget
-        WIDGET_CLASS = 'k-widget kj-explorer k-group', //k-list-container k-reset
+        WIDGET_CLASS = 'k-widget k-group kj-explorer', //k-list-container k-reset
         HOVER_CLASS = 'k-state-hover',
         FOCUSED_CLASS = 'k-state-focused',
         SELECTED_CLASS = 'k-state-selected',
-        ALLITEMS_SELECTOR = 'li.k-item[data-uid]',
-        UID_SELECTOR = 'li.k-item[data-uid="{0}"]',
+        ALL_ITEMS_SELECTOR = 'li.k-item[data-uid]',
+        ITEM_BYUID_SELECTOR = 'li.k-item[data-uid="{0}"]',
         ARIA_SELECTED = 'aria-selected',
         
         DEBUG = true,
@@ -111,7 +111,7 @@
          * @returns {*}
          */
         index: function(value) {
-            var that = this;
+            var that = this, pageItem;
             if(value !== undefined) {
                 if (DEBUG && global.console) {
                     global.console.log(MODULE + 'index set to ' + value);
@@ -121,11 +121,11 @@
                 } else if (value < 0 || (value > 0 && value >= that.length())) {
                     throw new RangeError();
                 } else {
-                    var pageItem = that.dataSource.at(value);
+                    pageItem = that.dataSource.at(value);
                     that.selection(pageItem);
                 }
             } else {
-                var pageItem = that.dataSource.getByUid(that._selectedUid);
+                pageItem = that.dataSource.getByUid(that._selectedUid);
                 if (pageItem instanceof kidoju.PageItem) {
                     return that.dataSource.indexOf(pageItem);
                 } else {
@@ -140,15 +140,15 @@
          * @returns {*}
          */
         id: function (value) {
-            var that = this;
+            var that = this, pageItem;
             if (value !== undefined) {
                 if (!isGuid(value)) {
                     throw new TypeError();
                 }
-                var pageItem = that.dataSource.get(value);
+                pageItem = that.dataSource.get(value);
                 that.selection(pageItem);
             } else {
-                var pageItem = that.dataSource.getByUid(that._selectedUid);
+                pageItem = that.dataSource.getByUid(that._selectedUid);
                 if (pageItem instanceof kidoju.PageItem) {
                     return pageItem[pageItem.idField];
                 } else {
@@ -170,7 +170,7 @@
                 }
                 //This might be executed before the dataSource is actually read
                 //In this case, we should store the value temporarily to only assign it in the refresh method
-                if (!isGuid(that._selectedUid) && that.dataSource.total() === 0) {
+                if (!isGuid(that._selectedUid) && that.length() === 0) {
                     that._tmp = value;
                 } else {
                     if (value.uid !== that._selectedUid) {
@@ -274,9 +274,9 @@
                 that.list = $('<ul tabindex="-1" unselectable="on" role="listbox" class="k-list k-reset" />').appendTo(explorer);
             }
             explorer
-                .on(MOUSEENTER + NS + ' ' + MOUSELEAVE + NS, ALLITEMS_SELECTOR, that._toggleHover)
-                //.on(FOCUS + NS + ' ' + BLUR + NS, ALLITEMS_SELECTOR, that._toggleFocus)
-                .on(CLICK + NS , ALLITEMS_SELECTOR, $.proxy(that._click, that))
+                .on(MOUSEENTER + NS + ' ' + MOUSELEAVE + NS, ALL_ITEMS_SELECTOR, that._toggleHover)
+                //.on(FOCUS + NS + ' ' + BLUR + NS, ALL_ITEMS_SELECTOR, that._toggleFocus)
+                .on(CLICK + NS , ALL_ITEMS_SELECTOR, $.proxy(that._click, that))
                 .addClass(WIDGET_CLASS);
 
             kendo.notify(that);
@@ -326,10 +326,10 @@
                 that.list.html(html);
             }
 
-            that.list.find(ALLITEMS_SELECTOR)
+            that.list.find(ALL_ITEMS_SELECTOR)
                 .removeClass(SELECTED_CLASS)
                 .removeProp(ARIA_SELECTED);
-            that.list.find(kendo.format(UID_SELECTOR, that._selectedUid))
+            that.list.find(kendo.format(ITEM_BYUID_SELECTOR, that._selectedUid))
                 .addClass(SELECTED_CLASS)
                 .prop(ARIA_SELECTED, true);
         },

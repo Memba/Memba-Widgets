@@ -6,6 +6,7 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        clean: ['dist/'],
         concat: {
             css: {
                 src: ['src/styles/kidoju*.css'],
@@ -75,6 +76,28 @@ module.exports = function (grunt) {
                 }
             }
         },
+        copy: {
+            dist: {
+                // options: {
+                //    process: function(src, filepath) {
+                //        //Replace with min versions
+                //        var ret;
+                //        if (filepath === 'src/js/init.js'){
+                //            ret = src
+                //                .replace(/DEBUG[\s]*=[\s]*true/gm, 'DEBUG = false')
+                //                .replace(/init.js/gm, 'init.min.js');
+                //        }
+                //        return ret || src;
+                //    },
+                //    noProcess: ['**/*.{png,gif,jpg,ico,psd}'] //otherwise images are corrupeted
+                // },
+                files: [
+                    //{ cwd: 'src/styles', src: ['fonts/**'], dest: 'dist/styles', expand: true },
+                    { cwd: 'src/styles', src: ['images/**'], dest: 'dist/styles', expand: true }
+                ]
+            }
+
+        },
         yuidoc: {
             compile: {
                 name: '<%= pkg.name %>',
@@ -90,8 +113,10 @@ module.exports = function (grunt) {
     });
 
     //File management
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-copy');
 
     //Javascript
     grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -107,6 +132,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
     grunt.registerTask('test', ['jshint', 'qunit']);
-    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify', 'cssmin', 'yuidoc']);
+    grunt.registerTask('default', ['clean', 'jshint', 'qunit', 'concat', 'uglify', 'cssmin', 'copy', 'yuidoc']);
 
 };

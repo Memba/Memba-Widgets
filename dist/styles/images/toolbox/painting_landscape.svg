@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>painting_landscape icon</title>
+	<desc>painting_landscape icon from the IconExperience.com O-Collection. Copyright by INCORS GmbH (www.incors.com).</desc>
+	<path id="curve3" fill="#76A797" d="M5048 5830c-1168,-466 -1702,-1142 -2808,-522l0 1278c1050,250 1919,-39 2808,-756z"/>
+	<path id="curve2" fill="#76A797" d="M2240 6913c3178,686 4306,-3302 5760,-2461l0 2908 -5760 0 0 -447z"/>
+	<path id="curve1" fill="#EDC87E" d="M4800 3200c530,0 960,430 960,960 0,530 -430,960 -960,960 -530,0 -960,-430 -960,-960 0,-530 430,-960 960,-960z"/>
+	<path id="curve0" fill="#EDC87E" d="M8640 8960c-640,0 -960,-320 -1600,-320 -640,0 -960,320 -1920,320 -960,0 -1280,-320 -1920,-320 -640,0 -960,320 -1600,320 -705,0 -960,-255 -960,-960 0,-640 320,-960 320,-1280 0,-640 -320,-960 -320,-1600 0,-640 320,-960 320,-1600 0,-320 -320,-640 -320,-1280 0,-705 255,-960 960,-960 640,0 960,320 1600,320 640,0 960,-320 1920,-320 960,0 1280,320 1920,320 640,0 960,-320 1600,-320 705,0 960,255 960,960 0,640 -320,960 -320,1280 0,640 320,960 320,1600 0,640 -320,960 -320,1600 0,320 320,640 320,1280 0,705 -320,960 -960,960zm-6720 -6400l6400 0 0 5120 -6400 0 0 -5120z"/>
+</svg>

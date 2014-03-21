@@ -86,8 +86,7 @@
             if(DEBUG && global.console) {
                 global.console.log(MODULE + 'widget initialized');
             }
-            //TODO: check that that.options.mode is a valid value
-            that._mode = that.options.mode;
+            that.setOptions(options);
             that._layout();
             that._dataSource();
         },
@@ -121,9 +120,14 @@
          * @method setOptions
          * @param options
          */
-        //setOptions: function(options) {
-        //    Widget.fn.setOptions.call(this, options);
-        //},
+        setOptions: function(options) {
+            Widget.fn.setOptions.call(this, options);
+            //TODO: we need to read scale, height and width both from styles and options and decide which wins
+            this._mode = this.options.mode;
+            this._scale = this.options.scale;
+            this._height = this.options.height;
+            this._width = this.options.width;
+        },
 
         /**
          * Mode defines the operating mode of the Page Widget
@@ -132,7 +136,7 @@
          */
         mode: function (value) {
             var that = this;
-            if (value) {
+            if (value !== undefined) {
                 if($.type(value) !== STRING) {
                     throw new TypeError();
                 }
@@ -140,6 +144,7 @@
                 if(value !== that._mode) {
                     that._mode = value;
                     that.refresh();
+                    //TODO: trigger event?
                 }
             }
             else {
@@ -154,23 +159,25 @@
          */
         scale: function (value) {
             var that = this;
-            if (value) {
+            if (value !== undefined) {
                 if($.type(value) !== NUMBER) {
                     throw new TypeError();
                 }
                 if (value < 0) {
                     throw new RangeError();
                 }
-                if(value !== that.options.scale) {
-                    that.options.scale = value;
+                if(value !== that._scale) {
+                    that._scale = value;
                     if(DEBUG && global.console) {
-                        global.console.log(MODULE + 'scale changed to: ' + value);
+                        global.console.log(MODULE + 'scale changed to: ' + that._scale);
                     }
-                    $(that.element).css({transform: kendo.format('scale({0})', value)});
+                    that.element
+                        .css({ transformOrigin: '0px 0px' })//TODO: review
+                        .css({ transform: kendo.format('scale({0})', that._scale) });
                 }
             }
             else {
-                return that.options.scale;
+                return that._scale;
             }
         },
 
@@ -301,6 +308,8 @@
                 .css('overflow', 'hidden')
                 .css(HEIGHT, that.height() + 'px')
                 .css(WIDTH, that.width() + 'px')
+                .css({ transformOrigin: '0px 0px' })//TODO: review
+                .css({ transform: kendo.format('scale({0})', that._scale) })
                 .append(that._container);
             //Click handler to select or create page elements from page items in design mode
             if(that.mode() === that.modes.design) {
@@ -419,7 +428,7 @@
                 that._container.empty();
                 for (var i = 0; i < data.length; i++) {
                     var item = data[i];
-                    if ($.type(item.tool) === STRING) {
+                    if (item instanceof kidoju.PageItem) {
                         that._addPageElement(item);
                     }
                 }

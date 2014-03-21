@@ -50,7 +50,7 @@ module.exports = function (grunt) {
                 }
             }
         },
-        kendo_lint: {
+        kendo_lint: { // TODO: html too
             files: ['src/js/kidoju*.js']
         },
         watch: {
@@ -74,7 +74,7 @@ module.exports = function (grunt) {
                     'dist/styles/kidoju.widgets.min.css': ['<%= concat.css.dest %>']
                 }
             }
-        }/*,
+        },
         yuidoc: {
             compile: {
                 name: '<%= pkg.name %>',
@@ -83,10 +83,10 @@ module.exports = function (grunt) {
                 url: '<%= pkg.homepage %>',
                 options: {
                     paths: 'src/js/',
-                    outdir: 'docs/yui/'
+                    outdir: 'docs/'
                 }
             }
-        }*/
+        }
     });
 
     //File management
@@ -104,9 +104,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-cssmin');
 
     //Documentation
-    //grunt.loadNpmTasks('grunt-contrib-yuidoc');
+    grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
     grunt.registerTask('test', ['jshint', 'qunit']);
-    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify', 'cssmin'/*, 'yuidoc'*/]);
+    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify', 'cssmin', 'yuidoc']);
 
 };

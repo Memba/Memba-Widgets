@@ -15,7 +15,7 @@
     },
     "licenses": [
         {
-            "type": "GPL",
+            "type": "GPL-3.0",
             "url": "https://raw.github.com/Memba/Kidoju-Widgets/master/LICENSE-GPL"
         }
     ],

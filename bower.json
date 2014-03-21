@@ -1,19 +1,36 @@
-//See http://bob.yexley.net/creating-and-maintaining-your-own-bower-package/
 {
     "name": "kidoju.widgets",
+    "description": "Widgets for the Kidoju learning platform",
     "version": "0.1.0",
-    "main": "path/to/main.css",
+    "copyright": "Copyright ©2013-2014 Memba® Sarl. All rights reserved.",
+    "keywords": ["Memba", "Kidoju", "Kendo UI", "Javascript", "Widgets"],
+    "homepage": "http://widgets.kidoju.com",
+    "author": "Memba Sarl",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Memba/Kidoju-Widgets.git"
+    },
+    "license": "GPL-3.0",
+    "main": [
+        "dist/js/kidoju.widgets.js",
+        "dist/styles/kidoju.widgets.css"
+    ],
     "ignore": [
-        ".jshintrc",
-        "**/*.txt"
+        "src/",
+        "test/",
+        "**/.*",
+        "bower.json",
+        "*.md",
+        "*.cmd",
+        "gruntfile.js",
+        "package.json"
     ],
     "dependencies": {
-        "jquery": ">=1.10.2",
-        "<name>": "<version>",
-        "<name>": "<folder>",
-        "<name>": "<package>"
+        "jquery": ">=1.9.1 <=2.0.3",
+        "jquery.transit": ">=0.9.9",
+        "kendo-ui": ">=2014.1.318"
     },
     "devDependencies": {
-        "<test-framework-name>": "<version>"
+        "qunit": "1.14.0"
     }
 }

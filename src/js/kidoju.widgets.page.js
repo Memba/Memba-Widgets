@@ -317,9 +317,9 @@
                     if(DEBUG && global.console) {
                         global.console.log(MODULE + 'page clicked at (' + e.offsetX + ',' + e.offsetY + ')');
                     }
-                    var id = that.options.tools.get('active');
+                    var id = that.options.tools.get('active'),
+                        tool = that.options.tools[id];
                     if (id !== POINTER) {
-                        var tool = that.options.tools[id];
                         //TODO: show creation dialog and test OK/Cancel
                         var item = new kidoju.PageItem({
                             id: kendo.guid(),
@@ -333,7 +333,6 @@
                         that.dataSource.add(item);
                         that.options.tools.set('active', POINTER);
                     } else {
-                        var tool = that.options.tools[POINTER];
                         if ($.isFunction(tool._hideHandler)) {
                             tool._hideHandler(that.element);
                         }
@@ -413,7 +412,8 @@
          * Refreshes the widget
          */
         refresh: function(e) {
-            var that = this;
+            var that = this,
+                i = 0;
             if (e === undefined || e.action === undefined) {
                 var data = [];
                 if (e=== undefined && that.dataSource instanceof kendo.data.PageItemCollectionDataSource) {
@@ -426,7 +426,7 @@
                 }
                 that._container.find('*').off();
                 that._container.empty();
-                for (var i = 0; i < data.length; i++) {
+                for (i = 0; i < data.length; i++) {
                     var item = data[i];
                     if (item instanceof kidoju.PageItem) {
                         that._addPageElement(item);
@@ -438,15 +438,15 @@
                     }
                 }
             } else if (e.action === 'add') {
-                for (var i = 0; i < e.items.length; i++) {
+                for (i = 0; i < e.items.length; i++) {
                     that._addPageElement(e.items[i]);
                 }
             } else if (e.action === 'remove') {
-                for (var i = 0; i < e.items.length; i++) {
+                for (i = 0; i < e.items.length; i++) {
                     that._removePageElement(e.items[i].id);
                 }
             } else if (e.action === 'itemchange') {
-                for (var i = 0; i < e.items.length; i++) {
+                for (i = 0; i < e.items.length; i++) {
                     //NOTE e.field cannot be relied upon, especially when resizing
                     //e.field takes a value of height or width when both change
                     //id and tool are not supposed to change

@@ -565,7 +565,7 @@
         _prefix: 'prop',
         value: undefined,
         init: function(options) {
-            $.noop()
+            $.noop();
         },
         getName: function() {
             //TODO: we should actually keep a counter and increment it to have prop_1, prop_2, ...

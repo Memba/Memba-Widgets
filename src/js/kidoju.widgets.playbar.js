@@ -207,12 +207,13 @@
          * @returns {*}
          */
         id: function (value) {
-            var that = this;
+            var that = this,
+                page;
             if (value !== undefined) {
                 if (!isGuid(value)) {
                     throw new TypeError();
                 }
-                var page = that.dataSource.get(value);
+                page = that.dataSource.get(value);
                 if (page !== undefined) {
                     var index = that.dataSource.indexOf(page);
                     if (index >= 0) { //index = -1 if not found
@@ -221,7 +222,7 @@
                     //if page not found, we do nothing
                 }
             } else {
-                var page = that.dataSource.at(that._index);
+                page = that.dataSource.at(that._index);
                 if (page instanceof kidoju.Page) {
                     return page[page.idField];
                 } else {

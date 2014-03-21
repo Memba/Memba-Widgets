@@ -153,12 +153,11 @@
             }
         },
         attr: function(key, value) {
+            var attributes = this.getAttributes();
             if (value !== undefined) {
-                var attributes = this.getAttributes();
                 attributes[key] = value;
                 this.set('attributes', JSON.stringify(attributes));
             } else {
-                var attributes = this.getAttributes();
                 return attributes[key];
             }
         },
@@ -171,12 +170,11 @@
             }
         },
         prop: function(key, value) {
+            var properties = this.getProperties();
             if (value !== undefined) {
-                var properties = this.getProperties();
                 properties[key] = value;
                 this.set('properties', JSON.stringify(properties));
             } else {
-                var properties = this.getProperties();
                 return properties[key];
             }
         },

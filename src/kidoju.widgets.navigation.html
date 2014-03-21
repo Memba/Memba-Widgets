@@ -2,25 +2,132 @@
 <html>
 <head>
     <title>kidoju.widgets.navigation</title>
-    <link rel="stylesheet" href="./styles/2013.3.1424/kendo.common.min.css">
-    <link rel="stylesheet" href="./styles/2013.3.1424/kendo.default.min.css">
+    <link rel="stylesheet" href="./styles/2014.1.318/kendo.common.min.css">
+    <link rel="stylesheet" href="./styles/2014.1.318/kendo.default.min.css">
     <link rel="stylesheet" href="./styles/kidoju.widgets.navigation.css">
-    <script src="js/2013.3.1424/jquery.min.js"></script>
-    <script src="js/2013.3.1424/kendo.all.min.js"></script>
-    <!--script src="../temp/Kendo/kendo.core.js"></script>
-    <script src="../temp/Kendo/kendo.data.js"></script>
-    <script src="../temp/Kendo/kendo.binder.js"></script>
-    <script src="../temp/Kendo/kendo.pager.js"></script-->
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://cdn.kendostatic.com/2014.1.318/js/kendo.all.min.js"></script>
+    <!--script src="./js/2014.1.318/jquery.min.js"></script>
+    <script src="../temp/kendo.2014.1.318/kendo.core.js"></script>
+    <script src="../temp/kendo.2014.1.318/kendo.data.js"></script>
+    <script src="../temp/kendo.2014.1.318/kendo.binder.js"></script-->
+    <script src="./js/vendor/jquery.transit.js"></script>
     <script src="./js/kidoju.models.js"></script>
     <script src="./js/kidoju.tools.js"></script>
     <script src="./js/kidoju.widgets.bindings.js"></script>
+    <script src="./js/kidoju.widgets.page.js"></script>
     <script src="./js/kidoju.widgets.navigation.js"></script>
+    <style>
+        html {
+            /*See: http://www.telerik.com/forums/100-window-height-splitter*/
+            overflow: hidden;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        .kj-splitter {
+            height: 100%;
+            border: 0;
+        }
+        #left, [data-role="navigation"] {
+            height: 100%;
+            border: 0;
+        }
+    </style>
 </head>
 <body>
-<div data-role="navigation"></div>
+<div class="kj-splitter">
+    <div id="left">
+        <div data-role="navigation" data-bind="source: pages, selection: current"></div>
+    </div>
+    <div id="right">
+        <div class="centered">
+            <div data-role="page" data-bind="source: current.items"></div>
+        </div>
+    </div>
+</div>
 <script>
+    var pageCollectionData = [
+                {
+                    id: '29c14ae2-496b-49f5-9551-e0d7e4aa6032',
+                    items: [
+                        { id: 'be1935d0-ff0e-4818-a5a8-762127f3b506', tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: '{ "src": "http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png" }' },
+                        { id: 'f2b4179e-3189-401b-bb17-65ceaf62b1eb', tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: '{ "font": "Georgia, serif", "color": "#0000FF", "text": "Company?" }' },
+                        { id: 'c3d46312-07c3-44dc-a1c9-987654949927', tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: '{}', properties: '{ "text" : { "name" : "textfield1" } }' }
+                    ]
+                },
+                {
+                    id: 'c0878ced-8e3f-4161-a83a-049caed02d53',
+                    items: [
+                        { id: 'c745e385-d409-40d0-a4d7-1b7c14abc2f6', tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: '{ "font": "Georgia, serif", "color": "#FF0000", "text": "Marignan?" }' },
+                        { id: '25bd6088-dc9f-4c9c-a697-be32b8673ba9', tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: '{}', properties: '{ "text" : { "name" : "textfield2" } }' }
+                    ]
+                },
+                {
+                    id: '9e3803f8-a91c-408e-bded-d1b86c68723c',
+                    items: [
+                        { id: 'f6725a70-20b2-4adf-8b3a-a2d3f84da50d', tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: '{ "font": "Arial, sans serif", "color": "#000000", "text": "Couleur du cheval blanc d\'Henri IV?" }' },
+                        { id: '3894e35b-b740-46c8-be24-21f4a3b9c24d', tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: '{}', properties: ' { "text" : { "name" : "textfield3" } }' }
+                    ]
+                }
+            ],
+            pageCollectionDataSource = new kidoju.PageCollectionDataSource({ data: pageCollectionData }),
+            viewModel = window.viewModel = kendo.observable({
+                current: undefined,
+                pages: pageCollectionDataSource
+            }),
+            onResize = window.onResize = function() {
+                var navigationWidget = $('[data-role="navigation"]').data('kendoNavigation'),
+                        page = $('#right [data-role="page"]'),
+                        pageWidget = page.data('kendoPage');
+                if (navigationWidget instanceof kendo.ui.Navigation) {
+                    navigationWidget.resize();
+                }
+                if (pageWidget instanceof kendo.ui.Page) {
+                    var width = $('#right').width(),
+                            height = $('#right').height(),
+                            scale = Math.min(0.90*width/1024, 0.90*height/768);
+                    pageWidget.scale(scale);
+                    $('.centered')
+                            .width(scale*page.outerWidth())
+                            .height(scale*page.outerHeight())
+                            .css('position', 'absolute')
+                            .css('top', '50%')
+                            .css('left', '50%')
+                            .css('margin-left', '-' + scale*page.outerWidth()/2 + 'px')
+                            .css('margin-top', '-' + scale*page.outerHeight()/2 + 'px')
+                }
+            };
+
     $(document).ready(function() {
-        kendo.init('body');
+        var splitter = $('.kj-splitter').kendoSplitter({
+            orientation: 'horizontal',
+            resize: window.onResize,
+            panes: [
+                { size: '300px' /*, min: '50px', max: '500px'*/ },
+                {}
+            ]
+        }).data("kendoSplitter");
+
+        kendo.bind('body', viewModel);
+
+        $(window).on('resize', window.onResize);
+
+        $(document).on('keypress', function(e) {
+            //Add empty pages when pressing the space bar
+            if (e.type === 'keypress' && e.keyCode === 32) {
+               var page = new kidoju.Page();
+               //TODO: consider adding a label on the page
+               viewModel.pages.add(page);
+            }
+        });
+
+        pageCollectionDataSource.fetch(function() {
+            window.viewModel.set('current', pageCollectionDataSource.at(0));
+            window.onResize();
+        });
     });
 </script>
 </body>

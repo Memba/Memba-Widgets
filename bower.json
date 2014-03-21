@@ -31,6 +31,7 @@
         "kendo-ui": ">=2014.1.318"
     },
     "devDependencies": {
-        "qunit": "1.14.0"
+        "qunit": "1.14.0",
+        "sinon": "1.9.0"
     }
 }

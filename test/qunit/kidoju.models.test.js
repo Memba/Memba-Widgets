@@ -46,6 +46,7 @@ $(document).ready(function() {
         pageItemCollectionDataSource.remove(pageItemCollectionDataSource.at(0));
         equal(pageItemCollectionData.length-1, pageItemCollectionDataSource.total());
     });
+
     test('Use of create method', function() {
         var pageItemCollectionDataSource1 = kidoju.PageItemCollectionDataSource.create(pageItemCollectionData);
         var pageItemCollectionDataSource2 = kidoju.PageItemCollectionDataSource.create(pageItemCollectionDataSource1);
@@ -61,6 +62,7 @@ $(document).ready(function() {
             new Error("Incorrect DataSource type. Only PageItemCollectionDataSource instances are supported")
         );
     });
+
     test('Initialize from stupid array', function() {
         var pageItemCollectionData = [
             { title: 'Gone with the wind' },
@@ -112,7 +114,7 @@ $(document).ready(function() {
         var pageCollectionDataSource = new kidoju.PageCollectionDataSource({
             transport: {
                 read:  {
-                    url: "./data/pageCollection.json",
+                    url: "test/data/pageCollection.json",
                     dataType: "json"
                 }
             }

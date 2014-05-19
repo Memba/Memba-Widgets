@@ -37,10 +37,11 @@ module.exports = function (grunt) {
             }
         },
         qunit: {
-            files: ['test/kidoju*.html']
+            files: ['test/qunit/kidoju*.html']
         },
         mocha: {
-            files: ['test/mocha.html'],
+            files: ['test/mocha/kidoju*.html'],
+            reporter: 'Spec',
             options: {
                 run: true
             }
@@ -138,7 +139,7 @@ module.exports = function (grunt) {
     //Documentation
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
-    grunt.registerTask('test', ['jshint', 'qunit', 'mocha']);
+    grunt.registerTask('test', ['qunit', 'mocha']);
     grunt.registerTask('default', ['clean', 'jshint', 'qunit', 'concat', 'uglify', 'cssmin', 'copy', 'yuidoc']);
 
 };

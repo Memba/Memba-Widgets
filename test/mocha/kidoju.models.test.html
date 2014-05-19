@@ -1,0 +1,33 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>kidoju.models.test</title>
+    <link href="../vendor/mocha.css" rel="stylesheet" />
+    <link href="http://cdn.kendostatic.com/2014.1.416/styles/kendo.common.min.css" rel="stylesheet" />
+    <script src="../vendor/mocha.js"></script>
+    <script src="../vendor/chai.js"></script>
+    <!--script src="../vendor/blanket.min.js" data-cover-flags="debug"></script>
+    <script src="../vendor/mocha-blanket.js"></script-->
+    <script>
+        mocha.setup('bdd');
+        window.expect = chai.expect;
+    </script>
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://cdn.kendostatic.com/2014.1.416/js/kendo.all.min.js"></script>
+    <!--script src="../temp/kendo.2014.1.416/kendo.core.js"></script>
+    <script src="../temp/kendo.2014.1.416/kendo.data.js"></script>
+    <script src="../temp/kendo.2014.1.416/kendo.binder.js"></script-->
+    <script src="../../src/js/kidoju.models.js" data-cover></script>
+</head>
+<body>
+
+<div id="mocha"></div>
+
+<script src="kidoju.models.test.js"></script>
+<script>
+    mocha.checkLeaks();
+    mocha.globals(['jQuery', 'kendo']);
+    mocha.run();
+</script>
+</body>
+</html>

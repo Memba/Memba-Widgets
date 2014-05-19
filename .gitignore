@@ -9,6 +9,7 @@ Thumbs.db
 
 # Ignore Webstorm files
 .idea/
+coverage/
 
 # Ignore Docs
 docs/

@@ -138,7 +138,7 @@ module.exports = function (grunt) {
     //Documentation
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
-    grunt.registerTask('test', ['jshint', 'qunit']);
+    grunt.registerTask('test', ['jshint', 'qunit', 'mocha']);
     grunt.registerTask('default', ['clean', 'jshint', 'qunit', 'concat', 'uglify', 'cssmin', 'copy', 'yuidoc']);
 
 };

@@ -36,12 +36,8 @@ module.exports = function (grunt) {
                 }
             }
         },
-        qunit: {
-            files: ['test/qunit/kidoju*.html']
-        },
         mocha: {
             files: ['test/mocha/kidoju*.html'],
-            reporter: 'Spec',
             options: {
                 run: true
             }
@@ -63,7 +59,7 @@ module.exports = function (grunt) {
         },
         watch: {
             files: ['<%= jshint.files %>'],
-            tasks: ['jshint', 'qunit']
+            tasks: ['jshint', 'mocha']
         },
         csslint: {
             strict: {
@@ -128,7 +124,6 @@ module.exports = function (grunt) {
     //Javascript
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-kendo-lint');
-    grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
@@ -139,7 +134,7 @@ module.exports = function (grunt) {
     //Documentation
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
-    grunt.registerTask('test', ['qunit', 'mocha']);
-    grunt.registerTask('default', ['clean', 'jshint', 'qunit', 'concat', 'uglify', 'cssmin', 'copy', 'yuidoc']);
+    grunt.registerTask('test', ['mocha']);
+    grunt.registerTask('default', ['clean', 'jshint', 'mocha', 'concat', 'uglify', 'cssmin', 'copy', 'yuidoc']);
 
 };

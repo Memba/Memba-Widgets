@@ -37,7 +37,13 @@ module.exports = function (grunt) {
             }
         },
         qunit: {
-            files: ['test/*.html']
+            files: ['test/kidoju*.html']
+        },
+        mocha: {
+            files: ['test/mocha.html'],
+            options: {
+                run: true
+            }
         },
         jshint: {
             files: ['gruntfile.js', 'src/js/kidoju*.js'],
@@ -122,6 +128,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-kendo-lint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
+    grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
     //Styles

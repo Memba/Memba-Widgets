@@ -37,9 +37,19 @@ module.exports = function (grunt) {
             }
         },
         mocha: {
-            files: ['test/mocha/kidoju*.html'],
-            options: {
-                run: true
+            unit: { //In browser unit tests
+                src: ['test/unit/kidoju*.html'],
+                options: {
+                    run: true
+                }
+            }
+        },
+        mochaTest: { //zombie
+            ui: {
+                src: ['test/ui/kidoju*.js'],
+                options: {
+                    reporter: 'spec'
+                }
             }
         },
         jshint: {
@@ -124,17 +134,20 @@ module.exports = function (grunt) {
     //Javascript
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-kendo-lint');
-    grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
     //Styles
     grunt.loadNpmTasks('grunt-contrib-csslint');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
 
+    //Tests
+    grunt.loadNpmTasks('grunt-mocha');
+    grunt.loadNpmTasks('grunt-mocha-test');
+
     //Documentation
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
-    grunt.registerTask('test', ['mocha']);
+    grunt.registerTask('test', ['mocha', 'mochaTest']);
     grunt.registerTask('default', ['clean', 'jshint', 'mocha', 'concat', 'uglify', 'cssmin', 'copy', 'yuidoc']);
 
 };

@@ -10,9 +10,8 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    //frameworks: ['mocha', 'requirejs'],
+    //frameworks: ['mocha', 'requirejs', 'chai', 'sinon'],
     frameworks: ['mocha', 'chai'],
-    //frameworks: ['qunit'],
 
     // list of files / patterns to load in the browser
     files: [
@@ -20,7 +19,7 @@ module.exports = function(config) {
       'src/js/2014.1.318/kendo.all.min.js',
       'src/js/kidoju.tools.js',
       'src/js/kidoju.models.js',
-      'test/mocha/*.js',
+      'test/unit/*.js',
       {pattern: 'test/data/pageCollection.json', served: true}
     ],
 

@@ -1,14 +1,12 @@
-REM Install Git
-REM http://git-scm.com/downloads
-REM ----------------------------
-REM Install node.js
-REM http://nodejs.org/
-REM ----------------------------
-REM Install Grunt globally
-REM open a node.js command prompt and run
-REM npm install -g grunt-cli
-REM ----------------------------
-
+REM goto current directory
+cd /d %~dp0
+REM set node environment
 call "%ProgramFiles%\nodejs\nodevars.bat"
-cd %~dp0
+REM -------------------------
+REM Install global packages
+call npm install -g grunt-cli
+call npm install -g mocha
+call npm install -g karma-cli
+REM -------------------------
+REM Install dependencies listed in package.json 
 call npm install

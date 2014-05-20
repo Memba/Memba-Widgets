@@ -15,7 +15,6 @@ coverage/
 docs/
 
 # Ignore Node files
-nodejs/
 node_modules/
 
 # Ignore Grunt Files

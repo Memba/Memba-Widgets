@@ -6,27 +6,53 @@ module.exports = function(config) {
     // Example set of browsers to run on Sauce Labs
     // Check out https://saucelabs.com/platforms for all browser/platform combos
     var customLaunchers = {
-        sl_chrome: {
+        sl_ie_9: {
             base: 'SauceLabs',
-            browserName: 'chrome',
-            platform: 'Windows 7'
+            platform: 'Windows 7',
+            browserName: 'internet explorer',
+            version: '9'
         },
-        sl_firefox: {
+        sl_ie_10: {
             base: 'SauceLabs',
-            browserName: 'firefox',
-            version: '27'
-        },
-        sl_ios_safari: {
-            base: 'SauceLabs',
-            browserName: 'iphone',
-            platform: 'OS X 10.9',
-            version: '7.1'
+            platform: 'Windows 8',
+            browserName: 'internet explorer',
+            version: '10'
         },
         sl_ie_11: {
             base: 'SauceLabs',
-            browserName: 'internet explorer',
             platform: 'Windows 8.1',
+            browserName: 'internet explorer',
             version: '11'
+        },
+        sl_chrome_34: {
+            base: 'SauceLabs',
+            platform: 'Windows 7',
+            browserName: 'chrome',
+            version: '34'
+        },
+        sl_firefox_27: {
+            base: 'SauceLabs',
+            platform: 'Linux',
+            browserName: 'firefox',
+            version: '27'
+        },
+        sl_firefox_28: {
+            base: 'SauceLabs',
+            platform: 'Linux',
+            browserName: 'firefox',
+            version: '28'
+        },
+        sl_ios_safari: {
+            base: 'SauceLabs',
+            platform: 'OS X 10.9',
+            browserName: 'iphone',
+            version: '7.1'
+        },
+        sl_android: {
+            base: 'SauceLabs',
+            platform: 'Linux',
+            browserName: 'android',
+            version: '4.3'
         }
     };
 

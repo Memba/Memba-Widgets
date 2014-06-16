@@ -2,7 +2,9 @@
     "name": "kidoju.widgets",
     "description": "Kendo UI Widgets for the Kidoju platform",
     "version": "0.0.0",
+    "author": "Memba Sarl",
     "copyright": "Copyright ©2013-2014 Memba® Sarl. All rights reserved.",
+    "homepage": "http://widgets.kidoju.com",
     "keywords": [
         "Memba",
         "Kidoju",
@@ -10,8 +12,6 @@
         "Javascript",
         "Widgets"
     ],
-    "homepage": "http://widgets.kidoju.com",
-    "author": "Memba Sarl",
     "repository": {
         "type": "git",
         "url": "https://github.com/Memba/Kidoju-Widgets.git"

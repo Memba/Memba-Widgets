@@ -1,6 +1,7 @@
 # Ignore OS files
-.DS_Store
 Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
 Thumbs.db
 *.diff
 *.err
@@ -22,10 +23,7 @@ validation-status.json
 validation-report.json
 
 # Ignore Kendo UI
-src/js/2013.*/
-src/styles/2013.*/
-src/js/2014.*/
-src/styles/2014.*/
+2014.*/
 
 # Ignore Dummy Files
 temp/

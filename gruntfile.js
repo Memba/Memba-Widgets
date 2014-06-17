@@ -46,7 +46,11 @@ module.exports = function (grunt) {
             unit: { //In browser unit tests
                 src: ['test/unit/kidoju*.html'],
                 options: {
-                    run: true
+                    run: true,
+                    log: true,
+                    debug: true,
+                    timeout: 5000,
+                    reporter: 'Spec'
                 }
             }
         },
@@ -54,6 +58,7 @@ module.exports = function (grunt) {
             ui: {
                 src: ['test/ui/kidoju*.js'],
                 options: {
+                    debug: true,
                     reporter: 'spec'
                 }
             }

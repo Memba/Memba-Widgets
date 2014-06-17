@@ -1,0 +1,6 @@
+coverage
+docs
+node_modules
+nodejs
+temp
+test/vendor

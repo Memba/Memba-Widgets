@@ -59,7 +59,7 @@ module.exports = function (grunt) {
             }
         },
         jshint: {
-            files: ['gruntfile.js', 'src/js/kidoju*.js'],
+            files: ['gruntfile.js', 'src/js/kidoju*.js', 'test/ui/*.js', 'test/unit/*.js'],
             options: {
                 // options here to override JSHint defaults
                 globals: {
@@ -153,7 +153,8 @@ module.exports = function (grunt) {
     //Documentation
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
+    grunt.registerTask('lint', ['jshint', 'kendo_lint']);
     grunt.registerTask('test', ['mocha', 'mochaTest']);
-    grunt.registerTask('default', ['clean', 'jshint', 'mocha', 'concat', 'uglify', 'cssmin', 'copy', 'yuidoc']);
+    grunt.registerTask('default', ['clean', 'lint', 'test', 'concat', 'uglify', 'cssmin', 'copy', 'yuidoc']);
 
 };

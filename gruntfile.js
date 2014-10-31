@@ -12,11 +12,90 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        clean: ['dist/'],
+        watch: {
+            files: ['<%= jshint.files %>'],
+            tasks: ['jshint', 'mocha']
+        },
+        jshint: {
+            files: ['gruntfile.js', 'src/js/kidoju*.js', 'test/browsers/*.js', 'test/zombie/*.js']/*,
+            options: {
+                // options here to override JSHint defaults
+                globals: {
+                    jQuery: true,
+                    console: true,
+                    module: true,
+                    document: true
+                }
+            }*/
+        },
+        kendo_lint: {
+            files: ['src/js/kidoju*.js']
+        },
+        csslint: {
+            strict: {
+                options: {
+                    import: 2
+                },
+                src: ['src/styles/kidoju.*.css']
+            }
+        },
+        // TODO: Consider linting html too
+        mocha: {
+            browsers: {
+                src: ['test/browsers/kidoju.*.html'],
+                options: {
+                    run: true,
+                    log: true,
+                    debug: true,
+                    timeout: 5000,
+                    reporter: 'Spec'
+                }
+            }
+        },
+        mochaTest: {
+            zombie: {
+                src: ['test/zombie/kidoju.*.js'],
+                options: {
+                    debug: true,
+                    reporter: 'spec'
+                }
+            }
+        },
+        clean: ['dist/', 'docs/'],
+        copy: {
+            /*
+            dist: {
+                options: {
+                    process: function(src, filepath) {
+                        //Replace with min versions
+                        var ret;
+                        if (filepath === 'src/js/init.js'){
+                            ret = src
+                                .replace(/DEBUG[\s]*=[\s]*true/gm, 'DEBUG = false')
+                                .replace(/init.js/gm, 'init.min.js');
+                        }
+                        return ret || src;
+                    },*/
+                    //noProcess: ['**/*.{png,gif,jpg,ico,psd}'] //otherwise images are corrupted
+                /*},
+                files: [
+                    //{ cwd: 'src/styles', src: ['fonts/**'], dest: 'dist/styles', expand: true },
+                    { cwd: 'src/styles', src: ['images/**'], dest: 'dist/styles', expand: true }
+                ]
+            },*/
+            vendor: {
+                files: [{
+                    expand: true,
+                    cwd: 'src/js/vendor/',
+                    src: '**',
+                    dest: 'dist/js/vendor/'
+                }]
+            }
+        },
         concat: {
             css: {
                 src: ['src/styles/kidoju*.css'],
-                dest: 'dist/styles/<%= pkg.name %>.css'
+                dest: 'dist/styles/<%= pkg.filename %>.css'
             },
             js: {
                 options: {
@@ -27,101 +106,52 @@ module.exports = function (grunt) {
                     }
                 },
                 src: [/*'src/js/vendor/*.js',*/ 'src/js/kidoju*.js'],
-                dest: 'dist/js/<%= pkg.name %>.js'
+                dest: 'dist/js/<%= pkg.filename %>.js'
             }
         },
         uglify: {
             options: {
                 banner: '// <%= pkg.name %> <%= pkg.version %> built on <%= grunt.template.today("dd-mm-yyyy") %> - <%= pkg.copyright %>\n',
-                sourceMap: 'dist/js/<%= pkg.name %>.map',
-                sourceMappingURL: '<%= pkg.name %>.map'
+                sourceMap: 'dist/js/<%= pkg.filename %>.map',
+                sourceMappingURL: '<%= pkg.filename %>.map'
             },
             dist: {
                 files: {
-                    'dist/js/<%= pkg.name %>.min.js': ['<%= concat.js.dest %>']
+                    'dist/js/<%= pkg.filename %>.min.js': ['<%= concat.js.dest %>']
                 }
-            }
-        },
-        mocha: {
-            unit: { //In browser unit tests
-                src: ['test/unit/kidoju*.html'],
-                options: {
-                    run: true,
-                    log: true,
-                    debug: true,
-                    timeout: 5000,
-                    reporter: 'Spec'
-                }
-            }
-        },
-        mochaTest: { //zombie
-            ui: {
-                src: ['test/ui/kidoju*.js'],
-                options: {
-                    debug: true,
-                    reporter: 'spec'
-                }
-            }
-        },
-        jshint: {
-            files: ['gruntfile.js', 'src/js/kidoju*.js', 'test/ui/*.js', 'test/unit/*.js'],
-            options: {
-                // options here to override JSHint defaults
-                globals: {
-                    jQuery: true,
-                    console: true,
-                    module: true,
-                    document: true
-                }
-            }
-        },
-        kendo_lint: { // TODO: html too
-            files: ['src/js/kidoju*.js']
-        },
-        watch: {
-            files: ['<%= jshint.files %>'],
-            tasks: ['jshint', 'mocha']
-        },
-        csslint: {
-            strict: {
-                options: {
-                    import: 2
-                },
-                src: ['src/styles/kidoju.*.css']
             }
         },
         cssmin: {
-            add_banner: {
+            widgets: {
                 options: {
                     banner: '/* <%= pkg.name %> <%= pkg.version %> built on <%= grunt.template.today("dd-mm-yyyy") %> - <%= pkg.copyright %> */\n'
                 },
                 files: {
-                    'dist/styles/kidoju.widgets.min.css': ['<%= concat.css.dest %>']
+                    'dist/styles/<%= pkg.filename %>.min.css': ['<%= concat.css.dest %>']
                 }
             }
         },
-        copy: {
-            dist: {
-                // options: {
-                //    process: function(src, filepath) {
-                //        //Replace with min versions
-                //        var ret;
-                //        if (filepath === 'src/js/init.js'){
-                //            ret = src
-                //                .replace(/DEBUG[\s]*=[\s]*true/gm, 'DEBUG = false')
-                //                .replace(/init.js/gm, 'init.min.js');
-                //        }
-                //        return ret || src;
-                //    },
-                //    noProcess: ['**/*.{png,gif,jpg,ico,psd}'] //otherwise images are corrupeted
-                // },
-                files: [
-                    //{ cwd: 'src/styles', src: ['fonts/**'], dest: 'dist/styles', expand: true },
-                    { cwd: 'src/styles', src: ['images/**'], dest: 'dist/styles', expand: true }
-                ]
+        imagemin: {
+            widgets: {
+                files: [{
+                    expand: true,
+                    cwd: 'src/styles/images/',
+                    src: ['**/*.{png,jpg,gif}'],
+                    dest: 'dist/styles/images/'
+                }]
             }
-
         },
+        jsdoc : {
+            dist : {
+                src: ['src/**/*.js', 'README.md'],
+                options: {
+                    destination: 'docs',
+                    template : "node_modules/grunt-jsdoc/node_modules/ink-docstrap/template",
+                    configure : "node_modules/grunt-jsdoc/node_modules/ink-docstrap/template/jsdoc.conf.json"
+                }
+            }
+        }
+        /*
         yuidoc: {
             compile: {
                 name: '<%= pkg.name %>',
@@ -130,36 +160,37 @@ module.exports = function (grunt) {
                 url: '<%= pkg.homepage %>',
                 options: {
                     paths: 'src/js/',
-                    outdir: 'docs/'
+                    outdir: 'docs/yui/'
                 }
             }
         }
+        */
     });
 
-    //File management
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-concat');
+    //Watching
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-copy');
 
-    //Javascript
+    //Linting
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-kendo-lint');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-
-    //Styles
     grunt.loadNpmTasks('grunt-contrib-csslint');
-    grunt.loadNpmTasks('grunt-contrib-cssmin');
 
-    //Tests
+    //Testing
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
 
-    //Documentation
-    grunt.loadNpmTasks('grunt-contrib-yuidoc');
+    //Building
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-imagemin');
+    grunt.loadNpmTasks('grunt-jsdoc');
+    //grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
-    grunt.registerTask('lint', ['jshint', 'kendo_lint']);
+    grunt.registerTask('lint', ['jshint', 'kendo_lint', 'csslint']);
     grunt.registerTask('test', ['mocha', 'mochaTest']);
-    grunt.registerTask('default', ['clean', 'lint', 'test', 'concat', 'uglify', 'cssmin', 'copy', 'yuidoc']);
-
+    grunt.registerTask('build', ['clean', 'copy', 'concat', 'uglify', 'cssmin', 'imagemin', 'jsdoc']);
+    grunt.registerTask('default', ['lint', 'test', 'build']);
 };

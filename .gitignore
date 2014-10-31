@@ -11,6 +11,7 @@ Thumbs.db
 # Ignore Webstorm files
 .idea/
 coverage/
+undefined/
 
 # Ignore Docs
 docs/
@@ -23,7 +24,7 @@ validation-status.json
 validation-report.json
 
 # Ignore Kendo UI
-2014.*/
+**/2014.*/
 
 # Ignore Dummy Files
 temp/

@@ -3,6 +3,8 @@
 
 module.exports = function(config) {
 
+    'use strict';
+
     // Example set of browsers to run on Sauce Labs
     // Check out https://saucelabs.com/platforms for all browser/platform combos
     var customLaunchers = {
@@ -60,7 +62,9 @@ module.exports = function(config) {
   config.set({
 
       sauceLabs: {
+          startConnect: true,
           testName: 'Kidoju.Widgets',
+          recordVideo: true,
           recordScreenshots: true
       },
 
@@ -74,12 +78,11 @@ module.exports = function(config) {
 
       // list of files / patterns to load in the browser
       files: [
-          'src/js/2014.1.318/jquery.min.js',
-          'src/js/2014.1.318/kendo.all.min.js',
-          'src/js/kidoju.tools.js',
-          'src/js/kidoju.models.js',
-          'test/unit/*.js',
-          {pattern: 'test/data/pageCollection.json', served: true}
+          'http://code.jquery.com/jquery-1.9.1.min.js',
+          'http://cdn.kendostatic.com/2014.2.1008/js/kendo.all.min.js',
+          {pattern: 'src/js/*.js', served: true, included: false},
+          {pattern: 'src/*.html', served: true, included: false},
+          'test/browsers/*.js'
       ],
 
       // list of files to exclude

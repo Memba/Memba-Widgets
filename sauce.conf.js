@@ -77,12 +77,19 @@ module.exports = function(config) {
       frameworks: ['mocha', 'chai'],
 
       // list of files / patterns to load in the browser
+      // See: http://karma-runner.github.io/0.12/config/files.html
       files: [
-          'http://code.jquery.com/jquery-1.9.1.min.js',
-          'http://cdn.kendostatic.com/2014.2.1008/js/kendo.all.min.js',
-          {pattern: 'src/js/*.js', served: true, included: false},
+          {pattern: 'src/styles/vendor/kendo.common.min.css', served: true, included: true},
+          {pattern: 'src/styles/vendor/kendo.default.min.css', served: true, included: true},
+          //{pattern: 'http://code.jquery.com/jquery-1.9.1.min.js', served: true, included: true},
+          {pattern: 'src/js/vendor/jquery.min.js', served: true, included: true},
+          {pattern: 'src/js/vendor/kendo.all.min.js', served: true, included: true},
+          {pattern: 'src/js/kidoju.tools.js', served: true, included: true},
+          {pattern: 'src/js/kidoju.models.js', served: true, included: true},
           {pattern: 'src/*.html', served: true, included: false},
-          'test/browsers/*.js'
+          {pattern: 'src/styles/*.css', served: true, included: false},
+          {pattern: 'src/js/**/*.js', served: true, included: false},
+          {pattern: 'test/browsers/*.js', served: true, included: true}
       ],
 
       // list of files to exclude

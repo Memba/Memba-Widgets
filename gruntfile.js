@@ -42,23 +42,25 @@ module.exports = function (grunt) {
         // TODO: Consider linting html too
         mocha: {
             browsers: {
-                src: ['test/browsers/kidoju.*.html'],
                 options: {
-                    run: true,
+                    //debug: true,
                     log: true,
-                    debug: true,
-                    timeout: 5000,
-                    reporter: 'Spec'
-                }
+                    logErrors: true,
+                    reporter: 'Spec',
+                    run: true,
+                    timeout: 5000
+                },
+                src: ['test/browsers/kidoju.*.html']
             }
         },
         mochaTest: {
             zombie: {
-                src: ['test/zombie/kidoju.*.js'],
                 options: {
-                    debug: true,
+                    //debug: true,
+                    quiet: false,
                     reporter: 'spec'
-                }
+                },
+                src: ['test/zombie/kidoju.*.js']
             }
         },
         clean: ['dist/', 'docs/'],

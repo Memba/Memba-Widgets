@@ -58,7 +58,9 @@ module.exports = function (grunt) {
                 options: {
                     //debug: true,
                     quiet: false,
-                    reporter: 'spec'
+                    reporter: 'spec',
+                    timeout: 10000,
+                    ui: 'bdd'
                 },
                 src: ['test/zombie/kidoju.*.js']
             }

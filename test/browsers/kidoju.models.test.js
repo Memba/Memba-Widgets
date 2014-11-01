@@ -3,13 +3,15 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-/* jslint browser: true */
-/* jshint browser: true */
+/* jslint browser: true, expr: true */
+/* jshint browser: true, expr: true */
 /* global describe, it, before, expect, kidoju */
 
-;(function () {
+;(function (window, undefined) {
 
     'use strict';
+
+    var expect = window.chai.expect;
 
     var pageItemCollectionData = [
         { id: 'be1935d0-ff0e-4818-a5a8-762127f3b506', tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, properties: '{ "src": "http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png" }' },
@@ -41,6 +43,7 @@
 
         describe('When initializing a PageItemCollectionDataSource from a proper array', function() {
             it('the number of items should match', function() {
+                console.log(window.kendo);
                 var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({ data: pageItemCollectionData });
                 pageItemCollectionDataSource.read();
                 expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
@@ -216,4 +219,4 @@
 
     */
 
-}());
+}(this));

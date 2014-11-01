@@ -10,7 +10,6 @@
     <script src="../vendor/mocha-blanket.js"></script-->
     <script>
         mocha.setup('bdd');
-        window.expect = chai.expect;
     </script>
     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="http://cdn.kendostatic.com/2014.1.416/js/kendo.all.min.js"></script>
@@ -25,10 +24,10 @@
 
 <script src="kidoju.models.test.js"></script>
 <script>
-    if (navigator.userAgent.indexOf('PhantomJS') < 0) {
-        mocha.checkLeaks();
-        mocha.globals(['jQuery', 'kendo']);
-        mocha.run();
+    if (!window.PHANTOMJS) {
+        mocha.checkLeaks()
+            .globals(['jQuery', 'kendo'])
+            .run();
     }
 </script>
 </body>

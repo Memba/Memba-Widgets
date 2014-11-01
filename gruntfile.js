@@ -17,16 +17,19 @@ module.exports = function (grunt) {
             tasks: ['jshint', 'mocha']
         },
         jshint: {
-            files: ['gruntfile.js', 'src/js/kidoju*.js', 'test/browsers/*.js', 'test/zombie/*.js']/*,
+            files: ['gruntfile.js', 'src/js/kidoju*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
             options: {
                 // options here to override JSHint defaults
+                jshintrc: '.jshintrc'
+                /*
                 globals: {
                     jQuery: true,
                     console: true,
                     module: true,
                     document: true
                 }
-            }*/
+                */
+            }
         },
         kendo_lint: {
             files: ['src/js/kidoju*.js']

@@ -1,15 +1,28 @@
 /*!
  * jQuery Transit - CSS3 transitions and transformations
- * (c) 2011-2012 Rico Sta. Cruz
+ * (c) 2011-2014 Rico Sta. Cruz
  * MIT Licensed.
  *
  * http://ricostacruz.com/jquery.transit
  * http://github.com/rstacruz/jquery.transit
  */
 
-(function($) {
+/* jshint expr: true */
+
+;(function (root, factory) {
+
+  if (typeof define === 'function' && define.amd) {
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory(require('jquery'));
+  } else {
+    factory(root.jQuery);
+  }
+
+}(this, function($) {
+
   $.transit = {
-    version: "0.9.9",
+    version: "0.9.12",
 
     // Map of $.css() keys to values for 'transitionProperty'.
     // See https://developer.mozilla.org/en/CSS/CSS_transitions#Properties_that_can_be_animated
@@ -43,8 +56,6 @@
     var prefixes = ['Moz', 'Webkit', 'O', 'ms'];
     var prop_ = prop.charAt(0).toUpperCase() + prop.substr(1);
 
-    if (prop in div.style) { return prop; }
-
     for (var i=0; i<prefixes.length; ++i) {
       var vendorProp = prefixes[i] + prop_;
       if (vendorProp in div.style) { return vendorProp; }
@@ -70,7 +81,7 @@
   support.transform3d     = checkTransform3dSupport();
 
   var eventNames = {
-    'transition':       'transitionEnd',
+    'transition':       'transitionend',
     'MozTransition':    'transitionend',
     'OTransition':      'oTransitionEnd',
     'WebkitTransition': 'webkitTransitionEnd',
@@ -101,6 +112,7 @@
     'in-out':         'ease-in-out',
     'snap':           'cubic-bezier(0,1,.5,1)',
     // Penner equations
+    'easeInCubic':    'cubic-bezier(.550,.055,.675,.190)',
     'easeOutCubic':   'cubic-bezier(.215,.61,.355,1)',
     'easeInOutCubic': 'cubic-bezier(.645,.045,.355,1)',
     'easeInCirc':     'cubic-bezier(.6,.04,.98,.335)',
@@ -220,6 +232,8 @@
   // ## Other CSS hooks
   // Allows you to rotate, scale and translate.
   registerCssHook('scale');
+  registerCssHook('scaleX');
+  registerCssHook('scaleY');
   registerCssHook('translate');
   registerCssHook('rotate');
   registerCssHook('rotateX');
@@ -449,7 +463,9 @@
     } else if (queue) {
       self.queue(queue, fn);
     } else {
-      fn();
+      self.each(function () {
+                fn.call(this);
+            });
     }
   }
 
@@ -534,7 +550,7 @@
     var delay = 0;
     var queue = true;
 
-    var theseProperties = jQuery.extend(true, {}, properties);
+    var theseProperties = $.extend(true, {}, properties);
 
     // Account for `.transition(properties, callback)`.
     if (typeof duration === 'function') {
@@ -546,7 +562,7 @@
     if (typeof duration === 'object') {
       easing = duration.easing;
       delay = duration.delay || 0;
-      queue = duration.queue || true;
+      queue = typeof duration.queue === "undefined" ? true : duration.queue;
       callback = duration.complete;
       duration = duration.duration;
     }
@@ -643,7 +659,7 @@
         if (i > 0) {
           this.style[support.transition] = transitionValue;
         }
-        $(this).css(properties);
+        $(this).css(theseProperties);
       });
     };
 
@@ -724,4 +740,6 @@
 
   // Export some functions for testable-ness.
   $.transit.getTransitionValue = getTransition;
-})(jQuery);
+
+  return $;
+}));

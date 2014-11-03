@@ -14,10 +14,10 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         watch: {
             files: ['<%= jshint.files %>'],
-            tasks: ['jshint', 'mocha']
+            tasks: ['lint', 'test']
         },
         jshint: {
-            files: ['gruntfile.js', 'src/js/kidoju*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
+            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
             options: {
                 // options here to override JSHint defaults
                 jshintrc: '.jshintrc'
@@ -32,7 +32,7 @@ module.exports = function (grunt) {
             }
         },
         kendo_lint: {
-            files: ['src/js/kidoju*.js']
+            files: ['src/js/kidoju.*.js']
         },
         csslint: {
             strict: {
@@ -119,8 +119,8 @@ module.exports = function (grunt) {
         uglify: {
             options: {
                 banner: '// <%= pkg.name %> <%= pkg.version %> built on <%= grunt.template.today("dd-mm-yyyy") %> - <%= pkg.copyright %>\n',
-                sourceMap: 'dist/js/<%= pkg.filename %>.map',
-                sourceMappingURL: '<%= pkg.filename %>.map'
+                sourceMap: true,
+                sourceMapName: 'dist/js/<%= pkg.filename %>.min.map'
             },
             dist: {
                 files: {

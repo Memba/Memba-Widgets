@@ -4,9 +4,11 @@ REM set node environment
 call "%ProgramFiles%\nodejs\nodevars.bat"
 REM -------------------------
 REM Install global packages
+call npm update -g npm
 call npm install -g grunt-cli
+call npm install -g istanbul
 call npm install -g mocha
 call npm install -g karma-cli
 REM -------------------------
-REM Install dependencies listed in package.json 
+REM Install dependencies listed in package.json
 call npm install

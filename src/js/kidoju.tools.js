@@ -95,15 +95,15 @@
     });
 
     /**
-     * Fixes handler translation considering page dimensions
-     * @param page
+     * Fixes handler translation considering stage dimensions
+     * @param stage
      * @param translate
      */
-    function fixHandlerTranslation(page, translate) {
-        //we actually need to substract page height from Y
+    function fixHandlerTranslation(stage, translate) {
+        //we actually need to substract stage height from Y
         //we assume here translate in the form "Xpx,Ypx"
         var pos = translate.split(',');
-        return parseInt(pos[0]) + PX + ',' + (parseInt(pos[1]) - $(page).height()) + PX;
+        return parseInt(pos[0]) + PX + ',' + (parseInt(pos[1]) - $(stage).height()) + PX;
     }
 
     /**
@@ -188,7 +188,7 @@
 
 
         /**
-         * Returns a generic wrapper div for the page element derived from the page item
+         * Returns a generic wrapper div for the stage element derived from the page item
          * @method _getElementWrapper
          * @param item
          * @private
@@ -211,12 +211,12 @@
         /**
          * Prepare handles
          * @method _prepareHandler
-         * @param page
+         * @param stage
          * @private
          */
-        _prepareHandler: function(page) {
+        _prepareHandler: function(stage) {
             var that = this;
-            if($(page).find(HANDLER_SELECTOR).length === 0) {
+            if($(stage).find(HANDLER_SELECTOR).length === 0) {
                 var handler = $(HANDLER)
                     .css(POSITION, ABSOLUTE)
                     .css(DISPLAY, NONE)
@@ -230,8 +230,8 @@
                     })
                     .on(DRAGOVER, function (e) {
                         if ($.isPlainObject(that._transform) && $.type(that._transform.id) === STRING)  {
-                            var handler = $(page).find(HANDLER_SELECTOR),
-                                element = $(page).find(kendo.format(ELEMENT_SELECTOR, that._transform.id));
+                            var handler = $(stage).find(HANDLER_SELECTOR),
+                                element = $(stage).find(kendo.format(ELEMENT_SELECTOR, that._transform.id));
                             if (that._transform.type === TRANSLATE) {
                                 //TODO check the bounds of container
                                 //TODO: snap to grid option (use modulo size of the grid)
@@ -241,7 +241,7 @@
                                     },
                                     translate = position.left + PX + ',' + position.top + PX;
                                 handler
-                                    .css(TRANSLATE, fixHandlerTranslation(page, translate));
+                                    .css(TRANSLATE, fixHandlerTranslation(stage, translate));
                                 element
                                     .css(TRANSLATE, translate)
                                     .trigger(TRANSLATE, position);
@@ -286,10 +286,10 @@
                         var id = $(e.currentTarget).closest(HANDLER_SELECTOR).attr(DATA_ELEMENT);
                         //if found
                         if ($.type(id) === STRING) {
-                            //get the page element
-                            var pageElement = $(page).find(kendo.format(ELEMENT_SELECTOR, id));
+                            //get the stage element
+                            var stageElement = $(stage).find(kendo.format(ELEMENT_SELECTOR, id));
                             //find the current position
-                            var position = pageElement.css(TRANSLATE).split(',');
+                            var position = stageElement.css(TRANSLATE).split(',');
                             //create a transformation object
                             that._transform = {
                                 type: TRANSLATE,
@@ -309,15 +309,15 @@
                         var id = $(e.currentTarget).closest(HANDLER_SELECTOR).attr(DATA_ELEMENT);
                         //if found
                         if ($.type(id) === STRING) {
-                            //get the page element
-                            var pageElement = $(page).find(kendo.format(ELEMENT_SELECTOR, id));
+                            //get the stage element
+                            var stageElement = $(stage).find(kendo.format(ELEMENT_SELECTOR, id));
                             //create a transformation object
                             that._transform = {
                                 type: RESIZE,
                                 id: id,
                                 offset: {
-                                    x: pageElement.width()- e.originalEvent.clientX,
-                                    y: pageElement.height() - e.originalEvent.clientY
+                                    x: stageElement.width()- e.originalEvent.clientX,
+                                    y: stageElement.height() - e.originalEvent.clientY
                                 }};
                             //next step occurs in the DRAGOVER event handler
                         }
@@ -329,8 +329,8 @@
                         var id = $(e.currentTarget).closest(HANDLER_SELECTOR).attr(DATA_ELEMENT);
                         //if found
                         if ($.type(id) === STRING) {
-                            //get the page element
-                            var pageElement = $(page).find(kendo.format(ELEMENT_SELECTOR, id));
+                            //get the stage element
+                            var stageElement = $(stage).find(kendo.format(ELEMENT_SELECTOR, id));
                             /*
                             var cssTransform = $(that._currentWidget).css('transform'),
                                 pos1 = cssTransform.indexOf('('),
@@ -346,9 +346,9 @@
                             var originX = Math.round($(that._currentWidget).position().left + ($(that._currentWidget).width()*Math.abs(Math.cos(currentAngle)) + $(that._currentWidget).height()*Math.abs(Math.sin(currentAngle)))/2),
                                 originY = Math.round($(that._currentWidget).position().top + ($(that._currentWidget).width()*Math.abs(Math.sin(currentAngle)) + $(that._currentWidget).height()*Math.abs(Math.cos(currentAngle)))/2);
                             */
-                            var rotate = parseInt(pageElement.css(ROTATE))*Math.PI/180,
-                                originX = (pageElement.position().left + pageElement.width()*Math.cos(rotate) + pageElement.height()*Math.sin(rotate))/2,
-                                originY = (pageElement.position().top + pageElement.width()*Math.sin(rotate) + pageElement.height()*Math.cos(rotate))/2;
+                            var rotate = parseInt(stageElement.css(ROTATE))*Math.PI/180,
+                                originX = (stageElement.position().left + stageElement.width()*Math.cos(rotate) + stageElement.height()*Math.sin(rotate))/2,
+                                originY = (stageElement.position().top + stageElement.width()*Math.sin(rotate) + stageElement.height()*Math.cos(rotate))/2;
                             that._transform = {
                                 type: ROTATE,
                                 id: id,
@@ -374,40 +374,40 @@
                         e.preventDefault();
                         e.stopPropagation();
                     });
-                $(page).append(handler);
+                $(stage).append(handler);
             }
         },
 
         /**
-         * Show handler on a page element
+         * Show handler on a stage element
          * @method _showHandler
-         * @param page
+         * @param stage
          * @param id
          * @private
          */
-        _showHandler: function(page, id){
-            var pageElement = $(page).find(kendo.format(ELEMENT_SELECTOR, id));
-            $(page).find(HANDLER_SELECTOR)
-                .css(HEIGHT, pageElement.css(HEIGHT))
-                .css(WIDTH, pageElement.css(WIDTH))
+        _showHandler: function(stage, id){
+            var stageElement = $(stage).find(kendo.format(ELEMENT_SELECTOR, id));
+            $(stage).find(HANDLER_SELECTOR)
+                .css(HEIGHT, stageElement.css(HEIGHT))
+                .css(WIDTH, stageElement.css(WIDTH))
                 .css(PADDING, HANDLER_MARGIN + PX)
                 .css(MARGIN, '-' + HANDLER_MARGIN + PX)
-                .css(TRANSLATE, fixHandlerTranslation(page, pageElement.css(TRANSLATE)))
-                .css(ROTATE, pageElement.css(ROTATE))
+                .css(TRANSLATE, fixHandlerTranslation(stage, stageElement.css(TRANSLATE)))
+                .css(ROTATE, stageElement.css(ROTATE))
                 .css(DISPLAY, BLOCK)
                 .attr(DATA_ELEMENT, id);
         },
 
         /**
-         * Test handler for a page element/item
+         * Test handler for a stage element/item
          * @method _hasHandler
-         * @param page
+         * @param stage
          * @param id
          * @returns {boolean}
          * @private
          */
-        _hasHandler: function(page, id) {
-            return ($(page).find(HANDLER_SELECTOR).attr(DATA_ELEMENT) === id);
+        _hasHandler: function(stage, id) {
+            return ($(stage).find(HANDLER_SELECTOR).attr(DATA_ELEMENT) === id);
         },
 
         /**
@@ -415,8 +415,8 @@
          * @method _hideHandler
          * @private
          */
-        _hideHandler: function(page){
-            $(page).find(HANDLER_SELECTOR)
+        _hideHandler: function(stage){
+            $(stage).find(HANDLER_SELECTOR)
                 .css(DISPLAY, NONE)
                 .removeAttr(DATA_ELEMENT);
         },
@@ -459,7 +459,7 @@
         },
 
         /**
-         * Click handler on page element
+         * Click handler on stage element
          * @method onClick
          * @param e
          */
@@ -467,8 +467,8 @@
             //TODO, we need to consider the mode here too
             var element = $(e.currentTarget);
             if (element.hasClass(ELEMENT_CLASS)) {
-                var page = element.closest(kendo.roleSelector('page')),
-                    widget = page.data('kendoPage'),
+                var stage = element.closest(kendo.roleSelector('stage')),
+                    widget = stage.data('kendoStage'),
                     elementId = element.attr(DATA_ID),
                     toolId = element.attr(DATA_TOOL);
                 if ($.type(elementId) === STRING) {
@@ -477,10 +477,10 @@
                     }
                     var tool = kidoju.tools[toolId];
                     if (tool instanceof kidoju.Tool && widget.mode() === widget.modes.design) {
-                        tool._prepareHandler(page);
-                        tool._showHandler(page, elementId);
+                        tool._prepareHandler(stage);
+                        tool._showHandler(stage, elementId);
                     }
-                    //prevent click event to bubble on page
+                    //prevent click event to bubble on stage
                     e.preventDefault();
                     e.stopPropagation();
                 }
@@ -670,7 +670,7 @@
                 }
                 //prevent any side effect
                 e.preventDefault();
-                //prevent event to bubble on page
+                //prevent event to bubble on stage
                 e.stopPropagation();
             }
         }
@@ -725,7 +725,7 @@
                 }
                 //prevent any side effect
                 e.preventDefault();
-                //prevent event to bubble on page
+                //prevent event to bubble on stage
                 e.stopPropagation();
             }
         }
@@ -781,7 +781,7 @@
                 }
                 //prevent any side effect
                 e.preventDefault();
-                //prevent event to bubble on page
+                //prevent event to bubble on stage
                 e.stopPropagation();
             }
         }
@@ -836,7 +836,7 @@
                 }
                 //prevent any side effect
                 e.preventDefault();
-                //prevent event to bubble on page
+                //prevent event to bubble on stage
                 e.stopPropagation();
             }
         }

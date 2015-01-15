@@ -49,17 +49,17 @@
 
         //Miscellaneous
         POINTER = 'pointer',
-        WIDGET_CLASS = 'k-widget kj-page',
+        WIDGET_CLASS = 'k-widget kj-stage',
         ELEMENT_SELECTOR = '.kj-element[data-id="{0}"]',
         CONTAINER_DIV = '<div class="kj-container"></div>',
         //CONTAINER_SELECTOR = '.kj-container',
 
         DEBUG = true,
-        MODULE = 'kidoju.widgets.page: ';
+        MODULE = 'kidoju.widgets.stage: ';
 
 
     /*******************************************************************************************
-     * Page widget
+     * Stage widget
      *
      * Drag and drop is extensively explained at:
      * http://www.html5rocks.com/en/tutorials/dnd/basics/
@@ -71,9 +71,9 @@
      *******************************************************************************************/
 
     /**
-     * @class Page Widget (kendoPage)
+     * @class Stage Widget (kendoStage)
      */
-    var Page = Widget.extend({
+    var Stage = Widget.extend({
 
         /**
          * Initializes the widget
@@ -96,7 +96,7 @@
             design: MODE.DESIGN,
             solution: MODE.SOLUTION,
             //Play modes
-            learn: MODE.LEARN, //in learn mode, you can flip the page and see the solution
+            learn: MODE.LEARN, //in learn mode, you can flip the stage and see the solution
             assess: MODE.ASSESS //in test mode, you cannot see the solution
             //We could also consider a test mode with hints
             //and a correction mode displaying correct vs. incorrect answers
@@ -106,7 +106,7 @@
          * Widget options
          */
         options: {
-            name: "Page",
+            name: "Stage",
             autoBind: true,
             mode: MODE.ASSESS,
             scale: DEFAULT_SCALE,
@@ -130,7 +130,7 @@
         },
 
         /**
-         * Mode defines the operating mode of the Page Widget
+         * Mode defines the operating mode of the Stage Widget
          * @param value
          * @return {*}
          */
@@ -182,7 +182,7 @@
         },
 
         /**
-         * Height of page
+         * Height of stage
          * @param value
          * @returns {string}
          */
@@ -205,7 +205,7 @@
         },
 
         /**
-         * Width of page
+         * Width of stage
          * @param value
          * @returns {string}
          */
@@ -311,11 +311,11 @@
                 .css({ transformOrigin: '0px 0px' })//TODO: review
                 .css({ transform: kendo.format('scale({0})', that._scale) })
                 .append(that._container);
-            //Click handler to select or create page elements from page items in design mode
+            //Click handler to select or create stage elements from page items in design mode
             if(that.mode() === that.modes.design) {
                 that._container.on(CLICK, function(e) {
                     if(DEBUG && global.console) {
-                        global.console.log(MODULE + 'page clicked at (' + e.offsetX + ',' + e.offsetY + ')');
+                        global.console.log(MODULE + 'stage clicked at (' + e.offsetX + ',' + e.offsetY + ')');
                     }
                     var id = that.options.tools.get('active'),
                         tool = that.options.tools[id];
@@ -342,13 +342,13 @@
         },
 
         /**
-         * Add an element to the page either on a click or from persistence
+         * Add an element to the stage either on a click or from persistence
          * @param item
          * @param left
          * @param top
          * @private
          */
-        _addPageElement: function(item, left, top) {
+        _addStageElement: function(item, left, top) {
             var that = this;
             if (item instanceof kidoju.PageItem) {
                 var tool = that.options.tools[item.tool];
@@ -359,33 +359,38 @@
                     if ($.type(top) === NUMBER) {
                         item.set(TOP, top);
                     }
-                    var pageElement = tool._draw(that._container, item);
+                    /*
+                     * instead of tool.draw(that._container, item) we should consider to make tool container agnostic
+                     * we should get a stageElement (actually jQuery element)
+                     * and we should decorate it with handlers and add it to the stage here
+                     */
+                    var stageElement = tool._draw(that._container, item);
                     //TODO Add event namespace TRANSLATE + NS
-                    //EVents could be added on the page itself
-                    pageElement
+                    //EVents could be added on the stage itself
+                    stageElement
                         .on(TRANSLATE, function (e, position) {
-                            var pageElement = $(e.currentTarget),
-                                page = pageElement.closest(kendo.roleSelector('page')),
-                                widget = page.data('kendoPage'),
-                                id = pageElement.data('id'),
+                            var stageElement = $(e.currentTarget),
+                                stage = stageElement.closest(kendo.roleSelector('stage')),
+                                widget = stage.data('kendoStage'),
+                                id = stageElement.data('id'),
                                 item = widget.dataSource.get(id);
                             item.set(TOP, position.top);
                             item.set(LEFT, position.left);
                         })
                         .on(RESIZE, function(e, size) {
-                            var pageElement = $(e.currentTarget),
-                                page = pageElement.closest(kendo.roleSelector('page')),
-                                widget = page.data('kendoPage'),
-                                id = pageElement.data('id'),
+                            var stageElement = $(e.currentTarget),
+                                stage = stageElement.closest(kendo.roleSelector('stage')),
+                                widget = stage.data('kendoStage'),
+                                id = stageElement.data('id'),
                                 item = widget.dataSource.get(id);
                             item.set(HEIGHT, size.height);
                             item.set(WIDTH, size.width);
                         })
                         .on(ROTATE, function(e, rotate) {
-                            var pageElement = $(e.currentTarget),
-                                page = pageElement.closest(kendo.roleSelector('page')),
-                                widget = page.data('kendoPage'),
-                                id = pageElement.data('id'),
+                            var stageElement = $(e.currentTarget),
+                                stage = stageElement.closest(kendo.roleSelector('stage')),
+                                widget = stage.data('kendoStage'),
+                                id = stageElement.data('id'),
                                 item = widget.dataSource.get(id);
                             item.set(ROTATE, rotate);
                         });
@@ -396,10 +401,10 @@
         },
 
         /**
-         * Remove an element from the page
+         * Remove an element from the stage
          * @private
          */
-        _removePageElement: function(id) {
+        removeStageElement: function(id) {
             var that = this;
             //TODO hide handles where necessary
             //TODO use a tool method to avoid leaks (remove all event handlers, ...)
@@ -429,7 +434,7 @@
                 for (i = 0; i < data.length; i++) {
                     var item = data[i];
                     if (item instanceof kidoju.PageItem) {
-                        that._addPageElement(item);
+                        that._addStageElement(item);
                     }
                 }
                 if(that.mode() === that.modes.assess) {
@@ -439,33 +444,33 @@
                 }
             } else if (e.action === 'add') {
                 for (i = 0; i < e.items.length; i++) {
-                    that._addPageElement(e.items[i]);
+                    that._addStageElement(e.items[i]);
                 }
             } else if (e.action === 'remove') {
                 for (i = 0; i < e.items.length; i++) {
-                    that._removePageElement(e.items[i].id);
+                    that.removeStageElement(e.items[i].id);
                 }
             } else if (e.action === 'itemchange') {
                 for (i = 0; i < e.items.length; i++) {
                     //NOTE e.field cannot be relied upon, especially when resizing
                     //e.field takes a value of height or width when both change
                     //id and tool are not supposed to change
-                    var pageElement = that._container.find(kendo.format(ELEMENT_SELECTOR, e.items[i].id));
+                    var stageElement = that._container.find(kendo.format(ELEMENT_SELECTOR, e.items[i].id));
                     //id is not suppoed to change
                     //tool is not supposed to change
-                    if(pageElement.css(TRANSLATE) != e.items[i].left + 'px,' + e.items[i].top + 'px') {
-                        pageElement.css(TRANSLATE, e.items[i].left + 'px,' + e.items[i].top + 'px');
+                    if(stageElement.css(TRANSLATE) != e.items[i].left + 'px,' + e.items[i].top + 'px') {
+                        stageElement.css(TRANSLATE, e.items[i].left + 'px,' + e.items[i].top + 'px');
                     }
-                    if(pageElement.height() !== e.items[i].height || pageElement.width() !== e.items[i].width) {
-                        pageElement.height(e.items[i].height);
-                        pageElement.width(e.items[i].width);
+                    if(stageElement.height() !== e.items[i].height || stageElement.width() !== e.items[i].width) {
+                        stageElement.height(e.items[i].height);
+                        stageElement.width(e.items[i].width);
                         //We need to trigger the resize event to ensure the content is resized
                         //but this will update the item triggering a refresh and potentially creating an infinite loop and a stack overflow.
                         //In order to prevent it we test a change of value hereabove, so that the loop stops when values are equal
-                        pageElement.trigger(RESIZE, { height: e.items[i].height, width: e.items[i].width });
+                        stageElement.trigger(RESIZE, { height: e.items[i].height, width: e.items[i].width });
                     }
-                    if(pageElement.css(ROTATE) != e.items[i].rotate) {
-                        pageElement.css(ROTATE, e.items[i].rotate + 'deg');
+                    if(stageElement.css(ROTATE) != e.items[i].rotate) {
+                        stageElement.css(ROTATE, e.items[i].rotate + 'deg');
                     }
                     //TODO attributes
                     //TODO properties
@@ -474,7 +479,7 @@
         },
 
         /**
-         * Page Elements
+         * Stage Elements
          * @method items
          * @returns {XMLList|*}
          */
@@ -512,6 +517,6 @@
 
     });
 
-    kendo.ui.plugin(Page);
+    kendo.ui.plugin(Stage);
 
 }(jQuery));

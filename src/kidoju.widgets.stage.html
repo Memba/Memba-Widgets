@@ -2,22 +2,22 @@
 <html>
 <head>
     <title>kidoju.widgets.page</title>
-    <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.3.1119/styles/kendo.common.min.css">
-    <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.3.1119/styles/kendo.default.min.css">
-    <link rel="stylesheet" href="./styles/kidoju.widgets.page.css">
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.3.1314/styles/kendo.common.min.css">
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.3.1314/styles/kendo.default.min.css">
+    <link rel="stylesheet" href="./styles/kidoju.widgets.stage.css">
     <link rel="stylesheet" href="./styles/kidoju.widgets.toolbox.css">
     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script src="http://cdn.kendostatic.com/2014.3.1119/js/kendo.all.min.js"></script>
-    <!--script src="./js/2014.3.1119/jquery.min.js"></script>
-    <script src="../temp/kendo.2014.3.1119/kendo.core.js"></script>
-    <script src="../temp/kendo.2014.3.1119/kendo.data.js"></script>
-    <script src="../temp/kendo.2014.3.1119/kendo.binder.js"></script-->
+    <script src="http://cdn.kendostatic.com/2014.3.1314/js/kendo.all.min.js"></script>
+    <!--script src="./js/2014.3.1314/jquery.min.js"></script>
+    <script src="../temp/kendo.2014.3.1314/kendo.core.js"></script>
+    <script src="../temp/kendo.2014.3.1314/kendo.data.js"></script>
+    <script src="../temp/kendo.2014.3.1314/kendo.binder.js"></script-->
     <script src="./js/vendor/jquery.transit.js"></script>
     <script src="./js/kidoju.models.js"></script>
     <script src="./js/kidoju.tools.js"></script>
     <script src="./js/kidoju.widgets.toolbox.js"></script>
     <!--script src="./js/kidoju.widgets.navigation.js"></script-->
-    <script src="./js/kidoju.widgets.page.js"></script>
+    <script src="./js/kidoju.widgets.stage.js"></script>
     <style>
         body {background-color:darkgrey;}
     </style>
@@ -31,7 +31,7 @@
     <input id="assess" type="radio" name="mode" value="assess" /><label for="assess">assess</label>
 </div>
 <div id="toolbox"></div>
-<div id="page"></div>
+<div id="stage"></div>
 <div id="grid"></div>
 </body>
 <script>
@@ -46,10 +46,10 @@
             ]
         });
 
-        var page = $('#page').kendoPage({
+        var stage = $('#stage').kendoStage({
             dataSource: pageItemCollectionDataSource,
             mode: 'design'
-        }).data('kendoPage');
+        }).data('kendoStage');
 
         $('#grid').kendoGrid({
             dataSource: pageItemCollectionDataSource,
@@ -117,7 +117,7 @@
             smallStep: 1,
             largeStep: 10,
             change: function(e) {
-                page.scale(e.value/100);
+                stage.scale(e.value/100);
             }
         });
 
@@ -126,16 +126,16 @@
         $('input[name=mode]').on('change', function(e) {
             switch(e.currentTarget.value) {
                 case "design":
-                    page.mode(kendo.ui.Page.fn.modes.design);
+                    stage.mode(kendo.ui.Stage.fn.modes.design);
                     break;
                 case "solution":
-                    page.mode(kendo.ui.Page.fn.modes.solution);
+                    stage.mode(kendo.ui.Stage.fn.modes.solution);
                     break;
                 case "learn":
-                    page.mode(kendo.ui.Page.fn.modes.learn);
+                    stage.mode(kendo.ui.Stage.fn.modes.learn);
                     break;
                 case "assess":
-                    page.mode(kendo.ui.Page.fn.modes.assess);
+                    stage.mode(kendo.ui.Stage.fn.modes.assess);
                     break;
             }
         });

@@ -34,7 +34,7 @@
         HANDLER_MARGIN = 20,
 
         //Miscellaneous
-        ELEMENT = '<div data-id="{0}" data-tool="{1}" class="kj-element"></div>',
+
         ELEMENT_CLASS = 'kj-element',
         ELEMENT_SELECTOR = '.kj-element[data-id="{0}"]',
         DATA_ID = 'data-id',
@@ -184,28 +184,6 @@
                 }
             }
             return properties;
-        },
-
-
-        /**
-         * Returns a generic wrapper div for the stage element derived from the page item
-         * @method _getElementWrapper
-         * @param item
-         * @private
-         */
-        _getElementWrapper: function(item) {
-            var that = this,
-                wrapper = $(kendo.format(ELEMENT, item.id, item.tool))
-                .css(POSITION, ABSOLUTE)
-                .css(HEIGHT, item.height + PX)
-                .css(WIDTH, item.width + PX)
-                //http://www.paulirish.com/2012/why-moving-elements-with-translate-is-better-than-posabs-topleft/
-                .css({ translate: [item.left, item.top] , rotate: item.rotate})
-                .on(CLICK, that.onClick)
-                .on(TRANSLATE, that.onTranslate)
-                .on(RESIZE, that.onResize)
-                .on(ROTATE, that.onRotate);
-            return wrapper;
         },
 
         /**
@@ -422,69 +400,21 @@
         },
 
         /**
-         * @method draw
-         * @param container
-         * @param item
-         * @returns {*}
-         * @private
-         */
-        _draw: function(container, item) {
-            if(DEBUG && global.console) {
-                global.console.log(MODULE + 'drawing ' + item.tool + ' ' + item.id);
-            }
-            var wrapper = this._getElementWrapper(item),
-                content = this.getHtml(item);
-            wrapper.append(content);
-            $(container).append(wrapper);
-            wrapper.trigger(RESIZE, { height: item.height, width: item.width });
-            return wrapper;
-        },
-
-        _updateContent: function() {
-
-        },
-
-        _removeContent: function() {
-
-        },
-
-        /**
-         * method getHtml
-         * @param item
-         * @param mode
-         * @returns {string}
-         */
-        getHtml: function(item, mode) {
-            return '';
-        },
-
-        /**
-         * Click handler on stage element
+         * onClick Event Handler
          * @method onClick
          * @param e
          */
         onClick: function(e) {
-            //TODO, we need to consider the mode here too
-            var element = $(e.currentTarget);
-            if (element.hasClass(ELEMENT_CLASS)) {
-                var stage = element.closest(kendo.roleSelector('stage')),
-                    widget = stage.data('kendoStage'),
-                    elementId = element.attr(DATA_ID),
-                    toolId = element.attr(DATA_TOOL);
-                if ($.type(elementId) === STRING) {
-                    if (DEBUG && global.console) {
-                        global.console.log(MODULE + 'click on ' + elementId);
-                    }
-                    var tool = kidoju.tools[toolId];
-                    if (tool instanceof kidoju.Tool && widget.mode() === widget.modes.design) {
-                        tool._prepareHandler(stage);
-                        tool._showHandler(stage, elementId);
-                    }
-                    //prevent click event to bubble on stage
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }
+            $.noop();
+        },
+
+        /**
+         * onTranslate Event Handler
+         * @method onTranslate
+         * @param e
+         */
+        onTranslate: function(e) {
+            $.noop();
         },
 
         /**
@@ -493,6 +423,15 @@
          * @param e
          */
         onResize: function(e) {
+            $.noop();
+        },
+
+        /**
+         * onRotate Event Handler
+         * @method onRotate
+         * @param e
+         */
+        onRotate: function(e) {
             $.noop();
         }
     });

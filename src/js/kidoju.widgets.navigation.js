@@ -76,7 +76,7 @@
         options: {
             name: 'Navigation',
             autoBind: true,
-            itemTemplate: '<div data-uid="#= uid #" class="kj-navigation-page" role="option" aria-selected="false"><div data-role="page"></div></div>',
+            itemTemplate: '<div data-uid="#= uid #" class="kj-navigation-page" role="option" aria-selected="false"><div data-role="stage"></div></div>',
             addTemplate: '<div data-uid="#= uid #" class="kj-navigation-page" role="option" aria-selected="false"><div>#= text #</div></div>',
             pageWidth: 1024, //TODO: assuming page size here: where do we read it from?
             pageHeight: 768,
@@ -329,8 +329,8 @@
                                 .css('margin', parseInt(that.options.pageSpacing) - parseInt(that.options.selectionBorder))
                                 .append('<div style="position:absolute; top: 10px; left: 10px; height: 20px; width: 20px; background-color: black;"></div>')
                                 .appendTo(navigation)
-                                .find(kendo.roleSelector('page')).kendoPage({
-                                    mode: kendo.ui.Page.fn.modes.thumbnail,
+                                .find(kendo.roleSelector('stage')).kendoStage({
+                                    mode: kendo.ui.Stage.fn.modes.thumbnail,
                                     dataSource: data[i].items,
                                     //width: ???,
                                     //height: ???,
@@ -389,9 +389,9 @@
                 .width(scale * parseInt(that.options.pageWidth))
                 .height(scale * parseInt(that.options.pageHeight));
 
-            var pages = navigation.find(kendo.roleSelector('page'));
-            for (var i = 0; i < pages.length; i++) {
-                $(pages[i]).data('kendoPage').scale(scale);
+            var stages = navigation.find(kendo.roleSelector('stage'));
+            for (var i = 0; i < stages.length; i++) {
+                $(stages[i]).data('kendoStage').scale(scale);
             }
         },
 

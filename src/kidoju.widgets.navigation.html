@@ -11,11 +11,10 @@
     <script src="../temp/kendo.2014.3.1314/kendo.core.js"></script>
     <script src="../temp/kendo.2014.3.1314/kendo.data.js"></script>
     <script src="../temp/kendo.2014.3.1314/kendo.binder.js"></script-->
-    <script src="./js/vendor/jquery.transit.js"></script>
     <script src="./js/kidoju.models.js"></script>
     <script src="./js/kidoju.tools.js"></script>
     <script src="./js/kidoju.widgets.bindings.js"></script>
-    <script src="./js/kidoju.widgets.page.js"></script>
+    <script src="./js/kidoju.widgets.stage.js"></script>
     <script src="./js/kidoju.widgets.navigation.js"></script>
     <style>
         html {
@@ -44,7 +43,7 @@
     </div>
     <div id="right">
         <div class="centered">
-            <div data-role="page" data-bind="source: current.items"></div>
+            <div data-role="stage" data-bind="source: current.items"></div>
         </div>
     </div>
 </div>
@@ -80,24 +79,24 @@
             }),
             onResize = window.onResize = function() {
                 var navigationWidget = $('[data-role="navigation"]').data('kendoNavigation'),
-                        page = $('#right [data-role="page"]'),
-                        pageWidget = page.data('kendoPage');
+                        stage = $('#right [data-role="stage"]'),
+                        stageWidget = stage.data('kendoStage');
                 if (navigationWidget instanceof kendo.ui.Navigation) {
                     navigationWidget.resize();
                 }
-                if (pageWidget instanceof kendo.ui.Page) {
+                if (stageWidget instanceof kendo.ui.Stage) {
                     var width = $('#right').width(),
                             height = $('#right').height(),
                             scale = Math.min(0.90*width/1024, 0.90*height/768);
-                    pageWidget.scale(scale);
+                    stageWidget.scale(scale);
                     $('.centered')
-                            .width(scale*page.outerWidth())
-                            .height(scale*page.outerHeight())
+                            .width(scale*stage.outerWidth())
+                            .height(scale*stage.outerHeight())
                             .css('position', 'absolute')
                             .css('top', '50%')
                             .css('left', '50%')
-                            .css('margin-left', '-' + scale*page.outerWidth()/2 + 'px')
-                            .css('margin-top', '-' + scale*page.outerHeight()/2 + 'px');
+                            .css('margin-left', '-' + scale*stage.outerWidth()/2 + 'px')
+                            .css('margin-top', '-' + scale*stage.outerHeight()/2 + 'px');
                 }
             };
 

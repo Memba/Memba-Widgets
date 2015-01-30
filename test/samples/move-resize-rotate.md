@@ -34,12 +34,13 @@ The rectangle before resizing is displayed in red. The same rectangle after resi
 The rectangle is rotated by an angle alpha which remains constant as a user resizes this rectangle.
 Solid rectangles represent rotated rectangles. Dotted rectangles are the same rectangles before applying the rotation.
 The M=M' handle remains at the same position through resizing with the S handle.
-The mouse drags the S handle form S to S' so that the height and width change from (h,w) to (h',w').
+The mouse drags the S handle from S to S' so that the height and width change from (h,w) to (h',w').
 The top and left attributes define T which is the position of the M handle before the rotation.
 After resizing, S has moved to S', C (center of rotation) has moved to C' and T has move to T'.
 So sizing requires that we calculate top, left, height and width if we want to keep M=M'.
 
 To find T' (the new top and left):
+
 1. we need to rotate T around C by an alpha angle to find M
 2. we then need to rotate M around C' by a -alpha angle to find T'
 
@@ -53,11 +54,11 @@ The maths to rotate a point by an angle are well explained at:
 Rotating a widget (or shape) is also easy.
 Simply use the mouse coordinates and the center of rotation to calculate the rotation angle.
 
-The maths to find the angle between two points from a center aer well explained at:
+The maths to find the angle between two points from a center are well explained at:
 
 - http://www.euclideanspace.com/maths/algebra/vectors/angleBetween/
 - http://stackoverflow.com/questions/7586063/how-to-calculate-the-angle-between-a-line-and-the-horizontal-axis
 - http://code.tutsplus.com/tutorials/euclidean-vectors-in-flash--active-8192
 - http://gamedev.stackexchange.com/questions/69649/using-atan2-to-calculate-angle-between-two-vectors
 
-This is the only CSS transform that we use for widgets (shapes) since moving uses (top, left) and sizing uses (height, width).
+This is the only CSS transform that we use for widgets (shapes) since moving uses (top, left) and sizing uses (top, left, height, width).

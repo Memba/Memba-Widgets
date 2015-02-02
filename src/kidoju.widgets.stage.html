@@ -47,11 +47,25 @@
 
         var stage = $('#stage').kendoStage({
             dataSource: pageItemCollectionDataSource,
-            mode: 'design'
+            autoBind: false,
+            mode: 'design',
+            select: function(e) {
+                var grid = $('#grid').data('kendoGrid');
+                if(e.value) {
+                    var uid = grid.dataSource.get(e.value.id).uid,
+                        row = grid.table.find('tr[data-uid="' + uid + '"]');
+                    if (!row.hasClass('k-state-selected')) {
+                        grid.select(row);
+                    }
+                } else {
+                    grid.clearSelection();
+                }
+            }
         }).data('kendoStage');
 
         $('#grid').kendoGrid({
             dataSource: pageItemCollectionDataSource,
+            autoBind: false,
             height: 300,
             selectable: true,
             editable: true,
@@ -105,7 +119,14 @@
                     title: "&nbsp;",
                     width: 120
                 }
-            ]
+            ],
+            change: function(e) {
+                var rows = this.select(),
+                    item = this.dataItem(rows[0]);
+                if(item && item.id) {
+                    $('#stage').data('kendoStage').select(item.id);
+                }
+            }
         });
 
         $('#slider').kendoSlider({
@@ -138,6 +159,9 @@
                     break;
             }
         });
+
+        //Note: we have autoBind = false
+        pageItemCollectionDataSource.read();
 
     });
 </script>

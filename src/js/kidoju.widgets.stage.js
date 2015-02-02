@@ -1,88 +1,105 @@
-/* Copyright ©2013-2014 Memba® Sarl. All rights reserved. */
-/* jslint browser:true */
-/* jshint browser:true */
-/* global jQuery */
+/**
+ * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 
-(function ($, undefined) {
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
 
-    "use strict";
+(function (window, $, undefined) {
 
-    var fn = Function,
-        global = fn('return this')(),
-        kendo = global.kendo,
+    'use strict';
+
+    //var fn = Function,
+    //    global = fn('return this')(),
+    //    kendo = global.kendo,
+    var kendo = window.kendo,
         ui = kendo.ui,
         Widget = ui.Widget,
-        ns = '.kendoStage',
-        kidoju = global.kidoju,
+        kidoju = window.kidoju,
 
         //Types
-        FUNCTION = 'function',
         STRING = 'string',
         NUMBER = 'number',
         NULL = null,
 
         //Events
+        NS = '.kendoStage',
+        MOUSEDOWN = 'mousedown',
+        MOUSEMOVE = 'mousemove',
+        MOUSEUP = 'mouseup',//TODO: mouseout
+        TOUCHSTART = 'touchstart',
+        TOUCHMOVE = 'touchmove',
+        TOUCHEND = 'touchend',
         CHANGE = 'change',
-        DRAGSTART = 'dragstart',
-        DRAG = 'drag',
-        DRAGEND = 'dragend',
-        CLICK = 'click' + ns,
-        TRANSLATE = 'translate' + ns,
-        RESIZE = 'resize' + ns,
-        ROTATE = 'rotate' + ns,
+        DATABINDING = "dataBinding",
+        DATABOUND = "dataBound",
+        SELECT = 'select',
+        MOVE = 'move',
+        RESIZE = 'resize',
+        ROTATE = 'rotate',//This constant is used for event and item.rotate property
 
-        //Size
+        //CSS
         ABSOLUTE = 'absolute',
         RELATIVE = 'relative',
         HIDDEN = 'hidden',
+        DISPLAY = 'display',
         BLOCK = 'block',
         NONE = 'none',
         TOP = 'top',
         LEFT = 'left',
         HEIGHT = 'height',
         WIDTH = 'width',
+        CURSOR = 'cursor',
+        TRANSFORM = 'transform',
         PX = 'px',
         CSS_ROTATE = 'rotate({0}deg)',
         CSS_SCALE = 'scale({0})',
-        DEFAULT_SCALE = 1,
-        DEFAULT_WIDTH = 1024,
-        DEFAULT_HEIGHT = 768,
 
         //Elements
-        POINTER = 'pointer',
         WRAPPER = '<div class="k-widget kj-stage" />',
+        WRAPPER_CLASS = '.kj-stage',
         ELEMENT = '<div data-id="{0}" data-tool="{1}" class="kj-element"></div>',
         ELEMENT_SELECTOR = '.kj-element[data-id="{0}"]',
         ELEMENT_CLASS = '.kj-element',
+        HANDLE_BOX = '<div class="kj-handle-box"></div>',
+        HANDLE_BOX_SELECTOR = '.kj-handle-box[data-id="{0}"]',
+        HANDLE_BOX_CLASS = '.kj-handle-box',
+        HANDLE_MOVE = '<span class="kj-handle" data-command="move"></span>',
+        HANDLE_RESIZE = '<span class="kj-handle" data-command="resize"></span>',
+        HANDLE_ROTATE = '<span class="kj-handle" data-command="rotate"></span>',
+        HANDLE_MENU = '<span class="kj-handle" data-command="menu"></span>',
+        HANDLE_SELECTOR = '.kj-handle[data-command="{0}"]',
+        HANDLE_CLASS = '.kj-handle',
         DATA_ID = 'data-id',
         DATA_TOOL = 'data-tool',
-        HANDLE_BOX = '<div class="kj-handle-box"></div>',
-        HANDLE_BOX_SELECTOR = '.kj-handle-box',
-        HANDLE_SELECTOR = '.kj-handle',
-        HANDLE_TRANSLATE = '<span class="kj-handle kj-translate-handle" draggable="true"></span>',
-        HANDLE_TRANSLATE_SELECTOR = '.kj-translate-handle',
-        HANDLE_RESIZE = '<span class="kj-handle kj-resize-handle" draggable="true"></span>',
-        HANDLE_RESIZE_SELECTOR = '.kj-resize-handle',
-        HANDLE_ROTATE = '<span class="kj-handle kj-rotate-handle" draggable="true"></span>',
-        HANDLE_ROTATE_SELECTOR = '.kj-rotate-handle',
-        HANDLE_MENU = '<span class="kj-handle kj-menu-handle"></span>',
-        HANDLE_MENU_SELECTOR = '.kj-menu-handle',
+        DATA_COMMAND = 'data-command',
+        STATE = 'state',
+        COMMANDS = {
+            MOVE: 'move',
+            RESIZE: 'resize',
+            ROTATE: 'rotate',
+            MENU: 'menu'
+        },
+
+        //Logic
+        POINTER = 'pointer',
+        ACTIVE = 'active',
+        DEFAULTS = {
+            MODE: 'thumbnail',
+            SCALE: 1,
+            WIDTH: 1024,
+            HEIGHT: 768
+        },
 
         DEBUG = true,
+        DEBUG_MOUSE = '<div class="debug-mouse"></div>',
+        DEBUG_MOUSE_CLASS = '.debug-mouse',
+        DEBUG_BOUNDS = '<div class="debug-bounds"></div>',
+        DEBUG_BOUNDS_CLASS = '.debug-bounds',
+        DEBUG_CENTER = '<div class="debug-center"></div>',
+        DEBUG_CENTER_CLASS = '.debug-center',
         MODULE = 'kidoju.widgets.stage: ';
-
-
-    /*******************************************************************************************
-     * Stage widget
-     *
-     * Drag and drop is extensively explained at:
-     * http://www.html5rocks.com/en/tutorials/dnd/basics/
-     * http://www.html5laboratory.com/drag-and-drop.php
-     * http://stackoverflow.com/questions/11529788/html-5-drag-events
-     * http://stackoverflow.com/questions/5500615/internet-explorer-9-drag-and-drop-dnd
-     * http://nettutsplus.s3.amazonaws.com/64_html5dragdrop/demo/index.html
-     * http://github.com/guillaumebort/jquery-ndd
-     *******************************************************************************************/
 
     /**
      * @class Stage Widget (kendoStage)
@@ -117,14 +134,15 @@
 
             var that = this;
             Widget.fn.init.call(that, element, options);
-            if(DEBUG && global.console) {
-                global.console.log(MODULE + 'widget initialized');
-            }
+            util.log('widget initialized');
             that.setOptions(options);
             that._layout();
             that._dataSource();
         },
 
+        /**
+         * Widget modes
+         */
         modes: {
             thumbnail: 'thumbnail',
             design: 'design',
@@ -137,15 +155,25 @@
         },
 
         /**
+         * Widget events
+         */
+        events: [
+            CHANGE,
+            DATABINDING,
+            DATABOUND,
+            SELECT
+        ],
+
+        /**
          * Widget options
          */
         options: {
-            name: "Stage",
+            name: 'Stage',
             autoBind: true,
-            mode: 'thumbnail',
-            scale: DEFAULT_SCALE,
-            height: DEFAULT_HEIGHT,
-            width: DEFAULT_WIDTH,
+            mode: DEFAULTS.MODE,
+            scale: DEFAULTS.SCALE,
+            height: DEFAULTS.HEIGHT,
+            width: DEFAULTS.WIDTH,
             tools: kidoju.tools,
             dataSource: undefined
         },
@@ -200,13 +228,16 @@
                 if (value < 0) {
                     throw new RangeError();
                 }
-                if(value !== that._scale) {
+                if(value !== that._scale) { //TODO: that.options.scale
                     that._scale = value;
-                    that.wrapper
-                        .css({ transformOrigin: '0px 0px' })//TODO: review
-                        .css({ transform: kendo.format(CSS_SCALE, that._scale) });
-                    that.wrapper.find(HANDLE_SELECTOR)
-                        .css({ transform: kendo.format(CSS_SCALE, 1/that._scale) });
+                    that.wrapper.css({
+                        transformOrigin: '0 0',
+                        transform: kendo.format(CSS_SCALE, that._scale)
+                    });
+                    that.wrapper.find(HANDLE_CLASS).css({
+                        //transformOrigin: 'center center', //by default
+                        transform: kendo.format(CSS_SCALE, 1/that._scale)
+                    });
                 }
             }
             else {
@@ -257,26 +288,6 @@
             }
             else {
                 return that.options.width;
-            }
-        },
-
-        /**
-         * Properties
-         * @param value
-         * @returns {*}
-         */
-        properties:  function (value) {
-            var that = this;
-            if (value) {
-                //if(!(value instanceof kendo.data.ObervableObject)) {
-                //    throw new TypeError();
-                //}
-                if(value !== that._properties) {
-                    that._properties = value;
-                }
-            }
-            else {
-                return that._properties;
             }
         },
 
@@ -333,7 +344,7 @@
 
             that._clear();
 
-            //Set that.stage
+            //Set that.stage from the div element that makes the widget
             that.stage = that.element
                 .wrap(WRAPPER)
                 .css({
@@ -344,20 +355,78 @@
                 });
 
             //We need that.wrapper for visible/invisible bindings
-            //that.wrapper also contains that.stage and that.handles (for translating, resizing and rotating)
-            that.wrapper = that.stage.parent().css({
-                position: RELATIVE,  //!important
-                height: that.height(),
-                width: that.width(),
-                //transformOrigin ?????????
-                transform: kendo.format(CSS_SCALE, that._scale) //options and scale()????
-            });
+            that.wrapper = that.stage.parent()
+                .css({
+                    position: RELATIVE,  //!important
+                    height: that.height(),
+                    width: that.width(),
+                    transformOrigin: '0 0', //'top left', //!important without such attribute, element top left calculations are wrong
+                    transform: kendo.format(CSS_SCALE, that.scale())
+                });
 
-            //that.wrapper contains that.element (the stage) and that.handles (the bounding box with handles)
+            //Initialize mode
+            that._initializeMode();
+        },
 
-            //Click handler to select or create stage elements from page items in design mode
-            if(that.mode() === that.modes.design) {
-                that.stage.on(CLICK, $.proxy(that._onStageClick, that));
+        /**
+         * Initialize mode
+         * @private
+         */
+        _initializeMode: function() {
+
+            var that = this;
+
+            //Clear stuff
+            that.wrapper.off(NS);
+            that.wrapper.find(HANDLE_BOX_CLASS).remove();
+            //TODO: overlay
+            kendo.unbind(that.stage);
+
+            switch(that.mode()) {
+
+                /**
+                 * Design mode: add handle box to move, resize and rotate elements
+                 */
+                case that.modes.design:
+
+                    //Add handles
+                    $(HANDLE_BOX)
+                        .css({
+                            position: ABSOLUTE,
+                            display: NONE
+                        })
+                        .append(HANDLE_MOVE)
+                        .append(HANDLE_RESIZE)
+                        .append(HANDLE_ROTATE)
+                        .append(HANDLE_MENU)
+                        .appendTo(that.wrapper);
+
+                    //Add event handlers
+                    that.wrapper.on(MOUSEDOWN + NS + ' ' + TOUCHSTART + NS, $.proxy(that._onMouseDown, that));
+                    that.wrapper.on(MOUSEMOVE + NS + ' ' + TOUCHMOVE + NS, $.proxy(that._onMouseMove, that));
+                    that.wrapper.on(MOUSEUP + NS + ' ' + TOUCHEND + NS, $.proxy(that._onMouseUp, that));
+
+                    //Add debug visual elements
+                    util.addDebugVisualElements(that.wrapper);
+
+                    break;
+
+                /**
+                 * Thumbnail mode: add overlay to display all controls
+                 */
+                case that.modes.thumbnail:
+                    //TODO: Add overlay to disable all controls
+                    break;
+
+                /**
+                 * Assess mode: bind to user's results
+                 */
+                case that.modes.assess:
+                    //if (that.properties() instanceof kendo.data.ObservableObject) {
+                    //    //kendo.bind(that.stage, that.properties());
+                    //}
+                    break;
+
             }
         },
 
@@ -370,13 +439,13 @@
          */
         _addStageElement: function(item, mouseX, mouseY) {
             var that = this;
-            if (item instanceof kidoju.PageItem) {
+
+            //Check we have an item which is not already on stage
+            if (item instanceof kidoju.PageItem && $(kendo.format(ELEMENT_SELECTOR, item.id)).length === 0) {
 
                 //When adding a new item on the stage, position it at mouse click coordinates
-                if ($.type(mouseX) === NUMBER) {
+                if ($.type(mouseX) === NUMBER && $.type(mouseY) === NUMBER) {
                     item.set(LEFT, mouseX);
-                }
-                if ($.type(mouseY) === NUMBER) {
                     item.set(TOP, mouseY);
                 }
 
@@ -384,74 +453,35 @@
                 if (tool instanceof kidoju.Tool) {
 
                     var stageElement = $(kendo.format(ELEMENT, item.id, item.tool))
-                        .css({ //http://www.paulirish.com/2012/why-moving-elements-with-translate-is-better-than-posabs-topleft/
+                        .css({
                             position: ABSOLUTE,
                             top: item.get(TOP),
                             left: item.get(LEFT),
                             height: item.get(HEIGHT),
                             width: item.get(WIDTH),
-                            transform: kendo.format(CSS_ROTATE, item.rotate)
+                            //transformOrigin: 'center center', //by default
+                            transform: kendo.format(CSS_ROTATE, item.get(ROTATE))
                         });
-
-                    //TODO: This actually depends on MODE ??????????????????????????
-                    stageElement.on(CLICK, $.proxy(that._onStageElementClick, that));
-
-                    /*
-                    if($.type(tool.onClick === FUNCTION)) {
-                        stageElement.on(CLICK, $.proxy(tool.onClick, item));
-                    }
-                    if($.type(tool.onTranslate === FUNCTION)) {
-                        stageElement.on(TRANSLATE, $.proxy(tool.onTranslate, item));
-                    }
-                    */
-                    if($.type(tool.onResize === FUNCTION)) {
-                        stageElement.on(RESIZE, $.proxy(tool.onResize, item));
-                    }
-                    /*
-                    if($.type(tool.onRotate === FUNCTION)) {
-                        stageElement.on(ROTATE, $.proxy(tool.onRotate, item));
-                    }
-                    */
 
                     stageElement.append(tool.getHtml(item));
                     that.stage.append(stageElement);
 
-                    stageElement.trigger(RESIZE, { height: item.height, width: item.width }); //TODO: should not we send item???
+                    if($.isFunction(tool.onMove)) {
+                        stageElement.on(MOVE + NS, tool.onMove);
+                    }
+                    if($.isFunction(tool.onResize)) {
+                        stageElement.on(RESIZE + NS, tool.onResize);
+                    }
+                    if($.isFunction(tool.onRotate)) {
+                        stageElement.on(ROTATE + NS, tool.onRotate);
+                    }
 
-
-                    //TODO Add event namespace TRANSLATE + NS
-                    //Events could be added on the stage itself
-                    stageElement
-                        .on(TRANSLATE, function (e, position) {
-                            var stageElement = $(e.currentTarget),
-                                stage = stageElement.closest(kendo.roleSelector('stage')),
-                                widget = stage.data('kendoStage'),
-                                id = stageElement.data('id'),
-                                item = widget.dataSource.get(id);
-                            item.set(TOP, position.top);
-                            item.set(LEFT, position.left);
-                        })
-                        .on(RESIZE, function(e, size) {
-                            var stageElement = $(e.currentTarget),
-                                stage = stageElement.closest(kendo.roleSelector('stage')),
-                                widget = stage.data('kendoStage'),
-                                id = stageElement.data('id'),
-                                item = widget.dataSource.get(id);
-                            item.set(HEIGHT, size.height);
-                            item.set(WIDTH, size.width);
-                        })
-                        .on(ROTATE, function(e, rotate) {
-                            var stageElement = $(e.currentTarget),
-                                stage = stageElement.closest(kendo.roleSelector('stage')),
-                                widget = stage.data('kendoStage'),
-                                id = stageElement.data('id'),
-                                item = widget.dataSource.get(id);
-                            item.set(ROTATE, rotate);
-                        });
-
-                    //TODO: add behaviours here!!!
+                    stageElement.trigger(MOVE + NS, item);
+                    stageElement.trigger(RESIZE + NS, item);
+                    stageElement.trigger(ROTATE + NS, item);
                 }
             }
+
         },
 
         /**
@@ -459,244 +489,45 @@
          * @private
          */
         _removeStageElement: function(id) {
-            var that = this;
-            //TODO hide handles where necessary
             //TODO use a tool method to avoid leaks (remove all event handlers, ...)
-            that.stage.find(kendo.format(ELEMENT_SELECTOR, id))
-                .off()//TODO namespace .off(that.ns)
+            //Find and remove stage element
+            this.stage.find(kendo.format(ELEMENT_SELECTOR, id))
+                .off(NS)
                 .remove();
         },
 
         /**
-         * Handler triggered when clicking the stage (but not an element)
-         * @param e
-         * @private
-         */
-        _onStageClick: function(e) {
-
-            var that = this,
-                id = that.options.tools.get('active'),
-                tool = that.options.tools[id];
-
-            if (id !== POINTER) {
-
-                //TODO: show optional creation dialog and test OK/Cancel
-
-                var item = new kidoju.PageItem({
-                    id: kendo.guid(),
-                    tool: id,
-                    left: e.offsetX, //originalEvent? offest()?
-                    top: e.offsetY,
-                    width: tool.width,
-                    height: tool.height
-                    //rotate: tool.rotate?
-                });
-
-                that.dataSource.add(item);
-                that.options.tools.set('active', POINTER);
-
-            } else {
-
-                that._hideHandles();
-
-            }
-        },
-
-        /**
-         * Handler trigger when clicking a stage element
-         * @method onClick
-         * @param e
-         */
-        _onStageElementClick: function(e) {
-
-            var that = this,
-                stageElement = $(e.currentTarget);
-
-            if (that instanceof kendo.ui.Stage && stageElement.is(ELEMENT_CLASS)) {
-
-                var elementId = stageElement.attr(DATA_ID),
-                    toolId = stageElement.attr(DATA_TOOL),
-                    tool = kidoju.tools[toolId];
-
-                if ($.type(elementId) === STRING && tool instanceof kidoju.Tool && that.mode() === that.modes.design) {
-                    $.proxy(that._ensureHandles, that)();
-                    $.proxy(that._showHandles, that)(elementId);
-                }
-            }
-
-            //prevent click event from bubbling to the stage
-            e.preventDefault();
-            e.stopPropagation();
-        },
-
-
-        /**
-         * Ensure handles within wrapper
-         * @method _ensureHandles
-         * @param stage
-         * @private
-         */
-        _ensureHandles: function() {
-
-            var that = this;
-            if(that.wrapper.find(HANDLE_BOX_SELECTOR).length === 0) {
-
-                //Create handles
-                var handleBox = $(HANDLE_BOX)
-                    .css({
-                        position: ABSOLUTE,
-                        display: NONE
-                    })
-                    .append(HANDLE_TRANSLATE)
-                    .append(HANDLE_RESIZE)
-                    .append(HANDLE_ROTATE)
-                    .append(HANDLE_MENU);
-
-                //Scale handles
-                handleBox.find(HANDLE_SELECTOR)
-                    .css({ transform: kendo.format(CSS_SCALE, 1/that._scale) });
-
-                //Add handle box to wrapper
-                that.wrapper.append(handleBox);
-
-                //Clean before (re)creating new event handlers
-                that.wrapper.off();
-
-                //Add dragstart event handler
-                that.wrapper.on(DRAGSTART, function(e) {
-
-                    var handle = $(e.target),
-                        handleBox = handle.parent(),
-                        stage = that.stage;
-
-                    if (handle.is('.kj-handle')) {
-                        handleBox.data('drag', {
-                            top: parseFloat(handleBox.css('top')) || 0, //box.position().top does not work when scaled
-                            left: parseFloat(handleBox.css('left')) || 0, //box.position().left does not work when scaled
-                            height: handleBox.height(),
-                            width: handleBox.width(),
-                            angle: 0, //util.getElementRotation(),
-                            scale: util.getElementScale(stage),
-                            clientX: e.originalEvent.clientX,
-                            clientY: e.originalEvent.clientY,
-                            id: handleBox.attr(DATA_ID)
-                        });
-                    }
-                });
-
-                //Add drag event handler
-                that.wrapper.on(DRAG, function(e) {
-                    var handle = $(e.target),
-                        handleBox = handle.parent(),
-                        startState = handleBox.data('drag'),
-                        stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, startState.id));
-
-                    if (handle.is('.kj-translate-handle')) {
-
-                        if (e.originalEvent.clientX && e.originalEvent.clientY) {
-                            var translation = {
-                                top: startState.top + (e.originalEvent.clientY - startState.clientY)/startState.scale,
-                                left: startState.left + (e.originalEvent.clientX - startState.clientX)/startState.scale
-                            };
-                            handleBox.css(translation);
-                            stageElement.css(translation);
-                        }
-
-                    } else if (handle.is('.kj-resize-handle')) {
-
-                        if (e.originalEvent.clientX && e.originalEvent.clientY) {
-                            var Y = (e.originalEvent.clientY - startState.clientY) / startState.scale,
-                                X = (e.originalEvent.clientX - startState.clientX) / startState.scale,
-                                resizing = {
-                                    //transformOrigin: 'top left',
-                                    height: startState.height - X * Math.sin(startState.angle) + Y * Math.cos(startState.angle),
-                                    width: startState.width + X * Math.cos(startState.angle) + Y * Math.sin(startState.angle)
-                                };
-                            handleBox.css(resizing);
-                            stageElement.css(resizing);
-                            stageElement.trigger(RESIZE, resizing);
-                        }
-
-
-                    } else if (handle.is('.kj-rotate-handle')) {
-
-                        if (e.originalEvent.clientX && e.originalEvent.clientY) {
-                            var cx = that.stage.offset().left + parseFloat(handleBox.css('left')) || 0 /*box.position().left*/ + handleBox.width() / 2,
-                                cy = that.stage.offset().top + parseFloat(handleBox.css('top')) || 0 /*box.position().top*/ + handleBox.height() / 2,
-                                deg = (Math.atan2(e.originalEvent.clientY - cy, e.originalEvent.clientX - cx) - Math.atan2(startState.clientY - cy, startState.clientX - cx)) * 180 / Math.PI,
-                            //  deg = (360 + Math.atan2(o.offsetY - cy, o.offsetX - cx)*180/Math.PI) % 360,
-                                rotation = {
-                                    //transformOrigin: 'center center', //by default
-                                    transform: 'rotate(' + deg + 'deg)'
-                                };
-                            handleBox.css(rotation);
-                            handleBox.find(HANDLE_SELECTOR).css({
-                                //transformOrigin: 'center center', //by default
-                                transform: 'rotate(-' + deg + 'deg)'
-                            });
-                            stageElement.css(rotation);
-                            stageElement.trigger(RESIZE, rotation);
-                        }
-                    }
-
-                    e.stopPropagation();
-
-                });
-
-                //Add dragend event handler
-                that.wrapper.on(DRAGEND, function(e) {
-
-                    //TODO set final position here????
-
-                    //Simply remove data
-                    var handleBox = $(e.target).parent();
-                    handleBox.removeData('drag');
-
-                    e.stopPropagation();
-
-                });
-
-                //Add click event handler on menu handle
-                //TODO
-            }
-
-        },
-
-        /**
-         * Show handler on a stage element
-         * @method _showHandler
+         * Show handles on a stage element
+         * @method _showHandles
          * @param id
          * @private
          */
         _showHandles: function(id){
-
             var that = this,
-                stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, id)),
-                handleBox = that.wrapper.find(HANDLE_BOX_SELECTOR);
-
+                handleBox = that.wrapper.find(HANDLE_BOX_CLASS);
             if (handleBox.length) {
+
+                //Position handleBox on top of stageElement (same location, same size, same rotation)
+                var stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, id));
                 handleBox
                     .css({
                         top: stageElement.css(TOP),
                         left: stageElement.css(LEFT),
                         height: stageElement.css(HEIGHT),
                         width: stageElement.css(WIDTH),
-                        //transform: TODO
+                        //transformOrigin: 'center center', //by default
+                        transform: stageElement.css(TRANSFORM), //This might return a matrix
                         display: BLOCK
                     })
-                    .attr(DATA_ID, id);
-            }
-        },
+                    .attr(DATA_ID, id); //This is how we know which stageElement to transform when dragging handles
 
-        /**
-         * Test handles for a stage element/item
-         * @method _hasHandles
-         * @param id
-         * @returns {boolean}
-         * @private
-         */
-        _hasHandles: function(id) {
-            return this.wrapper.find(HANDLE_BOX_SELECTOR).attr(DATA_ID) === id;
+                //Scale and rotate handles
+                handleBox.find(HANDLE_CLASS)
+                    .css({
+                        //transformOrigin: 'center center', //by default
+                        transform: kendo.format(CSS_ROTATE, -util.getTransformRotation(stageElement)) + ' ' + kendo.format(CSS_SCALE, 1/that.scale())
+                    });
+            }
         },
 
         /**
@@ -705,75 +536,282 @@
          * @private
          */
         _hideHandles: function(){
-            this.wrapper.find(HANDLE_BOX_SELECTOR)
+            this.wrapper.find(HANDLE_BOX_CLASS)
                 .css({display: NONE})
                 .removeAttr(DATA_ID);
         },
 
         /**
-         * Refreshes the widget
+         * Start dragging an element
+         * @param e
+         */
+        _onMouseDown: function(e) {
+
+            //TODO: also drag with keyboard arrows
+
+            var that = this,
+                activeId = that.options.tools.get(ACTIVE),
+                target = $(e.target),
+                mouse = util.getMousePosition(e),
+                stageElement = target.closest(ELEMENT_CLASS),
+                handle = target.closest(HANDLE_CLASS);
+
+            //When clicking the stage with an active tool
+            if (activeId !== POINTER) {
+                //TODO: show optional creation dialog and test OK/Cancel
+                var tool = that.options.tools[activeId];
+                if(tool instanceof kidoju.Tool) {
+                    var item = new kidoju.PageItem({
+                        id: kendo.guid(),
+                        tool: tool.id,
+                        //e.offsetX and e.offsetY do not work in Firefox
+                        left: mouse.x,
+                        top: mouse.y,
+                        width: tool.width,
+                        height: tool.height
+                        //rotate: tool.rotate?
+                    });
+                    that.dataSource.add(item);
+                    //Add triggers the change event on the dataSource which calls the refresh method
+                }
+                that.options.tools.set(ACTIVE, POINTER);
+
+            //When hitting a handle with the pointer tool
+            } else if (handle.length) {
+                var command = handle.attr(DATA_COMMAND);
+                if (command === COMMANDS.MENU) {
+                    $.noop(); //TODO: contextual menu here
+                } else {
+                    var handleBox = that.wrapper.find(HANDLE_BOX_CLASS),
+                        id = handleBox.attr(DATA_ID); //the id of the stageElement which is being selected before hitting the handle
+                    stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, id));
+                    handleBox.data(STATE, {
+                        command: command,
+                        top: parseFloat(stageElement.css(TOP)) || 0, //stageElement.position().top does not work when scaled
+                        left: parseFloat(stageElement.css(LEFT)) || 0, //stageElement.position().left does not work when scaled
+                        height: stageElement.height(),
+                        width: stageElement.width(),
+                        angle: util.getTransformRotation(stageElement),
+                        scale: util.getTransformScale(that.wrapper),
+                        snapGrid: 0, //TODO
+                        snapAngle: 0, //TODO
+                        mouseX: mouse.x,
+                        mouseY: mouse.y,
+                        id: id
+                    });
+
+                    //log(handleBox.data(STATE));
+                    $(document.body).css(CURSOR, target.css(CURSOR));
+                }
+
+            //When hitting a stage element with the pointer tool
+            } else if (stageElement.length) {
+                that.select(stageElement.attr(DATA_ID));
+
+            //When hitting anything else with the pointer tool
+            } else {
+                that.select(null);
+            }
+
+            e.preventDefault(); //otherwise both touchstart and mousedown are triggered and code is executed twice
+            e.stopPropagation();
+        },
+
+        /**
+         * While dragging an element on stage
+         * @param e
+         * @private
+         */
+        _onMouseMove: function(e) {
+
+            var that = this,
+                handleBox = that.wrapper.find(HANDLE_BOX_CLASS),
+                startState = handleBox.data(STATE);
+
+            //With a startState, we are dragging a handle
+            if ($.isPlainObject(startState)) {
+
+                var mouse = util.getMousePosition(e),
+                    stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, startState.id)),
+                    item = that.options.dataSource.get(startState.id),
+                    rect = stageElement[0].getBoundingClientRect(),
+                    bounds = {
+                        //TODO these calculations depend on the transformOrigin attribute of that.wrapper - ideally we should introduce transformOrigin in the calculation
+                        left: rect.left - that.stage.offset().left + $(document.body).scrollLeft(),
+                        top: rect.top - that.stage.offset().top + $(document.body).scrollTop(),
+                        height: rect.height,
+                        width: rect.width
+                    },
+                    center = {
+                        x: bounds.left + bounds.width / 2,
+                        y: bounds.top + bounds.height / 2
+                    };
+
+                util.updateDebugVisualElements({
+                    wrapper: that.wrapper,
+                    mouse: mouse,
+                    center: center,
+                    bounds: bounds,
+                    scale: startState.scale
+                });
+
+                if (startState.command === COMMANDS.MOVE) {
+                    item.set(LEFT, util.snap(startState.left + (mouse.x - startState.mouseX)/startState.scale, startState.snapGrid));
+                    item.set(TOP, util.snap(startState.top + (mouse.y - startState.mouseY)/startState.scale, startState.snapGrid));
+                    //Set triggers the change event on the dataSource which calls the refresh method to update the stage
+
+                } else if (startState.command === COMMANDS.RESIZE) {
+                    //See https://github.com/Memba/Kidoju-Widgets/blob/master/test/samples/move-resize-rotate.md
+                    var dx = (mouse.x - startState.mouseX)/startState.scale, //horizontal distance from S to S'
+                        dy = (mouse.y - startState.mouseY)/startState.scale, //vertical distance from S to S'
+                        centerAfterMove = { //Also C'
+                            x: center.x + dx/ 2,
+                            y: center.y + dy/ 2
+                        },
+                        topLeft = { //Also T
+                            x: startState.left,
+                            y: startState.top
+                        },
+                        alpha = util.deg2rad(startState.angle),
+                        mmprime = util.getRotatedPoint(topLeft, center, alpha), //Also M=M'
+                        topLeftAfterMove = util.getRotatedPoint(mmprime, centerAfterMove, -alpha); //Also T'
+
+                    //TODO these calculations depend on the transformOrigin attribute of that.wrapper - ideally we should introduce transformOrigin in the calculation
+                    item.set(LEFT, topLeftAfterMove.x);
+                    item.set(TOP, topLeftAfterMove.y);
+                    item.set(HEIGHT, util.snap(startState.height - dx * Math.sin(alpha) + dy * Math.cos(alpha), startState.snapGrid));
+                    item.set(WIDTH, util.snap(startState.width + dx * Math.cos(alpha) + dy * Math.sin(alpha), startState.snapGrid));
+                    //Set triggers the change event on the dataSource which calls the refresh method to update the stage
+
+                } else if (startState.command === COMMANDS.ROTATE) {
+                    var rad = util.getRadiansBetween2Points(center, {x: startState.mouseX, y: startState.mouseY}, mouse),
+                        deg = util.snap((360 + startState.angle + util.rad2deg(rad)) % 360, startState.snapAngle);
+                    item.set(ROTATE, deg);
+                    //Set triggers the change event on the dataSource which calls the refresh method to update the stage
+                }
+
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        },
+
+        /**
+         * At the end of dragging an element on stage
+         * @param e
+         * @private
+         */
+        _onMouseUp: function(e) {
+
+            var that = this,
+                handleBox = that.wrapper.find(HANDLE_BOX_CLASS),
+                startState = handleBox.data(STATE);
+
+            if ($.isPlainObject(startState)) {
+
+                //Remove drag start state
+                handleBox.removeData(STATE);
+
+                //Reset cursor
+                $(document.body).css(CURSOR, '');
+
+                //Hide debug visual elements
+                util.hideDebugVisualElements(that.wrapper);
+
+            }
+        },
+
+        /**
+         * Refresh a stage widget
+         * @param e
          */
         refresh: function(e) {
-            var that = this,
-                i = 0;
+            var that = this;
             if (e === undefined || e.action === undefined) {
-                var data = [];
+                var items = [];
                 if (e=== undefined && that.dataSource instanceof kendo.data.PageItemCollectionDataSource) {
-                    data = that.dataSource.data();
+                    items = that.dataSource.data();
                 } else if (e && e.items instanceof kendo.data.ObservableArray) {
-                    data = e.items;
+                    items = e.items;
                 }
-                //if (that.mode() === that.modes.assess) {
-                //    kendo.unbind(that._container, that.properties());
-                //}
-                //that._container.find('*').off();
-                //that._container.empty();
-                for (i = 0; i < data.length; i++) {
-                    var item = data[i];
-                    if (item instanceof kidoju.PageItem) {
-                        that._addStageElement(item);
-                    }
-                }
-                if(that.mode() === that.modes.assess) {
-                    if (that.properties() instanceof kendo.data.ObservableObject) {
-                        //kendo.bind(that._container, that.properties());
-                    }
-                }
+                that.trigger(DATABINDING);
+                $.each(items, function(index, item) {
+                    that._addStageElement(item);
+                });
+                that.trigger(DATABOUND);
             } else if (e.action === 'add') {
-                for (i = 0; i < e.items.length; i++) {
-                    that._addStageElement(e.items[i]);
-                }
+                $.each(e.items, function(index, item) {
+                    that._addStageElement(item);
+                    that.trigger(CHANGE, {action: e.action, value: item});
+                    that.select(item.id);
+                });
             } else if (e.action === 'remove') {
-                for (i = 0; i < e.items.length; i++) {
-                    that._removeStageElement(e.items[i].id);
-                }
+                $.each(e.items, function(index, item) {
+                    that._removeStageElement(item.id);
+                    that.trigger(CHANGE, {action: e.action, value: item});
+                    if (that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_ID) === item.id) {
+                        that.select(null);
+                    }
+                });
             } else if (e.action === 'itemchange') {
-                for (i = 0; i < e.items.length; i++) {
-                    //NOTE e.field cannot be relied upon, especially when resizing
-                    //e.field takes a value of height or width when both change
-                    //id and tool are not supposed to change
-                    var stageElement = that._container.find(kendo.format(ELEMENT_SELECTOR, e.items[i].id));
-                    //id is not suppoed to change
-                    //tool is not supposed to change
-                    if(stageElement.css(TRANSLATE) != e.items[i].left + 'px,' + e.items[i].top + 'px') {
-                        stageElement.css(TRANSLATE, e.items[i].left + 'px,' + e.items[i].top + 'px');
+                $.each(e.items, function(index, item) {
+                    var stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, item.id)),
+                        handleBox = that.wrapper.find(kendo.format(HANDLE_BOX_SELECTOR, item.id));
+                    if (stageElement.length) {
+                        switch (e.field) {
+                            case LEFT:
+                                stageElement.css(LEFT, item.left);
+                                handleBox.css(LEFT, item.left);
+                                stageElement.trigger(MOVE + NS, item);
+                                break;
+                            case TOP:
+                                stageElement.css(TOP, item.top);
+                                handleBox.css(TOP, item.top);
+                                stageElement.trigger(MOVE + NS, item);
+                                break;
+                            case HEIGHT:
+                                stageElement.css(HEIGHT, item.height);
+                                handleBox.css(HEIGHT, item.height);
+                                stageElement.trigger(RESIZE + NS, item);
+                                break;
+                            case WIDTH:
+                                stageElement.css(WIDTH, item.width);
+                                handleBox.css(WIDTH, item.width);
+                                stageElement.trigger(RESIZE + NS, item);
+                                break;
+                            case ROTATE:
+                                stageElement.css(TRANSFORM, kendo.format(CSS_ROTATE, item.rotate));
+                                handleBox.css(TRANSFORM, kendo.format(CSS_ROTATE, item.rotate));
+                                handleBox.find(HANDLE_CLASS).css(TRANSFORM, kendo.format(CSS_ROTATE, -item.rotate) + ' ' + kendo.format(CSS_SCALE, 1/that.scale()));
+                                stageElement.trigger(ROTATE + NS, item);
+                                break;
+                            //TODO attributes
+                            //TODO properties
+                        }
                     }
-                    if(stageElement.height() !== e.items[i].height || stageElement.width() !== e.items[i].width) {
-                        stageElement.height(e.items[i].height);
-                        stageElement.width(e.items[i].width);
-                        //We need to trigger the resize event to ensure the content is resized
-                        //but this will update the item triggering a refresh and potentially creating an infinite loop and a stack overflow.
-                        //In order to prevent it we test a change of value hereabove, so that the loop stops when values are equal
-                        stageElement.trigger(RESIZE, { height: e.items[i].height, width: e.items[i].width });
-                    }
-                    if(stageElement.css(ROTATE) != e.items[i].rotate) {
-                        stageElement.css(ROTATE, e.items[i].rotate + 'deg');
-                    }
-                    //TODO attributes
-                    //TODO properties
+                });
+            }
+        },
+
+        /**
+         * Select a stage element
+         * @param id
+         * @returns {h|*}
+         */
+        select: function (id) {
+            var that = this;
+            if (that.mode() === that.modes.design) {
+                if (id === undefined) {
+                    return that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_ID);
+                } else if ($.type(id) === STRING && that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_ID) !== id) {
+                    that._showHandles(id);
+                    that.trigger(SELECT, {value: that.options.dataSource.get(id)});
+                } else if (id === null && that.wrapper.find(HANDLE_BOX_CLASS).css(DISPLAY) !== NONE) {
+                    that._hideHandles();
+                    that.trigger(SELECT, {value: null});
                 }
             }
         },
+
 
         /**
          * Stage Elements
@@ -781,8 +819,7 @@
          * @returns {XMLList|*}
          */
         items: function() {
-            //TODO: do not return handler
-            return this._container.children();
+            return this.stage.children();
         },
 
         /**
@@ -817,27 +854,229 @@
 
     kendo.ui.plugin(Stage);
 
+    /**
+     * Utility functions used in the Stage widget
+     */
     var util = {
 
+        /**
+         * Log a message
+         * @param message
+         */
+        log: function(message) {
+            if (DEBUG && window.console && $.isFunction(window.console.log)) {
+                window.console.log(MODULE + message);
+            }
+        },
+
+        /**
+         * Convert radians to degrees
+         * @param deg
+         * @returns {number}
+         */
         deg2rad: function(deg) {
             return deg*Math.PI/180;
         },
 
+        /**
+         * Convert degrees to radians
+         * @param rad
+         * @returns {number}
+         */
         rad2deg: function(rad) {
             return rad*180/Math.PI;
         },
 
-        getElementRotation: function(element) {
-            //$(element).css('transform') returns a matrix, so we read style
-            var match = ($(element).attr('style') || '').match(/rotate\([\s]*([0-9]+)[deg\s]*\)/);
-            return $.isArray(match) && match.length > 1 ? parseInt(match[1]) || 0 : 0;
+        /**
+         * Snapping consists in rounding the value to the closest multiple of snapValue
+         * @param value
+         * @param snapValue
+         * @returns {*}
+         */
+        snap: function (value, snapValue) {
+            if (snapValue) {
+                return value % snapValue < snapValue / 2 ? value - value % snapValue : value + snapValue - value % snapValue;
+            } else {
+                return value;
+            }
         },
 
-        getElementScale: function(element) {
+        /**
+         * Get the rotation angle (in degrees) of an element's CSS transformation
+         * @param element
+         * @returns {Number|number}
+         */
+        getTransformRotation: function(element) {
+            //$(element).css('transform') returns a matrix, so we have to read the style attribute
+            var match = ($(element).attr('style') || '').match(/rotate\([\s]*([0-9\.]+)[deg\s]*\)/);
+            return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 0 : 0;
+        },
+
+        /**
+         * Get the scale of an element's CSS transformation
+         * @param element
+         * @returns {Number|number}
+         */
+        getTransformScale: function(element) {
+            //$(element).css('transform') returns a matrix, so we have to read the style attribute
             var match = ($(element).attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
             return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
+        },
+
+        /**
+         * Get the mouse (or touch) position
+         * @param e
+         * @returns {{x: *, y: *}}
+         */
+        getMousePosition: function(e) {
+            //See http://www.jacklmoore.com/notes/mouse-position/
+            //See http://www.jqwidgets.com/community/topic/dragend-event-properties-clientx-and-clienty-are-undefined-on-ios/
+            //See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
+            //ATTENTION: e.originalEvent.touches instanceof TouchList, not Array
+            var clientX = e.originalEvent && e.originalEvent.touches ? e.originalEvent.touches[0].clientX : e.clientX,
+                clientY = e.originalEvent && e.originalEvent.touches ? e.originalEvent.touches[0].clientY : e.clientY,
+                //IMPORTANT: Pos is relative to the stage and e.offsetX / e.offsetY does not work in Firefox
+                stage = $(e.currentTarget).find(kendo.roleSelector('stage')),
+                mouse = {
+                    x: clientX - stage.offset().left + $(document.body).scrollLeft(), //TODO: any other scrolled parent to consider????????
+                    y: clientY - stage.offset().top + $(document.body).scrollTop()
+                };
+            return mouse;
+        },
+
+        /**
+         * Rotate a point by an angle around a center
+         * @param point
+         * @param center
+         * @param radians
+         * @returns {*}
+         */
+        getRotatedPoint: function(point, center, radians) {
+            if ($.isPlainObject(point) && $.type(point.x) === 'number' && $.type(point.y) === 'number' &&
+                $.isPlainObject(center) && $.type(center.x) === 'number' && $.type(center.y) === 'number' &&
+                $.type(radians) === 'number') {
+                return {
+                    //See http://stackoverflow.com/questions/786472/rotate-a-point-by-another-point-in-2d
+                    //See http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
+                    x: center.x + (point.x - center.x) * Math.cos(radians) - (point.y - center.y) * Math.sin(radians),
+                    y: center.y + (point.x - center.x) * Math.sin(radians) + (point.y - center.y) * Math.cos(radians)
+                };
+            } else {
+                return undefined;
+            }
+        },
+
+        /**
+         * Calculate the angle between two points rotated around a center
+         * @param center
+         * @param p1
+         * @param p2
+         * @returns {*}
+         */
+        getRadiansBetween2Points: function(center, p1, p2) {
+            if ($.isPlainObject(center) && $.type(center.x) === 'number' && $.type(center.y) === 'number' &&
+                $.isPlainObject(p1) && $.type(p1.x) === 'number' && $.type(p1.y) === 'number' &&
+                $.isPlainObject(p2) && $.type(p2.x) === 'number' && $.type(p2.y) === 'number') {
+                //See http://www.euclideanspace.com/maths/algebra/vectors/angleBetween/
+                //See http://stackoverflow.com/questions/7586063/how-to-calculate-the-angle-between-a-line-and-the-horizontal-axis
+                //See http://code.tutsplus.com/tutorials/euclidean-vectors-in-flash--active-8192
+                //See http://gamedev.stackexchange.com/questions/69649/using-atan2-to-calculate-angle-between-two-vectors
+                return Math.atan2(p2.y - center.y, p2.x - center.x) - Math.atan2(p1.y - center.y, p1.x - center.x);
+            } else {
+                return undefined;
+            }
+        },
+
+        /**
+         * Add debug visual eleemnts
+         * @param wrapper
+         */
+        addDebugVisualElements: function(wrapper) {
+            if(DEBUG) {
+
+                //Add bounding rectangle
+                $(DEBUG_BOUNDS)
+                    .css({
+                        position: ABSOLUTE,
+                        border: '1px dashed #FF00FF',
+                        display: NONE
+                    })
+                    .appendTo(wrapper);
+
+                //Add center of rotation
+                $(DEBUG_CENTER)
+                    .css({
+                        position: ABSOLUTE,
+                        height: '20px',
+                        width: '20px',
+                        marginTop: '-10px',
+                        marginLeft: '-10px',
+                        borderRadius: '50%',
+                        backgroundColor: '#FF00FF',
+                        display: NONE
+                    })
+                    .appendTo(wrapper);
+
+                //Add calculated mouse position
+                $(DEBUG_MOUSE)
+                    .css({
+                        position: ABSOLUTE,
+                        height: '20px',
+                        width: '20px',
+                        marginTop: '-10px',
+                        marginLeft: '-10px',
+                        borderRadius: '50%',
+                        backgroundColor: '#00FFFF',
+                        display: NONE
+                    })
+                    .appendTo(wrapper);
+            }
+        },
+
+        /**
+         * Update debug visual elements
+         * @param options
+         */
+        updateDebugVisualElements: function(options) {
+            if(DEBUG && $.isPlainObject(options) && options.scale > 0) {
+
+                //Display center of rotation
+                options.wrapper.find(DEBUG_CENTER_CLASS).css({
+                    display: 'block',
+                    left: options.center.x / options.scale,
+                    top: options.center.y / options.scale
+                });
+
+                //Display bounding rectangle
+                options.wrapper.find(DEBUG_BOUNDS_CLASS).css({
+                    display: 'block',
+                    left: options.bounds.left / options.scale,
+                    top: options.bounds.top / options.scale,
+                    height: options.bounds.height / options.scale,
+                    width: options.bounds.width / options.scale
+                });
+
+                //Display mouse calculated position
+                options.wrapper.find(DEBUG_MOUSE_CLASS).css({
+                    display: 'block',
+                    left: options.mouse.x / options.scale,
+                    top: options.mouse.y / options.scale
+                });
+            }
+        },
+
+        /**
+         * Hide debug visual elements
+         * @param wrapper
+         */
+        hideDebugVisualElements: function(wrapper) {
+            if (DEBUG) {
+                wrapper.find(DEBUG_CENTER_CLASS).css({display: NONE});
+                wrapper.find(DEBUG_BOUNDS_CLASS).css({display: NONE});
+                wrapper.find(DEBUG_MOUSE_CLASS).css({display: NONE});
+            }
         }
 
     };
 
-}(jQuery));
+}(this, jQuery));

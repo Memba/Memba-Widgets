@@ -1,18 +1,22 @@
-/* Copyright ©2013-2014 Memba® Sarl. All rights reserved. */
-/* jslint browser:true */
-/* jshint browser:true */
-/* global jQuery */
+/**
+ * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 
-(function($, undefined) {
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
 
-    "use strict";
+(function(window, $, undefined) {
+
+    'use strict';
 
     // shorten references to variables for uglification
-    var fn = Function,
-        global = fn('return this')(),
-        kendo = global.kendo,
+    //var fn = Function,
+    //    global = fn('return this')(),
+    var kendo = window.kendo,
         data = kendo.data,
         Widget = kendo.ui.Widget,
+        kidoju = window.kidoju,
 
         //Types
         NULL = null,
@@ -44,6 +48,12 @@
      * Helpers
      *********************************************************************************/
 
+    function log(message) {
+        if (DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log(MODULE + message);
+        }
+    }
+
     function isGuid(value) {
         //http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
         return  ($.type(value) === STRING) && (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value));
@@ -64,9 +74,7 @@
             var that = this;
             // base call to widget initialization
             Widget.fn.init.call(this, element, options);
-            if(DEBUG && global.console) {
-                global.console.log(MODULE + 'widget initialized');
-            }
+            log('widget initialized');
             that._templates();
             that._layout();
             that._dataSource();
@@ -105,9 +113,7 @@
         index: function(value) {
             var that = this, page;
             if(value !== undefined) {
-                if (DEBUG && global.console) {
-                    global.console.log(MODULE + 'index set to ' + value);
-                }
+                log('index set to ' + value);
                 if ($.type(value) !== NUMBER) {
                     throw new TypeError();
                 } else if (value < 0 || (value > 0 && value >= that.length())) {
@@ -332,6 +338,7 @@
                                 .find(kendo.roleSelector('stage')).kendoStage({
                                     mode: kendo.ui.Stage.fn.modes.thumbnail,
                                     dataSource: data[i].items,
+                                    //autoBind: false,
                                     //width: ???,
                                     //height: ???,
                                     scale: scale
@@ -421,7 +428,7 @@
                     navigation = target.closest(kendo.roleSelector('navigation'));
                 e.preventDefault();
                 if (!target.is('.' + SELECTED_CLASS)) {
-                    var page = this.dataSource.getByUid(target.attr(kendo.attr("uid")));
+                    var page = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
                     this.selection(page);
                 }
             }
@@ -458,4 +465,4 @@
 
     kendo.ui.plugin(Navigation);
 
-}(jQuery));
+}(this, jQuery));

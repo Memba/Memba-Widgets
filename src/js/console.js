@@ -1,9 +1,14 @@
-/*jslint browser:true */
-/*global $: false, jQuery: false */
+/**
+ * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 
-;(function ($) {
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
 
-    "use strict";
+;(function (window, $, undefined) {
+
+    'use strict';
 
     var count = 0,
         oldMessage;
@@ -44,15 +49,16 @@
             this.log(message, true);
         }
     };
-})(jQuery);
+})(this, jQuery);
 
 /*
 * jQuery Color Animations
 * Copyright 2007 John Resig
 * Released under the MIT and GPL licenses.
 */
+(function (window, $, undefined) {
 
-(function ($) {
+    'use strict';
 
     // We override the animation for all of these color styles
     $.each(["backgroundColor", "borderBottomColor", "borderLeftColor", "borderRightColor", "borderTopColor", "color", "outlineColor"], function (i, attr) {
@@ -83,13 +89,14 @@
             return color;
 
         // Look for rgb(num,num,num)
-        if (result = /rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)/.exec(color))
-
+        if (result = /rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)/.exec(color)) {
             return [parseInt(result[1]), parseInt(result[2]), parseInt(result[3])];
+        }
 
         // Look for #a0b1c2
-        if (result = /#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})/.exec(color))
+        if (result = /#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})/.exec(color)) {
             return [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)];
+        }
 
         // Otherwise, we're most likely dealing with a named color
         return colors[$.trim(color).toLowerCase()];
@@ -128,4 +135,5 @@
         }
         window.location.href = href;
     }
-})(jQuery);
+
+})(this, jQuery);

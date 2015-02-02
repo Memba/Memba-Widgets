@@ -1,16 +1,19 @@
-/* Copyright ©2013-2014 Memba® Sarl. All rights reserved. */
-/* jslint browser:true */
-/* jshint browser:true */
-/* global jQuery */
+/**
+ * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 
-(function ($, undefined) {
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
 
-    "use strict";
+(function (window, $, undefined) {
+
+    'use strict';
 
     // shorten references to variables for uglification
-    var fn = Function,
-        global = fn('return this')(),
-        kendo = global.kendo,
+    //var fn = Function,
+    //    global = fn('return this')(),
+    var kendo = window.kendo,
         data = kendo.data,
         binders = data.binders,
         Binder = data.Binder,
@@ -22,7 +25,7 @@
 
         //Events
         CHANGE = 'change',
-        
+
         DEBUG = true,
         MODULE = 'kidoju.widgets.bindings: ';
 
@@ -134,4 +137,4 @@
     });
 
 
-} (jQuery));
+} (this, jQuery));

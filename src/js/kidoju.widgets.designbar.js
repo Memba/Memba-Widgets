@@ -1,16 +1,19 @@
-/* Copyright ©2013-2014 Memba® Sarl. All rights reserved. */
-/* jslint browser:true */
-/* jshint browser:true */
-/* global jQuery */
+/**
+ * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 
-(function($, undefined) {
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
 
-    "use strict";
+(function(window, $, undefined) {
+
+    'use strict';
 
     // shorten references to variables for uglification
-    var fn = Function,
-        global = fn('return this')(),
-        kendo = global.kendo,
+    //var fn = Function,
+    //    global = fn('return this')(),
+    var kendo = window.kendo,
         data = kendo.data,
         Widget = kendo.ui.Widget,
 
@@ -26,6 +29,16 @@
         DEBUG = true,
         MODULE = 'kidoju.widgets.designbar: ';
 
+    /*********************************************************************************
+     * Helpers
+     *********************************************************************************/
+
+    function log(message) {
+        if (DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log(MODULE + message);
+        }
+    }
+
     /**
      * Designbar widget
      * *class
@@ -37,9 +50,7 @@
             var that = this;
             // base call to widget initialization
             Widget.fn.init.call(this, element, options);
-            if(DEBUG && global.console) {
-                global.console.log(MODULE + 'widget initialized');
-            }
+            log('widget initialized');
             that._layout();
         },
 
@@ -87,4 +98,4 @@
 
     kendo.ui.plugin(Designbar);
 
-}(jQuery));
+}(this, jQuery));

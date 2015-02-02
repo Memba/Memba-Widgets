@@ -27,7 +27,7 @@ describe('Test kidoju.widgets.toolbox.js', function() {
 
     describe('When page is loaded', function() {
         it('It should have toolbox1 and toolbox2', function() {
-            expect(this.browser.query("#toolbox1")).to.be.ok;
+            expect(this.browser.query('#toolbox1')).to.be.ok;
             //assert.lengthOf(browser.body.queryAll(".hand"), 2);
         });
     });

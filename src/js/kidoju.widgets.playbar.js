@@ -1,18 +1,22 @@
-/* Copyright ©2013-2014 Memba® Sarl. All rights reserved. */
-/* jslint browser:true */
-/* jshint browser:true */
-/* global jQuery */
+/**
+ * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 
-(function($, undefined) {
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
 
-    "use strict";
+(function(window, $, undefined) {
+
+    'use strict';
 
     // shorten references to variables for uglification
-    var fn = Function,
-        global = fn('return this')(),
-        kendo = global.kendo,
+    //var fn = Function,
+    //    global = fn('return this')(),
+    var kendo = window.kendo,
         data = kendo.data,
         Widget = kendo.ui.Widget,
+        kidoju = window.kidoju,
 
         //Types
         STRING = 'string',
@@ -23,14 +27,14 @@
         CHANGE = 'change',
         CLICK = 'click',
         KEYDOWN = 'keydown',
-        NS = ".kendoPlaybar",
+        NS = '.kendoPlaybar',
 
         //Widget
         WIDGET_CLASS = 'k-widget kj-playbar',
-        FIRST = ".k-i-seek-w",
-        LAST = ".k-i-seek-e",
-        PREV = ".k-i-arrow-w",
-        NEXT = ".k-i-arrow-e",
+        FIRST = '.k-i-seek-w',
+        LAST = '.k-i-seek-e',
+        PREV = '.k-i-arrow-w',
+        NEXT = '.k-i-arrow-e',
 
         DEBUG = true,
         MODULE = 'kidoju.widgets.playbar: ';
@@ -38,6 +42,12 @@
     /*********************************************************************************
      * Helpers
      *********************************************************************************/
+
+    function log(message) {
+        if (DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log(MODULE + message);
+        }
+    }
 
     function isGuid(value) {
         //http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
@@ -50,7 +60,7 @@
             text: text,
             ns: kendo.ns,
             numeric: numeric,
-            title: title || ""
+            title: title || ''
         });
     }
 
@@ -112,9 +122,7 @@
             options = options || {};
             // base call to widget initialization
             Widget.fn.init.call(that, element, options);
-            if(DEBUG && global.console) {
-                global.console.log(MODULE + 'widget initialized');
-            }
+            log('widget initialized');
             //TODO: review how index is set
             that._index = that.options.index || 0;
             that._templates();
@@ -179,9 +187,7 @@
         index: function(value) {
             var that = this;
             if(value !== undefined) {
-                if (DEBUG && global.console) {
-                    global.console.log(MODULE + 'index set to ' + value);
-                }
+                log('index set to ' + value);
                 if ($.type(value) !== NUMBER) {
                     throw new TypeError();
                 } else if (value < 0 || (value > 0 && value >= that.length())) {
@@ -331,7 +337,7 @@
 
             if (options.previousNext) {
                 if (!playbar.find(FIRST).length) {
-                    playbar.append(icon(that.iconTemplate, FIRST, options.messages.first, "k-pager-first"));
+                    playbar.append(icon(that.iconTemplate, FIRST, options.messages.first, 'k-pager-first'));
                     first(playbar, index, length);
                 }
                 if (!playbar.find(PREV).length) {
@@ -341,21 +347,21 @@
             }
 
             if (options.numeric) {
-                that.list = playbar.find(".k-pager-numbers");
+                that.list = playbar.find('.k-pager-numbers');
                 if (!that.list.length) {
                     that.list = $('<ul class="k-pager-numbers k-reset" />').appendTo(playbar);
                 }
             }
 
             if (options.input) {
-                if (!playbar.find(".k-pager-input").length) {
+                if (!playbar.find('.k-pager-input').length) {
                     playbar.append('<span class="k-pager-input k-label">'+
                         options.messages.page +
                         '<input class="k-textbox">' +
                         kendo.format(options.messages.of, length) +
                         '</span>');
                 }
-                playbar.on(KEYDOWN + NS, ".k-pager-input input", $.proxy(that._keydown, that));
+                playbar.on(KEYDOWN + NS, '.k-pager-input input', $.proxy(that._keydown, that));
             }
 
             if (options.previousNext) {
@@ -364,21 +370,21 @@
                     next(playbar, index, length);
                 }
                 if (!playbar.find(LAST).length) {
-                    playbar.append(icon(that.iconTemplate, LAST, options.messages.last, "k-pager-last"));
+                    playbar.append(icon(that.iconTemplate, LAST, options.messages.last, 'k-pager-last'));
                     last(playbar, index, length);
                 }
             }
 
             if (options.refresh) {
-                if (!playbar.find(".k-pager-refresh").length) {
+                if (!playbar.find('.k-pager-refresh').length) {
                     playbar.append('<a href="#" class="k-pager-refresh k-link" title="' + options.messages.refresh +
-                        '"><span class="k-icon k-i-refresh">' + options.messages.refresh + "</span></a>");
+                        '"><span class="k-icon k-i-refresh">' + options.messages.refresh + '</span></a>');
                 }
-                playbar.on(CLICK + NS, ".k-pager-refresh", $.proxy(that._refreshClick, that));
+                playbar.on(CLICK + NS, '.k-pager-refresh', $.proxy(that._refreshClick, that));
             }
 
             if (options.info) {
-                if (!playbar.find(".k-pager-info").length) {
+                if (!playbar.find('.k-pager-info').length) {
                     playbar.append('<span class="k-pager-info k-label" />');
                 }
             }
@@ -422,13 +428,13 @@
                 }
                 end = Math.min(start + options.buttonCount - 1, length - 1);
                 if (start > 0) {
-                    html += button(that.linkTemplate, start - 1, "...", false, options.messages.morePages);
+                    html += button(that.linkTemplate, start - 1, '...', false, options.messages.morePages);
                 }
                 for (idx = start; idx <= end; idx++) {
                     html += button(idx === index ? that.selectTemplate : that.linkTemplate, idx, idx + 1, true);
                 }
                 if (end < length - 1) { //idx = end + 1 here
-                    html += button(that.linkTemplate, idx, "...", false, options.messages.morePages);
+                    html += button(that.linkTemplate, idx, '...', false, options.messages.morePages);
                 }
                 if (html === '') {
                     html = that.selectTemplate({ text: 0 });
@@ -445,18 +451,18 @@
                 } else {
                     html = options.messages.empty;
                 }
-                that.element.find(".k-pager-info").html(html);
+                that.element.find('.k-pager-info').html(html);
             }
 
             if (options.input) {
-                that.element.find(".k-pager-input")
+                that.element.find('.k-pager-input')
                     .html(options.messages.page +
                         '<input class="k-textbox">' +
                         kendo.format(options.messages.of, length))
-                    .find("input")
+                    .find('input')
                         .val(index + 1)
                         .attr('disabled', length < 1)
-                        .toggleClass("k-state-disabled", length < 1);
+                        .toggleClass('k-state-disabled', length < 1);
             }
 
             if (options.previousNext) {
@@ -469,7 +475,7 @@
 
         _keydown: function(e) {
             if (e.keyCode === kendo.keys.ENTER) {
-                var input = this.element.find(".k-pager-input").find("input"),
+                var input = this.element.find('.k-pager-input').find('input'),
                     pageNum = parseInt(input.val(), 10);
                 if (isNaN(pageNum) || pageNum < 1 || pageNum > this.length()) {
                     pageNum = this.index() + 1;
@@ -498,8 +504,8 @@
             var target = $(e.currentTarget);
             e.preventDefault();
             //TODO: would it be more reliable to use the id instead of index (requires an update of templates)
-            if (!target.is(".k-state-disabled")) {
-                this.index(parseInt(target.attr(kendo.attr("index")), 10));
+            if (!target.is('.k-state-disabled')) {
+                this.index(parseInt(target.attr(kendo.attr('index')), 10));
             }
         },
 
@@ -534,4 +540,4 @@
 
     kendo.ui.plugin(Playbar);
 
-}(jQuery));
+}(this, jQuery));

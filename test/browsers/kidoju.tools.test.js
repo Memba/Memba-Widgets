@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2013-2014 Memba Sarl. All rights reserved.
- * Sources at https://github.com/Memba/Kidoju-Platform
+ * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
  */
 
 /* jslint browser: true, expr: true */

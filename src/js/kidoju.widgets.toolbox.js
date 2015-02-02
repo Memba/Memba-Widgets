@@ -1,17 +1,20 @@
-/* Copyright ©2013-2014 Memba® Sarl. All rights reserved. */
-/* jslint browser:true */
-/* jshint browser:true */
-/* global jQuery */
+/**
+ * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 
-(function ($, undefined) {
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
 
-    "use strict";
+;(function (window, $, undefined) {
 
-    var fn = Function,
-        global = fn('return this')(),
-        kendo = global.kendo,
+    'use strict';
+
+    //var fn = Function,
+    //    global = fn('return this')(),
+    var kendo = window.kendo,
         Widget = kendo.ui.Widget,
-        kidoju = global.kidoju,
+        kidoju = window.kidoju,
 
         //TYPES
         STRING = 'string',
@@ -33,6 +36,13 @@
         DEBUG = true,
         MODULE = 'kidoju.widgets.toolbox: ';
 
+    function log(message) {
+        if (DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log(MODULE + message);
+        }
+    }
+
+
     /**
      * @class Toolbox Widget (kendoToolbox)
      */
@@ -47,9 +57,7 @@
             var that = this;
             options = options || {};
             Widget.fn.init.call(that, element, options);
-            if(DEBUG && global.console) {
-                global.console.log(MODULE + 'widget initialized');
-            }
+            log('widget initialized');
             that._layout();
         },
 
@@ -81,9 +89,7 @@
                 if (id !== that.options.tool) {
                     that.options.tools.set(ACTIVE_TOOL, id);
                     //the change handler refreshes the widget
-                    if(DEBUG && global.console) {
-                        global.console.log(MODULE + 'tool changed for ' + id);
-                    }
+                    log('tool changed for ' + id);
                 }
             } else {
                 return that.options.tools.get(ACTIVE_TOOL);
@@ -178,7 +184,7 @@
 
     kendo.ui.plugin(Toolbox);
 
-})(jQuery);
+})(this, jQuery);
 
 // AjaxQ jQuery Plugin
 // Copyright (c) 2012 Foliotek Inc.

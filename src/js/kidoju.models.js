@@ -1,17 +1,20 @@
-/* Copyright ©2013-2014 Memba® Sarl. All rights reserved. */
-/* jslint browser:true */
-/* jshint browser:true */
-/* global jQuery */
+/**
+ * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 
-(function ($, undefined) {
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
 
-    "use strict";
+(function (window, $, undefined) {
 
-    var fn = Function,
-        global = fn('return this')(),
-        kendo = global.kendo,
+    'use strict';
+
+    //var fn = Function,
+    //    global = fn('return this')(),
+    var kendo = window.kendo,
         data = kendo.data,
-        kidoju = global.kidoju = global.kidoju || {},
+        kidoju = window.kidoju = window.kidoju || {},
 
         //Types
         STRING = 'string',
@@ -31,6 +34,16 @@
         //Debug
         DEBUG = true,
         MODULE = 'kidoju.models: ';
+
+    /*********************************************************************************
+     * Helpers
+     *********************************************************************************/
+
+    function log(message) {
+        if (DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log(MODULE + message);
+        }
+    }
 
 
     /**
@@ -209,7 +222,7 @@
     function wrapDataSerialization(originalFunction /*,params*/) {
         return function(data) {
             if (data) {
-                if (toString.call(data) !== "[object Array]" && !(data instanceof kendo.data.ObservableArray)) {
+                if (toString.call(data) !== '[object Array]' && !(data instanceof kendo.data.ObservableArray)) {
                     data = [data];
                 }
             }
@@ -306,7 +319,7 @@
         dataSource.data = data;
 
         if (!(dataSource instanceof PageItemCollectionDataSource) && dataSource instanceof kendo.data.DataSource) {
-            throw new Error("Incorrect DataSource type. Only PageItemCollectionDataSource instances are supported");
+            throw new Error('Incorrect DataSource type. Only PageItemCollectionDataSource instances are supported');
         }
 
         return dataSource instanceof PageItemCollectionDataSource ? dataSource : new PageItemCollectionDataSource(dataSource);
@@ -330,7 +343,7 @@
         init: function(value) {
             var that = this;//,
                 //hasItems = that.hasItems || value && value.hasItems,
-                //itemsField = "items",
+                //itemsField = 'items',
                 //itemsOptions = {};
 
             kendo.data.Model.fn.init.call(that, value);
@@ -399,7 +412,7 @@
                 parameterMap = transport.parameterMap;
 
                 transport.parameterMap = function(data) {
-                    data[that.idField || "id"] = that.id;
+                    data[that.idField || 'id'] = that.id;
 
                     if (parameterMap) {
                         data = parameterMap(data);
@@ -455,7 +468,7 @@
         _updateItemsField: function() {
             var fieldName = this._itemsOptions.schema.data;
 
-            this[fieldName || "items"] = this.items.data();
+            this[fieldName || 'items'] = this.items.data();
         },
         */
 
@@ -467,7 +480,7 @@
 
         load: function() {
             var options = {};
-            var method = "_query";
+            var method = '_query';
             var items;
 
             //if (this.hasItems) {
@@ -475,11 +488,11 @@
 
                 items = this.items;
 
-                options[this.idField || "id"] = this.id;
+                options[this.idField || 'id'] = this.id;
 
                 if (!this._loaded) {
                     items._data = undefined;
-                    method = "read";
+                    method = 'read';
                 }
 
                 items.one(CHANGE, $.proxy(this._itemsLoaded, this));
@@ -507,10 +520,10 @@
 
         shouldSerialize: function(field) {
             return Model.fn.shouldSerialize.call(this, field) &&
-                field !== "items" &&
-                field !== "_loaded" &&
-                //field !== "hasItems" &&
-                field !== "_itemsOptions";
+                field !== 'items' &&
+                field !== '_loaded' &&
+                //field !== 'hasItems' &&
+                field !== '_itemsOptions';
         }
     });
 
@@ -618,10 +631,10 @@
         dataSource.data = data;
 
         if (!(dataSource instanceof PageCollectionDataSource) && dataSource instanceof kendo.data.DataSource) {
-            throw new Error("Incorrect DataSource type. Only PageCollectionDataSource instances are supported");
+            throw new Error('Incorrect DataSource type. Only PageCollectionDataSource instances are supported');
         }
 
         return dataSource instanceof PageCollectionDataSource ? dataSource : new PageCollectionDataSource(dataSource);
     };
 
-}(jQuery));
+}(this, jQuery));

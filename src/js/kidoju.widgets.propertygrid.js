@@ -1,20 +1,19 @@
-//Copyright ©2012-2014 Memba® Sarl. All rights reserved.
-/*jslint browser:true, jquery:true*/
-/*jshint browser:true, jquery:true*/
+/**
+ * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 
-(function($, undefined) {
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
+
+(function(window, $, undefined) {
 
     'use strict';
 
     // shorten references to variables for uglification
-    var fn = Function,
-        global = fn('return this')(),
-        //$ = global.jQuery,
-        /**
-         * @module kendo
-         * @requires jQuery, kendo
-         */
-        kendo = global.kendo,
+    //var fn = Function,
+    //    global = fn('return this')(),
+    var kendo = window.kendo,
         ui = kendo.ui,
         Widget = ui.Widget,
         STRING = 'string',
@@ -336,4 +335,4 @@
 
     ui.plugin(PropertyGrid);
 
-})(jQuery);
+})(this, jQuery);

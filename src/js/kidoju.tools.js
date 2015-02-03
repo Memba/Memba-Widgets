@@ -456,6 +456,7 @@
                 }
                 if ($.type(item.height) === NUMBER) {
                     content.height(item.height);
+                    content.css('font-size', Math.floor(0.75*item.height));
                 }
                 //prevent any side effect
                 e.preventDefault();

@@ -29,9 +29,17 @@
         DEBUG = true,
         MODULE = 'kidoju.widgets.bindings: ';
 
+    //For more information, see http://docs.telerik.com/kendo-ui/framework/mvvm/bindings/custom
+
     /*********************************************************************************
      * Helpers
      *********************************************************************************/
+
+    function log(message) {
+        if (DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log(MODULE + message);
+        }
+    }
 
     function isGuid(value) {
         //http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid

@@ -222,7 +222,7 @@
     function wrapDataSerialization(originalFunction /*,params*/) {
         return function(data) {
             if (data) {
-                if (toString.call(data) !== '[object Array]' && !(data instanceof kendo.data.ObservableArray)) {
+                if (Object.prototype.toString.call(data) !== '[object Array]' && !(data instanceof kendo.data.ObservableArray)) {
                     data = [data];
                 }
             }
@@ -519,7 +519,7 @@
         },
 
         shouldSerialize: function(field) {
-            return Model.fn.shouldSerialize.call(this, field) &&
+            return data.Model.fn.shouldSerialize.call(this, field) &&
                 field !== 'items' &&
                 field !== '_loaded' &&
                 //field !== 'hasItems' &&

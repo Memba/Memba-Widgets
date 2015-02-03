@@ -441,6 +441,7 @@
             var data = { attributes: item.getAttributes(), properties: item.getProperties() };
             return template(data);
         },
+
         /**
          * onResize Event Handler
          * @method onResize

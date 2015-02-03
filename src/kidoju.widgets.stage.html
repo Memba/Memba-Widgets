@@ -25,9 +25,8 @@
 <div>
     <input id="slider" value="100" />
     <input id="design" type="radio" name="mode" value="design" checked=true /><label for="design">design</label>
-    <input id="solution" type="radio" name="mode" value="solution" /><label for="solution">solution</label>
-    <input id="learn" type="radio" name="mode" value="learn" /><label for="learn">learn</label>
-    <input id="assess" type="radio" name="mode" value="assess" /><label for="assess">assess</label>
+    <input id="play" type="radio" name="mode" value="play" /><label for="play">play</label>
+    <input id="thumbnail" type="radio" name="mode" value="thumbnail" /><label for="thumbnail">thumbnail</label>
 </div>
 <div id="toolbox"></div>
 <div id="stage"></div>
@@ -53,9 +52,9 @@
                 var grid = $('#grid').data('kendoGrid');
                 if(e.value) {
                     var uid = grid.dataSource.get(e.value.id).uid,
-                        row = grid.table.find('tr[data-uid="' + uid + '"]');
-                    if (!row.hasClass('k-state-selected')) {
-                        grid.select(row);
+                        rows = grid.table.find('tr[data-uid="' + uid + '"]');
+                    if (!rows.hasClass('k-state-selected')) {
+                        grid.select(rows);
                     }
                 } else {
                     grid.clearSelection();
@@ -148,14 +147,11 @@
                 case "design":
                     stage.mode(kendo.ui.Stage.fn.modes.design);
                     break;
-                case "solution":
-                    stage.mode(kendo.ui.Stage.fn.modes.solution);
+                case "play":
+                    stage.mode(kendo.ui.Stage.fn.modes.play);
                     break;
-                case "learn":
-                    stage.mode(kendo.ui.Stage.fn.modes.learn);
-                    break;
-                case "assess":
-                    stage.mode(kendo.ui.Stage.fn.modes.assess);
+                case "thumbnail":
+                    stage.mode(kendo.ui.Stage.fn.modes.thumbnail);
                     break;
             }
         });

@@ -9,11 +9,11 @@
     <!--script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="//cdn.kendostatic.com/2014.3.1316/js/kendo.all.min.js"></script-->
     <script src="./js/vendor/jquery.min.js"></script>
-    <script src="./js/vendor/kendo.all.min.js"></script>
+    <!--script src="./js/vendor/kendo.all.min.js"></script-->
     <!-- Play mode requirements -->
-    <!--script src="../temp/2014.3.1316/kendo.core.js"></script>
-    <script src="../temp/2014.3.1316/kendo.data.js"></script>
-    <script src="../temp/2014.3.1316/kendo.binder.js"></script-->
+    <script src="../temp/2014.3.1316/src/src/kendo.core.js"></script>
+    <script src="../temp/2014.3.1316/src/src/kendo.data.js"></script>
+    <script src="../temp/2014.3.1316/src/src/kendo.binder.js"></script>
     <!--link rel="stylesheet" href="./styles/kidoju.widgets.playbar.css"-->
     <link rel="stylesheet" href="./styles/kidoju.widgets.stage.css">
     <script src="./js/kidoju.models.js"></script>
@@ -23,8 +23,13 @@
     <script src="./js/kidoju.widgets.stage.js"></script>
 </head>
 <body>
-<div data-role="stage" data-bind="source: current.items, properties: result" data-mode="assess"></div>
+<div data-role="stage" data-bind="source: current.items, properties: result" data-mode="play"></div>
 <div data-role="playbar" data-bind="source: pages, value: current"></div>
+<div>
+    <label>textfield1:</label><input data-bind="value: result.textfield1"><br/>
+    <label>textfield2:</label><input data-bind="value: result.textfield2"><br/>
+    <label>textfield3:</label><input data-bind="value: result.textfield3"><br/>
+</div>
 <script>
     var pageCollectionData = [
         {
@@ -54,7 +59,10 @@
     viewModel = window.viewModel = kendo.observable({
         current: undefined,
         pages: pageCollectionDataSource,
-        result: undefined
+        result: undefined,
+        change: function(e) {
+            $.noop();
+        }
     });
 
     $(document).ready(function() {

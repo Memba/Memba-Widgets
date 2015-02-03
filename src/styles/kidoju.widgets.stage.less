@@ -1,14 +1,6 @@
-[draggable=true] {
-    /* Required to make elements draggable in old WebKit */
-    /* See http://www.html5rocks.com/en/tutorials/dnd/basics/ */
-    -khtml-user-drag: element;
-    -webkit-user-drag: element;
-    user-select: none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-}
 .kj-stage {
+}
+.kj-overlay {
 }
 .kj-element {
 }
@@ -17,6 +9,7 @@
     opacity: 0.5;
     //padding: 20px;
     //margin: -20px;
+    cursor: default;
 }
 .kj-handle-box .kj-handle {
     pointer-events: all;

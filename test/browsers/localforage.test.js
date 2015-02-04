@@ -5,13 +5,14 @@
 
 /* jslint browser: true, expr: true */
 /* jshint browser: true, expr: true */
-/* global describe, it, before, expect, localforage */
+/* global module, describe, it, before */
 
 ;(function (window, undefined) {
 
     'use strict';
 
     var expect = window.chai.expect,
+        localforage = window.localforage,
         DB1 = 'db1',
         DB2 = 'db2',
         STORE1 = 'store1',

@@ -18,8 +18,7 @@
 
 <script src="localforage.test.js"></script>
 <script>
-    mocha.checkLeaks()
-        .globals(['localforage', 'expect']);
+    mocha.checkLeaks().globals(['localforage', 'chai']);
     if (!window.blanket && !window.PHANTOMJS) {
         mocha.run();
     }

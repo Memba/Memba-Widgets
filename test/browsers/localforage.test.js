@@ -5,7 +5,7 @@
 
 /* jslint browser: true, expr: true */
 /* jshint browser: true, expr: true */
-/* global module, describe, it, before */
+/* global describe, it, before */
 
 ;(function (window, undefined) {
 

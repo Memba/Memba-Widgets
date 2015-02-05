@@ -176,10 +176,12 @@
         init: function(value) {
             this.value = value;
         },
+        getRow: function() {
+            return undefined;
+        },
         getEditor: function(enabled) {
-            return '';
+            return undefined;
         }
-        //PropertyGrid row???????
         //Toolbar???????????????
         //validation????????
     });
@@ -390,10 +392,13 @@
         icon: 'text_field',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<input type="text" data-bind="value: #= properties.text.name #">'
+            default: '<input type="text" style="#= attributes.style #" data-bind="value: #= properties.text.name #">'
         },
         height: 100,
         width: 300,
+        attributes: {
+            style: new adapters.StyleAttributeAdapter()
+        },
         properties: {
             text: new adapters.TextPropertyAdapter()
         },
@@ -445,11 +450,12 @@
         icon: 'button',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<button type="button">#= attributes.text #</button>'
+            default: '<button type="button" style="#= attributes.style #">#= attributes.text #</button>'
         },
         height: 100,
         width: 300,
         attributes: {
+            style: new adapters.StyleAttributeAdapter(),
             text: new adapters.TextAttributeAdapter('Button')
         },
         /**
@@ -499,7 +505,6 @@
 
     /**
      * We could also consider
-     * Button
      * ButtonGroup
      * HTML
      * Drawing surface

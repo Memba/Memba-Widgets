@@ -84,19 +84,21 @@
 
         describe('When initializing a LibraryDataSource from an Array', function() {
 
-            it('if initialized from a dummy array, the count of items should match', function(done) {
+            it('if initialized from a dummy array, items should match', function(done) {
                 var libraryDataSource = new LibraryDataSource({ data: categorizedMovies });
                 libraryDataSource.read().always(function() {
                     expect(libraryDataSource.total()).to.equal(categorizedMovies.length);
+                    //expect (libraryDataSource.at(0)).to.be.an.instanceof(Author); <-------------------------------------------------------- Does not work
                     libraryDataSource.at(0).load().done(function() {
-                        //expect(libraryDataSource.at(0).children.total()).to.equal(categorizedMovies[0].items.length);
-                        expect(libraryDataSource.at(0).children.data().length).to.equal(categorizedMovies[0].items.length);
+                        //expect(libraryDataSource.at(0).children.total()).to.equal(categorizedMovies[0].items.length); //<------------------ Does not work
+                        expect(libraryDataSource.at(0).children.data().length).to.equal(categorizedMovies[0].items.length); //<-------------- Works
+                        //expect(libraryDataSource.at(0).children.at(0)).to.be.an.instanceof(Book); <---------------------------------------- Does not work
                         done();
                     });
                 });
             });
 
-            it('if initialized from transport, the count of items should match', function(done) {
+            it('if initialized from transport, items should match', function(done) {
                 var libraryDataSource = new LibraryDataSource({
                     transport: {
                         read: {
@@ -105,16 +107,19 @@
                         }
                     }
                 });
-                libraryDataSource.read().always(function() {
-                    //expect(libraryDataSource.total()).to.equal(categorizedMovies.length);
-                    libraryDataSource.at(0).load().done(function() {
-                        //expect(libraryDataSource.at(0).children.total()).to.equal(categorizedMovies[0].items.length);
-                        //expect(libraryDataSource.at(0).children.data().length).to.equal(categorizedMovies[0].items.length);
-                        done();
-                    });
+                $.when(
+                    libraryDataSource.read(),
+                    $.getJSON(libraryDataSource.options.transport.read.url)
+                ).done(function(response1, response2) {
+                        expect(response2).to.be.an.instanceof(Array);
+                        //expect(libraryDataSource.at(0)).to.be.an.instanceof(Author); //<------------------------------------------------ Does not work
+                        expect(libraryDataSource.total()).to.equal(response2[0].length);
+                        libraryDataSource.at(0).load().done(function() {
+                            //expect(libraryDataSource.at(0).children.total()).to.equal(response2[0][0].items.length);   //<-------------- Does not work
+                            done();
+                        });
                 });
             });
-
 
         });
 

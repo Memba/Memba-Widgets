@@ -15,6 +15,31 @@
         kendo = window.kendo,
         kidoju = window.kidoju;
 
+    var Item = kendo.data.Model.define({
+        fields: {
+            title: {
+                type: 'string'
+            },
+            attributes: {
+                defaultValue: {}
+            }
+        }
+    });
+
+    var Attributes = kendo.data.Model.define({
+        fields: {
+            src: {
+                type: 'string'
+            },
+            alt: {
+                type: 'string'
+            },
+            style: {
+                type: 'string'
+            }
+        }
+    });
+
     var categorizedMovies = [
         {
             categoryName: "SciFi",
@@ -66,9 +91,44 @@
         }
     });
 
+
+    describe('Test complex models', function() {
+
+        it('Test composition', function() {
+            var viewModel = kendo.observable({
+                obj1: {
+                    obj2: {
+                        prop: 'test'
+                    }
+                }
+            });
+            expect(viewModel).to.be.an.instanceof(kendo.Observable);
+            expect(viewModel.obj1).to.be.an.instanceof(kendo.Observable);
+            expect(viewModel.obj1.obj2).to.be.an.instanceof(kendo.Observable);
+        });
+
+
+        //See: http://www.telerik.com/forums/best-way-to-check-that-properties-of-an-observable-are-observable
+
+        it('Test submodels', function() {
+            var attributes = new Attributes({alt: 'Google', src: 'http://www.google.com/logo.jpg', style: 'height: 100px; width: 100px;'}),
+                item = new Item({title:'sample image', attribute: attributes}),
+                viewModel = kendo.observable({ item: item });
+            expect(viewModel.item).to.be.an.instanceof(Item);
+            expect(viewModel.item).to.be.an.instanceof(kendo.data.Model);
+            expect(viewModel.item).to.be.an.instanceof(kendo.Observable);
+            expect(viewModel.item.attributes).to.be.an.instanceof(Attributes);        //Fails
+            expect(viewModel.item.attributes).to.be.an.instanceof(kendo.data.Model);  //Fails
+            expect(viewModel.item.attributes).to.be.an.instanceof(kendo.Observable);  //Fails
+
+        });
+
+    });
+
     describe('Test kendo.data.HierarchicalDataSource', function() {
 
-        describe('When initializing a HierarchicalDataSource from an Array', function() {
+        describe('When initializing a HierarchicalDataSource', function() {
+
             it('if initialized from an empty array, the count of items should match', function(done) {
                 var hierarchicalDataSource = new kendo.data.HierarchicalDataSource({ data: categorizedMovies });
                 hierarchicalDataSource.read().always(function() {
@@ -80,9 +140,12 @@
                     });
                 });
             });
+
         });
 
-        describe('When initializing a LibraryDataSource from an Array', function() {
+        describe('When initializing a LibraryDataSource', function() {
+
+            //See http://www.telerik.com/forums/subclassing-kendo-data-node-and-kendo-data-hierarchicaldatasource
 
             it('if initialized from a dummy array, items should match', function(done) {
                 var libraryDataSource = new LibraryDataSource({ data: categorizedMovies });

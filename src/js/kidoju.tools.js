@@ -10,8 +10,6 @@
 
     'use strict';
 
-    //var fn = Function,
-    //    global = fn('return this')(),
     var kendo = window.kendo,
         kidoju = window.kidoju = window.kidoju || {},
 
@@ -20,23 +18,36 @@
         STRING = 'string',
         NUMBER = 'number',
 
-        //Cursors
+        //Tools
         CURSOR_DEFAULT = 'default',
         CURSOR_CROSSHAIR = 'crosshair',
+        REGISTER = 'register',
         ACTIVE = 'active',
         POINTER = 'pointer',
 
-        //Miscellaneous
-
-        ELEMENT_CLASS = 'kj-element',
-        DATA_ID = 'data-id',
+        //HTML
+        ELEMENT_CLASS = '.kj-element',
         POSITION = 'position',
         ABSOLUTE = 'absolute',
-        PX = 'px',
 
         //Debug
         DEBUG = true,
         MODULE = 'kidoju.tools: ';
+
+
+    /*********************************************************************************
+     * Helpers
+     *********************************************************************************/
+
+    function log(message) {
+        if (DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log(MODULE + message);
+        }
+    }
+
+    /*********************************************************************************
+     * Tools
+     *********************************************************************************/
 
     /**
      * Registry of tools
@@ -49,10 +60,9 @@
             if($.type(Class.fn) === OBJECT) {
                 var obj = new Class();
                 if (obj instanceof Tool && $.type(obj.id) === STRING) {
-                    if (obj.id === ACTIVE) {
-                        throw new Error('You cannot name your tool `active`');
-                    }
-                    if (!this[obj.id]) { //make sure our system tools are not replaced
+                    if (obj.id === ACTIVE || obj.id === REGISTER) {
+                        throw new Error('You cannot name your tool `active` or `register`');
+                    } else if (!this[obj.id]) { //make sure (our system) tools are not being replaced
                         this[obj.id] = obj;
                         if (obj.id === POINTER) {
                             this.active = POINTER;
@@ -73,8 +83,8 @@
         cursor: null,
         height: 250,
         width: 250,
-        playBar: [],
-        designBar: [],
+        //playBar: [],
+        //designBar: [],
         attributes: {},
         properties: {},
         /**
@@ -144,46 +154,22 @@
         },
 
         /**
-         * onClick Event Handler
-         * @method onClick
-         * @param e
+         * Get Html content
+         * @param item
          */
-        onClick: function(e) {
-            $.noop();
-        },
-
-        /**
-         * onMove Event Handler
-         * @method onTranslate
-         * @param e
-         */
-        onMove: function(e) {
-            $.noop();
-        },
-
-        /**
-         * onResize Event Handler
-         * @method onResize
-         * @param e
-         */
-        onResize: function(e) {
-            $.noop();
-        },
-
-        /**
-         * onRotate Event Handler
-         * @method onRotate
-         * @param e
-         */
-        onRotate: function(e) {
-            $.noop();
+        getHtml: function (item) {
+            throw new Error('Please implement in subclassed tool.');
         }
+
+        // onMove(e.item)
+        // onResize(e.item)
+        // onRotate(e.item)
     });
 
     /*******************************************************************************************
      * AttributeAdapter classes
      *******************************************************************************************/
-    var adapters = kidoju.adapters = kidoju.adapters || {};
+    var adapters = kidoju.adapters = {};
 
     var AttributeAdapter = adapters.AttributeAdapter = kendo.Class.extend({
         value: undefined,
@@ -193,11 +179,12 @@
         getEditor: function(enabled) {
             return '';
         }
+        //PropertyGrid row???????
         //Toolbar???????????????
         //validation????????
     });
 
-    var TextAttributeAdapter = adapters.TextAttributeAdapter = AttributeAdapter.extend({
+    adapters.TextAttributeAdapter = AttributeAdapter.extend({
         init: function(value) {
             this.value = value;
         },
@@ -206,32 +193,7 @@
         }
     });
 
-    var IntegerAttributeAdapter = adapters.IntegerAttributeAdapter = AttributeAdapter.extend({
-        value: 0,
-        init: function(value) {
-            this.value = value;
-        },
-        getEditor: function(enabled) {
-            return '';
-        }
-    });
-
-    var BooleanAttributeAdapter = adapters.BooleanAttributeAdapter = AttributeAdapter.extend({
-        value: false,
-        init: function(value) {
-            this.value = value;
-        },
-        getEditor: function(enabled) {
-            return '';
-        }
-    });
-
-    var FontAttributeAdapter = adapters.FontAttributeAdapter = AttributeAdapter.extend({
-        //TODO
-    });
-
-    var ColorAttributeAdapter = adapters.ColorAttributeAdapter = AttributeAdapter.extend({
-        value: false,
+    adapters.StyleAttributeAdapter = AttributeAdapter.extend({
         init: function(value) {
             this.value = value;
         },
@@ -265,7 +227,7 @@
         }
     });
 
-    var TextPropertyAdapter = adapters.TextPropertyAdapter = PropertyAdapter.extend({
+    adapters.TextPropertyAdapter = PropertyAdapter.extend({
         _prefix: 'textbox_'
     });
 
@@ -280,7 +242,10 @@
     var Pointer = kidoju.Tool.extend({
         id: POINTER,
         icon: 'mouse_pointer',
-        cursor: CURSOR_DEFAULT
+        cursor: CURSOR_DEFAULT,
+        height: 0,
+        width: 0,
+        getHtml: undefined
     });
     kidoju.tools.register(Pointer);
 
@@ -293,27 +258,28 @@
         icon: 'document_orientation_landscape',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<span style="font-family: #= attributes.font #; color: #= attributes.color#;">#= attributes.text#</span>'
+            default: '<span style="#= attributes.style #">#= attributes.text#</span>'
         },
         height: 100,
         width: 300,
         attributes: {
             text: new adapters.TextAttributeAdapter('Label'),
-            font: new adapters.TextAttributeAdapter('Georgia, serif'),
-            color: new adapters.TextAttributeAdapter('#FF0000')
+            style: new adapters.StyleAttributeAdapter('font-family: Georgia, serif; color: #FF0000;')
         },
+
         /**
          * Get Html content
          * @method getHtml
          * @param item
-         * @param mode
          * @returns {*}
          */
-        getHtml: function(item, mode) {
-            var template = kendo.template(this.templates.default);
-            var data = { attributes: item.getAttributes(), properties: item.getProperties() };
-            return template(data);
+        getHtml: function(item) {
+            if (item instanceof kidoju.PageItem) {
+                var template = kendo.template(this.templates.default);
+                return template(item);
+            }
         },
+
         /**
          * onResize Event Handler
          * @method onResize
@@ -322,7 +288,7 @@
          */
         onResize: function(e, item) {
             var stageElement = $(e.currentTarget);
-            if(stageElement.hasClass(ELEMENT_CLASS) && item instanceof kidoju.PageItem) {
+            if(stageElement.is(ELEMENT_CLASS) && item instanceof kidoju.PageItem) {
                 var content = stageElement.find('>span');
                 if ($.type(item.width) === NUMBER) {
                     content.width(item.width);
@@ -333,22 +299,24 @@
                 var fontSize = parseInt(content.css('font-size'));
                 var clone = content.clone()
                     .hide()
-                    .css(POSITION, ABSOLUTE)
-                    .css('height', 'auto')
+                    .css({
+                        position: ABSOLUTE,
+                        height: 'auto'
+                    })
                     .width(item.width);
                 stageElement.after(clone);
                 //if no overflow, increase until overflow
                 while(clone.height() < item.height) {
                     fontSize++;
-                    clone.css('font-size', fontSize + PX);
+                    clone.css('font-size', fontSize);
                 }
                 //if overflow, decrease until no overflow
                 while(clone.height() > item.height) {
                     fontSize--;
-                    clone.css('font-size', fontSize + PX);
+                    clone.css('font-size', fontSize);
                 }
                 clone.remove();
-                content.css('font-size', fontSize + PX);
+                content.css('font-size', fontSize);
 
                 //prevent any side effect
                 e.preventDefault();
@@ -380,13 +348,13 @@
          * Get Html content
          * @method getHtml
          * @param item
-         * @param mode
          * @returns {*}
          */
         getHtml: function(item) {
-            var template = kendo.template(this.templates.default);
-            var data = { attributes: item.getAttributes(), properties: item.getProperties() };
-            return template(data);
+            if (item instanceof kidoju.PageItem) {
+                var template = kendo.template(this.templates.default);
+                return template(item);
+            }
         },
         /**
          * onResize Event Handler
@@ -396,7 +364,7 @@
          */
         onResize: function(e, item) {
             var stageElement = $(e.currentTarget);
-            if(stageElement.hasClass(ELEMENT_CLASS) && item instanceof kidoju.PageItem) {
+            if(stageElement.is(ELEMENT_CLASS) && item instanceof kidoju.PageItem) {
                 var content = stageElement.find('>img');
                 if ($.type(item.width) === NUMBER) {
                     content.width(item.width);
@@ -433,13 +401,13 @@
          * Get Html content
          * @method getHtml
          * @param item
-         * @param mode
          * @returns {*}
          */
-        getHtml: function(item, mode) {
-            var template = kendo.template(this.templates.default);
-            var data = { attributes: item.getAttributes(), properties: item.getProperties() };
-            return template(data);
+        getHtml: function(item) {
+            if (item instanceof kidoju.PageItem) {
+                var template = kendo.template(this.templates.default);
+                return template(item);
+            }
         },
 
         /**
@@ -450,7 +418,7 @@
          */
         onResize: function(e, item) {
             var stageElement = $(e.currentTarget);
-            if(stageElement.hasClass(ELEMENT_CLASS) && item instanceof kidoju.PageItem) {
+            if(stageElement.is(ELEMENT_CLASS) && item instanceof kidoju.PageItem) {
                 var content = stageElement.find('>input');
                 if ($.type(item.width) === NUMBER) {
                     content.width(item.width);
@@ -484,15 +452,22 @@
         attributes: {
             text: new adapters.TextAttributeAdapter('Button')
         },
-        getHtml: function(item, mode) {
-            var template = kendo.template(this.templates.default);
-            var data = { attributes: item.getAttributes(), properties: item.getProperties() };
-            return template(data);
+        /**
+         * Get Html content
+         * @method getHtml
+         * @param item
+         * @returns {*}
+         */
+        getHtml: function(item) {
+            if (item instanceof kidoju.PageItem) {
+                var template = kendo.template(this.templates.default);
+                return template(item);
+            }
         },
-        addEvents: function(item, mode) {
+        addEvents: function(item) {
 
         },
-        removeEvents: function(item, mode) {
+        removeEvents: function(item) {
 
         },
         /**
@@ -503,13 +478,14 @@
          */
         onResize: function(e, item) {
             var stageElement = $(e.currentTarget);
-            if(stageElement.hasClass(ELEMENT_CLASS) && item instanceof kidoju.PageItem) { //TODO: same id, same tool?
+            if(stageElement.is(ELEMENT_CLASS) && item instanceof kidoju.PageItem) { //TODO: same id, same tool?
                 var content = stageElement.find('>button');
                 if ($.type(item.width) === NUMBER) {
                     content.width(item.width);
                 }
                 if ($.type(item.height) === NUMBER) {
                     content.height(item.height);
+                    content.css('font-size', Math.floor(0.75*item.height));
                 }
                 //prevent any side effect
                 e.preventDefault();

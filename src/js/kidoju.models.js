@@ -13,10 +13,14 @@
     //var fn = Function,
     //    global = fn('return this')(),
     var kendo = window.kendo,
-        data = kendo.data,
+        Class = kendo.Class,
+        Model = kendo.data.Model,
+        DataSource = kendo.data.DataSource,
+        ObservableArray = kendo.data.ObservableArray,
         kidoju = window.kidoju = window.kidoju || {},
 
         //Types
+        OBJECT = 'object',
         STRING = 'string',
         NUMBER = 'number',
         DATE = 'date',
@@ -45,13 +49,16 @@
         }
     }
 
+    /*********************************************************************************
+     * Models
+     *********************************************************************************/
 
     /**
      * PageItem model
      * @class PageItem
      * @type {void|*}
      */
-    var PageItem = kidoju.PageItem = data.Model.define({
+    var PageItem = kidoju.PageItem = Model.define({
         id: 'id',
         fields: {
             id: {
@@ -61,7 +68,8 @@
             },
             tool: {
                 type: STRING,
-                editable: false
+                editable: false,
+                nullable: true
             },
             top: {
                 type: NUMBER,
@@ -90,105 +98,75 @@
                 type: STRING,
                 defaultValue: null
             },
-            //TODO: check whether we can have a attributes field of type OBJECT
             attributes: {
-                type: STRING,
-                defaultValue: JSON.stringify({}),
-                parse: function (value) {
-                    //Enforce valid JSON
-                    try {
-                        JSON.parse(value);
-                        return value;
-                    }
-                    catch(e) {
-                        return JSON.stringify({});
-                    }
-                }
+                defaultValue: {}
             },
             properties: {
-                type: STRING,
-                defaultValue: JSON.stringify({}),
-                parse: function (value) {
-                    //Enforce valid JSON
-                    try {
-                        JSON.parse(value);
-                        return value;
-                    }
-                    catch(e) {
-                        return JSON.stringify({});
-                    }
-                }
-            }/*,
-            defaults: {
-                type: STRING
-                //parse: function (value) { return value; }
-            },
-            solutions: {
-                type: STRING
-                //parse: function (value) { return value; }
+                defaultValue: {}
             }
-            */
         },
-        //See SchedulerEvent and Node in kendo.all.js
+
+        /**
+         * Constructor
+         * @param item
+         */
         init: function(item) {
+
+            //Note: Kendo UI requires that new PageItem() works, i.e. item = undefined
             var that = this;
-            //If we call the following, some properties are not initialized
-            //kendo.data.Model.fn.init.call(that, item);
-            kendo.data.Model.fn.init.call(that, undefined);
-            for (var prop in item) {
-                if (item.hasOwnProperty(prop)) {
-                    that[prop] = item[prop];
+
+            if ($.type(item) === OBJECT /*&& !$.isEmptyObject(item)*/) {
+                if (!kidoju.tools) {
+                    throw new Error('Kidoju tools are missing');
                 }
+                if ($.type(item.tool) !== STRING || item.tool.length === 0 || !(kidoju.tools[item.tool] instanceof kidoju.Tool)) {
+                    throw new Error(kendo.format('`{0}` is not a valid Kidoju tool', item.tool));
+                }
+                item = $.extend({}, that.defaults, item); //otherwise we are missing default property values
             }
-            if (kidoju.tools && $.type(that.tool) === STRING) {
+
+            Model.fn.init.call(that, item);
+
+            if (kidoju.tools && $.type(that.tool) === STRING && that.tool.length) {
+
                 var tool = kidoju.tools[that.tool];
                 if (tool instanceof kidoju.Tool) {
-                    //Attributes
+
+                    //Extend item attributes with possible new attributes as tools improve
+                    that.attributes = $.extend({}, tool._initAttributes(), that.attributes);
+
+                    /*
                     var attributes = tool._initAttributes();
                     try {
                         //the tool might have been updated to implement some new attributes
                         $.extend(attributes, JSON.parse(that.attributes));
-                    } catch (err) {}
+                    } catch (err) {
+                    }
                     that.attributes = JSON.stringify(attributes);
-                    //Properties
+                    */
+
+                    //Extend item properties with possible new properties as tools improve
+                    that.properties = $.extend({}, tool._initProperties(), that.properties);
+
+                    /*
                     var properties = tool._initProperties();
                     try {
                         //the tool might have been updated to implement some new properties
                         $.extend(properties, JSON.parse(that.properties));
-                    } catch (err) {}
+                    } catch (err) {
+                    }
                     that.properties = JSON.stringify(properties);
+                    */
                 }
             }
-        },
-        update: function(item) {
-            for (var field in item) {
-                this.set(field, item[field]);
-            }
-        },
-        attr: function(key, value) {
-            var attributes = this.getAttributes();
-            if (value !== undefined) {
-                attributes[key] = value;
-                this.set('attributes', JSON.stringify(attributes));
-            } else {
-                return attributes[key];
-            }
-        },
+        }/*,
         getAttributes: function() {
+            //TODO: think about returning a kendo ui data.Model
             var attributes = this.get('attributes');
             if ($.type(attributes) === STRING) {
                 return JSON.parse(attributes);
             } else {
                 return {};
-            }
-        },
-        prop: function(key, value) {
-            var properties = this.getProperties();
-            if (value !== undefined) {
-                properties[key] = value;
-                this.set('properties', JSON.stringify(properties));
-            } else {
-                return properties[key];
             }
         },
         getProperties: function() {
@@ -198,7 +176,7 @@
             } else {
                 return {};
             }
-        }
+        }*/
     });
 
     /**
@@ -222,7 +200,7 @@
     function wrapDataSerialization(originalFunction /*,params*/) {
         return function(data) {
             if (data) {
-                if (Object.prototype.toString.call(data) !== '[object Array]' && !(data instanceof kendo.data.ObservableArray)) {
+                if (Object.prototype.toString.call(data) !== '[object Array]' && !(data instanceof ObservableArray)) {
                     data = [data];
                 }
             }
@@ -236,7 +214,7 @@
      * @class PageItemCollectionDataReader
      * @type {*}
      */
-    var PageItemCollectionDataReader = kendo.Class.extend({
+    var PageItemCollectionDataReader = Class.extend({
         init: function(schema, reader) {
             this.reader = reader;
             if (reader.model) {
@@ -272,10 +250,10 @@
      * @class PageItemCollectionDataSource
      * @type {*|void|Object}
      */
-    var PageItemCollectionDataSource =  kidoju.PageItemCollectionDataSource = data.DataSource.extend({
+    var PageItemCollectionDataSource =  kidoju.PageItemCollectionDataSource = DataSource.extend({
         init: function(options) {
 
-            data.DataSource.fn.init.call(this, $.extend(true, {}, {
+            DataSource.fn.init.call(this, $.extend(true, {}, {
                 schema: {
                     modelBase: PageItem,
                     model: PageItem
@@ -297,11 +275,11 @@
                 model.accept(pageItem);
             }
 
-            return data.DataSource.fn.insert.call(this, index, model);
+            return DataSource.fn.insert.call(this, index, model);
         },
 
         remove: function(model) {
-            return data.DataSource.fn.remove.call(this, model);
+            return DataSource.fn.remove.call(this, model);
         }
 
     });
@@ -318,7 +296,7 @@
 
         dataSource.data = data;
 
-        if (!(dataSource instanceof PageItemCollectionDataSource) && dataSource instanceof kendo.data.DataSource) {
+        if (!(dataSource instanceof PageItemCollectionDataSource) && dataSource instanceof DataSource) {
             throw new Error('Incorrect DataSource type. Only PageItemCollectionDataSource instances are supported');
         }
 
@@ -330,7 +308,7 @@
      * @class Page
      * @type {void|*}
      */
-    var Page = kidoju.Page = data.Model.define({
+    var Page = kidoju.Page = Model.define({
         id: 'id',
         fields: {
             id: {
@@ -346,7 +324,7 @@
                 //itemsField = 'items',
                 //itemsOptions = {};
 
-            kendo.data.Model.fn.init.call(that, value);
+            Model.fn.init.call(that, value);
 
             /*
             if (typeof that.items === STRING) {
@@ -519,7 +497,7 @@
         },
 
         shouldSerialize: function(field) {
-            return data.Model.fn.shouldSerialize.call(this, field) &&
+            return Model.fn.shouldSerialize.call(this, field) &&
                 field !== 'items' &&
                 field !== '_loaded' &&
                 //field !== 'hasItems' &&
@@ -531,7 +509,7 @@
      * @class PageCollectionDataReader
      * @type {*}
      */
-    var PageCollectionDataReader = kendo.Class.extend({
+    var PageCollectionDataReader = Class.extend({
         init: function(schema, reader) {
             this.reader = reader;
             if (reader.model) {
@@ -567,10 +545,10 @@
      * @class PageCollectionDataSource
      * @type {*|void|Object}
      */
-    var PageCollectionDataSource =  kidoju.PageCollectionDataSource = data.DataSource.extend({
+    var PageCollectionDataSource =  kidoju.PageCollectionDataSource = DataSource.extend({
         init: function(options) {
 
-            data.DataSource.fn.init.call(this, $.extend(true, {}, {
+            DataSource.fn.init.call(this, $.extend(true, {}, {
                 schema: {
                     modelBase: Page,
                     model: Page
@@ -592,13 +570,14 @@
                 model.accept(page);
             }
 
-            return data.DataSource.fn.insert.call(this, index, model);
+            return DataSource.fn.insert.call(this, index, model);
         },
 
         remove: function(model) {
-            return data.DataSource.fn.remove.call(this, model);
+            return DataSource.fn.remove.call(this, model);
         },
 
+        //TODO: rename into getModelFromProperties
         getObjectFromProperties: function() {
             var obj = {},
                 pages = this.data();
@@ -606,7 +585,7 @@
                 pages[i].load();
                 var items = pages[i].items.data();
                 for (var j = 0; j < items.length; j++) {
-                    var properties = items[j].getProperties() || {};
+                    var properties = items[j].properties || {};
                     for (var prop in properties) {
                         if (properties.hasOwnProperty(prop)) {
                             obj[properties[prop].name] = properties[prop].value;
@@ -630,11 +609,30 @@
 
         dataSource.data = data;
 
-        if (!(dataSource instanceof PageCollectionDataSource) && dataSource instanceof kendo.data.DataSource) {
+        if (!(dataSource instanceof PageCollectionDataSource) && dataSource instanceof DataSource) {
             throw new Error('Incorrect DataSource type. Only PageCollectionDataSource instances are supported');
         }
 
         return dataSource instanceof PageCollectionDataSource ? dataSource : new PageCollectionDataSource(dataSource);
     };
+
+    /**
+     * @class Stream
+     */
+    var Stream = kidoju.Stream = Model.define({
+        id: 'id',
+        fields: {
+            id: {
+                type: STRING,
+                defaultValue: ZERO_GUID,
+                editable:false
+            }
+            //background image and color?
+        },
+        init: function(value) {
+            var that = this;//,
+        }
+    });
+
 
 }(this, jQuery));

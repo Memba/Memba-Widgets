@@ -10,9 +10,6 @@
 
     'use strict';
 
-    //var fn = Function,
-    //    global = fn('return this')(),
-    //    kendo = global.kendo,
     var kendo = window.kendo,
         ui = kendo.ui,
         Widget = ui.Widget,
@@ -39,7 +36,7 @@
         SELECT = 'select',
         MOVE = 'move',
         RESIZE = 'resize',
-        ROTATE = 'rotate',//This constant is used for event and item.rotate property
+        ROTATE = 'rotate', //This constant is not simply an event
 
         //CSS
         ABSOLUTE = 'absolute',
@@ -54,7 +51,6 @@
         WIDTH = 'width',
         CURSOR = 'cursor',
         TRANSFORM = 'transform',
-        PX = 'px',
         CSS_ROTATE = 'rotate({0}deg)',
         CSS_SCALE = 'scale({0})',
 
@@ -546,8 +542,8 @@
 
             //Add context menu - See http://docs.telerik.com/kendo-ui/api/javascript/ui/contextmenu
             that.menu = $('<ul class="kj-stage-menu"></ul>')
-                .append('<li data-command="lock">Lock</li>')
-                .append('<li data-command="delete">Delete</li>')
+                .append('<li data-command="lock">Lock</li>') //TODO Use constants + localize in messages
+                .append('<li data-command="delete">Delete</li>')//TODO: Bring forward, Push backward, Edit, etc.....
                 .appendTo(that.wrapper)
                 .kendoContextMenu({
                     target: '.kj-handle[data-command="menu"]',
@@ -560,11 +556,13 @@
         },
 
         /**
-         * Event handler for selecing an item in the context menu
+         * Event handler for selecting an item in the context menu
          * @param e
          * @private
          */
         _contextMenuSelectHandler: function(e) {
+            //TODO: Consider an event dispatcher so that the same commands can be called from toolbar
+            //Check when implementing fonts, colors, etc....
             var that = this;
             switch($(e.item).attr(DATA_COMMAND)) {
                 case 'lock':
@@ -716,6 +714,8 @@
          * @param e
          * @private
          */
+        // This function's cyclomatic complexity is too high.
+        /* jshint -W074 */
         _onMouseDown: function(e) {
 
             //TODO: also drag with keyboard arrows
@@ -787,6 +787,7 @@
             e.preventDefault(); //otherwise both touchstart and mousedown are triggered and code is executed twice
             e.stopPropagation();
         },
+        /* jshint +W074 */
 
         /**
          * While dragging an element on stage
@@ -895,6 +896,8 @@
          * Refresh a stage widget
          * @param e
          */
+        // This function's cyclomatic complexity is too high.
+        /* jshint -W074 */
         refresh: function(e) {
             var that = this;
             if (e === undefined || e.action === undefined) {
@@ -913,9 +916,10 @@
                     that._addStageElement(item);
                 });
                 that.trigger(DATABOUND);
-                // We really need to bind properties after all dataBound event handlers have executed
+
+                // We can only bind properties after all dataBound event handlers have executed
                 // otherwise there is a mix of binding sources
-                that.trigger(PROPBINDING);
+                that.trigger(PROPBINDING); //This calls an event handler in _initializePlayMode
                 that.trigger(PROPBOUND);
 
             } else if (e.action === 'add') {
@@ -973,6 +977,7 @@
                 });
             }
         },
+        /* jshint +W074 */
 
         /**
          * Select a stage element
@@ -1041,8 +1046,12 @@
 
     kendo.ui.plugin(Stage);
 
+    /*********************************************************************************
+     * Helpers
+     *********************************************************************************/
+
     /**
-     * Utility functions used in the Stage widget
+     * Utility functions
      */
     var util = {
 

@@ -56,7 +56,7 @@
 
         //Elements
         WRAPPER = '<div class="k-widget kj-stage" />',
-        WRAPPER_CLASS = '.kj-stage',
+        //WRAPPER_CLASS = '.kj-stage',
         ELEMENT = '<div data-id="{0}" data-tool="{1}" class="kj-element"></div>',
         ELEMENT_SELECTOR = '.kj-element[data-id="{0}"]',
         ELEMENT_CLASS = '.kj-element',
@@ -69,10 +69,10 @@
         HANDLE_RESIZE = '<span class="kj-handle" data-command="resize"></span>',
         HANDLE_ROTATE = '<span class="kj-handle" data-command="rotate"></span>',
         HANDLE_MENU = '<span class="kj-handle" data-command="menu"></span>',
-        HANDLE_SELECTOR = '.kj-handle[data-command="{0}"]',
+        //HANDLE_SELECTOR = '.kj-handle[data-command="{0}"]',
         HANDLE_CLASS = '.kj-handle',
         DATA_ID = 'data-id',
-        DATA_TOOL = 'data-tool',
+        //DATA_TOOL = 'data-tool',
         DATA_COMMAND = 'data-command',
         STATE = 'state',
         COMMANDS = {

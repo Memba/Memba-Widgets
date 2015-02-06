@@ -6,6 +6,7 @@
     <link href="//cdn.kendostatic.com/2014.3.1316/styles/kendo.default.min.css" rel="stylesheet"-->
     <link href="./styles/vendor/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo.default.mobile.min.css" rel="stylesheet">
     <!--script src="//code.jquery.com/jquery-1.9.1.min.js"></script-->
     <script src="./js/vendor/jquery.min.js"></script>
     <!--script src="//cdn.kendostatic.com/2014.3.1316/js/kendo.all.min.js"></script-->
@@ -27,7 +28,7 @@
 <h3>Property grid bound to an object with schema and with row metadata</h3>
 <div id="grid1"></div>
 <h2>Other configurations</h2>
-<h3>Property grid bound to nothing (should gracefully fallback)</h3>
+<h3>Property grid withount initialization (should gracefully fallback)</h3>
 <div id="grid2"></div>
 <h3>Read-only property grid</h3>
 <div id="grid3"></div>
@@ -56,7 +57,7 @@
                     type: 'string',
                     nullable: true
                 },
-                'category': {  //CMS Taxonomy
+                'category': {
                     type: 'string',
                     nullable: true
                 },
@@ -92,6 +93,9 @@
                     type: 'date',
                     nullable: false
                 },
+                'like' : {
+                    type: 'boolean'
+                },
                 'rating': {
                     type: 'number',
                     defaultValue: 0
@@ -115,7 +119,7 @@
             //- rating
             {field: 'title', title: 'Title'},
             {field: 'description', title: 'Description', editor: 'textarea'},
-            {field: 'category', title: 'Category', editor: 'categoryDropDownEditor'},
+            {field: 'category', title: 'Category', editor: window.categoryDropDownEditor},
             {field: 'tags', title: 'Tags'}, //TODO: multiselect
             {field: 'language', title: 'Language'},
             {field: 'author', title: 'Author'},
@@ -124,6 +128,7 @@
             {field: 'background', title: 'Background', editor: 'url'},
             {field: 'colour', title: 'Colour', editor: 'colorpicker'},
             {field: 'publicationDate', title: 'Creation Date', editor:'datepicker', format: 'dd MMM yyyy'}, //TODO: format
+            {field: 'like', title: 'Like'},
             //{field: 'rating', title: 'Rating', editor: 'rating'},
             {field: 'rating', title: 'Rating'},
             {field: 'views', title: 'Views', format: 'n0'}
@@ -132,40 +137,40 @@
     $(document).ready(function(){
         $('#grid1').kendoPropertyGrid({
             properties: viewModel,
-            rows: rows,
-            schema: {model: Properties}
+            rows: rows
         });
+
         //Property grid bound to nothing (should gracefully fallback)
         $('#grid2').kendoPropertyGrid();
+
         //Read-only property grid
         $('#grid3').kendoPropertyGrid({
             properties: viewModel,
             rows: rows,
-            schema: {model: Properties},
             readonly: true
         });
-        //Property grid bound to an object without schema and without row metadata (best guesses based on value types)
-        //$('#grid4').kendoPropertyGrid({
-        //    properties: viewModel
-        //});
-        //Property grid bound to an object with schema but without row metadata (property names used has titles)
-        //$('#grid5').kendoPropertyGrid({
-        //    properties: viewModel,
-        //    schema: {model: Properties}
-        //});
-        //Property grid bound to an object with row metadata but without schema (best guesses based on value types)
-        //$('#grid6').kendoPropertyGrid({
-        //    properties: viewModel,
-        //    rows: rows
-        //});
+
+        //Property grid initialized with an object without schema and without row metadata (best guesses based on value types)
+        $('#grid5').kendoPropertyGrid({
+            properties: {
+                string: 'Hello',
+                number: 100,
+                boolean: false,
+                date: new Date(),
+                object: { oops: true }
+            }
+        });
     });
 
     //This function is taken from http://demos.kendoui.com/web/grid/editing-custom.html
     function categoryDropDownEditor(container, options) {
-        $('<input required data-text-field="CategoryName" data-value-field="CategoryID" data-bind="value:' + options.field + '"/>')
+        $('<input data-bind="value: ' + options.field + '"/>')
                 .appendTo(container)
                 .kendoDropDownList({
                     autoBind: false,
+                    dataTextField: 'CategoryName',
+                    dataValueField: 'CategoryID',
+                    valuePrimitive: true,
                     dataSource: {
                         type: "odata",
                         transport: {

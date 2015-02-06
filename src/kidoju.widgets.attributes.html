@@ -9,10 +9,10 @@
     <!--script src="//code.jquery.com/jquery-1.9.1.min.js"></script-->
     <script src="./js/vendor/jquery.min.js"></script>
     <!--script src="//cdn.kendostatic.com/2014.3.1316/js/kendo.all.min.js"></script-->
-    <script src="./js/vendor/kendo.all.min.js"></script>
-    <!--script src="../temp/2014.3.1316/src/src/kendo.core.js"></script>
+    <!--script src="./js/vendor/kendo.all.min.js"></script-->
+    <script src="../temp/2014.3.1316/src/src/kendo.core.js"></script>
     <script src="../temp/2014.3.1316/src/src/kendo.data.js"></script>
-    <script src="../temp/2014.3.1316/src/src/kendo.binder.js"></script-->
+    <script src="../temp/2014.3.1316/src/src/kendo.binder.js"></script>
     <!-- Attributes requirements -->
     <link rel="stylesheet" href="./styles/kidoju.widgets.explorer.css">
     <script src="./js/kidoju.models.js"></script>
@@ -24,7 +24,7 @@
 <body>
 <div data-bind="text: current.uid"></div>
 <div id="explorer1" data-role="explorer" data-bind="source: items, selection: current" style="width:200px; display:inline-block;"></div>
-<div id="grid1"></div>
+<div id="grid1" data-role="propertygrid" data-bind="properties: current.attributes"></div>
 <script>
     var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({
             data: [
@@ -43,15 +43,6 @@
         pageItemCollectionDataSource.fetch(function() {
             viewModel.current = pageItemCollectionDataSource.at(1);
             kendo.bind('body', viewModel);
-
-            $('#grid1').kendoPropertyGrid({
-                properties: viewModel.current.attributes,
-                rows: [
-                    {field: 'src', title: 'Source'},
-                    {field: 'alt', title: 'Alternate Text'}
-                ]
-                //schema: {model: Properties}
-            });
         });
     });
 </script>

@@ -85,7 +85,7 @@
             name: 'Navigation',
             autoBind: true,
             itemTemplate: '<div data-uid="#= uid #" class="kj-navigation-page" role="option" aria-selected="false"><div data-role="stage"></div></div>',
-            addTemplate: '<div data-uid="#= uid #" class="kj-navigation-page" role="option" aria-selected="false"><div>#= text #</div></div>',
+            addTemplate: '<div data-uid="#= uid #" class="kj-navigation-page" role="option" aria-selected="false"><div>#: text #</div></div>',
             pageWidth: 1024, //TODO: assuming page size here: where do we read it from?
             pageHeight: 768,
             selectionBorder: 10, //this is the padding of the page wrapper, which draws a border around it

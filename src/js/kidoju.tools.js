@@ -260,7 +260,7 @@
         icon: 'document_orientation_landscape',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<span style="#= attributes.style #">#= attributes.text#</span>'
+            default: '<span style="#= attributes.style #">#: attributes.text#</span>'
         },
         height: 100,
         width: 300,
@@ -338,7 +338,7 @@
         icon: 'painting_landscape',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<img src="#= attributes.src #" alt="#= attributes.alt #">'
+            default: '<img src="#= attributes.src #" alt="#: attributes.alt #">'
         },
         height: 250,
         width: 250,
@@ -392,7 +392,7 @@
         icon: 'text_field',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<input type="text" style="#= attributes.style #" data-bind="value: #= properties.text.name #">'
+            default: '<input type="text" style="#= attributes.style #" data-bind="value: #: properties.text.name #">'
         },
         height: 100,
         width: 300,
@@ -450,7 +450,7 @@
         icon: 'button',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<button type="button" style="#= attributes.style #">#= attributes.text #</button>'
+            default: '<button type="button" style="#= attributes.style #">#: attributes.text #</button>'
         },
         height: 100,
         width: 300,

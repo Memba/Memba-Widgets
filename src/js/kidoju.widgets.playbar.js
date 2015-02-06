@@ -136,9 +136,9 @@
          */
         options: {
             name: 'Playbar',
-            iconTemplate: '<a href="\\#" title="#=text#" class="k-link k-pager-nav #= wrapClassName #"><span class="k-icon #= className #">#=text#</span></a>',
-            selectTemplate: '<li><span class="k-state-selected">#=text#</span></li>',
-            linkTemplate: '<li><a tabindex="-1" href="\\#" class="k-link" data-#=ns#index="#=idx#" #if (title !== "") {# title="#=title#" #}#>#=text#</a></li>',
+            iconTemplate: '<a href="\\#" title="#:text#" class="k-link k-pager-nav #= wrapClassName #"><span class="k-icon #= className #">#:text#</span></a>',
+            selectTemplate: '<li><span class="k-state-selected">#: text #</span></li>',
+            linkTemplate: '<li><a tabindex="-1" href="\\#" class="k-link" data-#=ns#index="#=idx#" #if (title !== "") {# title="#=title#" #}#>#:text#</a></li>',
             buttonCount: 10,
             autoBind: true,
             index: 0, //TODO: do we need id too?

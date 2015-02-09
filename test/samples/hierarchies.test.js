@@ -5,7 +5,7 @@
 
 /* jslint browser: true, jquery: true, expr: true */
 /* jshint browser: true, jquery: true, expr: true */
-/* global describe, it, before */
+/* global describe, it, before, xdescribe, xit */
 
 ;(function (window, $, undefined) {
 
@@ -112,14 +112,14 @@
 
         it('Test submodels', function() {
             var attributes = new Attributes({alt: 'Google', src: 'http://www.google.com/logo.jpg', style: 'height: 100px; width: 100px;'}),
-                item = new Item({title:'sample image', attribute: attributes}),
+                item = new Item({title:'sample image', attributes: attributes}),
                 viewModel = kendo.observable({ item: item });
             expect(viewModel.item).to.be.an.instanceof(Item);
             expect(viewModel.item).to.be.an.instanceof(kendo.data.Model);
             expect(viewModel.item).to.be.an.instanceof(kendo.Observable);
-            //expect(viewModel.item.attributes).to.be.an.instanceof(Attributes);        //Fails
-            //expect(viewModel.item.attributes).to.be.an.instanceof(kendo.data.Model);  //Fails
-            //expect(viewModel.item.attributes).to.be.an.instanceof(kendo.Observable);  //Fails
+            expect(viewModel.item.attributes).to.be.an.instanceof(Attributes);
+            expect(viewModel.item.attributes).to.be.an.instanceof(kendo.data.Model);
+            expect(viewModel.item.attributes).to.be.an.instanceof(kendo.Observable);
 
         });
 

@@ -123,6 +123,21 @@
 
         });
 
+        it('Fetch current', function (done) {
+            var viewModel = kendo.observable({
+                data: new kendo.data.DataSource({ data: categorizedMovies[0].items }),
+                current: null
+            });
+            viewModel.data.fetch().done(function() {
+                var title  = 'Another title';
+                viewModel.set('current', viewModel.data.at(0));
+                viewModel.set('current.title', title);
+                expect(viewModel.current.get('title')).to.equal(title);
+                expect(viewModel.data.at(0).get('title')).to.equal(title);
+                done();
+            });
+        });
+
     });
 
     describe('Test kendo.data.HierarchicalDataSource', function() {

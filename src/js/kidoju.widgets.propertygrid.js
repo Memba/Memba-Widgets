@@ -67,7 +67,7 @@
             that._layout();
 
             //Refresh if we have an object to display
-            if ($.type(that.options.properties) === OBJECT) {
+            if ($.type(that.options.value) === OBJECT) {
                 that.refresh();
             }
         },
@@ -78,7 +78,7 @@
          */
         options: {
             name: 'PropertyGrid',
-            properties: NULL,
+            value: NULL,
             rows: NULL,
             templates: {
                 row: '<tr role="row"><td role="gridcell">#: title #</td><td role="gridcell"></td></tr>',
@@ -91,27 +91,27 @@
         },
 
         /**
-         * Properties setter/getter
+         * Value is the object whose properties are displayed in the property grid
          * @param object
          * @returns {*}
          */
-        properties: function (object) {
+        value: function (object) {
             var that = this;
             if (object === null) {
-                if (!$.isEmptyObject(that.options.properties)) {
-                    that.options.properties = {};
+                if (!$.isEmptyObject(that.options.value)) {
+                    that.options.value = {};
                     that.refresh();
                 }
             } else if (object !== undefined) {
                 if($.type(object) !== OBJECT) {
                     throw new TypeError('Properties should be an object');
                 }
-                if (object !== that.options.properties) {
-                    that.options.properties = object;
+                if (object !== that.options.value) {
+                    that.options.value = object;
                     that.refresh();
                 }
             } else {
-                return that.options.properties;
+                return that.options.value;
             }
         },
 
@@ -180,7 +180,7 @@
         refresh: function() {
 
             var that = this,
-                properties = that.options.properties,
+                properties = that.options.value,
                 tbody = $(that.element).find(TBODY).first();
 
             kendo.unbind(tbody);
@@ -243,10 +243,10 @@
             // - type
             // - editable
             // - nullable
-            // - defaultValue - see that.options.properties.defaults
+            // - defaultValue - see that.options.value.defaults
             // - validation
 
-            // that.options.properties gives
+            // that.options.value gives
             // - type
             // - value (for data-binding)
 
@@ -298,7 +298,7 @@
                 }
             }
 
-            buildRows(that.options.properties, util.hash(that.options.rows), '');
+            buildRows(that.options.value, util.hash(that.options.rows), '');
             return rows;
         },
 

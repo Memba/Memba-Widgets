@@ -26,16 +26,19 @@
         //Events
         CHANGE = 'change',
         CLICK = 'click',
+        DATABINDING = 'dataBinding',
+        DATABOUND = 'dataBound',
         MOUSEENTER = 'mouseenter',
         MOUSELEAVE = 'mouseleave',
-        FOCUS = 'focus',
-        BLUR = 'blur',
+        //FOCUS = 'focus',
+        //BLUR = 'blur',
+        SELECT = 'select',
         NS = '.kendoExplorer',
 
         //Widget
         WIDGET_CLASS = 'k-widget k-group kj-explorer', //k-list-container k-reset
         HOVER_CLASS = 'k-state-hover',
-        FOCUSED_CLASS = 'k-state-focused',
+        //FOCUSED_CLASS = 'k-state-focused',
         SELECTED_CLASS = 'k-state-selected',
         ALL_ITEMS_SELECTOR = 'li.k-item[data-uid]',
         ITEM_BYUID_SELECTOR = 'li.k-item[data-uid="{0}"]',
@@ -109,7 +112,9 @@
          * @property events
          */
         events: [
-            CHANGE
+            CHANGE,
+            DATABINDING,
+            DATABOUND
         ],
 
         /**
@@ -308,6 +313,11 @@
                 } else if (e && e.items instanceof kendo.data.ObservableArray) {
                     data = e.items;
                 }
+
+                if (e && e.action === undefined) {
+                    that.trigger(DATABINDING);
+                }
+
                 for (var i = 0; i < data.length; i++) {
                     var tool = kidoju.tools[data[i].tool];
                     if (tool instanceof kidoju.Tool) {
@@ -330,7 +340,11 @@
                 }
 
                 that.list.html(html);
-            }
+
+                if (e && e.action === undefined) {
+                    that.trigger(DATABOUND);
+                }
+           }
 
             that.list.find(ALL_ITEMS_SELECTOR)
                 .removeClass(SELECTED_CLASS)

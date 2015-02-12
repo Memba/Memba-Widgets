@@ -14,6 +14,7 @@
     var kendo = window.kendo,
         ui = kendo.ui,
         Widget = ui.Widget,
+        kidoju = window.kidoju = window.kidoju || {},
 
         //Types
         OBJECT = 'object',
@@ -32,6 +33,7 @@
 
         //Misc.
         UID = 'uid',
+        DIRTY = 'dirty',
 
         //Debug
         DEBUG = true,
@@ -176,12 +178,10 @@
                 properties = that.options.properties;
 
             //We need an observable object to display in the property grid: we check current object and parent
-            //TODO: Check http://www.telerik.com/forums/best-way-to-check-that-properties-of-an-observable-are-observable
-
-            if (!(properties instanceof kendo.Observable) &&
-                !($.isFunction(properties.parent) && properties.parent() instanceof kendo.Observable)) {
-                that.options.properties = kendo.observable(that.options.properties);
-            }
+            //if (!(properties instanceof kendo.Observable) &&
+            //    !($.isFunction(properties.parent) && properties.parent() instanceof kendo.Observable)) {
+            //    that.options.properties = kendo.observable(that.options.properties);
+            //}
 
             var tbody = $(that.element).find(TBODY).first(),
                 rowTemplate = kendo.template(that.options.templates.row),
@@ -216,7 +216,6 @@
 
         },
 
-
         /**
          * Build rows
          * @returns {Array}
@@ -225,11 +224,7 @@
         _buildRows: function (){
             var that = this,
                 rows = [],
-                optRows = util.hash(that.options.rows),
-                hasRows = $.isArray(that.options.rows) && that.options.rows.length > 0,
-                properties = that.options.properties,
-                fields = that.options.properties.fields,
-                defaults = that.options.properties.defaults;
+                hasRows = $.isArray(that.options.rows) && that.options.rows.length > 0;
 
             // that.options.rows gives:
             // - field (name) - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.field
@@ -237,9 +232,9 @@
             // - format       - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.format
             // - template     - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.template
             // - editor       - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.editor
-            // - values?????
-            // - encoded????
-            // - attributes????
+            // - values?????  - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.values
+            // - encoded????  - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.encoded
+            // - attributes   - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.attributes
 
             //that.options.fields gives: - http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
             // - type
@@ -252,41 +247,55 @@
             // - type
             // - value (for data-binding)
 
-            for (var prop in properties) {
+            function buildRows(properties, hashedOptionRows, path) {
 
-                //Select only public properties that are not functions (discards _events and uid)
-                if(properties.hasOwnProperty(prop) && !RX_PRIVATE.test(prop) && prop !== UID && !$.isFunction(properties[prop])) {
+                var fields = properties.fields,
+                    defaults = properties.defaults;
 
-                    var row = {
-                        attributes: hasRows && optRows[prop] && optRows[prop].attributes ? optRows[prop].attributes : undefined,
-                        //defaultValue
-                        editable: fields && fields[prop] && (fields[prop].editable === false) ? false : true,
-                        editor: hasRows && optRows[prop] && optRows[prop].editor ? optRows[prop].editor : undefined,
-                        field: prop,
-                        format: hasRows && optRows[prop] && optRows[prop].format ? optRows[prop].format : undefined,
-                        //nullable
-                        template: hasRows && optRows[prop] && optRows[prop].template ? optRows[prop].template : undefined,
-                        title: hasRows && optRows[prop] && optRows[prop].title ? optRows[prop].title : util.formatTitle(prop),
-                        type: util.getType(fields && fields[prop], defaults && defaults[prop], properties[prop])
-                        //validation
-                    };
+                for (var prop in properties) {
 
-                    util.optimizeEditor(row);
+                    //Select only public properties that are not functions (discards _events)
+                    if(properties.hasOwnProperty(prop) && !RX_PRIVATE.test(prop) && !$.isFunction(properties[prop]) &&
+                            //if rows are desinated in this.options.rows, only select these rows
+                        (!hasRows || hashedOptionRows.hasOwnProperty(prop))) {
 
-                    if(row.type) {
-                        if (hasRows) {
-                            //Rows, if any, only designate properties to display
-                            if (optRows.hasOwnProperty(prop)) {
-                                rows[optRows[prop]._index] = row;
-                            }
+                        if ($.type(properties[prop]) === OBJECT) {
+
+                            buildRows(properties[prop], hashedOptionRows[prop] || {}, path.length === 0 ? prop : path + '.' + prop);
+
                         } else {
-                            //Without rows, all public properties are displayed except uid
-                            rows.push(row);
+
+                            var row = {
+                                attributes: hasRows && hashedOptionRows[prop] && hashedOptionRows[prop].attributes ? hashedOptionRows[prop].attributes : undefined,
+                                //defaultValue
+                                editable: fields && fields[prop] && (fields[prop].editable === false) ? false : true,
+                                editor: hasRows && hashedOptionRows[prop] && hashedOptionRows[prop].editor ? hashedOptionRows[prop].editor : undefined,
+                                field: path.length === 0 ? prop : path + '.' + prop,
+                                format: hasRows && hashedOptionRows[prop] && hashedOptionRows[prop].format ? hashedOptionRows[prop].format : undefined,
+                                //nullable
+                                template: hasRows && hashedOptionRows[prop] && hashedOptionRows[prop].template ? hashedOptionRows[prop].template : undefined,
+                                title: hasRows && hashedOptionRows[prop] && hashedOptionRows[prop].title ? hashedOptionRows[prop].title : util.formatTitle(prop),
+                                type: util.getType(fields && fields[prop], defaults && defaults[prop], properties[prop])
+                                //validation
+                            };
+
+                            util.optimizeEditor(row);
+
+                            if (row.type) {
+                                if (hasRows) {
+                                    //With this.options.rows, only designated properties are displayed
+                                    rows[hashedOptionRows[prop]._index] = row;
+                                } else {
+                                    //Without this.options.rows, all public properties are displayed
+                                    rows.push(row);
+                                }
+                            }
                         }
                     }
                 }
             }
 
+            buildRows(that.options.properties, util.hash(that.options.rows), '');
             return rows;
         },
 
@@ -308,7 +317,6 @@
                 .removeClass('k-widget k-grid');
         },
 
-
         /**
          * Destroys the widget
          * @method destroy
@@ -328,7 +336,7 @@
      * See http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.editor
      *********************************************************************************/
 
-    var editors = {
+    var editors = kidoju.editors = {
 
         span: function(container, options) {
             $('<span/>')
@@ -349,7 +357,7 @@
                 .appendTo(container);
         },
 
-        _kendo: function(container, options) {
+        _kendoInput: function(container, options) {
             $('<input style="width: 100%;"/>')
                 .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
                 .appendTo(container);
@@ -359,6 +367,7 @@
             var template = kendo.template(options.template);
             $(template(options))
                 .appendTo(container);
+            //TODO: test bindings....
         }
 
     };
@@ -390,10 +399,16 @@
             var ret = {};
             if($.isArray(rows)) {
                 $.each(rows, function (index, row) {
-                    ret[row.field] = {_index: index};
+                    //check fields like attributes.src
+                    var hierarchy = row.field.split('.'),
+                        obj = ret;
+                    for (var i = 0; i < hierarchy.length; i++) {
+                        obj = obj[hierarchy[i]] = obj[hierarchy[i]] || {};
+                    }
+                    obj._index = index;
                     for (var prop in row) {
                         if (row.hasOwnProperty(prop)) {
-                            ret[row.field][prop] = row[prop];
+                            obj[prop] = row[prop];
                         }
                     }
                 });
@@ -481,7 +496,7 @@
                 if ((widgets.indexOf(row.editor) > -1) &&
                     (kendo.rolesFromNamespaces(kendo.ui).hasOwnProperty(row.editor) || kendo.rolesFromNamespaces(kendo.mobile.ui).hasOwnProperty(row.editor))) {
                     row.attributes = $.extend({}, row.attributes, { 'data-role': row.editor });
-                    row.editor = editors._kendo;
+                    row.editor = editors._kendoInput;
                     return;
                 }
             }
@@ -499,15 +514,15 @@
             switch (row.type) {
                 case NUMBER:
                     row.attributes = $.extend({}, row.attributes, { 'data-role': 'numerictextbox' });
-                    row.editor = editors._kendo;
+                    row.editor = editors._kendoInput;
                     break;
                 case BOOLEAN:
                     row.attributes = $.extend({}, row.attributes, { 'data-role': 'switch' });
-                    row.editor = editors._kendo;
+                    row.editor = editors._kendoInput;
                     break;
                 case DATE:
                     row.attributes = $.extend({}, row.attributes, { 'data-role': 'datepicker' });
-                    row.editor = editors._kendo;
+                    row.editor = editors._kendoInput;
                     break;
                 default: //STRING
                     row.editor = editors.textbox;

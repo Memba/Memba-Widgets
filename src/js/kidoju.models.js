@@ -132,31 +132,15 @@
                 var tool = kidoju.tools[that.tool];
                 if (tool instanceof kidoju.Tool) {
 
+                    //Let the tool build a kendo.data.Model for attributes to allow validation in the property grid
+                    var Attributes = tool._getAttributeModel(),
                     //Extend item attributes with possible new attributes as tools improve
-                    that.attributes = $.extend({}, tool._initAttributes(), that.attributes);
-
-                    /*
-                    var attributes = tool._initAttributes();
-                    try {
-                        //the tool might have been updated to implement some new attributes
-                        $.extend(attributes, JSON.parse(that.attributes));
-                    } catch (err) {
-                    }
-                    that.attributes = JSON.stringify(attributes);
-                    */
+                        attributes = $.extend({}, Attributes.prototype.defaults, that.attributes);
+                    //Cast with Model
+                    that.set('attributes', new Attributes(attributes));
 
                     //Extend item properties with possible new properties as tools improve
                     that.properties = $.extend({}, tool._initProperties(), that.properties);
-
-                    /*
-                    var properties = tool._initProperties();
-                    try {
-                        //the tool might have been updated to implement some new properties
-                        $.extend(properties, JSON.parse(that.properties));
-                    } catch (err) {
-                    }
-                    that.properties = JSON.stringify(properties);
-                    */
                 }
             }
         }/*,

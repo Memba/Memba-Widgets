@@ -17,6 +17,8 @@
         OBJECT = 'object',
         STRING = 'string',
         NUMBER = 'number',
+        BOOLEAN = 'boolean',
+        DATE = 'date',
 
         //Tools
         CURSOR_DEFAULT = 'default',
@@ -83,8 +85,6 @@
         cursor: null,
         height: 250,
         width: 250,
-        //playBar: [],
-        //designBar: [],
         attributes: {},
         properties: {},
         /**
@@ -114,22 +114,50 @@
             }
         },
 
+
         /**
-         * Initializes attributes
-         * @method _initAttributes
-         * @returns {{}}
+         * Get a kendo.data.Model for attributes
+         * @method _getAttributeModel
+         * @returns {Attributes}
          * @private
          */
-        _initAttributes: function() {
-            var attributes = {};
+        _getAttributeModel: function() {
+            var model = { fields: {} };
             for(var attr in this.attributes) {
                 if (this.attributes.hasOwnProperty(attr)) {
                     if (this.attributes[attr] instanceof adapters.AttributeAdapter) {
-                        attributes[attr] = this.attributes[attr].value;
+                        model.fields[attr] = this.attributes[attr].getField();
                     }
                 }
             }
-            return attributes;
+            return kendo.data.Model.define(model);
+        },
+
+        /**
+         *
+         * @returns {Array}
+         * @private
+         */
+        _getAttributeRows: function() {
+            var rows = [];
+
+            //Add top, left, height, width, rotation
+            rows.push(new adapters.NumberAttributeAdapter({attributes:{'data-min': 0}}).getRow('top'));
+            rows.push(new adapters.NumberAttributeAdapter().getRow('left'));
+            rows.push(new adapters.NumberAttributeAdapter().getRow('height'));
+            rows.push(new adapters.NumberAttributeAdapter().getRow('width'));
+            rows.push(new adapters.NumberAttributeAdapter().getRow('rotate'));
+
+            //Add other attributes
+            for(var attr in this.attributes) {
+                if (this.attributes.hasOwnProperty(attr)) {
+                    if (this.attributes[attr] instanceof adapters.AttributeAdapter) {
+                        rows.push(this.attributes[attr].getRow('attributes.' + attr));
+                        //rows.push(this.attributes[attr].getRow(attr));
+                    }
+                }
+            }
+            return rows;
         },
 
         /**
@@ -171,36 +199,200 @@
      *******************************************************************************************/
     var adapters = kidoju.adapters = {};
 
-    var AttributeAdapter = adapters.AttributeAdapter = kendo.Class.extend({
-        value: undefined,
-        init: function(value) {
-            this.value = value;
+    adapters.AttributeAdapter = kendo.Class.extend({
+
+        /**
+         * Data type: string, number, boolean or date
+         */
+        type: undefined,
+
+        /**
+         * Constructor
+         * @param options
+         */
+        init: function(options) {
+            options = options || {};
+            //this.value = options.value;
+
+            //See http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
+            this.defaultValue = options.defaultValue;
+            this.editable = options.editable;
+            this.nullable = options.nullable;
+            this.parse = options.parse;
+            this.from = options.from;
+            this.validation = options.validation;
+
+            //See http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns
+            this.field = options.field;
+            this.title = options.title;
+            this.format = options.format;
+            this.template = options.template;
+            this.editor = options.editor;
+            //TODO: HTML encode????
+            this.attributes = options.attributes;
         },
-        getRow: function() {
-            return undefined;
+
+        /**
+         * Get a kendo.data.Model field
+         * See http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
+         * @returns {{}}
+         */
+        getField: function() {
+            var field = {};
+            if ([STRING, NUMBER, BOOLEAN, DATE].indexOf(this.type) > -1) {
+                field.type = this.type;
+            }
+            if ($.type(this.defaultValue) === this.type ||
+                this.type === undefined) { //TODO: test that defaultValue is null or an object
+                field.defaultValue = this.defaultValue;
+            }
+            if ($.type(this.editable) === BOOLEAN) {
+                field.editable = this.defaultValue;
+            }
+            if ($.type(this.nullable) === BOOLEAN) {
+                field.nullable = this.nullable;
+            }
+            if ($.isFunction(this.parse)) {
+                field.parse = this.parse;
+            }
+            if ($.type(this.from) === STRING) {
+                field.from = this.from;
+            }
+            if ($.type(this.validation) === OBJECT) {
+                field.validation = this.validation;
+            }
+            return field;
         },
-        getEditor: function(enabled) {
-            return undefined;
+
+        /**
+         * Get a property grid row
+         * See http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns
+         * @param field - This is the MVVM path to the field the data is bound to
+         * @returns {{}}
+         */
+        getRow: function(field) {
+            if ($.type(field) !== STRING || field.length === 0) {
+                throw new TypeError();
+            }
+            var row = {};
+            row.field = field; //Mandatory
+            if ($.type(this.title) === STRING) {
+                row.title = this.title;
+            }
+            if ($.type(this.format) === STRING) {
+                row.format = this.format;
+            }
+            if ($.type(this.template) === STRING) {
+                row.template = this.template;
+            }
+            if ($.isFunction(this.editor) ||
+               ($.type(this.editor) === STRING && (kidoju.editors === undefined || $.isFunction(kidoju.editors[this.editor])))) {
+                row.editor = this.editor;
+            }
+            //TODO: HTML encode????
+            if($.isPlainObject(this.attributes)) {
+                row.attributes = this.attributes;
+            }
+            return row;
         }
-        //Toolbar???????????????
-        //validation????????
     });
 
-    adapters.TextAttributeAdapter = AttributeAdapter.extend({
-        init: function(value) {
-            this.value = value;
-        },
-        getEditor: function(enabled) {
-            return '';
+    /**
+     * String attribute adapter
+     */
+    adapters.StringAttributeAdapter = adapters.AttributeAdapter.extend({
+        init: function(options) {
+            adapters.AttributeAdapter.fn.init.call(this, options);
+            this.type = STRING;
+            this.editor = 'textbox';
+            this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         }
     });
 
-    adapters.StyleAttributeAdapter = AttributeAdapter.extend({
-        init: function(value) {
-            this.value = value;
-        },
-        getEditor: function(enabled) {
-            return '';
+    /**
+     * Number attribute adapter
+     */
+    adapters.NumberAttributeAdapter = adapters.AttributeAdapter.extend({
+        init: function(options) {
+            adapters.AttributeAdapter.fn.init.call(this, options);
+            this.type = NUMBER;
+            this.defaultValue = this.defaultValue || (this.nullable ? null : 0);
+            this.editor = '_kendoInput';
+            this.attributes = $.extend({}, this.attributes, { 'data-role': 'numerictextbox' });
+        }
+    });
+
+    /**
+     * Boolean attribute adapter
+     */
+    adapters.BooleanAttributeAdapter = adapters.AttributeAdapter.extend({
+        init: function(options) {
+            adapters.AttributeAdapter.fn.init.call(this, options);
+            this.type = BOOLEAN;
+            this.defaultValue = this.defaultValue || (this.nullable ? null : false);
+            this.editor = '_kendoInput';
+            this.attributes = $.extend({}, this.attributes, { 'data-role': 'switch' });
+        }
+    });
+
+    /**
+     * Date attribute adapter
+     */
+    adapters.DateAttributeAdapter = adapters.AttributeAdapter.extend({
+        init: function(options) {
+            adapters.AttributeAdapter.fn.init.call(this, options);
+            this.type = DATE;
+            this.defaultValue = this.defaultValue || (this.nullable ? null : new Date());
+            this.editor = '_kendoInput';
+            this.attributes = $.extend({}, this.attributes, { 'data-role': 'datepicker' });
+        }
+    });
+
+    /**
+     * Style attribute adapter
+     */
+    adapters.StyleAttributeAdapter = adapters.AttributeAdapter.extend({
+        init: function(options) {
+            adapters.AttributeAdapter.fn.init.call(this, options);
+            this.type = STRING;
+            this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+            this.editor = function(container, options) {
+
+                var div = $('<div/>')
+                    .css({display: 'table'})
+                    .appendTo(container);
+
+                var span  = $('<span/>')
+                    .css({
+                        display: 'table-cell',
+                        width: '100%',
+                        paddingRight: '8px'
+                    })
+                    .appendTo(div);
+
+                var input = $('<input/>')
+                    .addClass('k-textbox') //or k-input
+                    .css({
+                        border: 'solid 1px #FF0000',
+                        width: '100%'
+                    })
+                    .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
+                    .appendTo(span);
+
+                $('<button/>')
+                    .text('...')
+                    .addClass('k-button')
+                    .css({
+                        display: 'table-cell',
+                        minWidth: '40px',
+                        height: input.css('height'), //to match input,
+                        margin: 0
+                    })
+                    .appendTo(div)
+                    .on('click', function(e) {
+                        window.alert('coucou'); //TODO: display a window
+                    });
+            };
         }
     });
 
@@ -211,6 +403,10 @@
     var PropertyAdapter = adapters.PropertyAdapter = kendo.Class.extend({
         _prefix: 'prop',
         value: undefined,
+
+
+        //TODO: For SATs consider points for right answer vs. points for wrong answer vs points for now answer
+
         init: function(options) {
             $.noop();
         },
@@ -265,8 +461,8 @@
         height: 100,
         width: 300,
         attributes: {
-            text: new adapters.TextAttributeAdapter('Label'),
-            style: new adapters.StyleAttributeAdapter('font-family: Georgia, serif; color: #FF0000;')
+            text: new adapters.StringAttributeAdapter({ defaultValue: 'Label' }),
+            style: new adapters.StyleAttributeAdapter({ defaultValue: 'font-family: Georgia, serif; color: #FF0000;'})
         },
 
         /**
@@ -343,8 +539,8 @@
         height: 250,
         width: 250,
         attributes: {
-            src: new adapters.TextAttributeAdapter(''),
-            alt: new adapters.TextAttributeAdapter('')
+            src: new adapters.StringAttributeAdapter(),
+            alt: new adapters.StringAttributeAdapter()
         },
         /**
          * Get Html content
@@ -456,7 +652,7 @@
         width: 300,
         attributes: {
             style: new adapters.StyleAttributeAdapter(),
-            text: new adapters.TextAttributeAdapter('Button')
+            text: new adapters.StringAttributeAdapter({ defaultValue: 'Button' })
         },
         /**
          * Get Html content

@@ -1142,7 +1142,7 @@
         //validation????????
     });
 
-    var TextAttributeAdapter = adapters.TextAttributeAdapter = AttributeAdapter.extend({
+    var TextAttributeAdapter = adapters.StringAttributeAdapter = AttributeAdapter.extend({
         init: function(value) {
             this.value = value;
         },
@@ -1243,9 +1243,9 @@
         height: 100,
         width: 300,
         attributes: {
-            text: new adapters.TextAttributeAdapter('Label'),
-            font: new adapters.TextAttributeAdapter('Georgia, serif'),
-            color: new adapters.TextAttributeAdapter('#FF0000')
+            text: new adapters.StringAttributeAdapter('Label'),
+            font: new adapters.StringAttributeAdapter('Georgia, serif'),
+            color: new adapters.StringAttributeAdapter('#FF0000')
         },
         /**
          * Get Html content
@@ -1319,8 +1319,8 @@
         height: 250,
         width: 250,
         attributes: {
-            src: new adapters.TextAttributeAdapter(''),
-            alt: new adapters.TextAttributeAdapter('')
+            src: new adapters.StringAttributeAdapter(''),
+            alt: new adapters.StringAttributeAdapter('')
         },
         /**
          * Get Html content
@@ -1430,7 +1430,7 @@
         height: 100,
         width: 300,
         attributes: {
-            text: new adapters.TextAttributeAdapter('Button')
+            text: new adapters.StringAttributeAdapter('Button')
         },
         getHtml: function(item, mode) {
             var template = kendo.template(this.templates.default);
@@ -1522,7 +1522,7 @@
 
         //Events
         CHANGE = 'change',
-        
+
         DEBUG = false,
         MODULE = 'kidoju.widgets.bindings: ';
 
@@ -1765,7 +1765,7 @@
         ALL_ITEMS_SELECTOR = 'li.k-item[data-uid]',
         ITEM_BYUID_SELECTOR = 'li.k-item[data-uid="{0}"]',
         ARIA_SELECTED = 'aria-selected',
-        
+
         DEBUG = false,
         MODULE = 'kidoju.widgets.explorer: ';
 

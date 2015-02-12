@@ -16,8 +16,15 @@
         kidoju = window.kidoju;
 
 
-
     describe('kidoju.tools', function() {
+
+        describe ('Create function form string', function() {
+
+            it('Execute string function', function() {
+                var fn
+            });
+
+        });
 
         describe('Loading', function() {
 
@@ -98,10 +105,44 @@
 
         });
 
-        describe('kidoju.Tool', function() {
+        describe('Attribute Adapters', function () {
 
-            it('TODO', function() {
-                expect(true).to.be.true;
+            it('Validate StringAttributeAdapter', function() {
+                var adapter = new kidoju.adapters.StringAttributeAdapter(),
+                    field = adapter.getField(),
+                    row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+            it('Validate NumberAttributeAdapter', function() {
+                var adapter = new kidoju.adapters.NumberAttributeAdapter(),
+                    field = adapter.getField(),
+                    row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+
+            });
+
+            it('Validate BooleanAttributeAdapter', function() {
+                var adapter = new kidoju.adapters.BooleanAttributeAdapter(),
+                    field = adapter.getField(),
+                    row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+
+            });
+
+            it('Validate DateAttributeAdapter', function() {
+                var adapter = new kidoju.adapters.DateAttributeAdapter(),
+                    field = adapter.getField(),
+                    row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+
+            });
+
+            it('Validate StyleAttributeAdapter', function() {
+                var adapter = new kidoju.adapters.StyleAttributeAdapter(),
+                    field = adapter.getField(),
+                    row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
             });
 
         });
@@ -149,27 +190,99 @@
 
                 //If we submit a valid page item
                 html = label.getHtml(item);
-                expect(html).to.match('^<span');
+                expect(html).to.match(/^<span/);
 
             });
 
         });
 
         describe('Image', function() {
+
             it('Validate image properties', function() {
                 var image = kidoju.tools.image;
+                expect(image.id).to.equal('image');
+                expect(image.icon).to.equal('painting_landscape');
+                expect(image.cursor).to.equal('crosshair');
+                expect(image.height).to.equal(250);
+                expect(image.width).to.equal(250);
+                expect(image.getHtml).to.respond;
+                expect(image.onMove).to.be.undefined;
+                expect(image.onResize).to.respond;
+                expect(image.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtml', function() {
+                var image = kidoju.tools.image,
+                    item = new kidoju.PageItem({tool: 'image'}),
+                    html;
+
+                //If we do not submit a page item
+                html = image.getHtml({});
+                expect(html).to.be.undefined;
+
+                //If we submit a valid page item
+                html = image.getHtml(item);
+                expect(html).to.match(/^<img/);
             });
         });
 
         describe('Textbox', function() {
+
             it('Validate textbox properties', function() {
                 var textbox = kidoju.tools.textbox;
+                expect(textbox.id).to.equal('textbox');
+                expect(textbox.icon).to.equal('text_field');
+                expect(textbox.cursor).to.equal('crosshair');
+                expect(textbox.height).to.equal(100);
+                expect(textbox.width).to.equal(300);
+                expect(textbox.getHtml).to.respond;
+                expect(textbox.onMove).to.be.undefined;
+                expect(textbox.onResize).to.respond;
+                expect(textbox.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtml', function() {
+                var textbox = kidoju.tools.textbox,
+                    item = new kidoju.PageItem({tool: 'textbox'}),
+                    html;
+
+                //If we do not submit a page item
+                html = textbox.getHtml({});
+                expect(html).to.be.undefined;
+
+                //If we submit a valid page item
+                html = textbox.getHtml(item);
+                expect(html).to.match(/^<input/);
             });
         });
 
         describe('Button', function() {
+
             it('Validate button properties', function() {
                 var button = kidoju.tools.button;
+                expect(button.id).to.equal('button');
+                expect(button.icon).to.equal('button');
+                expect(button.cursor).to.equal('crosshair');
+                expect(button.height).to.equal(100);
+                expect(button.width).to.equal(300);
+                expect(button.getHtml).to.respond;
+                expect(button.onMove).to.be.undefined;
+                expect(button.onResize).to.respond;
+                expect(button.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtml', function() {
+                var button = kidoju.tools.button,
+                    item = new kidoju.PageItem({tool: 'button'}),
+                    html;
+
+                //If we do not submit a page item
+                html = button.getHtml({});
+                expect(html).to.be.undefined;
+
+                //If we submit a valid page item
+                html = button.getHtml(item);
+                expect(html).to.match(/^<button/);
             });
         });
 

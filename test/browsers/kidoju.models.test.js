@@ -5,7 +5,7 @@
 
 /* jslint browser: true, expr: true */
 /* jshint browser: true, expr: true */
-/* global describe, it, before */
+/* global describe, it, before, xdescribe, xit */
 
 ;(function (window, $, undefined) {
 
@@ -45,27 +45,27 @@
 
         describe('When initializing a PageItem', function() {
 
-            xit('if initialized from an undefined, it should pass although tool is null', function() {
+            it('if initialized from an undefined, it should pass although tool is null', function() {
                 //Unfortunately, this is a Kendo UI requirement
                 var item = new kidoju.PageItem();
                 expect(item.tool).to.be.null;
             });
 
-            xit('if initialized from an object without tool, it should throw', function() {
+            it('if initialized from an object without tool, it should throw', function() {
                 function testFn() {
                     var item = new kidoju.PageItem({dummy: true});
                 }
                 expect(testFn).to.throw(Error);
             });
 
-            xit('if initialized from an object with an invalid tool, it should throw', function() {
+            it('if initialized from an object with an invalid tool, it should throw', function() {
                 function testFn() {
                     var item = new kidoju.PageItem({tool: 'dummy'});
                 }
                 expect(testFn).to.throw(Error);
             });
 
-            xit('if initialized from a valid object, it should pass', function() {
+            it('if initialized from a valid object, it should pass', function() {
                 var item = new kidoju.PageItem({tool: 'label'});
                 expect(item).to.be.an.instanceof(kidoju.PageItem);
             });
@@ -88,9 +88,9 @@
                 for (var prop in obj) {
                     if (obj.hasOwnProperty(prop)) {
                         if (prop === 'attributes' || prop === 'properties') {
-                            for (var prop$ in obj[prop]) {
-                                if (obj[prop].hasOwnProperty(prop$)) {
-                                    expect(item[prop][prop$]).to.equal(obj[prop][prop$]);
+                            for (var subprop in obj[prop]) {
+                                if (obj[prop].hasOwnProperty(subprop)) {
+                                    expect(item[prop][subprop]).to.equal(obj[prop][subprop]);
                                 }
                             }
                         } else {
@@ -100,7 +100,7 @@
                 }
             });
 
-            xit('if initialized from a complete image, it shoud pass', function () {
+            it('if initialized from a complete image, it shoud pass', function () {
                 var obj = {
                         id: 'be1935d0-ff0e-4818-a5a8-762127f3b506',
                         tool : 'image',
@@ -118,7 +118,7 @@
 
             });
 
-            xit('if initialized from a complete textbox, it shoud pass', function () {
+            it('if initialized from a complete textbox, it shoud pass', function () {
                 var item = new kidoju.PageItem({
                     id: 'c3d46312-07c3-44dc-a1c9-987654949927',
                     tool : 'textbox',
@@ -211,7 +211,7 @@
         //TODO --------------------------------------------------------------------------------------------------
     });
 
-    xdescribe('When initializing a PageCollectionDataSource', function() {
+    describe('When initializing a PageCollectionDataSource', function() {
         it('if initialized from an empty array, the count of items should match', function() {
             var pageCollectionDataSource1 = new kidoju.PageCollectionDataSource();
             var pageCollectionDataSource2 = new kidoju.PageCollectionDataSource({ data: [] });
@@ -265,12 +265,12 @@
             expect(pageCollectionDataSource1.total()).to.equal(pageCollectionData.length);
             expect(pageCollectionDataSource2.total()).to.equal(pageCollectionData.length);
         });
-        it('if initialized from $.ajax, the number of items should match', function(done) {
+        xit('if initialized from $.ajax, the number of items should match', function(done) {
             var pageCollectionDataSource = new kidoju.PageCollectionDataSource({
                 transport: {
                     read: {
                         url: '../data/pageCollection.json',
-                        dataType: "json"
+                        dataType: 'json'
                     }
                 }
             });

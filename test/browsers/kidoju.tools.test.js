@@ -18,10 +18,13 @@
 
     describe('kidoju.tools', function() {
 
-        describe ('Create function form string', function() {
+        describe ('Create function from string', function() {
 
             it('Execute string function', function() {
-                var fn
+                /* jshint -W054 */
+                var add = new Function('a', 'b', 'return a + b');
+                /* jshint +W054 */
+                expect(add(2,6)).to.equal(8);
             });
 
         });
@@ -107,39 +110,39 @@
 
         describe('Attribute Adapters', function () {
 
-            it('Validate StringAttributeAdapter', function() {
-                var adapter = new kidoju.adapters.StringAttributeAdapter(),
+            it('Validate StringAdapter', function() {
+                var adapter = new kidoju.adapters.StringAdapter(),
                     field = adapter.getField(),
                     row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
             });
 
-            it('Validate NumberAttributeAdapter', function() {
-                var adapter = new kidoju.adapters.NumberAttributeAdapter(),
-                    field = adapter.getField(),
-                    row = adapter.getRow('test');
-                expect(field).to.have.property('type', adapter.type);
-
-            });
-
-            it('Validate BooleanAttributeAdapter', function() {
-                var adapter = new kidoju.adapters.BooleanAttributeAdapter(),
+            it('Validate NumberAdapter', function() {
+                var adapter = new kidoju.adapters.NumberAdapter(),
                     field = adapter.getField(),
                     row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
 
             });
 
-            it('Validate DateAttributeAdapter', function() {
-                var adapter = new kidoju.adapters.DateAttributeAdapter(),
+            it('Validate BooleanAdapter', function() {
+                var adapter = new kidoju.adapters.BooleanAdapter(),
                     field = adapter.getField(),
                     row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
 
             });
 
-            it('Validate StyleAttributeAdapter', function() {
-                var adapter = new kidoju.adapters.StyleAttributeAdapter(),
+            it('Validate DateAdapter', function() {
+                var adapter = new kidoju.adapters.DateAdapter(),
+                    field = adapter.getField(),
+                    row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+
+            });
+
+            it('Validate StyleAdapter', function() {
+                var adapter = new kidoju.adapters.StyleAdapter(),
                     field = adapter.getField(),
                     row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
@@ -242,9 +245,9 @@
             });
 
             it('Check getHtml', function() {
-                var textbox = kidoju.tools.textbox,
-                    item = new kidoju.PageItem({tool: 'textbox'}),
-                    html;
+                var textbox = kidoju.tools.textbox;
+                var item = new kidoju.PageItem({tool: 'textbox'});
+                var html;
 
                 //If we do not submit a page item
                 html = textbox.getHtml({});

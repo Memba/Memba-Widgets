@@ -118,14 +118,14 @@
         /**
          * Get a kendo.data.Model for attributes
          * @method _getAttributeModel
-         * @returns {Attributes}
+         * @returns {kendo.data.Model}
          * @private
          */
         _getAttributeModel: function() {
             var model = { fields: {} };
             for(var attr in this.attributes) {
                 if (this.attributes.hasOwnProperty(attr)) {
-                    if (this.attributes[attr] instanceof adapters.AttributeAdapter) {
+                    if (this.attributes[attr] instanceof adapters.BaseAdapter) {
                         model.fields[attr] = this.attributes[attr].getField();
                     }
                 }
@@ -134,7 +134,7 @@
         },
 
         /**
-         *
+         * Gets property grid row specifications for attributes
          * @returns {Array}
          * @private
          */
@@ -142,18 +142,17 @@
             var rows = [];
 
             //Add top, left, height, width, rotation
-            rows.push(new adapters.NumberAttributeAdapter({attributes:{'data-min': 0}}).getRow('top'));
-            rows.push(new adapters.NumberAttributeAdapter().getRow('left'));
-            rows.push(new adapters.NumberAttributeAdapter().getRow('height'));
-            rows.push(new adapters.NumberAttributeAdapter().getRow('width'));
-            rows.push(new adapters.NumberAttributeAdapter().getRow('rotate'));
+            rows.push(new adapters.NumberAdapter({attributes:{'data-min': 0}}).getRow('top'));
+            rows.push(new adapters.NumberAdapter().getRow('left'));
+            rows.push(new adapters.NumberAdapter().getRow('height'));
+            rows.push(new adapters.NumberAdapter().getRow('width'));
+            rows.push(new adapters.NumberAdapter().getRow('rotate'));
 
             //Add other attributes
             for(var attr in this.attributes) {
                 if (this.attributes.hasOwnProperty(attr)) {
-                    if (this.attributes[attr] instanceof adapters.AttributeAdapter) {
+                    if (this.attributes[attr] instanceof adapters.BaseAdapter) {
                         rows.push(this.attributes[attr].getRow('attributes.' + attr));
-                        //rows.push(this.attributes[attr].getRow(attr));
                     }
                 }
             }
@@ -161,24 +160,39 @@
         },
 
         /**
-         * Initializes properties
-         * @method _initProperties
-         * @returns {{}}
+         * Get a kendo.data.Model for properties
+         * @method _getPropertyModel
+         * @returns {kendo.data.Model}
          * @private
          */
-        _initProperties: function() {
-            var properties = {};
+        _getPropertyModel: function() {
+            var model = { fields: {} };
             for(var prop in this.properties) {
                 if (this.properties.hasOwnProperty(prop)) {
-                    if (this.properties[prop] instanceof adapters.PropertyAdapter) {
-                        properties[prop] = {
-                            name: this.properties[prop].getName(),
-                            value: this.properties[prop].getValue()
-                        };
+                    if (this.properties[prop] instanceof adapters.BaseAdapter) {
+                        model.fields[prop] = this.properties[prop].getField();
                     }
                 }
             }
-            return properties;
+            return kendo.data.Model.define(model);
+        },
+
+        /**
+         * Gets property grid row specifications for properties
+         * @returns {Array}
+         * @private
+         */
+        _getPropertyRows: function() {
+            var rows = [];
+
+            for(var prop in this.properties) {
+                if (this.properties.hasOwnProperty(prop)) {
+                    if (this.properties[prop] instanceof adapters.BaseAdapter) {
+                        rows.push(this.properties[prop].getRow('properties.' + prop));
+                    }
+                }
+            }
+            return rows;
         },
 
         /**
@@ -194,12 +208,26 @@
         // onRotate(e.item)
     });
 
+    /**
+     * Static factory for a bag of standard properties
+     */
+    kidoju.Tool.getStandardProperties = function() {
+        return {
+            name: new adapters.NameAdapter({ title: 'Name' }),
+            validation: new adapters.ValidationAdapter({ title: 'Validation' }),
+            success: new adapters.ScoreAdapter({ title: 'Success' }),
+            failure: new adapters.ScoreAdapter({ title: 'Failure' }),
+            omit: new adapters.ScoreAdapter({ title: 'Omit' })
+        };
+    };
+
     /*******************************************************************************************
-     * AttributeAdapter classes
+     * Adapter classes
+     * used to display values in a proprty grid
      *******************************************************************************************/
     var adapters = kidoju.adapters = {};
 
-    adapters.AttributeAdapter = kendo.Class.extend({
+    adapters.BaseAdapter = kendo.Class.extend({
 
         /**
          * Data type: string, number, boolean or date
@@ -298,11 +326,11 @@
     });
 
     /**
-     * String attribute adapter
+     * String adapter
      */
-    adapters.StringAttributeAdapter = adapters.AttributeAdapter.extend({
+    adapters.StringAdapter = adapters.BaseAdapter.extend({
         init: function(options) {
-            adapters.AttributeAdapter.fn.init.call(this, options);
+            adapters.BaseAdapter.fn.init.call(this, options);
             this.type = STRING;
             this.editor = 'textbox';
             this.defaultValue = this.defaultValue || (this.nullable ? null : '');
@@ -310,11 +338,11 @@
     });
 
     /**
-     * Number attribute adapter
+     * Number adapter
      */
-    adapters.NumberAttributeAdapter = adapters.AttributeAdapter.extend({
+    adapters.NumberAdapter = adapters.BaseAdapter.extend({
         init: function(options) {
-            adapters.AttributeAdapter.fn.init.call(this, options);
+            adapters.BaseAdapter.fn.init.call(this, options);
             this.type = NUMBER;
             this.defaultValue = this.defaultValue || (this.nullable ? null : 0);
             this.editor = '_kendoInput';
@@ -323,11 +351,11 @@
     });
 
     /**
-     * Boolean attribute adapter
+     * Boolean adapter
      */
-    adapters.BooleanAttributeAdapter = adapters.AttributeAdapter.extend({
+    adapters.BooleanAdapter = adapters.BaseAdapter.extend({
         init: function(options) {
-            adapters.AttributeAdapter.fn.init.call(this, options);
+            adapters.BaseAdapter.fn.init.call(this, options);
             this.type = BOOLEAN;
             this.defaultValue = this.defaultValue || (this.nullable ? null : false);
             this.editor = '_kendoInput';
@@ -336,11 +364,11 @@
     });
 
     /**
-     * Date attribute adapter
+     * Date adapter
      */
-    adapters.DateAttributeAdapter = adapters.AttributeAdapter.extend({
+    adapters.DateAdapter = adapters.BaseAdapter.extend({
         init: function(options) {
-            adapters.AttributeAdapter.fn.init.call(this, options);
+            adapters.BaseAdapter.fn.init.call(this, options);
             this.type = DATE;
             this.defaultValue = this.defaultValue || (this.nullable ? null : new Date());
             this.editor = '_kendoInput';
@@ -349,11 +377,11 @@
     });
 
     /**
-     * Style attribute adapter
+     * Style adapter
      */
-    adapters.StyleAttributeAdapter = adapters.AttributeAdapter.extend({
+    adapters.StyleAdapter = adapters.BaseAdapter.extend({
         init: function(options) {
-            adapters.AttributeAdapter.fn.init.call(this, options);
+            adapters.BaseAdapter.fn.init.call(this, options);
             this.type = STRING;
             this.defaultValue = this.defaultValue || (this.nullable ? null : '');
             this.editor = function(container, options) {
@@ -396,38 +424,20 @@
         }
     });
 
-    /*******************************************************************************************
-     * PropertyAdapter classes
-     *******************************************************************************************/
+    /**
+     * Property name adapter
+     */
+    adapters.NameAdapter = adapters.StringAdapter.extend({});
 
-    var PropertyAdapter = adapters.PropertyAdapter = kendo.Class.extend({
-        _prefix: 'prop',
-        value: undefined,
+    /**
+     * Property validation adapter
+     */
+    adapters.ValidationAdapter = adapters.BaseAdapter.extend({});
 
-
-        //TODO: For SATs consider points for right answer vs. points for wrong answer vs points for now answer
-
-        init: function(options) {
-            $.noop();
-        },
-        getName: function() {
-            //TODO: we should actually keep a counter and increment it to have prop_1, prop_2, ...
-            //or better, several counters, to have textbox1, label2, ... like in Visual Studio
-            var s = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-                name = this._prefix;
-            for (var i = 0; i < 4; i++) {
-                name += s.charAt(Math.floor(s.length*Math.random()));
-            }
-            return name;
-        },
-        getValue: function() {
-            return this.value;
-        }
-    });
-
-    adapters.TextPropertyAdapter = PropertyAdapter.extend({
-        _prefix: 'textbox_'
-    });
+    /**
+     * Property score adapter
+     */
+    adapters.ScoreAdapter = adapters.NumberAdapter.extend({});
 
     /*******************************************************************************************
      * Tool classes
@@ -456,13 +466,13 @@
         icon: 'document_orientation_landscape',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<span style="#= attributes.style #">#: attributes.text#</span>'
+            default: '<span style="#= attributes.style #">#: attributes.text #</span>'
         },
         height: 100,
         width: 300,
         attributes: {
-            text: new adapters.StringAttributeAdapter({ defaultValue: 'Label' }),
-            style: new adapters.StyleAttributeAdapter({ defaultValue: 'font-family: Georgia, serif; color: #FF0000;'})
+            text: new adapters.StringAdapter({ defaultValue: 'Label' }),
+            style: new adapters.StyleAdapter({ defaultValue: 'font-family: Georgia, serif; color: #FF0000;'})
         },
 
         /**
@@ -539,8 +549,8 @@
         height: 250,
         width: 250,
         attributes: {
-            src: new adapters.StringAttributeAdapter(),
-            alt: new adapters.StringAttributeAdapter()
+            src: new adapters.StringAdapter(),
+            alt: new adapters.StringAdapter()
         },
         /**
          * Get Html content
@@ -588,16 +598,14 @@
         icon: 'text_field',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<input type="text" style="#= attributes.style #" data-bind="value: #: properties.text.name #">'
+            default: '<input type="text" style="#= attributes.style #" data-bind="value: #: properties.name #">'
         },
         height: 100,
         width: 300,
         attributes: {
-            style: new adapters.StyleAttributeAdapter()
+            style: new adapters.StyleAdapter()
         },
-        properties: {
-            text: new adapters.TextPropertyAdapter()
-        },
+        properties: kidoju.Tool.getStandardProperties(),
         /**
          * Get Html content
          * @method getHtml
@@ -651,9 +659,11 @@
         height: 100,
         width: 300,
         attributes: {
-            style: new adapters.StyleAttributeAdapter(),
-            text: new adapters.StringAttributeAdapter({ defaultValue: 'Button' })
+            style: new adapters.StyleAdapter(),
+            text: new adapters.StringAdapter({ defaultValue: 'Button' })
         },
+        properties: kidoju.Tool.getStandardProperties(),
+
         /**
          * Get Html content
          * @method getHtml

@@ -139,28 +139,16 @@
                     //Cast with Model
                     that.set('attributes', new Attributes(attributes));
 
+                    //Let the tool build a kendo.data.Model for properties to allow validation in the property grid
+                    var Properties = tool._getPropertyModel(),
                     //Extend item properties with possible new properties as tools improve
-                    that.properties = $.extend({}, tool._initProperties(), that.properties);
+                        properties = $.extend({}, Properties.prototype.defaults, that.properties);
+                    //Cast with Model
+                    that.set('properties', new Properties(properties));
+
                 }
             }
-        }/*,
-        getAttributes: function() {
-            //TODO: think about returning a kendo ui data.Model
-            var attributes = this.get('attributes');
-            if ($.type(attributes) === STRING) {
-                return JSON.parse(attributes);
-            } else {
-                return {};
-            }
-        },
-        getProperties: function() {
-            var properties = this.get('properties');
-            if ($.type(properties) === STRING) {
-                return JSON.parse(properties);
-            } else {
-                return {};
-            }
-        }*/
+        }
     });
 
     /**

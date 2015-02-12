@@ -175,7 +175,9 @@
          */
         selection: function(value) {
             var that = this;
-            if (value !== undefined) {
+            if (value === null) {
+                $.noop(); //TODO
+            } else if (value !== undefined) {
                 if (!(value instanceof kidoju.PageItem)) {
                     throw new TypeError();
                 }

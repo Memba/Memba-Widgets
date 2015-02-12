@@ -27,7 +27,7 @@
 <h3>Attributes</h3>
 <div id="grid1" data-role="propertygrid" data-bind="properties: current"></div>
 <h3>Properties</h3>
-<!--TODO div id="grid2" data-role="propertygrid" data-bind="properties: current"></div-->
+<div id="grid2" data-role="propertygrid" data-bind="properties: current"></div>
 <script>
     var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({
             data: [
@@ -90,21 +90,28 @@
             items: pageItemCollectionDataSource,
             current: null
         });
+
         viewModel.bind('change', function(e) {
             if(e.field === 'current') {
-                var tool = kidoju.tools[e.sender.current.tool];
-                var grid = $('#grid1').data('kendoPropertyGrid');
-                var rows = tool._getAttributeRows();
-                if (grid) {
-                    grid.rows(rows);
+                var grid1 = $('#grid1').data('kendoPropertyGrid'),
+                    grid2 = $('#grid2').data('kendoPropertyGrid'),
+                    tool = kidoju.tools[e.sender.current.tool],
+                    rows1 = tool._getAttributeRows();
+                var rows2 = tool._getPropertyRows();
+                if (grid1) {
+                    grid1.rows(rows1);
+                }
+                if (grid2) {
+                    grid2.rows(rows2);
                 }
             }
         });
 
     $(document).ready(function() {
+
+        kendo.bind('body', viewModel);
         pageItemCollectionDataSource.fetch(function() {
             viewModel.set('current', pageItemCollectionDataSource.at(1));
-            kendo.bind('body', viewModel);
         });
     });
 </script>

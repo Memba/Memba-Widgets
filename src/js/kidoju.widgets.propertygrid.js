@@ -97,7 +97,12 @@
          */
         properties: function (object) {
             var that = this;
-            if (object !== undefined) {
+            if (object === null) {
+                if (!$.isEmptyObject(that.options.properties)) {
+                    that.options.properties = {};
+                    that.refresh();
+                }
+            } else if (object !== undefined) {
                 if($.type(object) !== OBJECT) {
                     throw new TypeError('Properties should be an object');
                 }
@@ -175,24 +180,22 @@
         refresh: function() {
 
             var that = this,
-                properties = that.options.properties;
-
-            //We need an observable object to display in the property grid: we check current object and parent
-            //if (!(properties instanceof kendo.Observable) &&
-            //    !($.isFunction(properties.parent) && properties.parent() instanceof kendo.Observable)) {
-            //    that.options.properties = kendo.observable(that.options.properties);
-            //}
-
-            var tbody = $(that.element).find(TBODY).first(),
-                rowTemplate = kendo.template(that.options.templates.row),
-                altRowTemplate = kendo.template(that.options.templates.altRow),
-                rows = that._buildRows(),
-                discarded = 0;
+                properties = that.options.properties,
+                tbody = $(that.element).find(TBODY).first();
 
             kendo.unbind(tbody);
             kendo.destroy(tbody);
             tbody.find('*').off();
             tbody.empty();
+
+            if($.type(properties) !== OBJECT) {
+                return;
+            }
+
+            var rowTemplate = kendo.template(that.options.templates.row),
+                altRowTemplate = kendo.template(that.options.templates.altRow),
+                rows = that._buildRows(),
+                discarded = 0;
 
             for (var idx = 0; idx < rows.length; idx++) {
                 var row = rows[idx];
@@ -224,7 +227,7 @@
         _buildRows: function (){
             var that = this,
                 rows = [],
-                hasRows = $.isArray(that.options.rows) && that.options.rows.length > 0;
+                hasRows = $.isArray(that.options.rows); //&& that.options.rows.length > 0;
 
             // that.options.rows gives:
             // - field (name) - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.field

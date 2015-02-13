@@ -2,17 +2,106 @@
     {
         "id": "29c14ae2-496b-49f5-9551-e0d7e4aa6032",
         "items": [
-            { "id": "be1935d0-ff0e-4818-a5a8-762127f3b506", "tool": "image", "top": 50, "left": 100, "height": 250, "width": 250, "rotate": 45, "properties": "{ \"src\": \"http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png\" }" },
-            { "id": "75cecd51-dff0-4633-a421-dcdb5220fed5", "tool": "image", "top": 300, "left": 300, "height": 250, "width": 250, "rotate": 315, "properties": "{ \"src\": \"http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg\" }" },
-            { "id": "f2b4179e-3189-401b-bb17-65ceaf62b1eb", "tool": "label", "top": 250, "left": 500, "height": 100, "width": 300, "rotate": 90, "properties": "{ \"font\": \"Georgia, serif\", \"color\": \"#FF0000\", \"text\": \"World\" }" },
-            { "id": "c3d46312-07c3-44dc-a1c9-987654949927", "tool": "textbox", "top": 20, "left": 20, "height": 100, "width": 300, "rotate": 0, "properties": "{}" }
+            {
+                "id": "be1935d0-ff0e-4818-a5a8-762127f3b506",
+                "tool": "image",
+                "top": 50,
+                "left": 370,
+                "height": 250,
+                "width": 250,
+                "rotate": 0,
+                "attributes": {
+                    "src": "//marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png"
+                }
+            },
+            {
+                "id": "f2b4179e-3189-401b-bb17-65ceaf62b1eb",
+                "tool": "label",
+                "top": 300,
+                "left": 300,
+                "height": 100,
+                "width": 300,
+                "rotate": 0,
+                "attributes": {
+                    "style": "font-family: Georgia, serif; color: #0000FF;",
+                    "text": "Company?"
+                }
+            },
+            {
+                "id": "c3d46312-07c3-44dc-a1c9-987654949927",
+                "tool": "textbox",
+                "top": 450,
+                "left": 350,
+                "height": 100,
+                "width": 300,
+                "rotate": 0,
+                "attributes": {},
+                "properties": {
+                    "name": "textfield1"
+                }
+            }
         ]
     },
     {
         "id": "c0878ced-8e3f-4161-a83a-049caed02d53",
         "items": [
-            { "id": "c745e385-d409-40d0-a4d7-1b7c14abc2f6", "tool": "label", "top": 250, "left": 500, "height": 100, "width": 300, "rotate": 90, "properties": "{ \"font\": \"Georgia, serif\", \"color\": \"#FF0000\", \"text\": \"World\" }" },
-            { "id": "25bd6088-dc9f-4c9c-a697-be32b8673ba9", "tool": "textbox", "top": 20, "left": 20, "height": 100, "width": 300, "rotate": 0, "properties": "{}" }
+            {
+                "id": "c745e385-d409-40d0-a4d7-1b7c14abc2f6",
+                "tool": "label",
+                "top": 150,
+                "left": 280,
+                "height": 100,
+                "width": 300,
+                "rotate": 0,
+                "attributes": {
+                    "style": "font-family: Georgia, serif; color: #FF0000;",
+                    "text": "Marignan?"
+                }
+            },
+            {
+                "id": "25bd6088-dc9f-4c9c-a697-be32b8673ba9",
+                "tool": "textbox",
+                "top": 300,
+                "left": 330,
+                "height": 100,
+                "width": 300,
+                "rotate": 0,
+                "attributes": {},
+                "properties": {
+                    "name": "textfield2"
+                }
+            }
+        ]
+    },
+    {
+        "id": "9e3803f8-a91c-408e-bded-d1b86c68723c",
+        "items": [
+            {
+                "id": "f6725a70-20b2-4adf-8b3a-a2d3f84da50d",
+                "tool": "label",
+                "top": 120,
+                "left": 280,
+                "height": 150,
+                "width": 400,
+                "rotate": 0,
+                "attributes": {
+                    "style": "font-family: Georgia, serif; color: #00FF00;",
+                    "text": "Couleur du cheval blanc d'Henri IV?"
+                }
+            },
+            {
+                "id": "3894e35b-b740-46c8-be24-21f4a3b9c24d",
+                "tool": "textbox",
+                "top": 300,
+                "left": 330,
+                "height": 100,
+                "width": 300,
+                "rotate": 0,
+                "attributes": {},
+                "properties": {
+                    "name": "textfield3"
+                }
+            }
         ]
     }
 ]

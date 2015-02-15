@@ -137,14 +137,19 @@
                     //Extend item attributes with possible new attributes as tools improve
                         attributes = $.extend({}, Attributes.prototype.defaults, that.attributes);
                     //Cast with Model
-                    that.set('attributes', new Attributes(attributes));
+                    //that.set('attributes', new Attributes(attributes)); //<--- this sets the dirty flag and raises the change event
 
                     //Let the tool build a kendo.data.Model for properties to allow validation in the property grid
                     var Properties = tool._getPropertyModel(),
                     //Extend item properties with possible new properties as tools improve
                         properties = $.extend({}, Properties.prototype.defaults, that.properties);
                     //Cast with Model
-                    that.set('properties', new Properties(properties));
+                    //that.set('properties', new Properties(properties)); //<--- this sets the dirty flag and raises the change event
+
+                    that.accept({ //<---- this neither sets teh dirty flag nor raises the change event
+                        attributes: new Attributes(attributes),
+                        properties: new Properties(properties)
+                    });
 
                 }
             }
@@ -225,12 +230,16 @@
     var PageItemCollectionDataSource =  kidoju.PageItemCollectionDataSource = DataSource.extend({
         init: function(options) {
 
-            DataSource.fn.init.call(this, $.extend(true, {}, {
+            if(options && options.schema && options.schema.model !== PageItem) {
+                throw new Error('PageItemCollectionDataSource sets PageItem as the schema model');
+            }
+
+            DataSource.fn.init.call(this, $.extend(true, {}, options, {
                 schema: {
                     modelBase: PageItem,
                     model: PageItem
                 }
-            }, options));
+            }));
 
             this.reader = new PageItemCollectionDataReader(this.options.schema, this.reader);
         },
@@ -281,7 +290,7 @@
      * @type {void|*}
      */
     var Page = kidoju.Page = Model.define({
-        id: 'id',
+        id: 'id', //idField: 'id',
         fields: {
             id: {
                 type: STRING,
@@ -290,6 +299,7 @@
             }
             //background image and color?
         },
+
         init: function(value) {
             var that = this;//,
                 //hasItems = that.hasItems || value && value.hasItems,
@@ -308,7 +318,8 @@
                     data: itemsField,
                     model: {
                         hasItems: hasItems,
-                        id: that.idField
+                        id: that.idField,
+                        fields: that.fields
                     }
                 }
             };
@@ -347,7 +358,6 @@
             //}
 
             //that._loaded = !!(value && (value[itemsField] || value._loaded));
-
             that._loaded = !!(value && (value.items || value._loaded));
         },
 
@@ -361,11 +371,11 @@
                 transport = items.transport;
                 parameterMap = transport.parameterMap;
 
-                transport.parameterMap = function(data) {
-                    data[that.idField || 'id'] = that.id;
+                transport.parameterMap = function(data, type) {
+                    data[that.idField || "id"] = that.id;
 
                     if (parameterMap) {
-                        data = parameterMap(data);
+                        data = parameterMap(data, type);
                     }
 
                     return data;
@@ -414,7 +424,6 @@
             return level;
         },
 
-
         _updateItemsField: function() {
             var fieldName = this._itemsOptions.schema.data;
 
@@ -431,9 +440,10 @@
         load: function() {
             var options = {};
             var method = '_query';
-            var items;
+            var items, promise;
 
             //if (this.hasItems) {
+
                 this._initItems();
 
                 items = this.items;
@@ -446,10 +456,14 @@
                 }
 
                 items.one(CHANGE, $.proxy(this._itemsLoaded, this));
-                items[method](options);
+                promise = items[method](options);
+
             //} else {
             //    this.loaded(true);
             //}
+
+            return promise || $.Deferred().resolve().promise();
+
         },
 
         /*
@@ -520,12 +534,16 @@
     var PageCollectionDataSource =  kidoju.PageCollectionDataSource = DataSource.extend({
         init: function(options) {
 
-            DataSource.fn.init.call(this, $.extend(true, {}, {
+            if(options && options.schema && options.schema.model !== Page) {
+                throw new Error('PageCollectionDataSource sets Page as the schema model');
+            }
+
+            DataSource.fn.init.call(this, $.extend(true, {}, options, {
                 schema: {
                     modelBase: Page,
                     model: Page
                 }
-            }, options));
+            }));
 
             this.reader = new PageCollectionDataReader(this.options.schema, this.reader);
         },
@@ -549,8 +567,14 @@
             return DataSource.fn.remove.call(this, model);
         },
 
-        //TODO: rename into getModelFromProperties
+        /**
+         * Get an assessment object from properties
+         * @returns {*}
+         */
         getObjectFromProperties: function() {
+
+            //TODO: use $.when.apply($, promises).then(...)
+
             var obj = {},
                 pages = this.data();
             for (var i = 0; i < pages.length; i++) {
@@ -565,6 +589,9 @@
                     }
                 }
             }
+
+            //TODO we should return an object cast with a model with type and validation
+
             return kendo.observable (obj);
         }
     });

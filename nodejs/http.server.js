@@ -4,8 +4,7 @@
 
 //Install: add --debug=8081 in Node parameters
 
-var sys = require("sys"),
-    http = require("http"),
+var http = require("http"),
     path = require("path"),
     url = require("url"),
     fs = require("fs"),
@@ -24,12 +23,12 @@ var sys = require("sys"),
         'bin'   : 'application/octet-stream'
     };
 
-http.createServer(function(request,response){
+module.exports = http.createServer(function(request,response){
     //debugger;
     var uri = url.parse(request.url).pathname,
         filename = path.join(process.cwd(),uri);
-    sys.puts(request.url); //basic console.log
-    sys.puts(filename);
+    console.log(request.url); //basic console.log
+    console.log(filename);
     fs.exists(filename,function(exists){
         if(!exists){
             response.writeHeader(404, {'Content-Type': "text/plain"});
@@ -47,5 +46,5 @@ http.createServer(function(request,response){
         response.writeHead(200, { 'Content-Type': (types[type] || types['bin']) + '; charset=utf-8' });
         fs.createReadStream(filename).pipe(response);
     });
+    console.log("Server Running on port " + port.toString());
 }).listen(parseInt(port, 10));
-sys.puts("Server Running on port " + port.toString());

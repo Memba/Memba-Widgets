@@ -16,17 +16,6 @@
 
     describe('kidoju.tools', function() {
 
-        describe ('Create function from string', function() {
-
-            it('Execute string function', function() {
-                /* jshint -W054 */
-                var add = new Function('a', 'b', 'return a + b');
-                /* jshint +W054 */
-                expect(add(2,6)).to.equal(8);
-            });
-
-        });
-
         describe('Loading', function() {
 
             it('it should find kidoju.tools', function() {

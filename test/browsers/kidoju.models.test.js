@@ -70,6 +70,14 @@
         {id: 'b7a8cb70-b4e7-4b79-89dd-09225d05399c', title: 'The guns of Navarone'}
     ];
 
+    function dataUrl(file) {
+        if (window.__karma__) {
+            return '/base/test/data/' + file;
+        } else {
+            return '../data/' + file;
+        }
+    }
+
     /*********************************************************************************************************
      * PageItem
      *********************************************************************************************************/
@@ -228,6 +236,20 @@
                 });
             });
 
+            it('if initialized from a proper array, attributes and properties should be instances of kendo.data.Model', function(done) {
+                var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({ data: pageItemCollectionData });
+                expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model', kidoju.PageItem);
+                pageItemCollectionDataSource.read().then(function() {
+                    expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
+                    for (var i = 0; i < pageItemCollectionData.length; i++) {
+                        expect(pageItemCollectionDataSource.at(i).attributes).to.be.an.instanceof(kendo.data.Model);
+                        expect(pageItemCollectionDataSource.at(i).properties).to.be.an.instanceof(kendo.data.Model);
+                    }
+                    done();
+                });
+            });
+
+
             it('if initialized from a kendo.data.DataSource that is not a kendo.PageItemCollectionDataSource, it should throw', function () {
                 var testFn = function() {
                     var dataSource = kidoju.PageItemCollectionDataSource.create(new kendo.data.DataSource({ data: [] }));
@@ -277,7 +299,7 @@
                 var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({
                     transport: {
                         read: {
-                            url: '../data/pageItemCollection.json',
+                            url: dataUrl('pageItemCollection.json'),
                             dataType: 'json'
                         }
                     }
@@ -293,7 +315,8 @@
                         var pageItem = pageItemCollectionDataSource.at(0);
                         expect(pageItem).to.be.an.instanceof(kidoju.PageItem);
                         done();
-                    });
+                    }
+                );
             });
 
         });
@@ -595,7 +618,6 @@
                 });
             });
 
-
             it('if initialized from a kendo.data.DataSource, an exception should be raised', function () {
                 var fn = function () {
                     var dataSource = kidoju.PageCollectionDataSource.create(new kendo.data.DataSource({data: []}));
@@ -645,7 +667,7 @@
                 var pageCollectionDataSource = new kidoju.PageCollectionDataSource({
                     transport: {
                         read: {
-                            url: '../data/pageCollection.json',
+                            url: dataUrl('pageCollection.json'),
                             dataType: 'json'
                         }
                     }

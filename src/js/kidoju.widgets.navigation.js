@@ -389,6 +389,10 @@
                 navigation = that.element,
                 scale = (navigation.width() - 2 * parseInt(that.options.pageSpacing)) / that.options.pageWidth;
 
+            if (scale < 0) {
+                scale = 0;
+            }
+
             //TODO: we are not clear with borders here
             //we actually need the widget's outerWidth and outerHeight
             //becaus a border might be added to pageWidth and pageHeight

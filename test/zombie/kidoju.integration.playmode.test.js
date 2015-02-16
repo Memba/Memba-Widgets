@@ -9,30 +9,34 @@
 
 'use strict';
 
-var Browser = require('zombie');
-var expect = require('chai').expect;
+var Browser = require('zombie'),
+    expect = require('chai').expect;
+
+var httpServer, browser;
 
 describe('kidoju.integration.playmode.test.js', function() {
 
     before(function(done) {
         console.log('Start http server');
-        require('../../nodejs/http.server.js');
+        httpServer = require('../../nodejs/http.server.js');
         console.log('Initialize browser');
-        this.browser = new Browser();
+        browser = new Browser();
         console.log('Visit url');
-        this.browser.visit('http://localhost:8080/src/kidoju.integration.playmode.html', done);
+        browser.visit('http://localhost:8080/src/kidoju.integration.playmode.html', done);
     });
 
     describe('When page is loaded', function() {
         it('It should have a stage and a playbar', function() {
-            expect(this.browser.query('[data-role="stage"]')).to.be.ok;
-            expect(this.browser.query('[data-role="playbar"]')).to.be.ok;
+            expect(browser.query('[data-role="stage"]')).to.be.ok;
+            expect(browser.query('[data-role="playbar"]')).to.be.ok;
         });
     });
 
-    //after(function(done) {
-        //this.server.close(done);
-    //});
+    after(function(done) {
+        browser.close();
+        //httpServer.close(done);
+        done();
+    });
 
 });
 

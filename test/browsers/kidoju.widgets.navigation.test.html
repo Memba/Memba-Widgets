@@ -1,0 +1,41 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>kidoju.widgets.navigation.test</title>
+    <link href="../vendor/mocha.css" rel="stylesheet" />
+    <link href="../../src/styles/vendor/kendo.common.min.css" rel="stylesheet" />
+    <link href="../../src/styles/vendor/kendo.default.min.css" rel="stylesheet" />
+    <link href="../vendor/mocha.css" rel="stylesheet" />
+    <script src="../vendor/mocha.js"></script>
+    <script src="../vendor/chai.js"></script>
+    <!--script src="../vendor/blanket.min.js" data-cover-adapter="../vendor/mocha-blanket.js"></script-->
+    <!--script src="../vendor/blanket.min.js" data-cover-flags="debug" data-cover-adapter="../vendor/mocha-blanket.js"></script-->
+    <!--script src="http://code.jquery.com/jquery-1.9.1.min.js"></script-->
+    <script src="../../src/js/vendor/jquery.min.js"></script>
+    <script src="../vendor/chai-jquery.js"></script>
+    <!--script src="http://cdn.kendostatic.com/2014.3.1411/js/kendo.all.min.js"></script-->
+    <script src="../../src/js/vendor/kendo.all.min.js"></script>
+    <!--script src="../../temp/2014.3.1411/src/src/kendo.core.js"></script>
+    <script src="../../temp/2014.3.1411/src/src/kendo.data.js"></script>
+    <script src="../../temp/2014.3.1411/src/src/kendo.binder.js"></script-->
+    <script>
+        mocha.setup('bdd');
+    </script>
+    <!-- Navigation requirements -->
+    <!--link href="../../src/styles/kidoju.widgets.navigation.css" rel="stylesheet"-->
+    <script src="../../src/js/kidoju.models.js"></script>
+    <script src="../../src/js/kidoju.tools.js"></script>
+    <script src="../../src/js/kidoju.widgets.navigation.js" data-cover></script>
+</head>
+<body>
+<div id="mocha"></div>
+<div id="fixtures"></div>
+<script src="kidoju.widgets.navigation.test.js"></script>
+<script>
+    mocha.checkLeaks().globals(['jQuery', 'kendo', 'kidoju', 'chai']);
+    if (!window.blanket && !window.PHANTOMJS) {
+        mocha.run();
+    }
+</script>
+</body>
+</html>

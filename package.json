@@ -1,62 +1,64 @@
 {
-    "name": "Kidoju.Widgets",
-    "filename": "kidoju.widgets",
-    "description": "Kendo UI Widgets for the Kidoju platform",
-    "version": "0.0.1",
-    "author": "Memba Sarl",
-    "copyright": "Copyright ©2013-2014 Memba® Sarl. All rights reserved.",
-    "homepage": "http://widgets.kidoju.com",
-    "keywords": [
-        "Memba",
-        "Kidoju",
-        "Kendo UI",
-        "Javascript",
-        "Widgets"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/Memba/Kidoju-Widgets.git"
-    },
-    "bugs": {
-        "url": "https://github.com/Memba/Kidoju-Widgets/issues"
-    },
-    "licenses": [
-        {
-            "type": "GPL-3.0",
-            "url": "https://raw.github.com/Memba/Kidoju-Widgets/master/LICENSE-GPL"
-        }
-    ],
-    "scripts": {
-        "start": "node ./nodejs/http.server.js",
-        "test": "grunt test"
-    },
-    "devDependencies": {
-        "chai": "^2.0.0",
-        "grunt": "^0.4.5",
-        "grunt-contrib-clean": "^0.6.0",
-        "grunt-contrib-concat": "^0.5.0",
-        "grunt-contrib-copy": "^0.7.0",
-        "grunt-contrib-csslint": "^0.4.0",
-        "grunt-contrib-cssmin": "^0.12.1",
-        "grunt-contrib-imagemin": "^0.9.3",
-        "grunt-contrib-jshint": "^0.11.0",
-        "grunt-contrib-uglify": "^0.7.0",
-        "grunt-contrib-watch": "^0.6.1",
-        "grunt-jsdoc": "^0.5.8",
-        "grunt-kendo-lint": "0.0.3",
-        "grunt-mocha": "^0.4.11",
-        "grunt-mocha-test": "^0.12.7",
-        "karma": "^0.12.31",
-        "karma-chai": "^0.1.0",
-        "karma-chrome-launcher": "^0.1.7",
-        "karma-coverage": "^0.2.7",
-        "karma-firefox-launcher": "^0.1.4",
-        "karma-ie-launcher": "^0.1.5",
-        "karma-mocha": "^0.1.10",
-        "karma-phantomjs-launcher": "^0.1.4",
-        "karma-safari-launcher": "^0.1.1",
-        "karma-sauce-launcher": "^0.2.10",
-        "mocha": "^2.1.0",
-        "zombie": "^2.5.1"
+  "name": "Kidoju.Widgets",
+  "filename": "kidoju.widgets",
+  "description": "Kendo UI Widgets for the Kidoju platform",
+  "version": "0.0.1",
+  "author": "Memba Sarl",
+  "copyright": "Copyright ©2013-2014 Memba® Sarl. All rights reserved.",
+  "homepage": "http://widgets.kidoju.com",
+  "keywords": [
+    "Memba",
+    "Kidoju",
+    "Kendo UI",
+    "Javascript",
+    "Widgets"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Memba/Kidoju-Widgets.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Memba/Kidoju-Widgets/issues"
+  },
+  "licenses": [
+    {
+      "type": "GPL-3.0",
+      "url": "https://raw.github.com/Memba/Kidoju-Widgets/master/LICENSE-GPL"
     }
+  ],
+  "scripts": {
+    "start": "node ./nodejs/http.server.js",
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "chai": "^2.0.0",
+    "grunt": "^0.4.5",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-copy": "^0.7.0",
+    "grunt-contrib-csslint": "^0.4.0",
+    "grunt-contrib-cssmin": "^0.12.1",
+    "grunt-contrib-imagemin": "^0.9.3",
+    "grunt-contrib-jshint": "^0.11.0",
+    "grunt-contrib-uglify": "^0.7.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-jsdoc": "^0.5.8",
+    "grunt-kendo-lint": "0.0.3",
+    "grunt-mocha": "^0.4.11",
+    "grunt-mocha-test": "^0.12.7",
+    "karma": "^0.12.31",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^0.1.7",
+    "karma-coverage": "^0.2.7",
+    "karma-firefox-launcher": "^0.1.4",
+    "karma-ie-launcher": "^0.1.5",
+    "karma-mocha": "^0.1.10",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "karma-safari-launcher": "^0.1.1",
+    "karma-sauce-launcher": "^0.2.10",
+    "karma-sinon": "^1.0.4",
+    "mocha": "^2.1.0",
+    "sinon": "^1.12.2",
+    "zombie": "^2.5.1"
+  }
 }

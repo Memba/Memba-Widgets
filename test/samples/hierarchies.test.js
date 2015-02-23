@@ -66,6 +66,11 @@
             lastName: {
                 type: 'string'
             }
+        },
+        schema: {
+            model: {
+                hasChildren: true
+            }
         }
     });
 
@@ -94,7 +99,7 @@
 
     describe('Test complex models', function() {
 
-        it('Test composition', function() {
+        it('Test observable composition', function() {
             var viewModel = kendo.observable({
                 obj1: {
                     obj2: {
@@ -110,7 +115,7 @@
 
         //See: http://www.telerik.com/forums/best-way-to-check-that-properties-of-an-observable-are-observable
 
-        it('Test submodels', function() {
+        it('Test model composition', function() {
             var attributes = new Attributes({alt: 'Google', src: 'http://www.google.com/logo.jpg', style: 'height: 100px; width: 100px;'}),
                 item = new Item({title:'sample image', attributes: attributes}),
                 viewModel = kendo.observable({ item: item });
@@ -120,6 +125,21 @@
             expect(viewModel.item.attributes).to.be.an.instanceof(Attributes);
             expect(viewModel.item.attributes).to.be.an.instanceof(kendo.data.Model);
             expect(viewModel.item.attributes).to.be.an.instanceof(kendo.Observable);
+        });
+
+
+        it('Test submodel definition', function() {
+            var SubItem = Item.define({ parts: new kendo.data.ObservableArray([]) }),
+                subItem = new SubItem({title:'sample image'});
+            expect(subItem).to.be.an.instanceof(SubItem);
+            expect(subItem).to.be.an.instanceof(Item);
+            expect(subItem).to.be.an.instanceof(kendo.data.Model);
+            expect(subItem).to.be.an.instanceof(kendo.Observable);
+        });
+
+        it('Test node initialization', function() {
+            var author = new Author({dummy: true});
+            $.noop();
 
         });
 
@@ -154,6 +174,100 @@
                         done();
                     });
                 });
+            });
+
+            xit('if initialized from multiple service points', function() {
+
+                //http://docs.telerik.com/kendo-ui/framework/hierarchicaldatasource/overview#binding-a-hierarchicaldatasource-to-remote-data-with-multiple-service-end-points
+
+                var categories = new kendo.data.HierarchicalDataSource({
+                    transport: {
+                        read: {
+                            url: "http://demos.telerik.com/kendo-ui/service/Categories",
+                            dataType: "json"
+                        }
+                    },
+                    schema: {
+                        data: "categories",
+                        model: {
+                            id: "categoryId",
+
+                            // categories will always have children
+                            hasChildren: true,
+
+                            // children will be fetched from the Products end-point
+                            children: {
+                                transport: {
+                                    read: {
+                                        url: "http://demos.telerik.com/kendo-ui/service/Products",
+                                        dataType: "json"
+                                    }
+                                },
+                                schema: {
+                                    data: "products",
+                                    model: {
+                                        // products will never have children
+                                        hasChildren: false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                categories.read.always(function() {
+                    $.noop();
+                });
+
+            });
+
+            xit('if initialized from multiple service points', function(done) {
+
+                //http://docs.telerik.com/kendo-ui/framework/hierarchicaldatasource/overview#binding-a-hierarchicaldatasource-to-remote-data-with-multiple-service-end-points
+                var guid = kendo.guid();
+
+                var categories = new kendo.data.HierarchicalDataSource({
+                    transport: {
+                        read: function(options) {
+                            window.console.log('read categories');
+                            options.success([{ categoryId: guid, name: 'Miscellaneous' }]);
+                        }
+                    },
+                    schema: {
+                        //data: "categories",
+                        model: {
+                            id: "categoryId",
+
+                            // categories will always have children
+                            hasChildren: true,
+
+                            // children will be fetched from the Products end-point
+                            children: {
+                                transport: {
+                                    read: {
+                                        url: "http://demos.telerik.com/kendo-ui/service/Products",
+                                        dataType: "json"
+                                    }
+                                },
+                                schema: {
+                                    //data: "products",
+                                    model: {
+                                        // products will never have children
+                                        hasChildren: false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                categories.read().always(function() {
+                    categories.at(0).load().always(function() {
+                        var t = categories.children.total();
+                        done();
+                    });
+                });
+
             });
 
         });

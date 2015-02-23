@@ -31,7 +31,6 @@
         ERROR = 'error',
 
         //Defaults
-        ZERO_GUID = '00000000-0000-0000-0000-000000000000',
         ZERO_NUMBER = 0,
         NEGATIVE_NUMBER = -1,
 
@@ -63,7 +62,6 @@
         fields: {
             id: {
                 type: STRING,
-                defaultValue: ZERO_GUID,
                 editable: false
             },
             tool: {
@@ -188,6 +186,24 @@
     }
 
     /**
+     *
+     * @param name
+     * @returns {Function}
+     */
+    function dataMethod(name) {
+        return function() {
+            var data = this._data,
+                result = DataSource.fn[name].apply(this, [].slice.call(arguments));
+
+            if (this._data != data) {
+                this._attachBubbleHandlers();
+            }
+
+            return result;
+        };
+    }
+
+    /**
      * @class PageItemCollectionDataReader
      * @type {*}
      */
@@ -230,7 +246,7 @@
     var PageItemCollectionDataSource =  kidoju.PageItemCollectionDataSource = DataSource.extend({
         init: function(options) {
 
-            if(options && options.schema && options.schema.model !== PageItem) {
+            /*if(options && options.schema && options.schema.model !== PageItem) {
                 throw new Error('PageItemCollectionDataSource sets PageItem as the schema model');
             }
 
@@ -240,9 +256,24 @@
                     model: PageItem
                 }
             }));
+            */
+
+            var pageItem = PageItem.define({
+                items: options
+            });
+
+            DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: pageItem, model: pageItem } }, options));
 
             this.reader = new PageItemCollectionDataReader(this.options.schema, this.reader);
         },
+
+        remove: function(model) {
+            return DataSource.fn.remove.call(this, model);
+        },
+
+        //success: dataMethod("success"),
+
+        //data: dataMethod("data"),
 
         insert: function(index, model) {
             if (!model) {
@@ -257,10 +288,6 @@
             }
 
             return DataSource.fn.insert.call(this, index, model);
-        },
-
-        remove: function(model) {
-            return DataSource.fn.remove.call(this, model);
         }
 
     });
@@ -290,74 +317,42 @@
      * @type {void|*}
      */
     var Page = kidoju.Page = Model.define({
-        id: 'id', //idField: 'id',
+
+        id: 'id',
         fields: {
             id: {
                 type: STRING,
-                defaultValue: ZERO_GUID,
                 editable:false
+            },
+            style: {
+                type: STRING
             }
-            //background image and color?
         },
 
+        /**
+         * Constructor
+         * @param value
+         */
         init: function(value) {
-            var that = this;//,
-                //hasItems = that.hasItems || value && value.hasItems,
-                //itemsField = 'items',
-                //itemsOptions = {};
+            var that = this;
 
             Model.fn.init.call(that, value);
 
-            /*
-            if (typeof that.items === STRING) {
-                itemsField = that.items;
+            that._itemsOptions = {};
+
+            if($.isPlainObject(that.items)) {
+                $.extend(that._itemsOptions, that.items);
             }
 
-            itemsOptions = {
-                schema: {
-                    data: itemsField,
-                    model: {
-                        hasItems: hasItems,
-                        id: that.idField,
-                        fields: that.fields
-                    }
-                }
-            };
-
-            if (typeof that.items !== STRING) {
-                $.extend(itemsOptions, that.items);
-            }
-
-            itemsOptions.data = value;
-
-            if (!hasItems) {
-                hasItems = itemsOptions.schema.data;
-            }
-
-            if (typeof hasItems === STRING) {
-                hasItems = kendo.getter(hasItems);
-            }
-
-            if (isFunction(hasItems)) {
-                that.hasItems = !!hasItems.call(that, that);
-            }
-
-            that._itemsOptions = itemsOptions;
-            */
-
-            that._itemsOptions = {
-                data: that.items,
-                schema: {
-                    modelBase: PageItem,
-                    model: PageItem
-                }
-            };
-
-            //if (that.hasItems) {
-                that._initItems();
+            //if (that.schema && that.schema.model && that.schema.model.items && that.schema.model.items.transport) {
+            //    $.extend(that._itemsOptions, {transport: that.schema.model.items.transport});
             //}
 
-            //that._loaded = !!(value && (value[itemsField] || value._loaded));
+            if (value && $.isArray(value.items)) { //ObservableArray? PageItemDataSource?
+                $.extend(that._itemsOptions, {data: value.items});
+            }
+
+            that._initItems();
             that._loaded = !!(value && (value.items || value._loaded));
         },
 
@@ -398,8 +393,6 @@
                         collection.trigger(ERROR, e);
                     }
                 });
-
-                //that._updateItemsField();
             }
         },
 
@@ -409,32 +402,8 @@
             this.items.add(model);
         },
 
-        /*
-        hasItems: false,
-
-        level: function() {
-            var parentNode = this.parentNode(),
-                level = 0;
-
-            while (parentNode && parentNode.parentNode) {
-                level++;
-                parentNode = parentNode.parentNode ? parentNode.parentNode() : null;
-            }
-
-            return level;
-        },
-
-        _updateItemsField: function() {
-            var fieldName = this._itemsOptions.schema.data;
-
-            this[fieldName || 'items'] = this.items.data();
-        },
-        */
-
         _itemsLoaded: function() {
             this._loaded = true;
-
-            //this._updateItemsField();
         },
 
         load: function() {
@@ -466,14 +435,20 @@
 
         },
 
-        /*
-        parentNode: function() {
-            var array = this.parent();
-
-            return array.parent();
+        /**
+         * Get the parent stream
+         * @returns {*}
+         */
+        stream: function() {
+            var pageCollection = this.parent();
+            return pageCollection.parent();
         },
-        */
 
+        /**
+         * Gets or sets the loaded status of page items
+         * @param value
+         * @returns {boolean|*|Page._loaded}
+         */
         loaded: function(value) {
             if (value !== undefined) {
                 this._loaded = value;
@@ -482,6 +457,11 @@
             }
         },
 
+        /**
+         * Fields to serialize
+         * @param field
+         * @returns {*|boolean}
+         */
         shouldSerialize: function(field) {
             return Model.fn.shouldSerialize.call(this, field) &&
                 field !== 'items' &&
@@ -534,19 +514,33 @@
     var PageCollectionDataSource =  kidoju.PageCollectionDataSource = DataSource.extend({
         init: function(options) {
 
-            if(options && options.schema && options.schema.model !== Page) {
-                throw new Error('PageCollectionDataSource sets Page as the schema model');
-            }
+            var page = Page.define({
+                items: options
+            });
 
-            DataSource.fn.init.call(this, $.extend(true, {}, options, {
-                schema: {
-                    modelBase: Page,
-                    model: Page
-                }
-            }));
+            DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: page, model: page } }, options));
 
             this.reader = new PageCollectionDataReader(this.options.schema, this.reader);
+
+            this._attachBubbleHandlers();
+
         },
+
+        _attachBubbleHandlers: function() {
+            var that = this;
+
+            that._data.bind(ERROR, function(e) {
+                that.trigger(ERROR, e);
+            });
+        },
+
+        remove: function(model) {
+            return DataSource.fn.remove.call(this, model);
+        },
+
+        //success: dataMethod("success"),
+
+        //data: dataMethod("data"),
 
         insert: function(index, model) {
             if (!model) {
@@ -561,10 +555,6 @@
             }
 
             return DataSource.fn.insert.call(this, index, model);
-        },
-
-        remove: function(model) {
-            return DataSource.fn.remove.call(this, model);
         },
 
         /**
@@ -623,13 +613,166 @@
         fields: {
             id: {
                 type: STRING,
-                defaultValue: ZERO_GUID,
                 editable:false
             }
-            //background image and color?
+            //TODO: register assets
         },
+
+        /**
+         * Constructor
+         * @param value
+         */
         init: function(value) {
-            var that = this;//,
+            var that = this;
+
+            Model.fn.init.call(that, value);
+
+            that._pagesOptions = {};
+
+            if($.isPlainObject(that.pages)) {
+                $.extend(that._pagesOptions, that.pages);
+            }
+
+            if (value && value.pages) {
+                $.extend(that._pagesOptions, {data: value.pages});
+            }
+
+            that._initPages();
+
+            that._loaded = !!(value && (value.pages || value._loaded));
+        },
+
+        /**
+         *
+         * @private
+         */
+        _initPages: function() {
+            var that = this;
+            var pages, transport, parameterMap;
+
+            if (!(that.pages instanceof PageCollectionDataSource)) {
+                pages = that.pages = new PageCollectionDataSource(that._pagesOptions);
+
+                transport = pages.transport;
+                parameterMap = transport.parameterMap;
+
+                transport.parameterMap = function(data, type) {
+                    data[that.idField || "id"] = that.id;
+
+                    if (parameterMap) {
+                        data = parameterMap(data, type);
+                    }
+
+                    return data;
+                };
+
+                pages.parent = function(){
+                    return that;
+                };
+
+                pages.bind(CHANGE, function(e){
+                    e.node = e.node || that;
+                    that.trigger(CHANGE, e);
+                });
+
+                pages.bind(ERROR, function(e){
+                    var collection = that.parent();
+
+                    if (collection) {
+                        e.node = e.node || that;
+                        collection.trigger(ERROR, e);
+                    }
+                });
+
+                //that._updatePagesField();
+            }
+        },
+
+        /**
+         * Append a page
+         * @param model
+         */
+        append: function(model) {
+            this._initPages();
+            this.loaded(true);
+            this.pages.add(model);
+        },
+
+        /**
+         *
+         * @private
+         */
+        _pagesLoaded: function() {
+            this._loaded = true;
+        },
+
+        /**
+         * Load pages
+         * @returns {*}
+         */
+        load: function() {
+            var options = {};
+            var method = '_query';
+            var pages, promise;
+
+            //if (this.hasPages) {
+
+            this._initPages();
+
+            pages = this.pages;
+
+            options[this.idField || 'id'] = this.id;
+
+            if (!this._loaded) {
+                pages._data = undefined;
+                method = 'read';
+            }
+
+            pages.one(CHANGE, $.proxy(this._pagesLoaded, this));
+            promise = pages[method](options);
+
+            //} else {
+            //    this.loaded(true);
+            //}
+
+            return promise || $.Deferred().resolve().promise();
+
+        },
+
+        /**
+         * Save
+         */
+        save: function() {
+            var promises = [];
+
+            //TODO
+
+            return $.when.apply($, promises);
+        },
+
+        /**
+         *
+         * @param value
+         * @returns {boolean|*}
+         */
+        loaded: function(value) {
+            if (value !== undefined) {
+                this._loaded = value;
+            } else {
+                return this._loaded;
+            }
+        },
+
+        /**
+         * Checks whether field should be serialized
+         * @param field
+         * @returns {*|boolean}
+         */
+        shouldSerialize: function(field) {
+            return Model.fn.shouldSerialize.call(this, field) &&
+                field !== 'pages' &&
+                field !== '_loaded' &&
+                field !== '_pagesOptions';
         }
     });
 

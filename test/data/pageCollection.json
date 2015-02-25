@@ -1,7 +1,7 @@
 [
     {
         "id": "29c14ae2-496b-49f5-9551-e0d7e4aa6032",
-        "items": [
+        "components": [
             {
                 "id": "be1935d0-ff0e-4818-a5a8-762127f3b506",
                 "tool": "image",
@@ -44,7 +44,7 @@
     },
     {
         "id": "c0878ced-8e3f-4161-a83a-049caed02d53",
-        "items": [
+        "components": [
             {
                 "id": "c745e385-d409-40d0-a4d7-1b7c14abc2f6",
                 "tool": "label",
@@ -75,7 +75,7 @@
     },
     {
         "id": "9e3803f8-a91c-408e-bded-d1b86c68723c",
-        "items": [
+        "components": [
             {
                 "id": "f6725a70-20b2-4adf-8b3a-a2d3f84da50d",
                 "tool": "label",

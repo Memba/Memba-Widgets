@@ -171,15 +171,15 @@
 
             it('Check getHtml', function() {
                 var label = kidoju.tools.label,
-                    item = new kidoju.PageItem({tool: 'label'}),
+                    component = new kidoju.PageComponent({tool: 'label'}),
                     html;
 
-                //If we do not submit a page item
+                //If we do not submit a page component
                 html = label.getHtml({});
                 expect(html).to.be.undefined;
 
-                //If we submit a valid page item
-                html = label.getHtml(item);
+                //If we submit a valid page component
+                html = label.getHtml(component);
                 expect(html).to.match(/^<span/);
 
             });
@@ -203,15 +203,15 @@
 
             it('Check getHtml', function() {
                 var image = kidoju.tools.image,
-                    item = new kidoju.PageItem({tool: 'image'}),
+                    component = new kidoju.PageComponent({tool: 'image'}),
                     html;
 
-                //If we do not submit a page item
+                //If we do not submit a page component
                 html = image.getHtml({});
                 expect(html).to.be.undefined;
 
-                //If we submit a valid page item
-                html = image.getHtml(item);
+                //If we submit a valid page component
+                html = image.getHtml(component);
                 expect(html).to.match(/^<img/);
             });
         });
@@ -233,15 +233,15 @@
 
             it('Check getHtml', function() {
                 var textbox = kidoju.tools.textbox;
-                var item = new kidoju.PageItem({tool: 'textbox'});
+                var component = new kidoju.PageComponent({tool: 'textbox'});
                 var html;
 
-                //If we do not submit a page item
+                //If we do not submit a page component
                 html = textbox.getHtml({});
                 expect(html).to.be.undefined;
 
-                //If we submit a valid page item
-                html = textbox.getHtml(item);
+                //If we submit a valid page component
+                html = textbox.getHtml(component);
                 expect(html).to.match(/^<input/);
             });
         });
@@ -263,15 +263,15 @@
 
             it('Check getHtml', function() {
                 var button = kidoju.tools.button,
-                    item = new kidoju.PageItem({tool: 'button'}),
+                    component = new kidoju.PageComponent({tool: 'button'}),
                     html;
 
-                //If we do not submit a page item
+                //If we do not submit a page component
                 html = button.getHtml({});
                 expect(html).to.be.undefined;
 
-                //If we submit a valid page item
-                html = button.getHtml(item);
+                //If we submit a valid page component
+                html = button.getHtml(component);
                 expect(html).to.match(/^<button/);
             });
         });

@@ -337,7 +337,7 @@
                                 .appendTo(navigation)
                                 .find(kendo.roleSelector('stage')).kendoStage({
                                     mode: kendo.ui.Stage.fn.modes.thumbnail,
-                                    dataSource: data[i].items,
+                                    dataSource: data[i].components,
                                     //autoBind: false,
                                     //width: ???,
                                     //height: ???,

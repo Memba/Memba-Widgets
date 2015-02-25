@@ -341,13 +341,13 @@
 
             //There is no reason why, in its current state, it would not work with any dataSource
             //if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
-            if ( that.dataSource instanceof kidoju.PageItemCollectionDataSource && that._refreshHandler ) {
+            if ( that.dataSource instanceof kidoju.PageComponentCollectionDataSource && that._refreshHandler ) {
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
             }
 
             if (that.options.dataSource !== NULL) {  //use null to explicitely destroy the dataSource bindings
                 // returns the datasource OR creates one if using array or configuration object
-                that.dataSource = kidoju.PageItemCollectionDataSource.create(that.options.dataSource);
+                that.dataSource = kidoju.PageComponentCollectionDataSource.create(that.options.dataSource);
 
                 that._refreshHandler = $.proxy(that.refresh, that);
 
@@ -615,7 +615,7 @@
             var that = this;
 
             //Check we have an item which is not already on stage
-            if (item instanceof kidoju.PageItem && that.stage.find(kendo.format(ELEMENT_SELECTOR, item.id)).length === 0) {
+            if (item instanceof kidoju.PageComponent && that.stage.find(kendo.format(ELEMENT_SELECTOR, item.id)).length === 0) {
 
                 //When adding a new item on the stage, position it at mouse click coordinates
                 if ($.type(mouseX) === NUMBER && $.type(mouseY) === NUMBER) {
@@ -732,7 +732,7 @@
                 //TODO: show optional creation dialog and test OK/Cancel
                 var tool = that.options.tools[activeId];
                 if(tool instanceof kidoju.Tool) {
-                    var item = new kidoju.PageItem({
+                    var item = new kidoju.PageComponent({
                         id: kendo.guid(),
                         tool: tool.id,
                         //e.offsetX and e.offsetY do not work in Firefox
@@ -901,19 +901,19 @@
         refresh: function(e) {
             var that = this;
             if (e === undefined || e.action === undefined) {
-                var items = [];
-                if (e=== undefined && that.dataSource instanceof kendo.data.PageItemCollectionDataSource) {
-                    items = that.dataSource.data();
+                var components = [];
+                if (e=== undefined && that.dataSource instanceof kendo.data.PageComponentCollectionDataSource) {
+                    components = that.dataSource.data();
                 } else if (e && e.items instanceof kendo.data.ObservableArray) {
-                    items = e.items;
+                    components = e.items;
                 }
                 that._hideHandles();
                 that.trigger(DATABINDING);
                 $.each(that.stage.find(ELEMENT_CLASS), function(index, stageElement) {
                     that._removeStageElement($(stageElement).attr(DATA_ID));
                 });
-                $.each(items, function(index, item) {
-                    that._addStageElement(item);
+                $.each(components, function(index, component) {
+                    that._addStageElement(component);
                 });
                 that.trigger(DATABOUND);
 
@@ -923,52 +923,52 @@
                 that.trigger(PROPBOUND);
 
             } else if (e.action === 'add') {
-                $.each(e.items, function(index, item) {
-                    that._addStageElement(item);
-                    that.trigger(CHANGE, {action: e.action, value: item});
-                    that.select(item.id);
+                $.each(e.items, function(index, component) {
+                    that._addStageElement(component);
+                    that.trigger(CHANGE, {action: e.action, value: component});
+                    that.select(component.id);
                 });
 
             } else if (e.action === 'remove') {
-                $.each(e.items, function(index, item) {
-                    that._removeStageElement(item.id);
-                    that.trigger(CHANGE, {action: e.action, value: item});
-                    if (that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_ID) === item.id) {
+                $.each(e.items, function(index, component) {
+                    that._removeStageElement(component.id);
+                    that.trigger(CHANGE, {action: e.action, value: component});
+                    if (that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_ID) === component.id) {
                         that.select(null);
                     }
                 });
 
             } else if (e.action === 'itemchange') {
-                $.each(e.items, function(index, item) {
-                    var stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, item.id)),
-                        handleBox = that.wrapper.find(kendo.format(HANDLE_BOX_SELECTOR, item.id));
+                $.each(e.items, function(index, component) {
+                    var stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, component.id)),
+                        handleBox = that.wrapper.find(kendo.format(HANDLE_BOX_SELECTOR, component.id));
                     if (stageElement.length) {
                         switch (e.field) {
                             case LEFT:
-                                stageElement.css(LEFT, item.left);
-                                handleBox.css(LEFT, item.left);
-                                stageElement.trigger(MOVE + NS, item);
+                                stageElement.css(LEFT, component.left);
+                                handleBox.css(LEFT, component.left);
+                                stageElement.trigger(MOVE + NS, component);
                                 break;
                             case TOP:
-                                stageElement.css(TOP, item.top);
-                                handleBox.css(TOP, item.top);
-                                stageElement.trigger(MOVE + NS, item);
+                                stageElement.css(TOP, component.top);
+                                handleBox.css(TOP, component.top);
+                                stageElement.trigger(MOVE + NS, component);
                                 break;
                             case HEIGHT:
-                                stageElement.css(HEIGHT, item.height);
-                                handleBox.css(HEIGHT, item.height);
-                                stageElement.trigger(RESIZE + NS, item);
+                                stageElement.css(HEIGHT, component.height);
+                                handleBox.css(HEIGHT, component.height);
+                                stageElement.trigger(RESIZE + NS, component);
                                 break;
                             case WIDTH:
-                                stageElement.css(WIDTH, item.width);
-                                handleBox.css(WIDTH, item.width);
-                                stageElement.trigger(RESIZE + NS, item);
+                                stageElement.css(WIDTH, component.width);
+                                handleBox.css(WIDTH, component.width);
+                                stageElement.trigger(RESIZE + NS, component);
                                 break;
                             case ROTATE:
-                                stageElement.css(TRANSFORM, kendo.format(CSS_ROTATE, item.rotate));
-                                handleBox.css(TRANSFORM, kendo.format(CSS_ROTATE, item.rotate));
-                                handleBox.find(HANDLE_CLASS).css(TRANSFORM, kendo.format(CSS_ROTATE, -item.rotate) + ' ' + kendo.format(CSS_SCALE, 1/that.scale()));
-                                stageElement.trigger(ROTATE + NS, item);
+                                stageElement.css(TRANSFORM, kendo.format(CSS_ROTATE, component.rotate));
+                                handleBox.css(TRANSFORM, kendo.format(CSS_ROTATE, component.rotate));
+                                handleBox.find(HANDLE_CLASS).css(TRANSFORM, kendo.format(CSS_ROTATE, -component.rotate) + ' ' + kendo.format(CSS_SCALE, 1/that.scale()));
+                                stageElement.trigger(ROTATE + NS, component);
                                 break;
                             //TODO attributes
                             //TODO properties

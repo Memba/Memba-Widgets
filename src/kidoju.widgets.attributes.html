@@ -29,7 +29,7 @@
 <h3>Properties</h3>
 <div id="grid2" data-role="propertygrid" data-bind="value: current"></div>
 <script>
-    var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({
+    var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
             data: [
                 {
                     id: 'be1935d0-ff0e-4818-a5a8-762127f3b506',
@@ -85,7 +85,7 @@
             ]
         }),
         viewModel = window.viewModel = kendo.observable({
-            items: pageItemCollectionDataSource,
+            items: pageComponentCollectionDataSource,
             current: null
         });
 
@@ -108,8 +108,8 @@
     $(document).ready(function() {
 
         kendo.bind('body', viewModel);
-        pageItemCollectionDataSource.fetch(function() {
-            viewModel.set('current', pageItemCollectionDataSource.at(1));
+        pageComponentCollectionDataSource.fetch(function() {
+            viewModel.set('current', pageComponentCollectionDataSource.at(1));
         });
     });
 </script>

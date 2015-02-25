@@ -28,7 +28,7 @@
     var pageCollectionData = [
         {
             id: '29c14ae2-496b-49f5-9551-e0d7e4aa6032',
-            items: [
+            components: [
                 { id: 'be1935d0-ff0e-4818-a5a8-762127f3b506', tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: '//marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
                 { id: 'f2b4179e-3189-401b-bb17-65ceaf62b1eb', tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
                 { id: 'c3d46312-07c3-44dc-a1c9-987654949927', tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield1' } }
@@ -36,14 +36,14 @@
         },
         {
             id: 'c0878ced-8e3f-4161-a83a-049caed02d53',
-            items: [
+            components: [
                 { id: 'c745e385-d409-40d0-a4d7-1b7c14abc2f6', tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
                 { id: '25bd6088-dc9f-4c9c-a697-be32b8673ba9', tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield2' } }
             ]
         },
         {
             id: '9e3803f8-a91c-408e-bded-d1b86c68723c',
-            items: [
+            components: [
                 { id: 'f6725a70-20b2-4adf-8b3a-a2d3f84da50d', tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
                 { id: '3894e35b-b740-46c8-be24-21f4a3b9c24d', tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield3' } }
             ]
@@ -78,37 +78,37 @@
     }
 
     /*********************************************************************************************************
-     * PageItem
+     * PageComponent
      *********************************************************************************************************/
 
-    describe('Test PageItem', function() {
+    describe('Test PageComponent', function() {
 
-        describe('When initializing a PageItem', function() {
+        describe('When initializing a PageComponent', function() {
 
             it('if initialized from an undefined, it should pass although tool is null', function() {
                 //Unfortunately, this is a Kendo UI requirement
-                var item = new kidoju.PageItem();
-                expect(item).to.have.property('id');
-                expect(item).to.have.property('tool').that.is.null;
+                var component = new kidoju.PageComponent();
+                expect(component).to.have.property('id');
+                expect(component).to.have.property('tool').that.is.null;
             });
 
             it('if initialized from an object without tool, it should throw', function() {
                 function testFn() {
-                    var item = new kidoju.PageItem({dummy: true});
+                    var component = new kidoju.PageComponent({dummy: true});
                 }
                 expect(testFn).to.throw(Error);
             });
 
             it('if initialized from an object with an invalid tool, it should throw', function() {
                 function testFn() {
-                    var item = new kidoju.PageItem({tool: 'dummy'});
+                    var component = new kidoju.PageComponent({tool: 'dummy'});
                 }
                 expect(testFn).to.throw(Error);
             });
 
             it('if initialized from a valid object, it should pass', function() {
-                var item = new kidoju.PageItem({tool: 'label'});
-                expect(item).to.be.an.instanceof(kidoju.PageItem);
+                var component = new kidoju.PageComponent({tool: 'label'});
+                expect(component).to.be.an.instanceof(kidoju.PageComponent);
             });
 
             it('if initialized from a complete label, it should pass', function () {
@@ -125,17 +125,17 @@
                             text: 'World'
                         }
                     },
-                    item = new kidoju.PageItem(obj);
+                    component = new kidoju.PageComponent(obj);
                 for (var prop in obj) {
                     if (obj.hasOwnProperty(prop)) {
                         if (prop === 'attributes' || prop === 'properties') {
                             for (var subprop in obj[prop]) {
                                 if (obj[prop].hasOwnProperty(subprop)) {
-                                    expect(item[prop][subprop]).to.equal(obj[prop][subprop]);
+                                    expect(component[prop][subprop]).to.equal(obj[prop][subprop]);
                                 }
                             }
                         } else {
-                            expect(item[prop]).to.equal(obj[prop]);
+                            expect(component[prop]).to.equal(obj[prop]);
                         }
                     }
                 }
@@ -155,12 +155,12 @@
                             alt: 'Google Logo'
                         }
                     },
-                    item = new kidoju.PageItem(obj);
+                    component = new kidoju.PageComponent(obj);
 
             });
 
             it('if initialized from a complete textbox, it shoud pass', function () {
-                var item = new kidoju.PageItem({
+                var component = new kidoju.PageComponent({
                     id: 'c3d46312-07c3-44dc-a1c9-987654949927',
                     tool : 'textbox',
                     top: 20,
@@ -179,20 +179,20 @@
     });
 
     /*********************************************************************************************************
-     * PageItemCollectionDataSource
+     * PageComponentCollectionDataSource
      *********************************************************************************************************/
 
-    describe('Test PageItemCollectionDataSource', function() {
+    describe('Test PageComponentCollectionDataSource', function() {
 
-        describe('When initializing a PageItemCollectionDataSource', function(done) {
+        describe('When initializing a PageComponentCollectionDataSource', function(done) {
 
-            it('if initialized from an empty array, the count of items should match', function(done) {
-                var pageItemCollectionDataSource1 = new kidoju.PageItemCollectionDataSource();
-                var pageItemCollectionDataSource2 = new kidoju.PageItemCollectionDataSource({ data: [] });
+            it('if initialized from an empty array, the count of components should match', function(done) {
+                var pageItemCollectionDataSource1 = new kidoju.PageComponentCollectionDataSource();
+                var pageItemCollectionDataSource2 = new kidoju.PageComponentCollectionDataSource({ data: [] });
                 expect(pageItemCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(pageItemCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageItemCollectionDataSource1.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
-                expect(new pageItemCollectionDataSource2.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
+                expect(new pageItemCollectionDataSource1.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageItemCollectionDataSource2.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
                 $.when(
                     pageItemCollectionDataSource1.read(),
                     pageItemCollectionDataSource2.read()
@@ -204,9 +204,9 @@
                     });
             });
 
-            it('if initialized from a stupid array (items have no valid tool), it should throw', function() {
+            it('if initialized from a stupid array (components have no valid tool), it should throw', function() {
                 function testFn() {
-                    var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({data: books});
+                    var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({data: books});
                     pageItemCollectionDataSource.read();
                 }
                 expect(testFn).to.throw(Error);
@@ -214,7 +214,7 @@
 
             xit('if initialized with a new model, it should throw', function() {
                 function testFn() {
-                    var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({
+                    var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
                         data: books,
                         schema: {
                             model: Book
@@ -225,10 +225,10 @@
                 expect(testFn).to.throw(Error);
             });
 
-            it('if initialized from a proper array, the count of items should match and dirty === false', function(done) {
-                var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({ data: pageItemCollectionData });
+            it('if initialized from a proper array, the count of components should match and dirty === false', function(done) {
+                var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageItemCollectionData });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
+                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
                 pageItemCollectionDataSource.read().then(function() {
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
                     for (var i = 0; i < pageItemCollectionData.length; i++) {
@@ -239,9 +239,9 @@
             });
 
             it('if initialized from a proper array, attributes and properties should be instances of kendo.data.Model', function(done) {
-                var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({ data: pageItemCollectionData });
+                var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageItemCollectionData });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
+                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
                 pageItemCollectionDataSource.read().then(function() {
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
                     for (var i = 0; i < pageItemCollectionData.length; i++) {
@@ -252,20 +252,20 @@
                 });
             });
 
-            it('if initialized from a kendo.data.DataSource that is not a kendo.PageItemCollectionDataSource, it should throw', function () {
+            it('if initialized from a kendo.data.DataSource that is not a kendo.PageComponentCollectionDataSource, it should throw', function () {
                 var testFn = function() {
-                    var dataSource = kidoju.PageItemCollectionDataSource.create(new kendo.data.DataSource({ data: [] }));
+                    var dataSource = kidoju.PageComponentCollectionDataSource.create(new kendo.data.DataSource({ data: [] }));
                 };
                 expect(testFn).to.throw(Error);
             });
 
-            it('if initialized from a kidoju.PageItemCollectionDataSource, the number of items should match', function(done) {
-                var pageItemCollectionDataSource1 = kidoju.PageItemCollectionDataSource.create(pageItemCollectionData);
-                var pageItemCollectionDataSource2 = kidoju.PageItemCollectionDataSource.create(pageItemCollectionDataSource1);
+            it('if initialized from a kidoju.PageComponentCollectionDataSource, the number of components should match', function(done) {
+                var pageItemCollectionDataSource1 = kidoju.PageComponentCollectionDataSource.create(pageItemCollectionData);
+                var pageItemCollectionDataSource2 = kidoju.PageComponentCollectionDataSource.create(pageItemCollectionDataSource1);
                 expect(pageItemCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(pageItemCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageItemCollectionDataSource1.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
-                expect(new pageItemCollectionDataSource2.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
+                expect(new pageItemCollectionDataSource1.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageItemCollectionDataSource2.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
                 $.when(
                     pageItemCollectionDataSource1.read(),
                     pageItemCollectionDataSource2.read()
@@ -277,9 +277,9 @@
                     });
             });
 
-            it('if initialized from a transport, the number of items should match', function(done) {
-                var pageItemCollectionDataSource1 = kidoju.PageItemCollectionDataSource.create(pageItemCollectionData);
-                var pageItemCollectionDataSource2 = new kidoju.PageItemCollectionDataSource({
+            it('if initialized from a transport, the number of components should match', function(done) {
+                var pageItemCollectionDataSource1 = kidoju.PageComponentCollectionDataSource.create(pageItemCollectionData);
+                var pageItemCollectionDataSource2 = new kidoju.PageComponentCollectionDataSource({
                     transport: {
                         read: function(options) {
                             options.success(pageItemCollectionData);
@@ -288,8 +288,8 @@
                 });
                 expect(pageItemCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(pageItemCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageItemCollectionDataSource1.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
-                expect(new pageItemCollectionDataSource2.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
+                expect(new pageItemCollectionDataSource1.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageItemCollectionDataSource2.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
                 $.when(
                     pageItemCollectionDataSource1.read(),
                     pageItemCollectionDataSource2.read()
@@ -301,17 +301,17 @@
                     });
             });
 
-            it('if initialized from $.ajax, the number of items should match', function (done) {
-                var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({
+            it('if initialized from $.ajax, the number of components should match', function (done) {
+                var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
                     transport: {
                         read: {
-                            url: dataUrl('pageItemCollection.json'),
+                            url: dataUrl('pageComponentCollection.json'),
                             dataType: 'json'
                         }
                     }
                 });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
+                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
                 $.when(
                     pageItemCollectionDataSource.read(),
                     $.getJSON(pageItemCollectionDataSource.options.transport.read.url)
@@ -320,7 +320,7 @@
                         expect(response2[0]).to.be.an.instanceof(Array);
                         expect(pageItemCollectionDataSource.total()).to.equal(response2[0].length);
                         var pageItem = pageItemCollectionDataSource.at(0);
-                        expect(pageItem).to.be.an.instanceof(kidoju.PageItem);
+                        expect(pageItem).to.be.an.instanceof(kidoju.PageComponent);
                         done();
                     }
                 );
@@ -328,15 +328,15 @@
 
         });
 
-        describe('When creating a page item', function() {
+        describe('When creating a page component', function() {
 
-            it('If dataSource initialized from in-memory array, there should be one page item more', function (done) {
-                var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({ data: pageItemCollectionData });
+            it('If dataSource initialized from in-memory array, there should be one page component more', function (done) {
+                var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageItemCollectionData });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
+                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
                 pageItemCollectionDataSource.read().then(function() {
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
-                    pageItemCollectionDataSource.add(new kidoju.PageItem({ tool: 'label' }));
+                    pageItemCollectionDataSource.add(new kidoju.PageComponent({ tool: 'label' }));
                     expect(pageItemCollectionDataSource.at(pageItemCollectionData.length).isNew()).to.be.true;
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length + 1);
                     done();
@@ -347,7 +347,7 @@
                 var create = sinon.spy(),
                     update = sinon.spy(),
                     destroy = sinon.spy();
-                var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({
+                var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
                     transport: {
                         read: function(options) {
                             options.success(pageItemCollectionData);
@@ -367,10 +367,10 @@
                     }
                 });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
+                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
                 pageItemCollectionDataSource.read().then(function() {
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
-                    pageItemCollectionDataSource.add(new kidoju.PageItem({tool: 'label'}));
+                    pageItemCollectionDataSource.add(new kidoju.PageComponent({tool: 'label'}));
                     expect(pageItemCollectionDataSource.at(pageItemCollectionData.length).isNew()).to.be.true;
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length + 1);
                     pageItemCollectionDataSource.sync()
@@ -385,12 +385,12 @@
 
         });
 
-        describe('When updating a page item', function() {
+        describe('When updating a page component', function() {
 
-            it('If dataSource initialized from in-memory array, there should be one updated page item', function (done) {
-                var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({ data: pageItemCollectionData });
+            it('If dataSource initialized from in-memory array, there should be one updated page component', function (done) {
+                var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageItemCollectionData });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
+                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
                 pageItemCollectionDataSource.read().then(function() {
                     pageItemCollectionDataSource.at(0).set('top', 111);
                     expect(pageItemCollectionDataSource.at(0).dirty).to.be.true;
@@ -403,7 +403,7 @@
                 var create = sinon.spy(),
                     update = sinon.spy(),
                     destroy = sinon.spy();
-                var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({
+                var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
                     transport: {
                         read: function(options) {
                             options.success(pageItemCollectionData);
@@ -423,7 +423,7 @@
                     }
                 });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
+                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
                 pageItemCollectionDataSource.read().then(function() {
                     pageItemCollectionDataSource.at(0).set('top', 111);
                     expect(pageItemCollectionDataSource.at(0).dirty).to.be.true;
@@ -440,12 +440,12 @@
 
         });
 
-        describe('When removing a page item', function() {
+        describe('When removing a page component', function() {
 
-            it('If dataSource initialized from in-memory array, there should be one page item less', function (done) {
-                var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({ data: pageItemCollectionData });
+            it('If dataSource initialized from in-memory array, there should be one page component less', function (done) {
+                var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageItemCollectionData });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
+                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
                 pageItemCollectionDataSource.read().then(function() {
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
                     pageItemCollectionDataSource.remove(pageItemCollectionDataSource.at(0));
@@ -458,7 +458,7 @@
                 var create = sinon.spy(),
                     update = sinon.spy(),
                     destroy = sinon.spy();
-                var pageItemCollectionDataSource = new kidoju.PageItemCollectionDataSource({
+                var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
                     transport: {
                         read: function(options) {
                             options.success(pageItemCollectionData);
@@ -478,7 +478,7 @@
                     }
                 });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageItem);
+                expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
                 pageItemCollectionDataSource.read().then(function() {
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
                     pageItemCollectionDataSource.remove(pageItemCollectionDataSource.at(0));
@@ -510,30 +510,30 @@
                 //Unfortunately, this is a Kendo UI requirement
                 var page = new kidoju.Page();
                 expect(page).to.have.property('id');
-                expect(page.items.fetch).to.respond;
-                page.items.fetch().then(function() {
-                    expect(page.items.total()).to.equal(0);
+                expect(page.components.fetch).to.respond;
+                page.components.fetch().then(function() {
+                    expect(page.components.total()).to.equal(0);
                     done();
                 });
             });
 
-            it('if initialized from an object without items, it should pass', function(done) {
+            it('if initialized from an object without components, it should pass', function(done) {
                 var page = new kidoju.Page({dummy: true});
                 expect(page).to.have.property('id');
                 expect(page).to.have.property('dummy', true);             //<------------ TODO: any way to avoid unwanted properties?
-                expect(page.items.fetch).to.respond;
-                page.items.fetch().then(function() {
-                    expect(page.items.total()).to.equal(0);
+                expect(page.components.fetch).to.respond;
+                page.components.fetch().then(function() {
+                    expect(page.components.total()).to.equal(0);
                     done();
                 });
             });
 
-            it('if initialized from an object with items, it should pass', function(done) {
-                var page = new kidoju.Page({items: [{tool: 'label'}, {tool: 'image'}]});
+            it('if initialized from an object with components, it should pass', function(done) {
+                var page = new kidoju.Page({components: [{tool: 'label'}, {tool: 'image'}]});
                 expect(page).to.have.property('id');
-                expect(page.items.fetch).to.respond;
-                page.items.fetch().then(function() {
-                    expect(page.items.total()).to.equal(2);
+                expect(page.components.fetch).to.respond;
+                page.components.fetch().then(function() {
+                    expect(page.components.total()).to.equal(2);
                     done();
                 });
             });
@@ -610,15 +610,15 @@
                 });
             });
 
-            it('if initialized from a proper array, there should be page items', function (done) {
+            it('if initialized from a proper array, there should be page components', function (done) {
                 function test(page) {
                     var dfd = $.Deferred();
                     expect(page).to.be.an.instanceof(kidoju.Page);
-                    expect(page.items).to.be.an.instanceof(kidoju.PageItemCollectionDataSource);
-                    expect(page.items.parent()).to.equal(page);
-                    expect(page.items.total()).to.equal(0);
+                    expect(page.components).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                    expect(page.components.parent()).to.equal(page);
+                    expect(page.components.total()).to.equal(0);
                     page.load().then(function() {
-                        expect(page.items.total()).to.be.gt(0);
+                        expect(page.components.total()).to.be.gt(0);
                         dfd.resolve();
                     });
                     return dfd.promise();
@@ -685,7 +685,7 @@
                     });
             });
 
-            it('if initialized from $.ajax, the number of pages and items should match', function (done) {
+            it('if initialized from $.ajax, the number of pages and components should match', function (done) {
                 var pageCollectionDataSource = new kidoju.PageCollectionDataSource({
                     transport: {
                         read: {
@@ -708,11 +708,11 @@
                         for (var i = 0; i <  pageCollectionDataSource.total(); i++) {
                             var page = pageCollectionDataSource.at(i);
                             expect(page).to.be.an.instanceof(kidoju.Page);
-                            expect(page.items).to.be.an.instanceof(kidoju.PageItemCollectionDataSource);
-                            expect(page.items.total()).to.equal(0);
+                            expect(page.components).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                            expect(page.components.total()).to.equal(0);
                             /* jshint -W083 */
                             var promise = page.load().done(function () {
-                                expect(page.items.total()).to.equal(pageCollectionArray[i].items.length);
+                                expect(page.components.total()).to.equal(pageCollectionArray[i].components.length);
                             });
                             /* jshint +W083 */
                             promises.push(promise);
@@ -725,7 +725,7 @@
 
         describe('When creating a page', function() {
 
-            it('If dataSource initialized from in-memory array, there should be one page item more', function (done) {
+            it('If dataSource initialized from in-memory array, there should be one page component more', function (done) {
                 var pageCollectionDataSource = new kidoju.PageCollectionDataSource({ data: pageCollectionData });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
@@ -925,10 +925,10 @@
                 });
             });
 
-            it('if initialized from an object with pages and items, it should pass', function(done) {
+            it('if initialized from an object with pages and components, it should pass', function(done) {
                 var stream = new kidoju.Stream({pages: [
-                    { items : [{tool: 'label'}, {tool: 'image'}] },
-                    { items : [{tool: 'textbox'}, {tool: 'button'}] }
+                    { components : [{tool: 'label'}, {tool: 'image'}] },
+                    { components : [{tool: 'textbox'}, {tool: 'button'}] }
                 ]});
                 expect(stream).to.have.property('id');
                 expect(stream.pages).to.be.an.instanceof(kidoju.PageCollectionDataSource);
@@ -939,8 +939,8 @@
                     expect(page).to.be.an.instanceof(kidoju.Page);
                     expect(stream.pages.load).to.respond;
                     page.load().then(function() {
-                        expect(page.items).to.be.an.instanceof(kidoju.PageItemCollectionDataSource);
-                        expect(page.items.total()).to.equal(2);
+                        expect(page.components).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                        expect(page.components.total()).to.equal(2);
                         done();
                     });
                 });
@@ -953,7 +953,7 @@
     /*********************************************************************************************************
      * Synchronization with sinonJS
      *
-     * TODO: especially consider the position of pages and items in arrays, including changing positions
+     * TODO: especially consider the position of pages and components in arrays, including changing positions
      * http://docs.mongodb.org/manual/reference/operator/update/position/
      *
      *********************************************************************************************************/
@@ -962,7 +962,7 @@
 
         //See http://docs.telerik.com/kendo-ui/framework/hierarchicaldatasource/overview#binding-a-hierarchicaldatasource-to-remote-data-with-multiple-service-end-points
 
-        var stream, pages, items;
+        var stream, pages, components;
 
         describe('Syncing at various levels of the hierarchy', function() {
 
@@ -994,27 +994,27 @@
                         },
                         schema: {
                             model: {
-                                items: {
+                                components: {
                                     transport: {
                                         read: function (options) {
-                                            items.read(options);
-                                            //window.console.log('reading items...');
+                                            components.read(options);
+                                            //window.console.log('reading components...');
                                             options.success([{id: kendo.guid(), tool: 'label'}]);
                                         },
                                         create: function (options) {
-                                            items.create(options);
-                                            //window.console.log('creating items...');
+                                            components.create(options);
+                                            //window.console.log('creating components...');
                                             options.data.id = kendo.guid(); //id set on server
                                             options.success(options.data);
                                         },
                                         update: function (options) {
-                                            items.update(options);
-                                            //window.console.log('updating items...');
+                                            components.update(options);
+                                            //window.console.log('updating components...');
                                             options.success(options.data);
                                         },
                                         destroy: function (options) {
-                                            items.destroy(options);
-                                            //window.console.log('deleting items...');
+                                            components.destroy(options);
+                                            //window.console.log('deleting components...');
                                             options.success(options.data);
                                         }
                                     }
@@ -1034,7 +1034,7 @@
                     destroy: sinon.spy()
                 };
 
-                items = {
+                components = {
                     read: sinon.spy(),
                     create: sinon.spy(),
                     update: sinon.spy(),
@@ -1045,11 +1045,11 @@
             it('Reading', function(done) {
                 stream.load().always(function() {
                     expect(pages.read).to.have.been.calledOnce;
-                    expect(items.read).not.to.have.been.called;
+                    expect(components.read).not.to.have.been.called;
                     expect(stream.pages.total()).to.equal(1);
                     stream.pages.at(0).load().always(function() {
-                        expect(items.read).to.have.been.calledOnce;
-                        expect(stream.pages.at(0).items.total()).to.equal(1);
+                        expect(components.read).to.have.been.calledOnce;
+                        expect(stream.pages.at(0).components.total()).to.equal(1);
                         done();
                     });
                 });
@@ -1059,52 +1059,52 @@
             it('Creating', function(done) {
                 stream.pages.add({});
                 expect(stream.pages.total()).to.equal(2);
-                stream.pages.at(1).items.add({tool: 'label'});
-                stream.pages.at(1).items.add({tool: 'textbox'});
+                stream.pages.at(1).components.add({tool: 'label'});
+                stream.pages.at(1).components.add({tool: 'textbox'});
                 expect(stream.pages.total()).to.equal(2);
-                expect(stream.pages.at(1).items.total()).to.equal(2);
+                expect(stream.pages.at(1).components.total()).to.equal(2);
                 var promises = [
                     stream.pages.sync(),
-                    stream.pages.at(1).items.sync()
+                    stream.pages.at(1).components.sync()
                 ];
                 $.when.apply($, promises).always(function() {
                     expect(pages.create).to.have.been.calledOnce;
-                    expect(items.create).to.have.been.calledTwice;
+                    expect(components.create).to.have.been.calledTwice;
                     done();
                 });
             });
 
             it('Updating', function(done) {
                 stream.pages.at(1).set('style', 'background-color: #FF0000;');
-                stream.pages.at(1).items.at(0).set('top', 50);
-                stream.pages.at(1).items.at(0).set('left', 50);
+                stream.pages.at(1).components.at(0).set('top', 50);
+                stream.pages.at(1).components.at(0).set('left', 50);
                 expect(stream.pages.total()).to.equal(2);
-                expect(stream.pages.at(1).items.total()).to.equal(2);
+                expect(stream.pages.at(1).components.total()).to.equal(2);
                 var promises = [
                     stream.pages.sync(),
-                    stream.pages.at(1).items.sync()
+                    stream.pages.at(1).components.sync()
                 ];
                 $.when.apply($, promises).always(function() {
                     expect(pages.update).to.have.been.calledOnce;
-                    expect(items.update).to.have.been.calledOnce;
+                    expect(components.update).to.have.been.calledOnce;
                     done();
                 });
             });
 
             it('Deleting', function(done) {
                 expect(stream.pages.total()).to.equal(2);
-                expect(stream.pages.at(1).items.total()).to.equal(2);
-                stream.pages.at(0).items.remove(stream.pages.at(0).items.at(0));
-                expect(stream.pages.at(0).items.total()).to.equal(0);
+                expect(stream.pages.at(1).components.total()).to.equal(2);
+                stream.pages.at(0).components.remove(stream.pages.at(0).components.at(0));
+                expect(stream.pages.at(0).components.total()).to.equal(0);
                 stream.pages.remove(stream.pages.at(1));
                 expect(stream.pages.total()).to.equal(1);
                 var promises = [
-                    stream.pages.at(0).items.sync(),
+                    stream.pages.at(0).components.sync(),
                     stream.pages.sync()
                 ];
                 $.when.apply($, promises).always(function() {
                     expect(pages.destroy).to.have.been.calledOnce;
-                    expect(items.destroy).to.have.been.calledOnce;
+                    expect(components.destroy).to.have.been.calledOnce;
                     done();
                 });
             });
@@ -1145,16 +1145,16 @@
                         batch: true,
                         schema: {
                             model: {
-                                items: {
+                                components: {
                                     transport: {
                                         read: function (options) {
-                                            items.read(options);
-                                            //window.console.log('reading items...');
+                                            components.read(options);
+                                            //window.console.log('reading components...');
                                             options.success([{id: kendo.guid(), tool: 'label'}]);
                                         },
                                         create: function (options) {
-                                            items.create(options);
-                                            //window.console.log('creating items...');
+                                            components.create(options);
+                                            //window.console.log('creating components...');
                                             if ($.isArray(options.data.models)) {
                                                 $.each(options.data.models, function(index, model) {
                                                     model.id = kendo.guid(); //id set on server
@@ -1163,13 +1163,13 @@
                                             options.success(options.data.models);
                                         },
                                         update: function (options) {
-                                            items.update(options);
-                                            //window.console.log('updating items...');
+                                            components.update(options);
+                                            //window.console.log('updating components...');
                                             options.success(options.data.models);
                                         },
                                         destroy: function (options) {
-                                            items.destroy(options);
-                                            //window.console.log('deleting items...');
+                                            components.destroy(options);
+                                            //window.console.log('deleting components...');
                                             options.success(options.data.models);
                                         }
                                     },
@@ -1190,7 +1190,7 @@
                     destroy: sinon.spy()
                 };
 
-                items = {
+                components = {
                     read: sinon.spy(),
                     create: sinon.spy(),
                     update: sinon.spy(),
@@ -1201,11 +1201,11 @@
             it('Reading', function(done) {
                 stream.load().always(function() {
                     expect(pages.read).to.have.been.called;
-                    expect(items.read).not.to.have.been.called;
+                    expect(components.read).not.to.have.been.called;
                     expect(stream.pages.total()).to.equal(1);
                     stream.pages.at(0).load().always(function() {
-                        expect(items.read).to.have.been.called;
-                        expect(stream.pages.at(0).items.total()).to.equal(1);
+                        expect(components.read).to.have.been.called;
+                        expect(stream.pages.at(0).components.total()).to.equal(1);
                         done();
                     });
                 });
@@ -1216,61 +1216,61 @@
                 stream.pages.add({});
                 stream.pages.add({});
                 expect(stream.pages.total()).to.equal(3);
-                stream.pages.at(1).items.add({tool: 'label'});
-                stream.pages.at(1).items.add({tool: 'textbox'});
-                stream.pages.at(2).items.add({tool: 'label'});
-                stream.pages.at(2).items.add({tool: 'textbox'});
+                stream.pages.at(1).components.add({tool: 'label'});
+                stream.pages.at(1).components.add({tool: 'textbox'});
+                stream.pages.at(2).components.add({tool: 'label'});
+                stream.pages.at(2).components.add({tool: 'textbox'});
                 expect(stream.pages.total()).to.equal(3);
-                expect(stream.pages.at(1).items.total()).to.equal(2);
-                expect(stream.pages.at(2).items.total()).to.equal(2);
+                expect(stream.pages.at(1).components.total()).to.equal(2);
+                expect(stream.pages.at(2).components.total()).to.equal(2);
                 var promises = [
                     stream.pages.sync(),
-                    stream.pages.at(1).items.sync(),
-                    stream.pages.at(2).items.sync()
+                    stream.pages.at(1).components.sync(),
+                    stream.pages.at(2).components.sync()
                 ];
                 $.when.apply($, promises).always(function() {
                     expect(pages.create).to.have.been.calledOnce;
-                    expect(items.create).to.have.been.calledTwice;
+                    expect(components.create).to.have.been.calledTwice;
                     done();
                 });
             });
 
             it('Updating', function(done) {
                 stream.pages.at(1).set('style', 'background-color: #FF0000;');
-                stream.pages.at(1).items.at(0).set('top', 50);
-                stream.pages.at(1).items.at(0).set('left', 50);
-                stream.pages.at(2).items.at(0).set('top', 50);
-                stream.pages.at(2).items.at(0).set('left', 50);
+                stream.pages.at(1).components.at(0).set('top', 50);
+                stream.pages.at(1).components.at(0).set('left', 50);
+                stream.pages.at(2).components.at(0).set('top', 50);
+                stream.pages.at(2).components.at(0).set('left', 50);
                 expect(stream.pages.total()).to.equal(3);
-                expect(stream.pages.at(1).items.total()).to.equal(2);
+                expect(stream.pages.at(1).components.total()).to.equal(2);
                 var promises = [
                     stream.pages.sync(),
-                    stream.pages.at(1).items.sync(),
-                    stream.pages.at(2).items.sync()
+                    stream.pages.at(1).components.sync(),
+                    stream.pages.at(2).components.sync()
                 ];
                 $.when.apply($, promises).always(function() {
                     expect(pages.update).to.have.been.calledOnce;
-                    expect(items.update).to.have.been.calledTwice;
+                    expect(components.update).to.have.been.calledTwice;
                     done();
                 });
             });
 
             it('Deleting', function(done) {
                 expect(stream.pages.total()).to.equal(3);
-                expect(stream.pages.at(1).items.total()).to.equal(2);
-                expect(stream.pages.at(2).items.total()).to.equal(2);
-                stream.pages.at(1).items.remove(stream.pages.at(1).items.at(1));
-                stream.pages.at(2).items.remove(stream.pages.at(2).items.at(1));
-                expect(stream.pages.at(1).items.total()).to.equal(1);
-                expect(stream.pages.at(2).items.total()).to.equal(1);
+                expect(stream.pages.at(1).components.total()).to.equal(2);
+                expect(stream.pages.at(2).components.total()).to.equal(2);
+                stream.pages.at(1).components.remove(stream.pages.at(1).components.at(1));
+                stream.pages.at(2).components.remove(stream.pages.at(2).components.at(1));
+                expect(stream.pages.at(1).components.total()).to.equal(1);
+                expect(stream.pages.at(2).components.total()).to.equal(1);
                 var promises = [
-                    stream.pages.at(1).items.sync(),
-                    stream.pages.at(2).items.sync(),
+                    stream.pages.at(1).components.sync(),
+                    stream.pages.at(2).components.sync(),
                     stream.pages.sync()
                 ];
                 $.when.apply($, promises).always(function() {
                     expect(pages.destroy).not.to.have.been.called;
-                    expect(items.destroy).to.have.been.calledTwice;
+                    expect(components.destroy).to.have.been.calledTwice;
                     done();
                 });
             });
@@ -1278,28 +1278,28 @@
             it('Mixing operations and saving stream', function(done) {
                 //window.console.log('--------------');
                 expect(stream.pages.total()).to.equal(3);
-                expect(stream.pages.at(0).items.total()).to.equal(1);
-                expect(stream.pages.at(1).items.total()).to.equal(1);
-                expect(stream.pages.at(2).items.total()).to.equal(1);
+                expect(stream.pages.at(0).components.total()).to.equal(1);
+                expect(stream.pages.at(1).components.total()).to.equal(1);
+                expect(stream.pages.at(2).components.total()).to.equal(1);
                 //page 0
                 stream.pages.at(0).set('style', 'border 1px #0000FF;');
-                stream.pages.at(0).items.at(0).set('rotate', 45);
-                stream.pages.at(0).items.add({tool: 'button'});
-                stream.pages.at(0).items.at(1).set('top', 120);
-                stream.pages.at(0).items.at(1).set('left', 120);
+                stream.pages.at(0).components.at(0).set('rotate', 45);
+                stream.pages.at(0).components.add({tool: 'button'});
+                stream.pages.at(0).components.at(1).set('top', 120);
+                stream.pages.at(0).components.at(1).set('left', 120);
                 //page 1
                 stream.pages.remove(stream.pages.at(1));
                 //page 2
                 stream.pages.at(1).set('style', 'padding: 10px');
-                stream.pages.at(1).items.remove(stream.pages.at(1).items.at(0));
-                stream.pages.at(1).items.add({tool: 'textbox'});
-                stream.pages.at(0).items.at(0).set('rotate', 45);
+                stream.pages.at(1).components.remove(stream.pages.at(1).components.at(0));
+                stream.pages.at(1).components.add({tool: 'textbox'});
+                stream.pages.at(0).components.at(0).set('rotate', 45);
                 stream.save().always(function() {
                     expect(pages.update).to.have.callCount(1);
                     expect(pages.destroy).to.have.callCount(1);
-                    expect(items.create).to.have.callCount(2);
-                    expect(items.update).to.have.callCount(1);
-                    expect(items.destroy).to.have.callCount(1);
+                    expect(components.create).to.have.callCount(2);
+                    expect(components.update).to.have.callCount(1);
+                    expect(components.destroy).to.have.callCount(1);
                     done();
                 });
             });
@@ -1345,7 +1345,7 @@
                     {
                         id: kendo.guid(),
                         style: 'background-color: #' + Math.random().toString(16).substr(2,6) + ';',
-                        items: [
+                        components: [
                             { id: kendo.guid(), tool: 'label', attributes: { text: 'What is this logo?', style: 'font-family: Georgia, serif;' }, properties: {} },
                             { id: kendo.guid(), tool: 'image', attributes: { src: 'http://www.google.com/logo.png', alt: 'Google' }, properties: {} },
                             { id: kendo.guid(), tool: 'textbox', attributes: { style: 'border: solid 1px #AAAAAA;' }, properties: { name: 'text1', validation: 'return true;', success: 1, failure: 0, omit: 0 } }
@@ -1354,7 +1354,7 @@
                     {
                         id: kendo.guid(),
                         style: 'background-color: #' + Math.random().toString(16).substr(2,6) + ';',
-                        items: [
+                        components: [
                             { id: kendo.guid(), tool: 'label', attributes: { text: 'What is this logo?', style: 'font-family: Georgia, serif;' }, properties: {} },
                             { id: kendo.guid(), tool: 'image', attributes: { src: 'http://www.apple.com/logo.png', alt: 'Apple' }, properties: {} },
                             { id: kendo.guid(), tool: 'textbox', attributes: { style: 'border: solid 1px #AAAAAA;' }, properties: { name: 'text2', validation: 'return true;', success: 1, failure: 0, omit: 0 } }
@@ -1389,7 +1389,7 @@
                             .done(function() {
                                 var promises = [];
                                 $.each(that.pages.data(), function(index, page) {
-                                    promises.push(page.items.fetch());
+                                    promises.push(page.components.fetch());
                                 });
                                 $.when.apply($, promises)
                                     .done(dfd.resolve)
@@ -1413,15 +1413,15 @@
                             if (page.dirty) {
                                 page.dirty = false;
                             }
-                            data.pages.push($.extend(page.toJSON(), { items: [] }));
-                            $.each(page.items.data(), function(itemIdx, item) {
-                                if (item.isNew()) {
-                                    item.accept({id: kendo.guid()});
+                            data.pages.push($.extend(page.toJSON(), { components: [] }));
+                            $.each(page.components.data(), function(componentIdx, component) {
+                                if (component.isNew()) {
+                                    component.accept({id: kendo.guid()});
                                 }
-                                if (item.dirty) {
-                                    item.dirty = false;
+                                if (component.dirty) {
+                                    component.dirty = false;
                                 }
-                                data.pages[data.pages.length - 1].items.push(item.toJSON());
+                                data.pages[data.pages.length - 1].components.push(component.toJSON());
                             });
                         });
                         localStorage.setItem(storageKey, kendo.stringify(data));
@@ -1446,12 +1446,12 @@
                         expect(page.dirty).to.be.false;
                         expect(page).to.have.property('id', original.pages[i].id);
                         expect(page).to.have.property('style', original.pages[i].style);
-                        for (var j = 0; j < page.items.data(); j++) {
-                            var item = page.items.at(j);
-                            expect(item.isNew()).to.be.false;
-                            expect(item.dirty).to.be.false;
-                            expect(item).to.have.property('id', original.pages[i].items[j].id);
-                            expect(item).to.have.property('tool', original.pages[i].items[j].tool);
+                        for (var j = 0; j < page.components.data(); j++) {
+                            var component = page.components.at(j);
+                            expect(component.isNew()).to.be.false;
+                            expect(component.dirty).to.be.false;
+                            expect(component).to.have.property('id', original.pages[i].components[j].id);
+                            expect(component).to.have.property('tool', original.pages[i].components[j].tool);
                             //TODO: attributes and properties
                         }
                     }
@@ -1462,13 +1462,13 @@
             it('Creating', function(done) {
                 var index = stream.pages.total();
                 stream.pages.add({});
-                stream.pages.at(index).items.add({tool: 'label'});
+                stream.pages.at(index).components.add({tool: 'label'});
                 stream.save().always(function() {
                     var update = $.parseJSON(localStorage.getItem(storageKey));
                     expect(update).to.have.property('id', stream.id);
                     expect(update).to.have.property('pages').that.is.an.instanceof(Array).with.property('length', index + 1);
                     expect(update.pages[index]).to.have.property('id', stream.pages.at(index).id);
-                    expect(update.pages[index]).to.have.property('items').that.is.an.instanceof(Array).with.property('length', stream.pages.at(index).items.total());
+                    expect(update.pages[index]).to.have.property('components').that.is.an.instanceof(Array).with.property('length', stream.pages.at(index).components.total());
                     //TODO: attributes and properties
                     done();
                 });
@@ -1477,18 +1477,18 @@
             it('Updating', function(done) {
                 var index = stream.pages.total() - 1;
                 stream.pages.at(index).set('style', 'background-color: #' +  Math.random().toString(16).substr(2,6) + ';');
-                stream.pages.at(index).items.at(0).set('top', 100);
-                stream.pages.at(index).items.at(0).set('left', 100);
-                stream.pages.at(index).items.at(0).set('rotate', 45);
+                stream.pages.at(index).components.at(0).set('top', 100);
+                stream.pages.at(index).components.at(0).set('left', 100);
+                stream.pages.at(index).components.at(0).set('rotate', 45);
                 stream.save().always(function() {
                     var update = $.parseJSON(localStorage.getItem(storageKey));
                     expect(update).to.have.property('id', stream.id);
                     expect(update).to.have.property('pages').that.is.an.instanceof(Array).with.property('length', index + 1);
                     expect(update.pages[index]).to.have.property('id', stream.pages.at(index).id);
                     expect(update.pages[index]).to.have.property('style', stream.pages.at(index).styles);
-                    expect(update.pages[index].items[0]).to.have.property('top', stream.pages.at(index).items.at(0).top);
-                    expect(update.pages[index].items[0]).to.have.property('left', stream.pages.at(index).items.at(0).left);
-                    expect(update.pages[index].items[0]).to.have.property('rotate', stream.pages.at(index).items.at(0).rotate);
+                    expect(update.pages[index].components[0]).to.have.property('top', stream.pages.at(index).components.at(0).top);
+                    expect(update.pages[index].components[0]).to.have.property('left', stream.pages.at(index).components.at(0).left);
+                    expect(update.pages[index].components[0]).to.have.property('rotate', stream.pages.at(index).components.at(0).rotate);
                     done();
                 });
             });
@@ -1508,7 +1508,7 @@
         });
 
 
-        describe('atomized CRUD operations on pages and items', function() {
+        describe('atomized CRUD operations on pages and components', function() {
 
             xit('TODO', function(done) {
                 done();
@@ -1530,32 +1530,32 @@
             stream.append({});
             expect(stream.pages.total()).to.equal(1);
             stream.pages.at(0).append({tool: 'label'});
-            expect(stream.pages.at(0).items.total()).to.equal(1);
+            expect(stream.pages.at(0).components.total()).to.equal(1);
         });
 
-        it('PageItemCollectionDataSource.insert & PageCollectionDataSource.insert', function () {
+        it('PageComponentCollectionDataSource.insert & PageCollectionDataSource.insert', function () {
             var stream = new kidoju.Stream({});
             expect(stream.pages.total()).to.equal(0);
             stream.pages.insert(0);
             expect(stream.pages.total()).to.equal(0);
             stream.pages.insert(0, {});
             expect(stream.pages.total()).to.equal(1);
-            expect(stream.pages.at(0).items.total()).to.equal(0);
-            stream.pages.at(0).items.insert(0);
-            expect(stream.pages.at(0).items.total()).to.equal(0);
-            stream.pages.at(0).items.insert(0, {tool: 'label'});
-            expect(stream.pages.at(0).items.total()).to.equal(1);
+            expect(stream.pages.at(0).components.total()).to.equal(0);
+            stream.pages.at(0).components.insert(0);
+            expect(stream.pages.at(0).components.total()).to.equal(0);
+            stream.pages.at(0).components.insert(0, {tool: 'label'});
+            expect(stream.pages.at(0).components.total()).to.equal(1);
         });
 
 
-        it('page.stream, item.page, pages.parent & items.parent', function (done) {
+        it('page.stream, component.page, pages.parent & components.parent', function (done) {
             var stream = new kidoju.Stream({
                 id: kendo.guid(),
                 pages: [
                     {
                         id: kendo.guid(),
                         style: 'background-color: #' + Math.random().toString(16).substr(2, 6) + ';',
-                        items: [
+                        components: [
                             {
                                 id: kendo.guid(),
                                 tool: 'label',
@@ -1568,14 +1568,14 @@
             });
             stream.pages.fetch().always(function () {
                 expect(stream.pages.total()).to.equal(1);
-                stream.pages.at(0).items.fetch().always(function () {
-                    expect(stream.pages.at(0).items.total()).to.equal(1);
+                stream.pages.at(0).components.fetch().always(function () {
+                    expect(stream.pages.at(0).components.total()).to.equal(1);
                     expect(stream.pages.parent()).to.equal(stream);
                     expect(stream.pages.at(0).parent()).to.equal(stream.pages.data());
-                    expect(stream.pages.at(0).items.parent()).to.equal(stream.pages.at(0));
-                    expect(stream.pages.at(0).items.at(0).parent()).to.equal(stream.pages.at(0).items.data());
+                    expect(stream.pages.at(0).components.parent()).to.equal(stream.pages.at(0));
+                    expect(stream.pages.at(0).components.at(0).parent()).to.equal(stream.pages.at(0).components.data());
                     expect(stream.pages.at(0).stream()).to.equal(stream);
-                    expect(stream.pages.at(0).items.at(0).page()).to.equal(stream.pages.at(0));
+                    expect(stream.pages.at(0).components.at(0).page()).to.equal(stream.pages.at(0));
                     done();
                 });
             });
@@ -1592,7 +1592,7 @@
 
                 delete kidoju.tools;
                 var fn = function () {
-                    var pageItem = new kidoju.PageItem({});
+                    var pageItem = new kidoju.PageComponent({});
                 };
                 expect(fn).to.throw(Error);
             });

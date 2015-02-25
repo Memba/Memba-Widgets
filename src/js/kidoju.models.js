@@ -67,11 +67,11 @@
      *********************************************************************************/
 
     /**
-     * PageItem model
-     * @class PageItem
+     * PageComponent model
+     * @class PageComponent
      * @type {void|*}
      */
-    var PageItem = kidoju.PageItem = Model.define({
+    var PageComponent = kidoju.PageComponent = Model.define({
         id: 'id',
         fields: {
             id: {
@@ -120,24 +120,24 @@
 
         /**
          * Constructor
-         * @param item
+         * @param component
          */
-        init: function(item) {
+        init: function(component) {
 
-            //Note: Kendo UI requires that new PageItem() works, i.e. item = undefined
+            //Note: Kendo UI requires that new PageComponent() works, i.e. component = undefined
             var that = this;
 
-            if ($.type(item) === OBJECT /*&& !$.isEmptyObject(item)*/) {
+            if ($.type(component) === OBJECT /*&& !$.isEmptyObject(component)*/) {
                 if (!kidoju.tools) {
                     throw new Error('Kidoju tools are missing');
                 }
-                if ($.type(item.tool) !== STRING || item.tool.length === 0 || !(kidoju.tools[item.tool] instanceof kidoju.Tool)) {
-                    throw new Error(kendo.format('`{0}` is not a valid Kidoju tool', item.tool));
+                if ($.type(component.tool) !== STRING || component.tool.length === 0 || !(kidoju.tools[component.tool] instanceof kidoju.Tool)) {
+                    throw new Error(kendo.format('`{0}` is not a valid Kidoju tool', component.tool));
                 }
-                item = $.extend({}, that.defaults, item); //otherwise we are missing default property values
+                component = $.extend({}, that.defaults, component); //otherwise we are missing default property values
             }
 
-            Model.fn.init.call(that, item);
+            Model.fn.init.call(that, component);
 
             if (kidoju.tools && $.type(that.tool) === STRING && that.tool.length) {
 
@@ -146,14 +146,14 @@
 
                     //Let the tool build a kendo.data.Model for attributes to allow validation in the property grid
                     var Attributes = tool._getAttributeModel(),
-                    //Extend item attributes with possible new attributes as tools improve
+                    //Extend component attributes with possible new attributes as tools improve
                         attributes = $.extend({}, Attributes.prototype.defaults, that.attributes);
                     //Cast with Model
                     //that.set('attributes', new Attributes(attributes)); //<--- this sets the dirty flag and raises the change event
 
                     //Let the tool build a kendo.data.Model for properties to allow validation in the property grid
                     var Properties = tool._getPropertyModel(),
-                    //Extend item properties with possible new properties as tools improve
+                    //Extend component properties with possible new properties as tools improve
                         properties = $.extend({}, Properties.prototype.defaults, that.properties);
                     //Cast with Model
                     //that.set('properties', new Properties(properties)); //<--- this sets the dirty flag and raises the change event
@@ -172,26 +172,26 @@
          * @returns {*}
          */
         page: function() {
-            var itemCollection = this.parent();
-            return itemCollection.parent();
+            var componentCollection = this.parent();
+            return componentCollection.parent();
         }
     });
 
     /**
-     * @class PageItemCollectionDataSource
+     * @class PageComponentCollectionDataSource
      * @type {*|void|Object}
      */
-    var PageItemCollectionDataSource =  kidoju.PageItemCollectionDataSource = DataSource.extend({
+    var PageComponentCollectionDataSource =  kidoju.PageComponentCollectionDataSource = DataSource.extend({
         init: function(options) {
 
-            var pageItem = PageItem.define({
-                items: options
+            var SubPageComponent = PageComponent.define({
+                components: options
             });
 
-            DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: pageItem, model: pageItem } }, options));
+            DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: SubPageComponent, model: SubPageComponent } }, options));
 
             // If there is a necessity to transform data, there is a possibility to change the reader as follows
-            // this.reader = new PageItemCollectionDataReader(this.options.schema, this.reader);
+            // this.reader = new PageComponentCollectionDataReader(this.options.schema, this.reader);
             // See kendo.scheduler.SchedulerDataReader which transforms dates with timezones
         },
 
@@ -208,11 +208,11 @@
                 return;
             }
 
-            if (!(model instanceof PageItem)) {
-                var pageItem = model;
+            if (!(model instanceof PageComponent)) {
+                var component = model;
 
                 model = this._createNewModel();
-                model.accept(pageItem);
+                model.accept(component);
             }
 
             return DataSource.fn.insert.call(this, index, model);
@@ -224,7 +224,7 @@
      * @method create
      * @param options
      */
-    PageItemCollectionDataSource.create = function(options) {
+    PageComponentCollectionDataSource.create = function(options) {
         options = options && options.push ? { data: options } : options;
 
         var dataSource = options || {},
@@ -232,15 +232,15 @@
 
         dataSource.data = data;
 
-        if (!(dataSource instanceof PageItemCollectionDataSource) && dataSource instanceof DataSource) {
-            throw new Error('Incorrect DataSource type. Only PageItemCollectionDataSource instances are supported');
+        if (!(dataSource instanceof PageComponentCollectionDataSource) && dataSource instanceof DataSource) {
+            throw new Error('Incorrect DataSource type. Only PageComponentCollectionDataSource instances are supported');
         }
 
-        return dataSource instanceof PageItemCollectionDataSource ? dataSource : new PageItemCollectionDataSource(dataSource);
+        return dataSource instanceof PageComponentCollectionDataSource ? dataSource : new PageComponentCollectionDataSource(dataSource);
     };
 
     /**
-     * Page node
+     * Page
      * @class Page
      * @type {void|*}
      */
@@ -258,7 +258,7 @@
         },
 
         /**
-         * Constructor
+         * @constructor
          * @param value
          */
         init: function(value) {
@@ -266,32 +266,36 @@
 
             Model.fn.init.call(that, value);
 
-            that._itemsOptions = {};
+            that._componentsOptions = {};
 
-            if($.isPlainObject(that.items)) {
-                $.extend(that._itemsOptions, that.items);
+            if($.isPlainObject(that.components)) {
+                $.extend(that._componentsOptions, that.components);
             }
 
-            //if (that.schema && that.schema.model && that.schema.model.items && that.schema.model.items.transport) {
-            //    $.extend(that._itemsOptions, {transport: that.schema.model.items.transport});
+            //if (that.schema && that.schema.model && that.schema.model.components && that.schema.model.components.transport) {
+            //    $.extend(that._componentsOptions, {transport: that.schema.model.components.transport});
             //}
 
-            if (value && $.isArray(value.items)) { //ObservableArray? PageItemDataSource?
-                $.extend(that._itemsOptions, {data: value.items});
+            if (value && $.isArray(value.components)) { //ObservableArray? PageComponentDataSource?
+                $.extend(that._componentsOptions, {data: value.components});
             }
 
-            that._initItems();
-            that._loaded = !!(value && (value.items || value._loaded));
+            that._initComponents();
+            that._loaded = !!(value && (value.components || value._loaded));
         },
 
-        _initItems: function() {
+        /**
+         * @method _initComponents
+         * @private
+         */
+        _initComponents: function() {
             var that = this;
-            var items, transport, parameterMap;
+            var components, transport, parameterMap;
 
-            if (!(that.items instanceof PageItemCollectionDataSource)) {
-                items = that.items = new PageItemCollectionDataSource(that._itemsOptions);
+            if (!(that.components instanceof PageComponentCollectionDataSource)) {
+                components = that.components = new PageComponentCollectionDataSource(that._componentsOptions);
 
-                transport = items.transport;
+                transport = components.transport;
                 parameterMap = transport.parameterMap;
 
                 transport.parameterMap = function(data, type) {
@@ -304,24 +308,21 @@
                     return data;
                 };
 
-                items.parent = function(){
+                components.parent = function(){
                     return that;
                 };
 
                 /*
-                //Note there is an ambiguity on items
-                //kendo ui uses items in e for the purpose of e.action
-                //we use items on collections including that
-                items.bind(CHANGE, function(e){
-                    e.node = e.node || that;
+                components.bind(CHANGE, function(e){
+                    e.node = e.node || that; //TODO: review
                     that.trigger(CHANGE, e);
                 });
 
-                items.bind(ERROR, function(e){
+                components.bind(ERROR, function(e){
                     var collection = that.parent();
 
                     if (collection) {
-                        e.node = e.node || that;
+                        e.node = e.node || that; //TODO: review
                         collection.trigger(ERROR, e);
                     }
                 });
@@ -329,36 +330,48 @@
             }
         },
 
+        /**
+         * @method append
+         * @param model
+         */
         append: function(model) {
-            this._initItems();
+            this._initComponents();
             this.loaded(true);
-            this.items.add(model);
+            this.components.add(model);
         },
 
-        _itemsLoaded: function() {
+        /**
+         * @method _componentsLoaded
+         * @private
+         */
+        _componentsLoaded: function() {
             this._loaded = true;
         },
 
+        /**
+         * @method load
+         * @returns {*}
+         */
         load: function() {
             var options = {};
             var method = '_query';
-            var items, promise;
+            var components, promise;
 
-            //if (this.hasItems) {
+            //if (this.hasComponents) {
 
-                this._initItems();
+                this._initComponents();
 
-                items = this.items;
+                components = this.components;
 
                 options[this.idField || 'id'] = this.id;
 
                 if (!this._loaded) {
-                    items._data = undefined;
+                    components._data = undefined;
                     method = 'read';
                 }
 
-                items.one(CHANGE, $.proxy(this._itemsLoaded, this));
-                promise = items[method](options);
+                components.one(CHANGE, $.proxy(this._componentsLoaded, this));
+                promise = components[method](options);
 
             //} else {
             //    this.loaded(true);
@@ -378,7 +391,7 @@
         },
 
         /**
-         * Gets or sets the loaded status of page items
+         * Gets or sets the loaded status of page components
          * @param value
          * @returns {boolean|*|Page._loaded}
          */
@@ -397,10 +410,10 @@
          */
         shouldSerialize: function(field) {
             return Model.fn.shouldSerialize.call(this, field) &&
-                field !== 'items' &&
+                field !== 'components' &&
                 field !== '_loaded' &&
-                //field !== 'hasItems' &&
-                field !== '_itemsOptions';
+                //field !== 'hasComponents' &&
+                field !== '_componentsOptions';
         }
     });
 
@@ -409,22 +422,31 @@
      * @type {*|void|Object}
      */
     var PageCollectionDataSource =  kidoju.PageCollectionDataSource = DataSource.extend({
+
+        /**
+         * @constructor
+         * @param options
+         */
         init: function(options) {
 
-            var page = Page.define({
-                items: options
+            var SubPage = Page.define({
+                components: options
             });
 
-            DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: page, model: page } }, options));
+            DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: SubPage, model: SubPage } }, options));
 
             // If there is a necessity to transform data, there is a possibility to change the reader as follows
-            // this.reader = new PageItemCollectionDataReader(this.options.schema, this.reader);
+            // this.reader = new PageComponentCollectionDataReader(this.options.schema, this.reader);
             // See kendo.scheduler.SchedulerDataReader which transforms dates with timezones
 
             this._attachBubbleHandlers();
 
         },
 
+        /**
+         * @method _attachBubbleHandlers
+         * @private
+         */
         _attachBubbleHandlers: function() {
             var that = this;
 
@@ -433,6 +455,11 @@
             });
         },
 
+        /**
+         * @method remove
+         * @param model
+         * @returns {*}
+         */
         remove: function(model) {
             return DataSource.fn.remove.call(this, model);
         },
@@ -441,6 +468,12 @@
 
         //data: dataMethod("data"),
 
+        /**
+         * @method insert
+         * @param index
+         * @param model
+         * @returns {*}
+         */
         insert: function(index, model) {
             if (!model) {
                 return;
@@ -458,6 +491,7 @@
 
         /**
          * Get an assessment object from properties
+         * @method getObjectFromProperties
          * @returns {*}
          */
         getObjectFromProperties: function() {
@@ -468,9 +502,9 @@
                 pages = this.data();
             for (var i = 0; i < pages.length; i++) {
                 pages[i].load();
-                var items = pages[i].items.data();
-                for (var j = 0; j < items.length; j++) {
-                    var properties = items[j].properties || {};
+                var components = pages[i].components.data();
+                for (var j = 0; j < components.length; j++) {
+                    var properties = components[j].properties || {};
                     for (var prop in properties) {
                         if (properties.hasOwnProperty(prop)) {
                             obj[properties[prop].name] = properties[prop].value;
@@ -542,7 +576,7 @@
         },
 
         /**
-         *
+         * @method _initPages
          * @private
          */
         _initPages: function() {
@@ -569,6 +603,7 @@
                     return that;
                 };
 
+                /*
                 pages.bind(CHANGE, function(e){
                     e.node = e.node || that;
                     that.trigger(CHANGE, e);
@@ -582,6 +617,7 @@
                         collection.trigger(ERROR, e);
                     }
                 });
+                */
 
                 //that._updatePagesField();
             }
@@ -650,9 +686,9 @@
             //Save pages
             promises.push(that.pages.sync());
 
-            //Save page items
+            //Save page components
             $.each(that.pages.data(), function(index, page) {
-                promises.push(page.items.sync());
+                promises.push(page.components.sync());
             });
 
             return $.when.apply($, promises);

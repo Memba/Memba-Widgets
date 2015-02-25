@@ -197,15 +197,15 @@
 
         /**
          * Get Html content
-         * @param item
+         * @param component
          */
-        getHtml: function (item) {
+        getHtml: function (component) {
             throw new Error('Please implement in subclassed tool.');
         }
 
-        // onMove(e.item)
-        // onResize(e.item)
-        // onRotate(e.item)
+        // onMove(e.component)
+        // onResize(e.component)
+        // onRotate(e.component)
     });
 
     /**
@@ -478,13 +478,13 @@
         /**
          * Get Html content
          * @method getHtml
-         * @param item
+         * @param component
          * @returns {*}
          */
-        getHtml: function(item) {
-            if (item instanceof kidoju.PageItem) {
+        getHtml: function(component) {
+            if (component instanceof kidoju.PageComponent) {
                 var template = kendo.template(this.templates.default);
-                return template(item);
+                return template(component);
             }
         },
 
@@ -492,17 +492,17 @@
          * onResize Event Handler
          * @method onResize
          * @param e
-         * @param item
+         * @param component
          */
-        onResize: function(e, item) {
+        onResize: function(e, component) {
             var stageElement = $(e.currentTarget);
-            if(stageElement.is(ELEMENT_CLASS) && item instanceof kidoju.PageItem) {
+            if(stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) {
                 var content = stageElement.find('>span');
-                if ($.type(item.width) === NUMBER) {
-                    content.width(item.width);
+                if ($.type(component.width) === NUMBER) {
+                    content.width(component.width);
                 }
-                if ($.type(item.height) === NUMBER) {
-                    content.height(item.height);
+                if ($.type(component.height) === NUMBER) {
+                    content.height(component.height);
                 }
                 var fontSize = parseInt(content.css('font-size'));
                 var clone = content.clone()
@@ -511,15 +511,15 @@
                         position: ABSOLUTE,
                         height: 'auto'
                     })
-                    .width(item.width);
+                    .width(component.width);
                 stageElement.after(clone);
                 //if no overflow, increase until overflow
-                while(clone.height() < item.height) {
+                while(clone.height() < component.height) {
                     fontSize++;
                     clone.css('font-size', fontSize);
                 }
                 //if overflow, decrease until no overflow
-                while(clone.height() > item.height) {
+                while(clone.height() > component.height) {
                     fontSize--;
                     clone.css('font-size', fontSize);
                 }
@@ -555,30 +555,30 @@
         /**
          * Get Html content
          * @method getHtml
-         * @param item
+         * @param component
          * @returns {*}
          */
-        getHtml: function(item) {
-            if (item instanceof kidoju.PageItem) {
+        getHtml: function(component) {
+            if (component instanceof kidoju.PageComponent) {
                 var template = kendo.template(this.templates.default);
-                return template(item);
+                return template(component);
             }
         },
         /**
          * onResize Event Handler
          * @method onResize
          * @param e
-         * @param item
+         * @param component
          */
-        onResize: function(e, item) {
+        onResize: function(e, component) {
             var stageElement = $(e.currentTarget);
-            if(stageElement.is(ELEMENT_CLASS) && item instanceof kidoju.PageItem) {
+            if(stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) {
                 var content = stageElement.find('>img');
-                if ($.type(item.width) === NUMBER) {
-                    content.width(item.width);
+                if ($.type(component.width) === NUMBER) {
+                    content.width(component.width);
                 }
-                if ($.type(item.height) === NUMBER) {
-                    content.height(item.height);
+                if ($.type(component.height) === NUMBER) {
+                    content.height(component.height);
                 }
                 //prevent any side effect
                 e.preventDefault();
@@ -609,13 +609,13 @@
         /**
          * Get Html content
          * @method getHtml
-         * @param item
+         * @param component
          * @returns {*}
          */
-        getHtml: function(item) {
-            if (item instanceof kidoju.PageItem) {
+        getHtml: function(component) {
+            if (component instanceof kidoju.PageComponent) {
                 var template = kendo.template(this.templates.default);
-                return template(item);
+                return template(component);
             }
         },
 
@@ -623,18 +623,18 @@
          * onResize Event Handler
          * @method onResize
          * @param e
-         * @param item
+         * @param component
          */
-        onResize: function(e, item) {
+        onResize: function(e, component) {
             var stageElement = $(e.currentTarget);
-            if(stageElement.is(ELEMENT_CLASS) && item instanceof kidoju.PageItem) {
+            if(stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) {
                 var content = stageElement.find('>input');
-                if ($.type(item.width) === NUMBER) {
-                    content.width(item.width);
+                if ($.type(component.width) === NUMBER) {
+                    content.width(component.width);
                 }
-                if ($.type(item.height) === NUMBER) {
-                    content.height(item.height);
-                    content.css('font-size', Math.floor(0.75*item.height));
+                if ($.type(component.height) === NUMBER) {
+                    content.height(component.height);
+                    content.css('font-size', Math.floor(0.75*component.height));
                 }
                 //prevent any side effect
                 e.preventDefault();
@@ -667,37 +667,37 @@
         /**
          * Get Html content
          * @method getHtml
-         * @param item
+         * @param component
          * @returns {*}
          */
-        getHtml: function(item) {
-            if (item instanceof kidoju.PageItem) {
+        getHtml: function(component) {
+            if (component instanceof kidoju.PageComponent) {
                 var template = kendo.template(this.templates.default);
-                return template(item);
+                return template(component);
             }
         },
-        addEvents: function(item) {
+        addEvents: function(component) {
 
         },
-        removeEvents: function(item) {
+        removeEvents: function(component) {
 
         },
         /**
          * onResize Event Handler
          * @method onResize
          * @param e
-         * @param item
+         * @param component
          */
-        onResize: function(e, item) {
+        onResize: function(e, component) {
             var stageElement = $(e.currentTarget);
-            if(stageElement.is(ELEMENT_CLASS) && item instanceof kidoju.PageItem) { //TODO: same id, same tool?
+            if(stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { //TODO: same id, same tool?
                 var content = stageElement.find('>button');
-                if ($.type(item.width) === NUMBER) {
-                    content.width(item.width);
+                if ($.type(component.width) === NUMBER) {
+                    content.width(component.width);
                 }
-                if ($.type(item.height) === NUMBER) {
-                    content.height(item.height);
-                    content.css('font-size', Math.floor(0.75*item.height));
+                if ($.type(component.height) === NUMBER) {
+                    content.height(component.height);
+                    content.css('font-size', Math.floor(0.75*component.height));
                 }
                 //prevent any side effect
                 e.preventDefault();

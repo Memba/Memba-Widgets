@@ -124,7 +124,7 @@
          * @returns {*}
          */
         index: function(value) {
-            var that = this, pageItem;
+            var that = this, component;
             if(value !== undefined) {
                 log('index set to ' + value);
                 if ($.type(value) !== NUMBER) {
@@ -132,13 +132,13 @@
                 } else if (value < 0 || (value > 0 && value >= that.length())) {
                     throw new RangeError();
                 } else {
-                    pageItem = that.dataSource.at(value);
-                    that.selection(pageItem);
+                    component = that.dataSource.at(value);
+                    that.selection(component);
                 }
             } else {
-                pageItem = that.dataSource.getByUid(that._selectedUid);
-                if (pageItem instanceof kidoju.PageItem) {
-                    return that.dataSource.indexOf(pageItem);
+                component = that.dataSource.getByUid(that._selectedUid);
+                if (component instanceof kidoju.PageComponent) {
+                    return that.dataSource.indexOf(component);
                 } else {
                     return -1;
                 }
@@ -151,17 +151,17 @@
          * @returns {*}
          */
         id: function (value) {
-            var that = this, pageItem;
+            var that = this, component;
             if (value !== undefined) {
                 if (!isGuid(value)) {
                     throw new TypeError();
                 }
-                pageItem = that.dataSource.get(value);
-                that.selection(pageItem);
+                component = that.dataSource.get(value);
+                that.selection(component);
             } else {
-                pageItem = that.dataSource.getByUid(that._selectedUid);
-                if (pageItem instanceof kidoju.PageItem) {
-                    return pageItem[pageItem.idField];
+                component = that.dataSource.getByUid(that._selectedUid);
+                if (component instanceof kidoju.PageComponent) {
+                    return component[component.idField];
                 } else {
                     return undefined;
                 }
@@ -178,7 +178,7 @@
             if (value === null) {
                 $.noop(); //TODO
             } else if (value !== undefined) {
-                if (!(value instanceof kidoju.PageItem)) {
+                if (!(value instanceof kidoju.PageComponent)) {
                     throw new TypeError();
                 }
                 //This might be executed before the dataSource is actually read
@@ -211,7 +211,7 @@
          * @returns {*}
          */
         length: function() {
-            return (this.dataSource instanceof kidoju.PageItemCollectionDataSource) ? this.dataSource.total() : 0;
+            return (this.dataSource instanceof kidoju.PageComponentCollectionDataSource) ? this.dataSource.total() : 0;
         },
 
         /**
@@ -256,13 +256,13 @@
 
             //There is no reason why, in its current state, it would not work with any dataSource
             //if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
-            if ( that.dataSource instanceof kidoju.PageItemCollectionDataSource && that._refreshHandler ) {
+            if ( that.dataSource instanceof kidoju.PageComponentCollectionDataSource && that._refreshHandler ) {
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
             }
 
             if (that.options.dataSource !== NULL) {  //use null to explicitely destroy the dataSource bindings
                 // returns the datasource OR creates one if using array or configuration object
-                that.dataSource = kidoju.PageItemCollectionDataSource.create(that.options.dataSource);
+                that.dataSource = kidoju.PageComponentCollectionDataSource.create(that.options.dataSource);
 
                 that._refreshHandler = $.proxy(that.refresh, that);
 
@@ -310,7 +310,7 @@
             if (e === undefined || e.type !== CHANGE) {
 
                 var data = [];
-                if (e=== undefined && that.dataSource instanceof kidoju.PageItemCollectionDataSource) {
+                if (e=== undefined && that.dataSource instanceof kidoju.PageComponentCollectionDataSource) {
                     data = that.dataSource.data();
                 } else if (e && e.items instanceof kendo.data.ObservableArray) {
                     data = e.items;
@@ -334,7 +334,7 @@
                 //See selection method:
                 //MVVM might bind selection before dataSource is read
                 //So we wait here until dataSource is read to assign selection
-                if(html.length > 0 && that._tmp instanceof kidoju.PageItem) {
+                if(html.length > 0 && that._tmp instanceof kidoju.PageComponent) {
                     that.selection(that._tmp);
                     delete that._tmp;
                 } else if (html.length === 0) {
@@ -375,8 +375,8 @@
             var target = $(e.currentTarget);
             e.preventDefault();
             if (!target.is('.' + SELECTED_CLASS)) {
-                var pageItem = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
-                this.selection(pageItem);
+                var component = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
+                this.selection(component);
             }
         },
 

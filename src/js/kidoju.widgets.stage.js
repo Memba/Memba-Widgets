@@ -915,6 +915,10 @@
                 $.each(components, function(index, component) {
                     that._addStageElement(component);
                 });
+
+                //If the following line triggers `Uncaught TypeError: Cannot read property 'length' of null` in the console
+                //This is probably because binding on properties has not been properly set - check html
+                //as in <input type="text" style="width: 300px; height: 100px; font-size: 75px;" data-bind="value: ">
                 that.trigger(DATABOUND);
 
                 // We can only bind properties after all dataBound event handlers have executed

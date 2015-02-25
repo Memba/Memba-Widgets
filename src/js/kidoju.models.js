@@ -48,6 +48,20 @@
         }
     }
 
+    function dataMethod(name) {
+        return function() {
+            var data = this._data,
+                result = DataSource.fn[name].apply(this, [].slice.call(arguments));
+
+            if (this._data != data) {
+                this._attachBubbleHandlers();
+            }
+
+            return result;
+        };
+    }
+
+
     /*********************************************************************************
      * Models
      *********************************************************************************/
@@ -151,91 +165,15 @@
 
                 }
             }
-        }
-    });
+        },
 
-    /**
-     * See kendo.scheduler.SchedulerDataReader
-     * @param originalFunction
-     * @returns {Function}
-     */
-    function wrapDataAccess(originalFunction /*,params*/) {
-        return function(data) {
-            data = originalFunction(data);
-            //TODO: Convert data here
-            return data || [];
-        };
-    }
-
-    /**
-     * See kendo.scheduler.SchedulerDataReader
-     * @param originalFunction
-     * @returns {Function}
-     */
-    function wrapDataSerialization(originalFunction /*,params*/) {
-        return function(data) {
-            if (data) {
-                if (Object.prototype.toString.call(data) !== '[object Array]' && !(data instanceof ObservableArray)) {
-                    data = [data];
-                }
-            }
-            //TODO: Convert data here
-            data = originalFunction(data);
-            return data || [];
-        };
-    }
-
-    /**
-     *
-     * @param name
-     * @returns {Function}
-     */
-    function dataMethod(name) {
-        return function() {
-            var data = this._data,
-                result = DataSource.fn[name].apply(this, [].slice.call(arguments));
-
-            if (this._data != data) {
-                this._attachBubbleHandlers();
-            }
-
-            return result;
-        };
-    }
-
-    /**
-     * @class PageItemCollectionDataReader
-     * @type {*}
-     */
-    var PageItemCollectionDataReader = Class.extend({
-        init: function(schema, reader) {
-            this.reader = reader;
-            if (reader.model) {
-                this.model = reader.model;
-            }
-            this.data = wrapDataAccess($.proxy(this.data, this) /*,params*/);
-            this.serialize = wrapDataSerialization($.proxy(this.serialize, this) /*,params*/);
-        },
-        errors: function(data) {
-            return this.reader.errors(data);
-        },
-        parse: function(data) {
-            return this.reader.parse(data);
-        },
-        data: function(data) {
-            return this.reader.data(data);
-        },
-        total: function(data) {
-            return this.reader.total(data);
-        },
-        groups: function(data) {
-            return this.reader.groups(data);
-        },
-        aggregates: function(data) {
-            return this.reader.aggregates(data);
-        },
-        serialize: function(data) {
-            return this.reader.serialize(data);
+        /**
+         * Get the parent page
+         * @returns {*}
+         */
+        page: function() {
+            var itemCollection = this.parent();
+            return itemCollection.parent();
         }
     });
 
@@ -246,25 +184,15 @@
     var PageItemCollectionDataSource =  kidoju.PageItemCollectionDataSource = DataSource.extend({
         init: function(options) {
 
-            /*if(options && options.schema && options.schema.model !== PageItem) {
-                throw new Error('PageItemCollectionDataSource sets PageItem as the schema model');
-            }
-
-            DataSource.fn.init.call(this, $.extend(true, {}, options, {
-                schema: {
-                    modelBase: PageItem,
-                    model: PageItem
-                }
-            }));
-            */
-
             var pageItem = PageItem.define({
                 items: options
             });
 
             DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: pageItem, model: pageItem } }, options));
 
-            this.reader = new PageItemCollectionDataReader(this.options.schema, this.reader);
+            // If there is a necessity to transform data, there is a possibility to change the reader as follows
+            // this.reader = new PageItemCollectionDataReader(this.options.schema, this.reader);
+            // See kendo.scheduler.SchedulerDataReader which transforms dates with timezones
         },
 
         remove: function(model) {
@@ -380,6 +308,10 @@
                     return that;
                 };
 
+                /*
+                //Note there is an ambiguity on items
+                //kendo ui uses items in e for the purpose of e.action
+                //we use items on collections including that
                 items.bind(CHANGE, function(e){
                     e.node = e.node || that;
                     that.trigger(CHANGE, e);
@@ -393,6 +325,7 @@
                         collection.trigger(ERROR, e);
                     }
                 });
+                */
             }
         },
 
@@ -472,42 +405,6 @@
     });
 
     /**
-     * @class PageCollectionDataReader
-     * @type {*}
-     */
-    var PageCollectionDataReader = Class.extend({
-        init: function(schema, reader) {
-            this.reader = reader;
-            if (reader.model) {
-                this.model = reader.model;
-            }
-            this.data = wrapDataAccess($.proxy(this.data, this) /*,params*/);
-            this.serialize = wrapDataSerialization($.proxy(this.serialize, this) /*,params*/);
-        },
-        errors: function(data) {
-            return this.reader.errors(data);
-        },
-        parse: function(data) {
-            return this.reader.parse(data);
-        },
-        data: function(data) {
-            return this.reader.data(data);
-        },
-        total: function(data) {
-            return this.reader.total(data);
-        },
-        groups: function(data) {
-            return this.reader.groups(data);
-        },
-        aggregates: function(data) {
-            return this.reader.aggregates(data);
-        },
-        serialize: function(data) {
-            return this.reader.serialize(data);
-        }
-    });
-
-    /**
      * @class PageCollectionDataSource
      * @type {*|void|Object}
      */
@@ -520,7 +417,9 @@
 
             DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: page, model: page } }, options));
 
-            this.reader = new PageCollectionDataReader(this.options.schema, this.reader);
+            // If there is a necessity to transform data, there is a possibility to change the reader as follows
+            // this.reader = new PageItemCollectionDataReader(this.options.schema, this.reader);
+            // See kendo.scheduler.SchedulerDataReader which transforms dates with timezones
 
             this._attachBubbleHandlers();
 
@@ -743,15 +642,24 @@
          * Save
          */
         save: function() {
-            var promises = [];
+            var that = this,
+                promises = [];
 
-            //TODO
+            //TODO: save stream....
+
+            //Save pages
+            promises.push(that.pages.sync());
+
+            //Save page items
+            $.each(that.pages.data(), function(index, page) {
+                promises.push(page.items.sync());
+            });
 
             return $.when.apply($, promises);
         },
 
         /**
-         *
+         * Gets or sets loaded value
          * @param value
          * @returns {boolean|*}
          */
@@ -764,7 +672,7 @@
         },
 
         /**
-         * Checks whether field should be serialized
+         * Check which field should be serialized
          * @param field
          * @returns {*|boolean}
          */

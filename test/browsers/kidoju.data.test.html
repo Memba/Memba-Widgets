@@ -1,7 +1,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>kidoju.models.test</title>
+    <title>kidoju.data.test</title>
     <link href="../vendor/mocha.css" rel="stylesheet" />
     <link href="../../src/styles/vendor/kendo.common.min.css" rel="stylesheet" />
     <link href="../../src/styles/vendor/kendo.default.min.css" rel="stylesheet" />
@@ -22,12 +22,12 @@
         mocha.setup('bdd');
     </script>
     <!-- models requirements -->
-    <script src="../../src/js/kidoju.models.js" data-cover></script>
+    <script src="../../src/js/kidoju.data.js" data-cover></script>
     <script src="../../src/js/kidoju.tools.js"></script>
 </head>
 <body>
 <div id="mocha"></div>
-<script src="kidoju.models.test.js"></script>
+<script src="kidoju.data.test.js"></script>
 <script>
     mocha.checkLeaks().globals(['_jb_debug_helper', 'jQuery', 'kendo', 'kidoju']);
     if (!window.blanket && !window.PHANTOMJS) {

@@ -16,22 +16,24 @@
         "dist/styles/kidoju.widgets.css"
     ],
     "ignore": [
+        "coverage/",
+        "docs/",
+        "node_modules/",
+        "nodejs/",
         "src/",
+        "temp/",
         "test/",
         "**/.*",
-        "bower.json",
-        "*.md",
         "*.cmd",
-        "gruntfile.js",
+        "*.js",
+        "*.log",
+        "*.md",
         "package.json"
     ],
     "dependencies": {
-        "jquery": ">=1.9.1 <=2.0.3",
-        "jquery.transit": ">=0.9.9",
-        "kendo-ui": ">=2014.1.318"
+        "jquery": ">=1.9.1 <=2.1.3",
+        "kendo-ui": ">=2014.3.1119"
     },
     "devDependencies": {
-        "qunit": "1.14.0",
-        "sinon": "1.9.0"
     }
 }

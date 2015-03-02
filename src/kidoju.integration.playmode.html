@@ -21,54 +21,156 @@
     <script src="./js/kidoju.widgets.bindings.js"></script>
     <script src="./js/kidoju.widgets.playbar.js"></script>
     <script src="./js/kidoju.widgets.stage.js"></script>
+    <style>
+        html, body {
+            font: 14px sans-serif;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+        header {
+            height: 48px;
+            background-color: #001111;
+        }
+        header>img {
+            padding: 2px 5px;
+        }
+        footer {
+            position: absolute;
+            height: 35px;
+            bottom: 0px;
+        }
+        footer>div {
+            padding: 8px;
+        }
+    </style>
 </head>
 <body>
-<div data-role="stage" data-bind="source: current.components, properties: result" data-mode="play"></div>
-<div data-role="playbar" data-bind="source: pages, value: current"></div>
-<div>
-    <label>textfield1:</label><input data-bind="value: result.textfield1"><br/>
-    <label>textfield2:</label><input data-bind="value: result.textfield2"><br/>
-    <label>textfield3:</label><input data-bind="value: result.textfield3"><br/>
-</div>
+<header>
+    <img src="https://raw.githubusercontent.com/Memba/Kidoju-Webapp/master/webapp/public/styles/images/KdjLogoBB.png" alt="Kidoju Logo">
+</header>
+<main>
+    <div data-role="playbar" data-bind="source: stream.pages, value: currentPage"></div>
+    <div data-role="stage" data-bind="source: currentPage.components, properties: result" data-mode="play"></div>
+    <div>
+        <label>textfield1:</label><input data-bind="value: result.textfield1"><br/>
+        <label>textfield2:</label><input data-bind="value: result.textfield2"><br/>
+        <label>textfield3:</label><input data-bind="value: result.textfield3"><br/>
+    </div>
+</main>
+<footer>
+    <div>Copyright &copy; 2013-2015 Memba Sarl. All rights reserved.</div>
+</footer>
 <script>
-    var pageCollectionData = [
-        {
-            id: '29c14ae2-496b-49f5-9551-e0d7e4aa6032',
-            components: [
-                { id: 'be1935d0-ff0e-4818-a5a8-762127f3b506', tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: '//marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                { id: 'f2b4179e-3189-401b-bb17-65ceaf62b1eb', tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
-                { id: 'c3d46312-07c3-44dc-a1c9-987654949927', tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield1'} }
+
+    //LocalStream with localStorage methods
+    var storageKey = 'kidoju.integration',
+        LocalStream = kidoju.Stream.define({
+            load: function() {
+                var that = this,
+                    dfd = $.Deferred(),
+                    stream = localStorage.getItem(storageKey),
+                    pages = [];
+                if($.type(stream) === 'string') {
+                    try {
+                        stream = $.parseJSON(stream);
+                    } catch(e) {
+                        stream = {};
+                    }
+                }
+                if($.isArray(stream.pages)) {
+                    pages = stream.pages.slice();
+                }
+                stream.pages = undefined;
+                that.accept(stream);
+                that.pages = new kidoju.PageCollectionDataSource({data: pages});
+                that.pages.fetch()
+                    .done(function() {
+                        var promises = [];
+                        $.each(that.pages.data(), function(index, page) {
+                            promises.push(page.components.fetch());
+                        });
+                        $.when.apply($, promises)
+                            .done(dfd.resolve)
+                            .fail(dfd.reject);
+                    })
+                    .fail(dfd.reject);
+                return dfd.promise();
+            },
+            save: function() {
+                //TODO: check changes and avoid saving without changes
+                var that = this,
+                    dfd = $.Deferred();
+                if (that.isNew()) {
+                    that.accept({id: kendo.guid()});
+                }
+                var data = $.extend(that.toJSON(), { pages : [] });
+                $.each(that.pages.data(), function(pageIdx, page){
+                    if (page.isNew()) {
+                        page.accept({id: kendo.guid()});
+                    }
+                    if (page.dirty) {
+                        page.dirty = false;
+                    }
+                    data.pages.push($.extend(page.toJSON(), { components: [] }));
+                    $.each(page.components.data(), function(componentIdx, component) {
+                        if (component.isNew()) {
+                            component.accept({id: kendo.guid()});
+                        }
+                        if (component.dirty) {
+                            component.dirty = false;
+                        }
+                        data.pages[data.pages.length - 1].components.push(component.toJSON());
+                    });
+                });
+                localStorage.setItem(storageKey, kendo.stringify(data));
+                return dfd.resolve().promise();
+            }
+        }),
+        streamData = {
+            id: kendo.guid(),
+            pages: [
+                {
+                    id: kendo.guid(),
+                    components: [
+                        { id: kendo.guid(), tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: '//marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
+                        { id: kendo.guid(), tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
+                        { id: kendo.guid(), tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield1' } }
+                    ]
+                },
+                {
+                    id: kendo.guid(),
+                    components: [
+                        { id: kendo.guid(), tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
+                        { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield2' } }
+                    ]
+                },
+                {
+                    id: kendo.guid(),
+                    components: [
+                        { id: kendo.guid(), tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
+                        { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield3' } }
+                    ]
+                }
             ]
-        },
-        {
-            id: 'c0878ced-8e3f-4161-a83a-049caed02d53',
-            components: [
-                { id: 'c745e385-d409-40d0-a4d7-1b7c14abc2f6', tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
-                { id: '25bd6088-dc9f-4c9c-a697-be32b8673ba9', tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield2' } }
-            ]
-        },
-        {
-            id: '9e3803f8-a91c-408e-bded-d1b86c68723c',
-            components: [
-                { id: 'f6725a70-20b2-4adf-8b3a-a2d3f84da50d', tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
-                { id: '3894e35b-b740-46c8-be24-21f4a3b9c24d', tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield3' } }
-            ]
-        }
-    ],
-    pageCollectionDataSource = new kidoju.PageCollectionDataSource({ data: pageCollectionData }),
-    viewModel = window.viewModel = kendo.observable({
-        current: undefined,
-        pages: pageCollectionDataSource,
-        result: undefined,
-        change: function(e) {
-            $.noop();
-        }
+        };
+
+    //Create some dummy data
+    if (!window.localStorage.getItem(storageKey)) {
+        window.localStorage.setItem(storageKey, kendo.stringify(streamData));
+    }
+
+    //Define viewModel
+    var viewModel = window.viewModel = kendo.observable({
+        stream: new LocalStream(),
+        currentPage: undefined,
+        result: undefined
     });
 
     $(document).ready(function() {
-        pageCollectionDataSource.fetch(function() {
-            window.viewModel.set('current', pageCollectionDataSource.at(0));
-            window.viewModel.set('result', pageCollectionDataSource.getObjectFromProperties());
+        viewModel.stream.load().then(function() {
+            window.viewModel.set('currentPage', viewModel.stream.pages.at(0));
+            window.viewModel.set('result', viewModel.stream.pages.getObjectFromProperties());
             kendo.bind('body', viewModel);
         });
     });

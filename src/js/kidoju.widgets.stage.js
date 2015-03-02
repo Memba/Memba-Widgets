@@ -57,13 +57,13 @@
         //Elements
         WRAPPER = '<div class="k-widget kj-stage" />',
         //WRAPPER_CLASS = '.kj-stage',
-        ELEMENT = '<div data-id="{0}" data-tool="{1}" class="kj-element"></div>',
-        ELEMENT_SELECTOR = '.kj-element[data-id="{0}"]',
+        ELEMENT = '<div data-uid="{0}" data-tool="{1}" class="kj-element"></div>',
+        ELEMENT_SELECTOR = '.kj-element[data-uid="{0}"]',
         ELEMENT_CLASS = '.kj-element',
         THUMBNAIL_OVERLAY = '<div class="kj-overlay"></div>',
         THUMBNAIL_OVERLAY_CLASS = '.kj-overlay',
         HANDLE_BOX = '<div class="kj-handle-box"></div>',
-        HANDLE_BOX_SELECTOR = '.kj-handle-box[data-id="{0}"]',
+        HANDLE_BOX_SELECTOR = '.kj-handle-box[data-uid="{0}"]',
         HANDLE_BOX_CLASS = '.kj-handle-box',
         HANDLE_MOVE = '<span class="kj-handle" data-command="move"></span>',
         HANDLE_RESIZE = '<span class="kj-handle" data-command="resize"></span>',
@@ -71,7 +71,7 @@
         HANDLE_MENU = '<span class="kj-handle" data-command="menu"></span>',
         //HANDLE_SELECTOR = '.kj-handle[data-command="{0}"]',
         HANDLE_CLASS = '.kj-handle',
-        DATA_ID = 'data-id',
+        DATA_UID = 'data-uid',
         //DATA_TOOL = 'data-tool',
         DATA_COMMAND = 'data-command',
         STATE = 'state',
@@ -297,6 +297,27 @@
         },
 
         /**
+         * @method selection
+         * @param component
+         * @returns {*}
+         */
+        selection: function(component) {
+            var that = this;
+            if (component === undefined) {
+                return that.dataSource.getByUid(that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID));
+            } else {
+                if (!(component instanceof kidoju.PageComponent)) {
+                    throw new TypeError();
+                }
+                if (component.uid !== that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID)) {
+                    if (that.dataSource.getByUid(component.uid) instanceof kidoju.PageComponent) {
+                        that._selectByUid(component.uid);
+                    }
+                }
+            }
+        },
+
+        /**
          * Properties
          * @param value
          * @returns {*}
@@ -447,39 +468,44 @@
          * Add delegated event handlers on stage elements
          * @private
          */
-        _addElementEventHandlers: function() {
-
+        _addStageElementEventHandlers: function() {
             var that = this;
-
             //Translation
-            that.stage.on(MOVE + NS, ELEMENT_CLASS, function(e, item) {
-                if (that.options.tools instanceof kendo.data.ObservableObject) {
-                    var tool = that.options.tools[item.tool];
-                    if (tool instanceof kidoju.Tool && $.isFunction(tool.onMove)) {
-                        tool.onMove(e, item);
-                    }
-                }
-            });
-
+            that.stage.on(MOVE + NS, ELEMENT_CLASS, $.proxy(that._moveStageElement, that));
             //Resizing
-            that.stage.on(RESIZE + NS, ELEMENT_CLASS, function(e, item) {
-                if (that.options.tools instanceof kendo.data.ObservableObject) {
-                    var tool = that.options.tools[item.tool];
-                    if (tool instanceof kidoju.Tool && $.isFunction(tool.onResize)) {
-                        tool.onResize(e, item);
-                    }
-                }
-            });
-
+            that.stage.on(RESIZE + NS, ELEMENT_CLASS,  $.proxy(that._resizeStageElement, that));
             //Rotation
-            that.stage.on(ROTATE + NS, ELEMENT_CLASS, function(e, item) {
-                if (that.options.tools instanceof kendo.data.ObservableObject) {
-                    var tool = that.options.tools[item.tool];
-                    if (tool instanceof kidoju.Tool && $.isFunction(tool.onRotate)) {
-                        tool.onRotate(e, item);
-                    }
+            that.stage.on(ROTATE + NS, ELEMENT_CLASS,  $.proxy(that._rotateStageElement, that));
+        },
+
+        _moveStageElement: function(e, component) {
+            var that = this;
+            if (that.options.tools instanceof kendo.data.ObservableObject) {
+                var tool = that.options.tools[component.tool];
+                if (tool instanceof kidoju.Tool && $.isFunction(tool.onMove)) {
+                    tool.onMove(e, component);
                 }
-            });
+            }
+        },
+
+        _resizeStageElement: function(e, component) {
+            var that = this;
+            if (that.options.tools instanceof kendo.data.ObservableObject) {
+                var tool = that.options.tools[component.tool];
+                if (tool instanceof kidoju.Tool && $.isFunction(tool.onResize)) {
+                    tool.onResize(e, component);
+                }
+            }
+        },
+
+        _rotateStageElement: function(e, component) {
+            var that = this;
+            if (that.options.tools instanceof kendo.data.ObservableObject) {
+                var tool = that.options.tools[component.tool];
+                if (tool instanceof kidoju.Tool && $.isFunction(tool.onRotate)) {
+                    tool.onRotate(e, component);
+                }
+            }
         },
 
         /**
@@ -505,7 +531,7 @@
                 .appendTo(that.wrapper);
 
             //Add delegated element event handlers
-            that._addElementEventHandlers();
+            that._addStageElementEventHandlers();
 
         },
 
@@ -535,7 +561,7 @@
             that.wrapper.on(MOUSEUP + NS + ' ' + TOUCHEND + NS, $.proxy(that._onMouseUp, that));
 
             //Add delegated element event handlers
-            that._addElementEventHandlers();
+            that._addStageElementEventHandlers();
 
             //Add debug visual elements
             util.addDebugVisualElements(that.wrapper);
@@ -568,8 +594,8 @@
                 case 'lock':
                     break;
                 case 'delete':
-                    var id = that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_ID),
-                        item = that.dataSource.get(id);
+                    var uid = that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID),
+                        item = that.dataSource.getByUid(uid);
                     that.dataSource.remove(item);
                     //This should raise teh change event on the dataSource and call the refresh method of the widget
                     break;
@@ -585,7 +611,7 @@
             var that = this;
 
             //Add delegated element event handlers
-            that._addElementEventHandlers();
+            that._addStageElementEventHandlers();
 
             //Bind properties
             if($.isFunction(that._propertyBinding)) {
@@ -606,44 +632,47 @@
 
         /**
          * Add an element to the stage either on a click or from persistence
-         * @param item
+         * @param component
          * @param mouseX
          * @param mouseY
          * @private
          */
-        _addStageElement: function(item, mouseX, mouseY) {
+        _addStageElement: function(component, mouseX, mouseY) {
             var that = this;
 
-            //Check we have an item which is not already on stage
-            if (item instanceof kidoju.PageComponent && that.stage.find(kendo.format(ELEMENT_SELECTOR, item.id)).length === 0) {
+            //Check we have an component which is not already on stage
+            if (component instanceof kidoju.PageComponent && that.stage.find(kendo.format(ELEMENT_SELECTOR, component.uid)).length === 0) {
 
-                //When adding a new item on the stage, position it at mouse click coordinates
+                //When adding a new component on the stage, position it at mouse click coordinates
                 if ($.type(mouseX) === NUMBER && $.type(mouseY) === NUMBER) {
-                    item.set(LEFT, mouseX);
-                    item.set(TOP, mouseY);
+                    component.set(LEFT, mouseX);
+                    component.set(TOP, mouseY);
                 }
 
-                var tool = that.options.tools[item.tool];
+                var tool = that.options.tools[component.tool];
                 if (tool instanceof kidoju.Tool) {
 
-                    var stageElement = $(kendo.format(ELEMENT, item.id, item.tool))
+                    var stageElement = $(kendo.format(ELEMENT, component.uid, component.tool))
                         .css({
                             position: ABSOLUTE,
-                            top: item.get(TOP),
-                            left: item.get(LEFT),
-                            height: item.get(HEIGHT),
-                            width: item.get(WIDTH),
+                            top: component.get(TOP),
+                            left: component.get(LEFT),
+                            height: component.get(HEIGHT),
+                            width: component.get(WIDTH),
                             //transformOrigin: 'center center', //by default
-                            transform: kendo.format(CSS_ROTATE, item.get(ROTATE))
+                            transform: kendo.format(CSS_ROTATE, component.get(ROTATE))
                         });
 
-                    stageElement.append(tool.getHtml(item));
+                    stageElement.append(tool.getHtml(component));
                     that.stage.append(stageElement);
 
                     //trigger events to transform the stageElement (most often resize)
-                    stageElement.trigger(MOVE + NS, item);
-                    stageElement.trigger(RESIZE + NS, item);
-                    stageElement.trigger(ROTATE + NS, item);
+                    //stageElement.trigger(MOVE + NS, component);
+                    //stageElement.trigger(RESIZE + NS, component);
+                    //stageElement.trigger(ROTATE + NS, component);
+                    that._moveStageElement({ currentTarget: stageElement, preventDefault: $.noop, stopPropagation: $.noop }, component);
+                    that._resizeStageElement({ currentTarget: stageElement, preventDefault: $.noop, stopPropagation: $.noop }, component);
+                    that._rotateStageElement({ currentTarget: stageElement, preventDefault: $.noop, stopPropagation: $.noop }, component);
                 }
             }
 
@@ -651,15 +680,15 @@
 
         /**
          * Remove an element from the stage
-         * @param id
+         * @param uid
          * @private
          */
-        _removeStageElement: function(id) {
+        _removeStageElementByUid: function(uid) {
 
             //TODO use a tool method to avoid leaks (remove all event handlers, ...)
 
             //Find and remove stage element
-            var stageElement = this.stage.find(kendo.format(ELEMENT_SELECTOR, id));
+            var stageElement = this.stage.find(kendo.format(ELEMENT_SELECTOR, uid));
             kendo.unbind(stageElement);
             stageElement.off(NS).remove();
         },
@@ -667,16 +696,16 @@
         /**
          * Show handles on a stage element
          * @method _showHandles
-         * @param id
+         * @param uid
          * @private
          */
-        _showHandles: function(id){
+        _showHandles: function(uid){
             var that = this,
                 handleBox = that.wrapper.find(HANDLE_BOX_CLASS);
             if (handleBox.length) {
 
                 //Position handleBox on top of stageElement (same location, same size, same rotation)
-                var stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, id));
+                var stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, uid));
                 handleBox
                     .css({
                         top: stageElement.css(TOP),
@@ -687,7 +716,7 @@
                         transform: stageElement.css(TRANSFORM), //This might return a matrix
                         display: BLOCK
                     })
-                    .attr(DATA_ID, id); //This is how we know which stageElement to transform when dragging handles
+                    .attr(DATA_UID, uid); //This is how we know which stageElement to transform when dragging handles
 
                 //Scale and rotate handles
                 handleBox.find(HANDLE_CLASS)
@@ -706,7 +735,7 @@
         _hideHandles: function(){
             this.wrapper.find(HANDLE_BOX_CLASS)
                 .css({display: NONE})
-                .removeAttr(DATA_ID);
+                .removeAttr(DATA_UID);
         },
 
         /**
@@ -733,7 +762,7 @@
                 var tool = that.options.tools[activeId];
                 if(tool instanceof kidoju.Tool) {
                     var item = new kidoju.PageComponent({
-                        id: kendo.guid(),
+                        //id: kendo.guid(),
                         tool: tool.id,
                         //e.offsetX and e.offsetY do not work in Firefox
                         left: mouse.x,
@@ -754,8 +783,8 @@
                     $.noop(); //TODO: contextual menu here
                 } else {
                     var handleBox = that.wrapper.find(HANDLE_BOX_CLASS),
-                        id = handleBox.attr(DATA_ID); //the id of the stageElement which is being selected before hitting the handle
-                    stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, id));
+                        uid = handleBox.attr(DATA_UID); //the uid of the stageElement which is being selected before hitting the handle
+                    stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, uid));
                     handleBox.data(STATE, {
                         command: command,
                         top: parseFloat(stageElement.css(TOP)) || 0, //stageElement.position().top does not work when scaled
@@ -768,7 +797,7 @@
                         snapAngle: 0, //TODO
                         mouseX: mouse.x,
                         mouseY: mouse.y,
-                        id: id
+                        uid: uid
                     });
 
                     //log(handleBox.data(STATE));
@@ -777,11 +806,11 @@
 
             //When hitting a stage element or the handle box with the pointer tool
             } else if (stageElement.length || target.is(HANDLE_BOX_CLASS)) {
-                that.select(stageElement.attr(DATA_ID));
+                that._selectByUid(stageElement.attr(DATA_UID));
 
             //When hitting anything else with the pointer tool
             } else {
-                that.select(null);
+                that._selectByUid(null);
             }
 
             e.preventDefault(); //otherwise both touchstart and mousedown are triggered and code is executed twice
@@ -804,8 +833,8 @@
             if ($.isPlainObject(startState)) {
 
                 var mouse = util.getMousePosition(e),
-                    stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, startState.id)),
-                    item = that.options.dataSource.get(startState.id),
+                    stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, startState.uid)),
+                    item = that.options.dataSource.getByUid(startState.uid),
                     rect = stageElement[0].getBoundingClientRect(),
                     bounds = {
                         //TODO these calculations depend on the transformOrigin attribute of that.wrapper - ideally we should introduce transformOrigin in the calculation
@@ -910,7 +939,7 @@
                 that._hideHandles();
                 that.trigger(DATABINDING);
                 $.each(that.stage.find(ELEMENT_CLASS), function(index, stageElement) {
-                    that._removeStageElement($(stageElement).attr(DATA_ID));
+                    that._removeStageElementByUid($(stageElement).attr(DATA_UID));
                 });
                 $.each(components, function(index, component) {
                     that._addStageElement(component);
@@ -930,22 +959,22 @@
                 $.each(e.items, function(index, component) {
                     that._addStageElement(component);
                     that.trigger(CHANGE, {action: e.action, value: component});
-                    that.select(component.id);
+                    that._selectByUid(component.uid);
                 });
 
             } else if (e.action === 'remove') {
                 $.each(e.items, function(index, component) {
-                    that._removeStageElement(component.id);
+                    that._removeStageElementByUid(component.uid);
                     that.trigger(CHANGE, {action: e.action, value: component});
-                    if (that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_ID) === component.id) {
-                        that.select(null);
+                    if (that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID) === component.uid) {
+                        that._selectByUid(null);
                     }
                 });
 
             } else if (e.action === 'itemchange') {
                 $.each(e.items, function(index, component) {
-                    var stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, component.id)),
-                        handleBox = that.wrapper.find(kendo.format(HANDLE_BOX_SELECTOR, component.id));
+                    var stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, component.uid)),
+                        handleBox = that.wrapper.find(kendo.format(HANDLE_BOX_SELECTOR, component.uid));
                     if (stageElement.length) {
                         switch (e.field) {
                             case LEFT:
@@ -974,8 +1003,22 @@
                                 handleBox.find(HANDLE_CLASS).css(TRANSFORM, kendo.format(CSS_ROTATE, -component.rotate) + ' ' + kendo.format(CSS_SCALE, 1/that.scale()));
                                 stageElement.trigger(ROTATE + NS, component);
                                 break;
-                            //TODO attributes
-                            //TODO properties
+                            default:
+                                if (/^attributes/.test(e.field) || /^properties/.test(e.field)) {
+                                    var tool = kidoju.tools[component.tool];
+                                    if (tool instanceof kidoju.Tool) {
+                                        //TODO: clean events/destroy
+                                        stageElement.html(tool.getHtml(component));
+                                        //stageElement.trigger(MOVE + NS, component);
+                                        //stageElement.trigger(RESIZE + NS, component);
+                                        //stageElement.trigger(ROTATE + NS, component);
+                                        that._moveStageElement({ currentTarget: stageElement, preventDefault: $.noop, stopPropagation: $.noop }, component);
+                                        that._resizeStageElement({ currentTarget: stageElement, preventDefault: $.noop, stopPropagation: $.noop }, component);
+                                        that._rotateStageElement({ currentTarget: stageElement, preventDefault: $.noop, stopPropagation: $.noop }, component);
+                                        //TODO init events
+                                        //TODO bind
+                                    }
+                                }
                         }
                     }
                 });
@@ -984,27 +1027,30 @@
         /* jshint +W074 */
 
         /**
-         * Select a stage element
-         * @param id
+         * Select a stage element by its data uid
+         * @param uid - Should take a cssSeelctor like in http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#methods-select
          * @returns {h|*}
          */
-        select: function (id) {
+        _selectByUid: function (uid) {
             var that = this;
             if (that.mode() === that.modes.design) {
 
-                //select() should return the id of the selected stage element / page item
-                if (id === undefined) {
-                    return that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_ID);
+                //select() should return the uid of the selected stage element / page item
+                if (uid === undefined) {
+                    return that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID);
 
-                //select(id) should select the corresponding stage element unless it is already selected
-                } else if ($.type(id) === STRING && that.stage.find(kendo.format(ELEMENT_SELECTOR, id)).length && that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_ID) !== id) {
-                    that._showHandles(id);
-                    that.trigger(SELECT, {value: that.options.dataSource.get(id)});
+                //select(uid) should select the corresponding stage element unless it is already selected
+                } else if ($.type(uid) === STRING && that.stage.find(kendo.format(ELEMENT_SELECTOR, uid)).length && that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID) !== uid) {
+                    var component = that.options.dataSource.getByUid(uid);
+                    that.trigger(SELECT, {value: component});
+                    that._showHandles(uid);
+                    that.trigger(CHANGE, {value: component});
 
                 //select(null) should clear the selection
-                } else if (id === null && that.wrapper.find(HANDLE_BOX_CLASS).css(DISPLAY) !== NONE) {
-                    that._hideHandles();
+                } else if (uid === null && that.wrapper.find(HANDLE_BOX_CLASS).css(DISPLAY) !== NONE) {
                     that.trigger(SELECT, {value: null});
+                    that._hideHandles();
+                    that.trigger(CHANGE, {value: null});
                 }
             }
         },
@@ -1067,6 +1113,16 @@
             if (DEBUG && window.console && $.isFunction(window.console.log)) {
                 window.console.log(MODULE + message);
             }
+        },
+
+        /**
+         * Test valid guid
+         * @param value
+         * @returns {boolean}
+         */
+        isGuid: function(value) {
+            //http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
+            return  ($.type(value) === STRING) && (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value));
         },
 
         /**

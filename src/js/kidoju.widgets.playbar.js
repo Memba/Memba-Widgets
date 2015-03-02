@@ -266,7 +266,10 @@
             return (this.dataSource instanceof kidoju.PageCollectionDataSource) ? this.dataSource.total() : 0;
         },
 
-
+        /**
+         * Initialize templates
+         * @private
+         */
         _templates: function() {
             var that = this;
             that.iconTemplate = kendo.template(that.options.iconTemplate);

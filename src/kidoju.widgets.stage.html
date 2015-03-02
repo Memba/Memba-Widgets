@@ -126,7 +126,7 @@
                 var rows = this.select(),
                     item = this.dataItem(rows[0]);
                 if(item && item.id) {
-                    $('#stage').data('kendoStage').select(item.id);
+                    $('#stage').data('kendoStage')._selectByUid(item.uid);
                 }
             }
         });

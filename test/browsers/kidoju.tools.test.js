@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, mocha: true, expr: true */
+/* jshint browser: true, jquery: true, mocha: true, expr: true */
 
 ;(function (window, undefined) {
 
@@ -272,7 +272,7 @@
 
                 //If we submit a valid page component
                 html = button.getHtml(component);
-                expect(html).to.match(/^<button/);
+                expect(html).to.match(/^<a/);
             });
         });
 

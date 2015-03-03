@@ -14,7 +14,7 @@
         kendo = window.kendo,
         kidoju = window.kidoju,
         FIXTURES = '#fixtures',
-        ICON_PATH = '../../src/styles/images/toolbox/',
+        ICON_PATH = '../../src/styles/images/',
         TOOLBOX1 = '<div id="toolbox1"></div>',
         TOOLBOX2 = '<div id="toolbox2" data-role="toolbox" data-size="48" data-icon-path="' + ICON_PATH + '"></div>';
 

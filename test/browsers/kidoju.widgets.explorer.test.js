@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, mocha: true, expr: true */
+/* jshint browser: true, jquery: true, mocha: true, expr: true */
 
 ;(function (window, $, undefined) {
 
@@ -19,9 +19,17 @@
 
     describe('kidoju.widgets.explorer', function() {
 
-        describe('Initializing', function() {
+
+
+        describe('Initialization', function() {
 
             it('from code', function() {
+                var element = $(kendo.format(DIV, EXPLORER)).appendTo(FIXTURES);
+                element.kendoExplorer();
+
+            });
+
+            it('from code with options', function() {
                 var element = $(kendo.format(DIV, EXPLORER)).appendTo(FIXTURES);
                 element.kendoExplorer();
 

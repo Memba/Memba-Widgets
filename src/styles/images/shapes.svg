@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>shapes icon</title>
+	<desc>shapes icon from the IconExperience.com O-Collection. Copyright by INCORS GmbH (www.incors.com).</desc>
+	<path id="curve2" fill="#4D82B8" d="M2240 1280l3840 0c176,0 320,144 320,320l0 1108c-47,42 -88,92 -122,149l-518 863 0 -1800 -3200 0 0 2311c-224,51 -439,128 -640,228l0 -2860c0,-176 144,-320 320,-320z"/>
+	<path id="curve1" fill="#4D82B8" d="M7102 3025l2452 4173c60,102 60,219 2,321 -59,102 -160,161 -278,161l-3270 0c47,-206 71,-420 71,-640l0 0 2640 0 -1896 -3226 -1101 1836c-113,-205 -250,-394 -408,-564l1237 -2063c60,-100 160,-156 276,-155 116,1 216,58 274,158z"/>
+	<path id="curve0" fill="#4D82B8" d="M3200 4480c1414,0 2560,1146 2560,2560 0,1414 -1146,2560 -2560,2560 -1414,0 -2560,-1146 -2560,-2560 0,-1414 1146,-2560 2560,-2560zm0 640c1060,0 1920,860 1920,1920 0,1060 -860,1920 -1920,1920 -1060,0 -1920,-860 -1920,-1920 0,-1060 860,-1920 1920,-1920z"/>
+</svg>

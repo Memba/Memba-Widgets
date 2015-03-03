@@ -76,7 +76,7 @@
         options: {
             name: 'Toolbox',
             size: DEFAULT_SIZE,
-            iconPath: './styles/images/toolbox/',
+            iconPath: './styles/images/',
             tools: kidoju.tools
         },
 

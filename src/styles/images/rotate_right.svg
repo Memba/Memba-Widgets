@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>rotate_right icon</title>
+	<desc>rotate_right icon from the IconExperience.com O-Collection. Copyright by INCORS GmbH (www.incors.com).</desc>
+	<path id="curve0" fill="#4D82B8" d="M4480 2560c-1414,0 -2560,1146 -2560,2560 0,1414 1146,2560 2560,2560 412,0 801,-97 1145,-270l573 1145c-517,259 -1100,405 -1718,405 -2121,0 -3840,-1719 -3840,-3840 0,-2121 1719,-3840 3840,-3840 2121,0 3840,1719 3840,3840l0 0 1007 -1007c101,-101 273,-30 273,113l0 1159c0,176 -63,328 -187,453l-1506 1506c-124,124 -328,124 -453,0l-1506 -1506c-125,-125 -187,-276 -187,-453l0 -1159c0,-143 172,-214 273,-113l1007 1007 0 0 0 0c0,-1414 -1146,-2560 -2560,-2560z"/>
+</svg>

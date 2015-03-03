@@ -76,7 +76,7 @@
         options: {
             name: 'Toolbox',
             size: DEFAULT_SIZE,
-            path: './styles/images/toolbox/',
+            iconPath: './styles/images/toolbox/',
             tools: kidoju.tools
         },
 
@@ -131,7 +131,7 @@
             $.each(that.options.tools, function(index, tool) {
                 if (tool instanceof kidoju.Tool && that.options.tools.hasOwnProperty(tool.id)) {
                     //TODO Translate tooltips and consider SVG alternatives
-                    var toolElement = $(kendo.format(IMAGE, that.options.path + tool.icon + '.svg', 'TODO: Translate'))
+                    var toolElement = $(kendo.format(IMAGE, that.options.iconPath + tool.icon + '.svg', 'TODO: Translate'))
                         .attr(DATA_TOOL, tool.id)
                         .addClass(IMAGE_CLASS)
                         .height(that.options.size)

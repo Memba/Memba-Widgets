@@ -14,9 +14,9 @@
         kendo = window.kendo,
         kidoju = window.kidoju,
         FIXTURES = '#fixtures',
-        IMAGE_PATH = '../../src/styles/images/toolbox/',
+        ICON_PATH = '../../src/styles/images/toolbox/',
         TOOLBOX1 = '<div id="toolbox1"></div>',
-        TOOLBOX2 = '<div id="toolbox2" data-role="toolbox" data-size="48" data-path="' + IMAGE_PATH + '"></div>';
+        TOOLBOX2 = '<div id="toolbox2" data-role="toolbox" data-size="48" data-icon-path="' + ICON_PATH + '"></div>';
 
 
     describe('kidoju.widgets.toolbox', function() {
@@ -27,7 +27,7 @@
 
             it('from code', function() {
                 var element = $(TOOLBOX1).appendTo(FIXTURES);
-                toolbox1 = element.kendoToolbox({ path: IMAGE_PATH }).data('kendoToolbox');
+                toolbox1 = element.kendoToolbox({ iconPath: ICON_PATH }).data('kendoToolbox');
                 expect(toolbox1).to.be.an.instanceof(kendo.ui.Toolbox);
                 expect(element.hasClass('k-widget')).to.be.true;
                 expect(element.hasClass('kj-toolbox')).to.be.true;
@@ -38,7 +38,7 @@
 
             it('from code with options', function() {
                 var element = $(TOOLBOX1).appendTo(FIXTURES);
-                toolbox1 = element.kendoToolbox({ path: IMAGE_PATH, size: 64 }).data('kendoToolbox');
+                toolbox1 = element.kendoToolbox({ iconPath: ICON_PATH, size: 64 }).data('kendoToolbox');
                 expect(toolbox1).to.be.an.instanceof(kendo.ui.Toolbox);
                 expect(element.hasClass('k-widget')).to.be.true;
                 expect(element.hasClass('kj-toolbox')).to.be.true;
@@ -65,7 +65,7 @@
 
             it('Set/Get the current tool with valid values', function() {
                 var element = $(TOOLBOX1).appendTo(FIXTURES);
-                toolbox1 = element.kendoToolbox({ path: IMAGE_PATH }).data('kendoToolbox');
+                toolbox1 = element.kendoToolbox({ iconPath: ICON_PATH }).data('kendoToolbox');
                 expect(toolbox1).to.be.an.instanceof(kendo.ui.Toolbox);
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
                 expect(toolbox1.tool()).to.equal('pointer');
@@ -107,7 +107,7 @@
 
             it('A change of tool raises a change in the toolbox', function() {
                 var element = $(TOOLBOX1).appendTo(FIXTURES);
-                toolbox1 = element.kendoToolbox({ path: IMAGE_PATH }).data('kendoToolbox');
+                toolbox1 = element.kendoToolbox({ iconPath: ICON_PATH }).data('kendoToolbox');
                 expect(toolbox1).to.be.an.instanceof(kendo.ui.Toolbox);
                 toolbox1.reset();
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
@@ -124,7 +124,7 @@
             it('Change event', function() {
                 var change = sinon.spy(),
                     element = $(TOOLBOX1).appendTo(FIXTURES);
-                toolbox1 = element.kendoToolbox({ path: IMAGE_PATH }).data('kendoToolbox');
+                toolbox1 = element.kendoToolbox({ iconPath: ICON_PATH }).data('kendoToolbox');
                 expect(toolbox1).to.be.an.instanceof(kendo.ui.Toolbox);
                 toolbox1.reset();
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
@@ -138,7 +138,7 @@
             it('Click event', function() {
                 var click = sinon.spy(),
                     element = $(TOOLBOX2).appendTo(FIXTURES);
-                toolbox2 = element.kendoToolbox({ path: IMAGE_PATH }).data('kendoToolbox');
+                toolbox2 = element.kendoToolbox({ iconPath: ICON_PATH }).data('kendoToolbox');
                 expect(toolbox2).to.be.an.instanceof(kendo.ui.Toolbox);
                 toolbox2.reset();
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');

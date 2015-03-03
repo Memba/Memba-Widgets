@@ -1,19 +1,13 @@
  /*!
- * jQuery Simulate v0.0.1 - simulate browser mouse and keyboard events
+ * jQuery Simulate v1.0.1 - simulate browser mouse and keyboard events
  * https://github.com/jquery/jquery-simulate
  *
- * Copyright 2012 jQuery Foundation and other contributors
+ * Copyright jQuery Foundation and other contributors
  * Released under the MIT license.
  * http://jquery.org/license
  *
- * Date: Sun Dec 9 12:15:33 2012 -0500
+ * Date: 2015-02-12
  */
-
- /**
-  * See samples of use at
-  * https://github.com/jquery/jquery-ui/blob/master/tests/unit/draggable/draggable_core.js
-  * https://github.com/jquery/jquery-ui/blob/master/tests/unit/draggable/draggable_events.js
-  */
 
 ;(function( $, undefined ) {
 
@@ -150,7 +144,7 @@ $.extend( $.simulate.prototype, {
 				0: 1,
 				1: 4,
 				2: 2
-			}[ event.button ] || event.button;
+			}[ event.button ] || ( event.button === -1 ? 0 : event.button );
 		}
 
 		return event;
@@ -207,7 +201,9 @@ $.extend( $.simulate.prototype, {
 	},
 
 	dispatchEvent: function( elem, type, event ) {
-		if ( elem.dispatchEvent ) {
+		if ( elem[ type ] ) {
+			elem[ type ]();
+		} else if ( elem.dispatchEvent ) {
 			elem.dispatchEvent( event );
 		} else if ( elem.fireEvent ) {
 			elem.fireEvent( "on" + type, event );
@@ -299,6 +295,7 @@ $.extend( $.simulate.prototype, {
 	simulateDrag: function() {
 		var i = 0,
 			target = this.target,
+			eventDoc = target.ownerDocument,
 			options = this.options,
 			center = options.handle === "corner" ? findCorner( target ) : findCenter( target ),
 			x = Math.floor( center.x ),
@@ -319,14 +316,14 @@ $.extend( $.simulate.prototype, {
 				clientY: Math.round( y )
 			};
 
-			this.simulateEvent( target.ownerDocument, "mousemove", coord );
+			this.simulateEvent( eventDoc, "mousemove", coord );
 		}
 
-		if ( $.contains( document, target ) ) {
+		if ( $.contains( eventDoc, target ) ) {
 			this.simulateEvent( target, "mouseup", coord );
 			this.simulateEvent( target, "click", coord );
 		} else {
-			this.simulateEvent( document, "mouseup", coord );
+			this.simulateEvent( eventDoc, "mouseup", coord );
 		}
 	}
 });

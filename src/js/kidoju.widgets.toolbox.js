@@ -85,7 +85,8 @@
          * @property events
          */
         events: [
-
+            CLICK,
+            CHANGE
         ],
 
         /**
@@ -95,20 +96,20 @@
          */
         tool: function(id) {
             var that = this;
-            if (id) {
+            if (id !== undefined) {
                 if ($.type(id) !== STRING) {
-                    throw new TypeError();
+                    throw new TypeError('A tool id should be a string');
                 }
                 if (!that.options.tools.hasOwnProperty(id)) {
-                    throw new RangeError();
+                    throw new RangeError(kendo.format('{0} is not the id of a known tool', id));
                 }
-                if (id !== that.options.tool) {
-                    that.options.tools.set(ACTIVE_TOOL, id);
-                    //the change handler refreshes the widget
+                if (id !== that.options.tools.get(ACTIVE_TOOL)) {
+                    that.options.tools.set(ACTIVE_TOOL, id);//the change handler refreshes the widget
                     log('tool changed for ' + id);
+                    that.trigger(CHANGE, { value: id });
                 }
             } else {
-                return that.options.tools.get(ACTIVE_TOOL);
+                return $(that.element).find('[' + DATA_SELECTED + ']').attr(DATA_TOOL);
             }
         },
 
@@ -116,8 +117,7 @@
          * Resets the toolbox to selection mode
          */
         reset: function() {
-            var that = this;
-            that.tool(POINTER);
+            this.tool(POINTER);
         },
 
         /**
@@ -142,7 +142,8 @@
             $(that.element).find('img')
                 .on(CLICK, function(e) {
                     var id = $(e.target).attr(DATA_TOOL);
-                    if ($.type(id) === STRING) {
+                    that.trigger(CLICK, { value: id} );
+                    if ($.type(id) === STRING && that.options.tools.hasOwnProperty(id)) {
                         that.tool(id);
                     }
             });
@@ -160,8 +161,9 @@
          */
         refresh: function() {
             var that = this;
-            $(that.element).find('[' + DATA_SELECTED + ']').removeProp(DATA_SELECTED);
-            $(that.element).find('[' + DATA_TOOL + '=' + that.tool() + ']').prop(DATA_SELECTED, true);
+            $(that.element).find('[' + DATA_SELECTED + ']').removeAttr(DATA_SELECTED);
+            $(that.element).find('[' + DATA_TOOL + '=' + that.options.tools.get(ACTIVE_TOOL) + ']').attr(DATA_SELECTED, true);
+            //TODO: add/remove k-state-selected class
         },
 
         /**

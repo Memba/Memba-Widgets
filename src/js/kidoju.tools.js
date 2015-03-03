@@ -654,12 +654,14 @@
         icon: 'button',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<button type="button" style="#: attributes.style #">#: attributes.text #</button>'
+            default: '<a class="k-toggle-button k-button" style="#: attributes.style #">#: attributes.text #</a><input type="hidden" data-bind="value: #: properties.name #">'
+            //k-state-active
         },
         height: 100,
         width: 300,
         attributes: {
             style: new adapters.StyleAdapter(),
+            activeStyle: new adapters.StyleAdapter(),
             text: new adapters.StringAdapter({ defaultValue: 'Button' })
         },
         properties: kidoju.Tool.getStandardProperties(),
@@ -676,9 +678,19 @@
                 return template(component);
             }
         },
+
+        /**
+         * Add event handlers
+         * @param component
+         */
         addEvents: function(component) {
 
         },
+
+        /**
+         * Remove event handlers
+         * @param component
+         */
         removeEvents: function(component) {
 
         },
@@ -691,13 +703,13 @@
         onResize: function(e, component) {
             var stageElement = $(e.currentTarget);
             if(stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { //TODO: same id, same tool?
-                var content = stageElement.find('>button');
+                var anchor = stageElement.find('>a');
                 if ($.type(component.width) === NUMBER) {
-                    content.width(component.width);
+                    anchor.width(component.width - 14);
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.height(component.height);
-                    content.css('font-size', Math.floor(0.75*component.height));
+                    anchor.height(component.height - 4);
+                    anchor.css('font-size', Math.floor(0.6*component.height));
                 }
                 //prevent any side effect
                 e.preventDefault();

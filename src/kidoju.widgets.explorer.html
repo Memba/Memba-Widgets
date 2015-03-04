@@ -22,8 +22,8 @@
 </head>
 <body>
 <div data-bind="text: current.uid"></div>
-<div id="explorer1" data-role="explorer" data-bind="source: items, selection: current" style="width:200px; display:inline-block;"></div>
-<div id="explorer2" data-role="explorer" data-bind="source: items, selection: current" style="width:200px; display:inline-block;"></div>
+<div id="explorer1" data-role="explorer" data-bind="source: components, selection: current" style="width:200px; display:inline-block;"></div>
+<div id="explorer2" data-role="explorer" data-bind="source: components, selection: current" style="width:200px; display:inline-block;"></div>
 <script>
     var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
             data: [
@@ -34,7 +34,7 @@
             ]
         }),
         viewModel = window.viewModel = kendo.observable({
-            items: pageComponentCollectionDataSource,
+            components: pageComponentCollectionDataSource,
             current: null
         });
 

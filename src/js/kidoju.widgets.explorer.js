@@ -40,8 +40,8 @@
         HOVER_CLASS = 'k-state-hover',
         //FOCUSED_CLASS = 'k-state-focused',
         SELECTED_CLASS = 'k-state-selected',
-        ALL_ITEMS_SELECTOR = 'li.k-item[data-uid]',
-        ITEM_BYUID_SELECTOR = 'li.k-item[data-uid="{0}"]',
+        ALL_ITEMS_SELECTOR = 'li.kj-item[data-uid]',
+        ITEM_BYUID_SELECTOR = 'li.kj-item[data-uid="{0}"]',
         ARIA_SELECTED = 'aria-selected',
 
         DEBUG = true,
@@ -92,7 +92,7 @@
             index: 0,
             id: null,
             autoBind: true,
-            itemTemplate: '<li data-uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item kj-explorer-item"><span class="k-in"><img class="k-image kj-explorer-icon" alt="#= tool #" src="#= icon #">#= tool #</span></li>',
+            itemTemplate: '<li data-uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item kj-item"><span class="k-in"><img class="k-image kj-image" alt="#= tool #" src="#= icon #">#= tool #</span></li>',
             iconPath: './styles/images/',
             messages: {
                 empty: 'No item to display'
@@ -120,19 +120,19 @@
         /**
          * IMPORTANT: index is 0 based
          * @method index
-         * @param value
+         * @param index
          * @returns {*}
          */
-        index: function(value) {
+        index: function(index) {
             var that = this, component;
-            if(value !== undefined) {
-                log('index set to ' + value);
-                if ($.type(value) !== NUMBER) {
+            if(index !== undefined) {
+                log('index set to ' + index);
+                if ($.type(index) !== NUMBER) {
                     throw new TypeError();
-                } else if (value < 0 || (value > 0 && value >= that.length())) {
+                } else if (index < 0 || (index > 0 && index >= that.length())) {
                     throw new RangeError();
                 } else {
-                    component = that.dataSource.at(value);
+                    component = that.dataSource.at(index);
                     that.selection(component);
                 }
             } else {
@@ -147,16 +147,16 @@
 
         /**
          * @method id
-         * @param value
+         * @param id
          * @returns {*}
          */
-        id: function (value) {
+        id: function (id) {
             var that = this, component;
-            if (value !== undefined) {
-                if (!isGuid(value)) {
+            if (id !== undefined) {
+                if ($.type(id) !== NUMBER && $.type(id) !== STRING) {
                     throw new TypeError();
                 }
-                component = that.dataSource.get(value);
+                component = that.dataSource.get(id);
                 that.selection(component);
             } else {
                 component = that.dataSource.getByUid(that._selectedUid);
@@ -256,7 +256,7 @@
 
             //There is no reason why, in its current state, it would not work with any dataSource
             //if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
-            if ( that.dataSource instanceof kidoju.PageComponentCollectionDataSource && that._refreshHandler ) {
+            if (that.dataSource instanceof kidoju.PageComponentCollectionDataSource && that._refreshHandler) {
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
             }
 
@@ -405,7 +405,6 @@
             Widget.fn.destroy.call(that);
             that._clear();
             that.setDataSource(NULL);
-            kendo.destroy(that.element);
         }
 
     });

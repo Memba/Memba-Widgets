@@ -1,7 +1,7 @@
-.kj-explorer-item {
+.kj-explorer .kj-item {
   height: 32px;
 }
-.kj-explorer-icon {
+.kj-explorer .kj-image {
   height: 24px;
   width: 24px;
   vertical-align: middle;

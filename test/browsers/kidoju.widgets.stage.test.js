@@ -10,26 +10,37 @@
     'use strict';
 
     var expect = window.chai.expect,
+        sinon = window.sinon,
         kendo = window.kendo,
         kidoju = window.kidoju,
         FIXTURES = '#fixtures',
-        STAGE = 'stage',
-        DIV = '<div id="{0}"></div>';
-
+        STAGE1 = '<div id="stage1"></div>',
+        STAGE2 = '<div data-role="stage"></div>';
 
     describe('kidoju.widgets.stage', function() {
 
-        describe('Initializing', function() {
+        describe('Initialization', function() {
 
-            it('from code', function() {
-                var element = $(kendo.format(DIV, STAGE)).appendTo(FIXTURES);
-                element.kendoStage();
+            it('from code with empty dataSource', function() {
+                var element = $(STAGE1).appendTo(FIXTURES),
+                    stage1 = element.kendoStage({
+                        mode: kendo.ui.Stage.fn.modes.thumbnail,
+                        dataSource: new kidoju.PageComponentCollectionDataSource()
+                    }).data('kendoStage');
+                expect(stage1).to.be.an.instanceof(kendo.ui.Stage);
             });
 
             it('from markup', function() {
                 $.noop();
             });
+        });
 
+
+        describe('Methods', function() {
+
+            it('TODO', function() {
+                $.noop();
+            });
 
         });
 

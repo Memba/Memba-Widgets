@@ -1459,6 +1459,14 @@
                 });
             });
 
+            it('Creating and fetching', function(done) {
+                var index = stream.pages.total();
+                stream.pages.add({});
+                stream.pages.at(index).components.fetch().always(function() {
+                    done();
+                });
+            });
+
             it('Creating', function(done) {
                 var index = stream.pages.total();
                 stream.pages.add({});

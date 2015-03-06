@@ -13,24 +13,47 @@
         kendo = window.kendo,
         kidoju = window.kidoju,
         FIXTURES = '#fixtures',
-        NAVIGATION = 'navigation',
-        DIV = '<div id="{0}"></div>';
+        NAVIGATION1 = '<div id="navigation1"></div>',
+        NAVIGATION2 = '<div id="navigation2"></div>',
+        NAVIGATION3 = '<div data-role="navigation"></div>';
+
+
 
 
     describe('kidoju.widgets.navigation', function() {
 
-        describe('Initializing', function() {
+        describe('Initialization', function() {
 
             it('from code', function() {
-                var element = $(kendo.format(DIV, NAVIGATION)).appendTo(FIXTURES);
-                element.kendoNavigation();
+                var element = $(NAVIGATION1).appendTo(FIXTURES);
+                var navigation = element.kendoNavigation().data('kendoNavigation');
+                expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
+                expect(element).to.have.class('k-widget');
+                expect(element).to.have.class('kj-navigation');
+            });
 
+            it('from code with dataSource', function() {
+                var element = $(NAVIGATION2).appendTo(FIXTURES);
+                var navigation = element.kendoNavigation({
+
+                }).data('kendoNavigation');
+                expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
+                expect(element).to.have.class('k-widget');
+                expect(element).to.have.class('kj-navigation');
             });
 
             it('from markup', function() {
-                $.noop();
+                var element = $(NAVIGATION3).appendTo(FIXTURES);
             });
 
+
+        });
+
+        describe('Methods', function() {
+
+            it('TODO', function() {
+                $.noop();
+            });
 
         });
 

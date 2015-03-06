@@ -195,7 +195,7 @@
                                 id: value[value.idField],
                                 value: value
                             });
-                            that.refresh(e);
+                            that._toggleSelection();
                             that.trigger(CHANGE, e);
                         }
                     }
@@ -346,12 +346,20 @@
                 if (e && e.action === undefined) {
                     that.trigger(DATABOUND);
                 }
-           }
+            }
 
-            that.list.find(ALL_ITEMS_SELECTOR)
+            that._toggleSelection();
+        },
+
+        /**
+         * Toggles selection class
+         * @private
+         */
+        _toggleSelection: function() {
+            this.list.find(ALL_ITEMS_SELECTOR)
                 .removeClass(SELECTED_CLASS)
                 .removeProp(ARIA_SELECTED);
-            that.list.find(kendo.format(ITEM_BYUID_SELECTOR, that._selectedUid))
+            this.list.find(kendo.format(ITEM_BYUID_SELECTOR, this._selectedUid))
                 .addClass(SELECTED_CLASS)
                 .prop(ARIA_SELECTED, true);
         },

@@ -171,6 +171,10 @@
                 if (this.properties.hasOwnProperty(prop)) {
                     if (this.properties[prop] instanceof adapters.BaseAdapter) {
                         model.fields[prop] = this.properties[prop].getField();
+                        if(prop === 'name') {
+                            //Add a property field name
+                            model.fields[prop].defaultValue = 'val_'  + Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1);
+                        }
                     }
                 }
             }

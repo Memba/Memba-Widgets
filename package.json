@@ -31,7 +31,7 @@
     "test": "grunt test"
   },
   "devDependencies": {
-    "chai": "^2.1.0",
+    "chai": "^2.1.1",
     "grunt": "^0.4.5",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-concat": "^0.5.1",
@@ -57,7 +57,7 @@
     "karma-sauce-launcher": "^0.2.10",
     "karma-sinon-chai": "^0.3.0",
     "mocha": "^2.1.0",
-    "sinon": "^1.12.2",
+    "sinon": "^1.13.0",
     "zombie": "^2.5.1"
   }
 }

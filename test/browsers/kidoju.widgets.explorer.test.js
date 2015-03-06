@@ -79,23 +79,56 @@
 
         describe('Methods', function() {
 
+            var element, explorer;
+
+            beforeEach(function() {
+                element = $(EXPLORER1).appendTo(FIXTURES);
+                explorer = element.kendoExplorer({
+                    dataSource: pageComponentCollectionData,
+                    iconPath: ICON_PATH
+                }).data('kendoExplorer');
+            });
+
+            it('length', function() {
+                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer.length()).to.equal(pageComponentCollectionData.length);
+            });
+
             it('selection', function() {
-                $.noop();
+                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                for (var idx = 0; idx < pageComponentCollectionData.length; idx++) {
+                    var component = explorer.dataSource.at(idx);
+                    explorer.selection(component);
+                    expect(explorer.index()).to.equal(idx);
+                    expect(explorer.id()).to.equal(component.id);
+                }
             });
 
             it('index', function() {
-                $.noop();
+                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                for (var idx = 0; idx < pageComponentCollectionData.length; idx++) {
+                    var component = explorer.dataSource.at(idx);
+                    explorer.index(idx);
+                    expect(explorer.selection()).to.equal(component);
+                    expect(explorer.id()).to.equal(component.id);
+                }
             });
 
             it('id', function() {
-                $.noop();
+                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                for (var idx = 0; idx < pageComponentCollectionData.length; idx++) {
+                    var component = explorer.dataSource.at(idx);
+                    explorer.id(component.id);
+                    expect(explorer.selection()).to.equal(component);
+                    expect(explorer.index()).to.equal(idx);
+                }
             });
 
-            it('lenght', function() {
-                $.noop();
-            });
-
-            it('items', function() {
+            xit('items', function() {
                 $.noop();
             });
 
@@ -103,7 +136,7 @@
 
         describe('MVVM', function() {
 
-            it('TODO', function() {
+            xit('TODO', function() {
                 $.noop();
             });
 
@@ -111,15 +144,15 @@
 
         describe('Events', function() {
 
-            it('dataBinding & dataBound', function() {
+            xit('dataBinding & dataBound', function() {
                 $.noop();
             });
 
-            it('Change', function() {
+            xit('Change', function() {
                 $.noop();
             });
 
-            it('Select', function() {
+            xit('Select', function() {
                 $.noop();
             });
 

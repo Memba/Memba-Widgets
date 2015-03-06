@@ -22,7 +22,7 @@ module.exports = function(config) {
             {pattern: 'src/styles/vendor/kendo.default.min.css', served: true, included: true},
             {pattern: 'src/js/vendor/jquery.min.js', served: true, included: true},
             {pattern: 'src/js/vendor/kendo.all.min.js', served: true, included: true},
-            {pattern: 'src/js/kidoju.models.js', served: true, included: true},
+            {pattern: 'src/js/kidoju.data.js', served: true, included: true},
             {pattern: 'src/js/kidoju.tools.js', served: true, included: true},
             {pattern: 'src/js/kidoju.widgets.bindings.js', served: true, included: true},
             {pattern: 'src/js/kidoju.widgets.explorer.js', served: true, included: true},
@@ -31,6 +31,8 @@ module.exports = function(config) {
             {pattern: 'src/js/kidoju.widgets.propertygrid.js', served: true, included: true},
             {pattern: 'src/js/kidoju.widgets.stage.js', served: true, included: true},
             {pattern: 'src/js/kidoju.widgets.toolbox.js', served: true, included: true},
+            {pattern: 'test/vendor/chai-jquery.js', served: true, included: true},
+            {pattern: 'test/vendor/jquery.simulate.js', served: true, included: true},
             {pattern: 'test/browsers/*.js', served: true, included: true},
             {pattern: 'src/**/*.*', served: true, included: false},
             {pattern: 'test/data/*.json', served: true, included: false}

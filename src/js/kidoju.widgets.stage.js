@@ -478,6 +478,12 @@
             that.stage.on(ROTATE + NS, ELEMENT_CLASS,  $.proxy(that._rotateStageElement, that));
         },
 
+        /**
+         * Event handler called when adding or triggered when moving an element
+         * @param e
+         * @param component
+         * @private
+         */
         _moveStageElement: function(e, component) {
             var that = this;
             if (that.options.tools instanceof kendo.data.ObservableObject) {
@@ -488,6 +494,12 @@
             }
         },
 
+        /**
+         * Event handler called when adding or triggered when resizing an element
+         * @param e
+         * @param component
+         * @private
+         */
         _resizeStageElement: function(e, component) {
             var that = this;
             if (that.options.tools instanceof kendo.data.ObservableObject) {
@@ -498,6 +510,12 @@
             }
         },
 
+        /**
+         * Event handler called when adding or triggered when rotating an element
+         * @param e
+         * @param component
+         * @private
+         */
         _rotateStageElement: function(e, component) {
             var that = this;
             if (that.options.tools instanceof kendo.data.ObservableObject) {

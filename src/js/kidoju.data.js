@@ -429,11 +429,14 @@
          */
         init: function(options) {
 
+            /*
             var SubPage = Page.define({
                 components: options
             });
-
             DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: SubPage, model: SubPage } }, options));
+            */
+
+            DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: Page, model: Page } }, options));
 
             // If there is a necessity to transform data, there is a possibility to change the reader as follows
             // this.reader = new PageComponentCollectionDataReader(this.options.schema, this.reader);

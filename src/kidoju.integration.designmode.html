@@ -15,6 +15,7 @@
     <script src="../temp/2014.3.1411/src/src/kendo.binder.js"></script-->
     <!-- Design mode requirements -->
     <link rel="stylesheet" href="./styles/kidoju.widgets.explorer.css">
+    <link rel="stylesheet" href="./styles/kidoju.widgets.navigation.css">
     <link rel="stylesheet" href="./styles/kidoju.widgets.stage.css">
     <link rel="stylesheet" href="./styles/kidoju.widgets.toolbox.css">
     <script src="js/kidoju.data.js"></script>
@@ -94,10 +95,6 @@
                         <li>
                             Properties
                             <div id="properties" data-role="propertygrid" data-bind="value: currentComponent"></div>
-                        </li>
-                        <li>
-                            Comments
-                            <div>TODO</div>
                         </li>
                     </ul>
                 </div>
@@ -265,12 +262,26 @@
                 //Init toolbar
                 $(kendo.roleSelector('toolbar')).kendoToolBar({
                     items: [
+                        { id: 'add', type: 'button', text: 'Add Page'},
+                        { id: 'delete', type: 'button', text: 'Delete Page'},
                         { id: 'save', type: 'button', text: 'Save'},
                         { id: 'reset', type: 'button', text: 'Reset'},
                         { id: 'play', type: 'button', text: 'Play', primary: true}
                     ],
                     click: function(e) {
                         switch(e.id) {
+                            case 'add':
+                                viewModel.stream.pages.add({}); //consider index position
+                                break;
+                            case 'delete':
+                                var navigation = $(kendo.roleSelector('navigation')).data('kendoNavigation');
+                                if (navigation instanceof kendo.ui.Navigation) {
+                                    var page = navigation.selection();
+                                    if (page instanceof kidoju.Page) {
+                                        viewModel.stream.pages.remove(page);
+                                    }
+                                }
+                                break;
                             case 'save':
                                 viewModel.stream.save();
                                 break;

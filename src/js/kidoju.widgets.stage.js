@@ -303,6 +303,13 @@
          */
         selection: function(component) {
             var that = this;
+
+            //IMPORTANT TODO:
+            //This is not the way to do it
+            //Use selected uid + bind change event + implement with a call to _toggleSelection function in refresh method
+            //See navigation and explorer
+            //Possibly rename selection into value!!!!
+
             if (component === undefined) {
                 return that.dataSource.getByUid(that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID));
             } else {
@@ -828,7 +835,7 @@
 
             //When hitting anything else with the pointer tool
             } else {
-                that._selectByUid(null);
+                that._selectByUid(NULL);
             }
 
             e.preventDefault(); //otherwise both touchstart and mousedown are triggered and code is executed twice
@@ -985,7 +992,7 @@
                     that._removeStageElementByUid(component.uid);
                     that.trigger(CHANGE, {action: e.action, value: component});
                     if (that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID) === component.uid) {
-                        that._selectByUid(null);
+                        that._selectByUid(NULL);
                     }
                 });
 
@@ -1065,10 +1072,10 @@
                     that.trigger(CHANGE, {value: component});
 
                 //select(null) should clear the selection
-                } else if (uid === null && that.wrapper.find(HANDLE_BOX_CLASS).css(DISPLAY) !== NONE) {
-                    that.trigger(SELECT, {value: null});
+                } else if (uid === NULL && that.wrapper.find(HANDLE_BOX_CLASS).css(DISPLAY) !== NONE) {
+                    that.trigger(SELECT, {value: NULL});
                     that._hideHandles();
-                    that.trigger(CHANGE, {value: null});
+                    that.trigger(CHANGE, {value: NULL});
                 }
             }
         },

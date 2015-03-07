@@ -16,6 +16,7 @@ module.exports = function (grunt) {
             files: ['<%= jshint.files %>'],
             tasks: ['lint', 'test']
         },
+        //TODO: enforce coding rules with https://github.com/jscs-dev/grunt-jscs
         jshint: {
             files: ['gruntfile.js', 'src/js/kidoju.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
             options: {

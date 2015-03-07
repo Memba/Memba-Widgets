@@ -51,9 +51,9 @@ module.exports = function (grunt) {
                     logErrors: true,
                     reporter: 'Spec',
                     run: true,
-                    timeout: 5000
+                    timeout: 10000
                 },
-                src: ['test/browsers/kidoju.*.html']
+                src: ['test/browsers/kidoju.*.test.html']
             }
         },
         mochaTest: {
@@ -65,7 +65,7 @@ module.exports = function (grunt) {
                     timeout: 10000,
                     ui: 'bdd'
                 },
-                src: ['test/zombie/kidoju.*.js']
+                src: ['test/zombie/kidoju.*.test.js']
             }
         },
         clean: ['dist/', 'docs/'],

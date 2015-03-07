@@ -224,6 +224,16 @@
         },
 
         /**
+         * Returns all children of the ul list
+         * This method is required for triggering the dataBinding event
+         * @method items
+         * @returns {Function|children|t.children|HTMLElement[]|ct.children|node.children|*}
+         */
+        items: function() {
+            return this.element[0].children;
+        },
+
+        /**
          * Height of navigation
          * @param value
          * @returns {string}
@@ -397,6 +407,10 @@
         refresh: function(e) {
             var that = this;
 
+            if(e && e.action === undefined) {
+                that.trigger(DATABINDING);
+            }
+
             if (e=== undefined || e.action === undefined) {
                 var pages = [];
                 if (e === undefined && that.dataSource instanceof kidoju.PageCollectionDataSource) {
@@ -404,15 +418,12 @@
                 } else if (e && e.items instanceof kendo.data.ObservableArray) {
                     pages = e.items;
                 }
-                //that.trigger(DATABINDING);
                 $.each(that.element.find(ITEM_CLASS), function(index, navigationItem) {
                     that._removeNavigationItemByUid($(navigationItem).attr(DATA_UID));
                 });
                 $.each(pages, function(index, page) {
                     that._addNavigationItem(page);
                 });
-                //that.trigger(DATABOUND);
-
             } else if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
                 $.each(e.items, function(index, page) {
                     that._addNavigationItem(page);
@@ -432,6 +443,10 @@
 
             that._toggleSelection();
             that.resize();
+
+            if(e && e.action === undefined) {
+                that.trigger(DATABOUND);
+            }
         },
 
         /**

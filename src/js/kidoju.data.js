@@ -53,7 +53,7 @@
             var data = this._data,
                 result = DataSource.fn[name].apply(this, [].slice.call(arguments));
 
-            if (this._data != data) {
+            if (this._data !== data) {
                 this._attachBubbleHandlers();
             }
 
@@ -122,6 +122,8 @@
          * Constructor
          * @param component
          */
+        /* jshint -W074 */
+        /* This function's cyclomatic complexity is too high. */
         init: function(component) {
 
             //Note: Kendo UI requires that new PageComponent() works, i.e. component = undefined
@@ -166,6 +168,7 @@
                 }
             }
         },
+        /* jshint: +W074 */
 
         /**
          * Get the parent page
@@ -299,7 +302,7 @@
                 parameterMap = transport.parameterMap;
 
                 transport.parameterMap = function(data, type) {
-                    data[that.idField || "id"] = that.id;
+                    data[that.idField || 'id'] = that.id;
 
                     if (parameterMap) {
                         data = parameterMap(data, type);
@@ -593,7 +596,7 @@
                 parameterMap = transport.parameterMap;
 
                 transport.parameterMap = function(data, type) {
-                    data[that.idField || "id"] = that.id;
+                    data[that.idField || 'id'] = that.id;
 
                     if (parameterMap) {
                         data = parameterMap(data, type);

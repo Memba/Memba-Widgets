@@ -19,11 +19,21 @@
     <script src="./js/kidoju.tools.js"></script>
     <script src="./js/kidoju.widgets.bindings.js"></script>
     <script src="./js/kidoju.widgets.explorer.js"></script>
+    <style>
+        body>div:first-of-type {
+            height: 22px;
+        }
+        button {
+            margin: 5px 0px;
+        }
+    </style>
 </head>
 <body>
 <div data-bind="text: current.uid"></div>
+<button data-bind="click: reset">Clear Selection</button><br/>
 <div id="explorer1" data-role="explorer" data-bind="source: components, selection: current" style="width:200px; display:inline-block;"></div>
-<div id="explorer2" data-role="explorer" data-bind="source: components, selection: current" style="width:200px; display:inline-block;"></div>
+<div><input type="checkbox" data-bind="checked: isVisible" />Second Explorer</div>
+<div id="explorer2" data-role="explorer" data-bind="source: components, selection: current, visible: isVisible" style="width:200px; display:inline-block;"></div>
 <script>
     var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
             data: [
@@ -35,7 +45,11 @@
         }),
         viewModel = window.viewModel = kendo.observable({
             components: pageComponentCollectionDataSource,
-            current: null
+            current: null,
+            isVisible: true,
+            reset: function(e) {
+                this.set('current', null);
+            }
         });
 
     $(document).ready(function() {

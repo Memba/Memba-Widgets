@@ -43,9 +43,31 @@
 
     describe('kidoju.widgets.navigation', function() {
 
+        before(function() {
+            if (window.__karma__ && $(FIXTURES).length === 0) {
+                $('body').append('<div id="fixtures"></div>');
+            }
+        });
+
+        describe('Availability', function() {
+
+            it('requirements', function() {
+                expect($).not.to.be.undefined;
+                expect(kendo).not.to.be.undefined;
+                expect(kendo.version).to.be.a('string');
+                expect(kidoju).not.to.be.undefined;
+                expect(kidoju.tools).not.to.be.undefined;
+                expect(kidoju.Page).not.to.be.undefined;
+                expect(kidoju.PageComponent).not.to.be.undefined;
+                expect($.fn.kendoStage).to.be.an.instanceof(Function);
+                expect($.fn.kendoNavigation).to.be.an.instanceof(Function);
+            });
+
+        });
+
         describe('Initialization', function() {
 
-            xit('from code', function() {
+            it('from code', function() {
                 var element = $(NAVIGATION1).appendTo(FIXTURES);
                 var navigation = element.kendoNavigation().data('kendoNavigation');
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
@@ -69,7 +91,7 @@
                 expect(element.find('div.kj-item>div.kj-stage')).to.be.an.instanceof($).with.property('length', pageCollectionData.length);
             });
 
-            xit('from markup', function() {
+            it('from markup', function() {
                 var viewModel = kendo.observable({
                         pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData }),
                         current: undefined
@@ -88,7 +110,7 @@
 
         });
 
-        xdescribe('Methods', function() {
+        describe('Methods', function() {
 
             var element, navigation;
 
@@ -144,7 +166,7 @@
 
         });
 
-        xdescribe('MVVM', function() {
+        describe('MVVM', function() {
 
             xit('TODO', function() {
                 $.noop();
@@ -152,7 +174,7 @@
 
         });
 
-        xdescribe('Events', function() {
+        describe('Events', function() {
 
             xit('dataBinding & dataBound', function() {
                 $.noop();

@@ -28,6 +28,27 @@
 
     describe('kidoju.widgets.stage', function() {
 
+        before(function() {
+            if (window.__karma__ && $(FIXTURES).length === 0) {
+                $('body').append('<div id="fixtures"></div>');
+            }
+        });
+
+        describe('Availability', function() {
+
+            it('requirements', function() {
+                expect($).not.to.be.undefined;
+                expect(kendo).not.to.be.undefined;
+                expect(kendo.version).to.be.a('string');
+                expect(kidoju).not.to.be.undefined;
+                expect(kidoju.tools).not.to.be.undefined;
+                expect(kidoju.Page).not.to.be.undefined;
+                expect(kidoju.PageComponent).not.to.be.undefined;
+                expect($.fn.kendoStage).to.be.an.instanceof(Function);
+            });
+
+        });
+
         describe('Initialization', function() {
 
             it('from code', function() {

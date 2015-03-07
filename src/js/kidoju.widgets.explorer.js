@@ -90,7 +90,7 @@
         options: {
             name: 'Explorer',
             index: 0,
-            id: null,
+            id: NULL,
             autoBind: true,
             itemTemplate: '<li data-uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item kj-item"><span class="k-in"><img class="k-image kj-image" alt="#= tool #" src="#= icon #">#= tool #</span></li>',
             iconPath: './styles/images/',
@@ -114,7 +114,8 @@
         events: [
             CHANGE,
             DATABINDING,
-            DATABOUND
+            DATABOUND,
+            SELECT
         ],
 
         /**
@@ -126,7 +127,6 @@
         index: function(index) {
             var that = this, component;
             if(index !== undefined) {
-                log('index set to ' + index);
                 if ($.type(index) !== NUMBER) {
                     throw new TypeError();
                 } else if (index < 0 || (index > 0 && index >= that.length())) {
@@ -169,40 +169,47 @@
         },
 
         /**
+         * Gets/Sets the selected component in the explorer
          * @method selection
          * @param value
          * @returns {*}
          */
         selection: function(value) {
             var that = this;
-            if (value === null) {
-                $.noop(); //TODO
+            if (value === NULL && that._selectedUid !== NULL) {
+                that._selectedUid = NULL;
+                log('selected uid set to null');
+                that._toggleSelection();
+                that.trigger(CHANGE, {
+                    index: undefined,
+                    value: NULL
+                });
             } else if (value !== undefined) {
                 if (!(value instanceof kidoju.PageComponent)) {
                     throw new TypeError();
                 }
                 //This might be executed before the dataSource is actually read
                 //In this case, we should store the value temporarily to only assign it in the refresh method
-                if (!isGuid(that._selectedUid) && that.length() === 0) {
+                if (that._selectedUid === undefined && that.length() === 0) {
                     that._tmp = value;
-                } else {
-                    if (value.uid !== that._selectedUid) {
-                        var index = that.dataSource.indexOf(value);
-                        if (index >= 0) { //index === -1 if not found
-                            that._selectedUid = value.uid;
-                            var e = $.Event(CHANGE, {
-                                index: index,
-                                id: value[value.idField],
-                                value: value
-                            });
-                            that._toggleSelection();
-                            that.trigger(CHANGE, e);
-                        }
+                } else if (isGuid(value.uid) && that._selectedUid !== value.uid) {
+                    var index = that.dataSource.indexOf(value);
+                    if (index > -1) {
+                        that._selectedUid = value.uid;
+                        log('selected uid set to ' + value.uid);
+                        that._toggleSelection();
+                        that.trigger(CHANGE, {
+                            index: index,
+                            value: value
+                        });
                     }
                 }
             } else {
-                return that.dataSource.getByUid(that._selectedUid);
-                //This returns undefined if not found
+                if (that._selectedUid === NULL) {
+                    return NULL;
+                } else {
+                    return that.dataSource.getByUid(that._selectedUid); //Returns undefined if not found
+                }
             }
         },
 
@@ -211,15 +218,17 @@
          * @returns {*}
          */
         length: function() {
-            return (this.dataSource instanceof kidoju.PageComponentCollectionDataSource) ? this.dataSource.total() : 0;
+            return (this.dataSource instanceof kidoju.PageComponentCollectionDataSource) ? this.dataSource.total() : -1;
         },
 
         /**
+         * Returns all children of the ul list
+         * This method is required for triggering the dataBinding evvent
          * @method items
          * @returns {Function|children|t.children|HTMLElement[]|ct.children|node.children|*}
          */
         items: function() {
-            return this.list[0].children;
+            return this.ul[0].children;
         },
 
         /**
@@ -282,9 +291,12 @@
         _layout: function () {
             var that = this,
                 explorer = that.element;
-            that.list = explorer.find('ul.k-list');
-            if (!that.list.length) {
-                that.list = $('<ul tabindex="-1" unselectable="on" role="listbox" class="k-list k-reset" />').appendTo(explorer);
+            //Add wrapper property for visible bindings
+            that.wrapper = that.element;
+            //Add ul property
+            that.ul = explorer.find('ul.k-list');
+            if (!that.ul.length) {
+                that.ul = $('<ul tabindex="-1" unselectable="on" role="listbox" class="k-list k-reset" />').appendTo(explorer);
             }
             explorer
                 .on(MOUSEENTER + NS + ' ' + MOUSELEAVE + NS, ALL_ITEMS_SELECTOR, that._toggleHover)
@@ -341,7 +353,7 @@
                     html = that.options.messages.empty; //TODO: improve
                 }
 
-                that.list.html(html);
+                that.ul.html(html);
 
                 if (e && e.action === undefined) {
                     that.trigger(DATABOUND);
@@ -356,10 +368,10 @@
          * @private
          */
         _toggleSelection: function() {
-            this.list.find(ALL_ITEMS_SELECTOR)
+            this.ul.find(ALL_ITEMS_SELECTOR)
                 .removeClass(SELECTED_CLASS)
                 .removeProp(ARIA_SELECTED);
-            this.list.find(kendo.format(ITEM_BYUID_SELECTOR, this._selectedUid))
+            this.ul.find(kendo.format(ITEM_BYUID_SELECTOR, this._selectedUid))
                 .addClass(SELECTED_CLASS)
                 .prop(ARIA_SELECTED, true);
         },

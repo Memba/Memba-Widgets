@@ -117,8 +117,12 @@
             });
 
             it('selection', function() {
+                var fn = function() {
+                    explorer.selection(0);
+                };
                 expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
                 expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(fn).to.throw(TypeError);
                 for (var idx = 0; idx < pageComponentCollectionData.length; idx++) {
                     var component = explorer.dataSource.at(idx);
                     explorer.selection(component);
@@ -128,8 +132,16 @@
             });
 
             it('index', function() {
+                var fn1 = function() {
+                    explorer.index('not a number');
+                };
+                var fn2 = function() {
+                    explorer.index(300); //not in range
+                };
                 expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
                 expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(fn1).to.throw(TypeError);
+                expect(fn2).to.throw(RangeError);
                 for (var idx = 0; idx < pageComponentCollectionData.length; idx++) {
                     var component = explorer.dataSource.at(idx);
                     explorer.index(idx);
@@ -139,8 +151,12 @@
             });
 
             it('id', function() {
+                var fn = function() {
+                    explorer.id({});
+                };
                 expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
                 expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(fn).to.throw(TypeError);
                 for (var idx = 0; idx < pageComponentCollectionData.length; idx++) {
                     var component = explorer.dataSource.at(idx);
                     explorer.id(component.id);
@@ -149,15 +165,25 @@
                 }
             });
 
-            xit('items', function() {
-                $.noop();
-            });
-
         });
 
         describe('MVVM', function() {
 
-            xit('TODO', function() {
+            xit('Adding a component to the viewModel adds the corresponding item to the explorer', function() {
+                $.noop();
+            });
+
+            xit('Removing a component from the viewModel removes the corresponding item from the explorer', function() {
+                $.noop();
+            });
+
+            //TODO: changing of component of the viewModel?
+
+            xit('Changing the selected component in the viewModel changes the corresponding item in the explorer', function() {
+                $.noop();
+            });
+
+            xit('Changing the selected item in the explorer, changes the corresponding component in the viewModel', function() {
                 $.noop();
             });
 

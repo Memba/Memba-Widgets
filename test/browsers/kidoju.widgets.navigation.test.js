@@ -107,7 +107,6 @@
                 expect(element.find('div.kj-item>div.kj-stage')).to.be.an.instanceof($).with.property('length', pageCollectionData.length);
             });
 
-
         });
 
         describe('Methods', function() {
@@ -128,8 +127,12 @@
             });
 
             it('selection', function() {
+                var fn = function() {
+                    navigation.selection(0);
+                };
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(fn).to.throw(TypeError);
                 for (var idx = 0; idx < pageCollectionData.length; idx++) {
                     var page = navigation.dataSource.at(idx);
                     navigation.selection(page);
@@ -139,8 +142,16 @@
             });
 
             it('index', function() {
+                var fn1 = function() {
+                    navigation.index('not a number');
+                };
+                var fn2 = function() {
+                    navigation.index(300); //not in range
+                };
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(fn1).to.throw(TypeError);
+                expect(fn2).to.throw(RangeError);
                 for (var idx = 0; idx < pageCollectionData.length; idx++) {
                     var page = navigation.dataSource.at(idx);
                     navigation.index(idx);
@@ -150,18 +161,18 @@
             });
 
             it('id', function() {
+                var fn = function() {
+                    navigation.id({});
+                };
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(fn).to.throw(TypeError);
                 for (var idx = 0; idx < pageCollectionData.length; idx++) {
                     var page = navigation.dataSource.at(idx);
                     navigation.id(page.id);
                     expect(navigation.selection()).to.equal(page);
                     expect(navigation.index()).to.equal(idx);
                 }
-            });
-
-            xit('items', function() {
-                $.noop();
             });
 
         });

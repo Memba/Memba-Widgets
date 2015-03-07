@@ -16,36 +16,36 @@
         localStorage = window.localStorage;
 
     var pageItemCollectionData = [
-        { id: 'be1935d0-ff0e-4818-a5a8-762127f3b506', tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: '//marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-        { id: 'f2b4179e-3189-401b-bb17-65ceaf62b1eb', tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
-        { id: 'c3d46312-07c3-44dc-a1c9-987654949927', tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield1' } },
-        { id: 'c745e385-d409-40d0-a4d7-1b7c14abc2f6', tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
-        { id: '25bd6088-dc9f-4c9c-a697-be32b8673ba9', tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield2' } },
-        { id: 'f6725a70-20b2-4adf-8b3a-a2d3f84da50d', tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
-        { id: '3894e35b-b740-46c8-be24-21f4a3b9c24d', tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield3' } }
+        { id: kendo.guid(), tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
+        { id: kendo.guid(), tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
+        { id: kendo.guid(), tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield1' } },
+        { id: kendo.guid(), tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
+        { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield2' } },
+        { id: kendo.guid(), tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
+        { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
     ];
 
     var pageCollectionData = [
         {
-            id: '29c14ae2-496b-49f5-9551-e0d7e4aa6032',
+            id: kendo.guid(),
             components: [
-                { id: 'be1935d0-ff0e-4818-a5a8-762127f3b506', tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: '//marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                { id: 'f2b4179e-3189-401b-bb17-65ceaf62b1eb', tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
-                { id: 'c3d46312-07c3-44dc-a1c9-987654949927', tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield1' } }
+                { id: kendo.guid(), tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
+                { id: kendo.guid(), tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
+                { id: kendo.guid(), tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield1' } }
             ]
         },
         {
-            id: 'c0878ced-8e3f-4161-a83a-049caed02d53',
+            id: kendo.guid(),
             components: [
-                { id: 'c745e385-d409-40d0-a4d7-1b7c14abc2f6', tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
-                { id: '25bd6088-dc9f-4c9c-a697-be32b8673ba9', tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield2' } }
+                { id: kendo.guid(), tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
+                { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield2' } }
             ]
         },
         {
-            id: '9e3803f8-a91c-408e-bded-d1b86c68723c',
+            id: kendo.guid(),
             components: [
-                { id: 'f6725a70-20b2-4adf-8b3a-a2d3f84da50d', tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
-                { id: '3894e35b-b740-46c8-be24-21f4a3b9c24d', tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name : 'textfield3' } }
+                { id: kendo.guid(), tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
+                { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
             ]
         }
     ];
@@ -63,10 +63,10 @@
     });
 
     var books = [
-        {id: 'ad6f4594-41a5-4001-98e2-8fa6920fd304', title: 'Gone with the wind'},
-        {id: '2042efeb-b8e6-4b98-8142-2a8c9c4ab7c8', title: 'OK Coral'},
-        {id: '38414c4c-ddf1-4d9c-9c6b-b0b003353bae', title: 'The third man'},
-        {id: 'b7a8cb70-b4e7-4b79-89dd-09225d05399c', title: 'The guns of Navarone'}
+        {id: kendo.guid(), title: 'Gone with the wind'},
+        {id: kendo.guid(), title: 'OK Coral'},
+        {id: kendo.guid(), title: 'The third man'},
+        {id: kendo.guid(), title: 'The guns of Navarone'}
     ];
 
     function dataUrl(file) {
@@ -113,7 +113,7 @@
 
             it('if initialized from a complete label, it should pass', function () {
                 var obj = {
-                        id: 'f2b4179e-3189-401b-bb17-65ceaf62b1eb',
+                        id: kendo.guid(),
                         tool : 'label',
                         top: 250,
                         left: 500,
@@ -143,7 +143,7 @@
 
             it('if initialized from a complete image, it shoud pass', function () {
                 var obj = {
-                        id: 'be1935d0-ff0e-4818-a5a8-762127f3b506',
+                        id: kendo.guid(),
                         tool : 'image',
                         top: 50,
                         left: 100,
@@ -161,7 +161,7 @@
 
             it('if initialized from a complete textbox, it shoud pass', function () {
                 var component = new kidoju.PageComponent({
-                    id: 'c3d46312-07c3-44dc-a1c9-987654949927',
+                    id: kendo.guid(),
                     tool : 'textbox',
                     top: 20,
                     left: 20,

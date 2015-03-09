@@ -297,11 +297,11 @@
         },
 
         /**
-         * @method selection
+         * @method value
          * @param component
          * @returns {*}
          */
-        selection: function(component) {
+        value: function(component) {
             var that = this;
 
             //IMPORTANT TODO:
@@ -310,9 +310,9 @@
             //See navigation and explorer
             //Possibly rename selection into value!!!!
 
-            if (component === undefined) {
-                return that.dataSource.getByUid(that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID));
-            } else {
+            if (component === NULL) {
+                $.noop(); //TODO
+            } else if(component !== undefined) {
                 if (!(component instanceof kidoju.PageComponent)) {
                     throw new TypeError();
                 }
@@ -321,6 +321,8 @@
                         that._selectByUid(component.uid);
                     }
                 }
+            } else {
+                return that.dataSource.getByUid(that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID));
             }
         },
 

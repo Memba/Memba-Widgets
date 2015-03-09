@@ -30,18 +30,19 @@
         DATABOUND = 'dataBound',
         MOUSEENTER = 'mouseenter',
         MOUSELEAVE = 'mouseleave',
-        //FOCUS = 'focus',
-        //BLUR = 'blur',
+        FOCUS = 'focus',
+        BLUR = 'blur',
         SELECT = 'select',
         NS = '.kendoExplorer',
 
         //Widget
         WIDGET_CLASS = 'k-widget k-group kj-explorer', //k-list-container k-reset
         HOVER_CLASS = 'k-state-hover',
-        //FOCUSED_CLASS = 'k-state-focused',
+        FOCUSED_CLASS = 'k-state-focused',
         SELECTED_CLASS = 'k-state-selected',
-        ALL_ITEMS_SELECTOR = 'li.kj-item[data-uid]',
-        ITEM_BYUID_SELECTOR = 'li.kj-item[data-uid="{0}"]',
+        DATA_UID = kendo.attr('uid'),
+        ALL_ITEMS_SELECTOR = 'li.kj-item[' + DATA_UID + ']',
+        ITEM_BYUID_SELECTOR = 'li.kj-item[' + DATA_UID + '="{0}"]',
         ARIA_SELECTED = 'aria-selected',
 
         DEBUG = true,
@@ -171,12 +172,12 @@
         /**
          * Gets/Sets the value of the selected component in the explorer
          * @method value
-         * @param value
+         * @param component
          * @returns {*}
          */
-        value: function(value) {
+        value: function(component) {
             var that = this;
-            if (value === NULL) {
+            if (component === NULL) {
                 if (that._selectedUid !== NULL) {
                     that._selectedUid = NULL;
                     log('selected component uid set to null');
@@ -186,25 +187,25 @@
                         value: NULL
                     });
                 }
-            } else if (value !== undefined) {
-                if (!(value instanceof kidoju.PageComponent)) {
+            } else if (component !== undefined) {
+                if (!(component instanceof kidoju.PageComponent)) {
                     throw new TypeError();
                 }
-                // Note: when that.value() was named that.selection() with a custom binding
-                // the selection binding was executed before the source binding so we had to record the selected value
+                // Note: when that.value() was previously named that.selection() with a custom binding
+                // the selection binding was executed before the source binding so we had to record the selected component
                 // in a temp variable (that._tmp) and assign it to the _selectedUid in the refresh method,
                 // that is after the source was bound.
                 // The corresponding code has now been removed after renaming that.selection() into that.value()
                 // because the value binding is executed after the source binding.
-                if (value.uid !== that._selectedUid && isGuid(value.uid)) {
-                    var index = that.dataSource.indexOf(value);
+                if (component.uid !== that._selectedUid && isGuid(component.uid)) {
+                    var index = that.dataSource.indexOf(component);
                     if (index > -1) {
-                        that._selectedUid = value.uid;
-                        log('selected component uid set to ' + value.uid);
+                        that._selectedUid = component.uid;
+                        log('selected component uid set to ' + component.uid);
                         that._toggleSelection();
                         that.trigger(CHANGE, {
                             index: index,
-                            value: value
+                            value: component
                         });
                     }
                 }
@@ -293,22 +294,66 @@
          * @private
          */
         _layout: function () {
-            var that = this,
-                explorer = that.element;
+            var that = this;
             //Add wrapper property for visible bindings
             that.wrapper = that.element;
             //Add ul property
-            that.ul = explorer.find('ul.k-list');
+            that.ul = that.element.find('ul.k-list');
             if (!that.ul.length) {
-                that.ul = $('<ul tabindex="-1" unselectable="on" role="listbox" class="k-list k-reset" />').appendTo(explorer);
+                that.ul = $('<ul tabindex="-1" unselectable="on" role="listbox" class="k-list k-reset" />')
+                    .appendTo(that.element);
             }
-            explorer
+            //Define element
+            that.element
+                .addClass(WIDGET_CLASS)
+                .attr('role', 'listbox')
                 .on(MOUSEENTER + NS + ' ' + MOUSELEAVE + NS, ALL_ITEMS_SELECTOR, that._toggleHover)
-                //.on(FOCUS + NS + ' ' + BLUR + NS, ALL_ITEMS_SELECTOR, that._toggleFocus)
-                .on(CLICK + NS , ALL_ITEMS_SELECTOR, $.proxy(that._click, that))
-                .addClass(WIDGET_CLASS);
-
+                .on(FOCUS + NS + ' ' + BLUR + NS, ALL_ITEMS_SELECTOR, that._toggleFocus)
+                .on(CLICK + NS , ALL_ITEMS_SELECTOR, $.proxy(that._click, that));
             kendo.notify(that);
+        },
+
+        //TODO add sorting
+
+        /**
+         * Add an explorer item (li) corresponding to a component
+         * @param component
+         * @param index //TODO: with sorting
+         * @private
+         */
+        _addItem: function(component, index) {
+            var that = this;
+
+            //Check that we get a component that is not already in explorer
+            if (that.ul instanceof $ && that.ul.length &&
+                component instanceof kidoju.PageComponent  &&
+                that.ul.find(kendo.format(ITEM_BYUID_SELECTOR, component.uid)).length === 0) {
+
+                var tool = kidoju.tools[component.tool];
+                if (tool instanceof kidoju.Tool) {
+                    //Create explorer item
+                    var item = that.itemTemplate({
+                        uid: component.uid,
+                        tool: component.tool, //also tool.id
+                        icon: that.options.iconPath + tool.icon + '.svg'
+                    });
+                    //Add to explorer list
+                    that.ul.append(item); //TODO <----------------------------------------------------- index??????
+                }
+            }
+        },
+
+        /**
+         * Remove an explorer item
+         * @param uid
+         * @private
+         */
+        _removeItemByUid: function(uid) {
+            if (this.ul instanceof $ && this.ul.length) {
+                //Find and remove an explorer item
+                var item = this.ul.find(kendo.format(ITEM_BYUID_SELECTOR, uid));
+                item.off().remove();
+            }
         },
 
         /**
@@ -319,48 +364,53 @@
             var that = this,
                 html = '';
 
-            if (e && e.action === 'itemchange') {
-                return; //we only update the explorer on loading, 'add' and 'remove' because the item's tool is not supposed to change
+            if(e && e.action === undefined) {
+                that.trigger(DATABINDING);
             }
 
-            if (e === undefined || e.type !== CHANGE) {
-
-                var data = [];
-                if (e=== undefined && that.dataSource instanceof kidoju.PageComponentCollectionDataSource) {
-                    data = that.dataSource.data();
+            if (e=== undefined || e.action === undefined) {
+                var components = [];
+                if (e === undefined && that.dataSource instanceof kidoju.PageCollectionDataSource) {
+                    components = that.dataSource.data();
                 } else if (e && e.items instanceof kendo.data.ObservableArray) {
-                    data = e.items;
+                    components = e.items;
                 }
+                $.each(that.element.find(ALL_ITEMS_SELECTOR), function(index, item) {
+                    that._removeItemByUid($(item).attr(DATA_UID));
+                });
+                $.each(components, function(index, component) {
+                    that._addItem(component);
+                });
+            } else if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
+                $.each(e.items, function(index, component) {
+                    that._addItem(component);
+                    that.trigger(CHANGE, {action: e.action, value: component}); //TODO <--------------------------------------------
+                });
+                //that.select(e.items[e.items.length -1]); //TODO <---------------------------------------------
+            } else if (e.action === 'remove' && $.isArray(e.items) && e.items.length) {
+                $.each(e.items, function(index, page) {
+                    that._removeItemByUid(page.uid);
+                    that.trigger(CHANGE, {action: e.action, value: page});
+                    //that._selectByUid(null); //TODO
+                });
 
-                if (e && e.action === undefined) {
-                    that.trigger(DATABINDING);
-                }
-
-                for (var i = 0; i < data.length; i++) {
-                    var tool = kidoju.tools[data[i].tool];
-                    if (tool instanceof kidoju.Tool) {
-                        html += that.itemTemplate({
-                            uid: data[i].uid,
-                            tool: data[i].tool, //also tool.id
-                            icon: that.options.iconPath + tool.icon + '.svg'
-                        });
-                    }
-                }
-
-                //Display a message when there is nothing to display
-                if (html.length === 0) {
-                    html = that.options.messages.empty; //TODO: improve
-                }
-
-                that.ul.html(html);
-
-                if (e && e.action === undefined) {
-                    that.trigger(DATABOUND);
-                }
+            } else if (e.action === 'itemchange') {
+                $.noop(); //TODO
             }
+
+            //Display a message when there is nothing to display
+            //if (html.length === 0) {
+            //    html = that.options.messages.empty; //TODO: improve
+            //}
 
             that._toggleSelection();
+
+            if(e && e.action === undefined) {
+                that.trigger(DATABOUND);
+            }
+
         },
+
 
         /**
          * Toggles class on selected item determined by value of widget
@@ -370,21 +420,36 @@
             this.ul.find(ALL_ITEMS_SELECTOR)
                 .removeClass(SELECTED_CLASS)
                 .removeProp(ARIA_SELECTED);
+
             this.ul.find(kendo.format(ITEM_BYUID_SELECTOR, this._selectedUid))
                 .addClass(SELECTED_CLASS)
                 .prop(ARIA_SELECTED, true);
         },
 
+        /**
+         * Toggles the hover style when mousing over explorer items
+         * @method _toggleHover
+         * @param e
+         * @private
+         */
         _toggleHover: function(e) {
-            //TODO: test e instanceof $.Event
-            $(e.currentTarget).toggleClass(HOVER_CLASS, e.type === MOUSEENTER);
+            if (e instanceof $.Event) {
+                $(e.currentTarget).toggleClass(HOVER_CLASS, e.type === MOUSEENTER);
+            }
         },
 
-        /*
+        /**
+         * Toggles the focus style when an explorer item has focus
+         * @method _toggleFocus
+         * @param e
+         * @private
+         */
         _toggleFocus: function(e) {
-            $(e.currentTarget).toggleClass(FOCUSED_CLASS, e.type === FOCUS);
+            if (e instanceof $.Event) {
+                $(e.currentTarget).toggleClass(FOCUSED_CLASS, e.type === FOCUS);
+            }
         },
-        */
+
 
         /**
          * Click event handler
@@ -392,11 +457,13 @@
          * @private
          */
         _click: function(e) {
-            var target = $(e.currentTarget);
-            e.preventDefault();
-            if (!target.is('.' + SELECTED_CLASS)) {
-                var component = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
-                this.value(component);
+            if(e instanceof $.Event) {
+                e.preventDefault();
+                var target = $(e.currentTarget);
+                if (!target.is('.' + SELECTED_CLASS)) {
+                    var component = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
+                    this.value(component);
+                }
             }
         },
 

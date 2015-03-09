@@ -30,6 +30,8 @@
         DATABOUND = 'dataBound',
         MOUSEENTER = 'mouseenter',
         MOUSELEAVE = 'mouseleave',
+        FOCUS = 'focus',
+        BLUR = 'blur',
         SELECT = 'select',
         NS = '.kendoNavigation',
 
@@ -37,12 +39,11 @@
         WIDGET_CLASS = 'k-widget k-group kj-navigation',
         HOVER_CLASS = 'k-state-hover',
         FOCUSED_CLASS = 'k-state-focused',
-        HINT_CLASS = 'kj-hint',
         SELECTED_CLASS = 'k-state-selected',
-        ITEM_CLASS = '.kj-item',
-        ALL_ITEMS_SELECTOR = '.kj-item[data-uid]',
-        ITEM_BYUID_SELECTOR = '.kj-item[data-uid="{0}"]',
-        DATA_UID = 'data-uid',
+        HINT_CLASS = 'kj-hint',
+        DATA_UID = kendo.attr('uid'),
+        ALL_ITEMS_SELECTOR = 'div.kj-item[' + DATA_UID + ']',
+        ITEM_BYUID_SELECTOR = 'div.kj-item[' + DATA_UID + '="{0}"]',
         ARIA_SELECTED = 'aria-selected',
 
         DEBUG = true,
@@ -98,15 +99,11 @@
             name: 'Navigation',
             autoBind: true,
             itemTemplate: '<div data-uid="#= uid #" class="kj-item" role="option" aria-selected="false"><div data-role="stage"></div></div>',
-            addTemplate: '<div data-uid="#= uid #" class="kj-item" role="option" aria-selected="false"><div>#: text #</div></div>',
             pageWidth: 1024, //TODO: assuming page size here: where do we read it from?
             pageHeight: 768,
             selectionBorder: 10, //this is the padding of the page wrapper, which draws a border around it
             pageSpacing: 20, //pageSpacing - selectionBorder determines the margin
-            menuIcon: 'calibration_mark.svg',
-            messages: {
-                newPage: 'New Page'
-            }
+            menuIcon: 'calibration_mark.svg'
         },
 
         /**
@@ -182,40 +179,40 @@
         /**
          * Gets/Sets the value of the selected page in the navigation
          * @method value
-         * @param value
+         * @param page
          * @returns {*}
          */
-        value: function(value) {
+        value: function(page) {
             var that = this;
-            if (value === NULL) {
+            if (page === NULL) {
                 if(that._selectedUid !== NULL) {
                     that._selectedUid = NULL;
                     log('selected page uid set to null');
                     that._toggleSelection();
                     that.trigger(CHANGE, {
                         index: undefined,
-                        value: value
+                        value: page
                     });
                 }
-            } else if (value !== undefined) {
-                if (!(value instanceof kidoju.Page)) {
+            } else if (page !== undefined) {
+                if (!(page instanceof kidoju.Page)) {
                     throw new TypeError();
                 }
-                // Note: when that.value() was named that.selection() with a custom binding
-                // the selection binding was executed before the source binding so we had to record the selected value
+                // Note: when that.value() was previously named that.selection() with a custom binding
+                // the selection binding was executed before the source binding so we had to record the selected page
                 // in a temp variable (that._tmp) and assign it to the _selectedUid in the refresh method,
                 // that is after the source was bound.
                 // The corresponding code has now been removed after renaming that.selection() into that.value()
                 // because the value binding is executed after the source binding.
-                if (value.uid !== that._selectedUid && isGuid(value.uid)) {
-                    var index = that.dataSource.indexOf(value);
+                if (page.uid !== that._selectedUid && isGuid(page.uid)) {
+                    var index = that.dataSource.indexOf(page);
                     if (index > -1) {
-                        that._selectedUid = value.uid;
-                        log('selected page uid set to ' + value.uid);
+                        that._selectedUid = page.uid;
+                        log('selected page uid set to ' + page.uid);
                         that._toggleSelection();
                         that.trigger(CHANGE, {
                             index: index,
-                            value: value
+                            value: page
                         });
                     }
                 }
@@ -298,7 +295,6 @@
          */
         _templates: function() {
             this.itemTemplate = kendo.template(this.options.itemTemplate);
-            this.addTemplate = kendo.template(this.options.addTemplate);
         },
 
         /**
@@ -351,23 +347,43 @@
          */
         _layout: function () {
             var that = this;
+            //Define wrapper for visible bindings
+            that.wrapper = that.element;
             //Define element
             that.element
                 .addClass(WIDGET_CLASS)
                 .attr('role', 'listbox')
-                .on(CLICK + NS, ALL_ITEMS_SELECTOR, $.proxy(that._clickHandler, that))
-                .on(MOUSEENTER + NS + ' ' + MOUSELEAVE + NS, ALL_ITEMS_SELECTOR, that._toggleHover); //$.proxy(that._toggleHover, that))
-            //Define wrapper for visible bindings
-            that.wrapper = that.element;
+                .on(MOUSEENTER + NS + ' ' + MOUSELEAVE + NS, ALL_ITEMS_SELECTOR, that._toggleHover)
+                .on(FOCUS + NS + ' ' + BLUR + NS, ALL_ITEMS_SELECTOR, that._toggleFocus)
+                .on(CLICK + NS, ALL_ITEMS_SELECTOR, $.proxy(that._click, that));
+            kendo.notify(that);
         },
 
         /**
-         * Add a navigation item containing a stage(page) at index to navigation
-         * @param page
-         * @param index TODO
+         * Add sorting
          * @private
          */
-        _addNavigationItem: function(page, index) {
+        _addSorting: function() {
+            var that = this;
+            that.element.kendoSortable({
+                hint:function(element) {
+                    return element.clone().addClass(HINT_CLASS);
+                },
+                change: function(e) {
+                    if (e.action === 'sort' && e.item instanceof $ && $.type(e.oldIndex) === NUMBER && $.type(e.newIndex) === NUMBER) {
+                        $.noop(); //TODO VERY VERY IMPORTANT reorder dataSOurce ................................................................................................
+                    }
+                }
+            });
+        },
+
+        /**
+         * Add a navigation item containing a stage(page) wrapped in a div
+         * @param page
+         * @param index //TODO with sorting -----------------------------------------------------------------------
+         * @private
+         */
+        _addItem: function(page, index) {
             var that = this,
                 navigation = that.element;
 
@@ -401,16 +417,16 @@
         },
 
         /**
-         * Remove a navigation item containing a stage(page) from navigation
+         * Remove a navigation item (and its embedded stage)
          * @param uid
          * @private
          */
-        _removeNavigationItemByUid: function(uid) {
+        _removeItemByUid: function(uid) {
             //Find and remove navigation item containing stage
-            var navigationItem = this.element.find(kendo.format(ITEM_BYUID_SELECTOR, uid));
-            //kendo.unbind(navigationItem);
-            kendo.destroy(navigationItem);
-            navigationItem.off(NS).remove();
+            var item = this.element.find(kendo.format(ITEM_BYUID_SELECTOR, uid));
+            //kendo.unbind(item);
+            kendo.destroy(item);
+            item.off().remove();
         },
 
         /**
@@ -431,21 +447,21 @@
                 } else if (e && e.items instanceof kendo.data.ObservableArray) {
                     pages = e.items;
                 }
-                $.each(that.element.find(ITEM_CLASS), function(index, navigationItem) {
-                    that._removeNavigationItemByUid($(navigationItem).attr(DATA_UID));
+                $.each(that.element.find(ALL_ITEMS_SELECTOR), function(index, item) {
+                    that._removeItemByUid($(item).attr(DATA_UID));
                 });
                 $.each(pages, function(index, page) {
-                    that._addNavigationItem(page);
+                    that._addItem(page);
                 });
             } else if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
                 $.each(e.items, function(index, page) {
-                    that._addNavigationItem(page);
-                    that.trigger(CHANGE, {action: e.action, value: page});
-                    //that._selectByUid(page.uid); //TODO
+                    that._addItem(page);
+                    that.trigger(CHANGE, {action: e.action, value: page}); //TODO <--------------------------------------------
                 });
-            } else if (e.action === 'remove') {
+                //that.select(e.items[e.items.length -1]); //TODO <---------------------------------------------
+            } else if (e.action === 'remove' && $.isArray(e.items) && e.items.length) {
                 $.each(e.items, function(index, page) {
-                    that._removeNavigationItemByUid(page.uid);
+                    that._removeItemByUid(page.uid);
                     that.trigger(CHANGE, {action: e.action, value: page});
                     //that._selectByUid(null); //TODO
                 });
@@ -460,24 +476,6 @@
             if(e && e.action === undefined) {
                 that.trigger(DATABOUND);
             }
-        },
-
-        /**
-         * Add sorting
-         * @private
-         */
-        _addSorting: function() {
-            var that = this;
-            that.element.kendoSortable({
-                hint:function(element) {
-                    return element.clone().addClass(HINT_CLASS);
-                },
-                change: function(e) {
-                    if (e.action === 'sort' && e.item instanceof $ && $.type(e.oldIndex) === NUMBER && $.type(e.newIndex) === NUMBER) {
-                        $.noop(); //TODO reorder dataSOurce
-                    }
-                }
-            });
         },
 
         /**
@@ -531,28 +529,40 @@
         },
 
         /**
-         * Toggles the hover style when mousing over the page wrapper (page + selection border)
+         * Toggles the hover style when mousing over mavigation items (a stage with ou outer div that acts as a frame)
          * @method _toggleHover
          * @param e
          * @private
          */
         _toggleHover: function(e) {
-            //TODO: test e instanceof $.Event
-            $(e.currentTarget).toggleClass(HOVER_CLASS, e.type === MOUSEENTER);
+            if (e instanceof $.Event) {
+                $(e.currentTarget).toggleClass(HOVER_CLASS, e.type === MOUSEENTER);
+            }
+        },
+
+        /**
+         * Toggles the focus style when an explorer item has focus
+         * @method _toggleFocus
+         * @param e
+         * @private
+         */
+        _toggleFocus: function(e) {
+            if (e instanceof $.Event) {
+                $(e.currentTarget).toggleClass(FOCUSED_CLASS, e.type === FOCUS);
+            }
         },
 
         /**
          * Click event handler bond to page wrappers to select a page
-         * @method _clickHandler
+         * @method _click
          * @param e
          * @private
          */
-        _clickHandler: function(e) {
+        _click: function(e) {
             if (e instanceof $.Event) {
-                var that = this,
-                    target = $(e.currentTarget),
-                    navigation = target.closest(kendo.roleSelector('navigation'));
                 e.preventDefault();
+                var target = $(e.currentTarget),
+                    navigation = target.closest(kendo.roleSelector('navigation'));
                 if (!target.is('.' + SELECTED_CLASS)) {
                     var page = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
                     this.value(page);

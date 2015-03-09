@@ -242,7 +242,6 @@
          * @param value
          * @returns {*}
          */
-            //TODO IMPORTANT: rename value into selection
             //value binding requires valueTextField
         value: function(value) {
             var that = this;

@@ -10,11 +10,12 @@
     'use strict';
 
     var expect = window.chai.expect,
+        sinon = window.sinon,
         kendo = window.kendo,
         kidoju = window.kidoju,
         FIXTURES = '#fixtures',
         NAVIGATION1 = '<div></div>',
-        NAVIGATION2 = '<div data-role="navigation" data-bind="source: pages, selection: current"></div>';
+        NAVIGATION2 = '<div data-role="navigation" data-bind="source: pages, value: current"></div>';
 
     var pageCollectionData = [
         {
@@ -126,16 +127,30 @@
                 expect(navigation.length()).to.equal(pageCollectionData.length);
             });
 
-            it('selection', function() {
+            it('items', function() {
+                expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
+                expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                var items = navigation.items();
+                expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length);
+                var check = sinon.spy();
+                $.each(items, function (index, item) {
+                    check();
+                    expect($(item)).to.match('div');
+                    expect($(item)).to.have.class('kj-item');
+                });
+                expect(check).to.have.callCount(pageCollectionData.length);
+            });
+
+            it('value', function() {
                 var fn = function() {
-                    navigation.selection(0);
+                    navigation.value(0);
                 };
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 expect(fn).to.throw(TypeError);
                 for (var idx = 0; idx < pageCollectionData.length; idx++) {
                     var page = navigation.dataSource.at(idx);
-                    navigation.selection(page);
+                    navigation.value(page);
                     expect(navigation.index()).to.equal(idx);
                     expect(navigation.id()).to.equal(page.id);
                 }
@@ -155,7 +170,7 @@
                 for (var idx = 0; idx < pageCollectionData.length; idx++) {
                     var page = navigation.dataSource.at(idx);
                     navigation.index(idx);
-                    expect(navigation.selection()).to.equal(page);
+                    expect(navigation.value()).to.equal(page);
                     expect(navigation.id()).to.equal(page.id);
                 }
             });
@@ -170,39 +185,144 @@
                 for (var idx = 0; idx < pageCollectionData.length; idx++) {
                     var page = navigation.dataSource.at(idx);
                     navigation.id(page.id);
-                    expect(navigation.selection()).to.equal(page);
+                    expect(navigation.value()).to.equal(page);
                     expect(navigation.index()).to.equal(idx);
                 }
             });
+
+            // TODO height
+            // TODO width
+            // TODO refresh
+            // TODO: sorting.....................
 
         });
 
         describe('MVVM', function() {
 
-            xit('TODO', function() {
-                $.noop();
+            var element, navigation, viewModel;
+
+            /*
+            //For obscure reasons, setting the viewModel here does not work
+            viewModel = kendo.observable({
+                pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData }),
+                current: undefined
+            });
+            */
+
+            beforeEach(function() {
+                element = $(NAVIGATION2).appendTo(FIXTURES);
+                viewModel = kendo.observable({
+                    pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData }),
+                    current: undefined
+                });
+                kendo.bind(FIXTURES, viewModel);
+                navigation = element.data('kendoNavigation');
+            });
+
+            it('Adding a page to the viewModel adds the corresponding item to the navigation', function() {
+                expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
+                expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length);
+                viewModel.pages.add(new kidoju.Page({
+                    id: kendo.guid(),
+                    style: 'font-family: Georgia, serif; color: #FF0000;'
+                }));
+                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length + 1);
+            });
+
+            it('Removing a page from the viewModel removes the corresponding item from the navigation', function() {
+                expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
+                expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length);
+                viewModel.pages.remove(viewModel.pages.at(0));
+                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length - 1);
+            });
+
+            // Note: Since kendo.ui.Navigation is a collection of kendo.ui.Stage, we are assuming that
+            // if kendo.ui.Stage properly handles a change of page content, kendo.ui.Navigation also properly handles a change of page content
+
+            it('Changing the selected page in the viewModel changes the corresponding item in the navigation', function() {
+                //TODO: also test binding on id and index?
+                expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
+                expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length);
+                var check = sinon.spy();
+                $.each(viewModel.pages.data(), function(index, page) {
+                    check();
+                    viewModel.set('current', page);
+                    expect(navigation.element.find(kendo.format('[{0}="{1}"]', kendo.attr('uid'), page.uid))).to.have.class('k-state-selected');
+                });
+                expect(check).to.have.callCount(pageCollectionData.length);
+            });
+
+            it('Changing the selected page in the navigation, changes the corresponding page in the viewModel', function() {
+                expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
+                expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                var check = sinon.spy();
+                $.each(navigation.element.find('div.kj-item'), function(index, item) {
+                    check();
+                    $(item).simulate('click');
+                    expect(viewModel.get('current')).to.have.property('uid', $(item).attr(kendo.attr('uid')));
+                });
+                expect(check).to.have.callCount(pageCollectionData.length);
             });
 
         });
 
         describe('Events', function() {
 
-            xit('dataBinding & dataBound', function() {
-                $.noop();
+            var element, navigation;
+
+            beforeEach(function() {
+                element = $(NAVIGATION1).appendTo(FIXTURES);
             });
 
-            xit('Change', function() {
-                $.noop();
+            it('dataBinding & dataBound', function() {
+                var dataBinding = sinon.spy(),
+                    dataBound = sinon.spy();
+                navigation = element.kendoNavigation({
+                    dataSource: pageCollectionData,
+                    dataBinding: function(e) {
+                        dataBinding(e.sender);
+                    },
+                    dataBound: function(e) {
+                        dataBound(e.sender);
+                    }
+                }).data('kendoNavigation');
+                expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
+                expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(dataBinding).to.have.been.calledOnce;
+                expect(dataBinding).to.have.been.calledWith(navigation);
+                expect(dataBound).to.have.been.calledOnce;
+                expect(dataBound).to.have.been.calledWith(navigation);
+                expect(dataBinding).to.have.been.calledBefore(dataBound);
             });
 
-            xit('Select', function() {
-                $.noop();
+            it('change', function() {
+                var change = sinon.spy();
+                navigation = element.kendoNavigation({
+                    dataSource: pageCollectionData,
+                    change: function(e) {
+                        change(e.value);
+                    }
+                }).data('kendoNavigation');
+                expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
+                expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(navigation.dataSource.data()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', pageCollectionData.length);
+                var page = navigation.dataSource.at(1);
+                expect(page).to.be.an.instanceof(kidoju.Page);
+                navigation.value(page);
+                expect(change).to.have.been.calledOnce;
+                expect(change).to.have.been.calledWith(page);
             });
+
+            //TODO: select event
 
         });
 
         afterEach(function() {
             var fixtures = $(FIXTURES);
+            kendo.unbind(fixtures);
             kendo.destroy(fixtures);
             fixtures.find('*').off();
             fixtures.empty();

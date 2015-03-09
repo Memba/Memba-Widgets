@@ -70,7 +70,7 @@
         <div data-role="toolbar"></div>
         <div data-role="splitter" data-panes="[{min: 100, max:400, size: 300}, {}, {min: 100, max:400, size: 300}]">
             <div id="left-pane">
-                <div data-role="navigation" data-bind="source: stream.pages, selection: currentPage"></div>
+                <div data-role="navigation" data-bind="source: stream.pages, value: currentPage"></div>
             </div>
             <div id="center-pane">
                 <div class="centered">
@@ -86,7 +86,7 @@
                         </li>
                         <li>
                             Explorer
-                            <div data-role="explorer" data-bind="source: currentPage.components, selection: currentComponent"></div>
+                            <div data-role="explorer" data-bind="source: currentPage.components, value: currentComponent"></div>
                         </li>
                         <li>
                             Attributes
@@ -276,7 +276,7 @@
                             case 'delete':
                                 var navigation = $(kendo.roleSelector('navigation')).data('kendoNavigation');
                                 if (navigation instanceof kendo.ui.Navigation) {
-                                    var page = navigation.selection();
+                                    var page = navigation.value();
                                     if (page instanceof kidoju.Page) {
                                         viewModel.stream.pages.remove(page);
                                     }

@@ -133,7 +133,7 @@
                     throw new RangeError();
                 } else {
                     component = that.dataSource.at(index);
-                    that.selection(component);
+                    that.value(component);
                 }
             } else {
                 component = that.dataSource.getByUid(that._selectedUid);
@@ -157,7 +157,7 @@
                     throw new TypeError();
                 }
                 component = that.dataSource.get(id);
-                that.selection(component);
+                that.value(component);
             } else {
                 component = that.dataSource.getByUid(that._selectedUid);
                 if (component instanceof kidoju.PageComponent) {
@@ -169,34 +169,38 @@
         },
 
         /**
-         * Gets/Sets the selected component in the explorer
-         * @method selection
+         * Gets/Sets the value of the selected component in the explorer
+         * @method value
          * @param value
          * @returns {*}
          */
-        selection: function(value) {
+        value: function(value) {
             var that = this;
-            if (value === NULL && that._selectedUid !== NULL) {
-                that._selectedUid = NULL;
-                log('selected uid set to null');
-                that._toggleSelection();
-                that.trigger(CHANGE, {
-                    index: undefined,
-                    value: NULL
-                });
+            if (value === NULL) {
+                if (that._selectedUid !== NULL) {
+                    that._selectedUid = NULL;
+                    log('selected component uid set to null');
+                    that._toggleSelection();
+                    that.trigger(CHANGE, {
+                        index: undefined,
+                        value: NULL
+                    });
+                }
             } else if (value !== undefined) {
                 if (!(value instanceof kidoju.PageComponent)) {
                     throw new TypeError();
                 }
-                //This might be executed before the dataSource is actually read
-                //In this case, we should store the value temporarily to only assign it in the refresh method
-                if (that._selectedUid === undefined && that.length() === 0) {
-                    that._tmp = value;
-                } else if (isGuid(value.uid) && that._selectedUid !== value.uid) {
+                // Note: when that.value() was named that.selection() with a custom binding
+                // the selection binding was executed before the source binding so we had to record the selected value
+                // in a temp variable (that._tmp) and assign it to the _selectedUid in the refresh method,
+                // that is after the source was bound.
+                // The corresponding code has now been removed after renaming that.selection() into that.value()
+                // because the value binding is executed after the source binding.
+                if (value.uid !== that._selectedUid && isGuid(value.uid)) {
                     var index = that.dataSource.indexOf(value);
                     if (index > -1) {
                         that._selectedUid = value.uid;
-                        log('selected uid set to ' + value.uid);
+                        log('selected component uid set to ' + value.uid);
                         that._toggleSelection();
                         that.trigger(CHANGE, {
                             index: index,
@@ -343,13 +347,8 @@
                     }
                 }
 
-                //See selection method:
-                //MVVM might bind selection before dataSource is read
-                //So we wait here until dataSource is read to assign selection
-                if(html.length > 0 && that._tmp instanceof kidoju.PageComponent) {
-                    that.selection(that._tmp);
-                    delete that._tmp;
-                } else if (html.length === 0) {
+                //Display a message when there is nothing to display
+                if (html.length === 0) {
                     html = that.options.messages.empty; //TODO: improve
                 }
 
@@ -364,7 +363,7 @@
         },
 
         /**
-         * Toggles selection class
+         * Toggles class on selected item determined by value of widget
          * @private
          */
         _toggleSelection: function() {
@@ -377,6 +376,7 @@
         },
 
         _toggleHover: function(e) {
+            //TODO: test e instanceof $.Event
             $(e.currentTarget).toggleClass(HOVER_CLASS, e.type === MOUSEENTER);
         },
 
@@ -396,7 +396,7 @@
             e.preventDefault();
             if (!target.is('.' + SELECTED_CLASS)) {
                 var component = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
-                this.selection(component);
+                this.value(component);
             }
         },
 

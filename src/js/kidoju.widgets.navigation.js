@@ -144,7 +144,7 @@
                     throw new RangeError();
                 } else {
                     page = that.dataSource.at(value);
-                    that.selection(page);
+                    that.value(page);
                 }
             } else {
                 page = that.dataSource.getByUid(that._selectedUid);
@@ -168,7 +168,7 @@
                     throw new TypeError();
                 }
                 page = that.dataSource.get(value);
-                that.selection(page);
+                that.value(page);
             } else {
                 page = that.dataSource.getByUid(that._selectedUid);
                 if (page instanceof kidoju.Page) {
@@ -180,38 +180,51 @@
         },
 
         /**
-         * @method selection
+         * Gets/Sets the value of the selected page in the navigation
+         * @method value
          * @param value
          * @returns {*}
          */
-        selection: function(value) {
+        value: function(value) {
             var that = this;
-            if (value !== undefined) {
+            if (value === NULL) {
+                if(that._selectedUid !== NULL) {
+                    that._selectedUid = NULL;
+                    log('selected page uid set to null');
+                    that._toggleSelection();
+                    that.trigger(CHANGE, {
+                        index: undefined,
+                        value: value
+                    });
+                }
+            } else if (value !== undefined) {
                 if (!(value instanceof kidoju.Page)) {
                     throw new TypeError();
                 }
-                //This might be executed before the dataSource is actually read
-                //In this case, we should store the value temporarily to only assign it in the refresh method
-                if (!isGuid(that._selectedUid) && that.length() === 0) {
-                    that._tmp = value;
-                } else {
-                    if (value.uid !== that._selectedUid) {
-                        var index = that.dataSource.indexOf(value);
-                        if (index > -1) {
-                            that._selectedUid = value.uid;
-                            var e = $.Event(CHANGE, {
-                                index: index,
-                                id: value[value.idField],
-                                value: value
-                            });
-                            that._toggleSelection();
-                            that.trigger(CHANGE, e);
-                        }
+                // Note: when that.value() was named that.selection() with a custom binding
+                // the selection binding was executed before the source binding so we had to record the selected value
+                // in a temp variable (that._tmp) and assign it to the _selectedUid in the refresh method,
+                // that is after the source was bound.
+                // The corresponding code has now been removed after renaming that.selection() into that.value()
+                // because the value binding is executed after the source binding.
+                if (value.uid !== that._selectedUid && isGuid(value.uid)) {
+                    var index = that.dataSource.indexOf(value);
+                    if (index > -1) {
+                        that._selectedUid = value.uid;
+                        log('selected page uid set to ' + value.uid);
+                        that._toggleSelection();
+                        that.trigger(CHANGE, {
+                            index: index,
+                            value: value
+                        });
                     }
                 }
             } else {
-                return that.dataSource.getByUid(that._selectedUid);
-                //This returns undefined if not found
+                if (that._selectedUid === NULL) {
+                    return NULL;
+                } else {
+                    return that.dataSource.getByUid(that._selectedUid); //This returns undefined if not found
+                }
             }
         },
 
@@ -524,10 +537,8 @@
          * @private
          */
         _toggleHover: function(e) {
-            if (e instanceof $.Event) {
-                var target = $(e.currentTarget);
-                target.toggleClass('k-state-hover', e.type === MOUSEENTER);
-            }
+            //TODO: test e instanceof $.Event
+            $(e.currentTarget).toggleClass(HOVER_CLASS, e.type === MOUSEENTER);
         },
 
         /**
@@ -544,7 +555,7 @@
                 e.preventDefault();
                 if (!target.is('.' + SELECTED_CLASS)) {
                     var page = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
-                    this.selection(page);
+                    this.value(page);
                 }
             }
         },

@@ -54,6 +54,7 @@
      * Enable binding the index value of a Playbar widget
      * @type {*|void}
      */
+    /*
     binders.widget.index = Binder.extend({
         init: function(widget, bindings, options) {
             Binder.fn.init.call(this, widget.element[0], bindings, options);
@@ -66,7 +67,7 @@
         },
         refresh: function() {
             var index = this.bindings.index.get();
-            if ($.type(index) === NUMBER /*&& index >= 0*/) {
+            if ($.type(index) === NUMBER) { //&& index >= 0) {
                 this.widget.index(index);
             }
         },
@@ -74,11 +75,13 @@
             this.widget.unbind(CHANGE, this._change);
         }
     });
+    */
 
     /**
      * Enable binding the id value of a Playbar widget
      * @type {*|void}
      */
+    /*
     binders.widget.id = Binder.extend({
         init: function(widget, bindings, options) {
             Binder.fn.init.call(this, widget.element[0], bindings, options);
@@ -99,11 +102,13 @@
             this.widget.unbind(CHANGE, this._change);
         }
     });
+    */
 
     /**
      * Enable binding the selection value of a Playbar widget
      * @type {*|void}
      */
+    /*
     binders.widget.selection = Binder.extend({
         init: function(widget, bindings, options) {
             Binder.fn.init.call(this, widget.element[0], bindings, options);
@@ -121,6 +126,7 @@
             this.widget.unbind(CHANGE, this._change);
         }
     });
+    */
 
     /**
      * Enable binding the properties value of a Page widget

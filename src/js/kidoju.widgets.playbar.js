@@ -37,6 +37,7 @@
         LAST = '.k-i-seek-e',
         PREV = '.k-i-arrow-w',
         NEXT = '.k-i-arrow-e',
+        TICK = '.k-i-tick',
 
         DEBUG = true,
         MODULE = 'kidoju.widgets.playbar: ';
@@ -149,6 +150,7 @@
             info: true,
             input: false,
             previousNext: true,
+            tick: true,
             refresh: true,
             messages: {
                 empty: 'No page to display',
@@ -158,6 +160,7 @@
                 previous: 'Go to the previous page',
                 next: 'Go to the next page',
                 last: 'Go to the last page',
+                tick: 'Submit and check results',
                 refresh: 'Refresh',
                 morePages: 'More pages'
             }
@@ -176,6 +179,7 @@
          */
         events: [
             CHANGE,
+            CLICK,
             DATABINDING,
             DATABOUND
         ],
@@ -250,7 +254,7 @@
         value: function(page) {
             var that = this;
             if (page === NULL) {
-                //that.index();
+                $.noop(); //TODO
             } else if (page !== undefined) {
                 if (!(page instanceof kidoju.Page)) {
                     throw new TypeError();
@@ -353,17 +357,19 @@
                 index = that.index(),
                 length = that.length();
 
+            //Add first and previous buttons
             if (options.previousNext) {
                 if (!playbar.find(FIRST).length) {
                     playbar.append(icon(that.iconTemplate, FIRST, options.messages.first, 'k-pager-first'));
                     first(playbar, index, length);
                 }
                 if (!playbar.find(PREV).length) {
-                    playbar.append(icon(that.iconTemplate, PREV, options.messages.previous));
+                    playbar.append(icon(that.iconTemplate, PREV, options.messages.previous, 'k-pager-previous'));
                     prev(playbar, index, length);
                 }
             }
 
+            //Add numeric buttons
             if (options.numeric) {
                 that.list = playbar.find('.k-pager-numbers');
                 if (!that.list.length) {
@@ -371,6 +377,7 @@
                 }
             }
 
+            //Add input
             if (options.input) {
                 if (!playbar.find('.k-pager-input').length) {
                     playbar.append('<span class="k-pager-input k-label">'+
@@ -382,9 +389,10 @@
                 playbar.on(KEYDOWN + NS, '.k-pager-input input', $.proxy(that._keydown, that));
             }
 
+            //Add next and last buttons
             if (options.previousNext) {
                 if (!playbar.find(NEXT).length) {
-                    playbar.append(icon(that.iconTemplate, NEXT, options.messages.next));
+                    playbar.append(icon(that.iconTemplate, NEXT, options.messages.next, 'k-pager-next'));
                     next(playbar, index, length);
                 }
                 if (!playbar.find(LAST).length) {
@@ -393,6 +401,12 @@
                 }
             }
 
+            //Add tick
+            if (options.tick) {
+                playbar.append(icon(that.iconTemplate, TICK, options.messages.tick, 'k-pager-tick'));
+            }
+
+            //Add refresh button
             if (options.refresh) {
                 if (!playbar.find('.k-pager-refresh').length) {
                     playbar.append('<a href="#" class="k-pager-refresh k-link" title="' + options.messages.refresh +
@@ -401,17 +415,17 @@
                 playbar.on(CLICK + NS, '.k-pager-refresh', $.proxy(that._refreshClick, that));
             }
 
+            //Add info
             if (options.info) {
                 if (!playbar.find('.k-pager-info').length) {
                     playbar.append('<span class="k-pager-info k-label" />');
                 }
             }
 
-            //TODO Add timer
-
+            //Add click handler
             playbar
                 .addClass(WIDGET_CLASS)
-                .on(CLICK + NS , 'a', $.proxy(that._indexClick, that));
+                .on(CLICK + NS , 'a', $.proxy(that._navClick, that));
 
 
             //if (options.autoBind) {
@@ -446,6 +460,7 @@
                 that.trigger(DATABINDING);
             }
 
+            //Update numeric buttons
             if (options.numeric) {
                 //start is the index of the first numeric button
                 //end is the index of the last numeric button
@@ -468,8 +483,8 @@
                 that.list.html(html);
             }
 
+            //Update info
             if (options.info) {
-                //TODO: we could consider a progress bar?
                 if (length > 0) {
                     html = options.messages.page +
                         ' ' + (index + 1) + ' ' +
@@ -480,6 +495,7 @@
                 that.element.find('.k-pager-info').html(html);
             }
 
+            //Update input
             if (options.input) {
                 that.element.find('.k-pager-input')
                     .html(options.messages.page +
@@ -491,14 +507,13 @@
                         .toggleClass('k-state-disabled', length < 1);
             }
 
+            //Update first, pervious, next, last buttons
             if (options.previousNext) {
                 first(that.element, index, length);
                 prev(that.element, index, length);
                 next(that.element, index, length);
                 last(that.element, index, length);
             }
-
-            //Add flag
 
             if(e && e.action === undefined) {
                 //TODO: we are cheating here: we should have in addedDataItems the pages displayed as numbers
@@ -543,12 +558,17 @@
          * @param e
          * @private
          */
-        _indexClick: function(e) {
+        _navClick: function(e) {
             if (e instanceof $.Event) {
                 e.preventDefault();
                 var target = $(e.currentTarget);
                 if (!target.is('.k-state-disabled')) {
-                    this.index(parseInt(target.attr(kendo.attr('index')), 10));
+                    var index = parseInt(target.attr(kendo.attr('index')), 10);
+                    if (!isNaN(index)) {
+                        this.index(index);
+                    } else if (target.hasClass('k-pager-tick')) {
+                        this.trigger(CLICK); //Clicking on tick
+                    }
                 }
             }
         },

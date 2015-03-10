@@ -34,7 +34,7 @@
 <div data-bind="text: current.id"></div>
 <button data-bind="click: reset">Clear Selection</button><br/>
 <div><input type="checkbox" data-bind="checked: isVisible" />Visible</div>
-<div id="playbar" data-role="playbar" data-bind="source: pages, value: page, visible: isVisible" data-button-count="5"></div>
+<div id="playbar" data-role="playbar" data-bind="source: pages, value: page, visible: isVisible, click: alert" data-button-count="5"></div>
 <input data-role="dropdownlist" data-bind="source: pages, value: page" data-text-field="id" data-value-field="id" style="width: 400px"></select>
 </body>
 <script>
@@ -52,6 +52,9 @@
         isVisible: true,
         reset: function() {
             this.set('current', null);
+        },
+        alert: function() {
+            window.alert('tick!');
         }
     });
 

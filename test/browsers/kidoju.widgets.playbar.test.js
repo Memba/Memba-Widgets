@@ -82,7 +82,7 @@
                 expect(playbar.dataSource.total()).to.equal(0);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-playbar');
-                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 4);
+                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 5);
                 expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', 1);
                 expect(element.find('span.k-pager-input>input')).to.be.an.instanceof($).with.property('length', 1);
                 expect(element.find('a.k-pager-refresh')).to.be.an.instanceof($).with.property('length', 1);
@@ -96,6 +96,7 @@
                     info: false,
                     input: false,
                     previousNext: false,
+                    tick: false,
                     refresh: false
                 }).data('kendoPlayBar');
                 expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
@@ -121,7 +122,7 @@
                 expect(playbar.dataSource.total()).to.equal(pageCollectionData1.length);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-playbar');
-                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 4);
+                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 5);
                 expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', pageCollectionData1.length);
                 expect(element.find('span.k-pager-input>input')).to.be.an.instanceof($).with.property('length', 0);
                 expect(element.find('a.k-pager-refresh')).to.be.an.instanceof($).with.property('length', 1);
@@ -138,7 +139,7 @@
                 expect(playbar.dataSource.total()).to.equal(pageCollectionData2.length);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-playbar');
-                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 4);
+                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 5);
                 expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', playbar.options.buttonCount + 1);
                 expect(element.find('span.k-pager-input>input')).to.be.an.instanceof($).with.property('length', 0);
                 expect(element.find('a.k-pager-refresh')).to.be.an.instanceof($).with.property('length', 1);
@@ -158,7 +159,7 @@
                 expect(playbar.dataSource.total()).to.equal(pageCollectionData1.length);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-playbar');
-                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 4);
+                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 5);
                 expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', pageCollectionData1.length);
                 expect(element.find('span.k-pager-input>input')).to.be.an.instanceof($).with.property('length', 0);
                 expect(element.find('a.k-pager-refresh')).to.be.an.instanceof($).with.property('length', 1);
@@ -317,17 +318,17 @@
                 var check = sinon.spy();
                 /*
                 //For whatever reason , second click does not work
-                $.each(playbar.element.find('ul.k-pager-numbers>li>a.k-link'), function(index, item) {
+                $.each(element.find('ul.k-pager-numbers>li>a.k-link'), function(index, item) {
                     check();
                     $(item).simulate('click');
                     expect(playbar.dataSource.indexOf(viewModel.get('current'))).to.equal(parseInt($(item).attr(kendo.attr('index')), 10));
                 });
                 expect(check).to.have.callCount(pageCollectionData1.length - 1);
                 */
-                var items = playbar.element.find('ul.k-pager-numbers>li>a.k-link');
+                var items = element.find('ul.k-pager-numbers>li>a.k-link');
                 //$(items[0]).simulate('click');
                 $(items[1]).simulate('click');
-                expect(playbar.dataSource.indexOf(viewModel.get('current'))).to.equal(parseInt($(items[1]).attr(kendo.attr('index')), 10))
+                expect(playbar.dataSource.indexOf(viewModel.get('current'))).to.equal(parseInt($(items[1]).attr(kendo.attr('index')), 10));
             });
 
             //TODO: first
@@ -385,6 +386,20 @@
                 playbar.value(page);
                 expect(change).to.have.been.calledOnce;
                 expect(change).to.have.been.calledWith(page);
+            });
+
+            it('click', function() {
+                var click = sinon.spy();
+                playbar = element.kendoPlayBar({
+                    dataSource: pageCollectionData1,
+                    click: function(e) {
+                        click();
+                    }
+                }).data('kendoPlayBar');
+                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                element.find('a.k-pager-tick').simulate('click');
+                expect(click).to.have.been.calledOnce;
             });
 
         });

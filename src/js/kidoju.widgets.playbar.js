@@ -26,6 +26,8 @@
         //Events
         CHANGE = 'change',
         CLICK = 'click',
+        DATABINDING = 'dataBinding',
+        DATABOUND = 'dataBound',
         KEYDOWN = 'keydown',
         NS = '.kendoPlayBar',
 
@@ -173,7 +175,9 @@
          * @property events
          */
         events: [
-            CHANGE
+            CHANGE,
+            DATABINDING,
+            DATABOUND
         ],
 
         /**
@@ -191,7 +195,7 @@
                 } else if (index < 0 || (index > 0 && index >= that.length())) {
                     throw new RangeError();
                 } else if (index !== that._selectedIndex) {
-                    var page = that.dataSource.at(that._selectedIndex);
+                    var page = that.dataSource.at(index);
                     if (page instanceof kidoju.Page) {
                         that._selectedIndex = index;
                         log('selected index set to ' + index);
@@ -414,6 +418,9 @@
             //    that.refresh();
             //}
 
+            //Required for visible binding
+            that.wrapper = that.element;
+
             kendo.notify(that);
         },
 
@@ -433,6 +440,10 @@
 
             if (e && e.action === 'itemchange') {
                 return; //we only update the playbar on loading, 'add' and 'remove'
+            }
+
+            if(e && e.action === undefined) {
+                that.trigger(DATABINDING);
             }
 
             if (options.numeric) {
@@ -485,6 +496,14 @@
                 prev(that.element, index, length);
                 next(that.element, index, length);
                 last(that.element, index, length);
+            }
+
+            //Add flag
+
+            if(e && e.action === undefined) {
+                //TODO: we are cheating here: we should have in addedDataItems the pages displayed as numbers
+                //Without addedDataItems, it fails because all data items are not displayed
+                that.trigger(DATABOUND, { addedDataItems: [] });
             }
         },
 

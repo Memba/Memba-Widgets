@@ -21,10 +21,20 @@
     <script src="./js/kidoju.tools.js"></script>
     <script src="./js/kidoju.widgets.bindings.js"></script>
     <script src="./js/kidoju.widgets.playbar.js"></script>
+    <style>
+        body>div:first-of-type {
+            height: 22px;
+        }
+        button {
+            margin: 5px 0px;
+        }
+    </style>
 </head>
 <body>
-<!--div id="playbar1"></div-->
-<div id="playbar" data-role="playbar" data-bind="source: pages, value: page" data-button-count="5"></div>
+<div data-bind="text: current.id"></div>
+<button data-bind="click: reset">Clear Selection</button><br/>
+<div><input type="checkbox" data-bind="checked: isVisible" />Visible</div>
+<div id="playbar" data-role="playbar" data-bind="source: pages, value: page, visible: isVisible" data-button-count="5"></div>
 <input data-role="dropdownlist" data-bind="source: pages, value: page" data-text-field="id" data-value-field="id" style="width: 400px"></select>
 </body>
 <script>
@@ -38,7 +48,11 @@
     var pageCollectionDataSource = new kidoju.PageCollectionDataSource({ data:pageCollectionData });
     var viewModel = window.viewModel = kendo.observable({
         pages: pageCollectionDataSource,
-        current: undefined
+        current: undefined,
+        isVisible: true,
+        reset: function() {
+            this.set('current', null);
+        }
     });
 
     $(document).ready(function() {

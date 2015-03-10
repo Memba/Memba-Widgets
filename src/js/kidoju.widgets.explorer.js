@@ -127,8 +127,8 @@
          */
         index: function(index) {
             var that = this, component;
-            if(index !== undefined) {
-                if ($.type(index) !== NUMBER) {
+            if (index !== undefined) {
+                if ($.type(index) !== NUMBER || index%1 !== 0) {
                     throw new TypeError();
                 } else if (index < 0 || (index > 0 && index >= that.length())) {
                     throw new RangeError();

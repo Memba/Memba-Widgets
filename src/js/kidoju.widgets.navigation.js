@@ -126,21 +126,21 @@
         //},
 
         /**
-         * IMPORTANT: index is 0 based
+         * Gets/Sets the index of the selected page in the navigation
+         * Note: index is 0 based, whereas playbar page numbers are 1 based
          * @method index
-         * @param value
+         * @param index
          * @returns {*}
          */
-        index: function(value) {
+        index: function(index) {
             var that = this, page;
-            if(value !== undefined) {
-                log('index set to ' + value);
-                if ($.type(value) !== NUMBER) {
+            if(index !== undefined) {
+                if ($.type(index) !== NUMBER || index%1 !== 0) {
                     throw new TypeError();
-                } else if (value < 0 || (value > 0 && value >= that.length())) {
+                } else if (index < 0 || (index > 0 && index >= that.length())) {
                     throw new RangeError();
                 } else {
-                    page = that.dataSource.at(value);
+                    page = that.dataSource.at(index);
                     that.value(page);
                 }
             } else {
@@ -154,17 +154,18 @@
         },
 
         /**
+         * Gets/Sets the id of the selected page in the navigation
          * @method id
-         * @param value
+         * @param id
          * @returns {*}
          */
-        id: function (value) {
+        id: function (id) {
             var that = this, page;
-            if (value !== undefined) {
-                if ($.type(value) !== STRING && $.type(value) !== NUMBER) {
+            if (id !== undefined) {
+                if ($.type(id) !== STRING && $.type(id) !== NUMBER) {
                     throw new TypeError();
                 }
-                page = that.dataSource.get(value);
+                page = that.dataSource.get(id);
                 that.value(page);
             } else {
                 page = that.dataSource.getByUid(that._selectedUid);
@@ -230,7 +231,7 @@
          * @returns {*}
          */
         length: function() {
-            return (this.dataSource instanceof kidoju.PageCollectionDataSource) ? this.dataSource.total() : 0;
+            return (this.dataSource instanceof kidoju.PageCollectionDataSource) ? this.dataSource.total() : -1;
         },
 
         /**
@@ -395,8 +396,8 @@
                     .css({
                         boxSizing: 'border-box',
                         position: 'relative',
-                        padding: parseInt(that.options.selectionBorder),
-                        margin: parseInt(that.options.pageSpacing) - parseInt(that.options.selectionBorder)
+                        padding: parseInt(that.options.selectionBorder, 10),
+                        margin: parseInt(that.options.pageSpacing, 10) - parseInt(that.options.selectionBorder, 10)
                     });
 
                 //append the menu icon //TODO<------------------------------------------------------------ icon
@@ -499,7 +500,7 @@
          * @private
          */
         _getStageScale: function() {
-            var scale = (this.element.innerWidth() - 2 * parseInt(this.options.pageSpacing)) / this.options.pageWidth;
+            var scale = (this.element.innerWidth() - 2 * parseInt(this.options.pageSpacing, 10)) / parseInt(this.options.pageWidth, 10);
             if (scale < 0) {
                 scale = 0;
             }
@@ -519,8 +520,8 @@
             //we actually need the widget's outerWidth and outerHeight
             //becaus a border might be added to pageWidth and pageHeight
             navigation.find(ALL_ITEMS_SELECTOR)
-                .width(scale * parseInt(that.options.pageWidth))
-                .height(scale * parseInt(that.options.pageHeight));
+                .width(scale * parseInt(that.options.pageWidth, 10))
+                .height(scale * parseInt(that.options.pageHeight, 10));
 
             var stages = navigation.find(kendo.roleSelector('stage'));
             for (var i = 0; i < stages.length; i++) {

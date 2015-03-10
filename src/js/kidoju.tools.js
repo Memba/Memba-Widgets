@@ -508,7 +508,7 @@
                 if ($.type(component.height) === NUMBER) {
                     content.height(component.height);
                 }
-                var fontSize = parseInt(content.css('font-size'));
+                var fontSize = parseInt(content.css('font-size'), 10);
                 var clone = content.clone()
                     .hide()
                     .css({

@@ -27,10 +27,10 @@
         CHANGE = 'change',
         CLICK = 'click',
         KEYDOWN = 'keydown',
-        NS = '.kendoPlaybar',
+        NS = '.kendoPlayBar',
 
         //Widget
-        WIDGET_CLASS = 'k-widget kj-playbar',
+        WIDGET_CLASS = 'k-widget k-pager-wrap kj-playbar',
         FIRST = '.k-i-seek-w',
         LAST = '.k-i-seek-e',
         PREV = '.k-i-arrow-w',
@@ -106,10 +106,10 @@
 
     /**
      * Toolbar widget
-     * @class Playbar
+     * @class PlayBar
      * @type {*}
      */
-    var Playbar = Widget.extend({
+    var PlayBar = Widget.extend({
 
         /**
          * Widget constructor
@@ -124,32 +124,30 @@
             Widget.fn.init.call(that, element, options);
             log('widget initialized');
             //TODO: review how index is set
-            that._index = that.options.index || 0;
+            that._selectedIndex = that.options.index || 0;
             that._templates();
             that._layout();
             that._dataSource();
-            //that.refresh();
         },
 
         /**
          * @property options
          */
         options: {
-            name: 'Playbar',
+            name: 'PlayBar',
+            //dataSource: undefined, //Important undefined is required for _setDataSource to initialize a dataSource
+            //value: undefined
             iconTemplate: '<a href="\\#" title="#:text#" class="k-link k-pager-nav #= wrapClassName #"><span class="k-icon #= className #">#:text#</span></a>',
             selectTemplate: '<li><span class="k-state-selected">#: text #</span></li>',
             linkTemplate: '<li><a tabindex="-1" href="\\#" class="k-link" data-#=ns#index="#=idx#" #if (title !== "") {# title="#=title#" #}#>#:text#</a></li>',
             buttonCount: 10,
             autoBind: true,
-            index: 0, //TODO: do we need id too?
+            index: 0, //do we need id too?
             numeric: true,
             info: true,
-            timer: true,
             input: false,
             previousNext: true,
             refresh: true,
-            //value: NULL, //TODO: we do not seem to have a use for value
-            dataSource: undefined, //Important undefined is required for _SetDataSource to initialize a dataSource
             messages: {
                 empty: 'No page to display',
                 page: 'Page',
@@ -179,47 +177,49 @@
         ],
 
         /**
-         * IMPORTANT: index is 0 based, whereas playbar page numbers are 1 based
+         * Gets/Sets the index of the selected page in the playbar
+         * Note: index is 0 based, whereas playbar page numbers are 1 based
          * @method index
-         * @param value
+         * @param index
          * @returns {*}
          */
-        index: function(value) {
+        index: function(index) {
             var that = this;
-            if(value !== undefined) {
-                log('index set to ' + value);
-                if ($.type(value) !== NUMBER) {
+            if(index !== undefined) {
+                if ($.type(index) !== NUMBER || index%1 !== 0) {
                     throw new TypeError();
-                } else if (value < 0 || (value > 0 && value >= that.length())) {
+                } else if (index < 0 || (index > 0 && index >= that.length())) {
                     throw new RangeError();
-                } else if (value !== that._index) {
-                    that._index = value;
-                    that.refresh(); //TODO review when MVVM
-                    var page = that.dataSource.at(that._index);
-                    that.trigger(CHANGE, {
-                        index: value,
-                        id: (page instanceof kidoju.Page) ? page[page.idField] : undefined,
-                        value: page
-                    });
+                } else if (index !== that._selectedIndex) {
+                    var page = that.dataSource.at(that._selectedIndex);
+                    if (page instanceof kidoju.Page) {
+                        that._selectedIndex = index;
+                        log('selected index set to ' + index);
+                        that.refresh();
+                        that.trigger(CHANGE, {
+                            index: index,
+                            value: page
+                        });
+                    }
                 }
             } else {
-                return that._index;
+                return that._selectedIndex;
             }
         },
 
         /**
+         * Gets/Sets the id of the selected page in the playbar
          * @method id
-         * @param value
+         * @param id
          * @returns {*}
          */
-        id: function (value) {
-            var that = this,
-                page;
-            if (value !== undefined) {
-                if (!isGuid(value)) {
+        id: function (id) {
+            var that = this, page;
+            if (id !== undefined) {
+                if ($.type(id) !== STRING && $.type(id) !== NUMBER) {
                     throw new TypeError();
                 }
-                page = that.dataSource.get(value);
+                page = that.dataSource.get(id);
                 if (page !== undefined) {
                     var index = that.dataSource.indexOf(page);
                     if (index >= 0) { //index = -1 if not found
@@ -228,7 +228,7 @@
                     //if page not found, we do nothing
                 }
             } else {
-                page = that.dataSource.at(that._index);
+                page = that.dataSource.at(that._selectedIndex);
                 if (page instanceof kidoju.Page) {
                     return page[page.idField];
                 } else {
@@ -238,32 +238,44 @@
         },
 
         /**
+         * Gets/Sets the value of the selected page in the playbar
          * @method value
          * @param value
          * @returns {*}
          */
-            //value binding requires valueTextField
-        value: function(value) {
+        value: function(page) {
             var that = this;
-            if (value !== undefined) {
-                var index = that.dataSource.indexOf(value);
-                if (index >= 0) { //index = -1 if not found
+            if (page === NULL) {
+                //that.index();
+            } else if (page !== undefined) {
+                if (!(page instanceof kidoju.Page)) {
+                    throw new TypeError();
+                }
+                var index = that.dataSource.indexOf(page);
+                if (index > -1) {
                     that.index(index);
                 }
-                //if page not found, we do nothing
             } else {
-                return that.dataSource.at(that._index);
-                //This returns undefined if not found
+                return that.dataSource.at(that._selectedIndex); //This returns undefined if not found
             }
         },
 
         /**
-         * @method total()
+         * @method length()
          * @returns {*}
          */
         length: function() {
-            return (this.dataSource instanceof kidoju.PageCollectionDataSource) ? this.dataSource.total() : 0;
+            return (this.dataSource instanceof kidoju.PageCollectionDataSource) ? this.dataSource.total() : -1;
         },
+
+        /**
+         * return number items
+         * @returns {*}
+         */
+        items: function() {
+            return this.element.find('ul.k-pager-numbers')[0].children;
+        },
+
 
         /**
          * Initialize templates
@@ -394,8 +406,9 @@
             //TODO Add timer
 
             playbar
-                .on(CLICK + NS , 'a', $.proxy(that._indexClick, that))
-                .addClass(WIDGET_CLASS + ' k-pager-wrap k-widget');
+                .addClass(WIDGET_CLASS)
+                .on(CLICK + NS , 'a', $.proxy(that._indexClick, that));
+
 
             //if (options.autoBind) {
             //    that.refresh();
@@ -475,8 +488,13 @@
             }
         },
 
+        /**
+         * Event handler triggered
+         * @param e
+         * @private
+         */
         _keydown: function(e) {
-            if (e.keyCode === kendo.keys.ENTER) {
+            if (e instanceof $.Event && e.keyCode === kendo.keys.ENTER) {
                 var input = this.element.find('.k-pager-input').find('input'),
                     pageNum = parseInt(input.val(), 10);
                 if (isNaN(pageNum) || pageNum < 1 || pageNum > this.length()) {
@@ -488,26 +506,31 @@
         },
 
         /**
+         * Event handler triggered when clicking the refresh button
          * @method _refreshClick
          * @param e
          * @private
          */
         _refreshClick: function(e) {
-            e.preventDefault();
-            this.dataSource.read();
+            if(e instanceof $.Event) {
+                e.preventDefault();
+                this.dataSource.read();
+            }
         },
 
         /**
+         *
          * @method _indexClick
          * @param e
          * @private
          */
         _indexClick: function(e) {
-            var target = $(e.currentTarget);
-            e.preventDefault();
-            //TODO: would it be more reliable to use the id instead of index (requires an update of templates)
-            if (!target.is('.k-state-disabled')) {
-                this.index(parseInt(target.attr(kendo.attr('index')), 10));
+            if (e instanceof $.Event) {
+                e.preventDefault();
+                var target = $(e.currentTarget);
+                if (!target.is('.k-state-disabled')) {
+                    this.index(parseInt(target.attr(kendo.attr('index')), 10));
+                }
             }
         },
 
@@ -540,6 +563,6 @@
 
     });
 
-    kendo.ui.plugin(Playbar);
+    kendo.ui.plugin(PlayBar);
 
 }(this, jQuery));

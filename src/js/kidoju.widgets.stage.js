@@ -55,25 +55,25 @@
         CSS_SCALE = 'scale({0})',
 
         //Elements
+        DATA_UID = kendo.attr('uid'),
+        DATA_TOOL = kendo.attr('tool'),
+        DATA_COMMAND = kendo.attr('command'),
         WRAPPER = '<div class="k-widget kj-stage" />',
         //WRAPPER_CLASS = '.kj-stage',
-        ELEMENT = '<div data-uid="{0}" data-tool="{1}" class="kj-element"></div>',
-        ELEMENT_SELECTOR = '.kj-element[data-uid="{0}"]',
+        ELEMENT = '<div ' + DATA_UID + '="{0}" ' + DATA_TOOL + '="{1}" class="kj-element"></div>',
+        ELEMENT_SELECTOR = '.kj-element[' + DATA_UID + '="{0}"]',
         ELEMENT_CLASS = '.kj-element',
         THUMBNAIL_OVERLAY = '<div class="kj-overlay"></div>',
         THUMBNAIL_OVERLAY_CLASS = '.kj-overlay',
         HANDLE_BOX = '<div class="kj-handle-box"></div>',
-        HANDLE_BOX_SELECTOR = '.kj-handle-box[data-uid="{0}"]',
+        HANDLE_BOX_SELECTOR = '.kj-handle-box[' + DATA_UID + '="{0}"]',
         HANDLE_BOX_CLASS = '.kj-handle-box',
-        HANDLE_MOVE = '<span class="kj-handle" data-command="move"></span>',
-        HANDLE_RESIZE = '<span class="kj-handle" data-command="resize"></span>',
-        HANDLE_ROTATE = '<span class="kj-handle" data-command="rotate"></span>',
-        HANDLE_MENU = '<span class="kj-handle" data-command="menu"></span>',
-        //HANDLE_SELECTOR = '.kj-handle[data-command="{0}"]',
+        HANDLE_MOVE = '<span class="kj-handle" ' + DATA_COMMAND + '="move"></span>',
+        HANDLE_RESIZE = '<span class="kj-handle" ' + DATA_COMMAND + '="resize"></span>',
+        HANDLE_ROTATE = '<span class="kj-handle" ' + DATA_COMMAND + '="rotate"></span>',
+        HANDLE_MENU = '<span class="kj-handle" ' + DATA_COMMAND + '="menu"></span>',
+        //HANDLE_SELECTOR = '.kj-handle[' + DATA_COMMAND + '="{0}"]',
         HANDLE_CLASS = '.kj-handle',
-        DATA_UID = 'data-uid',
-        //DATA_TOOL = 'data-tool',
-        DATA_COMMAND = 'data-command',
         STATE = 'state',
         COMMANDS = {
             MOVE: 'move',
@@ -297,33 +297,108 @@
         },
 
         /**
+         * IMPORTANT: index is 0 based
+         * @method index
+         * @param index
+         * @returns {*}
+         */
+        index: function(index) {
+            var that = this, component;
+            if (index !== undefined) {
+                if ($.type(index) !== NUMBER || index%1 !== 0) {
+                    throw new TypeError();
+                } else if (index < 0 || (index > 0 && index >= that.length())) {
+                    throw new RangeError();
+                } else {
+                    component = that.dataSource.at(index);
+                    that.value(component);
+                }
+            } else {
+                component = that.dataSource.getByUid(that._selectedUid);
+                if (component instanceof kidoju.PageComponent) {
+                    return that.dataSource.indexOf(component);
+                } else {
+                    return -1;
+                }
+            }
+        },
+
+        /**
+         * @method id
+         * @param id
+         * @returns {*}
+         */
+        id: function (id) {
+            var that = this, component;
+            if (id !== undefined) {
+                if ($.type(id) !== NUMBER && $.type(id) !== STRING) {
+                    throw new TypeError();
+                }
+                component = that.dataSource.get(id);
+                that.value(component);
+            } else {
+                component = that.dataSource.getByUid(that._selectedUid);
+                if (component instanceof kidoju.PageComponent) {
+                    return component[component.idField];
+                }
+            }
+        },
+
+        /**
+         * Gets/Sets the value of the selected component in the explorer
          * @method value
          * @param component
          * @returns {*}
          */
         value: function(component) {
             var that = this;
-
-            //IMPORTANT TODO:
-            //This is not the way to do it
-            //Use selected uid + bind change event + implement with a call to _toggleSelection function in refresh method
-            //See navigation and explorer
-            //Possibly rename selection into value!!!!
-
             if (component === NULL) {
-                $.noop(); //TODO
-            } else if(component !== undefined) {
+                if (that._selectedUid !== NULL) {
+                    that._selectedUid = NULL;
+                    util.log('selected component uid set to null');
+                    that._toggleSelection();
+                    that.trigger(CHANGE, {
+                        index: undefined,
+                        value: NULL
+                    });
+                }
+            } else if (component !== undefined) {
                 if (!(component instanceof kidoju.PageComponent)) {
                     throw new TypeError();
                 }
-                if (component.uid !== that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID)) {
-                    if (that.dataSource.getByUid(component.uid) instanceof kidoju.PageComponent) {
-                        that._selectByUid(component.uid);
+                // Note: when that.value() was previously named that.selection() with a custom binding
+                // the selection binding was executed before the source binding so we had to record the selected component
+                // in a temp variable (that._tmp) and assign it to the _selectedUid in the refresh method,
+                // that is after the source was bound.
+                // The corresponding code has now been removed after renaming that.selection() into that.value()
+                // because the value binding is executed after the source binding.
+                if (component.uid !== that._selectedUid && util.isGuid(component.uid)) {
+                    var index = that.dataSource.indexOf(component);
+                    if (index > -1) {
+                        that._selectedUid = component.uid;
+                        util.log('selected component uid set to ' + component.uid);
+                        that._toggleSelection();
+                        that.trigger(CHANGE, {
+                            index: index,
+                            value: component
+                        });
                     }
                 }
             } else {
-                return that.dataSource.getByUid(that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID));
+                if (that._selectedUid === NULL) {
+                    return NULL;
+                } else {
+                    return that.dataSource.getByUid(that._selectedUid); //Returns undefined if not found
+                }
             }
+        },
+
+        /**
+         * @method total()
+         * @returns {*}
+         */
+        length: function() {
+            return (this.dataSource instanceof kidoju.PageComponentCollectionDataSource) ? this.dataSource.total() : -1;
         },
 
         /**
@@ -455,6 +530,9 @@
          */
         _clearMode: function() {
             var that = this;
+
+            //Remove contextual menu
+            that._destroyContextMenu();
 
             //Clear events
             that.wrapper.off(NS);
@@ -593,19 +671,40 @@
             //Add debug visual elements
             util.addDebugVisualElements(that.wrapper);
 
-            //Add context menu - See http://docs.telerik.com/kendo-ui/api/javascript/ui/contextmenu
+            //Add context menu
+            that._addContextMenu();
+        },
+
+        /**
+         * Add context menu
+         * @private
+         */
+        _addContextMenu: function() {
+            var that = this;
+            //See http://docs.telerik.com/kendo-ui/api/javascript/ui/contextmenu
             that.menu = $('<ul class="kj-stage-menu"></ul>')
-                .append('<li data-command="lock">Lock</li>') //TODO Use constants + localize in messages
-                .append('<li data-command="delete">Delete</li>')//TODO: Bring forward, Push backward, Edit, etc.....
+                .append('<li ' + DATA_COMMAND + '="lock">Lock</li>') //TODO Use constants + localize in messages
+                .append('<li ' + DATA_COMMAND + '="delete">Delete</li>')//TODO: Bring forward, Push backward, Edit, etc.....
                 .appendTo(that.wrapper)
                 .kendoContextMenu({
-                    target: '.kj-handle[data-command="menu"]',
+                    target: '.kj-handle[' + DATA_COMMAND + '="menu"]',
                     showOn: MOUSEDOWN + ' ' + TOUCHSTART,
                     select: $.proxy(that._contextMenuSelectHandler, that)
                 })
                 .data('kendoContextMenu');
+        },
 
-            $.noop();
+        /**
+         * Destroy context menu
+         * @private
+         */
+        _destroyContextMenu: function() {
+            var that = this;
+            if (that.menu instanceof kendo.ui.ContextMenu) {
+                that.menu.destroy();
+                that.wrapper.find('ul.kj-stage-menu').remove();
+                delete that.menu;
+            }
         },
 
         /**
@@ -693,10 +792,7 @@
                     stageElement.append(tool.getHtml(component));
                     that.stage.append(stageElement);
 
-                    //trigger events to transform the stageElement (most often resize)
-                    //stageElement.trigger(MOVE + NS, component);
-                    //stageElement.trigger(RESIZE + NS, component);
-                    //stageElement.trigger(ROTATE + NS, component);
+                    //Transform the stageElement (most often resize), without triggering events
                     that._moveStageElement({ currentTarget: stageElement, preventDefault: $.noop, stopPropagation: $.noop }, component);
                     that._resizeStageElement({ currentTarget: stageElement, preventDefault: $.noop, stopPropagation: $.noop }, component);
                     that._rotateStageElement({ currentTarget: stageElement, preventDefault: $.noop, stopPropagation: $.noop }, component);
@@ -777,16 +873,16 @@
             //TODO: also drag with keyboard arrows
 
             var that = this,
-                activeId = that.options.tools.get(ACTIVE_TOOL),
+                activeToolId = that.options.tools.get(ACTIVE_TOOL),
                 target = $(e.target),
                 mouse = util.getMousePosition(e),
                 stageElement = target.closest(ELEMENT_CLASS),
                 handle = target.closest(HANDLE_CLASS);
 
             //When clicking the stage with an active tool
-            if (activeId !== POINTER) {
+            if (activeToolId !== POINTER) {
                 //TODO: show optional creation dialog and test OK/Cancel
-                var tool = that.options.tools[activeId];
+                var tool = that.options.tools[activeToolId];
                 if(tool instanceof kidoju.Tool) {
                     var item = new kidoju.PageComponent({
                         //id: kendo.guid(),
@@ -833,11 +929,17 @@
 
             //When hitting a stage element or the handle box with the pointer tool
             } else if (stageElement.length || target.is(HANDLE_BOX_CLASS)) {
-                that._selectByUid(stageElement.attr(DATA_UID));
+                var uid = stageElement.attr(DATA_UID);
+                if (util.isGuid(uid)) {
+                    var component = that.dataSource.getByUid(uid);
+                    if (component instanceof kidoju.PageComponent) {
+                        that.value(component);
+                    }
+                }
 
             //When hitting anything else with the pointer tool
             } else {
-                that._selectByUid(NULL);
+                that.value(NULL);
             }
 
             e.preventDefault(); //otherwise both touchstart and mousedown are triggered and code is executed twice
@@ -985,8 +1087,7 @@
             } else if (e.action === 'add') {
                 $.each(e.items, function(index, component) {
                     that._addStageElement(component);
-                    that.trigger(CHANGE, {action: e.action, value: component});
-                    that._selectByUid(component.uid);
+                    that.value(component);
                 });
 
             } else if (e.action === 'remove') {
@@ -994,7 +1095,7 @@
                     that._removeStageElementByUid(component.uid);
                     that.trigger(CHANGE, {action: e.action, value: component});
                     if (that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID) === component.uid) {
-                        that._selectByUid(NULL);
+                        that.value(NULL);
                     }
                 });
 
@@ -1054,30 +1155,22 @@
         /* jshint +W074 */
 
         /**
-         * Select a stage element by its data uid
-         * @param uid - Should take a cssSeelctor like in http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#methods-select
+         * Toggle the selection
          * @returns {h|*}
          */
-        _selectByUid: function (uid) {
-            var that = this;
-            if (that.mode() === that.modes.design) {
-
-                //select() should return the uid of the selected stage element / page item
-                if (uid === undefined) {
-                    return that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID);
-
-                //select(uid) should select the corresponding stage element unless it is already selected
-                } else if ($.type(uid) === STRING && that.stage.find(kendo.format(ELEMENT_SELECTOR, uid)).length && that.wrapper.find(HANDLE_BOX_CLASS).attr(DATA_UID) !== uid) {
-                    var component = that.options.dataSource.getByUid(uid);
-                    that.trigger(SELECT, {value: component});
+        _toggleSelection: function () {
+            var that = this,
+                uid = that._selectedUid,
+                handleBox = that.wrapper.find(HANDLE_BOX_CLASS);
+            //if (that.mode() === that.modes.design) {
+            if (handleBox.length) {
+                var stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, uid));
+                if (util.isGuid(uid) && stageElement.length && handleBox.attr(DATA_UID) !== uid) {
                     that._showHandles(uid);
-                    that.trigger(CHANGE, {value: component});
 
                 //select(null) should clear the selection
-                } else if (uid === NULL && that.wrapper.find(HANDLE_BOX_CLASS).css(DISPLAY) !== NONE) {
-                    that.trigger(SELECT, {value: NULL});
+                } else if (uid === NULL && handleBox.css(DISPLAY) !== NONE) {
                     that._hideHandles();
-                    that.trigger(CHANGE, {value: NULL});
                 }
             }
         },
@@ -1088,7 +1181,7 @@
          * @returns {XMLList|*}
          */
         items: function() {
-            return this.stage.children();
+            return this.element[0].children;
         },
 
         /**
@@ -1244,8 +1337,6 @@
                     x: center.x + (point.x - center.x) * Math.cos(radians) - (point.y - center.y) * Math.sin(radians),
                     y: center.y + (point.x - center.x) * Math.sin(radians) + (point.y - center.y) * Math.cos(radians)
                 };
-            } else {
-                return undefined;
             }
         },
 
@@ -1265,8 +1356,6 @@
                 //See http://code.tutsplus.com/tutorials/euclidean-vectors-in-flash--active-8192
                 //See http://gamedev.stackexchange.com/questions/69649/using-atan2-to-calculate-angle-between-two-vectors
                 return Math.atan2(p2.y - center.y, p2.x - center.x) - Math.atan2(p1.y - center.y, p1.x - center.x);
-            } else {
-                return undefined;
             }
         },
 

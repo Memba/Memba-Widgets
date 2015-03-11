@@ -239,8 +239,6 @@
                 page = that.dataSource.at(that._selectedIndex);
                 if (page instanceof kidoju.Page) {
                     return page[page.idField];
-                } else {
-                    return undefined;
                 }
             }
         },

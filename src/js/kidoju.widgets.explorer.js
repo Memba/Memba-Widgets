@@ -163,8 +163,6 @@
                 component = that.dataSource.getByUid(that._selectedUid);
                 if (component instanceof kidoju.PageComponent) {
                     return component[component.idField];
-                } else {
-                    return undefined;
                 }
             }
         },

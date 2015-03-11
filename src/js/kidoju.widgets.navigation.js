@@ -171,8 +171,6 @@
                 page = that.dataSource.getByUid(that._selectedUid);
                 if (page instanceof kidoju.Page) {
                     return page[page.idField];
-                } else {
-                    return undefined;
                 }
             }
         },

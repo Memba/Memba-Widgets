@@ -667,26 +667,26 @@
                 expect(dataBinding).to.have.been.calledBefore(dataBound);
             });
 
-            it('propBinding & propBound', function() {
-                var propBinding = sinon.spy(),
-                    propBound = sinon.spy();
+            it('propertyBinding & propertyBound', function() {
+                var propertyBinding = sinon.spy(),
+                    propertyBound = sinon.spy();
                 stage = element.kendoStage({
                     mode: kendo.ui.Stage.fn.modes.play,   //TODO only in play mode
                     dataSource: pageComponentCollectionData,
-                    propBinding: function(e) {
-                        propBinding(e.sender);
+                    propertyBinding: function(e) {
+                        propertyBinding(e.sender);
                     },
-                    propBound: function(e) {
-                        propBound(e.sender);
+                    propertyBound: function(e) {
+                        propertyBound(e.sender);
                     }
                 }).data('kendoStage');
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(propBinding).to.have.been.calledOnce;
-                expect(propBinding).to.have.been.calledWith(stage);
-                expect(propBound).to.have.been.calledOnce;
-                expect(propBound).to.have.been.calledWith(stage);
-                expect(propBinding).to.have.been.calledBefore(propBound);
+                expect(propertyBinding).to.have.been.calledOnce;
+                expect(propertyBinding).to.have.been.calledWith(stage);
+                expect(propertyBound).to.have.been.calledOnce;
+                expect(propertyBound).to.have.been.calledWith(stage);
+                expect(propertyBinding).to.have.been.calledBefore(propertyBound);
             });
 
             it('change', function() {

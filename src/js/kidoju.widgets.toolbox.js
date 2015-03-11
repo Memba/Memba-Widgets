@@ -126,7 +126,6 @@
          */
         _layout: function () {
             var that = this;
-            that._clear();
             $(that.element).addClass(WIDGET_CLASS);
             $.each(that.options.tools, function(index, tool) {
                 if (tool instanceof kidoju.Tool && that.options.tools.hasOwnProperty(tool.id)) {

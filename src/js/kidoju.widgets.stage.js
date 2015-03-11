@@ -31,8 +31,8 @@
         CHANGE = 'change',
         DATABINDING = 'dataBinding',
         DATABOUND = 'dataBound',
-        PROPBINDING = 'propertyBinding',
-        PROPBOUND = 'propertyBound',
+        PROPERTYBINDING = 'propertyBinding',
+        PROPERTYBOUND = 'propertyBound',
         SELECT = 'select',
         MOVE = 'move',
         RESIZE = 'resize',
@@ -162,8 +162,8 @@
             CHANGE,
             DATABINDING,
             DATABOUND,
-            PROPBINDING,
-            PROPBOUND,
+            PROPERTYBINDING,
+            PROPERTYBOUND,
             SELECT
         ],
 
@@ -264,12 +264,12 @@
                 if (value < 0) {
                     throw new RangeError();
                 }
-                if (value !== that.options.height) {
-                    that.options.height = value;
+                if (value !== that._height) {
+                    that._height = value;
                 }
             }
             else {
-                return that.options.height;
+                return that._height;
             }
         },
 
@@ -287,12 +287,12 @@
                 if (value < 0) {
                     throw new RangeError();
                 }
-                if(value !== that.options.width) {
-                    that.options.width = value;
+                if(value !== that._width) {
+                    that._width = value;
                 }
             }
             else {
-                return that.options.width;
+                return that._width;
             }
         },
 
@@ -472,8 +472,6 @@
         _layout: function () {
             var that = this;
 
-            that._clear();
-
             //Set that.stage from the div element that makes the widget
             that.stage = that.element
                 .wrap(WRAPPER)
@@ -534,21 +532,26 @@
             //Remove contextual menu
             that._destroyContextMenu();
 
-            //Clear events
-            that.wrapper.off(NS);
-            that.stage.off(NS);
+            if (that.wrapper instanceof $) {
+                //Clear events
+                that.wrapper.off(NS);
+                //Clear DOM
+                that.wrapper.find(HANDLE_BOX_CLASS).remove();
+                that.wrapper.find(THUMBNAIL_OVERLAY_CLASS).remove();
+            }
 
-            //Clear DOM
-            that.wrapper.find(HANDLE_BOX_CLASS).remove();
-            that.wrapper.find(THUMBNAIL_OVERLAY_CLASS).remove();
+            if (that.stage instanceof $) {
+                //Clear events
+                that.stage.off(NS);
+                $.each(that.stage.find(ELEMENT_CLASS), function(index, stageElement) {
+                    kendo.unbind(stageElement);
+                });
+            }
 
             //Unbind
             if($.isFunction(that._propertyBinding)) {
-                that.unbind(PROPBINDING, that._propertyBinding);
+                that.unbind(PROPERTYBINDING, that._propertyBinding);
             }
-            $.each(that.stage.find(ELEMENT_CLASS), function(index, stageElement) {
-                kendo.unbind(stageElement);
-            });
         },
 
         /**
@@ -702,7 +705,7 @@
             var that = this;
             if (that.menu instanceof kendo.ui.ContextMenu) {
                 that.menu.destroy();
-                that.wrapper.find('ul.kj-stage-menu').remove();
+                that.menu.element.remove();
                 delete that.menu;
             }
         },
@@ -741,7 +744,7 @@
 
             //Bind properties
             if($.isFunction(that._propertyBinding)) {
-                that.unbind(PROPBINDING, that._propertyBinding);
+                that.unbind(PROPERTYBINDING, that._propertyBinding);
             }
             that._propertyBinding = $.proxy(function() {
                 var widget = this;
@@ -752,7 +755,7 @@
                     });
                 }
             }, that);
-            that.bind(PROPBINDING, that._propertyBinding);
+            that.bind(PROPERTYBINDING, that._propertyBinding);
 
         },
 
@@ -1081,8 +1084,8 @@
 
                 // We can only bind properties after all dataBound event handlers have executed
                 // otherwise there is a mix of binding sources
-                that.trigger(PROPBINDING); //This calls an event handler in _initializePlayMode
-                that.trigger(PROPBOUND);
+                that.trigger(PROPERTYBINDING); //This calls an event handler in _initializePlayMode
+                that.trigger(PROPERTYBOUND);
 
             } else if (e.action === 'add') {
                 $.each(e.items, function(index, component) {
@@ -1190,15 +1193,17 @@
          */
         _clear: function() {
             var that = this;
-            //TODO: remove wrapper!!
+            //clear mode
+            that._clearMode();
             //unbind kendo
             kendo.unbind(that.element);
             //unbind all other events
             that.element.find('*').off();
+            //empty and unwrap
             that.element
                 .off()
-                .empty();
-                //.removeClass(WIDGET_CLASS);
+                .empty()
+                .unwrap();
         },
 
         /**

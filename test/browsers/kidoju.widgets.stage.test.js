@@ -536,7 +536,12 @@
                     //end drag with mouseup event
                     $(item).simulate('mouseup', { bubbles: true, clientX: x, clientY: y });
                     //check new coordinates
-                    expect(viewModel.get('current.top')).to.equal(top + dy);
+                    if (kendo.support.browser.msie) {
+                        //for whatever reason, on IE you get 99.999997 instead of 100
+                        expect(viewModel.get('current.top')).to.be.closeTo(top + dy, 0.001);
+                    } else {
+                        expect(viewModel.get('current.top')).to.equal(top + dy);
+                    }
                     expect(viewModel.get('current.left')).to.equal(left + dx);
                     expect(viewModel.get('current.height')).to.equal(height);
                     expect(viewModel.get('current.width')).to.equal(width);

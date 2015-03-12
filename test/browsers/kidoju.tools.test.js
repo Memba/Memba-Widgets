@@ -85,12 +85,14 @@
             });
 
             it('it should accept a tool with a new id', function() {
-                var Tool = kidoju.Tool.extend({id: 'calculator', add: function(a, b) { return a + b; }}),
+                var Calculator = kidoju.Tool.extend({id: 'calculator', add: function(a, b) { return a + b; }}),
                     keys = Object.keys(kidoju.tools);
-                kidoju.tools.register(Tool);
+                kidoju.tools.register(Calculator);
                 expect(Object.keys(kidoju.tools)).to.not.eql(keys);
-                expect(kidoju.tools).to.have.property('calculator').that.is.an.instanceof(Tool);
+                expect(kidoju.tools).to.have.property('calculator').that.is.an.instanceof(Calculator);
                 expect(kidoju.tools.calculator.add(1, 2)).to.equal(3);
+                //clean
+                delete kidoju.tools.calculator;
             });
 
         });

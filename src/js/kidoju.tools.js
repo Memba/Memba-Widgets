@@ -218,10 +218,12 @@
     kidoju.Tool.getStandardProperties = function() {
         return {
             name: new adapters.NameAdapter({ title: 'Name' }),
+            solution: new adapters.StringAdapter({ title: 'Solution' }), //TODO: Not always a string ????????????????
             validation: new adapters.ValidationAdapter({ title: 'Validation' }),
             success: new adapters.ScoreAdapter({ title: 'Success' }),
             failure: new adapters.ScoreAdapter({ title: 'Failure' }),
-            omit: new adapters.ScoreAdapter({ title: 'Omit' })
+            omit: new adapters.ScoreAdapter({ title: 'Omit' }),
+            guideline: new adapters.StringAdapter({ title: 'Guideline' })
         };
     };
 

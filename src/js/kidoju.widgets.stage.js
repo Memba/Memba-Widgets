@@ -664,6 +664,7 @@
                 .appendTo(that.wrapper);
 
             //Add stage event handlers
+            //TODO: implement on $(document.body)
             that.wrapper.on(MOUSEDOWN + NS + ' ' + TOUCHSTART + NS, $.proxy(that._onMouseDown, that));
             that.wrapper.on(MOUSEMOVE + NS + ' ' + TOUCHMOVE + NS, $.proxy(that._onMouseMove, that));
             that.wrapper.on(MOUSEUP + NS + ' ' + TOUCHEND + NS, $.proxy(that._onMouseUp, that));
@@ -880,7 +881,12 @@
                 target = $(e.target),
                 mouse = util.getMousePosition(e),
                 stageElement = target.closest(ELEMENT_CLASS),
-                handle = target.closest(HANDLE_CLASS);
+                handle = target.closest(HANDLE_CLASS),
+                uid;
+
+            if(that.menu instanceof kendo.ui.ContextMenu) {
+                that.menu.close();
+            }
 
             //When clicking the stage with an active tool
             if (activeToolId !== POINTER) {
@@ -908,8 +914,8 @@
                 if (command === COMMANDS.MENU) {
                     $.noop(); //TODO: contextual menu here
                 } else {
-                    var handleBox = that.wrapper.find(HANDLE_BOX_CLASS),
-                        uid = handleBox.attr(DATA_UID); //the uid of the stageElement which is being selected before hitting the handle
+                    var handleBox = that.wrapper.find(HANDLE_BOX_CLASS);
+                    uid = handleBox.attr(DATA_UID); //the uid of the stageElement which is being selected before hitting the handle
                     stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, uid));
                     handleBox.data(STATE, {
                         command: command,
@@ -932,7 +938,7 @@
 
             //When hitting a stage element or the handle box with the pointer tool
             } else if (stageElement.length || target.is(HANDLE_BOX_CLASS)) {
-                var uid = stageElement.attr(DATA_UID);
+                uid = stageElement.attr(DATA_UID);
                 if (util.isGuid(uid)) {
                     var component = that.dataSource.getByUid(uid);
                     if (component instanceof kidoju.PageComponent) {

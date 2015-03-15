@@ -343,26 +343,26 @@
 
         span: function(container, options) {
             $('<span/>')
-                .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
+                .attr($.extend({}, options.attributes, util.getDataBinding(options.field)))
                 .appendTo(container);
         },
 
         textbox: function(container, options) {
             //You can add an atttribute type = text, email, url, ....
             $('<input type="text" class="k-textbox" style="width: 100%;"/>')
-                .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
+                .attr($.extend({}, options.attributes, util.getDataBinding(options.field)))
                 .appendTo(container);
         },
 
         textarea: function(container, options) {
             $('<textarea class="k-textbox" style="width: 100%; resize: vertical;"/>')
-                .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
+                .attr($.extend({}, options.attributes, util.getDataBinding(options.field)))
                 .appendTo(container);
         },
 
         _kendoInput: function(container, options) {
             $('<input style="width: 100%;"/>')
-                .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
+                .attr($.extend({}, options.attributes, util.getDataBinding(options.field)))
                 .appendTo(container);
         },
 
@@ -498,7 +498,7 @@
                 var widgets = ['colorpicker', 'datepicker', 'datetimepicker', 'maskedtextbox', 'multiinput', 'numerictextbox', 'rating', 'slider', 'switch', 'timepicker'];
                 if ((widgets.indexOf(row.editor) > -1) &&
                     (kendo.rolesFromNamespaces(kendo.ui).hasOwnProperty(row.editor) || kendo.rolesFromNamespaces(kendo.mobile.ui).hasOwnProperty(row.editor))) {
-                    row.attributes = $.extend({}, row.attributes, { 'data-role': row.editor });
+                    row.attributes = $.extend({}, row.attributes, util.getRoleBinding(row.editor));
                     row.editor = editors._kendoInput;
                     return;
                 }
@@ -516,21 +516,38 @@
             //Otherwise we can only rely on data type
             switch (row.type) {
                 case NUMBER:
-                    row.attributes = $.extend({}, row.attributes, { 'data-role': 'numerictextbox' });
+                    row.attributes = $.extend({}, row.attributes, util.getRoleBinding('numerictextbox'));
                     row.editor = editors._kendoInput;
                     break;
                 case BOOLEAN:
-                    row.attributes = $.extend({}, row.attributes, { 'data-role': 'switch' });
+                    row.attributes = $.extend({}, row.attributes, util.getRoleBinding('switch'));
                     row.editor = editors._kendoInput;
                     break;
                 case DATE:
-                    row.attributes = $.extend({}, row.attributes, { 'data-role': 'datepicker' });
+                    row.attributes = $.extend({}, row.attributes, util.getRoleBinding('datepicker'));
                     row.editor = editors._kendoInput;
                     break;
                 default: //STRING
                     row.editor = editors.textbox;
             }
+        },
+
+        getDataBinding: function(field) {
+            var binding = {};
+            if ($.type(field) === STRING && field.length) {
+                binding[kendo.attr('bind')] = 'value: ' + field;
+            }
+            return binding;
+        },
+
+        getRoleBinding: function(role) {
+            var binding = {};
+            if ($.type(role) === STRING && role.length) {
+                binding[kendo.attr('role')] = role;
+            }
+            return binding;
         }
+
     };
 
 })(this, jQuery);

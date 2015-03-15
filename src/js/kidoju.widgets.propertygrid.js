@@ -343,26 +343,26 @@
 
         span: function(container, options) {
             $('<span/>')
-                .attr($.extend({}, options.attributes, util.getDataBinding(options.field)))
+                .attr($.extend({}, options.attributes, util.getTextBinding(options.field)))
                 .appendTo(container);
         },
 
-        textbox: function(container, options) {
-            //You can add an atttribute type = text, email, url, ....
-            $('<input type="text" class="k-textbox" style="width: 100%;"/>')
-                .attr($.extend({}, options.attributes, util.getDataBinding(options.field)))
+        input: function(container, options) {
+            if (options && options.attributes && options.attributes[kendo.attr('role')] === undefined) {
+                if ([undefined, 'text', 'email', 'search', 'tel', 'url'].indexOf(options.attributes.type) > -1) {
+                    options.attributes.class = 'k-textbox';
+                } else if ([button, 'reset'].indexOf(options.attributes.type) > -1) {
+                    options.attributes.class = 'k-button';
+                }
+            }
+            $('<input style="width: 100%;"/>')
+                .attr($.extend({}, options.attributes, util.getValueBinding(options.field)))
                 .appendTo(container);
         },
 
         textarea: function(container, options) {
             $('<textarea class="k-textbox" style="width: 100%; resize: vertical;"/>')
-                .attr($.extend({}, options.attributes, util.getDataBinding(options.field)))
-                .appendTo(container);
-        },
-
-        _kendoInput: function(container, options) {
-            $('<input style="width: 100%;"/>')
-                .attr($.extend({}, options.attributes, util.getDataBinding(options.field)))
+                .attr($.extend({}, options.attributes, util.getValueBinding(options.field)))
                 .appendTo(container);
         },
 
@@ -499,7 +499,7 @@
                 if ((widgets.indexOf(row.editor) > -1) &&
                     (kendo.rolesFromNamespaces(kendo.ui).hasOwnProperty(row.editor) || kendo.rolesFromNamespaces(kendo.mobile.ui).hasOwnProperty(row.editor))) {
                     row.attributes = $.extend({}, row.attributes, util.getRoleBinding(row.editor));
-                    row.editor = editors._kendoInput;
+                    row.editor = editors.input; //editors._kendoInput;
                     return;
                 }
             }
@@ -517,25 +517,34 @@
             switch (row.type) {
                 case NUMBER:
                     row.attributes = $.extend({}, row.attributes, util.getRoleBinding('numerictextbox'));
-                    row.editor = editors._kendoInput;
+                    row.editor = editors.input; //editors._kendoInput;
                     break;
                 case BOOLEAN:
                     row.attributes = $.extend({}, row.attributes, util.getRoleBinding('switch'));
-                    row.editor = editors._kendoInput;
+                    row.editor = editors.input; //editors._kendoInput;
                     break;
                 case DATE:
                     row.attributes = $.extend({}, row.attributes, util.getRoleBinding('datepicker'));
-                    row.editor = editors._kendoInput;
+                    row.editor = editors.input; //editors._kendoInput;
                     break;
                 default: //STRING
-                    row.editor = editors.textbox;
+                    row.attributes = $.extend({}, row.attributes, { type: 'text' });
+                    row.editor = editors.input;
             }
         },
 
-        getDataBinding: function(field) {
+        getValueBinding: function(field) {
             var binding = {};
             if ($.type(field) === STRING && field.length) {
                 binding[kendo.attr('bind')] = 'value: ' + field;
+            }
+            return binding;
+        },
+
+        getTextBinding: function(field) {
+            var binding = {};
+            if ($.type(field) === STRING && field.length) {
+                binding[kendo.attr('bind')] = 'text: ' + field;
             }
             return binding;
         },

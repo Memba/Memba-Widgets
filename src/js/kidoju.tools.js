@@ -329,6 +329,7 @@
             }
             return row;
         }
+
     });
 
     /**
@@ -338,8 +339,9 @@
         init: function(options) {
             adapters.BaseAdapter.fn.init.call(this, options);
             this.type = STRING;
-            this.editor = 'textbox';
             this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+            this.editor = 'input';
+            this.attributes = $.extend({}, this.attributes, { type: 'text', class: 'k-textbox' });
         }
     });
 
@@ -351,8 +353,9 @@
             adapters.BaseAdapter.fn.init.call(this, options);
             this.type = NUMBER;
             this.defaultValue = this.defaultValue || (this.nullable ? null : 0);
-            this.editor = '_kendoInput';
-            this.attributes = $.extend({}, this.attributes, { 'data-role': 'numerictextbox' });
+            this.editor = 'input';
+            this.attributes = $.extend({}, this.attributes);
+            this.attributes[kendo.attr('role')] = 'numerictextbox';
         }
     });
 
@@ -364,8 +367,9 @@
             adapters.BaseAdapter.fn.init.call(this, options);
             this.type = BOOLEAN;
             this.defaultValue = this.defaultValue || (this.nullable ? null : false);
-            this.editor = '_kendoInput';
-            this.attributes = $.extend({}, this.attributes, { 'data-role': 'switch' });
+            this.editor = 'input';
+            this.attributes = $.extend({}, this.attributes);
+            this.attributes[kendo.attr('role')] = 'switch';
         }
     });
 
@@ -377,8 +381,9 @@
             adapters.BaseAdapter.fn.init.call(this, options);
             this.type = DATE;
             this.defaultValue = this.defaultValue || (this.nullable ? null : new Date());
-            this.editor = '_kendoInput';
-            this.attributes = $.extend({}, this.attributes, { 'data-role': 'datepicker' });
+            this.editor = 'input';
+            this.attributes = $.extend({}, this.attributes);
+            this.attributes[kendo.attr('role')] = 'datepicker';
         }
     });
 
@@ -604,7 +609,7 @@
         icon: 'text_field',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<input type="text" style="#: attributes.style #" data-bind="value: #: properties.name #">'
+            default: '<input type="text" style="#: attributes.style #" data-#= ns #bind="value: #: properties.name #">'
         },
         height: 100,
         width: 300,
@@ -621,7 +626,7 @@
         getHtml: function(component) {
             if (component instanceof kidoju.PageComponent) {
                 var template = kendo.template(this.templates.default);
-                return template(component);
+                return template($.extend(component, {ns: kendo.ns}));
             }
         },
 
@@ -660,7 +665,7 @@
         icon: 'button',
         cursor: CURSOR_CROSSHAIR,
         templates: {
-            default: '<a class="k-toggle-button k-button" style="#: attributes.style #">#: attributes.text #</a><input type="hidden" data-bind="value: #: properties.name #">'
+            default: '<a class="k-toggle-button k-button" style="#: attributes.style #">#: attributes.text #</a><input type="hidden" data-#= ns #bind="value: #: properties.name #">'
             //k-state-active
         },
         height: 100,
@@ -681,7 +686,7 @@
         getHtml: function(component) {
             if (component instanceof kidoju.PageComponent) {
                 var template = kendo.template(this.templates.default);
-                return template(component);
+                return template($.extend(component, {ns: kendo.ns}));
             }
         },
 

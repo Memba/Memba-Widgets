@@ -366,7 +366,6 @@
 
         });
 
-
         describe('MVVM', function() {
 
             var element, stage, viewModel;
@@ -595,7 +594,6 @@
                 expect(check).to.have.callCount(pageComponentCollectionData.length);
             });
 
-
             it('Resizing an element on stage, updates the top, left, height & width properties of the corresponding component in the viewModel', function() {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
@@ -641,6 +639,7 @@
                 });
                 expect(check).to.have.callCount(pageComponentCollectionData.length);
             });
+
         });
 
         describe('Events', function() {
@@ -713,6 +712,27 @@
             });
 
             //TODO: select event
+
+        });
+
+        xdescribe('XSS', function() {
+
+            //TODO: extremely important: test XSS, tool by tool
+            xit('button', function() {
+                //TODO text and style * 2
+            });
+
+            xit('label', function() {
+                //TODO text and style
+            });
+
+            xit('image', function() {
+                //TODO image and style
+            });
+
+            xit('textbox', function() {
+                //TODO style
+            });
 
         });
 

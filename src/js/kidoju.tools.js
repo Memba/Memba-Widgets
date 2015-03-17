@@ -29,8 +29,13 @@
 
         //HTML
         ELEMENT_CLASS = '.kj-element',
-        POSITION = 'position',
+        //POSITION = 'position',
         ABSOLUTE = 'absolute',
+        DIALOG_DIV = '<div class="k-popup-edit-form {0}"></div>',
+        DIALOG_CLASS = '.kj-dialog',
+
+        //Event
+        CLICK = 'click',
 
         //Debug
         DEBUG = true,
@@ -392,32 +397,26 @@
      */
     adapters.StyleAdapter = adapters.BaseAdapter.extend({
         init: function(options) {
-            adapters.BaseAdapter.fn.init.call(this, options);
-            this.type = STRING;
-            this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-            this.editor = function(container, options) {
-
+            var that = this;
+            adapters.BaseAdapter.fn.init.call(that, options);
+            that.type = STRING;
+            that.defaultValue = that.defaultValue || (that.nullable ? null : '');
+            that.editor = function(container, options) {
                 var div = $('<div/>')
-                    .css({display: 'table'})
+                    .css({ display: 'table' })
                     .appendTo(container);
-
-                var span  = $('<span/>')
+                var span = $('<span/>')
                     .css({
                         display: 'table-cell',
                         width: '100%',
                         paddingRight: '8px'
                     })
                     .appendTo(div);
-
                 var input = $('<input/>')
                     .addClass('k-textbox') //or k-input
-                    .css({
-                        border: 'solid 1px #FF0000',
-                        width: '100%'
-                    })
+                    .css({ width: '100%' })
                     .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
                     .appendTo(span);
-
                 $('<button/>')
                     .text('...')
                     .addClass('k-button')
@@ -428,10 +427,50 @@
                         margin: 0
                     })
                     .appendTo(div)
-                    .on('click', function(e) {
-                        window.alert('coucou'); //TODO: display a window
-                    });
+                    .on(CLICK, $.proxy(that.showDialog, that, options));
             };
+        },
+        showDialog: function(options) {
+            var that = this,
+                dialog = $(DIALOG_CLASS).data('kendoWindow');
+            if (!(dialog instanceof kendo.ui.Window)) {
+                //Create dialog
+                dialog = $(kendo.format(DIALOG_DIV, DIALOG_CLASS.substr(1)))
+                    .appendTo(document.body)
+                    .kendoWindow({
+                        actions: ['close'],
+                        modal: true,
+                        resizable: false,
+                        visible: false
+                    })
+                    .data('kendoWindow');
+                dialog.element.on(CLICK, '.k-button', $.proxy(that.closeDialog, that, options, dialog));
+            }
+            //Prepare dialog (the content method destroys widgets and unbinds data)
+            dialog.title(options.title);
+            var content = '<div class="k-edit-form-container kj-style-edit-form">' +
+                '<div class="k-edit-label"><label for="title">Title</label></div><div data-container-for="title" class="k-edit-field"><input type="text" class="k-input k-textbox" name="title" data-bind="value:title"></div>' +
+                '<div class="k-edit-label"><label for="start">Start</label></div><div data-container-for="start" class="k-edit-field"><span class="k-widget k-datetimepicker k-header"><span class="k-picker-wrap k-state-default"><input type="text" required="" data-type="date" data-role="datetimepicker" data-bind="value:start" data-validate="true" name="start" data-datecompare-msg="Start date should be before or equal to the end date" class="k-input" role="combobox" aria-expanded="false" aria-disabled="false" aria-readonly="false" style="width: 100%;"><span unselectable="on" class="k-select"><span unselectable="on" class="k-icon k-i-calendar" role="button">select</span><span unselectable="on" class="k-icon k-i-clock" role="button">select</span></span></span></span><span data-for="start" class="k-invalid-msg" style="display: none;"></span></div>' +
+                '<div class="k-edit-label"><label for="end">End</label></div><div data-container-for="end" class="k-edit-field"><span class="k-widget k-datetimepicker k-header"><span class="k-picker-wrap k-state-default"><input type="text" required="" data-type="date" data-role="datetimepicker" data-bind="value:end" data-validate="true" name="end" data-datecompare-msg="End date should be after or equal to the start date" class="k-input" role="combobox" aria-expanded="false" aria-disabled="false" aria-readonly="false" style="width: 100%;"><span unselectable="on" class="k-select"><span unselectable="on" class="k-icon k-i-calendar" role="button">select</span><span unselectable="on" class="k-icon k-i-clock" role="button">select</span></span></span></span><span data-for="end" class="k-invalid-msg" style="display: none;"></span></div>' +
+                '<div class="k-edit-label"><label for="percentComplete">Complete</label></div><div data-container-for="percentComplete" class="k-edit-field"><span class="k-widget k-numerictextbox"><span class="k-numeric-wrap k-state-default"><input type="text" class="k-formatted-value k-input" tabindex="0" aria-disabled="false" aria-readonly="false" style="display: inline-block;"><input type="text" name="percentComplete" required="required" min="0" max="1" step="0.01" data-type="number" data-bind="value:percentComplete" data-role="numerictextbox" role="spinbutton" class="k-input" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0" aria-disabled="false" aria-readonly="false" style="display: none;"><span class="k-select"><span unselectable="on" class="k-link"><span unselectable="on" class="k-icon k-i-arrow-n" title="Increase value">Increase value</span></span><span unselectable="on" class="k-link"><span unselectable="on" class="k-icon k-i-arrow-s" title="Decrease value">Decrease value</span></span></span></span></span><span data-for="percentComplete" class="k-invalid-msg" style="display: none;"></span></div>' +
+                '<div class="k-edit-label"><label for="resources">Resources</label></div><div class="k-gantt-resources" style="display:none"></div><div data-container-for="resources" class="k-edit-field"><a href="#" class="k-button">Assign</a></div>' +
+
+                '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="save" href="#">Save</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
+                '</div>';
+            dialog.content(content);
+            //Show dialog
+            dialog.center().open();
+        },
+        closeDialog: function(options, dialog, e) {
+            var that = this;
+            if(e instanceof $.Event && $(e.target) instanceof $) {
+                var command = $(e.target).attr(kendo.attr('command'));
+                if (command === 'save') {
+                    $.noop();
+                }
+                dialog.close();
+                dialog.content('');
+            }
         }
     });
 
@@ -443,7 +482,130 @@
     /**
      * Property validation adapter
      */
-    adapters.ValidationAdapter = adapters.BaseAdapter.extend({});
+    adapters.ValidationAdapter = adapters.BaseAdapter.extend({
+        init: function(options) {
+            var that = this;
+            adapters.BaseAdapter.fn.init.call(that, options);
+            that.type = STRING;
+            that.defaultValue = that.defaultValue || (that.nullable ? null : '');
+            that.editor = function(container, options) {
+                var div = $('<div/>')
+                    .css({ display: 'table' })
+                    .appendTo(container);
+                var span = $('<span/>')
+                    .css({
+                        display: 'table-cell',
+                        width: '100%',
+                        paddingRight: '8px'
+                    })
+                    .appendTo(div);
+                var input = $('<input/>')
+                    .addClass('k-textbox') //or k-input
+                    .css({ width: '100%' })
+                    .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
+                    .appendTo(span);
+                $('<button/>')
+                    .text('...')
+                    .addClass('k-button')
+                    .css({
+                        display: 'table-cell',
+                        minWidth: '40px',
+                        height: input.css('height'), //to match input,
+                        margin: 0
+                    })
+                    .appendTo(div)
+                    .on(CLICK, $.proxy(that.showDialog, that, options));
+            };
+        },
+        showDialog: function(options/*,evt*/) {
+            var that = this,
+                dialog = $(DIALOG_CLASS).data('kendoWindow');
+            if (!(dialog instanceof kendo.ui.Window)) {
+                //Create dialog
+                dialog = $(kendo.format(DIALOG_DIV, DIALOG_CLASS.substr(1)))
+                    .appendTo(document.body)
+                    .kendoWindow({
+                        actions: ['close'],
+                        modal: true,
+                        resizable: false,
+                        visible: false
+                    })
+                    .data('kendoWindow');
+                dialog.element.on(CLICK, '.k-button', $.proxy(that.closeDialog, that, options, dialog));
+            }
+            //Prepare dialog (the content method destroys widgets and unbinds data)
+            dialog.title(options.title);
+            var content = '<div class="k-edit-form-container kj-validation-edit-form">' +
+                //'<div>' +
+                //    '<div class="k-edit-label"><label for="title">Title</label></div>' +
+                //    '<div data-container-for="title" class="k-edit-field"><input type="text" class="k-input k-textbox" name="title" data-bind="value:title"></div>' +
+                //'</div>' +
+                '<div class="kj-codemirror"></div>' +
+                    //Buttons
+                '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="save" href="#">Save</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
+                '</div>';
+            dialog.content(content);
+            var div = dialog.element.find('.kj-codemirror').get(0);
+            if(div instanceof window.HTMLElement) {
+                dialog.codemirror = window.CodeMirror(div, {
+                    gutters: ['CodeMirror-lint-markers'],
+                    lineNumbers: true,
+                    lint: true,
+                    mode: 'javascript',
+                    value: that.getDefaultValidation(options)
+                });
+                //TODO ------------------------------- Get function
+                //dialog.codemirror.getDoc().setValue('function validator(value) {\n\n\treturn false;\n}');
+                dialog.codemirror.on('beforeChange', function(cm, change) {
+                    if ((change.from.line === 0) || //prevent changing the first line
+                        (change.from.line === cm.display.renderedView.length - 1) || //prevent changing the last line
+                        (change.origin === '+delete' && change.to.line === cm.display.renderedView.length - 1)) { //prevent backspace on the last line or suppr on the previous line
+                        change.cancel();
+                    }
+                });
+                dialog.bind('activate', function () {
+                    //IMPORTANT, we need to refresh codemirror here
+                    //otherwise the open animation messes with CodeMirror calculations
+                    //and gutter and line numbers are displayed at the wrong coordinates
+                    dialog.codemirror.refresh();
+                    dialog.unbind('activate');
+                });
+                //open dialog
+                dialog.center().open();
+
+            }
+        },
+        getDefaultValidation: function(options) {
+            switch(options.type) {
+                case STRING:
+                    //TODO: provide a Soundex function to web worker
+                    //See https://github.com/NaturalNode/natural
+                    return 'function validate(value, solution) {\n\treturn typeof value === "string" && typeof solution === "string" &&\n\t\tvalue.toUpperCase() === solution.toUpperCase();\n}';
+                case NUMBER:
+                    return 'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}';
+                case DATE:
+                    return 'function validate(value, solution) {\n\treturn typeof value === "date" && typeof solution === "date" && value.toDateString() === solution.toDateString();\n}';
+                case BOOLEAN:
+                    return 'function validate(value, solution) {\n\treturn value === solution;\n}';
+                default:
+                    //TODO: provide a deep equal function to web worker
+                    return 'function validate(value, solution) {\n\treturn value === solution;\n}';
+            }
+        },
+        closeDialog: function(options, dialog, e) {
+            var that = this;
+            if(e instanceof $.Event && $(e.target) instanceof $) {
+                var command = $(e.target).attr(kendo.attr('command'));
+                if (command === 'save') {
+                    $.noop();
+                }
+                dialog.close();
+                //restore
+                dialog.content('');
+                dialog.codemirror = undefined;
+            }
+        }
+    });
 
     /**
      * Property score adapter

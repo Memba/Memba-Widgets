@@ -1,5 +1,5 @@
 /**
- * Sinon.JS 1.14.0, 2015/03/14
+ * Sinon.JS 1.14.1, 2015/03/16
  *
  * @author Christian Johansen (christian@cjohansen.no)
  * @author Contributors: https://github.com/cjohansen/Sinon.JS/blob/master/AUTHORS
@@ -1160,14 +1160,6 @@ var sinon = (function () {
     var div = typeof document != "undefined" && document.createElement("div");
     var hasOwn = Object.prototype.hasOwnProperty;
 
-    function getPropertyDescriptor(object, property) {
-        var proto = object, descriptor;
-        while (proto && !(descriptor = Object.getOwnPropertyDescriptor(proto, property))) {
-            proto = Object.getPrototypeOf(proto);
-        }
-        return descriptor;
-    }
-
     function isDOMNode(obj) {
         var success = false;
 
@@ -1211,6 +1203,9 @@ var sinon = (function () {
         return typeof obj === "function" && typeof obj.restore === "function" && obj.restore.sinon;
     }
 
+    // Cheap way to detect if we have ES5 support.
+    var hasES5Support = "keys" in Object;
+
     function makeApi(sinon) {
         sinon.wrapMethod = function wrapMethod(object, property, method) {
             if (!object) {
@@ -1220,26 +1215,8 @@ var sinon = (function () {
             if (typeof method != "function" && typeof method != "object") {
                 throw new TypeError("Method wrapper should be a function or a property descriptor");
             }
-            var methodDesc = (typeof method == "function") ? {value: method} : method,
-                wrappedMethodDesc = getPropertyDescriptor(object, property),
-                error, i, wrappedMethod;
 
-            if (!wrappedMethodDesc) {
-                error = new TypeError("Attempted to wrap " + (typeof wrappedMethod) + " property " +
-                                    property + " as function");
-            } else if (wrappedMethodDesc.restore && wrappedMethodDesc.restore.sinon) {
-                error = new TypeError("Attempted to wrap " + property + " which is already wrapped");
-            }
-            if (error) {
-                if (wrappedMethodDesc && wrappedMethodDesc.stackTrace) {
-                    error.stack += "\n--------------\n" + wrappedMethodDesc.stackTrace;
-                }
-                throw error;
-            }
-
-            var types = Object.keys(methodDesc);
-            for (i = 0; i < types.length; i++) {
-                wrappedMethod = wrappedMethodDesc[types[i]];
+            function checkWrappedMethod(wrappedMethod) {
                 if (!isFunction(wrappedMethod)) {
                     error = new TypeError("Attempted to wrap " + (typeof wrappedMethod) + " property " +
                                         property + " as function");
@@ -1249,6 +1226,7 @@ var sinon = (function () {
                     var verb = !!wrappedMethod.returns ? "stubbed" : "spied on";
                     error = new TypeError("Attempted to wrap " + property + " which is already " + verb);
                 }
+
                 if (error) {
                     if (wrappedMethod && wrappedMethod.stackTrace) {
                         error.stack += "\n--------------\n" + wrappedMethod.stackTrace;
@@ -1257,16 +1235,50 @@ var sinon = (function () {
                 }
             }
 
+            var error, wrappedMethod;
+
             // IE 8 does not support hasOwnProperty on the window object and Firefox has a problem
             // when using hasOwn.call on objects from other frames.
             var owned = object.hasOwnProperty ? object.hasOwnProperty(property) : hasOwn.call(object, property);
-            mirrorProperties(methodDesc, wrappedMethodDesc);
-            for (i = 0; i < types.length; i++) {
-                mirrorProperties(methodDesc[types[i]], wrappedMethodDesc[types[i]]);
+
+            if (hasES5Support) {
+                var methodDesc = (typeof method == "function") ? {value: method} : method,
+                    wrappedMethodDesc = sinon.getPropertyDescriptor(object, property),
+                    i;
+
+                if (!wrappedMethodDesc) {
+                    error = new TypeError("Attempted to wrap " + (typeof wrappedMethod) + " property " +
+                                        property + " as function");
+                } else if (wrappedMethodDesc.restore && wrappedMethodDesc.restore.sinon) {
+                    error = new TypeError("Attempted to wrap " + property + " which is already wrapped");
+                }
+                if (error) {
+                    if (wrappedMethodDesc && wrappedMethodDesc.stackTrace) {
+                        error.stack += "\n--------------\n" + wrappedMethodDesc.stackTrace;
+                    }
+                    throw error;
+                }
+
+                var types = sinon.objectKeys(methodDesc);
+                for (i = 0; i < types.length; i++) {
+                    wrappedMethod = wrappedMethodDesc[types[i]];
+                    checkWrappedMethod(wrappedMethod);
+                }
+
+                mirrorProperties(methodDesc, wrappedMethodDesc);
+                for (i = 0; i < types.length; i++) {
+                    mirrorProperties(methodDesc[types[i]], wrappedMethodDesc[types[i]]);
+                }
+                Object.defineProperty(object, property, methodDesc);
+            } else {
+                wrappedMethod = object[property];
+                checkWrappedMethod(wrappedMethod);
+                object[property] = method;
+                method.displayName = property;
             }
-            Object.defineProperty(object, property, methodDesc);
 
             method.displayName = property;
+
             // Set up a stack trace which can be used later to find what line of
             // code the original method was created on.
             method.stackTrace = (new Error("Stack Trace for original")).stack;
@@ -1276,13 +1288,30 @@ var sinon = (function () {
                 // If this fails (ex: localStorage on mobile safari) then force a reset
                 // via direct assignment.
                 if (!owned) {
-                    delete object[property];
-                } else {
+                    try {
+                        delete object[property];
+                    } catch (e) {}
+                    // For native code functions `delete` fails without throwing an error
+                    // on Chrome < 43, PhantomJS, etc.
+                    // Use strict equality comparison to check failures then force a reset
+                    // via direct assignment.
+                    if (object[property] === method) {
+                        object[property] = wrappedMethod;
+                    }
+                } else if (hasES5Support) {
                     Object.defineProperty(object, property, wrappedMethodDesc);
+                }
+
+                if (!hasES5Support && object[property] === method) {
+                    object[property] = wrappedMethod;
                 }
             };
 
             method.restore.sinon = true;
+
+            if (!hasES5Support) {
+                mirrorProperties(method, wrappedMethod);
+            }
 
             return method;
         };
@@ -1389,6 +1418,30 @@ var sinon = (function () {
 
             return this.displayName || "sinon fake";
         };
+
+        sinon.objectKeys = function objectKeys(obj) {
+            if (obj !== Object(obj)) {
+                throw new TypeError("sinon.objectKeys called on a non-object");
+            }
+
+            var keys = [];
+            var key;
+            for (key in obj) {
+                if (hasOwn.call(obj, key)) {
+                    keys.push(key);
+                }
+            }
+
+            return keys;
+        };
+
+        sinon.getPropertyDescriptor = function getPropertyDescriptor(object, property) {
+            var proto = object, descriptor;
+            while (proto && !(descriptor = Object.getOwnPropertyDescriptor(proto, property))) {
+                proto = Object.getPrototypeOf(proto);
+            }
+            return descriptor;
+        }
 
         sinon.getConfig = function (custom) {
             var config = {};
@@ -2255,13 +2308,6 @@ var sinon = (function () {
   */
 
 (function (sinon) {
-    function getPropertyDescriptor(object, property) {
-        var proto = object, descriptor;
-        while (proto && !(descriptor = Object.getOwnPropertyDescriptor(proto, property))) {
-            proto = Object.getPrototypeOf(proto);
-        }
-        return descriptor;
-    }
 
     function makeApi(sinon) {
         var push = Array.prototype.push;
@@ -2278,7 +2324,7 @@ var sinon = (function () {
             }
 
             if (types) {
-                var methodDesc = getPropertyDescriptor(object, property);
+                var methodDesc = sinon.getPropertyDescriptor(object, property);
                 for (var i = 0; i < types.length; i++) {
                     methodDesc[types[i]] = spy.create(methodDesc[types[i]]);
                 }
@@ -3088,7 +3134,7 @@ var sinon = (function () {
                 } else {
                     wrapper = func;
                     if (sinon.spy && sinon.spy.create) {
-                        var types = Object.keys(wrapper);
+                        var types = sinon.objectKeys(wrapper);
                         for (var i = 0; i < types.length; i++) {
                             wrapper[types[i]] = sinon.spy.create(wrapper[types[i]]);
                         }

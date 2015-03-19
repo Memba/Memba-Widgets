@@ -41,6 +41,13 @@
         DEBUG = true,
         MODULE = 'kidoju.tools: ';
 
+    /*********************************************************************************
+     * Culture
+     *********************************************************************************/
+    var culture = kidoju.culture = kidoju.culture || {};
+    culture.tools = {
+
+    };
 
     /*********************************************************************************
      * Helpers
@@ -119,7 +126,6 @@
             }
         },
 
-
         /**
          * Get a kendo.data.Model for attributes
          * @method _getAttributeModel
@@ -147,7 +153,8 @@
             var rows = [];
 
             //Add top, left, height, width, rotation
-            rows.push(new adapters.NumberAdapter({attributes:{'data-min': 0}}).getRow('top'));
+            //rows.push(new adapters.NumberAdapter({attributes:{'data-min': 0}}).getRow('top'));
+            rows.push(new adapters.NumberAdapter().getRow('top'));
             rows.push(new adapters.NumberAdapter().getRow('left'));
             rows.push(new adapters.NumberAdapter().getRow('height'));
             rows.push(new adapters.NumberAdapter().getRow('width'));
@@ -216,21 +223,6 @@
         // onResize(e.component)
         // onRotate(e.component)
     });
-
-    /**
-     * Static factory for a bag of standard properties
-     */
-    kidoju.Tool.getStandardProperties = function() {
-        return {
-            name: new adapters.NameAdapter({ title: 'Name' }),
-            solution: new adapters.StringAdapter({ title: 'Solution' }), //TODO: Not always a string ????????????????
-            validation: new adapters.ValidationAdapter({ title: 'Validation' }),
-            success: new adapters.ScoreAdapter({ title: 'Success' }),
-            failure: new adapters.ScoreAdapter({ title: 'Failure' }),
-            omit: new adapters.ScoreAdapter({ title: 'Omit' }),
-            guideline: new adapters.StringAdapter({ title: 'Guideline' })
-        };
-    };
 
     /*******************************************************************************************
      * Adapter classes
@@ -487,7 +479,16 @@
             var that = this;
             adapters.BaseAdapter.fn.init.call(that, options);
             that.type = STRING;
-            that.defaultValue = that.defaultValue || (that.nullable ? null : '');
+            switch(options.solutionType) {
+                case STRING:
+                case NUMBER:
+                case BOOLEAN:
+                case DATE:
+                    that.defaultValue = that.validators[options.solutionType][0].formula;
+                    break;
+                default:
+                    that.defaultValue = that.validators.default[0].formula;
+            }
             that.editor = function(container, options) {
                 var div = $('<div/>')
                     .css({ display: 'table' })
@@ -500,9 +501,11 @@
                     })
                     .appendTo(div);
                 var input = $('<input/>')
-                    .addClass('k-textbox') //or k-input
+                    .addClass('k-textbox')
                     .css({ width: '100%' })
-                    .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
+                    .prop({ readonly: true })
+                    //.attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
+                    //TODO: Display validator name
                     .appendTo(span);
                 $('<button/>')
                     .text('...')
@@ -536,6 +539,7 @@
             //Prepare dialog (the content method destroys widgets and unbinds data)
             dialog.title(options.title);
             var content = '<div class="k-edit-form-container kj-validation-edit-form">' +
+                //TODO: Add test textbox and button + help + possibly a combo of predefined functions
                 //'<div>' +
                 //    '<div class="k-edit-label"><label for="title">Title</label></div>' +
                 //    '<div data-container-for="title" class="k-edit-field"><input type="text" class="k-input k-textbox" name="title" data-bind="value:title"></div>' +
@@ -552,10 +556,10 @@
                     lineNumbers: true,
                     lint: true,
                     mode: 'javascript',
-                    value: that.getDefaultValidation(options)
+                    value: that.defaultValue
                 });
-                //TODO ------------------------------- Get function
-                //dialog.codemirror.getDoc().setValue('function validator(value) {\n\n\treturn false;\n}');
+                //Set actual validation formula
+                dialog.codemirror.getDoc().setValue(options.model.properties.get('validation'));
                 dialog.codemirror.on('beforeChange', function(cm, change) {
                     if ((change.from.line === 0) || //prevent changing the first line
                         (change.from.line === cm.display.renderedView.length - 1) || //prevent changing the last line
@@ -575,35 +579,68 @@
 
             }
         },
-        getDefaultValidation: function(options) {
-            switch(options.type) {
-                case STRING:
-                    //TODO: provide a Soundex function to web worker
-                    //See https://github.com/NaturalNode/natural
-                    return 'function validate(value, solution) {\n\treturn typeof value === "string" && typeof solution === "string" &&\n\t\tvalue.toUpperCase() === solution.toUpperCase();\n}';
-                case NUMBER:
-                    return 'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}';
-                case DATE:
-                    return 'function validate(value, solution) {\n\treturn typeof value === "date" && typeof solution === "date" && value.toDateString() === solution.toDateString();\n}';
-                case BOOLEAN:
-                    return 'function validate(value, solution) {\n\treturn value === solution;\n}';
-                default:
-                    //TODO: provide a deep equal function to web worker
-                    return 'function validate(value, solution) {\n\treturn value === solution;\n}';
-            }
-        },
         closeDialog: function(options, dialog, e) {
             var that = this;
             if(e instanceof $.Event && $(e.target) instanceof $) {
                 var command = $(e.target).attr(kendo.attr('command'));
                 if (command === 'save') {
-                    $.noop();
+                    options.model.properties.set('validation', dialog.codemirror.getDoc().getValue());
                 }
                 dialog.close();
                 //restore
                 dialog.content('');
                 dialog.codemirror = undefined;
             }
+        },
+        prerequisites: {
+            string: '', //TODO
+            number: '',
+            boolean: '',
+            date: '',
+            default: '' // '' + func converts a function to a string including the code - see http://jsfiddle.net/VUZck/146/ and http://stackoverflow.com/questions/12807263/prevent-uglifyjs-from-renaming-certain-functions
+        },
+        validators: {
+            string: [
+                //TODO: provide a Soundex and doubleMetaphone function to web worker
+                //See https://github.com/hgoebl/doublemetaphone
+                //See https://github.com/NaturalNode/natural
+                {
+                    name: 'toUpperCase', //TODO use cultures
+                    formula: 'function validate(value, solution) {\n\treturn typeof value === "string" && typeof solution === "string" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}'
+                }
+            ],
+            number: [
+                {
+                    name: 'float', //TODO use cultures
+                    formula: 'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
+                },
+                {
+                    name: 'integer', //TODO use cultures
+                    formula: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
+                },
+                {
+                    name: 'rounded to 2 decimals', //TODO use cultures
+                    formula: 'function validate(value, solution) {\n\treturn typeof value === "number" && typeof solution === "number" && Math.round(value*100)/100 === Math.round(solution*100)/100;\n}'
+                }
+            ],
+            boolean: [
+                {
+                    name: 'default',
+                    formula: 'function validate(value, solution) {\n\treturn typeof value === "boolean" && typeof solution === "boolean" && value === solution;\n}'
+                }
+            ],
+            date: [
+                {
+                    name: 'date',
+                    formula: 'function validate(value, solution) {\n\treturn typeof value === "date" && typeof solution === "date" && value.toDateString() === solution.toDateString();\n}'
+                }
+            ],
+            default: [
+                {
+                    name: 'deepEqual',
+                    formula: '' //TODO: deepEqual - consider https://github.com/jquery/qunit/blob/0cf737d46775aecb06780e3df36cb9cac6d01b0c/src/equiv.js
+                }
+            ]
         }
     });
 
@@ -778,7 +815,17 @@
         attributes: {
             style: new adapters.StyleAdapter()
         },
-        properties: kidoju.Tool.getStandardProperties(),
+        properties: {
+            name: new adapters.NameAdapter({ title: 'Name' }),
+            solution: new adapters.StringAdapter({ title: 'Solution' }),
+            validation: new adapters.ValidationAdapter({
+                title: 'Validation',
+                solutionType: STRING
+            }),
+            success: new adapters.ScoreAdapter({ title: 'Success' }),
+            failure: new adapters.ScoreAdapter({ title: 'Failure' }),
+            omit: new adapters.ScoreAdapter({ title: 'Omit' })
+        },
         /**
          * Get Html content
          * @method getHtml
@@ -837,7 +884,17 @@
             activeStyle: new adapters.StyleAdapter(),
             text: new adapters.StringAdapter({ defaultValue: 'Button' })
         },
-        properties: kidoju.Tool.getStandardProperties(),
+        properties: {
+            name: new adapters.NameAdapter({ title: 'Name' }),
+            solution: new adapters.BooleanAdapter({ title: 'Solution' }),
+            validation: new adapters.ValidationAdapter({
+                title: 'Validation',
+                solutionType: BOOLEAN
+            }),
+            success: new adapters.ScoreAdapter({ title: 'Success' }),
+            failure: new adapters.ScoreAdapter({ title: 'Failure' }),
+            omit: new adapters.ScoreAdapter({ title: 'Omit' })
+        },
 
         /**
          * Get Html content

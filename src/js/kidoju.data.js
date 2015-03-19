@@ -34,6 +34,9 @@
         ZERO_NUMBER = 0,
         NEGATIVE_NUMBER = -1,
 
+        //Miscellaneous
+        RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i,
+
         //Debug
         DEBUG = true,
         MODULE = 'kidoju.models: ';
@@ -496,32 +499,150 @@
         },
 
         /**
-         * Get an assessment object from properties
-         * @method getObjectFromProperties
+         * Get empty user test data from properties
+         * IMPORTANT: Make sure all pages are loaded first
+         * @method getTestFromProperties
          * @returns {*}
          */
-        getObjectFromProperties: function() {
-
-            //TODO: use $.when.apply($, promises).then(...)
-
-            var obj = {},
-                pages = this.data();
-            for (var i = 0; i < pages.length; i++) {
-                pages[i].load();
-                var components = pages[i].components.data();
-                for (var j = 0; j < components.length; j++) {
-                    var properties = components[j].properties || {};
-                    for (var prop in properties) {
-                        if (properties.hasOwnProperty(prop)) {
-                            obj[properties[prop].name] = properties[prop].value;
-                        }
+        getTestFromProperties: function() {
+            var that = this,
+                test = {};
+            $.each(that.data(), function(index, page) {
+                $.each(page.components.data(), function(index, component) {
+                    var properties = component.properties;
+                    if (properties instanceof kendo.data.Model &&
+                        $.type(properties.fields) === OBJECT && !$.isEmptyObject(properties.fields) &&
+                        $.type(properties.name) === STRING) {
+                        test[properties.name] = undefined;
                     }
+                });
+            });
+            //TODO Consider returning an object cast with a model with type, default value and validation?
+            return test;
+        },
+
+        /**
+         * Validate a named value
+         * @param name
+         * @param code
+         * @param value
+         * @param solution
+         * @returns {*}
+         */
+        validateNamedValue: function(name, code, value, solution) {
+            var dfd = $.Deferred();
+            if (!window.Worker) {
+                dfd.reject({filename: undefined, lineno: undefined, message: 'Web workers are not supported' });
+                return dfd;
+            }
+            if ($.type(name) !== STRING || !RX_VALID_NAME.test(name)) {
+                dfd.reject({filename: undefined, lineno: undefined, message: 'A valid name has not been provided' });
+                return dfd;
+            }
+            if ($.type(code) !== STRING) {
+                dfd.reject({filename: undefined, lineno: undefined, message: 'Code has not been provided' });
+                return dfd;
+            }
+            //TODO: Add prerequisites (some custom helpers)
+            var blob = new Blob(['onmessage=function(e){' + code + 'if(typeof(e.data.value)==="undefined"){postMessage(e.data.value);}else{postMessage(validate(e.data.value,e.data.solution));}self.close();}']);
+            var blobURL = window.URL.createObjectURL(blob);
+            var worker = new Worker(blobURL);
+            worker.onmessage = function (e) {
+                dfd.resolve({ name: name, result: e.data });
+            };
+            worker.onerror = function (err) {
+                dfd.reject(err);
+            };
+            worker.postMessage({value: value, solution: solution});
+            //terminate long workers (>50ms)
+            setTimeout(function () {
+                worker.terminate();
+                if (dfd.state() === 'pending') {
+                    dfd.reject({filename: undefined, lineno: undefined, message: 'Timeout error'});
                 }
+            }, 50);
+            return dfd.promise();
+        },
+
+        /**
+         * Validate user test data
+         * IMPORTANT: Make sure all pages are loaded first
+         * @method getTestFromProperties
+         * @returns {*}
+         */
+        validateTestFromProperties: function(test) {
+            if($.type(test) !== OBJECT){
+                return undefined;
             }
 
-            //TODO we should return an object cast with a model with type and validation
+            var that = this,
+                deferred = $.Deferred(),
+                promises = [],
+                result = {
+                    score: 0,
+                    max: 0,
+                    percent: 0
+                };
 
-            return kendo.observable (obj);
+            $.each(that.data(), function(index, page) {
+                $.each(page.components.data(), function(index, component) {
+                    var properties = component.properties,
+                        name, code, value, solution;
+                    if (properties instanceof kendo.data.Model &&
+                        $.isPlainObject(properties.fields) && !$.isEmptyObject(properties.fields) && $.type(properties.name) === STRING) {
+                        promises.push(that.validateNamedValue(
+                            properties.name,        //name
+                            properties.validation,  //code
+                            test[properties.name],  //value
+                            properties.solution     //solution
+                        ));
+                        result[properties.name] = {
+                            //TODO: description??
+                            value: test[properties.name],
+                            solution: properties.solution,
+                            result: undefined,
+                            omit: properties.omit,
+                            failure: properties.failure,
+                            success: properties.success
+                        };
+                    }
+                });
+            });
+
+            $.when.apply($, promises)
+                .done(function() {
+                    $.each(arguments, function(index, argument) {
+                        result[argument.name].result = argument.result;
+                        switch(argument.result) {
+                            case true:
+                                if(result[argument.name] && $.type(result[argument.name].success) === NUMBER) {
+                                    result[argument.name].score = result[argument.name].success;
+                                }
+                                break;
+                            case false:
+                                if(result[argument.name] && $.type(result[argument.name].failure) === NUMBER) {
+                                    result[argument.name].score = result[argument.name].failure;
+                                }
+                                break;
+                            default:
+                                if(result[argument.name] && $.type(result[argument.name].omit) === NUMBER) {
+                                    result[argument.name].score = result[argument.name].omit;
+                                }
+                                break;
+                        }
+                        result.score += result[argument.name].score;
+                        if(result[argument.name] && result[argument.name].success) {
+                            result.max += result[argument.name].success;
+                        }
+                        if(result.max) {
+                            result.percent = result.score/result.max;
+                        }
+                    });
+                    deferred.resolve(result);
+                })
+                .fail(deferred.reject);
+
+            return deferred.promise();
         }
     });
 

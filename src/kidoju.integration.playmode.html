@@ -35,10 +35,27 @@
         header>img {
             padding: 2px 5px;
         }
+        #wrapper {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: auto;
+            border: none;
+            top: 89px;
+            bottom: 36px;
+            overflow-y: scroll;
+        }
+        div.k-block div:last-of-type {
+            font-size: 48px;
+            font-weight: bolder;
+            text-align: center;
+        }
         footer {
             position: absolute;
             height: 35px;
             bottom: 0px;
+            border-top: solid 1px #c5c5c5;
+            width: 100%;
         }
         footer>div {
             padding: 8px;
@@ -51,11 +68,17 @@
 </header>
 <main>
     <div data-role="playbar" data-bind="source: stream.pages, value: currentPage, events: {click: calculate}"></div>
-    <div data-role="stage" data-bind="source: currentPage.components, properties: test" data-mode="play"></div>
-    <div>
-        <label>textfield1:</label><input data-bind="value: test.textfield1"><br/>
-        <label>textfield2:</label><input data-bind="value: test.textfield2"><br/>
-        <label>textfield3:</label><input data-bind="value: test.textfield3"><br/>
+    <div id="wrapper" class="k-content">
+        <div class="centered">
+            <div data-role="stage" data-bind="source: currentPage.components, properties: test" data-mode="play"></div>
+            <div style="display: none">
+                <div class="k-block k-info-colored">
+                    <div class="k-header">Your Score</div>
+                    <div data-bind="text: result.percent"></div>
+                </div>
+                <div data-role="grid"></div>
+            </div>
+        </div>
     </div>
 </main>
 <footer>
@@ -128,31 +151,171 @@
             }
         }),
         streamData = {
-            id: kendo.guid(),
-            pages: [
-                {
-                    id: kendo.guid(),
-                    components: [
-                        { id: kendo.guid(), tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                        { id: kendo.guid(), tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
-                        { id: kendo.guid(), tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield1' } }
-                    ]
-                },
-                {
-                    id: kendo.guid(),
-                    components: [
-                        { id: kendo.guid(), tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
-                        { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield2' } }
-                    ]
-                },
-                {
-                    id: kendo.guid(),
-                    components: [
-                        { id: kendo.guid(), tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
-                        { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
-                    ]
-                }
-            ]
+            "id": "a795f4da-a38b-459a-8709-63529faa7a5b",
+            "pages": [{
+                "id": "000574bf-eae6-427c-99ff-0fae9c20c74b",
+                "components": [{
+                    "id": "881e9724-7590-4bd8-856c-3e8f2e43cf26",
+                    "tool": "image",
+                    "top": 50,
+                    "left": 370,
+                    "height": 250,
+                    "width": 250,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {
+                        "src": "http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png",
+                        "alt": "",
+                        "dirty": false
+                    },
+                    "properties": {"dirty": false}
+                }, {
+                    "id": "fbc75ed3-e459-449e-9ae0-5244c270d03c",
+                    "tool": "label",
+                    "top": 305.769653320313,
+                    "left": 114.216812133789,
+                    "height": 103.38539553752535,
+                    "width": 812.1719630380888,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {
+                        "text": "What is this company?",
+                        "style": "font-family: Georgia, serif; color: #0000FF;",
+                        "dirty": false
+                    },
+                    "properties": {"dirty": false}
+                }, {
+                    "id": "c62d4e8e-2692-4959-a38f-0588dc73d255",
+                    "tool": "quiz",
+                    "top": 405.632720947266,
+                    "left": 346.598449707031,
+                    "height": 328.8460671624972,
+                    "width": 404.75839531214785,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {
+                        "labelStyle": "color:#0000FF;",
+                        "radioStyle": "",
+                        "text1": "Google",
+                        "text2": "Apple",
+                        "text3": "Microsoft",
+                        "text4": "IBM",
+                        "dirty": false
+                    },
+                    "properties": {
+                        "name": "val_544da5",
+                        "description": "What is this company?",
+                        "solution": "1",
+                        "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
+                        "success": 1,
+                        "failure": -0.25,
+                        "omit": 0,
+                        "dirty": false
+                    },
+                    "ns": ""
+                }]
+            }, {
+                "id": "a4178055-65a7-4fef-b22d-9d928b2f1f32",
+                "components": [{
+                    "id": "04d9eedb-0e3b-4dbd-b637-2a4a7eb36eba",
+                    "tool": "label",
+                    "top": 143.07640288556954,
+                    "left": 154.22131658024924,
+                    "height": 109.15393283750282,
+                    "width": 722.3932837502817,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {
+                        "text": "What year did Elvis die?",
+                        "style": "font-family: Georgia, serif; color: #FF0000;",
+                        "dirty": false
+                    },
+                    "properties": {"dirty": false}
+                }, {
+                    "id": "68fc850f-14e6-4580-87e7-b9f61fd6e5e8",
+                    "tool": "textbox",
+                    "top": 317.1709420851335,
+                    "left": 354.66807742201587,
+                    "height": 100,
+                    "width": 300,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {"style": "", "dirty": false},
+                    "properties": {
+                        "name": "val_cc5522",
+                        "description": "Year Elvis died",
+                        "solution": "1977",
+                        "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
+                        "success": 1,
+                        "failure": -0.25,
+                        "omit": 0,
+                        "dirty": false
+                    },
+                    "ns": ""
+                }]
+            }, {
+                "id": "c60e5d19-eaa4-4b5b-a7d1-9bda6ee37d62",
+                "components": [{
+                    "id": "0b2f712b-f8d9-4034-b968-a795f5091ac6",
+                    "tool": "image",
+                    "top": 196.4001471016735,
+                    "left": 51.04672077085242,
+                    "height": 471.5551048005409,
+                    "width": 380.39441063781834,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {
+                        "src": "http://uploads2.wikiart.org/images/pablo-picasso/self-portrait-1907.jpg",
+                        "alt": "",
+                        "dirty": false
+                    },
+                    "properties": {"dirty": false}
+                }, {
+                    "id": "882cbcd0-76e9-4100-b087-d7f77320c910",
+                    "tool": "label",
+                    "top": 72.0922779249183,
+                    "left": 107.42761017595447,
+                    "height": 103.46179851250845,
+                    "width": 803.1147171512283,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {
+                        "text": "Who painted this self portrait?",
+                        "style": "font-family: Georgia, serif; color: #FF0000;",
+                        "dirty": false
+                    },
+                    "properties": {"dirty": false}
+                }, {
+                    "id": "7dd82e58-782e-436a-ba94-c68b79500c56",
+                    "tool": "quiz",
+                    "top": 249.39901733398438,
+                    "left": 455.8208923339844,
+                    "height": 300,
+                    "width": 500,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {
+                        "labelStyle": "",
+                        "radioStyle": "",
+                        "text1": "Georges Braque",
+                        "text2": "Pablo Picasso",
+                        "text3": "Francis Bacon",
+                        "text4": "Fernand Léger",
+                        "dirty": false
+                    },
+                    "properties": {
+                        "name": "val_7c6b20",
+                        "description": "Self portrait",
+                        "solution": "2",
+                        "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
+                        "success": 1,
+                        "failure": -0.25,
+                        "omit": 0,
+                        "dirty": false
+                    },
+                    "ns": ""
+                }]
+            }]
         };
 
     //Create some dummy data
@@ -167,16 +330,48 @@
         test: undefined,
         result: undefined,
         calculate: function() {
-            window.viewModel.set('result', viewModel.stream.pages.validateTestFromProperties(window.viewModel.get('test')));
+            viewModel.stream.pages.validateTestFromProperties(window.viewModel.get('test')).then(function(result) {
+                window.viewModel.set('result', result);
+                var grid = $('div[data-role="grid"]').data('kendoGrid');
+                grid.setDataSource(new kendo.data.DataSource({ data: result.getScoreArray() }));
+                var sections = $('div.centered>div');
+                sections.first().css('display', 'none');
+                sections.last().css('display', 'block');
+            });
         }
     });
 
+    /**
+     * Resize event handler
+     */
+    function onResize() {
+        var stage = $(kendo.roleSelector('stage')),
+            stageWidget = stage.data('kendoStage');
+        if (stageWidget instanceof kendo.ui.Stage) {
+            var width = $('#wrapper').width(),
+                height = $('#wrapper').height(),
+                scale = Math.min(0.90*width/1024, 0.90*height/768);
+            stageWidget.scale(scale);
+            $('.centered')
+                .width(scale*stage.outerWidth())
+                .height(scale*stage.outerHeight())
+                .css('position', 'absolute')
+                .css('top', '50%')
+                .css('left', '50%')
+                .css('margin-left', '-' + scale*stage.outerWidth()/2 + 'px')
+                .css('margin-top', '-' + scale*stage.outerHeight()/2 + 'px');
+        }
+    }
+    $(window).on('resize', onResize);
+
     $(document).ready(function() {
         viewModel.stream.load().then(function() {
-            window.viewModel.set('currentPage', viewModel.stream.pages.at(0));
-            window.viewModel.set('test', viewModel.stream.pages.getTestFromProperties());
+            viewModel.set('currentPage', viewModel.stream.pages.at(0));
+            viewModel.set('test', viewModel.stream.pages.getTestFromProperties());
             kendo.bind('body', viewModel);
+            onResize();
         });
+
     });
 
 </script>

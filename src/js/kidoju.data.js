@@ -581,7 +581,24 @@
                 result = {
                     score: 0,
                     max: 0,
-                    percent: 0
+                    percent: function() {
+                        var max, score;
+                        if (this instanceof kendo.data.ObservableObject) {
+                            max = this.get('max'); score = this.get('score');
+                        } else {
+                            max = this.max; score = this.score;
+                        }
+                        return score === 0 || max === 0 ?  kendo.toString(0, 'p0') : kendo.toString(score/max, 'p0');
+                    },
+                    getScoreArray: function() {
+                        var array = [];
+                        for (var name in this) {
+                            if(/^val_/.test(name) && this.hasOwnProperty(name)) {
+                                array.push(this[name]);
+                            }
+                        }
+                        return array;
+                    }
                 };
 
             $.each(that.data(), function(index, page) {
@@ -597,7 +614,8 @@
                             properties.solution     //solution
                         ));
                         result[properties.name] = {
-                            //TODO: description??
+                            name: properties.name,
+                            description: properties.description,
                             value: test[properties.name],
                             solution: properties.solution,
                             result: undefined,
@@ -634,9 +652,9 @@
                         if(result[argument.name] && result[argument.name].success) {
                             result.max += result[argument.name].success;
                         }
-                        if(result.max) {
-                            result.percent = result.score/result.max;
-                        }
+                        //if(result.max) {
+                        //    result.percent = result.score/result.max;
+                        //}
                     });
                     deferred.resolve(result);
                 })

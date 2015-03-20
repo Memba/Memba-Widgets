@@ -1,6 +1,7 @@
 .kj-navigation {
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: scroll;
   border: none;
 }
 .kj-navigation .kj-hint {

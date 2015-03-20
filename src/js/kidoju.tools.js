@@ -817,6 +817,7 @@
         },
         properties: {
             name: new adapters.NameAdapter({ title: 'Name' }),
+            description: new adapters.StringAdapter({ title: 'Description' }),
             solution: new adapters.StringAdapter({ title: 'Solution' }),
             validation: new adapters.ValidationAdapter({
                 title: 'Validation',
@@ -886,6 +887,7 @@
         },
         properties: {
             name: new adapters.NameAdapter({ title: 'Name' }),
+            description: new adapters.StringAdapter({ title: 'Description' }),
             solution: new adapters.BooleanAdapter({ title: 'Solution' }),
             validation: new adapters.ValidationAdapter({
                 title: 'Validation',
@@ -949,6 +951,220 @@
         }
     });
     kidoju.tools.register(Button);
+
+    /**
+     * @class Quiz tool
+     * @type {void|*}
+     */
+    var CheckBox = kidoju.Tool.extend({
+        id: 'checkbox',
+        icon: 'checkbox',
+        cursor: CURSOR_CROSSHAIR,
+        templates: {
+            //TODO See http://www.telerik.com/forums/font-size-of-styled-radio-buttons-and-checkboxes
+            default: '<div><input id="#: properties.name #" type="checkbox" style="#: attributes.checkboxStyle #" data-#= ns #bind="checked: #: properties.name #"><label for="#: properties.name #" style="#: attributes.labelStyle #">#: attributes.text #</label></div>'
+        },
+        height: 60,
+        width: 500,
+        attributes: {
+            checkboxStyle: new adapters.StyleAdapter(),
+            labelStyle: new adapters.StyleAdapter(),
+            text: new adapters.StringAdapter({ defaultValue: 'text' })
+        },
+        properties: {
+            name: new adapters.NameAdapter({ title: 'Name' }),
+            description: new adapters.StringAdapter({ title: 'Description' }),
+            solution: new adapters.BooleanAdapter({ title: 'Solution' }),
+            validation: new adapters.ValidationAdapter({
+                title: 'Validation',
+                solutionType: BOOLEAN
+            }),
+            success: new adapters.ScoreAdapter({ title: 'Success' }),
+            failure: new adapters.ScoreAdapter({ title: 'Failure' }),
+            omit: new adapters.ScoreAdapter({ title: 'Omit' })
+        },
+
+        /**
+         * Get Html content
+         * @method getHtml
+         * @param component
+         * @returns {*}
+         */
+        getHtml: function(component) {
+            if (component instanceof kidoju.PageComponent) {
+                var template = kendo.template(this.templates.default);
+                return template($.extend(component, {ns: kendo.ns}));
+            }
+        },
+
+        /**
+         * onResize Event Handler
+         * @method onResize
+         * @param e
+         * @param component
+         */
+        onResize: function(e, component) {
+            var stageElement = $(e.currentTarget);
+            if(stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { //TODO: same id, same tool?
+                var content = stageElement.find('>div');
+                var clone = content.clone()
+                    .hide()
+                    .css({
+                        position: 'absolute',
+                        height: 'auto',
+                        width: 'auto'
+                    });
+                stageElement.after(clone);
+                var input = clone.find('input[type="checkbox"]'),
+                    label = clone.find('label'),
+                    fontSize = parseInt(label.css('font-size'));
+                //if no overflow, increase until overflow
+                while(clone.width() <= component.width && clone.height() <= component.height) {
+                    fontSize++;
+                    label.css('font-size', fontSize);
+                    input.css({
+                        height: fontSize * 2/3,
+                        width: fontSize * 2/3
+                    });
+                }
+                //if overflow, decrease until no overflow
+                while(clone.width() > component.width || clone.height() > component.height) {
+                    fontSize--;
+                    label.css('font-size', fontSize);
+                    input.css({
+                        height: fontSize * 2/3,
+                        width: fontSize * 2/3
+                    });
+                }
+                clone.remove();
+                content.find('label').css('font-size', fontSize);
+                content.find('input[type="checkbox"]').css({
+                    height: fontSize * 2/3,
+                    width: fontSize * 2/3
+                });
+                //prevent any side effect
+                e.preventDefault();
+                //prevent event to bubble on stage
+                e.stopPropagation();
+            }
+        }
+
+    });
+    kidoju.tools.register(CheckBox);
+
+    /**
+     * @class Quiz tool
+     * @type {void|*}
+     */
+    var Quiz = kidoju.Tool.extend({
+        id: 'quiz',
+        icon: 'radio_button_group',
+        cursor: CURSOR_CROSSHAIR,
+        templates: {
+            //TODO See http://www.telerik.com/forums/font-size-of-styled-radio-buttons-and-checkboxes
+            default: '<div>' +
+                '<div><input id="#: properties.name #_1" type="radio" name="#: properties.name #" style="#: attributes.radioStyle #" value="1" data-#= ns #bind="checked: #: properties.name #"><label for="#: properties.name #_1" style="#: attributes.labelStyle #">#: attributes.text1 #</label></div>' +
+                '<div><input id="#: properties.name #_2" type="radio" name="#: properties.name #" style="#: attributes.radioStyle #" value="2" data-#= ns #bind="checked: #: properties.name #"><label for="#: properties.name #_2" style="#: attributes.labelStyle #">#: attributes.text2 #</label></div>' +
+                '<div><input id="#: properties.name #_3" type="radio" name="#: properties.name #" style="#: attributes.radioStyle #" value="3" data-#= ns #bind="checked: #: properties.name #"><label for="#: properties.name #_3" style="#: attributes.labelStyle #">#: attributes.text3 #</label></div>' +
+                '<div><input id="#: properties.name #_4" type="radio" name="#: properties.name #" style="#: attributes.radioStyle #" value="4" data-#= ns #bind="checked: #: properties.name #"><label for="#: properties.name #_4" style="#: attributes.labelStyle #">#: attributes.text4 #</label></div>' +
+            '</div>'
+        },
+        height: 300,
+        width: 500,
+        attributes: {
+            labelStyle: new adapters.StyleAdapter(),
+            radioStyle: new adapters.StyleAdapter(),
+            text1: new adapters.StringAdapter({ defaultValue: 'text1' }),
+            text2: new adapters.StringAdapter({ defaultValue: 'text2' }),
+            text3: new adapters.StringAdapter({ defaultValue: 'text3' }),
+            text4: new adapters.StringAdapter({ defaultValue: 'text4' })
+        },
+        properties: {
+            name: new adapters.NameAdapter({ title: 'Name' }),
+            description: new adapters.StringAdapter({ title: 'Description' }),
+            solution: new adapters.StringAdapter({ title: 'Solution' }),
+            validation: new adapters.ValidationAdapter({
+                title: 'Validation',
+                solutionType: STRING
+            }),
+            success: new adapters.ScoreAdapter({ title: 'Success' }),
+            failure: new adapters.ScoreAdapter({ title: 'Failure' }),
+            omit: new adapters.ScoreAdapter({ title: 'Omit' })
+        },
+
+        /**
+         * Get Html content
+         * @method getHtml
+         * @param component
+         * @returns {*}
+         */
+        getHtml: function(component) {
+            if (component instanceof kidoju.PageComponent) {
+                var template = kendo.template(this.templates.default);
+                return template($.extend(component, {ns: kendo.ns}));
+            }
+        },
+
+        /**
+         * onResize Event Handler
+         * @method onResize
+         * @param e
+         * @param component
+         */
+        onResize: function(e, component) {
+            var stageElement = $(e.currentTarget);
+            if(stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { //TODO: same id, same tool?
+                var content = stageElement.find('>div');
+                /*
+                stageElement.css({
+                    height: height,
+                    width: width
+                });
+                */
+                var clone = content.clone()
+                    .hide()
+                    .css({
+                        position: 'absolute',
+                        height: 'auto',
+                        width: 'auto'
+                    });
+                stageElement.after(clone);
+                var inputs = clone.find('input[type="radio"]'),
+                    labels = clone.find('label'),
+                    fontSize = parseInt(labels.css('font-size'));
+                //if no overflow, increase until overflow
+                while(clone.width() <= component.width && clone.height() <= component.height) {
+                    fontSize++;
+                    labels.css('font-size', fontSize);
+                    inputs.css({
+                        height: fontSize * 2/3,
+                        width: fontSize * 2/3
+                    });
+                }
+                //if overflow, decrease until no overflow
+                while(clone.width() > component.width || clone.height() > component.height) {
+                    fontSize--;
+                    labels.css('font-size', fontSize);
+                    inputs.css({
+                        height: fontSize * 2/3,
+                        width: fontSize * 2/3
+                    });
+                }
+                clone.remove();
+                content.find('label').css('font-size', fontSize);
+                content.find('input[type="radio"]').css({
+                    height: fontSize * 2/3,
+                    width: fontSize * 2/3
+                });
+                //prevent any side effect
+                e.preventDefault();
+                //prevent event to bubble on stage
+                e.stopPropagation();
+            }
+        }
+
+    });
+    kidoju.tools.register(Quiz);
 
 
     /**

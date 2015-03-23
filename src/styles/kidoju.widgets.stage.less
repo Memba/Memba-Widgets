@@ -1,8 +1,8 @@
 .kj-stage {
+    .kj-element {
+    }
 }
 .kj-overlay {
-}
-.kj-element {
 }
 .kj-handle-box {
     border: 1px solid darkgray;
@@ -10,35 +10,35 @@
     //padding: 20px;
     //margin: -20px;
     cursor: default;
-}
-.kj-handle-box .kj-handle {
-    pointer-events: all;
-    position: absolute;
-    display: block;
-    width: 36px;
-    height: 36px;
-    /*TODO: replace png sprites with SVG icons*/
-    background: url('images/handler.png') no-repeat left top;
-    cursor: pointer;
-    z-index: 0;
-}
-.kj-handle-box .kj-handle[data-command="move"] {
-    left: -9px;
-    top: -10px;
-    background-position: left -144px;
-}
-.kj-handle-box .kj-handle[data-command="resize"] {
-    bottom: -10px;
-    right: -13px;
-    background-position: left -72px;
-}
-.kj-handle-box .kj-handle[data-command="rotate"] {
-    top: -10px;
-    right: -13px;
-    background-position: left -36px;
-}
-.kj-handle-box .kj-handle[data-command="menu"] {
-    left: -9px;
-    bottom: -10px;
-    background-position: left -108px;
+    .kj-handle {
+        pointer-events: all;
+        position: absolute;
+        display: block;
+        width: 36px;
+        height: 36px;
+        /*TODO: replace png sprites with SVG icons*/
+        background: url('images/handler.png') no-repeat left top;
+        cursor: pointer;
+        z-index: 0;
+    }
+    .kj-handle[data-command="move"] {
+        left: -9px;
+        top: -10px;
+        background-position: left -144px;
+    }
+    .kj-handle[data-command="resize"] {
+        bottom: -10px;
+        right: -13px;
+        background-position: left -72px;
+    }
+    .kj-handle[data-command="rotate"] {
+        top: -10px;
+        right: -13px;
+        background-position: left -36px;
+    }
+    .kj-handle[data-command="menu"] {
+        left: -9px;
+        bottom: -10px;
+        background-position: left -108px;
+    }
 }

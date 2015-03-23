@@ -31,10 +31,7 @@
         DATA_SELECTED = 'data-selected',
         ACTIVE_TOOL = 'active',
         POINTER = 'pointer',
-        DEFAULT_SIZE = 32,
-
-        DEBUG = true,
-        MODULE = 'kidoju.widgets.toolbox: ';
+        DEFAULT_SIZE = 32;
 
 
     /*********************************************************************************
@@ -42,8 +39,8 @@
      *********************************************************************************/
 
     function log(message) {
-        if (DEBUG && window.console && $.isFunction(window.console.log)) {
-            window.console.log(MODULE + message);
+        if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log('kidoju.widgets.toolbox: ' + message);
         }
     }
 

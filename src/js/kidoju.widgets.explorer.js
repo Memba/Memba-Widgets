@@ -43,18 +43,15 @@
         DATA_UID = kendo.attr('uid'),
         ALL_ITEMS_SELECTOR = 'li.kj-item[' + DATA_UID + ']',
         ITEM_BYUID_SELECTOR = 'li.kj-item[' + DATA_UID + '="{0}"]',
-        ARIA_SELECTED = 'aria-selected',
-
-        DEBUG = true,
-        MODULE = 'kidoju.widgets.explorer: ';
+        ARIA_SELECTED = 'aria-selected';
 
     /*********************************************************************************
      * Helpers
      *********************************************************************************/
 
     function log(message) {
-        if (DEBUG && window.console && $.isFunction(window.console.log)) {
-            window.console.log(MODULE + message);
+        if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log('kidoju.widgets.explorer: ' + message);
         }
     }
 

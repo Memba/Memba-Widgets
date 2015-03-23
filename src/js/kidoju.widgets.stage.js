@@ -93,14 +93,12 @@
         },
 
         //Debug
-        DEBUG = true,
         DEBUG_MOUSE = '<div class="debug-mouse"></div>',
         DEBUG_MOUSE_CLASS = '.debug-mouse',
         DEBUG_BOUNDS = '<div class="debug-bounds"></div>',
         DEBUG_BOUNDS_CLASS = '.debug-bounds',
         DEBUG_CENTER = '<div class="debug-center"></div>',
-        DEBUG_CENTER_CLASS = '.debug-center',
-        MODULE = 'kidoju.widgets.stage: ';
+        DEBUG_CENTER_CLASS = '.debug-center';
 
 
     /*********************************************************************************
@@ -1241,8 +1239,8 @@
          * @param message
          */
         log: function(message) {
-            if (DEBUG && window.console && $.isFunction(window.console.log)) {
-                window.console.log(MODULE + message);
+            if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
+                window.console.log('kidoju.widgets.stage: ' + message);
             }
         },
 
@@ -1375,7 +1373,7 @@
          * @param wrapper
          */
         addDebugVisualElements: function(wrapper) {
-            if(DEBUG) {
+            if(window.app && window.app.DEBUG) {
 
                 //Add bounding rectangle
                 $(DEBUG_BOUNDS)
@@ -1421,7 +1419,7 @@
          * @param options
          */
         updateDebugVisualElements: function(options) {
-            if(DEBUG && $.isPlainObject(options) && options.scale > 0) {
+            if(window.app && window.app.DEBUG && $.isPlainObject(options) && options.scale > 0) {
 
                 //Display center of rotation
                 options.wrapper.find(DEBUG_CENTER_CLASS).css({
@@ -1453,7 +1451,7 @@
          * @param wrapper
          */
         hideDebugVisualElements: function(wrapper) {
-            if (DEBUG) {
+            if (window.app && window.app.DEBUG) {
                 wrapper.find(DEBUG_CENTER_CLASS).css({display: NONE});
                 wrapper.find(DEBUG_BOUNDS_CLASS).css({display: NONE});
                 wrapper.find(DEBUG_MOUSE_CLASS).css({display: NONE});

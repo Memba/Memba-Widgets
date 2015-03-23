@@ -37,18 +37,15 @@
         LAST = '.k-i-seek-e',
         PREV = '.k-i-arrow-w',
         NEXT = '.k-i-arrow-e',
-        TICK = '.k-i-tick',
-
-        DEBUG = true,
-        MODULE = 'kidoju.widgets.playbar: ';
+        TICK = '.k-i-tick';
 
     /*********************************************************************************
      * Helpers
      *********************************************************************************/
 
     function log(message) {
-        if (DEBUG && window.console && $.isFunction(window.console.log)) {
-            window.console.log(MODULE + message);
+        if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log('kidoju.widgets.playbar: ' + message);
         }
     }
 

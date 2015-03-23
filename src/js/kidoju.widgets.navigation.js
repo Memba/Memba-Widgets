@@ -44,18 +44,15 @@
         DATA_UID = kendo.attr('uid'),
         ALL_ITEMS_SELECTOR = 'div.kj-item[' + DATA_UID + ']',
         ITEM_BYUID_SELECTOR = 'div.kj-item[' + DATA_UID + '="{0}"]',
-        ARIA_SELECTED = 'aria-selected',
-
-        DEBUG = true,
-        MODULE = 'kidoju.widgets.navigation: ';
+        ARIA_SELECTED = 'aria-selected';
 
     /*********************************************************************************
      * Helpers
      *********************************************************************************/
 
     function log(message) {
-        if (DEBUG && window.console && $.isFunction(window.console.log)) {
-            window.console.log(MODULE + message);
+        if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log('kidoju.widgets.navigation: ' + message);
         }
     }
 
@@ -98,7 +95,7 @@
         options: {
             name: 'Navigation',
             autoBind: true,
-            itemTemplate: '<div data-uid="#= uid #" class="kj-item" role="option" aria-selected="false"><div data-role="stage"></div></div>',
+            itemTemplate: '<div data-#: ns #uid="#: uid #" class="kj-item" role="option" aria-selected="false"><div data-#: ns #role="stage"></div></div>',
             pageWidth: 1024, //TODO: assuming page size here: where do we read it from?
             pageHeight: 768,
             selectionBorder: 10, //this is the padding of the page wrapper, which draws a border around it
@@ -293,7 +290,7 @@
          * @private
          */
         _templates: function() {
-            this.itemTemplate = kendo.template(this.options.itemTemplate);
+            this._itemTemplate = kendo.template(this.options.itemTemplate);
         },
 
         /**
@@ -390,7 +387,7 @@
             if (page instanceof kidoju.Page && navigation.find(kendo.format(ITEM_BYUID_SELECTOR, page.uid)).length === 0) {
 
                 //Create navigation item (actually a selection frame around the thumbnail stage)
-                var navigationItem = $(that.itemTemplate({uid : page.uid}))
+                var navigationItem = $(that._itemTemplate({ uid: page.uid, ns: kendo.ns }))
                     .css({
                         boxSizing: 'border-box',
                         position: 'relative',
@@ -498,7 +495,7 @@
          * @private
          */
         _getStageScale: function() {
-            var scale = (this.element.innerWidth() - 2 * parseInt(this.options.pageSpacing, 10)) / parseInt(this.options.pageWidth, 10);
+            var scale = (this.element.innerWidth() - 2 * parseInt(this.options.pageSpacing, 10) - 2 * parseInt(this.options.selectionBorder, 10)) / parseInt(this.options.pageWidth, 10);
             if (scale < 0) {
                 scale = 0;
             }

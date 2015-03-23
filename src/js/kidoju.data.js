@@ -35,19 +35,15 @@
         NEGATIVE_NUMBER = -1,
 
         //Miscellaneous
-        RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i,
-
-        //Debug
-        DEBUG = true,
-        MODULE = 'kidoju.models: ';
+        RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i;
 
     /*********************************************************************************
      * Helpers
      *********************************************************************************/
 
     function log(message) {
-        if (DEBUG && window.console && $.isFunction(window.console.log)) {
-            window.console.log(MODULE + message);
+        if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log('kidoju.models: ' + message);
         }
     }
 

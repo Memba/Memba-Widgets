@@ -24,10 +24,7 @@
         NUMBER = 'number',
 
         //Events
-        CHANGE = 'change',
-
-        DEBUG = true,
-        MODULE = 'kidoju.widgets.bindings: ';
+        CHANGE = 'change';
 
     //For more information, see http://docs.telerik.com/kendo-ui/framework/mvvm/bindings/custom
 
@@ -36,8 +33,8 @@
      *********************************************************************************/
 
     function log(message) {
-        if (DEBUG && window.console && $.isFunction(window.console.log)) {
-            window.console.log(MODULE + message);
+        if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log('kidoju.widgets.bindings: ' + message);
         }
     }
 

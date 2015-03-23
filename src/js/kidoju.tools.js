@@ -35,11 +35,7 @@
         DIALOG_CLASS = '.kj-dialog',
 
         //Event
-        CLICK = 'click',
-
-        //Debug
-        DEBUG = true,
-        MODULE = 'kidoju.tools: ';
+        CLICK = 'click';
 
     /*********************************************************************************
      * Culture
@@ -54,8 +50,8 @@
      *********************************************************************************/
 
     function log(message) {
-        if (DEBUG && window.console && $.isFunction(window.console.log)) {
-            window.console.log(MODULE + message);
+        if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log('kidoju.tools: ' + message);
         }
     }
 

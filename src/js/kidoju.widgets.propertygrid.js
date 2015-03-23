@@ -29,15 +29,12 @@
 
         //Html
         TBODY = 'tbody',
-        TCELL = 'td[role="gridcell"]',
+        TCELL = 'td[role="gridcell"]';
 
         //Misc.
         //UID = 'uid',
         //DIRTY = 'dirty',
 
-        //Debug
-        DEBUG = true,
-        MODULE = 'kidoju.widgets.propertygrid: ';
 
     /*********************************************************************************
      * Widget
@@ -61,6 +58,7 @@
 
             // base call to widget initialization
             Widget.fn.init.call(this, element, options);
+            util.log('widget initialized');
 
             //Add property grid frame
             that.wrapper = that.element;
@@ -71,6 +69,8 @@
 
             //Refresh if we have an object to display
             that.refresh();
+
+
         },
 
         /**
@@ -494,8 +494,8 @@
          */
         log: function(message)
         {
-            if (DEBUG && window.console && $.isFunction(window.console.log)) {
-                window.console.log(MODULE + message);
+            if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
+                window.console.log('kidoju.widgets.propertygrid: ' + message);
             }
         },
 

@@ -24,18 +24,15 @@
         CHANGE = 'change',
 
         //Widget
-        WIDGET_CLASS = 'k-widget kj-explorer',
-
-        DEBUG = true,
-        MODULE = 'kidoju.widgets.designbar: ';
+        WIDGET_CLASS = 'k-widget kj-explorer';
 
     /*********************************************************************************
      * Helpers
      *********************************************************************************/
 
     function log(message) {
-        if (DEBUG && window.console && $.isFunction(window.console.log)) {
-            window.console.log(MODULE + message);
+        if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
+            window.console.log('kidoju.widgets.designbar: ' + message);
         }
     }
 

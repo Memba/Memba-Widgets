@@ -16,7 +16,12 @@ module.exports = function (grunt) {
             files: ['<%= jshint.files %>'],
             tasks: ['lint', 'test']
         },
-        //TODO: enforce coding rules with https://github.com/jscs-dev/grunt-jscs
+        jscs: {
+            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
+            options: {
+                config: '.jscsrc'
+            }
+        },
         jshint: {
             files: ['gruntfile.js', 'src/js/kidoju.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
             options: {
@@ -179,6 +184,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     //Linting
+    grunt.loadNpmTasks('grunt-jscs');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-kendo-lint');
     grunt.loadNpmTasks('grunt-contrib-csslint');

@@ -601,7 +601,7 @@
 
         kendo.ui.plugin(PlayBar);
 
-    }(jQuery));
+    }(window.jQuery));
 
     return window.kendo;
 

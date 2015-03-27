@@ -669,7 +669,7 @@
 
         };
 
-    }(jQuery));
+    }(window.jQuery));
 
     return window.kendo;
 

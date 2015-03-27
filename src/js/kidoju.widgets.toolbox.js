@@ -201,7 +201,7 @@
 
         kendo.ui.plugin(Toolbox);
 
-    }(jQuery));
+    }(window.jQuery));
 
     return window.kendo;
 

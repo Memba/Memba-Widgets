@@ -599,7 +599,7 @@
 
         kendo.ui.plugin(Navigation);
 
-    }(jQuery));
+    }(window.jQuery));
 
     return window.kendo;
 

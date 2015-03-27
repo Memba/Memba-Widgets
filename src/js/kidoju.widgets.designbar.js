@@ -102,7 +102,7 @@
 
         kendo.ui.plugin(Designbar);
 
-    }(jQuery));
+    }(window.jQuery));
 
     return window.kendo;
 

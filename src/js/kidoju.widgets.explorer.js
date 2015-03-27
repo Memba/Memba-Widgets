@@ -498,7 +498,7 @@
 
         kendo.ui.plugin(Explorer);
 
-    }(jQuery));
+    }(window.jQuery));
 
     return window.kendo;
 

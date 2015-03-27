@@ -865,7 +865,7 @@
         });
 
 
-    }(jQuery));
+    }(window.jQuery));
 
     return window.kidoju;
 

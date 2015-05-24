@@ -67,7 +67,7 @@
 </head>
 <body>
 <header>
-    <img src="https://raw.githubusercontent.com/Memba/Kidoju-Webapp/master/webapp/public/styles/images/KdjLogoBB.png" alt="Kidoju Logo">
+    <img src="./styles/images/KdjLogoBB.png" alt="Kidoju Logo">
 </header>
 <main>
     <div data-role="playbar" data-bind="source: stream.pages, value: currentPage, events: {click: calculate}"></div>
@@ -313,6 +313,124 @@
                         "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
                         "success": 1,
                         "failure": -0.25,
+                        "omit": 0,
+                        "dirty": false
+                    },
+                    "ns": ""
+                }]
+            }, {
+                "id": "d2350965-9c39-4666-8d64-9a2111e9f486",
+                "style": "",
+                "components": [{
+                    "id": "ecfd9684-330c-4817-b670-bfcf27e28935",
+                    "tool": "image",
+                    "top": 155.0581455417471,
+                    "left": 218.753723144531,
+                    "height": 592.2051936994466,
+                    "width": 569.318859088974,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {
+                        "src": "http://static.intellego.fr/uploads/8/4/84305/media/HistoireGeographie/carte%20de%20france%20fleuve%20vide.GIF",
+                        "alt": "French Map",
+                        "dirty": false
+                    },
+                    "properties": {"dirty": false}
+                }, {
+                    "id": "2bbd052d-4c60-4412-8709-492063197481",
+                    "tool": "label",
+                    "top": 44.9261779785156,
+                    "left": 108.87930297851597,
+                    "height": 95.6406981694338,
+                    "width": 787.1519795657726,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {
+                        "text": "Name the rivers on the map",
+                        "style": "font-family: Georgia, serif; color: #000000;",
+                        "dirty": false
+                    },
+                    "properties": {"dirty": false}
+                }, {
+                    "id": "f96497f1-8c69-4ed1-bd52-1a80a52afdb9",
+                    "tool": "textbox",
+                    "top": 266.09390892785615,
+                    "left": 412.3641901645526,
+                    "height": 46.59855257556407,
+                    "width": 186.65815240527883,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {"style": "opacity:0.7;", "dirty": false},
+                    "properties": {
+                        "name": "val_924bf9",
+                        "description": "",
+                        "solution": "Seine",
+                        "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
+                        "success": 1,
+                        "failure": 0,
+                        "omit": 0,
+                        "dirty": false
+                    },
+                    "ns": ""
+                }, {
+                    "id": "f884a6bc-1467-4357-b735-90836dec484f",
+                    "tool": "textbox",
+                    "top": 342.3753052667238,
+                    "left": 345.5080811820069,
+                    "height": 54.22733077905492,
+                    "width": 191.01745423584504,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {"style": "opacity:0.7;", "dirty": false},
+                    "properties": {
+                        "name": "val_082890",
+                        "description": "",
+                        "solution": "Loire",
+                        "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
+                        "success": 1,
+                        "failure": 0,
+                        "omit": 0,
+                        "dirty": false
+                    },
+                    "ns": ""
+                }, {
+                    "id": "ee2499b8-8915-46fb-b1ba-d9e15e40ef66",
+                    "tool": "textbox",
+                    "top": 550.2497199112534,
+                    "left": 298.62174657153435,
+                    "height": 50.95785440613027,
+                    "width": 200.825883354619,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {"style": "opacity:0.7;", "dirty": false},
+                    "properties": {
+                        "name": "val_f9e548",
+                        "description": "",
+                        "solution": "Garonne",
+                        "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
+                        "success": 1,
+                        "failure": 0,
+                        "omit": 0,
+                        "dirty": false
+                    },
+                    "ns": ""
+                }, {
+                    "id": "25fcee00-94c9-493a-af8c-228af5b436d0",
+                    "tool": "textbox",
+                    "top": 558.8784981147442,
+                    "left": 522.7656375889885,
+                    "height": 46.59855257556407,
+                    "width": 191.01745423584504,
+                    "rotate": 0,
+                    "tag": null,
+                    "attributes": {"style": "opacity:0.7;", "dirty": false},
+                    "properties": {
+                        "name": "val_ac8c11",
+                        "description": "",
+                        "solution": "Rhône",
+                        "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
+                        "success": 1,
+                        "failure": 0,
                         "omit": 0,
                         "dirty": false
                     },

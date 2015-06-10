@@ -1,16 +1,5 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
-(function(f, define){
-    define([], f);
-})(function(){
 
-(function ($, undefined) {
+
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -280,10 +269,8 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "dialogButtonSeparator": "Ou",
   "dialogCancel": "Fermer",
   "dialogInsert": "Insérer",
-  "imageAltText": "Le texte de remplacement",
+  "imageAltText": "Alternate text",
   "imageWebAddress": "Adresse Web",
-  "imageWidth": "Largeur (px)",
-  "imageHeight": "Hauteur (px)",
   "linkOpenInNewWindow": "Ouvrir dans une nouvelle fenêtre",
   "linkText": "Text",
   "linkToolTip": "Info-bulle",
@@ -303,33 +290,6 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "insertFile": "Insert file"
 });
 }
-
-/* FileBrowser and ImageBrowser messages */
-
-var browserMessages = {
-  "uploadFile" : "Charger",
-  "orderBy" : "Trier par",
-  "orderByName" : "Nom",
-  "orderBySize" : "Taille",
-  "directoryNotFound" : "Aucun répértoire de ce nom.",
-  "emptyFolder" : "Répertoire vide",
-  "deleteFile" : 'Etes-vous sûr de vouloir supprimer "{0}"?',
-  "invalidFileType" : "Le fichier sélectionné \"{0}\" n'est pas valide. Les type fichiers supportés sont {1}.",
-  "overwriteFile" : "Un fichier du nom \"{0}\" existe déjà dans ce répertoire. Voulez-vous le remplacer?",
-  "dropFilesHere" : "glissez les fichiers ici pour les charger",
-  "search" : "Recherche"
-};
-
-if (kendo.ui.FileBrowser) {
-kendo.ui.FileBrowser.prototype.options.messages =
-$.extend(true, kendo.ui.FileBrowser.prototype.options.messages, browserMessages);
-}
-
-if (kendo.ui.ImageBrowser) {
-kendo.ui.ImageBrowser.prototype.options.messages =
-$.extend(true, kendo.ui.ImageBrowser.prototype.options.messages, browserMessages);
-}
-
 
 /* Upload messages */
 
@@ -357,9 +317,7 @@ kendo.ui.Scheduler.prototype.options.messages =
 $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "allDay": "toute la journée",
   "cancel": "Annuler",
-  "editable": {
-    "confirmation": "Etes-vous sûr de vouloir supprimer cet élément?"
-  },
+  "confirmation": "Etes-vous sûr de vouloir supprimer cet élément?",
   "date": "Date",
   "destroy": "Effacer",
   "editor": {
@@ -404,9 +362,3 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "showWorkDay": "Montrer les heures ouvrables"
 });
 }
-})(window.kendo.jQuery);
-
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });

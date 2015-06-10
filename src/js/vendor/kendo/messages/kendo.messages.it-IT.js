@@ -1,16 +1,5 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
-(function(f, define){
-    define([], f);
-})(function(){
 
-(function ($, undefined) {
+
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -328,9 +317,7 @@ kendo.ui.Scheduler.prototype.options.messages =
 $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "allDay": "tutto il giorno",
   "cancel": "Annulla",
-  "editable": {
-    "confirmation": "Sicuro di voler rimuovere questo evento?"
-  },
+  "confirmation": "Sicuro di voler rimuovere questo evento?",
   "date": "Data",
   "destroy": "Rimuovi",
   "editor": {
@@ -375,9 +362,3 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "showWorkDay": "Mostra solo le ore lavorative"
 });
 }
-})(window.kendo.jQuery);
-
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });

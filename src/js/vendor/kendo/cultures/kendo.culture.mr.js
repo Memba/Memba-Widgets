@@ -1,17 +1,4 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
-(function(f, define){
-    define([], f);
-})(function(){
-
-(function( window, undefined ) {
-    var kendo = window.kendo || (window.kendo = { cultures: {} });
+﻿(function( window, undefined ) {
     kendo.cultures["mr"] = {
         name: "mr",
         numberFormat: {
@@ -45,8 +32,8 @@
                     namesShort: ["र","सो","मं","बु","गु","शु","श"]
                 },
                 months: {
-                    names: ["जानेवारी","फेब्रुवारी","मार्च","एप्रिल","मे","जून","जुलै","ऑगस्ट","सप्टेंबर","ऑक्टोबर","नोव्हेंबर","डिसेंबर"],
-                    namesAbbr: ["जाने.","फेब्रु.","मार्च","एप्रि","मे","जून","जुलै","ऑग.","सप्टें.","ऑक्टो.","नोव्हें.","डिसें."]
+                    names: ["जानेवारी","फेब्रुवारी","मार्च","एप्रिल","मे","जून","जुलै","ऑगस्ट","सप्टेंबर","ऑक्टोबर","नोव्हेंबर","डिसेंबर",""],
+                    namesAbbr: ["जाने.","फेब्रु.","मार्च","एप्रि","मे","जून","जुलै","ऑग.","सप्टें.","ऑक्टो.","नोव्हें.","डिसें.",""]
                 },
                 AM: ["म.पू.","म.पू.","म.पू."],
                 PM: ["म.नं.","म.नं.","म.नं."],
@@ -72,8 +59,3 @@
         }
     }
 })(this);
-
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });

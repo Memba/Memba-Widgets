@@ -1,14 +1,14 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.datepicker", "./kendo.numerictextbox", "./kendo.validator", "./kendo.binder" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "editable",
+    name: "Editable",
+    category: "framework",
+    depends: [ "datepicker", "numerictextbox", "validator", "binder" ],
+    hidden: true
+};
 
 /* jshint eqnull: true */
 (function($, undefined) {
@@ -209,18 +209,19 @@
                 values = {},
                 bindAttribute = kendo.attr("bind"),
                 fieldName = e.field.replace(nameSpecialCharRegExp, "\\$1"),
-                bindingRegex = new RegExp("(value|checked)\\s*:\\s*" + fieldName + "\\s*(,|$)");
+                checkedBinding = 'checked:' + fieldName,
+                valueBinding = 'value:' + fieldName;
 
             values[e.field] = e.value;
 
-            input = $(':input[' + bindAttribute + '*="' + fieldName + '"]', that.element)
-                .filter("[" + kendo.attr("validate") + "!='false']").filter(function(element) {
-                   return bindingRegex.test($(this).attr(bindAttribute));
-                });
+            input = $(':input[' + bindAttribute + '*="' + valueBinding + '"],:input[' + bindAttribute + '*="' + checkedBinding + '"]', that.element)
+                .filter("[" + kendo.attr("validate") + "!='false']");
             if (input.length > 1) {
                 input = input.filter(function () {
                     var element = $(this);
-                    return !element.is(":radio") || element.val() == value;
+                    var bindings = element.attr(bindAttribute).split(",");
+                    var matchesBinding = inArray(valueBinding, bindings) >= 0 || inArray(checkedBinding, bindings) >= 0;
+                    return matchesBinding && (!element.is(":radio") || element.val() == value);
                 });
             }
 

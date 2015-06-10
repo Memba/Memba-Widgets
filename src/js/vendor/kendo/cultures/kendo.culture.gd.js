@@ -1,17 +1,4 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
-(function(f, define){
-    define([], f);
-})(function(){
-
-(function( window, undefined ) {
-    var kendo = window.kendo || (window.kendo = { cultures: {} });
+﻿(function( window, undefined ) {
     kendo.cultures["gd"] = {
         name: "gd",
         numberFormat: {
@@ -45,8 +32,8 @@
                     namesShort: ["Dò","Lu","Mà","Ci","Da","Ao","Sa"]
                 },
                 months: {
-                    names: ["Am Faoilleach","An Gearran","Am Màrt","An Giblean","An Cèitean","An t-Ògmhios","An t-Iuchar","An Lùnastal","An t-Sultain","An Dàmhair","An t-Samhain","An Dùbhlachd"],
-                    namesAbbr: ["Faoi","Gear","Màrt","Gibl","Cèit","Ògmh","Iuch","Lùn","Sult","Dàmh","Samh","Dùbh"]
+                    names: ["Am Faoilleach","An Gearran","Am Màrt","An Giblean","An Cèitean","An t-Ògmhios","An t-Iuchar","An Lùnastal","An t-Sultain","An Dàmhair","An t-Samhain","An Dùbhlachd",""],
+                    namesAbbr: ["Faoi","Gear","Màrt","Gibl","Cèit","Ògmh","Iuch","Lùn","Sult","Dàmh","Samh","Dùbh",""]
                 },
                 AM: ["m","m","M"],
                 PM: ["f","f","F"],
@@ -72,8 +59,3 @@
         }
     }
 })(this);
-
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });

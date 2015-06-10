@@ -1,16 +1,5 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
-(function(f, define){
-    define([], f);
-})(function(){
 
-(function ($, undefined) {
+
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -202,7 +191,7 @@ if (kendo.ui.FilterCell) {
 kendo.ui.FilterCell.prototype.options.messages =
 $.extend(true, kendo.ui.FilterCell.prototype.options.messages,{
   "filter": "фільтрувати",
-  "clear": "очистити",
+  "clear": "очистити фільтр",
   "isFalse": "хиба",
   "isTrue": "істина",
   "operator": "Oператор"
@@ -216,7 +205,7 @@ kendo.ui.FilterMenu.prototype.options.messages =
 $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "filter": "фільтрувати",
   "and": "І",
-  "clear": "очистити",
+  "clear": "очистити фільтр",
   "info": "Рядки із записами",
   "selectValue": "-виберіть-",
   "isFalse": "хиба",
@@ -313,9 +302,7 @@ kendo.ui.Scheduler.prototype.options.messages =
 $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "allDay": "all day",
   "cancel": "Скасувати",
-  "editable": {
-    "confirmation": "Are you sure you want to delete this event?"
-  },
+  "confirmation": "Are you sure you want to delete this event?",
   "date": "Date",
   "destroy": "Delete",
   "editor": {
@@ -379,9 +366,3 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "uploadSelectedFiles": "Upload files"
 });
 }
-})(window.kendo.jQuery);
-
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });

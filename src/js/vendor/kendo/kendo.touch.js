@@ -1,14 +1,14 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.core", "./kendo.userevents" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "touch",
+    name: "Touch",
+    category: "mobile",
+    description: "The kendo Touch widget provides a cross-platform compatible API for handling user-initiated touch events, multi-touch gestures and event sequences (drag, swipe, etc.). ",
+    depends: [ "core", "userevents" ]
+};
 
 (function($, undefined) {
     var kendo = window.kendo,

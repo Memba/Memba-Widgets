@@ -1,14 +1,14 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.core", "./kendo.userevents" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "draganddrop",
+    name: "Drag & drop",
+    category: "framework",
+    description: "Drag & drop functionality for any DOM element.",
+    depends: [ "core", "userevents" ]
+};
 
 (function ($, undefined) {
     var kendo = window.kendo,
@@ -86,7 +86,7 @@
 
             for (i = 0; i < areaLen; i ++) {
                 theFilter = areas[i];
-                if ($.contains(theFilter.element[0], target) && support.matchesSelector.call(target, theFilter.options.filter)) {
+                if (support.matchesSelector.call(target, theFilter.options.filter)) {
                     return { target: theFilter, targetElement: target };
                 }
             }
@@ -746,15 +746,9 @@
 
                 that.angular("compile", function(){
                     that.hint.removeAttr("ng-repeat");
-                    var scopeTarget = $(e.target);
-
-                    while (!scopeTarget.data("$$kendoScope") && scopeTarget.length) {
-                        scopeTarget = scopeTarget.parent();
-                    }
-
                     return {
                         elements: that.hint.get(),
-                        scopeFrom: scopeTarget.data("$$kendoScope")
+                        scopeFrom: e.target
                     };
                 });
             }

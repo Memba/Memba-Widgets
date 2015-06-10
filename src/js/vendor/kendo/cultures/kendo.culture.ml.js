@@ -1,17 +1,4 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
-(function(f, define){
-    define([], f);
-})(function(){
-
-(function( window, undefined ) {
-    var kendo = window.kendo || (window.kendo = { cultures: {} });
+﻿(function( window, undefined ) {
     kendo.cultures["ml"] = {
         name: "ml",
         numberFormat: {
@@ -45,8 +32,8 @@
                     namesShort: ["ഞാ","തി","ചൊ","ബു","വ്യാ","വെ","ശ"]
                 },
                 months: {
-                    names: ["ജനുവരി","ഫെബ്രുവരി","മാര്‍‌ച്ച്","ഏപ്രില്‍","മെയ്","ജൂണ്‍","ജൂലൈ","ആഗസ്റ്റ്","സെപ്‌റ്റംബര്‍","ഒക്‌ടോബര്‍","നവംബര്‍","ഡിസംബര്‍"],
-                    namesAbbr: ["ജനുവരി","ഫെബ്രുവരി","മാര്‍‌ച്ച്","ഏപ്രില്‍","മെയ്","ജൂണ്‍","ജൂലൈ","ആഗസ്റ്റ്","സെപ്‌റ്റംബര്‍","ഒക്‌ടോബര്‍","നവംബര്‍","ഡിസംബര്‍"]
+                    names: ["ജനുവരി","ഫെബ്രുവരി","മാര്‍‌ച്ച്","ഏപ്രില്‍","മെയ്","ജൂണ്‍","ജൂലൈ","ആഗസ്റ്റ്","സെപ്‌റ്റംബര്‍","ഒക്‌ടോബര്‍","നവംബര്‍","ഡിസംബര്‍",""],
+                    namesAbbr: ["ജനുവരി","ഫെബ്രുവരി","മാര്‍‌ച്ച്","ഏപ്രില്‍","മെയ്","ജൂണ്‍","ജൂലൈ","ആഗസ്റ്റ്","സെപ്‌റ്റംബര്‍","ഒക്‌ടോബര്‍","നവംബര്‍","ഡിസംബര്‍",""]
                 },
                 AM: ["AM","am","AM"],
                 PM: ["PM","pm","PM"],
@@ -72,8 +59,3 @@
         }
     }
 })(this);
-
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });

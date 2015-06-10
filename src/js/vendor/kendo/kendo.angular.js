@@ -1,14 +1,15 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.core" ], f);
-})(function(){
+})(function() {
+
+var __meta__ = {
+    id: "angular",
+    name: "AngularJS Directives",
+    category: "framework",
+    description: "Adds Kendo UI for AngularJS directives",
+    depends: [ "core" ],
+    defer: true
+};
 
 (function ($, angular, undefined) {
     "use strict";
@@ -227,7 +228,7 @@
 
             if (attrs.kNgDisabled) {
                 var kNgDisabled = attrs.kNgDisabled;
-                var isDisabled = scope.$eval(kNgDisabled);
+                var isDisabled = scope[kNgDisabled];
                 if (isDisabled) {
                     object.enable(!isDisabled);
                 }
@@ -236,7 +237,7 @@
 
             if (attrs.kNgReadonly) {
                 var kNgReadonly = attrs.kNgReadonly;
-                var isReadonly = scope.$eval(kNgReadonly);
+                var isReadonly = scope[kNgReadonly];
                 if (isReadonly) {
                     object.readonly(isReadonly);
                 }
@@ -403,8 +404,6 @@
             return;
         }
 
-        var form  = $(widget.element).parents("form");
-        var ngForm = scope[form.attr("name")];
         var getter = $parse(kNgModel);
         var setter = getter.assign;
         var updating = false;
@@ -437,11 +436,6 @@
 
         widget.first("change", function(){
             updating = true;
-
-            if (ngForm && ngForm.$pristine) {
-                ngForm.$setDirty();
-            }
-
             scope.$apply(function(){
                 setter(scope, widget.$angular_getLogicValue());
             });
@@ -815,7 +809,6 @@
             // prevent leaks. https://github.com/kendo-labs/angular-kendo/issues/237
             $(el)
                 .removeData("$scope")
-                .removeData("$$kendoScope")
                 .removeData("$isolateScope")
                 .removeData("$isolateScopeNoTemplate")
                 .removeClass("ng-scope");
@@ -886,7 +879,7 @@
             return;
         }
 
-        var scope = self.$angular_scope;
+        var scope = self.$angular_scope; //  || angular.element(self.element).scope();
 
         if (scope) {
             withoutTimeout(function(){
@@ -896,8 +889,7 @@
 
                       case "cleanup":
                         angular.forEach(elements, function(el){
-                            var itemScope = $(el).data("$$kendoScope");
-
+                            var itemScope = angular.element(el).scope();
                             if (itemScope && itemScope !== scope && itemScope.$$kendoScope) {
                                 destroyScope(itemScope, el);
                             }
@@ -913,19 +905,16 @@
                         angular.forEach(elements, function(el, i){
                             var itemScope;
                             if (x.scopeFrom) {
-                                itemScope = x.scopeFrom;
+                                itemScope = angular.element(x.scopeFrom).scope();
                             } else {
                                 var vars = data && data[i];
                                 if (vars !== undefined) {
                                     itemScope = $.extend(scope.$new(), vars);
                                     itemScope.$$kendoScope = true;
-                                } else {
-                                    itemScope = scope;
                                 }
                             }
 
-                            $(el).data("$$kendoScope", itemScope);
-                            compile(el)(itemScope);
+                            compile(el)(itemScope || scope);
                         });
                         digest(scope);
                         break;
@@ -960,20 +949,12 @@
         var self = this.self;
         var options = self.options;
         var valueField = options.dataValueField;
-        var text = options.text || "";
 
-        val = val || "";
-
-        if (valueField && !options.valuePrimitive && val) {
-            text = val[options.dataTextField] || "";
-            val = val[valueField || options.dataTextField];
+        if (valueField && !options.valuePrimitive) {
+            val = val != null ? val[options.dataValueField || options.dataTextField] : null;
         }
 
-        if (self.options.autoBind === false && !self.listView.isBound()) {
-            self._preselect(val, text);
-        } else {
-            self.value(val);
-        }
+        self.value(val);
     });
 
     defadvice("ui.MultiSelect", "$angular_getLogicValue", function() {
@@ -993,23 +974,16 @@
         if (val == null) {
             val = [];
         }
+        var self = this.self,
+            valueField = self.options.dataValueField;
 
-        var self = this.self;
-        var options = self.options;
-        var valueField = options.dataValueField;
-        var data = val;
-
-        if (valueField && !options.valuePrimitive) {
+        if (valueField && !self.options.valuePrimitive) {
             val = $.map(val, function(item) {
                 return item[valueField];
             });
         }
 
-        if (options.autoBind === false && !options.valuePrimitive && !self.listView.isBound()) {
-            self._preselect(data, val);
-        } else {
-            self.value(val);
-        }
+        self.value(val);
     });
 
     defadvice("ui.AutoComplete", "$angular_getLogicValue", function(){

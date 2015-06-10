@@ -1,14 +1,25 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.data", "./kendo.editable", "./kendo.selectable" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "listview",
+    name: "ListView",
+    category: "web",
+    description: "The ListView widget offers rich support for interacting with data.",
+    depends: [ "data" ],
+    features: [ {
+        id: "listview-editing",
+        name: "Editing",
+        description: "Support for record editing",
+        depends: [ "editable" ]
+    }, {
+        id: "listview-selection",
+        name: "Selection",
+        description: "Support for selection",
+        depends: [ "selectable" ]
+    } ]
+};
 
 (function($, undefined) {
     var kendo = window.kendo,

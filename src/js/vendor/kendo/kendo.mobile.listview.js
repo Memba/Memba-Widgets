@@ -1,14 +1,14 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.data", "./kendo.userevents", "./kendo.mobile.button" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "mobile.listview",
+    name: "ListView",
+    category: "mobile",
+    description: "The Kendo Mobile ListView widget is used to display flat or grouped list of items.",
+    depends: [ "data", "userevents", "mobile.button" ]
+};
 
 (function($, undefined) {
     var kendo = window.kendo,

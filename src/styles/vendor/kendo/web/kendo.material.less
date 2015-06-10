@@ -1,11 +1,3 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 @image-folder: "Material";
 @texture: none;
 @tooltip-texture: none;
@@ -598,12 +590,9 @@ border-color: @widget-background-color;
 }
 
 .k-list > .k-state-selected.k-state-focused {
+background-color: @selected-background-color;
+border-color: @selected-background-color;
 .box-shadow(none);
-color: @selected-text-color;
-}
-
-.k-list > .k-state-selected {
-    .box-shadow(none);
 }
 
 .k-list > .k-state-focused {
@@ -683,14 +672,16 @@ border-radius: 0;
 }
 
 /* TabStrip */
-.k-tabstrip > .k-tabstrip-items > .k-item {
+.k-tabstrip-items > .k-item {
+	border-bottom-color: @header-background-color;
 	border-radius: 0;
 }
 
 .k-tabstrip-items .k-state-active {
 background-color: @header-background-color;
 .composite-background(@active-gradient);
-border-color: @accent-color;
+border-color: @header-background-color;
+border-bottom-color: @accent-color;
 }
 
 .k-tabstrip .k-content.k-state-active {
@@ -879,8 +870,6 @@ color: @header-text-color;
 .k-scheduler-layout .k-state-selected,
 .k-scheduler .k-today.k-state-selected,
 .k-grid tr.k-state-selected,
-.k-grid td.k-state-selected,
-.k-grid td.k-state-selected.k-state-focused,
 .k-marquee-color,
 .k-gantt .k-treelist .k-state-selected,
 .k-gantt .k-treelist .k-state-selected td,
@@ -897,7 +886,6 @@ background-color: @accent-color;
 }
 
 .k-grid tr.k-state-selected,
-.k-grid td.k-state-selected,
 .k-listview > .k-state-selected,
 .k-state-selected .k-progress-status {
 color: @inverse-text-color;
@@ -984,10 +972,6 @@ border-radius: 0;
 .k-panel > li.k-item,
 .k-panelbar .k-state-selected {
 background-color: @secondary-background-color;
-}
-
-.k-panelbar .k-grid-toolbar {
-    background-color: @header-background-color;
 }
 
 .k-panelbar > li.k-state-default > .k-link {
@@ -1306,17 +1290,6 @@ div.k-scheduler-marquee:after {
     .box-shadow(@focused-item-shadow);
 }
 
-.k-popup > .k-group-header,
-.k-popup > .k-virtual-wrap > .k-group-header
-{
-    color: @widget-text-color;
-}
-
-.k-popup .k-item > .k-group
-{
-    color: @widget-text-color;
-}
-
 /* Responsive styles */
 
 @media only screen and (max-width: 1024px) {
@@ -1418,16 +1391,6 @@ div.k-scheduler-marquee:after {
             -webkit-transform: translatey(-100%);
             -moz-transform: translatey(-100%);
             transform: translatey(-100%);
-            overflow: visible;
-            height: auto;
-        }
-        
-        .km-pane-wrapper .k-pager-numbers .k-link,
-        .km-pane-wrapper .k-pager-numbers .k-state-selected,
-        .km-pane-wrapper .k-pager-wrap > .k-link,
-        .km-pane-wrapper .k-pager-wrap > .k-pager-info {
-            padding-top: 0;
-            padding-bottom: 0;
         }
         
         .k-rtl .k-pager-numbers,

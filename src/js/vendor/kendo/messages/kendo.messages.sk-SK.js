@@ -1,5 +1,5 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+﻿/*
+* Kendo UI v2014.3.1316 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,6 @@
     define([], f);
 })(function(){
 
-(function ($, undefined) {
 /* FlatColorPicker messages */
 
 if (kendo.ui.FlatColorPicker) {
@@ -452,9 +451,7 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "deleteWindowTitle": "Odstránenie udalosti",
   "ariaSlotLabel": "Vybraté od {0:t} do {1:t}",
   "ariaEventLabel": "{0} dňa {1:D} o {2:t}",
-  "editable": {
-    "confirmation": "Naozaj chcete odstrániť túto udalosť?"
-  },
+  "confirmation": "Naozaj chcete odstrániť túto udalosť?",
   "views": {
     "day": "Deň",
     "week": "Týždeň",
@@ -548,7 +545,6 @@ $.extend(true, kendo.ui.Validator.prototype.options.messages,{
   "date": "{0} nie je platný dátum"
 });
 }
-})(window.kendo.jQuery);
 
 
 return window.kendo;

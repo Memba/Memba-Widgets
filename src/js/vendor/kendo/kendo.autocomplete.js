@@ -1,14 +1,25 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.list", "./kendo.mobile.scroller" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "autocomplete",
+    name: "AutoComplete",
+    category: "web",
+    description: "The AutoComplete widget provides suggestions depending on the typed text.It also allows multiple value entries.",
+    depends: [ "list" ],
+    features: [ {
+        id: "mobile-scroller",
+        name: "Mobile scroller",
+        description: "Support for kinetic scrolling in mobile device",
+        depends: [ "mobile.scroller" ]
+    }, {
+        id: "virtualization",
+        name: "VirtualList",
+        description: "Support for virtualization",
+        depends: [ "virtuallist" ]
+    } ]
+};
 
 (function ($, undefined) {
     var kendo = window.kendo,
@@ -123,8 +134,6 @@
             enabled: true,
             suggest: false,
             template: "",
-            groupTemplate: "#:data#",
-            fixedGroupTemplate: "#:data#",
             dataTextField: "",
             minLength: 1,
             delay: 200,
@@ -138,6 +147,7 @@
             value: null
         },
 
+        //Use Select._dataSource method here!
         _dataSource: function() {
             var that = this;
 
@@ -151,6 +161,7 @@
                 .bind("progress", that._progressHandler);
         },
 
+        //TODO: Use Select.setDataSource method here
         setDataSource: function(dataSource) {
             this.options.dataSource = dataSource;
             this._dataSource();
@@ -169,13 +180,10 @@
         ],
 
         setOptions: function(options) {
-            var listOptions = this._listOptions(options);
-
             List.fn.setOptions.call(this, options);
 
-            listOptions.dataValueField = listOptions.dataTextField;
+            this.listView.setOptions(options);
 
-            this.listView.setOptions(listOptions);
             this._accessors();
             this._aria();
         },
@@ -257,7 +265,6 @@
             if (!length || length >= options.minLength) {
                 that._open = true;
 
-                that.listView.filter(true);
                 that._filterSource({
                     value: ignoreCase ? word.toLowerCase() : word,
                     operator: options.filter,
@@ -355,56 +362,62 @@
 
         _initList: function() {
             var that = this;
-            var virtual = that.options.virtual;
-            var hasVirtual = !!virtual;
-
-            var listBoundHandler = proxy(that._listBound, that);
+            var options = this.options;
+            var template = options.template || options.itemTemplate || "#:" + kendo.expr(options.dataTextField, "data") + "#";
 
             var listOptions = {
                 autoBind: false,
+                height: options.height,
+                dataValueField: options.dataValueField,
+                dataSource: this.dataSource,
+                groupTemplate: options.groupTemplate || "#:data#",
+                fixedGroupTemplate: options.fixedGroupTemplate || "#:data#",
+                template: template,
                 selectable: true,
-                dataSource: that.dataSource,
-                click: $.proxy(that._click, this),
-                change: $.proxy(that._listChange, this),
-                activate: proxy(that._activateItem, that),
-                deactivate: proxy(that._deactivateItem, that),
+                activate: function() {
+                    var current = this.focus();
+                    if (current) {
+                        that._focused.add(that.filterInput).attr("aria-activedescendant", current.attr("id"));
+                    }
+                },
+                click: $.proxy(this._click, this),
+                change: $.proxy(this._listChange, this),
+                deactivate: function() {
+                    that._focused.add(that.filterInput).removeAttr("aria-activedescendant");
+                },
                 dataBinding: function() {
-                    that.trigger("dataBinding");
+                    that.trigger("dataBinding"); //TODO: make preventable
                     that._angularItems("cleanup");
                 },
-                dataBound: listBoundHandler,
-                listBound: listBoundHandler
+                listBound: $.proxy(this._listBound, this),
+                dataBound: $.proxy(this._listBound, this)
             };
 
-            listOptions = $.extend(that._listOptions(), listOptions, typeof virtual === "object" ? virtual : {});
+            if (options.virtual) {
+                if (typeof options.virtual === "object") {
+                    $.extend(listOptions, {
+                        listBound: $.proxy(this._listBound, this)
+                    }, options.virtual);
+                }
 
-            listOptions.dataValueField = listOptions.dataTextField;
-
-            if (!hasVirtual) {
-                that.listView = new kendo.ui.StaticList(that.ul, listOptions);
+                this.listView = new kendo.ui.VirtualList(this.ul, listOptions);
             } else {
-                that.listView = new kendo.ui.VirtualList(that.ul, listOptions);
+                this.listView = new kendo.ui.StaticList(this.ul, listOptions);
             }
 
-            that.listView.value(that.options.value);
+            this.listView.value(this.options.value);
         },
 
         _listBound: function() {
             var that = this;
             var popup = that.popup;
             var options = that.options;
-            var data = that.dataSource.flatView();
+            var data = that.listView.data();
             var length = data.length;
             var isActive = that.element[0] === activeElement();
             var action;
 
             that._angularItems("compile");
-
-            //reset list value
-            that.listView.value([]);
-            that.listView.focus(-1);
-
-            that.listView.filter(false);
 
             that._calculateGroupPadding(that._height(length));
 
@@ -440,17 +453,14 @@
                 that._touchScroller.reset();
             }
 
-            that._hideBusy();
             that._makeUnselectable();
-            that._hideBusy();
 
+            that._hideBusy();
             that.trigger("dataBound");
         },
 
         _listChange: function() {
-            if (!this.listView.filter()) {
-                this._selectValue(this.listView.selectedDataItems()[0]);
-            }
+            this._selectValue(this.listView.selectedDataItems()[0]);
         },
 
         _selectValue: function(dataItem) {

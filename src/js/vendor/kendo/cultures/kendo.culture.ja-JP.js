@@ -1,17 +1,4 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
-(function(f, define){
-    define([], f);
-})(function(){
-
-(function( window, undefined ) {
-    var kendo = window.kendo || (window.kendo = { cultures: {} });
+﻿(function( window, undefined ) {
     kendo.cultures["ja-JP"] = {
         name: "ja-JP",
         numberFormat: {
@@ -45,8 +32,8 @@
                     namesShort: ["日","月","火","水","木","金","土"]
                 },
                 months: {
-                    names: ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"],
-                    namesAbbr: ["1","2","3","4","5","6","7","8","9","10","11","12"]
+                    names: ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月",""],
+                    namesAbbr: ["1","2","3","4","5","6","7","8","9","10","11","12",""]
                 },
                 AM: ["午前","午前","午前"],
                 PM: ["午後","午後","午後"],
@@ -72,8 +59,3 @@
         }
     }
 })(this);
-
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });

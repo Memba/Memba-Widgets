@@ -1,14 +1,14 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.popup" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "timepicker",
+    name: "TimePicker",
+    category: "web",
+    description: "The TimePicker widget allows the end user to select a value from a list of predefined values or to type a new value.",
+    depends: [ "popup" ]
+};
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -336,17 +336,11 @@
 
         _click: function(e) {
             var that = this,
-                li = $(e.currentTarget),
-                date = li.text(),
-                dates = that.options.dates;
-
-            if (dates && dates.length > 0) {
-                date = dates[li.index()];
-            }
+                li = $(e.currentTarget);
 
             if (!e.isDefaultPrevented()) {
                 that.select(li);
-                that.options.change(date, true);
+                that.options.change(li.text(), true);
                 that.close();
             }
         },

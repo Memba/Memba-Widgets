@@ -1,14 +1,14 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.core", "./kendo.userevents" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "numerictextbox",
+    name: "NumericTextBox",
+    category: "web",
+    description: "The NumericTextBox widget can format and display numeric, percentage or currency textbox.",
+    depends: [ "core", "userevents" ]
+};
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -412,7 +412,6 @@
 
             text[0].tabIndex = element.tabIndex;
             text[0].style.cssText = element.style.cssText;
-            text[0].title = element.title;
             text.prop("placeholder", that.options.placeholder);
 
             if (accessKey) {

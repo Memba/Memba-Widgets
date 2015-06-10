@@ -1,16 +1,5 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
-(function(f, define){
-    define([], f);
-})(function(){
 
-(function ($, undefined) {
+
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -177,8 +166,6 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "formatBlock": "Absatzstil",
   "imageAltText": "Abwechselnder Text",
   "imageWebAddress": "Web-Adresse",
-  "imageWidth": "Breite (px)",
-  "imageHeight": "Höhe (px)",
   "indent": "Einzug vergrößern",
   "insertHtml": "HTML einfügen",
   "insertImage": "Einfügen Bild",
@@ -220,32 +207,6 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "dialogUpdate": "Update",
   "insertFile": "Insert file"
 });
-}
-
-/* FileBrowser and ImageBrowser messages */
-
-var browserMessages = {
-  "uploadFile" : "Hochladen",
-  "orderBy" : "Sortieren nach",
-  "orderByName" : "Name",
-  "orderBySize" : "Größe",
-  "directoryNotFound" : "Das Verzeichnis wurde nicht gefunden.",
-  "emptyFolder" : "Leeres Verzeichnis",
-  "deleteFile" : 'Sind Sie sicher, dass Sie "{0}" wirklich löschen wollen?',
-  "invalidFileType" : "Die ausgewählte Datei \"{0}\" ist ungültig. Unterstützte Dateitypen sind {1}.",
-  "overwriteFile" : "Eine Datei namens \"{0}\" existiert bereits im aktuellen Ordner. Überschreiben?",
-  "dropFilesHere" : "Dateien hier verschieben",
-  "search": "Suchen"
-};
-
-if (kendo.ui.FileBrowser) {
-kendo.ui.FileBrowser.prototype.options.messages =
-$.extend(true, kendo.ui.FileBrowser.prototype.options.messages, browserMessages);
-}
-
-if (kendo.ui.ImageBrowser) {
-kendo.ui.ImageBrowser.prototype.options.messages =
-$.extend(true, kendo.ui.ImageBrowser.prototype.options.messages, browserMessages);
 }
 
 /* FilterCell messages */
@@ -351,7 +312,6 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "retry": "Wiederholen",
   "select": "Wählen Sie...",
   "statusFailed": "nicht erfolgreich",
-  "statusWarning": "warnung",
   "statusUploaded": "hochgeladet",
   "statusUploading": "hochladen",
   "uploadSelectedFiles": "Dateien hochladen",
@@ -367,11 +327,9 @@ kendo.ui.Scheduler.prototype.options.messages =
 $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "allDay": "Ganzer Tag",
   "cancel": "Abbrechen",
+  "confirmation": "Möchten Sie diesen Termin wirklich löschen?",
   "date": "Datum",
   "destroy": "Löschen",
-  "editable": {
-    "confirmation": "Möchten Sie diesen Termin wirklich löschen?"
-  },
   "editor": {
     "allDayEvent": "Ganztägiger Termin",
     "description": "Beschreibung",
@@ -394,7 +352,7 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
     "deleteWindowOccurrence": "Diesen Termin löschen",
     "deleteWindowSeries": "Alle Wiederholungen des Termins löschen",
     "deleteWindowTitle": "Diesen Termin und alle Wiederholungen löschen",
-    "editRecurring": "Möchten Sie nur diesen Termin oder alle Wiederholungen bearbeiten?",
+    "editRecurring": "Möchten Sie nur diesen Termin oder alle Wiederholungen löschen?",
     "editWindowOccurrence": "Aktuelles Ereignis bearbeiten",
     "editWindowSeries": "Serie bearbeiten",
     "editWindowTitle": "Wiederholungs-Eintrag bearbeiten"
@@ -430,9 +388,3 @@ $.extend(true, kendo.ui.Validator.prototype.options.messages,{
   "date": "{0} ist kein gültiges Datum"
 });
 }
-})(window.kendo.jQuery);
-
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });

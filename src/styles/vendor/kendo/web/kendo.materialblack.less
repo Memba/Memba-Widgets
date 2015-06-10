@@ -1,11 +1,3 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 @image-folder: "MaterialBlack";
 @texture: none;
 @tooltip-texture: none;
@@ -649,6 +641,13 @@ border-color: @selected-background-color;
 	.box-shadow(none);
 }
 
+.k-list>.k-state-hover,
+.k-list>.k-state-selected.k-state-hover
+{
+background-color: @hover-background-color;
+border-color: @hover-background-color;
+}
+
 .k-list-container
 {
 border-color: @form-widgets-border-color;
@@ -1217,8 +1216,8 @@ table.k-editor {
 
 .k-list > .k-state-hover {
 	color: @widget-text-color;
-	background-color: @select-hover-background-color;
-    border-color: @select-hover-background-color;
+	background-color: @hover-background-color;
+	border-color: @hover-background-color;
 	.box-shadow(none);
 	cursor: pointer;
 }
@@ -1337,26 +1336,6 @@ div.k-scheduler-marquee:after {
     color: @secondary-text-color;
 }
 
-.k-virtual-item.k-first,
-.k-group-header + .k-list > .k-item.k-first,
-.k-static-header + .k-list > .k-item.k-first
-{
-    border-top-color: @alt-background-color;
-}
-
-.k-popup > .k-group-header,
-.k-popup > .k-virtual-wrap > .k-group-header
-{
-    background: @alt-background-color;
-    color: @widget-text-color;
-}
-
-.k-popup .k-item > .k-group
-{
-    background: @alt-background-color;
-    color: @widget-text-color;
-}
-
 /* Responsive styles */
 
 @media only screen and (max-width: 1024px) {
@@ -1458,16 +1437,6 @@ div.k-scheduler-marquee:after {
             -webkit-transform: translatey(-100%);
             -moz-transform: translatey(-100%);
             transform: translatey(-100%);
-            overflow: visible;
-            height: auto;
-        }
-        
-        .km-pane-wrapper .k-pager-numbers .k-link,
-        .km-pane-wrapper .k-pager-numbers .k-state-selected,
-        .km-pane-wrapper .k-pager-wrap > .k-link,
-        .km-pane-wrapper .k-pager-wrap > .k-pager-info {
-            padding-top: 0;
-            padding-bottom: 0;
         }
         
         .k-rtl .k-pager-numbers,

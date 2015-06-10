@@ -1,18 +1,27 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.core", "./kendo.data.odata", "./kendo.data.xml" ], f);
 })(function(){
 
 var A = 0;
 
-
+var __meta__ = {
+    id: "data",
+    name: "Data source",
+    category: "framework",
+    description: "Powerful component for using local and remote data.Fully supports CRUD, Sorting, Paging, Filtering, Grouping, and Aggregates.",
+    depends: [ "core" ],
+    features: [ {
+        id: "data-odata",
+        name: "OData",
+        description: "Support for accessing Open Data Protocol (OData) services.",
+        depends: [ "data.odata" ]
+    }, {
+        id: "data-XML",
+        name: "XML",
+        description: "Support for binding to XML.",
+        depends: [ "data.xml" ]
+    } ]
+};
 
 /*jshint eqnull: true, loopfunc: true, evil: true */
 (function($, undefined) {
@@ -2632,14 +2641,9 @@ var A = 0;
                 }
 
                 var promises = [];
-
-                if (that.options.batch && that.transport.submit) {
-                    promises = that._sendSubmit(created, updated, destroyed);
-                } else {
-                    promises.push.apply(promises, that._send("create", created));
-                    promises.push.apply(promises, that._send("update", updated));
-                    promises.push.apply(promises, that._send("destroy", destroyed));
-                }
+                promises.push.apply(promises, that._send("create", created));
+                promises.push.apply(promises, that._send("update", updated));
+                promises.push.apply(promises, that._send("destroy", destroyed));
 
                 promise = $.when
                  .apply(null, promises)
@@ -2821,73 +2825,6 @@ var A = 0;
                     }
                 }
             });
-        },
-
-        _submit: function(promises, data) {
-            var that = this;
-
-            that.trigger(REQUESTSTART, { type: "submit" });
-
-            that.transport.submit(extend({
-                success: function(response, type) {
-                    var promise = $.grep(promises, function(x) {
-                        return x.type == type;
-                    })[0];
-
-                    if (promise) {
-                        promise.resolve({
-                            response: response,
-                            models: promise.models,
-                            type: type
-                        });
-                    }
-                },
-                error: function(response, status, error) {
-                    for (var idx = 0; idx < promises.length; idx++) {
-                        promises[idx].reject(response);
-                    }
-
-                    that.error(response, status, error);
-                }
-            }, data));
-        },
-
-        _sendSubmit: function(created, updated, destroyed) {
-            var that = this,
-                promises = [];
-
-            if (that.options.batch) {
-                if (created.length) {
-                    promises.push($.Deferred(function(deferred) {
-                        deferred.type = "create";
-                        deferred.models = created;
-                    }));
-                }
-
-                if (updated.length) {
-                    promises.push($.Deferred(function(deferred) {
-                        deferred.type = "update";
-                        deferred.models = updated;
-                    }));
-                }
-
-                if (destroyed.length) {
-                    promises.push($.Deferred(function(deferred) {
-                        deferred.type = "destroy";
-                        deferred.models = destroyed;
-                    }));
-                }
-
-                that._submit(promises, {
-                    data: {
-                        created: that.reader.serialize(toJSON(created)),
-                        updated: that.reader.serialize(toJSON(updated)),
-                        destroyed: that.reader.serialize(toJSON(destroyed))
-                    }
-                });
-            }
-
-            return promises;
         },
 
         _promise: function(data, models, type) {
@@ -3542,32 +3479,7 @@ var A = 0;
         },
 
         aggregates: function() {
-            var result = this._aggregateResult;
-
-            if (isEmptyObject(result)) {
-                result = this._emptyAggregates(this.aggregate());
-            }
-
-            return result;
-        },
-
-        _emptyAggregates: function(aggregates) {
-            var result = {};
-
-            if (!isEmptyObject(aggregates)) {
-                var aggregate = {};
-
-                if (!isArray(aggregates)){
-                    aggregates = [aggregates];
-                }
-
-                for (var idx = 0; idx <aggregates.length; idx++) {
-                    aggregate[aggregates[idx].aggregate] = 0;
-                    result[aggregates[idx].field] = aggregate;
-                }
-            }
-
-            return result;
+            return this._aggregateResult;
         },
 
         totalPages: function() {
@@ -3830,11 +3742,7 @@ var A = 0;
                         if (!that.trigger(REQUESTSTART, { type: "read" })) {
                             that.transport.read({
                                 data: that._params(options),
-                                success: that._prefetchSuccessHandler(skip, size, callback),
-                                error: function() {
-                                    var args = slice.call(arguments);
-                                    that.error.apply(that, args);
-                                }
+                                success: that._prefetchSuccessHandler(skip, size, callback)
                             });
                         } else {
                             that._dequeueRequest();

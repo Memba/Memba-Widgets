@@ -1,14 +1,14 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.core" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "responsive-panel",
+    name: "Responsive Panel",
+    category: "web",
+    description: "The Responsive Panel widget allows a panel of content to be hidden on mobile devices, available through a toggle button.",
+    depends: [ "core" ]
+};
 
 (function ($, undefined) {
     var proxy = $.proxy;
@@ -31,7 +31,7 @@
             this.element
                 .addClass("k-rpanel k-rpanel-" + this.options.orientation);
 
-            this._resizeHandler = proxy(this.resize, this, false);
+            this._resizeHandler = proxy(this.resize, this);
             $(window).on("resize" + NS, this._resizeHandler);
         },
         _mediaQuery:

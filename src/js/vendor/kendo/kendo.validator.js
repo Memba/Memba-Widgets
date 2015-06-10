@@ -1,14 +1,14 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.core" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "validator",
+    name: "Validator",
+    category: "web",
+    description: "The Validator offers an easy way to do a client-side form validation.",
+    depends: [ "core" ]
+};
 
 /* jshint eqnull: true */
 (function($, undefined) {
@@ -146,8 +146,7 @@
                 step: "{0} is not valid",
                 email: "{0} is not valid email",
                 url: "{0} is not valid URL",
-                date: "{0} is not valid date",
-                dateCompare: "End date should be greater than or equal to the start date"
+                date: "{0} is not valid date"
             },
             rules: {
                 required: function(input) {

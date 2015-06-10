@@ -1,14 +1,14 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.core" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "data.xml",
+    name: "XML",
+    category: "framework",
+    depends: [ "core" ],
+    hidden: true
+};
 
 /*jshint  eqnull: true, boss: true */
 (function($, undefined) {
@@ -38,9 +38,7 @@
                     if (model.fields) {
                         each(model.fields, function(field, value) {
                             if (isPlainObject(value) && value.field) {
-                                if (!$.isFunction(value.field)) {
-                                    value = extend(value, { field: that.getter(value.field) });
-                                }
+                                value = extend(value, { field: that.getter(value.field) });
                             } else {
                                 value = { field: that.getter(value) };
                             }

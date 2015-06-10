@@ -1,14 +1,15 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.mobile.view", "./kendo.mobile.loader" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "mobile.pane",
+    name: "Pane",
+    category: "mobile",
+    description: "Mobile Pane",
+    depends: [ "mobile.view", "mobile.loader" ],
+    hidden: true
+};
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -29,10 +30,14 @@
         SAME_VIEW_REQUESTED = "sameViewRequested",
         OS = kendo.support.mobileOS,
         SKIP_TRANSITION_ON_BACK_BUTTON = OS.ios && !OS.appMode && OS.flatVersion >= 700,
+
         WIDGET_RELS = /popover|actionsheet|modalview|drawer/,
         BACK = "#:back",
 
-        attrValue = kendo.attrValue;
+        attrValue = kendo.attrValue,
+        // navigation element roles
+        buttonRoles = "button backbutton detailbutton listview-link",
+        linkRoles = "tab";
 
     var Pane = Widget.extend({
         init: function(element, options) {
@@ -269,18 +274,13 @@
         },
 
         _setupAppLinks: function() {
-            var that = this,
-                linkRoles = "tab",
-                pressedButtonSelector = "[data-" + kendo.ns + "navigate-on-press]",
-                buttonSelector = roleSelector("button") + ":not(" + pressedButtonSelector + ")",
-                buttonSelectors = roleSelector("backbutton detailbutton listview-link") + "," + buttonSelector;
-
+            var that = this;
             this.element.handler(this)
-                .on("down", roleSelector(linkRoles) + "," + pressedButtonSelector, "_mouseup")
-                .on("click", roleSelector(linkRoles) + " " + buttonSelectors, "_appLinkClick");
+                .on("down", roleSelector(linkRoles)+",[data-navigate-on-press]", "_mouseup")
+                .on("click", roleSelector(linkRoles + " " + buttonRoles), "_appLinkClick");
 
             this.userEvents = new kendo.UserEvents(this.element, {
-                filter: buttonSelectors,
+                filter: roleSelector(buttonRoles),
                 tap: function(e) {
                     e.event.currentTarget = e.touch.currentTarget;
                     that._mouseup(e.event);

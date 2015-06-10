@@ -1,14 +1,14 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.mobile.pane" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "mobile.splitview",
+    name: "SplitView",
+    category: "mobile",
+    description: "The mobile SplitView is a tablet-specific view that consists of two or more mobile Pane widgets.",
+    depends: [ "mobile.pane" ]
+};
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -44,7 +44,7 @@
                 kendo.mobile.init(modalViews);
             } else {
                 modalViews.each(function(idx, element) {
-                    kendo.compileMobileDirective($(element), options.$angular[0]);
+                    kendo.compileMobileDirective($(element));
                 });
             }
 
@@ -58,12 +58,8 @@
                 });
             } else {
                 that.element.children(kendo.directiveSelector("pane")).each(function() {
-                    pane = kendo.compileMobileDirective($(this), options.$angular[0]);
+                    pane = kendo.compileMobileDirective($(this));
                     that.panes.push(pane);
-                });
-
-                that.element.children(kendo.directiveSelector("header footer")).each(function() {
-                    kendo.compileMobileDirective($(this), options.$angular[0]);
                 });
             }
 

@@ -1,14 +1,14 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.mobile.shim", "./kendo.mobile.view" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "mobile.modalview",
+    name: "ModalView",
+    category: "mobile",
+    description: "The Kendo ModalView is used to present self-contained functionality in the context of the current task.",
+    depends: [ "mobile.shim", "mobile.view" ]
+};
 
 (function($, undefined) {
     var kendo = window.kendo,

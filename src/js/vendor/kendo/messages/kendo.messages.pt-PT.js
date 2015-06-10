@@ -1,16 +1,3 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
-(function(f, define){
-    define([], f);
-})(function(){
-
-(function ($, undefined) {
 /* FlatColorPicker messages */
 
 if (kendo.ui.FlatColorPicker) {
@@ -452,9 +439,7 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "deleteWindowTitle": "Eliminar evento",
   "ariaSlotLabel": "Selecionado entre {0:t} e {1:t}",
   "ariaEventLabel": "{0} em {1:D} às {2:t}",
-  "editable": {
-    "confirmation": "Tem a certeza que quer eliminar este evento?"
-  },
+  "confirmation": "Tem a certeza que quer eliminar este evento?",
   "views": {
     "day": "Dia",
     "week": "Semana",
@@ -548,9 +533,3 @@ $.extend(true, kendo.ui.Validator.prototype.options.messages,{
   "date": "{0} não é uma data válida"
 });
 }
-})(window.kendo.jQuery);
-
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });

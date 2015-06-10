@@ -1,14 +1,14 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.core", "./kendo.data" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "binder",
+    name: "MVVM",
+    category: "framework",
+    description: "Model View ViewModel (MVVM) is a design pattern which helps developers separate the Model (the data) from the View (the UI).",
+    depends: [ "core", "data" ]
+};
 
 /*jshint eqnull: true */
 (function ($, undefined) {
@@ -21,6 +21,7 @@
         binders = {},
         slice = Array.prototype.slice,
         Class = kendo.Class,
+        innerText,
         proxy = $.proxy,
         VALUE = "value",
         SOURCE = "source",
@@ -31,6 +32,12 @@
 
     (function() {
         var a = document.createElement("a");
+
+        if (a.innerText !== undefined) {
+            innerText = "innerText";
+        } else if (a.textContent !== undefined) {
+            innerText = "textContent";
+        }
 
         try {
             delete a.test;
@@ -281,7 +288,7 @@
 
     var TypedBinder = Binder.extend({
         dataType: function() {
-            var dataType = this.element.getAttribute("data-type") || this.element.type || "text";
+            var dataType = this.element.getAttribute("data-type") || this.element.type || "text"; 
             return dataType.toLowerCase();
         },
 
@@ -388,7 +395,7 @@
                 text = "";
             }
 
-            $(this.element).text(text);
+            this.element[innerText] = text;
         }
     });
 
@@ -487,7 +494,7 @@
                     that.add(e.index, e.items);
                 } else if (e.action == "remove") {
                     that.remove(e.index, e.items);
-                } else if (e.action == "itemchange" || e.action === undefined) {
+                } else if (e.action != "itemchange") {
                     that.render();
                 }
             } else {
@@ -528,6 +535,7 @@
                 } else {
                     template = "#:data#";
                 }
+
                 template = kendo.template(template);
             }
 
@@ -697,29 +705,6 @@
     };
 
     binders.select = {
-        source: binders.source.extend({
-            refresh: function(e) {
-                var that = this,
-                    source = that.bindings.source.get();
-
-                if (source instanceof ObservableArray || source instanceof kendo.data.DataSource) {
-                    e = e || {};
-
-                    if (e.action == "add") {
-                        that.add(e.index, e.items);
-                    } else if (e.action == "remove") {
-                        that.remove(e.index, e.items);
-                    } else if (e.action == "itemchange" || e.action === undefined) {
-                        that.render();
-                        if(that.bindings.value){
-                            that.bindings.value.source.trigger("change", {field: that.bindings.value.path});
-                        }
-                    }
-                } else {
-                    that.render();
-                }
-            }
-        }),
         value: TypedBinder.extend({
             init: function(target, bindings, options) {
                 TypedBinder.fn.init.call(this, target, bindings, options);
@@ -887,14 +872,7 @@
                     dataSource = widget[fieldName],
                     view,
                     parents,
-                    groups = dataSource.group() || [],
-                    hds = kendo.data.HierarchicalDataSource;
-
-                if (hds && dataSource instanceof hds) {
-                    // suppress binding of HDS items, because calling view() on root
-                    // will return only root items, and widget.items() returns all items
-                    return;
-                }
+                    groups = dataSource.group() || [];
 
                 if (items.length) {
                     view = e.addedDataItems || dataSource.flatView();
@@ -929,10 +907,6 @@
                             widget[setter](source._dataSource);
                         } else {
                             widget[fieldName].data(source);
-
-                            if (that.bindings.value && widget instanceof kendo.ui.Select) {
-                                that.bindings.value.source.trigger("change", { field: that.bindings.value.path });
-                            }
                         }
                     }
                 }
@@ -1154,40 +1128,28 @@
             },
 
             refresh: function() {
+
                 if (!this._initChange) {
-                    var widget = this.widget;
-                    var textField = this.options.dataTextField;
-                    var valueField = this.options.dataValueField || textField;
-                    var value = this.bindings.value.get();
-                    var text = this.options.text || "";
-                    var idx = 0, length;
-                    var values = [];
+                    var field = this.options.dataValueField || this.options.dataTextField,
+                        value = this.bindings.value.get(),
+                              idx = 0, length,
+                              values = [];
 
                     if (value === undefined) {
                         value = null;
                     }
 
-                    if (valueField) {
+                    if (field) {
                         if (value instanceof ObservableArray) {
                             for (length = value.length; idx < length; idx++) {
-                                values[idx] = value[idx].get(valueField);
+                                values[idx] = value[idx].get(field);
                             }
                             value = values;
                         } else if (value instanceof ObservableObject) {
-                            text = value.get(textField);
-                            value = value.get(valueField);
+                            value = value.get(field);
                         }
                     }
-
-                    if (widget.options.autoBind === false && widget.listView && !widget.listView.isBound()) {
-                        if (textField === valueField && !text) {
-                            text = value;
-                        }
-
-                        widget._preselect(value, text);
-                    } else {
-                        widget.value(value);
-                    }
+                    this.widget.value(value);
                 }
 
                 this._initChange = false;
@@ -1294,11 +1256,8 @@
 
                 refresh: function() {
                     if (!this._initChange) {
-                        var options = this.options,
-                            widget = this.widget,
-                            field = options.dataValueField || options.dataTextField,
+                        var field = this.options.dataValueField || this.options.dataTextField,
                             value = this.bindings.value.get(),
-                            data = value,
                             idx = 0, length,
                             values = [],
                             selectedValue;
@@ -1319,11 +1278,7 @@
                             }
                         }
 
-                        if (options.autoBind === false && options.valuePrimitive !== true && !widget.listView.isBound()) {
-                            widget._preselect(data, value);
-                        } else {
-                            widget.value(value);
-                        }
+                        this.widget.value(value);
                     }
                 },
 
@@ -1767,5 +1722,6 @@
 })(window.kendo.jQuery);
 
 return window.kendo;
+
 
 }, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });

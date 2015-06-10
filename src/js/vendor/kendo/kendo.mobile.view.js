@@ -1,14 +1,15 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.core", "./kendo.fx", "./kendo.mobile.scroller", "./kendo.view" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "mobile.view",
+    name: "View",
+    category: "mobile",
+    description: "Mobile View",
+    depends: [ "core", "fx", "mobile.scroller", "view" ],
+    hidden: true
+};
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -477,16 +478,10 @@
 
             collection = container.children(that._locate("modalview drawer"));
             if (that.$angular) {
-
-                that.$angular[0].viewOptions = {
-                    defaultTransition: that.transition,
-                    loader: that.loader,
-                    container: that.container,
-                    getLayout: that.getLayoutProxy
-                };
-
                 collection.each(function(idx, element) {
-                    compileMobileDirective($(element), options.$angular[0]);
+                    compileMobileDirective($(element), function(scope) {
+                        //pass the options?
+                    });
                 });
             } else {
                 initWidgets(collection);
@@ -628,7 +623,16 @@
 
         _createView: function(element) {
             if (this.$angular) {
-                return compileMobileDirective(element, this.$angular[0]);
+                var that = this;
+
+                return compileMobileDirective(element, function(scope) {
+                    scope.viewOptions = {
+                        defaultTransition: that.transition,
+                        loader: that.loader,
+                        container: that.container,
+                        getLayout: that.getLayoutProxy
+                    };
+                });
             } else {
                 return kendo.initWidget(element, {
                     defaultTransition: this.transition,
@@ -691,7 +695,7 @@
 
             element.children(that._locate("layout")).each(function() {
                 if (that.$angular) {
-                    layout = compileMobileDirective($(this), that.$angular[0]);
+                    layout = compileMobileDirective($(this));
                 } else {
                     layout = kendo.initWidget($(this), {}, ui.roles);
                 }

@@ -1,17 +1,4 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
-(function(f, define){
-    define([], f);
-})(function(){
-
-(function( window, undefined ) {
-    var kendo = window.kendo || (window.kendo = { cultures: {} });
+﻿(function( window, undefined ) {
     kendo.cultures["am"] = {
         name: "am",
         numberFormat: {
@@ -45,8 +32,8 @@
                     namesShort: ["እሑ","ሰኞ","ማክ","ረቡ","ሐሙ","ዓር","ቅዳ"]
                 },
                 months: {
-                    names: ["ጥር","የካቲት","መጋቢት","ሚያዚያ","ግንቦት","ሰኔ","ሐምሌ","ነሐሴ","መስከረም","ጥቅምት","ህዳር","ታህሳስ"],
-                    namesAbbr: ["ጥር","የካ.","መጋ.","ሚያ.","ግን.","ሰኔ","ሐም.","ነሐ.","መስ.","ጥቅ.","ህዳ.","ታህ."]
+                    names: ["ጥር","የካቲት","መጋቢት","ሚያዚያ","ግንቦት","ሰኔ","ሐምሌ","ነሐሴ","መስከረም","ጥቅምት","ህዳር","ታህሳስ",""],
+                    namesAbbr: ["ጥር","የካ.","መጋ.","ሚያ.","ግን.","ሰኔ","ሐም.","ነሐ.","መስ.","ጥቅ.","ህዳ.","ታህ.",""]
                 },
                 AM: ["ጧት","ጧት","ጧት"],
                 PM: ["ከሰዓት በኋላ","ከሰዓት በኋላ","ከሰዓት በኋላ"],
@@ -72,8 +59,3 @@
         }
     }
 })(this);
-
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });

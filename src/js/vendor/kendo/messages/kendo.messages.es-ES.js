@@ -1,16 +1,5 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
-(function(f, define){
-    define([], f);
-})(function(){
 
-(function ($, undefined) {
+
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -312,53 +301,51 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
 if (kendo.ui.Scheduler) {
 kendo.ui.Scheduler.prototype.options.messages =
 $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
-  "allDay": "todo el día",
+  "allDay": "all day",
   "cancel": "Cancelar",
-  "editable": {
-    "confirmation": "¿Está seguro que quiere eliminar este evento?"
-  },
-  "date": "Fecha",
-  "destroy": "Eliminar",
+  "confirmation": "Are you sure you want to delete this event?",
+  "date": "Date",
+  "destroy": "Delete",
   "editor": {
-    "allDayEvent": "Todo el día",
-    "description": "Descripción",
-    "editorTitle": "Evento",
-    "end": "Fin",
-    "endTimezone": "Zona horaria de fin",
-    "repeat": "Repetir",
-    "separateTimezones": "Usar zonas horarias separadas para el inicio y el fin",
-    "start": "Inicio",
-    "startTimezone": "Zona horaria de inicio",
+    "allDayEvent": "All day event",
+    "description": "Description",
+    "editorTitle": "Event",
+    "end": "End",
+    "endTimezone": "End timezone",
+    "repeat": "Repeat",
+    "separateTimezones": "Use separate start and end time zones",
+    "start": "Start",
+    "startTimezone": "Start timezone",
     "timezone": " ",
-    "timezoneEditorButton": "Zona horaria",
-    "timezoneEditorTitle": "Zonas horarias",
-    "title": "Título",
-    "noTimezone": "Sin zona horaria"
+    "timezoneEditorButton": "Time zone",
+    "timezoneEditorTitle": "Timezones",
+    "title": "Title",
+    "noTimezone": "No timezone"
   },
-  "event": "Evento",
+  "event": "Event",
   "recurrenceMessages": {
-    "deleteRecurring": "¿Quiere eliminar esta ocurrencia del evento o la serie completa?",
-    "deleteWindowOccurrence": "Eliminar ocurrencia actual",
-    "deleteWindowSeries": "Eliminar la serie",
-    "deleteWindowTitle": "Eliminar elemento recurrente",
-    "editRecurring": "¿Quiere editar esta ocurrencia del evento o la serie completa?",
-    "editWindowOccurrence": "Editar ocurrencia actual",
-    "editWindowSeries": "Editar la serie",
-    "editWindowTitle": "Editar elemento recurrente"
+    "deleteRecurring": "Do you want to delete only this event occurrence or the whole series?",
+    "deleteWindowOccurrence": "Delete current occurrence",
+    "deleteWindowSeries": "Delete the series",
+    "deleteWindowTitle": "Delete Recurring Item",
+    "editRecurring": "Do you want to edit only this event occurrence or the whole series?",
+    "editWindowOccurrence": "Edit current occurrence",
+    "editWindowSeries": "Edit the series",
+    "editWindowTitle": "Edit Recurring Item"
   },
-  "save": "Guardar",
-  "time": "Hora",
-  "today": "Hoy",
+  "save": "Save",
+  "time": "Time",
+  "today": "Today",
   "views": {
     "agenda": "Agenda",
-    "day": "Día",
-    "month": "Mes",
-    "week": "Semana",
-    "workWeek": "Semana laboral"
+    "day": "Day",
+    "month": "Month",
+    "week": "Week",
+    "workWeek": "Work Week"
   },
-  "deleteWindowTitle": "Eliminar evento",
-  "showFullDay": "Mostrar día completo",
-  "showWorkDay": "Mostrar horas laborables"
+  "deleteWindowTitle": "Delete event",
+  "showFullDay": "Show full day",
+  "showWorkDay": "Show business hours"
 });
 }
 
@@ -380,9 +367,3 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "uploadSelectedFiles": "Subir archivos"
 });
 }
-})(window.kendo.jQuery);
-
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });

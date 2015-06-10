@@ -1,14 +1,14 @@
-/*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
 (function(f, define){
     define([ "./kendo.core" ], f);
 })(function(){
+
+var __meta__ = {
+    id: "toolbar",
+    name: "ToolBar",
+    category: "web",
+    description: "The ToolBar widget displays one or more command buttons divided into groups.",
+    depends: [ "core" ]
+};
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -465,7 +465,7 @@
                         tap: proxy(that._toggleOverflow, that)
                     });
 
-                    that._resizeHandler = kendo.onResize(function() {
+                    kendo.onResize(function() {
                         that.resize();
                     });
                 } else {
@@ -527,7 +527,6 @@
                 that.userEvents.destroy();
 
                 if (that.options.resizable) {
-                    kendo.unbindResize(that._resizeHandler);
                     that.overflowUserEvents.destroy();
                     that.popup.destroy();
                 }
@@ -571,11 +570,6 @@
                             overflowElement.removeAttr(KENDO_UID_ATTR);
                             overflowElement = overflowElement.wrap("<li></li>").parent();
                             overflowElement.attr(KENDO_UID_ATTR, options.uid);
-
-                            if (options.type === "button" && options.enable === false) {
-                                overflowElement.find("." + BUTTON).removeClass(STATE_DISABLED);
-                                overflowElement.addClass(STATE_DISABLED);
-                            }
                         }
                         that._attributes(overflowElement, options);
                         overflowElement.addClass(itemClasses).appendTo(that.popup.container);
@@ -596,11 +590,10 @@
                         element = isFunction(template) ? template(options) : template;
 
                         if (!(element instanceof jQuery)) {
-                            element = $("<div></div>").html(element);
-                        } else {
-                            element = element.wrap("<div></div>").parent();
+                            element = $(element.replace(/^\s+|\s+$/g, ''));
                         }
 
+                        element = element.wrap("<div></div>").parent();
                         if (options.id) {
                            element.attr("id", options.id);
                         }
@@ -776,9 +769,8 @@
                 } else {
                     that.popup.container = that.popup.element;
                 }
-                
+
                 that.popup.container.attr(KENDO_UID_ATTR, this.uid);
-                that.popup.element.toggleClass("k-rtl", kendo.support.isRtl(that.element));
             },
 
             _toggleOverflowAnchor: function() {

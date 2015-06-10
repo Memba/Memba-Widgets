@@ -5,20 +5,18 @@
     <script>
         window.app = { DEBUG: true };
     </script>
-    <!--link href="//cdn.kendostatic.com/2015.1.429/styles/kendo.common.min.css" rel="stylesheet">
-    <link href="//cdn.kendostatic.com/2015.1.429/styles/kendo.default.min.css" rel="stylesheet"-->
-    <link href="./styles/vendor/kendo/kendo.common.min.css" rel="stylesheet">
-    <link href="./styles/vendor/kendo/kendo.default.min.css" rel="stylesheet">
-    <!--script src="//code.jquery.com/jquery-1.9.1.min.js"></script-->
-    <script src="./js/vendor/jquery.min.js"></script>
-    <!--script src="//cdn.kendostatic.com/2015.1.429/js/kendo.all.min.js"></script-->
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <!--script src="../temp/2015.1.429/src/src/kendo.core.js"></script>
-    <script src="../temp/2015.1.429/src/src/kendo.data.js"></script>
-    <script src="../temp/2015.1.429/src/src/kendo.binder.js"></script-->
+    <link href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common.min.css" rel="stylesheet">
+    <link href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.default.min.css" rel="stylesheet">
+    <link href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.default.mobile.min.css" rel="stylesheet">
+    <!--script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://cdn.kendostatic.com/2015.1.429/js/kendo.all.min.js"></script-->
+    <script src="./js/vendor/kendo/jquery.min.js"></script>
+    <script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script>
     <!-- Explorer requirements -->
     <link rel="stylesheet" href="./styles/kidoju.widgets.explorer.css">
-    <script src="js/kidoju.data.js"></script>
+    <script src="./js/kidoju.data.js"></script>
     <script src="./js/kidoju.tools.js"></script>
     <script src="./js/kidoju.widgets.bindings.js"></script>
     <script src="./js/kidoju.widgets.explorer.js"></script>
@@ -32,6 +30,7 @@
     </style>
 </head>
 <body>
+<h1>kidoju.widgets.explorer</h1>
 <div data-bind="text: current.uid"></div>
 <button data-bind="click: reset">Clear Selection</button><br/>
 <div id="explorer1" data-role="explorer" data-bind="source: components, value: current" style="width:200px; display:inline-block;"></div>

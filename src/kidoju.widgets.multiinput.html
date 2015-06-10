@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>MultiInput</title>
-    <link href="//cdn.kendostatic.com/2015.1.429/styles/kendo.common.min.css" rel="stylesheet" />
-    <link href="//cdn.kendostatic.com/2015.1.429/styles/kendo.default.min.css" rel="stylesheet" />
-    <script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script src="//cdn.kendostatic.com/2015.1.429/js/kendo.all.min.js"></script>
+    <title>kidoju.widgets.multiinput</title>
+    <link href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.common.min.css" rel="stylesheet">
+    <link href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.default.min.css" rel="stylesheet">
+    <link href="http://cdn.kendostatic.com/2015.1.429/styles/kendo.default.mobile.min.css" rel="stylesheet">
+    <!--script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://cdn.kendostatic.com/2015.1.429/js/kendo.all.min.js"></script-->
+    <script src="./js/vendor/kendo/jquery.min.js"></script>
+    <script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script>
     <!-- MultiInput requirements -->
     <!--link href="./styles/kidoju.widgets.multiinput.css" rel="stylesheet" /-->
     <script src="./js/kidoju.widgets.bindings.js"></script>
     <script src="./js/kidoju.widgets.multiinput.js"></script>
 </head>
 <body>
-<h1>MultiInput</h1>
+<h1>kidoju.widgets.multiinput</h1>
 <h2>MultiInput bound to observable</h2>
 <!--input data-role="multiinput" value="[&quot;hello&quot;,&quot;world&quot;]"-->
 <input id="test" data-role="multiinput" data-bind="value: value, visible: visible, enabled: enabled, , readonly: readonly">

@@ -97,6 +97,22 @@
       }
     }
 
+    function containsCheckFn(a, b) {
+      if (Array.isArray(a)) {
+        return function (curr) {
+          return a.indexOf(curr) !== -1;
+        };
+      } else if (typeof a === 'string') {
+        return function (curr) {
+          return a.indexOf(curr) !== -1;
+        };
+      } else if (a && typeof a === 'object') {
+        return function (curr) {
+          return a.hasOwnProperty(curr);
+        };
+      }
+    }
+
     var LokiOps = {
       // comparison operators
       $eq: function (a, b) {
@@ -131,28 +147,36 @@
         return b.indexOf(a) > -1;
       },
 
-      $contains: function (a, b) {
-        var checkFn = function () {
-          return true;
-        };
+      $containsAny: function (a, b) {
+        var checkFn;
 
         if (!Array.isArray(b)) {
           b = [b];
         }
 
-        if (Array.isArray(a)) {
-          checkFn = function (curr) {
-            return a.indexOf(curr) !== -1;
-          };
-        } else if (typeof a === 'string') {
-          checkFn = function (curr) {
-            return a.indexOf(curr) !== -1;
-          };
-        } else if (a && typeof a === 'object') {
-          checkFn = function (curr) {
-            return a.hasOwnProperty(curr);
-          };
+        checkFn = containsCheckFn(a, b) || function () {
+          return false;
+        };
+
+        return b.reduce(function (prev, curr) {
+          if (prev) {
+            return prev;
+          }
+
+          return checkFn(curr);
+        }, false);
+      },
+
+      $contains: function (a, b) {
+        var checkFn;
+
+        if (!Array.isArray(b)) {
+          b = [b];
         }
+
+        checkFn = containsCheckFn(a, b) || function () {
+          return true;
+        };
 
         return b.reduce(function (prev, curr) {
           if (!prev) {
@@ -173,7 +197,8 @@
       '$ne': LokiOps.$ne,
       '$regex': LokiOps.$regex,
       '$in': LokiOps.$in,
-      '$contains': LokiOps.$contains
+      '$contains': LokiOps.$contains,
+      '$containsAny': LokiOps.$containsAny
     };
 
     function clone(data, method) {
@@ -235,7 +260,7 @@
      * @param {string} eventName - the name of the event
      * @param {object} data - optional object passed with the event
      */
-    LokiEventEmitter.prototype.emit = function (eventName,data) {
+    LokiEventEmitter.prototype.emit = function (eventName, data) {
       var self = this;
       if (eventName && this.events[eventName]) {
         this.events[eventName].forEach(function (listener) {
@@ -244,7 +269,7 @@
               listener(data);
             }, 1);
           } else {
-             listener(data);
+            listener(data);
           }
 
         });
@@ -362,7 +387,7 @@
       var defaultPersistence = {
           'NODEJS': 'fs',
           'BROWSER': 'localStorage',
-          'CORDOVA': null
+          'CORDOVA': 'localStorage'
         },
         persistenceMethods = {
           'fs': LokiFsAdapter,
@@ -383,7 +408,7 @@
 
         if (this.options.hasOwnProperty('persistenceMethod')) {
           // check if the specified persistence method is known
-          if (typeof(persistenceMethods[options.persistenceMethod]) == 'function') {
+          if (typeof (persistenceMethods[options.persistenceMethod]) == 'function') {
             this.persistenceMethod = options.persistenceMethod;
             this.persistenceAdapter = new persistenceMethods[options.persistenceMethod]();
           }
@@ -408,7 +433,7 @@
 
         if (this.options.hasOwnProperty('autosaveInterval')) {
           this.autosaveDisable();
-          this.autosaveInterval = parseInt(this.options.autosaveInterval,10);
+          this.autosaveInterval = parseInt(this.options.autosaveInterval, 10);
         }
 
         if (this.options.hasOwnProperty('autosave') && this.options.autosave) {
@@ -511,8 +536,8 @@
     Loki.prototype.serializeReplacer = function (key, value) {
       switch (key) {
       case 'autosaveHandle':
-        return null;
       case 'persistenceAdapter':
+      case 'constraints':
         return null;
       default:
         return value;
@@ -1543,7 +1568,7 @@
       // for now only enabling for non-chained query (who's set of docs matches index)
       // or chained queries where it is the first filter applied and prop is indexed
       if ((!this.searchIsChained || (this.searchIsChained && !this.filterInitialized)) &&
-        operator !== '$ne' && operator !== '$regex' && operator !== '$contains' && operator !== '$in' && this.collection.binaryIndices.hasOwnProperty(property)) {
+        operator !== '$ne' && operator !== '$regex' && operator !== '$contains' && operator !== '$containsAny' && operator !== '$in' && this.collection.binaryIndices.hasOwnProperty(property)) {
         // this is where our lazy index rebuilding will take place
         // basically we will leave all indexes dirty until we need them
         // so here we will rebuild only the index tied to this property
@@ -1682,9 +1707,9 @@
           } else {
             // search by index
             t = this.collection.data;
-            var seg = this.calculateRange(operator, property, value, this);
+            var segm = this.calculateRange(operator, property, value, this);
 
-            for (var idx = seg[0]; idx <= seg[1]; idx++) {
+            for (var idx = segm[0]; idx <= segm[1]; idx++) {
               result.push(index.values[idx]);
             }
 
@@ -1735,11 +1760,11 @@
         else {
           // If the filteredrows[] is already initialized, use it
           if (this.filterInitialized) {
-            var i = this.filteredrows.length;
+            var j = this.filteredrows.length;
 
-            while (i--) {
-              if (viewFunction(this.collection.data[this.filteredrows[i]]) === true) {
-                result.push(this.filteredrows[i]);
+            while (j--) {
+              if (viewFunction(this.collection.data[this.filteredrows[j]]) === true) {
+                result.push(this.filteredrows[j]);
               }
             }
 
@@ -1749,11 +1774,11 @@
           }
           // otherwise this is initial chained op, work against data, push into filteredrows[]
           else {
-            var i = this.collection.data.length;
+            var k = this.collection.data.length;
 
-            while (i--) {
-              if (viewFunction(this.collection.data[i]) === true) {
-                result.push(i);
+            while (k--) {
+              if (viewFunction(this.collection.data[k]) === true) {
+                result.push(k);
               }
             }
 
@@ -1795,7 +1820,6 @@
       for (i = 0; i < len; i++) {
         result.push(data[fr[i]]);
       }
-
       return result;
     };
 
@@ -1866,6 +1890,84 @@
       } catch (err) {
         throw err;
       }
+    };
+
+    /**
+     * eqJoin() - Left joining two sets of data. Join keys can be defined or calculated properties
+     * eqJoin expects the right join key values to be unique.  Otherwise left data will be joined on the last joinData object with that key
+     * @param {Array} joinData - Data array to join to.
+     * @param {String,function} leftJoinKey - Property name in this result set to join on or a function to produce a value to join on
+     * @param {String,function} rightJoinKey - Property name in the joinData to join on or a function to produce a value to join on
+     * @param {function} (optional) mapFun - A function that receives each matching pair and maps them into output objects - function(left,right){return joinedObject}
+     * @returns {Resultset} A resultset with data in the format [{left: leftObj, right: rightObj}]
+     */
+    Resultset.prototype.eqJoin = function (joinData, leftJoinKey, rightJoinKey, mapFun) {
+
+      var leftData = [],
+        leftDataLength,
+        rightData = [],
+        rightDataLength,
+        key,
+        result = [],
+        obj,
+        leftKeyisFunction = typeof leftJoinKey === 'function',
+        rightKeyisFunction = typeof rightJoinKey === 'function',
+        joinMap = {};
+
+      //get the left data
+      leftData = this.data();
+      leftDataLength = leftData.length;
+
+      //get the right data
+      if (joinData instanceof Resultset) {
+        rightData = joinData.data();
+      } else if (Array.isArray(joinData)) {
+        rightData = joinData;
+      } else {
+        throw new TypeError('joinData needs to be an array or result set');
+      }
+      rightDataLength = rightData.length;
+
+      //construct a lookup table
+
+      for (var i = 0; i < rightDataLength; i++) {
+        key = rightKeyisFunction ? rightJoinKey(rightData[i]) : rightData[i][rightJoinKey];
+        joinMap[key] = rightData[i];
+      }
+
+      if (!mapFun) {
+        mapFun = function (left, right) {
+          return {
+            left: left,
+            right: right
+          };
+        };
+      }
+
+      //Run map function over each object in the resultset
+      for (var j = 0; j < leftDataLength; j++) {
+        key = leftKeyisFunction ? leftJoinKey(leftData[j]) : leftData[j][leftJoinKey];
+        result.push(mapFun(leftData[j], joinMap[key] || {}));
+      }
+
+      //return return a new resultset with no filters
+      this.collection = new Collection('joinData');
+      this.collection.insert(result);
+      this.filteredrows = [];
+      this.filterInitialized = false;
+
+      return this;
+    };
+
+    Resultset.prototype.map = function (mapFun) {
+      var data = this.data().map(mapFun);
+      //return return a new resultset with no filters
+      this.collection = new Collection('mappedData');
+      this.collection.insert(data);
+      this.filteredrows = [];
+      this.filterInitialized = false;
+
+      return this;
     };
 
     /**
@@ -2215,6 +2317,7 @@
       }
 
       if (!this.persistent) {
+        this.sortDirty = false;
         return;
       }
 
@@ -2395,6 +2498,11 @@
       this.data = [];
       this.idIndex = []; // index of id
       this.binaryIndices = {}; // user defined indexes
+      this.constraints = {
+        unique: {},
+        exact: {}
+      };
+
       // the object type of the collection
       this.objType = name;
 
@@ -2412,6 +2520,22 @@
       /* OPTIONS */
       options = options || {};
 
+      // exact match and unique constraints
+      if (options.hasOwnProperty('unique')) {
+        if (!Array.isArray(options.unique)) {
+          options.unique = [options.unique];
+        }
+        options.unique.forEach(function (prop) {
+          self.constraints.unique[prop] = new UniqueIndex(prop);
+        });
+      }
+
+      if (options.hasOwnProperty('exact')) {
+        options.exact.forEach(function (prop) {
+          self.constraints.exact[prop] = new ExactIndex(prop);
+        });
+      }
+
       // is collection transactional
       this.transactional = options.hasOwnProperty('transactional') ? options.transactional : false;
 
@@ -2423,6 +2547,7 @@
 
       // disable track changes
       this.disableChangesApi = options.hasOwnProperty('disableChangesApi') ? options.disableChangesApi : true;
+
 
       // currentMaxId - change manually at your own peril!
       this.maxId = 0;
@@ -2497,6 +2622,7 @@
         if (!obj.meta) {
           obj.meta = {};
         }
+
         obj.meta.created = (new Date()).getTime();
         obj.meta.revision = 0;
       }
@@ -2566,6 +2692,24 @@
 
     Collection.prototype = new LokiEventEmitter();
 
+    Collection.prototype.byExample = function(template) {
+      var k, obj, query;
+      query = [];
+      for (k in template) {
+        if (!template.hasOwnProperty(k)) continue;
+        query.push((
+          obj = {},
+          obj[k] = template[k],
+          obj
+        ));
+      }
+      return { '$and': query };
+    };
+
+    Collection.prototype.findObject = function(template) { return this.findOne(this.byExample(template)); };
+
+    Collection.prototype.findObjects = function(template) { return this.find(this.byExample(template)); };
+
     /*----------------------------+
     | INDEXING                    |
     +----------------------------*/
@@ -2621,6 +2765,19 @@
       this.dirty = true; // for autosave scenarios
     };
 
+    Collection.prototype.ensureUniqueIndex = function (field) {
+
+      var index = this.constraints.unique[field];
+      if (!index) {
+        this.constraints.unique[field] = index = new UniqueIndex(field);
+      }
+      var self = this;
+      this.data.forEach(function (obj) {
+        index.set(obj);
+      });
+      return index;
+    };
+
     /**
      * Ensure all binary indices
      */
@@ -2640,6 +2797,10 @@
       while (i--) {
         this.binaryIndices[objKeys[i]].dirty = true;
       }
+    };
+
+    Collection.prototype.count = function () {
+      return this.data.length;
     };
 
     /**
@@ -2732,17 +2893,13 @@
       // holder to the clone of the object inserted if collections is set to clone objects
       var obj;
       var docs = Array.isArray(doc) ? doc : [doc];
-
+      var results = [];
       docs.forEach(function (d) {
         if (typeof d !== 'object') {
           throw new TypeError('Document needs to be an object');
         }
-        if (self.clone) {
-          obj = JSON.parse(JSON.stringify(d));
-        } else {
-          obj = d;
-        }
 
+        obj = self.cloneObjects ? JSON.parse(JSON.stringify(d)) : d;
         if (typeof obj.meta === 'undefined') {
           obj.meta = {
             revision: 0,
@@ -2750,11 +2907,14 @@
           };
         }
         self.emit('pre-insert', obj);
-        self.add(obj);
-        self.emit('insert', obj);
-
+        if (self.add(obj)) {
+          self.emit('insert', obj);
+          results.push(obj);
+        } else {
+          return undefined;
+        }
       });
-      return obj;
+      return results.length === 1 ? results[0] : results;
     };
 
     Collection.prototype.clear = function () {
@@ -2772,7 +2932,6 @@
      * Update method
      */
     Collection.prototype.update = function (doc) {
-
       if (Object.keys(this.binaryIndices).length > 0) {
         this.flagBinaryIndexesDirty();
       }
@@ -2794,19 +2953,24 @@
         this.startTransaction();
         var arr = this.get(doc.$loki, true),
           obj,
-          position;
+          position,
+          self = this;
 
         if (!arr) {
           throw new Error('Trying to update a document not in collection.');
         }
         this.emit('pre-update', doc);
-        obj = arr[0];
 
+        obj = arr[0];
+        Object.keys(this.constraints.unique).forEach(function (key) {
+          self.constraints.unique[key].update(obj);
+        });
         // get current position in data array
         position = arr[1];
 
         // operate the update
         this.data[position] = doc;
+
 
         // now that we can efficiently determine the data[] position of newly added document,
         // submit it for all registered DynamicViews to evaluate for inclusion/exclusion
@@ -2832,8 +2996,7 @@
      * Add object to collection
      */
     Collection.prototype.add = function (obj) {
-      var i,
-        dvlen = this.DynamicViews.length;
+      var dvlen = this.DynamicViews.length;
 
       // if parameter isn't object exit with throw
       if ('object' !== typeof obj) {
@@ -2857,7 +3020,6 @@
       try {
         this.startTransaction();
         this.maxId++;
-        var i;
 
         if (isNaN(this.maxId)) {
           this.maxId = (this.data[this.data.length - 1].$loki + 1);
@@ -2869,9 +3031,14 @@
         // add the object
         this.data.push(obj);
 
+        var self = this;
+        Object.keys(this.constraints.unique).forEach(function (key) {
+          self.constraints.unique[key].set(obj);
+        });
+
         // now that we can efficiently determine the data[] position of newly added document,
         // submit it for all registered DynamicViews to evaluate for inclusion/exclusion
-        for (i = 0; i < dvlen; i++) {
+        for (var i = 0; i < dvlen; i++) {
           this.DynamicViews[i].evaluateDocument(this.data.length - 1);
         }
 
@@ -2898,6 +3065,10 @@
       var len = list.length;
       while (len--) {
         this.remove(list[len]);
+      }
+      var dv;
+      for (dv in this.DynamicViews) {
+        this.DynamicViews[dv].rematerialize();
       }
 
     };
@@ -2941,7 +3112,10 @@
         var arr = this.get(doc.$loki, true),
           // obj = arr[0],
           position = arr[1];
-
+        var self = this;
+        Object.keys(this.constraints.unique).forEach(function (key) {
+          self.constraints.unique[key].remove(doc);
+        });
         // now that we can efficiently determine the data[] position of newly added document,
         // submit it for all registered DynamicViews to remove
         for (var idx = 0; idx < this.DynamicViews.length; idx++) {
@@ -2955,12 +3129,16 @@
 
         this.commit();
         this.dirty = true; // for autosave scenarios
-        this.emit('delete');
+        this.emit('delete', arr[0]);
+        delete doc.$loki;
+        delete doc.meta;
+        return doc;
 
       } catch (err) {
         this.rollback();
         console.error(err.message);
         this.emit('error', err);
+        return null;
       }
     };
 
@@ -3004,6 +3182,18 @@
         return this.data[min];
       }
       return null;
+
+    };
+
+    Collection.prototype.by = function (field, value) {
+      var self;
+      if (!value) {
+        self = this;
+        return function (value) {
+          return self.by(field, value);
+        };
+      }
+      return this.constraints.unique[field].get(value);
     };
 
     /**
@@ -3135,6 +3325,65 @@
       }
     };
 
+    /**
+     * eqJoin - Join two collections on specified properties
+     */
+    Collection.prototype.eqJoin = function (joinData, leftJoinProp, rightJoinProp, mapFun) {
+      // logic in Resultset class
+      return new Resultset(this).eqJoin(joinData, leftJoinProp, rightJoinProp, mapFun);
+    };
+
+    /* ------ STAGING API -------- */
+    /**
+     * stages: a map of uniquely identified 'stages', which hold copies of objects to be
+     * manipulated without affecting the data in the original collection
+     */
+    Collection.prototype.stages = {};
+
+    /**
+     * create a stage and/or retrieve it
+     */
+    Collection.prototype.getStage = function (name) {
+      if (!this.stages[name]) {
+        this.stages[name] = {};
+      }
+      return this.stages[name];
+    };
+    /**
+     * a collection of objects recording the changes applied through a commmitStage
+     */
+    Collection.prototype.commitLog = [];
+
+    /**
+     * create a copy of an object and insert it into a stage
+     */
+    Collection.prototype.stage = function (stageName, obj) {
+      var copy = JSON.parse(JSON.stringify(obj));
+      this.getStage(stageName)[obj.$loki] = copy;
+      return copy;
+    };
+
+    /**
+     * re-attach all objects to the original collection, so indexes and views can be rebuilt
+     * then create a message to be inserted in the commitlog
+     */
+    Collection.prototype.commitStage = function (stageName, message) {
+      var stage = this.getStage(stageName),
+        prop,
+        timestamp = new Date().getTime();
+
+      for (prop in stage) {
+
+        this.update(stage[prop]);
+        this.commitLog.push({
+          timestamp: timestamp,
+          message: message,
+          data: JSON.parse(JSON.stringify(stage[prop]))
+        });
+      }
+      this.stages[stageName] = {};
+    };
+
     Collection.prototype.no_op = function () {
       return;
     };
@@ -3166,7 +3415,7 @@
           index: 0,
           value: undefined
         },
-        max = undefined;
+        max;
 
       for (i; i < len; i += 1) {
         if (max !== undefined) {
@@ -3191,7 +3440,7 @@
           index: 0,
           value: undefined
         },
-        min = undefined;
+        min;
 
       for (i; i < len; i += 1) {
         if (min !== undefined) {
@@ -3232,7 +3481,7 @@
           dict[obj] = 1;
         }
       });
-      var max = undefined,
+      var max,
         prop, mode;
       for (prop in dict) {
         if (max) {
@@ -3378,6 +3627,171 @@
         return this.values[binarySearch(this.keys, key, this.sort).index];
       }
     };
+
+    function UniqueIndex(uniqueField) {
+      this.field = uniqueField;
+      this.keyMap = {};
+      this.lokiMap = {};
+    }
+    UniqueIndex.prototype.keyMap = {};
+    UniqueIndex.prototype.lokiMap = {};
+    UniqueIndex.prototype.set = function (obj) {
+      if (this.keyMap[obj[this.field]]) {
+        throw new Error('Duplicate key for property ' + this.field + ': ' + obj[this.field]);
+      } else {
+        this.keyMap[obj[this.field]] = obj;
+        this.lokiMap[obj.$loki] = obj[this.field];
+      }
+    };
+    UniqueIndex.prototype.get = function (key) {
+      return this.keyMap[key];
+    };
+
+    UniqueIndex.prototype.byId = function (id) {
+      return this.keyMap[this.lokiMap[id]];
+    };
+    UniqueIndex.prototype.update = function (obj) {
+      if (this.lokiMap[obj.$loki] !== obj[this.field]) {
+        var old = this.lokiMap[obj.$loki];
+        this.set(obj);
+        // make the old key fail bool test, while avoiding the use of delete (mem-leak prone)
+        this.keyMap[old] = undefined;
+      } else {
+        this.keyMap[obj[this.field]] = obj;
+      }
+    };
+    UniqueIndex.prototype.remove = function (key) {
+      var obj = this.keyMap[key];
+      this.keyMap[key] = undefined;
+      this.lokiMap[obj.$loki] = undefined;
+    };
+    UniqueIndex.prototype.clear = function () {
+      this.keyMap = {};
+      this.lokiMap = {};
+    };
+
+    function ExactIndex(exactField) {
+      this.index = {};
+      this.field = exactField;
+    }
+
+    // add the value you want returned to the key in the index 
+    ExactIndex.prototype = {
+      set: function add(key, val) {
+        if (this.index[key]) {
+          this.index[key].push(val);
+        } else {
+          this.index[key] = [val];
+        }
+      },
+
+      // remove the value from the index, if the value was the last one, remove the key
+      remove: function remove(key, val) {
+        var idxSet = this.index[key];
+        for (var i in idxSet) {
+          if (idxSet[i] == val) {
+            idxSet.splice(i, 1);
+          }
+        }
+        if (idxSet.length < 1) {
+          this.index[key] = undefined;
+        }
+      },
+
+      // get the values related to the key, could be more than one
+      get: function get(key) {
+        return this.index[key];
+      },
+
+      // clear will zap the index
+      clear: function clear(key) {
+        this.index = {};
+      }
+    };
+
+    function SortedIndex(sortedField) {
+      this.field = sortedField;
+    }
+
+    SortedIndex.prototype = {
+      keys: [],
+      values: [],
+      // set the default sort
+      sort: function (a, b) {
+        return (a < b) ? -1 : ((a > b) ? 1 : 0);
+      },
+      bs: function () {
+        return new BSonSort(this.sort);
+      },
+      // and allow override of the default sort
+      setSort: function (fun) {
+        this.bs = new BSonSort(fun);
+      },
+      // add the value you want returned  to the key in the index  
+      set: function (key, value) {
+        var pos = binarySearch(this.keys, key, this.sort);
+        if (pos.found) {
+          this.values[pos.index].push(value);
+        } else {
+          this.keys.splice(pos.index, 0, key);
+          this.values.splice(pos.index, 0, [value]);
+        }
+      },
+      // get all values which have a key == the given key
+      get: function (key) {
+        var bsr = binarySearch(this.keys, key, this.sort);
+        if (bsr.found) {
+          return this.values[bsr.index];
+        } else {
+          return [];
+        }
+      },
+      // get all values which have a key < the given key
+      getLt: function (key) {
+        var bsr = binarySearch(this.keys, key, this.sort);
+        var pos = bsr.index;
+        if (bsr.found) pos--;
+        return this.getAll(key, 0, pos);
+      },
+      // get all values which have a key > the given key
+      getGt: function (key) {
+        var bsr = binarySearch(this.keys, key, this.sort);
+        var pos = bsr.index;
+        if (bsr.found) pos++;
+        return this.getAll(key, pos, this.keys.length);
+      },
+
+      // get all vals from start to end
+      getAll: function (key, start, end) {
+        var results = [];
+        for (var i = start; i < end; i++) {
+          results = results.concat(this.values[i]);
+        }
+        return results;
+      },
+      // just in case someone wants to do something smart with ranges
+      getPos: function (key) {
+        return binarySearch(this.keys, key, this.sort);
+      },
+      // remove the value from the index, if the value was the last one, remove the key
+      remove: function (key, value) {
+        var pos = binarySearch(this.keys, key, this.sort).index;
+        var idxSet = this.values[pos];
+        for (var i in idxSet) {
+          if (idxSet[i] == value) idxSet.splice(i, 1);
+        }
+        if (idxSet.length < 1) {
+          this.keys.splice(pos, 1);
+          this.values.splice(pos, 1);
+        }
+      },
+      // clear will zap the index
+      clear: function (key) {
+        this.keys = [];
+        this.values = [];
+      }
+    };
+
 
     Loki.Collection = Collection;
     Loki.KeyValueStore = KeyValueStore;

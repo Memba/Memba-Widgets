@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.318 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -412,6 +412,7 @@
 
             text[0].tabIndex = element.tabIndex;
             text[0].style.cssText = element.style.cssText;
+            text[0].title = element.title;
             text.prop("placeholder", that.options.placeholder);
 
             if (accessKey) {

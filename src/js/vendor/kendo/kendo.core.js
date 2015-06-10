@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.318 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -38,7 +38,7 @@
         slice = [].slice,
         globalize = window.Globalize;
 
-    kendo.version = "2015.1.318";
+    kendo.version = "2015.1.429";
 
     function Class() {}
 
@@ -2505,7 +2505,10 @@ function pad(number, digits, end) {
             }
 
             if (safe) {
+                expression = expression.replace(/"([^.]*)\.([^"]*)"/g,'"$1_$DOT$_$2"');
+                expression = expression.replace(/'([^.]*)\.([^']*)'/g,"'$1_$DOT$_$2'");
                 expression = wrapExpression(expression.split("."), paramName);
+                expression = expression.replace(/_\$DOT\$_/g, ".");
             } else {
                 expression = paramName + expression;
             }
@@ -2654,9 +2657,9 @@ function pad(number, digits, end) {
             var size = this.getSize(),
                 currentSize = this._size;
 
-            if (force || !currentSize || size.width !== currentSize.width || size.height !== currentSize.height) {
+            if (force || (size.width > 0 || size.height > 0) && (!currentSize || size.width !== currentSize.width || size.height !== currentSize.height)) {
                 this._size = size;
-                this._resize(size);
+                this._resize(size, force);
                 this.trigger("resize", size);
             }
         },
@@ -3876,7 +3879,9 @@ function pad(number, digits, end) {
     };
 
     kendo.elementUnderCursor = function(e) {
-        return document.elementFromPoint(e.x.client, e.y.client);
+        if (typeof e.x.client != "undefined") {
+            return document.elementFromPoint(e.x.client, e.y.client);
+        }
     };
 
     kendo.wheelDeltaY = function(jQueryEvent) {
@@ -3993,16 +3998,12 @@ function pad(number, digits, end) {
         return start;
     };
 
-    kendo.compileMobileDirective = function(element, scopeSetup) {
+    kendo.compileMobileDirective = function(element, scope) {
         var angular = window.angular;
 
         element.attr("data-" + kendo.ns + "role", element[0].tagName.toLowerCase().replace('kendo-mobile-', '').replace('-', ''));
 
         angular.element(element).injector().invoke(["$compile", function($compile) {
-            var scope = angular.element(element).scope();
-            if (scopeSetup) {
-                scopeSetup(scope);
-            }
             $compile(element)(scope);
 
             if (!/^\$(digest|apply)$/.test(scope.$$phase)) {

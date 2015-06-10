@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.318 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -2632,9 +2632,14 @@ var A = 0;
                 }
 
                 var promises = [];
-                promises.push.apply(promises, that._send("create", created));
-                promises.push.apply(promises, that._send("update", updated));
-                promises.push.apply(promises, that._send("destroy", destroyed));
+
+                if (that.options.batch && that.transport.submit) {
+                    promises = that._sendSubmit(created, updated, destroyed);
+                } else {
+                    promises.push.apply(promises, that._send("create", created));
+                    promises.push.apply(promises, that._send("update", updated));
+                    promises.push.apply(promises, that._send("destroy", destroyed));
+                }
 
                 promise = $.when
                  .apply(null, promises)
@@ -2816,6 +2821,73 @@ var A = 0;
                     }
                 }
             });
+        },
+
+        _submit: function(promises, data) {
+            var that = this;
+
+            that.trigger(REQUESTSTART, { type: "submit" });
+
+            that.transport.submit(extend({
+                success: function(response, type) {
+                    var promise = $.grep(promises, function(x) {
+                        return x.type == type;
+                    })[0];
+
+                    if (promise) {
+                        promise.resolve({
+                            response: response,
+                            models: promise.models,
+                            type: type
+                        });
+                    }
+                },
+                error: function(response, status, error) {
+                    for (var idx = 0; idx < promises.length; idx++) {
+                        promises[idx].reject(response);
+                    }
+
+                    that.error(response, status, error);
+                }
+            }, data));
+        },
+
+        _sendSubmit: function(created, updated, destroyed) {
+            var that = this,
+                promises = [];
+
+            if (that.options.batch) {
+                if (created.length) {
+                    promises.push($.Deferred(function(deferred) {
+                        deferred.type = "create";
+                        deferred.models = created;
+                    }));
+                }
+
+                if (updated.length) {
+                    promises.push($.Deferred(function(deferred) {
+                        deferred.type = "update";
+                        deferred.models = updated;
+                    }));
+                }
+
+                if (destroyed.length) {
+                    promises.push($.Deferred(function(deferred) {
+                        deferred.type = "destroy";
+                        deferred.models = destroyed;
+                    }));
+                }
+
+                that._submit(promises, {
+                    data: {
+                        created: that.reader.serialize(toJSON(created)),
+                        updated: that.reader.serialize(toJSON(updated)),
+                        destroyed: that.reader.serialize(toJSON(destroyed))
+                    }
+                });
+            }
+
+            return promises;
         },
 
         _promise: function(data, models, type) {
@@ -3470,7 +3542,32 @@ var A = 0;
         },
 
         aggregates: function() {
-            return this._aggregateResult;
+            var result = this._aggregateResult;
+
+            if (isEmptyObject(result)) {
+                result = this._emptyAggregates(this.aggregate());
+            }
+
+            return result;
+        },
+
+        _emptyAggregates: function(aggregates) {
+            var result = {};
+
+            if (!isEmptyObject(aggregates)) {
+                var aggregate = {};
+
+                if (!isArray(aggregates)){
+                    aggregates = [aggregates];
+                }
+
+                for (var idx = 0; idx <aggregates.length; idx++) {
+                    aggregate[aggregates[idx].aggregate] = 0;
+                    result[aggregates[idx].field] = aggregate;
+                }
+            }
+
+            return result;
         },
 
         totalPages: function() {
@@ -3733,7 +3830,11 @@ var A = 0;
                         if (!that.trigger(REQUESTSTART, { type: "read" })) {
                             that.transport.read({
                                 data: that._params(options),
-                                success: that._prefetchSuccessHandler(skip, size, callback)
+                                success: that._prefetchSuccessHandler(skip, size, callback),
+                                error: function() {
+                                    var args = slice.call(arguments);
+                                    that.error.apply(that, args);
+                                }
                             });
                         } else {
                             that._dequeueRequest();

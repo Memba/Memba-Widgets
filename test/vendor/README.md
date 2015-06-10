@@ -4,6 +4,12 @@
 
 1. Download archive from https://github.com/alex-seville/blanket and copy ```./dist/qunit``` and ```./dist/mocha``` files.
 
+*Note: Blanket.JS v1.1.5 does not seem to be working with mocha v2+ - See https://github.com/alex-seville/blanket/issues/451
+The original adapter is available at http://alex-seville.github.io/blanket/src/adapters/mocha-blanket.js
+There seems to be an updated adapter at https://github.com/vladikoff/mocha-blanketjs-adapter*
+
+IMPORTANT: Always debug tests after deactivating blanket.JS. Blanket adds code that makes debugging very difficult,
+
 ## Chai and Chai-jQuery
 
 1 Download archive from https://github.com/chaijs/chai and copy ```https://raw.githubusercontent.com/chaijs/chai/master/chai.js```.
@@ -11,7 +17,7 @@
 
 ## jquery.simulate
 
-1. Doanload archive from https://github.com/jquery/jquery-simulate and copy ```https://raw.githubusercontent.com/jquery/jquery-simulate/master/jquery.simulate.js```.
+1. Download archive from https://github.com/jquery/jquery-simulate and copy ```https://raw.githubusercontent.com/jquery/jquery-simulate/master/jquery.simulate.js```.
 
 ## localForage
 

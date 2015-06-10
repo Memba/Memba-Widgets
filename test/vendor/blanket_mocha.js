@@ -1,6 +1,5 @@
 /*! blanket - v1.1.5 */
 
-if (typeof QUnit !== 'undefined'){ QUnit.config.autostart = false; }
 (function(define){
 /*
   Copyright (C) 2013 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -5220,80 +5219,73 @@ _blanket.extend({
 
 })(blanket);
 
-(function(){
-if (typeof QUnit !== 'undefined'){
-    //check to make sure requirejs is completed before we start the test runner
-    var allLoaded = function() {
-        return window.QUnit.config.queue.length > 0 && blanket.noConflict().requireFilesLoaded();
-    };
+(function() {
 
-    if (!QUnit.config.urlConfig[0].tooltip){
-        //older versions we run coverage automatically
-        //and we change how events are binded
-        QUnit.begin=function(){
-            blanket.noConflict().setupCoverage();
+    if(!mocha) {
+        throw new Exception("mocha library does not exist in global namespace!");
+    }
+
+
+    /*
+     * Mocha Events:
+     *
+     *   - `start`  execution started
+     *   - `end`  execution complete
+     *   - `suite`  (suite) test suite execution started
+     *   - `suite end`  (suite) all tests (and sub-suites) have finished
+     *   - `test`  (test) test execution started
+     *   - `test end`  (test) test completed
+     *   - `hook`  (hook) hook execution started
+     *   - `hook end`  (hook) hook complete
+     *   - `pass`  (test) test passed
+     *   - `fail`  (test, err) test failed
+     *
+     */
+
+    var OriginalReporter = mocha._reporter;
+
+    var BlanketReporter = function(runner) {
+            runner.on('start', function() {
+                blanket.setupCoverage();
+            });
+
+            runner.on('end', function() {
+                blanket.onTestsDone();
+            });
+
+            runner.on('suite', function() {
+                blanket.onModuleStart();
+            });
+
+            runner.on('test', function() {
+                blanket.onTestStart();
+            });
+
+            runner.on('test end', function(test) {
+                blanket.onTestDone(test.parent.tests.length, test.state === 'passed');
+            });
+
+            // NOTE: this is an instance of BlanketReporter
+            new OriginalReporter(runner);
         };
         
-        QUnit.done=function(failures, total) {
-            blanket.noConflict().onTestsDone();
-        };
-        QUnit.moduleStart=function( details ) {
-            blanket.noConflict().onModuleStart();
-        };
-        QUnit.testStart=function( details ) {
-            blanket.noConflict().onTestStart();
-        };
-        QUnit.testDone=function( details ) {
-            blanket.noConflict().onTestDone(details.total,details.passed);
-        };
-        blanket.beforeStartTestRunner({
-            condition: allLoaded,
-            callback: QUnit.start
-        });
-    }else{
-        QUnit.config.urlConfig.push({
-            id: "coverage",
-            label: "Enable coverage",
-            tooltip: "Enable code coverage."
-        });
-    
-        if ( QUnit.urlParams.coverage || blanket.options("autoStart") ) {
-            QUnit.begin(function(){
-                blanket.noConflict().setupCoverage();
-            });
-            
-            QUnit.done(function(failures, total) {
-                blanket.noConflict().onTestsDone();
-            });
-            QUnit.moduleStart(function( details ) {
-                blanket.noConflict().onModuleStart();
-            });
-            QUnit.testStart(function( details ) {
-                blanket.noConflict().onTestStart();
-            });
-            QUnit.testDone(function( details ) {
-                blanket.noConflict().onTestDone(details.total,details.passed);
-            });
-            blanket.noConflict().beforeStartTestRunner({
-                condition: allLoaded,
-                callback: function(){
-                    if (!(blanket.options("existingRequireJS") && !blanket.options("autoStart"))){
-                        QUnit.start();
-                    }
-                }
-            });
-        }else{
-            if (blanket.options("existingRequireJS")){ requirejs.load = _blanket.utils.oldloader; }
-            blanket.noConflict().beforeStartTestRunner({
-                condition: allLoaded,
-                callback: function(){
-                    if (!(blanket.options("existingRequireJS") && !blanket.options("autoStart"))){
-                        QUnit.start();
-                    }
-                },
-                coverage:false
-            });
+    BlanketReporter.prototype = OriginalReporter.prototype;
+
+    mocha.reporter(BlanketReporter);
+
+    var oldRun = mocha.run,
+        oldCallback = null;
+
+    mocha.run = function (finishCallback) {
+      oldCallback = finishCallback;
+      console.log("waiting for blanket...");
+    };
+    blanket.beforeStartTestRunner({
+        callback: function(){
+            if (!blanket.options("existingRequireJS")){
+                oldRun(oldCallback);
+            }
+            mocha.run = oldRun;
         }
-    }
-}
+    });
 })();

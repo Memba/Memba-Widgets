@@ -1,10 +1,11 @@
 {
   "name": "Kidoju.Widgets",
   "filename": "kidoju.widgets",
-  "description": "Kendo UI Widgets for the Kidoju platform",
   "version": "0.0.1",
+  "description": "Kendo UI Widgets for the Kidoju platform",
   "author": "Memba Sarl",
   "copyright": "Copyright ©2013-2015 Memba® Sarl. All rights reserved.",
+  "license": "GPL-3.0",
   "homepage": "http://widgets.kidoju.com",
   "keywords": [
     "Memba",
@@ -20,12 +21,6 @@
   "bugs": {
     "url": "https://github.com/Memba/Kidoju-Widgets/issues"
   },
-  "licenses": [
-    {
-      "type": "GPL-3.0",
-      "url": "https://raw.github.com/Memba/Kidoju-Widgets/master/LICENSE-GPL"
-    }
-  ],
   "scripts": {
     "start": "node ./nodejs/http.server.js",
     "test": "grunt test"

@@ -6,10 +6,10 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function(f, define){
+(function (f, define) {
     'use strict';
     define(['./vendor/kendo/kendo.binder'], f);
-})(function() {
+})(function () {
 
     'use strict';
 
@@ -19,13 +19,13 @@
             data = kendo.data,
             Widget = kendo.ui.Widget,
 
-        //Types
+        // Types
             NULL = null,
 
-        //Events
+        // Events
             CHANGE = 'change',
 
-        //Widget
+        // Widget
             WIDGET_CLASS = 'k-widget kj-explorer';
 
         /*********************************************************************************
@@ -77,9 +77,9 @@
              */
             _clear: function () {
                 var that = this;
-                //unbind kendo
-                //kendo.unbind($(that.element));
-                //unbind all other events
+                // unbind kendo
+                // kendo.unbind($(that.element));
+                // unbind all other events
                 $(that.element).find('*').off();
                 $(that.element)
                     .off()
@@ -94,7 +94,7 @@
                 var that = this;
                 Widget.fn.destroy.call(that);
                 that._clear();
-                //that.setDataSource(NULL);
+                // that.setDataSource(NULL);
                 kendo.destroy(that.element);
             }
 
@@ -106,4 +106,4 @@
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

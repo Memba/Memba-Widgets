@@ -203,7 +203,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jsdoc');
     //grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
-    grunt.registerTask('lint', ['jshint', 'kendo_lint', 'csslint']);
+    grunt.registerTask('lint', ['jscs', 'jshint', 'kendo_lint', 'csslint']);
     grunt.registerTask('test', ['mocha', 'mochaTest']);
     grunt.registerTask('build', ['clean', 'copy', 'concat', 'uglify', 'cssmin', 'imagemin', 'jsdoc']);
     grunt.registerTask('default', ['lint', 'test', 'build']);

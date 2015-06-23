@@ -6,10 +6,10 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function(f, define){
+(function (f, define) {
     'use strict';
     define(['./vendor/kendo/kendo.binder', './kidoju.data', './kidoju.tools'], f);
-})(function() {
+})(function () {
 
     'use strict';
 
@@ -20,12 +20,12 @@
             Widget = kendo.ui.Widget,
             kidoju = window.kidoju,
 
-        //Types
+        // Types
             NULL = null,
             NUMBER = 'number',
             STRING = 'string',
 
-        //Events
+        // Events
             CHANGE = 'change',
             CLICK = 'click',
             DATABINDING = 'dataBinding',
@@ -37,7 +37,7 @@
             SELECT = 'select',
             NS = '.kendoNavigation',
 
-        //Widget
+        // Widget
             WIDGET_CLASS = 'k-widget k-group kj-navigation',
             HOVER_CLASS = 'k-state-hover',
             FOCUSED_CLASS = 'k-state-focused',
@@ -59,7 +59,7 @@
         }
 
         function isGuid(value) {
-            //See http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
+            // See http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
             return ($.type(value) === STRING) && (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value));
         }
 
@@ -87,7 +87,7 @@
                 that._layout();
                 that._addSorting();
                 that._dataSource();
-                //that.refresh();
+                // that.refresh();
                 log('widget initialized');
             },
 
@@ -98,10 +98,10 @@
                 name: 'Navigation',
                 autoBind: true,
                 itemTemplate: '<div data-#: ns #uid="#: uid #" class="kj-item" role="option" aria-selected="false"><div data-#: ns #role="stage"></div></div>',
-                pageWidth: 1024, //TODO: assuming page size here: where do we read it from?
+                pageWidth: 1024, // TODO: assuming page size here: where do we read it from?
                 pageHeight: 768,
-                selectionBorder: 10, //this is the padding of the page wrapper, which draws a border around it
-                pageSpacing: 20, //pageSpacing - selectionBorder determines the margin
+                selectionBorder: 10, // this is the padding of the page wrapper, which draws a border around it
+                pageSpacing: 20, // pageSpacing - selectionBorder determines the margin
                 menuIcon: 'calibration_mark.svg'
             },
 
@@ -119,10 +119,10 @@
              * @method setOptions
              * @param options
              */
-            //setOptions: function(options) {
+            // setOptions: function (options) {
             //    Widget.fn.setOptions.call(this, options);
             //    TODO: we need to read height and width both from styles and options and decide which wins
-            //},
+            // },
 
             /**
              * Gets/Sets the index of the selected page in the navigation
@@ -218,7 +218,7 @@
                     if (that._selectedUid === NULL) {
                         return NULL;
                     } else {
-                        return that.dataSource.getByUid(that._selectedUid); //This returns undefined if not found
+                        return that.dataSource.getByUid(that._selectedUid); // This returns undefined if not found
                     }
                 }
             },
@@ -318,13 +318,13 @@
                 // if the DataSource is defined and the _refreshHandler is wired up, unbind because
                 // we need to rebuild the DataSource
 
-                //There is no reason why, in its current state, it would not work with any dataSource
-                //if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
+                // There is no reason why, in its current state, it would not work with any dataSource
+                // if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
                 if (that.dataSource instanceof kidoju.PageCollectionDataSource && that._refreshHandler) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
 
-                if (that.options.dataSource !== NULL) {  //use null to explicitely destroy the dataSource bindings
+                if (that.options.dataSource !== NULL) {  // use null to explicitely destroy the dataSource bindings
                     // returns the datasource OR creates one if using array or configuration object
                     that.dataSource = kidoju.PageCollectionDataSource.create(that.options.dataSource);
 
@@ -345,9 +345,9 @@
              */
             _layout: function () {
                 var that = this;
-                //Define wrapper for visible bindings
+                // Define wrapper for visible bindings
                 that.wrapper = that.element;
-                //Define element
+                // Define element
                 that.element
                     .addClass(WIDGET_CLASS)
                     .attr('role', 'listbox')
@@ -369,7 +369,7 @@
                     },
                     change: function (e) {
                         if (e.action === 'sort' && e.item instanceof $ && $.type(e.oldIndex) === NUMBER && $.type(e.newIndex) === NUMBER) {
-                            $.noop(); //TODO VERY VERY IMPORTANT reorder dataSOurce ................................................................................................
+                            $.noop(); // TODO VERY VERY IMPORTANT reorder dataSOurce ................................................................................................
                         }
                     }
                 });
@@ -378,17 +378,17 @@
             /**
              * Add a navigation item containing a stage(page) wrapped in a div
              * @param page
-             * @param index //TODO with sorting -----------------------------------------------------------------------
+             * @param index // TODO with sorting -----------------------------------------------------------------------
              * @private
              */
             _addItem: function (page, index) {
                 var that = this,
                     navigation = that.element;
 
-                //Check that we get a page that is not already in navigation
+                // Check that we get a page that is not already in navigation
                 if (page instanceof kidoju.Page && navigation.find(kendo.format(ITEM_BYUID_SELECTOR, page.uid)).length === 0) {
 
-                    //Create navigation item (actually a selection frame around the thumbnail stage)
+                    // Create navigation item (actually a selection frame around the thumbnail stage)
                     var navigationItem = $(that._itemTemplate({uid: page.uid, ns: kendo.ns}))
                         .css({
                             boxSizing: 'border-box',
@@ -397,14 +397,14 @@
                             margin: parseInt(that.options.pageSpacing, 10) - parseInt(that.options.selectionBorder, 10)
                         });
 
-                    //append the menu icon //TODO<------------------------------------------------------------ icon
-                    //Top left should be determined by that.options.selectionBorder
+                    // append the menu icon // TODO<------------------------------------------------------------ icon
+                    // Top left should be determined by that.options.selectionBorder
                     navigationItem.append('<div style="position:absolute; top: 10px; left: 10px; height: 20px; width: 20px; background-color: black;"></div>');
 
-                    //Add to navigation
-                    navigation.append(navigationItem); //TODO <----------------------------------------------------- index
+                    // Add to navigation
+                    navigation.append(navigationItem); // TODO <----------------------------------------------------- index
 
-                    //Make the stage and bind to components
+                    // Make the stage and bind to components
                     navigationItem.find(kendo.roleSelector('stage')).kendoStage({
                         mode: kendo.ui.Stage.fn.modes.thumbnail,
                         dataSource: page.components,
@@ -420,9 +420,9 @@
              * @private
              */
             _removeItemByUid: function (uid) {
-                //Find and remove navigation item containing stage
+                // Find and remove navigation item containing stage
                 var item = this.element.find(kendo.format(ITEM_BYUID_SELECTOR, uid));
-                //kendo.unbind(item);
+                // kendo.unbind(item);
                 kendo.destroy(item);
                 item.off().remove();
             },
@@ -454,18 +454,18 @@
                 } else if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
                     $.each(e.items, function (index, page) {
                         that._addItem(page);
-                        that.trigger(CHANGE, {action: e.action, value: page}); //TODO <--------------------------------------------
+                        that.trigger(CHANGE, {action: e.action, value: page}); // TODO <--------------------------------------------
                     });
-                    //that.select(e.items[e.items.length -1]); //TODO <---------------------------------------------
+                    // that.select(e.items[e.items.length -1]); // TODO <---------------------------------------------
                 } else if (e.action === 'remove' && $.isArray(e.items) && e.items.length) {
                     $.each(e.items, function (index, page) {
                         that._removeItemByUid(page.uid);
                         that.trigger(CHANGE, {action: e.action, value: page});
-                        //that._selectByUid(null); //TODO
+                        // that._selectByUid(null); // TODO
                     });
 
                 } else if (e.action === 'itemchange') {
-                    $.noop(); //TODO
+                    $.noop(); // TODO
                 }
 
                 that._toggleSelection();
@@ -513,9 +513,9 @@
                     navigation = that.element,
                     scale = that._getStageScale();
 
-                //TODO: we are not clear with borders here
-                //we actually need the widget's outerWidth and outerHeight
-                //becaus a border might be added to pageWidth and pageHeight
+                // TODO: we are not clear with borders here
+                // we actually need the widget's outerWidth and outerHeight
+                // becaus a border might be added to pageWidth and pageHeight
                 navigation.find(ALL_ITEMS_SELECTOR)
                     .width(scale * parseInt(that.options.pageWidth, 10))
                     .height(scale * parseInt(that.options.pageHeight, 10));
@@ -574,9 +574,9 @@
              */
             _clear: function () {
                 var that = this;
-                //unbind kendo
+                // unbind kendo
                 kendo.unbind(that.element);
-                //unbind all other events
+                // unbind all other events
                 that.element.find('*').off();
                 that.element
                     .off()
@@ -603,4 +603,4 @@
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

@@ -19,17 +19,17 @@
         TOOLBOX2 = '<div id="toolbox2" data-role="toolbox" data-size="48" data-icon-path="' + ICON_PATH + '"></div>';
 
 
-    describe('kidoju.widgets.toolbox', function() {
+    describe('kidoju.widgets.toolbox', function () {
 
-        before(function() {
+        before(function () {
             if (window.__karma__ && $(FIXTURES).length === 0) {
                 $('body').append('<div id="fixtures"></div>');
             }
         });
 
-        describe('Availability', function() {
+        describe('Availability', function () {
 
-            it('requirements', function() {
+            it('requirements', function () {
                 expect($).not.to.be.undefined;
                 expect(kendo).not.to.be.undefined;
                 expect(kendo.version).to.be.a('string');
@@ -40,9 +40,9 @@
 
         });
 
-        describe('Initialization', function() {
+        describe('Initialization', function () {
 
-            it('from code', function() {
+            it('from code', function () {
                 var element = $(TOOLBOX1).appendTo(FIXTURES),
                     toolbox = element.kendoToolbox({ iconPath: ICON_PATH }).data('kendoToolbox');
                 expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
@@ -53,7 +53,7 @@
                 expect(element.find('img.kj-tool').height()).to.equal(32);
             });
 
-            it('from code with options', function() {
+            it('from code with options', function () {
                 var element = $(TOOLBOX1).appendTo(FIXTURES),
                     toolbox = element.kendoToolbox({ iconPath: ICON_PATH, size: 64 }).data('kendoToolbox');
                 expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
@@ -64,7 +64,7 @@
                 expect(element.find('img.kj-tool').height()).to.equal(64);
             });
 
-            it('from markup', function() {
+            it('from markup', function () {
                 var element = $(TOOLBOX2).appendTo(FIXTURES);
                 kendo.init(FIXTURES);
                 var toolbox = element.data('kendoToolbox');
@@ -78,16 +78,16 @@
 
         });
 
-        describe('Methods', function() {
+        describe('Methods', function () {
 
             var element, toolbox;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 element = $(TOOLBOX1).appendTo(FIXTURES);
                 toolbox = element.kendoToolbox({ iconPath: ICON_PATH }).data('kendoToolbox');
             });
 
-            it('Set/Get the current tool with valid values', function() {
+            it('Set/Get the current tool with valid values', function () {
                 expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
                 expect(toolbox.tool()).to.equal('pointer');
@@ -99,7 +99,7 @@
                 expect(kidoju.tools).to.have.property('active', 'button');
             });
 
-            it('Set/Get the current tool with invalid values', function() {
+            it('Set/Get the current tool with invalid values', function () {
                 function fn1() {
                     toolbox.tool(0);
                 }
@@ -111,7 +111,7 @@
                 expect(fn2).to.throw(RangeError);
             });
 
-            it('Reset', function() {
+            it('Reset', function () {
                 expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
                 toolbox.tool('label');
                 expect(kidoju.tools).to.have.property('active', 'label');
@@ -125,16 +125,16 @@
 
         });
 
-        describe('MVVM', function() {
+        describe('MVVM', function () {
 
             var element, toolbox;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 element = $(TOOLBOX1).appendTo(FIXTURES);
                 toolbox = element.kendoToolbox({ iconPath: ICON_PATH }).data('kendoToolbox');
             });
 
-            it('A change of tool raises a change in the toolbox', function() {
+            it('A change of tool raises a change in the toolbox', function () {
                 expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
                 toolbox.reset();
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
@@ -146,33 +146,33 @@
 
         });
 
-        describe('Events', function() {
+        describe('Events', function () {
 
             var element, toolbox;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 element = $(TOOLBOX1).appendTo(FIXTURES);
                 toolbox = element.kendoToolbox({ iconPath: ICON_PATH }).data('kendoToolbox');
             });
 
-            it('Change event', function() {
+            it('Change event', function () {
                 var change = sinon.spy();
                 expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
                 toolbox.reset();
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
-                toolbox.bind('change', function(e) {
+                toolbox.bind('change', function (e) {
                     change(e.value);
                 });
                 toolbox.tool('label');
                 expect(change).to.have.been.calledWith('label');
             });
 
-            it('Click event', function() {
+            it('Click event', function () {
                 var click = sinon.spy();
                 expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
                 toolbox.reset();
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
-                toolbox.bind('click', function(e) {
+                toolbox.bind('click', function (e) {
                     click(e.value);
                 });
                 element.find('img[data-tool=button]').simulate('click');
@@ -181,7 +181,7 @@
 
         });
 
-        afterEach(function() {
+        afterEach(function () {
             var fixtures = $(FIXTURES);
             kendo.destroy(fixtures);
             fixtures.find('*').off();

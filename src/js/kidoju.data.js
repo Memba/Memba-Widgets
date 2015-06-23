@@ -6,38 +6,38 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function(f, define){
+(function (f, define) {
     'use strict';
     define(['./vendor/kendo/kendo.binder', './kidoju.tools'], f);
-})(function(){
+})(function () {
 
     'use strict';
 
     (function ($, undefined) {
 
         var kendo = window.kendo,
-            //Class = kendo.Class,
+            // Class = kendo.Class,
             Model = kendo.data.Model,
             DataSource = kendo.data.DataSource,
-            //ObservableArray = kendo.data.ObservableArray,
+            // ObservableArray = kendo.data.ObservableArray,
             kidoju = window.kidoju = window.kidoju || {},
 
-            //Types
+            // Types
             OBJECT = 'object',
             STRING = 'string',
             NUMBER = 'number',
-            //DATE = 'date',
-            //BOOLEAN = 'boolean',
+            // DATE = 'date',
+            // BOOLEAN = 'boolean',
 
-            //Event
+            // Event
             CHANGE = 'change',
             ERROR = 'error',
 
-            //Defaults
+            // Defaults
             ZERO_NUMBER = 0,
             NEGATIVE_NUMBER = -1,
 
-            //Miscellaneous
+            // Miscellaneous
             RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i;
 
         /*********************************************************************************
@@ -51,7 +51,7 @@
         }
 
         function dataMethod(name) {
-            return function() {
+            return function () {
                 var data = this._data,
                     result = DataSource.fn[name].apply(this, [].slice.call(arguments));
 
@@ -104,11 +104,11 @@
                 rotate: {
                     type: NUMBER,
                     defaultValue: ZERO_NUMBER,
-                    parse: function(value) {
+                    parse: function (value) {
                         return (value + 360) % 360;
                     }
                 },
-                tag: { //A tag for future 3rd party integration (for example treasure hunt quizz linked to GeoJSON coordinates)
+                tag: { // A tag for future 3rd party integration (for example treasure hunt quizz linked to GeoJSON coordinates)
                     type: STRING,
                     defaultValue: null
                 },
@@ -126,9 +126,9 @@
              */
             /* jshint -W074 */
             /* This function's cyclomatic complexity is too high. */
-            init: function(component) {
+            init: function (component) {
 
-                //Note: Kendo UI requires that new PageComponent() works, i.e. component = undefined
+                // Note: Kendo UI requires that new PageComponent() works, i.e. component = undefined
                 var that = this;
 
                 if ($.type(component) === OBJECT /*&& !$.isEmptyObject(component)*/) {
@@ -138,7 +138,7 @@
                     if ($.type(component.tool) !== STRING || component.tool.length === 0 || !(kidoju.tools[component.tool] instanceof kidoju.Tool)) {
                         throw new Error(kendo.format('`{0}` is not a valid Kidoju tool', component.tool));
                     }
-                    component = $.extend({}, that.defaults, component); //otherwise we are missing default property values
+                    component = $.extend({}, that.defaults, component); // otherwise we are missing default property values
                 }
 
                 Model.fn.init.call(that, component);
@@ -148,21 +148,21 @@
                     var tool = kidoju.tools[that.tool];
                     if (tool instanceof kidoju.Tool) {
 
-                        //Let the tool build a kendo.data.Model for attributes to allow validation in the property grid
+                        // Let the tool build a kendo.data.Model for attributes to allow validation in the property grid
                         var Attributes = tool._getAttributeModel(),
-                        //Extend component attributes with possible new attributes as tools improve
+                        // Extend component attributes with possible new attributes as tools improve
                             attributes = $.extend({}, Attributes.prototype.defaults, that.attributes);
-                        //Cast with Model
-                        //that.set('attributes', new Attributes(attributes)); //<--- this sets the dirty flag and raises the change event
+                        // Cast with Model
+                        // that.set('attributes', new Attributes(attributes)); // <--- this sets the dirty flag and raises the change event
 
-                        //Let the tool build a kendo.data.Model for properties to allow validation in the property grid
+                        // Let the tool build a kendo.data.Model for properties to allow validation in the property grid
                         var Properties = tool._getPropertyModel(),
-                        //Extend component properties with possible new properties as tools improve
+                        // Extend component properties with possible new properties as tools improve
                             properties = $.extend({}, Properties.prototype.defaults, that.properties);
-                        //Cast with Model
-                        //that.set('properties', new Properties(properties)); //<--- this sets the dirty flag and raises the change event
+                        // Cast with Model
+                        // that.set('properties', new Properties(properties)); // <--- this sets the dirty flag and raises the change event
 
-                        that.accept({ //<---- this neither sets teh dirty flag nor raises the change event
+                        that.accept({ // <---- this neither sets teh dirty flag nor raises the change event
                             attributes: new Attributes(attributes),
                             properties: new Properties(properties)
                         });
@@ -176,7 +176,7 @@
              * Get the parent page
              * @returns {*}
              */
-            page: function() {
+            page: function () {
                 var componentCollection = this.parent();
                 return componentCollection.parent();
             }
@@ -187,7 +187,7 @@
          * @type {*|void|Object}
          */
         var PageComponentCollectionDataSource =  kidoju.PageComponentCollectionDataSource = DataSource.extend({
-            init: function(options) {
+            init: function (options) {
 
                 var SubPageComponent = PageComponent.define({
                     components: options
@@ -200,15 +200,15 @@
                 // See kendo.scheduler.SchedulerDataReader which transforms dates with timezones
             },
 
-            remove: function(model) {
+            remove: function (model) {
                 return DataSource.fn.remove.call(this, model);
             },
 
-            //success: dataMethod("success"),
+            // success: dataMethod("success"),
 
-            //data: dataMethod("data"),
+            // data: dataMethod("data"),
 
-            insert: function(index, model) {
+            insert: function (index, model) {
                 if (!model) {
                     return;
                 }
@@ -229,7 +229,7 @@
          * @method create
          * @param options
          */
-        PageComponentCollectionDataSource.create = function(options) {
+        PageComponentCollectionDataSource.create = function (options) {
             options = options && options.push ? { data: options } : options;
 
             var dataSource = options || {},
@@ -266,7 +266,7 @@
              * @constructor
              * @param value
              */
-            init: function(value) {
+            init: function (value) {
                 var that = this;
 
                 Model.fn.init.call(that, value);
@@ -277,11 +277,11 @@
                     $.extend(that._componentsOptions, that.components);
                 }
 
-                //if (that.schema && that.schema.model && that.schema.model.components && that.schema.model.components.transport) {
-                //    $.extend(that._componentsOptions, {transport: that.schema.model.components.transport});
-                //}
+                // if (that.schema && that.schema.model && that.schema.model.components && that.schema.model.components.transport) {
+                //  $.extend(that._componentsOptions, {transport: that.schema.model.components.transport});
+                // }
 
-                if (value && $.isArray(value.components)) { //ObservableArray? PageComponentDataSource?
+                if (value && $.isArray(value.components)) { // ObservableArray? PageComponentDataSource?
                     $.extend(that._componentsOptions, {data: value.components});
                 }
 
@@ -293,7 +293,7 @@
              * @method _initComponents
              * @private
              */
-            _initComponents: function() {
+            _initComponents: function () {
                 var that = this;
                 var components, transport, parameterMap;
 
@@ -303,7 +303,7 @@
                     transport = components.transport;
                     parameterMap = transport.parameterMap;
 
-                    transport.parameterMap = function(data, type) {
+                    transport.parameterMap = function (data, type) {
                         data[that.idField || 'id'] = that.id;
 
                         if (parameterMap) {
@@ -313,21 +313,21 @@
                         return data;
                     };
 
-                    components.parent = function(){
+                    components.parent = function () {
                         return that;
                     };
 
                     /*
-                    components.bind(CHANGE, function(e){
-                        e.node = e.node || that; //TODO: review
+                    components.bind(CHANGE, function (e) {
+                        e.node = e.node || that; // TODO: review
                         that.trigger(CHANGE, e);
                     });
 
-                    components.bind(ERROR, function(e){
+                    components.bind(ERROR, function (e) {
                         var collection = that.parent();
 
                         if (collection) {
-                            e.node = e.node || that; //TODO: review
+                            e.node = e.node || that; // TODO: review
                             collection.trigger(ERROR, e);
                         }
                     });
@@ -339,7 +339,7 @@
              * @method append
              * @param model
              */
-            append: function(model) {
+            append: function (model) {
                 this._initComponents();
                 this.loaded(true);
                 this.components.add(model);
@@ -349,7 +349,7 @@
              * @method _componentsLoaded
              * @private
              */
-            _componentsLoaded: function() {
+            _componentsLoaded: function () {
                 this._loaded = true;
             },
 
@@ -357,12 +357,12 @@
              * @method load
              * @returns {*}
              */
-            load: function() {
+            load: function () {
                 var options = {};
                 var method = '_query';
                 var components, promise;
 
-                //if (this.hasComponents) {
+                // if (this.hasComponents) {
 
                     this._initComponents();
 
@@ -378,9 +378,9 @@
                     components.one(CHANGE, $.proxy(this._componentsLoaded, this));
                     promise = components[method](options);
 
-                //} else {
-                //    this.loaded(true);
-                //}
+                // } else {
+                //  this.loaded(true);
+                // }
 
                 return promise || $.Deferred().resolve().promise();
 
@@ -390,7 +390,7 @@
              * Get the parent stream
              * @returns {*}
              */
-            stream: function() {
+            stream: function () {
                 var pageCollection = this.parent();
                 return pageCollection.parent();
             },
@@ -400,7 +400,7 @@
              * @param value
              * @returns {boolean|*|Page._loaded}
              */
-            loaded: function(value) {
+            loaded: function (value) {
                 if (value !== undefined) {
                     this._loaded = value;
                 } else {
@@ -413,11 +413,11 @@
              * @param field
              * @returns {*|boolean}
              */
-            shouldSerialize: function(field) {
+            shouldSerialize: function (field) {
                 return Model.fn.shouldSerialize.call(this, field) &&
                     field !== 'components' &&
                     field !== '_loaded' &&
-                    //field !== 'hasComponents' &&
+                    // field !== 'hasComponents' &&
                     field !== '_componentsOptions';
             }
         });
@@ -432,7 +432,7 @@
              * @constructor
              * @param options
              */
-            init: function(options) {
+            init: function (options) {
 
                 /*
                 var SubPage = Page.define({
@@ -455,10 +455,10 @@
              * @method _attachBubbleHandlers
              * @private
              */
-            _attachBubbleHandlers: function() {
+            _attachBubbleHandlers: function () {
                 var that = this;
 
-                that._data.bind(ERROR, function(e) {
+                that._data.bind(ERROR, function (e) {
                     that.trigger(ERROR, e);
                 });
             },
@@ -468,13 +468,13 @@
              * @param model
              * @returns {*}
              */
-            remove: function(model) {
+            remove: function (model) {
                 return DataSource.fn.remove.call(this, model);
             },
 
-            //success: dataMethod("success"),
+            // success: dataMethod("success"),
 
-            //data: dataMethod("data"),
+            // data: dataMethod("data"),
 
             /**
              * @method insert
@@ -482,7 +482,7 @@
              * @param model
              * @returns {*}
              */
-            insert: function(index, model) {
+            insert: function (index, model) {
                 if (!model) {
                     return;
                 }
@@ -503,11 +503,11 @@
              * @method getTestFromProperties
              * @returns {*}
              */
-            getTestFromProperties: function() {
+            getTestFromProperties: function () {
                 var that = this,
                     test = {};
-                $.each(that.data(), function(index, page) {
-                    $.each(page.components.data(), function(index, component) {
+                $.each(that.data(), function (index, page) {
+                    $.each(page.components.data(), function (index, component) {
                         var properties = component.properties;
                         if (properties instanceof kendo.data.Model &&
                             $.type(properties.fields) === OBJECT && !$.isEmptyObject(properties.fields) &&
@@ -516,7 +516,7 @@
                         }
                     });
                 });
-                //TODO Consider returning an object cast with a model with type, default value and validation?
+                // TODO Consider returning an object cast with a model with type, default value and validation?
                 return test;
             },
 
@@ -528,7 +528,7 @@
              * @param solution
              * @returns {*}
              */
-            validateNamedValue: function(name, code, value, solution) {
+            validateNamedValue: function (name, code, value, solution) {
                 var dfd = $.Deferred();
                 if (!window.Worker) {
                     dfd.reject({filename: undefined, lineno: undefined, message: 'Web workers are not supported' });
@@ -542,8 +542,8 @@
                     dfd.reject({filename: undefined, lineno: undefined, message: 'Code has not been provided' });
                     return dfd;
                 }
-                //TODO: Add prerequisites (some custom helpers)
-                var blob = new Blob(['onmessage=function(e){' + code + 'if(typeof(e.data.value)==="undefined"){postMessage(e.data.value);}else{postMessage(validate(e.data.value,e.data.solution));}self.close();}']);
+                // TODO: Add prerequisites (some custom helpers)
+                var blob = new Blob(['onmessage=function (e) {' + code + 'if(typeof(e.data.value)==="undefined") {postMessage(e.data.value);}else{postMessage(validate(e.data.value,e.data.solution));}self.close();}']);
                 var blobURL = window.URL.createObjectURL(blob);
                 var worker = new Worker(blobURL);
                 worker.onmessage = function (e) {
@@ -553,7 +553,7 @@
                     dfd.reject(err);
                 };
                 worker.postMessage({value: value, solution: solution});
-                //terminate long workers (>50ms)
+                // terminate long workers (>50ms)
                 setTimeout(function () {
                     worker.terminate();
                     if (dfd.state() === 'pending') {
@@ -569,8 +569,8 @@
              * @method getTestFromProperties
              * @returns {*}
              */
-            validateTestFromProperties: function(test) {
-                if($.type(test) !== OBJECT){
+            validateTestFromProperties: function (test) {
+                if($.type(test) !== OBJECT) {
                     return undefined;
                 }
 
@@ -580,7 +580,7 @@
                     result = {
                         score: 0,
                         max: 0,
-                        percent: function() {
+                        percent: function () {
                             var max, score;
                             if (this instanceof kendo.data.ObservableObject) {
                                 max = this.get('max'); score = this.get('score');
@@ -589,7 +589,7 @@
                             }
                             return score === 0 || max === 0 ?  kendo.toString(0, 'p0') : kendo.toString(score/max, 'p0');
                         },
-                        getScoreArray: function() {
+                        getScoreArray: function () {
                             var array = [];
                             for (var name in this) {
                                 if(/^val_/.test(name) && this.hasOwnProperty(name)) {
@@ -600,17 +600,17 @@
                         }
                     };
 
-                $.each(that.data(), function(index, page) {
-                    $.each(page.components.data(), function(index, component) {
+                $.each(that.data(), function (index, page) {
+                    $.each(page.components.data(), function (index, component) {
                         var properties = component.properties,
                             name, code, value, solution;
                         if (properties instanceof kendo.data.Model &&
                             $.isPlainObject(properties.fields) && !$.isEmptyObject(properties.fields) && $.type(properties.name) === STRING) {
                             promises.push(that.validateNamedValue(
-                                properties.name,        //name
-                                properties.validation,  //code
-                                test[properties.name],  //value
-                                properties.solution     //solution
+                                properties.name,        // name
+                                properties.validation,  // code
+                                test[properties.name],  // value
+                                properties.solution     // solution
                             ));
                             result[properties.name] = {
                                 name: properties.name,
@@ -627,8 +627,8 @@
                 });
 
                 $.when.apply($, promises)
-                    .done(function() {
-                        $.each(arguments, function(index, argument) {
+                    .done(function () {
+                        $.each(arguments, function (index, argument) {
                             result[argument.name].result = argument.result;
                             switch(argument.result) {
                                 case true:
@@ -651,9 +651,9 @@
                             if(result[argument.name] && result[argument.name].success) {
                                 result.max += result[argument.name].success;
                             }
-                            //if(result.max) {
-                            //    result.percent = result.score/result.max;
-                            //}
+                            // if(result.max) {
+                            //  result.percent = result.score/result.max;
+                            // }
                         });
                         deferred.resolve(result);
                     })
@@ -667,7 +667,7 @@
          * @method create
          * @param options
          */
-        PageCollectionDataSource.create = function(options) {
+        PageCollectionDataSource.create = function (options) {
             options = options && options.push ? { data: options } : options;
 
             var dataSource = options || {},
@@ -692,14 +692,14 @@
                     type: STRING,
                     editable:false
                 }
-                //TODO: register assets
+                // TODO: register assets
             },
 
             /**
              * Constructor
              * @param value
              */
-            init: function(value) {
+            init: function (value) {
                 var that = this;
 
                 Model.fn.init.call(that, value);
@@ -723,7 +723,7 @@
              * @method _initPages
              * @private
              */
-            _initPages: function() {
+            _initPages: function () {
                 var that = this;
                 var pages, transport, parameterMap;
 
@@ -733,7 +733,7 @@
                     transport = pages.transport;
                     parameterMap = transport.parameterMap;
 
-                    transport.parameterMap = function(data, type) {
+                    transport.parameterMap = function (data, type) {
                         data[that.idField || 'id'] = that.id;
 
                         if (parameterMap) {
@@ -743,17 +743,17 @@
                         return data;
                     };
 
-                    pages.parent = function(){
+                    pages.parent = function () {
                         return that;
                     };
 
                     /*
-                    pages.bind(CHANGE, function(e){
+                    pages.bind(CHANGE, function (e) {
                         e.node = e.node || that;
                         that.trigger(CHANGE, e);
                     });
 
-                    pages.bind(ERROR, function(e){
+                    pages.bind(ERROR, function (e) {
                         var collection = that.parent();
 
                         if (collection) {
@@ -763,7 +763,7 @@
                     });
                     */
 
-                    //that._updatePagesField();
+                    // that._updatePagesField();
                 }
             },
 
@@ -771,7 +771,7 @@
              * Append a page
              * @param model
              */
-            append: function(model) {
+            append: function (model) {
                 this._initPages();
                 this.loaded(true);
                 this.pages.add(model);
@@ -781,7 +781,7 @@
              *
              * @private
              */
-            _pagesLoaded: function() {
+            _pagesLoaded: function () {
                 this._loaded = true;
             },
 
@@ -789,12 +789,12 @@
              * Load pages
              * @returns {*}
              */
-            load: function() {
+            load: function () {
                 var options = {};
                 var method = '_query';
                 var pages, promise;
 
-                //if (this.hasPages) {
+                // if (this.hasPages) {
 
                 this._initPages();
 
@@ -810,9 +810,9 @@
                 pages.one(CHANGE, $.proxy(this._pagesLoaded, this));
                 promise = pages[method](options);
 
-                //} else {
-                //    this.loaded(true);
-                //}
+                // } else {
+                //  this.loaded(true);
+                // }
 
                 return promise || $.Deferred().resolve().promise();
 
@@ -821,17 +821,17 @@
             /**
              * Save
              */
-            save: function() {
+            save: function () {
                 var that = this,
                     promises = [];
 
-                //TODO: save stream....
+                // TODO: save stream....
 
-                //Save pages
+                // Save pages
                 promises.push(that.pages.sync());
 
-                //Save page components
-                $.each(that.pages.data(), function(index, page) {
+                // Save page components
+                $.each(that.pages.data(), function (index, page) {
                     promises.push(page.components.sync());
                 });
 
@@ -843,7 +843,7 @@
              * @param value
              * @returns {boolean|*}
              */
-            loaded: function(value) {
+            loaded: function (value) {
                 if (value !== undefined) {
                     this._loaded = value;
                 } else {
@@ -856,7 +856,7 @@
              * @param field
              * @returns {*|boolean}
              */
-            shouldSerialize: function(field) {
+            shouldSerialize: function (field) {
                 return Model.fn.shouldSerialize.call(this, field) &&
                     field !== 'pages' &&
                     field !== '_loaded' &&
@@ -869,4 +869,4 @@
 
     return window.kidoju;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

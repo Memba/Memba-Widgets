@@ -6,23 +6,23 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function(f, define){
+(function (f, define) {
     'use strict';
     define(['./vendor/kendo/kendo.binder'], f);
-})(function() {
+})(function () {
 
     'use strict';
 
-    //TODO: check touch interfaces
-    //TODO: Add tooltip with value
-    //TODO: Display half stars
-    //TODO: Should we bind to the DOM change event to be notified when input value changes?????
+    // TODO: check touch interfaces
+    // TODO: Add tooltip with value
+    // TODO: Display half stars
+    // TODO: Should we bind to the DOM change event to be notified when input value changes?????
 
     (function ($, undefined) {
 
         // shorten references to variables for uglification
-        var //fn = Function,
-            //global = fn('return this')(),
+        var // fn = Function,
+            // global = fn('return this')(),
             kendo = window.kendo,
             ui = kendo.ui,
             Widget = ui.Widget,
@@ -36,13 +36,13 @@
             STATE_SELECTED = 'k-state-selected',
             STATE_DISABLED = 'k-state-disabled',
 
-            //Rating
+            // Rating
             RATING_MIN = 0,
             RATING_MAX = 5,
             RATING_STEP = 1,
             PRECISION = 3,
 
-            //Events
+            // Events
             CLICK = 'click' + ns,
             MOUSEENTER = 'mouseenter' + ns,
             MOUSELEAVE = 'mouseleave' + ns,
@@ -93,7 +93,7 @@
              * @property events
              */
             events: [
-                CHANGE //Changing the rating value by clicking a star raises the change event
+                CHANGE // Changing the rating value by clicking a star raises the change event
             ],
 
             /**
@@ -124,12 +124,12 @@
                 } else if (value >= options.min && value <= options.max) {
                     if (options.value !== value) {
                         options.value = value;
-                        //that.element.prop("value", formatValue(value));
+                        // that.element.prop("value", formatValue(value));
                         input.val(value);
                         that.refresh();
                         that.trigger(CHANGE, { value: value });
                         that.element.trigger(CHANGE); // also trigger the DOM change event so any subscriber gets notified
-                        //http://stackoverflow.com/questions/4672505/why-does-the-jquery-change-event-not-trigger-when-i-set-the-value-of-a-select-us
+                        // http://stackoverflow.com/questions/4672505/why-does-the-jquery-change-event-not-trigger-when-i-set-the-value-of-a-select-us
                     }
                 } else {
                     throw new RangeError(kendo.format('Expecting a number between {0} and {1}', options.min, options.max));
@@ -141,22 +141,22 @@
              * @method _layout
              * @private
              */
-            _layout: function() {
+            _layout: function () {
                 var that = this,
                     input = that.element,
                     options = that.options;
                 that._clear();
                 input.wrap('<span class="k-widget k-rating"/>');
                 input.hide();
-                //We need that.wrapper for visible/invisible bindings
+                // We need that.wrapper for visible/invisible bindings
                 that.wrapper = input.parent();
-                //Calculate the number of stars
-                var n = round((options.max - options.min)/options.step);  //number of stars
-                //Add stars to the DOM
+                // Calculate the number of stars
+                var n = round((options.max - options.min)/options.step);  // number of stars
+                // Add stars to the DOM
                 for(var i = 1; i <= n; i++) {
                     that.wrapper.append(kendo.format('<span class="k-rating-star" data-star="{0}">{1}</span>', i, STAR_O));
                 }
-                //Make (non)editable
+                // Make (non)editable
                 that._editable(options);
             },
 
@@ -164,7 +164,7 @@
              * Toggle between editing modes
              * @private
              */
-            _editable: function(options) {
+            _editable: function (options) {
                 var that = this,
                     disabled = options.disabled,
                     readonly = options.readonly,
@@ -184,7 +184,7 @@
              * Function called by the enabled/disabled bindings
              * @param enable
              */
-            enable: function(enable) {
+            enable: function (enable) {
                 this._editable({
                     readonly: false,
                     disabled: !(enable = enable === undefined ? true : enable)
@@ -195,12 +195,12 @@
              * Refreshes the widget
              * @method refresh
              */
-            refresh: function(e) {
+            refresh: function (e) {
                 var that = this,
                     options = that.options;
                 if (that.wrapper) {
                     var i = round((that.value() - options.min)/options.step);
-                    $.each(that.wrapper.find(STAR_SELECTOR), function(index, element) {
+                    $.each(that.wrapper.find(STAR_SELECTOR), function (index, element) {
                         var star = $(element);
                         if(parseFloat(star.attr('data-star')) <= i) {
                             star.html(STAR).addClass(STATE_SELECTED);
@@ -216,7 +216,7 @@
              * @param e
              * @private
              */
-            _onStarClick: function(e) {
+            _onStarClick: function (e) {
                 var that = this,
                     options = that.options;
                 e.preventDefault();
@@ -230,10 +230,10 @@
              * @param e
              * @private
              */
-            _toggleHover: function(e) {
+            _toggleHover: function (e) {
                 var that = this,
                     i = parseFloat($(e.currentTarget).attr('data-star'));
-                $.each(that.wrapper.find(STAR_SELECTOR), function(index, element) {
+                $.each(that.wrapper.find(STAR_SELECTOR), function (index, element) {
                     var star = $(element);
                     if(e.type=== 'mouseenter' && parseFloat(star.attr('data-star')) <= i) {
                         star.html(STAR).addClass(STATE_HOVER);
@@ -248,10 +248,10 @@
              * @method _clear
              * @private
              */
-            _clear: function() {
+            _clear: function () {
                 var that = this,
                     input = that.element;
-                //remove wrapper and stars
+                // remove wrapper and stars
                 if (that.wrapper) {
                     that.wrapper.find(STAR_SELECTOR).off(ns).remove();
                     input.unwrap();
@@ -289,4 +289,4 @@
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

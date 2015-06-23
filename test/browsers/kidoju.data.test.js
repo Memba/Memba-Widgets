@@ -81,32 +81,32 @@
      * PageComponent
      *********************************************************************************************************/
 
-    describe('Test PageComponent', function() {
+    describe('Test PageComponent', function () {
 
-        describe('When initializing a PageComponent', function() {
+        describe('When initializing a PageComponent', function () {
 
-            it('if initialized from an undefined, it should pass although tool is null', function() {
-                //Unfortunately, this is a Kendo UI requirement
+            it('if initialized from an undefined, it should pass although tool is null', function () {
+                // Unfortunately, this is a Kendo UI requirement
                 var component = new kidoju.PageComponent();
                 expect(component).to.have.property('id');
                 expect(component).to.have.property('tool').that.is.null;
             });
 
-            it('if initialized from an object without tool, it should throw', function() {
+            it('if initialized from an object without tool, it should throw', function () {
                 function testFn() {
                     var component = new kidoju.PageComponent({dummy: true});
                 }
                 expect(testFn).to.throw(Error);
             });
 
-            it('if initialized from an object with an invalid tool, it should throw', function() {
+            it('if initialized from an object with an invalid tool, it should throw', function () {
                 function testFn() {
                     var component = new kidoju.PageComponent({tool: 'dummy'});
                 }
                 expect(testFn).to.throw(Error);
             });
 
-            it('if initialized from a valid object, it should pass', function() {
+            it('if initialized from a valid object, it should pass', function () {
                 var component = new kidoju.PageComponent({tool: 'label'});
                 expect(component).to.be.an.instanceof(kidoju.PageComponent);
             });
@@ -182,11 +182,11 @@
      * PageComponentCollectionDataSource
      *********************************************************************************************************/
 
-    describe('Test PageComponentCollectionDataSource', function() {
+    describe('Test PageComponentCollectionDataSource', function () {
 
-        describe('When initializing a PageComponentCollectionDataSource', function(done) {
+        describe('When initializing a PageComponentCollectionDataSource', function (done) {
 
-            it('if initialized from an empty array, the count of components should match', function(done) {
+            it('if initialized from an empty array, the count of components should match', function (done) {
                 var pageItemCollectionDataSource1 = new kidoju.PageComponentCollectionDataSource();
                 var pageItemCollectionDataSource2 = new kidoju.PageComponentCollectionDataSource({ data: [] });
                 expect(pageItemCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
@@ -197,14 +197,14 @@
                     pageItemCollectionDataSource1.read(),
                     pageItemCollectionDataSource2.read()
                 )
-                    .then(function() {
+                    .then(function () {
                         expect(pageItemCollectionDataSource1.total()).to.equal(0);
                         expect(pageItemCollectionDataSource2.total()).to.equal(0);
                         done();
                     });
             });
 
-            it('if initialized from a stupid array (components have no valid tool), it should throw', function() {
+            it('if initialized from a stupid array (components have no valid tool), it should throw', function () {
                 function testFn() {
                     var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({data: books});
                     pageItemCollectionDataSource.read();
@@ -212,7 +212,7 @@
                 expect(testFn).to.throw(Error);
             });
 
-            xit('if initialized with a new model, it should throw', function() {
+            xit('if initialized with a new model, it should throw', function () {
                 function testFn() {
                     var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
                         data: books,
@@ -225,11 +225,11 @@
                 expect(testFn).to.throw(Error);
             });
 
-            it('if initialized from a proper array, the count of components should match and dirty === false', function(done) {
+            it('if initialized from a proper array, the count of components should match and dirty === false', function (done) {
                 var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageItemCollectionData });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
-                pageItemCollectionDataSource.read().then(function() {
+                pageItemCollectionDataSource.read().then(function () {
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
                     for (var i = 0; i < pageItemCollectionData.length; i++) {
                         expect(pageItemCollectionDataSource.at(i).dirty).to.be.false;
@@ -238,11 +238,11 @@
                 });
             });
 
-            it('if initialized from a proper array, attributes and properties should be instances of kendo.data.Model', function(done) {
+            it('if initialized from a proper array, attributes and properties should be instances of kendo.data.Model', function (done) {
                 var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageItemCollectionData });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
-                pageItemCollectionDataSource.read().then(function() {
+                pageItemCollectionDataSource.read().then(function () {
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
                     for (var i = 0; i < pageItemCollectionData.length; i++) {
                         expect(pageItemCollectionDataSource.at(i).attributes).to.be.an.instanceof(kendo.data.Model);
@@ -253,13 +253,13 @@
             });
 
             it('if initialized from a kendo.data.DataSource that is not a kendo.PageComponentCollectionDataSource, it should throw', function () {
-                var testFn = function() {
+                var testFn = function () {
                     var dataSource = kidoju.PageComponentCollectionDataSource.create(new kendo.data.DataSource({ data: [] }));
                 };
                 expect(testFn).to.throw(Error);
             });
 
-            it('if initialized from a kidoju.PageComponentCollectionDataSource, the number of components should match', function(done) {
+            it('if initialized from a kidoju.PageComponentCollectionDataSource, the number of components should match', function (done) {
                 var pageItemCollectionDataSource1 = kidoju.PageComponentCollectionDataSource.create(pageItemCollectionData);
                 var pageItemCollectionDataSource2 = kidoju.PageComponentCollectionDataSource.create(pageItemCollectionDataSource1);
                 expect(pageItemCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
@@ -270,18 +270,18 @@
                     pageItemCollectionDataSource1.read(),
                     pageItemCollectionDataSource2.read()
                 )
-                    .then(function() {
+                    .then(function () {
                         expect(pageItemCollectionDataSource1.total()).to.equal(pageItemCollectionData.length);
                         expect(pageItemCollectionDataSource2.total()).to.equal(pageItemCollectionData.length);
                         done();
                     });
             });
 
-            it('if initialized from a transport, the number of components should match', function(done) {
+            it('if initialized from a transport, the number of components should match', function (done) {
                 var pageItemCollectionDataSource1 = kidoju.PageComponentCollectionDataSource.create(pageItemCollectionData);
                 var pageItemCollectionDataSource2 = new kidoju.PageComponentCollectionDataSource({
                     transport: {
-                        read: function(options) {
+                        read: function (options) {
                             options.success(pageItemCollectionData);
                         }
                     }
@@ -294,7 +294,7 @@
                     pageItemCollectionDataSource1.read(),
                     pageItemCollectionDataSource2.read()
                 )
-                    .then(function() {
+                    .then(function () {
                         expect(pageItemCollectionDataSource1.total()).to.equal(pageItemCollectionData.length);
                         expect(pageItemCollectionDataSource2.total()).to.equal(pageItemCollectionData.length);
                         done();
@@ -328,13 +328,13 @@
 
         });
 
-        describe('When creating a page component', function() {
+        describe('When creating a page component', function () {
 
             it('If dataSource initialized from in-memory array, there should be one page component more', function (done) {
                 var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageItemCollectionData });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
-                pageItemCollectionDataSource.read().then(function() {
+                pageItemCollectionDataSource.read().then(function () {
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
                     pageItemCollectionDataSource.add(new kidoju.PageComponent({ tool: 'label' }));
                     expect(pageItemCollectionDataSource.at(pageItemCollectionData.length).isNew()).to.be.true;
@@ -349,18 +349,18 @@
                     destroy = sinon.spy();
                 var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
                     transport: {
-                        read: function(options) {
+                        read: function (options) {
                             options.success(pageItemCollectionData);
                         },
-                        create: function(options) {
+                        create: function (options) {
                             create(options);
                             options.success(options.data);
                         },
-                        update: function(options) {
+                        update: function (options) {
                             update(options);
                             options.success(options.data);
                         },
-                        destroy: function(options) {
+                        destroy: function (options) {
                             destroy(options);
                             options.success(options.data);
                         }
@@ -368,13 +368,13 @@
                 });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
-                pageItemCollectionDataSource.read().then(function() {
+                pageItemCollectionDataSource.read().then(function () {
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
                     pageItemCollectionDataSource.add(new kidoju.PageComponent({tool: 'label'}));
                     expect(pageItemCollectionDataSource.at(pageItemCollectionData.length).isNew()).to.be.true;
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length + 1);
                     pageItemCollectionDataSource.sync()
-                        .always(function() {
+                        .always(function () {
                             expect(create).to.have.been.called;
                             expect(update).not.to.have.been.called;
                             expect(destroy).not.to.have.been.called;
@@ -385,13 +385,13 @@
 
         });
 
-        describe('When updating a page component', function() {
+        describe('When updating a page component', function () {
 
             it('If dataSource initialized from in-memory array, there should be one updated page component', function (done) {
                 var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageItemCollectionData });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
-                pageItemCollectionDataSource.read().then(function() {
+                pageItemCollectionDataSource.read().then(function () {
                     pageItemCollectionDataSource.at(0).set('top', 111);
                     expect(pageItemCollectionDataSource.at(0).dirty).to.be.true;
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
@@ -405,18 +405,18 @@
                     destroy = sinon.spy();
                 var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
                     transport: {
-                        read: function(options) {
+                        read: function (options) {
                             options.success(pageItemCollectionData);
                         },
-                        create: function(options) {
+                        create: function (options) {
                             create(options);
                             options.success(options.data);
                         },
-                        update: function(options) {
+                        update: function (options) {
                             update(options);
                             options.success(options.data);
                         },
-                        destroy: function(options) {
+                        destroy: function (options) {
                             destroy(options);
                             options.success(options.data);
                         }
@@ -424,12 +424,12 @@
                 });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
-                pageItemCollectionDataSource.read().then(function() {
+                pageItemCollectionDataSource.read().then(function () {
                     pageItemCollectionDataSource.at(0).set('top', 111);
                     expect(pageItemCollectionDataSource.at(0).dirty).to.be.true;
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
                     pageItemCollectionDataSource.sync()
-                        .always(function() {
+                        .always(function () {
                             expect(create).not.to.have.been.called;
                             expect(update).to.have.been.called;
                             expect(destroy).not.to.have.been.called;
@@ -440,13 +440,13 @@
 
         });
 
-        describe('When removing a page component', function() {
+        describe('When removing a page component', function () {
 
             it('If dataSource initialized from in-memory array, there should be one page component less', function (done) {
                 var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageItemCollectionData });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
-                pageItemCollectionDataSource.read().then(function() {
+                pageItemCollectionDataSource.read().then(function () {
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
                     pageItemCollectionDataSource.remove(pageItemCollectionDataSource.at(0));
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length - 1);
@@ -460,18 +460,18 @@
                     destroy = sinon.spy();
                 var pageItemCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
                     transport: {
-                        read: function(options) {
+                        read: function (options) {
                             options.success(pageItemCollectionData);
                         },
-                        create: function(options) {
+                        create: function (options) {
                             create(options);
                             options.success(options.data);
                         },
-                        update: function(options) {
+                        update: function (options) {
                             update(options);
                             options.success(options.data);
                         },
-                        destroy: function(options) {
+                        destroy: function (options) {
                             destroy(options);
                             options.success(options.data);
                         }
@@ -479,10 +479,10 @@
                 });
                 expect(pageItemCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageItemCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
-                pageItemCollectionDataSource.read().then(function() {
+                pageItemCollectionDataSource.read().then(function () {
                     expect(pageItemCollectionDataSource.total()).to.equal(pageItemCollectionData.length);
                     pageItemCollectionDataSource.remove(pageItemCollectionDataSource.at(0));
-                    pageItemCollectionDataSource.sync().then(function() {
+                    pageItemCollectionDataSource.sync().then(function () {
                         expect(create).not.to.have.been.called;
                         expect(update).not.to.have.been.called;
                         expect(destroy).to.have.been.called;
@@ -493,46 +493,46 @@
 
         });
 
-        //TODO Filter, Query, Group, Aggregate, Serialize
+        // TODO Filter, Query, Group, Aggregate, Serialize
     });
 
     /*********************************************************************************************************
      * Page
      *********************************************************************************************************/
 
-    describe('Test Page', function() {
+    describe('Test Page', function () {
 
-        //TODO: http://blog.falafel.com/dirty-children-and-kendo-ui/
+        // TODO: http://blog.falafel.com/dirty-children-and-kendo-ui/
 
-        describe('When initializing a Page', function(done) {
+        describe('When initializing a Page', function (done) {
 
-            it('if initialized from an undefined, it should pass', function(done) {
-                //Unfortunately, this is a Kendo UI requirement
+            it('if initialized from an undefined, it should pass', function (done) {
+                // Unfortunately, this is a Kendo UI requirement
                 var page = new kidoju.Page();
                 expect(page).to.have.property('id');
                 expect(page.components.fetch).to.respond;
-                page.components.fetch().then(function() {
+                page.components.fetch().then(function () {
                     expect(page.components.total()).to.equal(0);
                     done();
                 });
             });
 
-            it('if initialized from an object without components, it should pass', function(done) {
+            it('if initialized from an object without components, it should pass', function (done) {
                 var page = new kidoju.Page({dummy: true});
                 expect(page).to.have.property('id');
-                expect(page).to.have.property('dummy', true);             //<------------ TODO: any way to avoid unwanted properties?
+                expect(page).to.have.property('dummy', true);             // <------------ TODO: any way to avoid unwanted properties?
                 expect(page.components.fetch).to.respond;
-                page.components.fetch().then(function() {
+                page.components.fetch().then(function () {
                     expect(page.components.total()).to.equal(0);
                     done();
                 });
             });
 
-            it('if initialized from an object with components, it should pass', function(done) {
+            it('if initialized from an object with components, it should pass', function (done) {
                 var page = new kidoju.Page({components: [{tool: 'label'}, {tool: 'image'}]});
                 expect(page).to.have.property('id');
                 expect(page.components.fetch).to.respond;
-                page.components.fetch().then(function() {
+                page.components.fetch().then(function () {
                     expect(page.components.total()).to.equal(2);
                     done();
                 });
@@ -546,9 +546,9 @@
      * PageCollectionDataSource
      *********************************************************************************************************/
 
-    describe('Test PageCollectionDataSource', function() {
+    describe('Test PageCollectionDataSource', function () {
 
-        describe('When initializing a PageCollectionDataSource', function() {
+        describe('When initializing a PageCollectionDataSource', function () {
 
             it('if initialized from an empty array, the count of pages should match', function (done) {
                 var pageCollectionDataSource1 = new kidoju.PageCollectionDataSource();
@@ -578,7 +578,7 @@
                 var pageCollectionDataSource = new kidoju.PageCollectionDataSource({data: books});
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
-                pageCollectionDataSource.read().then(function() {                                     // TODO: any way to throw??????
+                pageCollectionDataSource.read().then(function () {                                     // TODO: any way to throw??????
                     expect(pageCollectionDataSource.total()).to.equal(books.length);
                     done();
                 });
@@ -601,7 +601,7 @@
                 var pageCollectionDataSource = new kidoju.PageCollectionDataSource({data: pageCollectionData});
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
-                pageCollectionDataSource.read().then(function() {
+                pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionData.length);
                     for (var i = 0; i < pageCollectionData.length; i++) {
                         expect(pageCollectionDataSource.at(i).dirty).to.be.false;
@@ -617,7 +617,7 @@
                     expect(page.components).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                     expect(page.components.parent()).to.equal(page);
                     expect(page.components.total()).to.equal(0);
-                    page.load().then(function() {
+                    page.load().then(function () {
                         expect(page.components.total()).to.be.gt(0);
                         dfd.resolve();
                     });
@@ -626,7 +626,7 @@
                 var pageCollectionDataSource = new kidoju.PageCollectionDataSource({data: pageCollectionData});
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
-                pageCollectionDataSource.read().then(function() {
+                pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionData.length);
                     var promises = [];
                     for (var i = 0; i < pageCollectionData.length; i++) {
@@ -654,7 +654,7 @@
                     pageCollectionDataSource1.read(),
                     pageCollectionDataSource2.read()
                 )
-                    .then(function() {
+                    .then(function () {
                         expect(pageCollectionDataSource1.total()).to.equal(pageCollectionData.length);
                         expect(pageCollectionDataSource2.total()).to.equal(pageCollectionData.length);
                         done();
@@ -678,7 +678,7 @@
                     pageCollectionDataSource1.read(),
                     pageCollectionDataSource2.read()
                 )
-                    .then(function() {
+                    .then(function () {
                         expect(pageCollectionDataSource1.total()).to.equal(pageCollectionData.length);
                         expect(pageCollectionDataSource2.total()).to.equal(pageCollectionData.length);
                         done();
@@ -723,13 +723,13 @@
 
         });
 
-        describe('When creating a page', function() {
+        describe('When creating a page', function () {
 
             it('If dataSource initialized from in-memory array, there should be one page component more', function (done) {
                 var pageCollectionDataSource = new kidoju.PageCollectionDataSource({ data: pageCollectionData });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
-                pageCollectionDataSource.read().then(function() {
+                pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionData.length);
                     pageCollectionDataSource.add(new kidoju.Page());
                     expect(pageCollectionDataSource.at(pageCollectionData.length).isNew()).to.be.true;
@@ -744,18 +744,18 @@
                     destroy = sinon.spy();
                 var pageCollectionDataSource = new kidoju.PageCollectionDataSource({
                     transport: {
-                        read: function(options) {
+                        read: function (options) {
                             options.success(pageCollectionData);
                         },
-                        create: function(options) {
+                        create: function (options) {
                             create(options);
                             options.success(options.data);
                         },
-                        update: function(options) {
+                        update: function (options) {
                             update(options);
                             options.success(options.data);
                         },
-                        destroy: function(options) {
+                        destroy: function (options) {
                             destroy(options);
                             options.success(options.data);
                         }
@@ -763,13 +763,13 @@
                 });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
-                pageCollectionDataSource.read().then(function() {
+                pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionData.length);
                     pageCollectionDataSource.add(new kidoju.Page());
                     expect(pageCollectionDataSource.at(pageCollectionData.length).isNew()).to.be.true;
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionData.length + 1);
                     pageCollectionDataSource.sync()
-                        .always(function() {
+                        .always(function () {
                             expect(create).to.have.been.called;
                             expect(update).not.to.have.been.called;
                             expect(destroy).not.to.have.been.called;
@@ -780,13 +780,13 @@
 
         });
 
-        describe('When updating a page', function() {
+        describe('When updating a page', function () {
 
             it('If dataSource initialized from in-memory array, there should be one updated page', function (done) {
                 var pageCollectionDataSource = new kidoju.PageCollectionDataSource({ data: pageCollectionData });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
-                pageCollectionDataSource.read().then(function() {
+                pageCollectionDataSource.read().then(function () {
                     pageCollectionDataSource.at(0).set('style', 'background-color: #555555;');
                     expect(pageCollectionDataSource.at(0).dirty).to.be.true;
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionData.length);
@@ -800,18 +800,18 @@
                     destroy = sinon.spy();
                 var pageCollectionDataSource = new kidoju.PageCollectionDataSource({
                     transport: {
-                        read: function(options) {
+                        read: function (options) {
                             options.success(pageCollectionData);
                         },
-                        create: function(options) {
+                        create: function (options) {
                             create(options);
                             options.success(options.data);
                         },
-                        update: function(options) {
+                        update: function (options) {
                             update(options);
                             options.success(options.data);
                         },
-                        destroy: function(options) {
+                        destroy: function (options) {
                             destroy(options);
                             options.success(options.data);
                         }
@@ -819,12 +819,12 @@
                 });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
-                pageCollectionDataSource.read().then(function() {
+                pageCollectionDataSource.read().then(function () {
                     pageCollectionDataSource.at(0).set('style', 'background-color: #555555;');
                     expect(pageCollectionDataSource.at(0).dirty).to.be.true;
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionData.length);
                     pageCollectionDataSource.sync()
-                        .always(function() {
+                        .always(function () {
                             expect(create).not.to.have.been.called;
                             expect(update).to.have.been.called;
                             expect(destroy).not.to.have.been.called;
@@ -835,9 +835,9 @@
 
         });
 
-        describe('When removing a page', function() {
+        describe('When removing a page', function () {
 
-            it('If dataSource initialized from in-memory array, there should be one page less', function(done) {
+            it('If dataSource initialized from in-memory array, there should be one page less', function (done) {
                 var pageCollectionDataSource = new kidoju.PageCollectionDataSource({data: pageCollectionData});
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
@@ -855,18 +855,18 @@
                     destroy = sinon.spy();
                 var pageCollectionDataSource = new kidoju.PageCollectionDataSource({
                     transport: {
-                        read: function(options) {
+                        read: function (options) {
                             options.success(pageCollectionData);
                         },
-                        create: function(options) {
+                        create: function (options) {
                             create(options);
                             options.success(options.data);
                         },
-                        update: function(options) {
+                        update: function (options) {
                             update(options);
                             options.success(options.data);
                         },
-                        destroy: function(options) {
+                        destroy: function (options) {
                             destroy(options);
                             options.success(options.data);
                         }
@@ -874,10 +874,10 @@
                 });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
-                pageCollectionDataSource.read().then(function() {
+                pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionData.length);
                     pageCollectionDataSource.remove(pageCollectionDataSource.at(0));
-                    pageCollectionDataSource.sync().then(function() {
+                    pageCollectionDataSource.sync().then(function () {
                         expect(create).not.to.have.been.called;
                         expect(update).not.to.have.been.called;
                         expect(destroy).to.have.been.called;
@@ -888,7 +888,7 @@
 
         });
 
-        //TODO Group/Aggregate/Serialize
+        // TODO Group/Aggregate/Serialize
 
     });
 
@@ -896,36 +896,36 @@
      * Stream
      *********************************************************************************************************/
 
-    describe('Test Stream', function() {
+    describe('Test Stream', function () {
 
-        //TODO: http://blog.falafel.com/dirty-children-and-kendo-ui/
+        // TODO: http://blog.falafel.com/dirty-children-and-kendo-ui/
 
-        describe('When initializing a Stream', function() {
+        describe('When initializing a Stream', function () {
 
-            it('if initialized from an undefined, it should pass', function(done) {
-                //Unfortunately, this is a Kendo UI requirement
+            it('if initialized from an undefined, it should pass', function (done) {
+                // Unfortunately, this is a Kendo UI requirement
                 var stream = new kidoju.Stream();
                 expect(stream).to.have.property('id');
                 expect(stream.pages.fetch).to.respond;
-                stream.pages.fetch().then(function() {
+                stream.pages.fetch().then(function () {
                     expect(stream.pages.total()).to.equal(0);
                     done();
                 });
             });
 
-            it('if initialized from an object without pages, it should pass', function(done) {
+            it('if initialized from an object without pages, it should pass', function (done) {
                 var stream = new kidoju.Stream({dummy: true});
                 expect(stream).to.have.property('id');
                 expect(stream.pages).to.be.an.instanceof(kidoju.PageCollectionDataSource);
-                expect(stream).to.have.property('dummy', true);             //<------------ TODO: any way to avoid unwanted properties?
+                expect(stream).to.have.property('dummy', true);             // <------------ TODO: any way to avoid unwanted properties?
                 expect(stream.pages.fetch).to.respond;
-                stream.pages.fetch().then(function() {
+                stream.pages.fetch().then(function () {
                     expect(stream.pages.total()).to.equal(0);
                     done();
                 });
             });
 
-            it('if initialized from an object with pages and components, it should pass', function(done) {
+            it('if initialized from an object with pages and components, it should pass', function (done) {
                 var stream = new kidoju.Stream({pages: [
                     { components : [{tool: 'label'}, {tool: 'image'}] },
                     { components : [{tool: 'textbox'}, {tool: 'button'}] }
@@ -933,12 +933,12 @@
                 expect(stream).to.have.property('id');
                 expect(stream.pages).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 expect(stream.pages.fetch).to.respond;
-                stream.pages.fetch().then(function() {
+                stream.pages.fetch().then(function () {
                     expect(stream.pages.total()).to.equal(2);
                     var page = stream.pages.at(0);
                     expect(page).to.be.an.instanceof(kidoju.Page);
                     expect(stream.pages.load).to.respond;
-                    page.load().then(function() {
+                    page.load().then(function () {
                         expect(page.components).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                         expect(page.components.total()).to.equal(2);
                         done();
@@ -958,37 +958,37 @@
      *
      *********************************************************************************************************/
 
-    describe('Test a complex schema with sinonJS', function() {
+    describe('Test a complex schema with sinonJS', function () {
 
-        //See http://docs.telerik.com/kendo-ui/framework/hierarchicaldatasource/overview#binding-a-hierarchicaldatasource-to-remote-data-with-multiple-service-end-points
+        // See http://docs.telerik.com/kendo-ui/framework/hierarchicaldatasource/overview#binding-a-hierarchicaldatasource-to-remote-data-with-multiple-service-end-points
 
         var stream, pages, components;
 
-        describe('Syncing at various levels of the hierarchy', function() {
+        describe('Syncing at various levels of the hierarchy', function () {
 
-            before(function() {
+            before(function () {
                 var SuperStream = kidoju.Stream.define({
                     pages: {
                         transport: {
                             read: function (options) {
                                 pages.read(options);
-                                //window.console.log('reading pages...');
+                                // window.console.log('reading pages...');
                                 options.success([{id: kendo.guid()}]);
                             },
                             create: function (options) {
                                 pages.create(options);
-                                //window.console.log('creating pages...');
-                                options.data.id = kendo.guid(); //id set on server
+                                // window.console.log('creating pages...');
+                                options.data.id = kendo.guid(); // id set on server
                                 options.success(options.data);
                             },
                             update: function (options) {
                                 pages.update(options);
-                                //window.console.log('updating pages...');
+                                // window.console.log('updating pages...');
                                 options.success(options.data);
                             },
                             destroy: function (options) {
                                 pages.destroy(options);
-                                //window.console.log('deleting pages...');
+                                // window.console.log('deleting pages...');
                                 options.success(options.data);
                             }
                         },
@@ -998,23 +998,23 @@
                                     transport: {
                                         read: function (options) {
                                             components.read(options);
-                                            //window.console.log('reading components...');
+                                            // window.console.log('reading components...');
                                             options.success([{id: kendo.guid(), tool: 'label'}]);
                                         },
                                         create: function (options) {
                                             components.create(options);
-                                            //window.console.log('creating components...');
-                                            options.data.id = kendo.guid(); //id set on server
+                                            // window.console.log('creating components...');
+                                            options.data.id = kendo.guid(); // id set on server
                                             options.success(options.data);
                                         },
                                         update: function (options) {
                                             components.update(options);
-                                            //window.console.log('updating components...');
+                                            // window.console.log('updating components...');
                                             options.success(options.data);
                                         },
                                         destroy: function (options) {
                                             components.destroy(options);
-                                            //window.console.log('deleting components...');
+                                            // window.console.log('deleting components...');
                                             options.success(options.data);
                                         }
                                     }
@@ -1026,7 +1026,7 @@
                 stream =  new SuperStream();
             });
 
-            beforeEach(function() {
+            beforeEach(function () {
                 pages = {
                     read: sinon.spy(),
                     create: sinon.spy(),
@@ -1042,12 +1042,12 @@
                 };
             });
 
-            it('Reading', function(done) {
-                stream.load().always(function() {
+            it('Reading', function (done) {
+                stream.load().always(function () {
                     expect(pages.read).to.have.been.calledOnce;
                     expect(components.read).not.to.have.been.called;
                     expect(stream.pages.total()).to.equal(1);
-                    stream.pages.at(0).load().always(function() {
+                    stream.pages.at(0).load().always(function () {
                         expect(components.read).to.have.been.calledOnce;
                         expect(stream.pages.at(0).components.total()).to.equal(1);
                         done();
@@ -1056,7 +1056,7 @@
 
             });
 
-            it('Creating', function(done) {
+            it('Creating', function (done) {
                 stream.pages.add({});
                 expect(stream.pages.total()).to.equal(2);
                 stream.pages.at(1).components.add({tool: 'label'});
@@ -1067,14 +1067,14 @@
                     stream.pages.sync(),
                     stream.pages.at(1).components.sync()
                 ];
-                $.when.apply($, promises).always(function() {
+                $.when.apply($, promises).always(function () {
                     expect(pages.create).to.have.been.calledOnce;
                     expect(components.create).to.have.been.calledTwice;
                     done();
                 });
             });
 
-            it('Updating', function(done) {
+            it('Updating', function (done) {
                 stream.pages.at(1).set('style', 'background-color: #FF0000;');
                 stream.pages.at(1).components.at(0).set('top', 50);
                 stream.pages.at(1).components.at(0).set('left', 50);
@@ -1084,14 +1084,14 @@
                     stream.pages.sync(),
                     stream.pages.at(1).components.sync()
                 ];
-                $.when.apply($, promises).always(function() {
+                $.when.apply($, promises).always(function () {
                     expect(pages.update).to.have.been.calledOnce;
                     expect(components.update).to.have.been.calledOnce;
                     done();
                 });
             });
 
-            it('Deleting', function(done) {
+            it('Deleting', function (done) {
                 expect(stream.pages.total()).to.equal(2);
                 expect(stream.pages.at(1).components.total()).to.equal(2);
                 stream.pages.at(0).components.remove(stream.pages.at(0).components.at(0));
@@ -1102,7 +1102,7 @@
                     stream.pages.at(0).components.sync(),
                     stream.pages.sync()
                 ];
-                $.when.apply($, promises).always(function() {
+                $.when.apply($, promises).always(function () {
                     expect(pages.destroy).to.have.been.calledOnce;
                     expect(components.destroy).to.have.been.calledOnce;
                     done();
@@ -1110,35 +1110,35 @@
             });
         });
 
-        describe('Same with batch: true', function() {
+        describe('Same with batch: true', function () {
 
-            before(function() {
+            before(function () {
                 var SuperStream = kidoju.Stream.define({
                     pages: {
                         transport: {
                             read: function (options) {
                                 pages.read(options);
-                                //window.console.log('reading pages...');
+                                // window.console.log('reading pages...');
                                 options.success([{id: kendo.guid()}]);
                             },
                             create: function (options) {
                                 pages.create(options);
-                                //window.console.log('creating pages...');
+                                // window.console.log('creating pages...');
                                 if ($.isArray(options.data.models)) {
-                                    $.each(options.data.models, function(index, model) {
-                                        model.id = kendo.guid(); //id set on server
+                                    $.each(options.data.models, function (index, model) {
+                                        model.id = kendo.guid(); // id set on server
                                     });
                                 }
                                 options.success(options.data.models);
                             },
                             update: function (options) {
                                 pages.update(options);
-                                //window.console.log('updating pages...');
+                                // window.console.log('updating pages...');
                                 options.success(options.data.models);
                             },
                             destroy: function (options) {
                                 pages.destroy(options);
-                                //window.console.log('deleting pages...');
+                                // window.console.log('deleting pages...');
                                 options.success(options.data.models);
                             }
                         },
@@ -1149,27 +1149,27 @@
                                     transport: {
                                         read: function (options) {
                                             components.read(options);
-                                            //window.console.log('reading components...');
+                                            // window.console.log('reading components...');
                                             options.success([{id: kendo.guid(), tool: 'label'}]);
                                         },
                                         create: function (options) {
                                             components.create(options);
-                                            //window.console.log('creating components...');
+                                            // window.console.log('creating components...');
                                             if ($.isArray(options.data.models)) {
-                                                $.each(options.data.models, function(index, model) {
-                                                    model.id = kendo.guid(); //id set on server
+                                                $.each(options.data.models, function (index, model) {
+                                                    model.id = kendo.guid(); // id set on server
                                                 });
                                             }
                                             options.success(options.data.models);
                                         },
                                         update: function (options) {
                                             components.update(options);
-                                            //window.console.log('updating components...');
+                                            // window.console.log('updating components...');
                                             options.success(options.data.models);
                                         },
                                         destroy: function (options) {
                                             components.destroy(options);
-                                            //window.console.log('deleting components...');
+                                            // window.console.log('deleting components...');
                                             options.success(options.data.models);
                                         }
                                     },
@@ -1182,7 +1182,7 @@
                 stream =  new SuperStream();
             });
 
-            beforeEach(function() {
+            beforeEach(function () {
                 pages = {
                     read: sinon.spy(),
                     create: sinon.spy(),
@@ -1198,12 +1198,12 @@
                 };
             });
 
-            it('Reading', function(done) {
-                stream.load().always(function() {
+            it('Reading', function (done) {
+                stream.load().always(function () {
                     expect(pages.read).to.have.been.called;
                     expect(components.read).not.to.have.been.called;
                     expect(stream.pages.total()).to.equal(1);
-                    stream.pages.at(0).load().always(function() {
+                    stream.pages.at(0).load().always(function () {
                         expect(components.read).to.have.been.called;
                         expect(stream.pages.at(0).components.total()).to.equal(1);
                         done();
@@ -1212,7 +1212,7 @@
 
             });
 
-            it('Creating', function(done) {
+            it('Creating', function (done) {
                 stream.pages.add({});
                 stream.pages.add({});
                 expect(stream.pages.total()).to.equal(3);
@@ -1228,14 +1228,14 @@
                     stream.pages.at(1).components.sync(),
                     stream.pages.at(2).components.sync()
                 ];
-                $.when.apply($, promises).always(function() {
+                $.when.apply($, promises).always(function () {
                     expect(pages.create).to.have.been.calledOnce;
                     expect(components.create).to.have.been.calledTwice;
                     done();
                 });
             });
 
-            it('Updating', function(done) {
+            it('Updating', function (done) {
                 stream.pages.at(1).set('style', 'background-color: #FF0000;');
                 stream.pages.at(1).components.at(0).set('top', 50);
                 stream.pages.at(1).components.at(0).set('left', 50);
@@ -1248,14 +1248,14 @@
                     stream.pages.at(1).components.sync(),
                     stream.pages.at(2).components.sync()
                 ];
-                $.when.apply($, promises).always(function() {
+                $.when.apply($, promises).always(function () {
                     expect(pages.update).to.have.been.calledOnce;
                     expect(components.update).to.have.been.calledTwice;
                     done();
                 });
             });
 
-            it('Deleting', function(done) {
+            it('Deleting', function (done) {
                 expect(stream.pages.total()).to.equal(3);
                 expect(stream.pages.at(1).components.total()).to.equal(2);
                 expect(stream.pages.at(2).components.total()).to.equal(2);
@@ -1268,33 +1268,33 @@
                     stream.pages.at(2).components.sync(),
                     stream.pages.sync()
                 ];
-                $.when.apply($, promises).always(function() {
+                $.when.apply($, promises).always(function () {
                     expect(pages.destroy).not.to.have.been.called;
                     expect(components.destroy).to.have.been.calledTwice;
                     done();
                 });
             });
 
-            it('Mixing operations and saving stream', function(done) {
-                //window.console.log('--------------');
+            it('Mixing operations and saving stream', function (done) {
+                // window.console.log('--------------');
                 expect(stream.pages.total()).to.equal(3);
                 expect(stream.pages.at(0).components.total()).to.equal(1);
                 expect(stream.pages.at(1).components.total()).to.equal(1);
                 expect(stream.pages.at(2).components.total()).to.equal(1);
-                //page 0
+                // page 0
                 stream.pages.at(0).set('style', 'border 1px #0000FF;');
                 stream.pages.at(0).components.at(0).set('rotate', 45);
                 stream.pages.at(0).components.add({tool: 'button'});
                 stream.pages.at(0).components.at(1).set('top', 120);
                 stream.pages.at(0).components.at(1).set('left', 120);
-                //page 1
+                // page 1
                 stream.pages.remove(stream.pages.at(1));
-                //page 2
+                // page 2
                 stream.pages.at(1).set('style', 'padding: 10px');
                 stream.pages.at(1).components.remove(stream.pages.at(1).components.at(0));
                 stream.pages.at(1).components.add({tool: 'textbox'});
                 stream.pages.at(0).components.at(0).set('rotate', 45);
-                stream.save().always(function() {
+                stream.save().always(function () {
                     expect(pages.update).to.have.callCount(1);
                     expect(pages.destroy).to.have.callCount(1);
                     expect(components.create).to.have.callCount(2);
@@ -1311,19 +1311,19 @@
      * Test events
      *********************************************************************************************************/
 
-    describe('Test events', function() {
+    describe('Test events', function () {
 
-        describe('change event', function() {
+        describe('change event', function () {
 
-            xit('TODO', function(done) {
+            xit('TODO', function (done) {
                 done();
             });
 
         });
 
-        describe('error event', function() {
+        describe('error event', function () {
 
-            xit('TODO', function(done) {
+            xit('TODO', function (done) {
                 done();
             });
 
@@ -1335,7 +1335,7 @@
      * Synchronization localStorage
      *********************************************************************************************************/
 
-    describe('Test synchronization with localStorage', function() {
+    describe('Test synchronization with localStorage', function () {
 
         var storageKey = 'stream',
             stream,
@@ -1363,11 +1363,11 @@
                 ]
             };
 
-        describe('Load and save hierarchy as a whole', function() {
+        describe('Load and save hierarchy as a whole', function () {
 
-            before(function() {
+            before(function () {
                 var SuperStream = kidoju.Stream.define({
-                    load: function() {
+                    load: function () {
                         var that = this,
                             dfd = $.Deferred(),
                             stream = localStorage.getItem(storageKey),
@@ -1386,9 +1386,9 @@
                         that.accept(stream);
                         that.pages = new kidoju.PageCollectionDataSource({data: pages});
                         that.pages.fetch()
-                            .done(function() {
+                            .done(function () {
                                 var promises = [];
-                                $.each(that.pages.data(), function(index, page) {
+                                $.each(that.pages.data(), function (index, page) {
                                     promises.push(page.components.fetch());
                                 });
                                 $.when.apply($, promises)
@@ -1398,15 +1398,15 @@
                             .fail(dfd.reject);
                         return dfd.promise();
                     },
-                    save: function() {
-                        //TODO: check changes and avoid saving without changes
+                    save: function () {
+                        // TODO: check changes and avoid saving without changes
                         var that = this,
                             dfd = $.Deferred();
                         if (that.isNew()) {
                             that.accept({id: kendo.guid()});
                         }
                         var data = $.extend(that.toJSON(), { pages : [] });
-                        $.each(that.pages.data(), function(pageIdx, page){
+                        $.each(that.pages.data(), function (pageIdx, page) {
                             if (page.isNew()) {
                                 page.accept({id: kendo.guid()});
                             }
@@ -1414,7 +1414,7 @@
                                 page.dirty = false;
                             }
                             data.pages.push($.extend(page.toJSON(), { components: [] }));
-                            $.each(page.components.data(), function(componentIdx, component) {
+                            $.each(page.components.data(), function (componentIdx, component) {
                                 if (component.isNew()) {
                                     component.accept({id: kendo.guid()});
                                 }
@@ -1433,8 +1433,8 @@
                 localStorage.setItem(storageKey, kendo.stringify(original));
             });
 
-            it('Reading', function(done) {
-                stream.load().always(function() {
+            it('Reading', function (done) {
+                stream.load().always(function () {
                     expect(stream.isNew()).to.be.false;
                     expect(stream.dirty).to.be.false;
                     expect(stream).to.have.property('id', original.id);
@@ -1452,43 +1452,43 @@
                             expect(component.dirty).to.be.false;
                             expect(component).to.have.property('id', original.pages[i].components[j].id);
                             expect(component).to.have.property('tool', original.pages[i].components[j].tool);
-                            //TODO: attributes and properties
+                            // TODO: attributes and properties
                         }
                     }
                     done();
                 });
             });
 
-            it('Creating and fetching', function(done) {
+            it('Creating and fetching', function (done) {
                 var index = stream.pages.total();
                 stream.pages.add({});
-                stream.pages.at(index).components.fetch().always(function() {
+                stream.pages.at(index).components.fetch().always(function () {
                     done();
                 });
             });
 
-            it('Creating', function(done) {
+            it('Creating', function (done) {
                 var index = stream.pages.total();
                 stream.pages.add({});
                 stream.pages.at(index).components.add({tool: 'label'});
-                stream.save().always(function() {
+                stream.save().always(function () {
                     var update = $.parseJSON(localStorage.getItem(storageKey));
                     expect(update).to.have.property('id', stream.id);
                     expect(update).to.have.property('pages').that.is.an.instanceof(Array).with.property('length', index + 1);
                     expect(update.pages[index]).to.have.property('id', stream.pages.at(index).id);
                     expect(update.pages[index]).to.have.property('components').that.is.an.instanceof(Array).with.property('length', stream.pages.at(index).components.total());
-                    //TODO: attributes and properties
+                    // TODO: attributes and properties
                     done();
                 });
             });
 
-            it('Updating', function(done) {
+            it('Updating', function (done) {
                 var index = stream.pages.total() - 1;
                 stream.pages.at(index).set('style', 'background-color: #' +  Math.random().toString(16).substr(2,6) + ';');
                 stream.pages.at(index).components.at(0).set('top', 100);
                 stream.pages.at(index).components.at(0).set('left', 100);
                 stream.pages.at(index).components.at(0).set('rotate', 45);
-                stream.save().always(function() {
+                stream.save().always(function () {
                     var update = $.parseJSON(localStorage.getItem(storageKey));
                     expect(update).to.have.property('id', stream.id);
                     expect(update).to.have.property('pages').that.is.an.instanceof(Array).with.property('length', index + 1);
@@ -1501,10 +1501,10 @@
                 });
             });
 
-            it('Deleting', function(done) {
+            it('Deleting', function (done) {
                 var index = stream.pages.total() - 1;
                 stream.pages.remove(stream.pages.at(index));
-                stream.save().always(function() {
+                stream.save().always(function () {
                     var update = $.parseJSON(localStorage.getItem(storageKey));
                     expect(update).to.have.property('id', stream.id);
                     expect(update).to.have.property('pages').that.is.an.instanceof(Array).with.property('length', index);
@@ -1516,9 +1516,9 @@
         });
 
 
-        describe('atomized CRUD operations on pages and components', function() {
+        describe('atomized CRUD operations on pages and components', function () {
 
-            xit('TODO', function(done) {
+            xit('TODO', function (done) {
                 done();
             });
 
@@ -1530,7 +1530,7 @@
      * Miscellanesous to improve code coverage
      *********************************************************************************************************/
 
-    describe('Miscellaneous to improve code coverage', function() {
+    describe('Miscellaneous to improve code coverage', function () {
 
         it('Stream.append & Page.append', function () {
             var stream = new kidoju.Stream({});
@@ -1589,13 +1589,13 @@
             });
         });
 
-        //TODO: Stream.loaded and Page.loaded?????
+        // TODO: Stream.loaded and Page.loaded?????
 
 
-        //TODO: PageCollectionDataSource.getObjectFromProperties
+        // TODO: PageCollectionDataSource.getObjectFromProperties
 
 
-        if (!window.__karma__) { //This tests breaks further tests in Karma
+        if (!window.__karma__) { // This tests breaks further tests in Karma
             it('Missing Kidoju tools', function () {
 
                 delete kidoju.tools;

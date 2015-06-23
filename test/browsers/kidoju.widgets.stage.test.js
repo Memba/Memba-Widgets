@@ -36,17 +36,17 @@
         };
     }
 
-    describe('kidoju.widgets.stage', function() {
+    describe('kidoju.widgets.stage', function () {
 
-        before(function() {
+        before(function () {
             if (window.__karma__ && $(FIXTURES).length === 0) {
                 $('body').append('<div id="fixtures"></div>');
             }
         });
 
-        describe('Availability', function() {
+        describe('Availability', function () {
 
-            it('requirements', function() {
+            it('requirements', function () {
                 expect($).not.to.be.undefined;
                 expect(kendo).not.to.be.undefined;
                 expect(kendo.version).to.be.a('string');
@@ -59,9 +59,9 @@
 
         });
 
-        describe('Initialization', function() {
+        describe('Initialization', function () {
 
-            it('from code', function() {
+            it('from code', function () {
                 var element = $(STAGE1).appendTo(FIXTURES),
                     stage = element.kendoStage().data('kendoStage');
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
@@ -70,13 +70,13 @@
                 expect(element.parent()).to.have.class('k-widget');
                 expect(element.parent()).to.have.class('kj-stage');
                 expect(stage.mode()).to.equal(kendo.ui.Stage.fn.modes.thumbnail);
-                //expect(stage.wrapper).to.equal(element.parent());
+                // expect(stage.wrapper).to.equal(element.parent());
                 expect(stage.wrapper[0]).to.equal(element.parent()[0]);
                 expect(stage.wrapper).to.have.descendants('div[data-role="stage"]');
                 expect(stage.wrapper).to.have.descendants('div.kj-overlay');
             });
 
-            it('from code with dataSource in thumbnail mode', function() {
+            it('from code with dataSource in thumbnail mode', function () {
                 var element = $(STAGE1).appendTo(FIXTURES),
                     stage = element.kendoStage({
                         mode: kendo.ui.Stage.fn.modes.thumbnail,
@@ -86,18 +86,18 @@
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
                 expect(stage.mode()).to.equal(kendo.ui.Stage.fn.modes.thumbnail);
-                //expect(stage.wrapper).to.equal(element.parent());
+                // expect(stage.wrapper).to.equal(element.parent());
                 expect(stage.wrapper[0]).to.equal(element.parent()[0]);
                 expect(stage.wrapper).to.have.class('k-widget');
                 expect(stage.wrapper).to.have.class('kj-stage');
                 expect(stage.wrapper).to.have.descendants('div[data-role="stage"]');
-                expect(stage.wrapper).to.have.descendants('div.kj-overlay');          //<------------------------- in thumbnail mode, there is an overlay
-                expect(stage.wrapper).not.to.have.descendants('div.kj-handle-box');   //<------------------------- in thumbnail mode, there is no handle box (with handles)
-                expect($(document.body)).not.to.have.descendants('ul.kj-stage-menu'); //<------------------------- in thumbnail mode, there is no contextual menu
+                expect(stage.wrapper).to.have.descendants('div.kj-overlay');          // <------------------------- in thumbnail mode, there is an overlay
+                expect(stage.wrapper).not.to.have.descendants('div.kj-handle-box');   // <------------------------- in thumbnail mode, there is no handle box (with handles)
+                expect($(document.body)).not.to.have.descendants('ul.kj-stage-menu'); // <------------------------- in thumbnail mode, there is no contextual menu
                 expect(stage.menu).to.be.undefined;
                 var items = element.find('div.kj-element');
                 expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionData.length);
-                $.each(items, function(index, item) {
+                $.each(items, function (index, item) {
                     var data = stage.dataSource.at(index);
                     expect($(item).attr(kendo.attr('uid'))).to.equal(data.uid);
                     expect($(item).attr(kendo.attr('tool'))).to.equal(data.tool);
@@ -106,12 +106,12 @@
                     expect($(item).css('left')).to.equal(data.left + 'px');
                     expect($(item).css('height')).to.equal(data.height + 'px');
                     expect($(item).css('width')).to.equal(data.width + 'px');
-                    //TODO we would need a function to convert a 2D transform matrix into a rotation angle
-                    //expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', data.rotate));
+                    // TODO we would need a function to convert a 2D transform matrix into a rotation angle
+                    // expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', data.rotate));
                 });
             });
 
-            it('from code with dataSource in design mode', function() {
+            it('from code with dataSource in design mode', function () {
                 var element = $(STAGE1).appendTo(FIXTURES),
                     stage = element.kendoStage({
                         mode: kendo.ui.Stage.fn.modes.design,
@@ -121,21 +121,21 @@
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
                 expect(stage.mode()).to.equal(kendo.ui.Stage.fn.modes.design);
-                //expect(stage.wrapper).to.equal(element.parent());
+                // expect(stage.wrapper).to.equal(element.parent());
                 expect(stage.wrapper[0]).to.equal(element.parent()[0]);
                 expect(stage.wrapper).to.have.class('k-widget');
                 expect(stage.wrapper).to.have.class('kj-stage');
                 expect(stage.wrapper).to.have.descendants('div[data-role="stage"]');
-                expect(stage.wrapper).not.to.have.descendants('div.kj-overlay'); //<------------------------- in design mode, there is no overlay
-                expect(stage.wrapper).to.have.descendants('div.kj-handle-box');  //<------------------------- in design mode, there is a handle box (with handles)
-                //expect(stage.wrapper).to.have.descendants('div.debug-bounds');
-                //expect(stage.wrapper).to.have.descendants('div.debug.center');
-                //expect(stage.wrapper).to.have.descendants('div.debug-mouse');
-                expect($(document.body)).to.have.descendants('ul.kj-stage-menu'); //<------------------------- in thumbnail mode, there is a contextual menu
+                expect(stage.wrapper).not.to.have.descendants('div.kj-overlay'); // <------------------------- in design mode, there is no overlay
+                expect(stage.wrapper).to.have.descendants('div.kj-handle-box');  // <------------------------- in design mode, there is a handle box (with handles)
+                // expect(stage.wrapper).to.have.descendants('div.debug-bounds');
+                // expect(stage.wrapper).to.have.descendants('div.debug.center');
+                // expect(stage.wrapper).to.have.descendants('div.debug-mouse');
+                expect($(document.body)).to.have.descendants('ul.kj-stage-menu'); // <------------------------- in thumbnail mode, there is a contextual menu
                 expect(stage.menu).to.be.an.instanceof(kendo.ui.ContextMenu);
                 var items = element.find('div.kj-element');
                 expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionData.length);
-                $.each(items, function(index, item) {
+                $.each(items, function (index, item) {
                     var data = stage.dataSource.at(index);
                     expect($(item).attr(kendo.attr('uid'))).to.equal(data.uid);
                     expect($(item).attr(kendo.attr('tool'))).to.equal(data.tool);
@@ -144,12 +144,12 @@
                     expect($(item).css('left')).to.equal(data.left + 'px');
                     expect($(item).css('height')).to.equal(data.height + 'px');
                     expect($(item).css('width')).to.equal(data.width + 'px');
-                    //TODO we would need a function to convert a 2D transform matrix into a rotation angle
-                    //expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', data.rotate));
+                    // TODO we would need a function to convert a 2D transform matrix into a rotation angle
+                    // expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', data.rotate));
                 });
             });
 
-            it('from code with dataSource in play mode', function() {
+            it('from code with dataSource in play mode', function () {
                 var element = $(STAGE1).appendTo(FIXTURES),
                     stage = element.kendoStage({
                         mode: kendo.ui.Stage.fn.modes.play,
@@ -159,18 +159,18 @@
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
                 expect(stage.mode()).to.equal(kendo.ui.Stage.fn.modes.play);
-                //expect(stage.wrapper).to.equal(element.parent());
+                // expect(stage.wrapper).to.equal(element.parent());
                 expect(stage.wrapper[0]).to.equal(element.parent()[0]);
                 expect(stage.wrapper).to.have.class('k-widget');
                 expect(stage.wrapper).to.have.class('kj-stage');
                 expect(stage.wrapper).to.have.descendants('div[data-role="stage"]');
-                expect(stage.wrapper).not.to.have.descendants('div.kj-overlay');      //<------------------------- in play mode, there is no overlay
-                expect(stage.wrapper).not.to.have.descendants('div.kj-handle-box');   //<------------------------- in play mode, there is no handle box (with handles)
-                expect($(document.body)).not.to.have.descendants('ul.kj-stage-menu'); //<------------------------- in play mode, there is no contextual menu
+                expect(stage.wrapper).not.to.have.descendants('div.kj-overlay');      // <------------------------- in play mode, there is no overlay
+                expect(stage.wrapper).not.to.have.descendants('div.kj-handle-box');   // <------------------------- in play mode, there is no handle box (with handles)
+                expect($(document.body)).not.to.have.descendants('ul.kj-stage-menu'); // <------------------------- in play mode, there is no contextual menu
                 expect(stage.menu).to.be.undefined;
                 var items = element.find('div.kj-element');
                 expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionData.length);
-                $.each(items, function(index, item) {
+                $.each(items, function (index, item) {
                     var data = stage.dataSource.at(index);
                     expect($(item).attr(kendo.attr('uid'))).to.equal(data.uid);
                     expect($(item).attr(kendo.attr('tool'))).to.equal(data.tool);
@@ -179,12 +179,12 @@
                     expect($(item).css('left')).to.equal(data.left + 'px');
                     expect($(item).css('height')).to.equal(data.height + 'px');
                     expect($(item).css('width')).to.equal(data.width + 'px');
-                    //TODO we would need a function to convert a 2D transform matrix into a rotation angle
-                    //expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', data.rotate));
+                    // TODO we would need a function to convert a 2D transform matrix into a rotation angle
+                    // expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', data.rotate));
                 });
             });
 
-            it('from markup', function() {
+            it('from markup', function () {
                 var viewModel = kendo.observable({
                         components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionData }),
                         current: undefined
@@ -196,16 +196,16 @@
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
                 expect(stage.mode()).to.equal(kendo.ui.Stage.fn.modes.design);
-                //expect(stage.wrapper).to.equal(element.parent());
+                // expect(stage.wrapper).to.equal(element.parent());
                 expect(stage.wrapper[0]).to.equal(element.parent()[0]);
                 expect(stage.wrapper).to.have.class('k-widget');
                 expect(stage.wrapper).to.have.class('kj-stage');
                 expect(stage.wrapper).to.have.descendants('div[data-role="stage"]');
-                expect(stage.wrapper).not.to.have.descendants('div.kj-overlay'); //<------------------------- in design mode, there is no overlay
-                expect(stage.wrapper).to.have.descendants('div.kj-handle-box');  //<------------------------- in design mode, there is a handle box (with handles)
+                expect(stage.wrapper).not.to.have.descendants('div.kj-overlay'); // <------------------------- in design mode, there is no overlay
+                expect(stage.wrapper).to.have.descendants('div.kj-handle-box');  // <------------------------- in design mode, there is a handle box (with handles)
                 var items = element.find('div.kj-element');
                 expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionData.length);
-                $.each(items, function(index, item) {
+                $.each(items, function (index, item) {
                     var component = stage.dataSource.at(index);
                     expect($(item).attr(kendo.attr('uid'))).to.equal(component.uid);
                     expect($(item).attr(kendo.attr('tool'))).to.equal(component.tool);
@@ -214,17 +214,17 @@
                     expect($(item).css('left')).to.equal(component.left + 'px');
                     expect($(item).css('height')).to.equal(component.height + 'px');
                     expect($(item).css('width')).to.equal(component.width + 'px');
-                    //TODO we would need a function to convert a 2D transform matrix into a rotation angle
-                    //expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', component.rotate));
+                    // TODO we would need a function to convert a 2D transform matrix into a rotation angle
+                    // expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', component.rotate));
                 });
             });
         });
 
-        describe('Methods', function() {
+        describe('Methods', function () {
 
             var element, stage;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 element = $(STAGE1).appendTo(FIXTURES);
                 stage = element.kendoStage({
                     dataSource: pageComponentCollectionData,
@@ -232,13 +232,13 @@
                 }).data('kendoStage');
             });
 
-            it('length', function() {
+            it('length', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(stage.length()).to.equal(pageComponentCollectionData.length);
             });
 
-            it('items', function() {
+            it('items', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 var items = stage.items();
@@ -253,8 +253,8 @@
                 expect(check).to.have.callCount(pageComponentCollectionData.length);
             });
 
-            it('value', function() {
-                var fn = function() {
+            it('value', function () {
+                var fn = function () {
                     stage.value(0);
                 };
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
@@ -268,12 +268,12 @@
                 }
             });
 
-            it('index', function() {
-                var fn1 = function() {
+            it('index', function () {
+                var fn1 = function () {
                     stage.index('not a number');
                 };
-                var fn2 = function() {
-                    stage.index(300); //not in range
+                var fn2 = function () {
+                    stage.index(300); // not in range
                 };
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
@@ -287,8 +287,8 @@
                 }
             });
 
-            it('id', function() {
-                var fn = function() {
+            it('id', function () {
+                var fn = function () {
                     stage.id({});
                 };
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
@@ -302,11 +302,11 @@
                 }
             });
 
-            it('mode', function() {
-                var fn1 = function() {
+            it('mode', function () {
+                var fn1 = function () {
                     stage.mode({});
                 };
-                var fn2 = function() {
+                var fn2 = function () {
                     stage.mode('dummay');
                 };
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
@@ -318,11 +318,11 @@
 
             });
 
-            it('height', function() {
-                var fn1 = function() {
+            it('height', function () {
+                var fn1 = function () {
                     stage.height({});
                 };
-                var fn2 = function() {
+                var fn2 = function () {
                     stage.height(-1);
                 };
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
@@ -332,11 +332,11 @@
                 expect(fn2).to.throw(RangeError);
             });
 
-            it('width', function() {
-                var fn1 = function() {
+            it('width', function () {
+                var fn1 = function () {
                     stage.width({});
                 };
-                var fn2 = function() {
+                var fn2 = function () {
                     stage.width(-1);
                 };
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
@@ -346,11 +346,11 @@
                 expect(fn2).to.throw(RangeError);
             });
 
-            it('scale', function() {
-                var fn1 = function() {
+            it('scale', function () {
+                var fn1 = function () {
                     stage.scale({});
                 };
-                var fn2 = function() {
+                var fn2 = function () {
                     stage.scale(-1);
                 };
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
@@ -360,25 +360,25 @@
                 expect(fn2).to.throw(RangeError);
             });
 
-            xit('properties', function() {
+            xit('properties', function () {
 
             });
 
         });
 
-        describe('MVVM', function() {
+        describe('MVVM', function () {
 
             var element, stage, viewModel;
 
             /*
-             //For obscure reasons, setting the viewModel here does not work
+             // For obscure reasons, setting the viewModel here does not work
              viewModel = kendo.observable({
                 components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionData }),
                 current: null
              });
              */
 
-            beforeEach(function() {
+            beforeEach(function () {
                 element = $(STAGE2).appendTo(FIXTURES);
                 viewModel = kendo.observable({
                     components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionData }),
@@ -388,7 +388,7 @@
                 stage = element.data('kendoStage');
             });
 
-            it('Adding a component to the viewModel adds the corresponding element to the stage', function() {
+            it('Adding a component to the viewModel adds the corresponding element to the stage', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
@@ -410,7 +410,7 @@
                 expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length + 1);
             });
 
-            it('Removing a component from the viewModel removes the corresponding element from the stage', function() {
+            it('Removing a component from the viewModel removes the corresponding element from the stage', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
@@ -420,13 +420,13 @@
                 expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length - 1);
             });
 
-            it('Changing the selected component in the viewModel changes the corresponding element in the stage', function() {
+            it('Changing the selected component in the viewModel changes the corresponding element in the stage', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
                 expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
                 var check = sinon.spy();
-                $.each(viewModel.components.data(), function(index, component) {
+                $.each(viewModel.components.data(), function (index, component) {
                     check();
                     viewModel.set('current', component);
                     var handleBox = stage.wrapper.find('div.kj-handle-box');
@@ -436,13 +436,13 @@
                 expect(check).to.have.callCount(pageComponentCollectionData.length);
             });
 
-            it('Changing the selected element in the stage, changes the corresponding component in the viewModel', function() {
+            it('Changing the selected element in the stage, changes the corresponding component in the viewModel', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
                 expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
                 var check = sinon.spy();
-                $.each(stage.items(), function(index, item) {
+                $.each(stage.items(), function (index, item) {
                     check();
                     $(item).simulate('mousedown', {bubbles: true});
                     var component = viewModel.get('current');
@@ -454,12 +454,12 @@
                     expect(handleBox).to.have.css('left', component.left + 'px');
                     expect(handleBox).to.have.css('height', component.height + 'px');
                     expect(handleBox).to.have.css('width', component.width + 'px');
-                    //rotate?
+                    // rotate?
                 });
                 expect(check).to.have.callCount(pageComponentCollectionData.length);
             });
 
-            it('Adding a new element to the stage, adds the corresponding component to the viewModel', function() {
+            it('Adding a new element to the stage, adds the corresponding component to the viewModel', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
@@ -468,7 +468,7 @@
                     offset = element.offset(),
                     count = 0;
                 var check = sinon.spy();
-                $.each(Object.keys(kidoju.tools), function(index, key) {
+                $.each(Object.keys(kidoju.tools), function (index, key) {
                     var tool = kidoju.tools[key];
                     if (tool instanceof kidoju.Tool && tool.id !== kidoju.tools.pointer.id) {
                         check();
@@ -496,47 +496,47 @@
                         expect($(item).css('left')).to.equal(component.left + 'px');
                         expect($(item).css('height')).to.equal(component.height + 'px');
                         expect($(item).css('width')).to.equal(component.width + 'px');
-                        //TODO we would need a function to convert a 2D transform matrix into a rotation angle
-                        //expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', component.rotate));
+                        // TODO we would need a function to convert a 2D transform matrix into a rotation angle
+                        // expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', component.rotate));
                     }
                 });
                 expect(check).to.have.been.called;
             });
 
-            it('Moving an element on stage, updates top & left properties of the corresponding component in the viewModel', function() {
+            it('Moving an element on stage, updates top & left properties of the corresponding component in the viewModel', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
                 expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
                 var check = sinon.spy();
-                $.each(stage.items(), function(index, item) {
+                $.each(stage.items(), function (index, item) {
                     check();
-                    $(item).simulate('mousedown', {bubbles: true}); //display handles
-                    expect(viewModel.get('current')).to.have.property('uid', $(item).attr(kendo.attr('uid'))); //check selected item
-                    //record coordinates before dragging
+                    $(item).simulate('mousedown', {bubbles: true}); // display handles
+                    expect(viewModel.get('current')).to.have.property('uid', $(item).attr(kendo.attr('uid'))); // check selected item
+                    // record coordinates before dragging
                     var top = viewModel.get('current.top'),
                         left = viewModel.get('current.left'),
                         height = viewModel.get('current.height'),
                         width = viewModel.get('current.width'),
                         rotate = viewModel.get('current.rotate'),
                         handle = stage.wrapper.find('span.kj-handle[data-command="move"]');
-                    //check move handle and calculate center
+                    // check move handle and calculate center
                     expect(handle).to.be.an.instanceof($).with.property('length', 1);
                     var center = findCenter(handle), moves = 10, dx = 100, dy = 50,
                         x = center.x, y = center.y;
-                    //initiate drag with mousedown event
-                    handle.simulate('mousedown', { bubbles: true, clientX: x, clientY: y }); //initiate drag on move handle
-                    //move item
+                    // initiate drag with mousedown event
+                    handle.simulate('mousedown', { bubbles: true, clientX: x, clientY: y }); // initiate drag on move handle
+                    // move item
                     for (var i = 0; i < moves; i++) {
                         x += dx / moves;
                         y += dy / moves;
                         $(item).simulate('mousemove', { bubbles: true, clientX: x, clientY: y });
                     }
-                    //end drag with mouseup event
+                    // end drag with mouseup event
                     $(item).simulate('mouseup', { bubbles: true, clientX: x, clientY: y });
-                    //check new coordinates
+                    // check new coordinates
                     if (kendo.support.browser.msie) {
-                        //for whatever reason, on IE you get 99.999997 instead of 100
+                        // for whatever reason, on IE you get 99.999997 instead of 100
                         expect(viewModel.get('current.top')).to.be.closeTo(top + dy, 0.001);
                     } else {
                         expect(viewModel.get('current.top')).to.equal(top + dy);
@@ -549,38 +549,38 @@
                 expect(check).to.have.callCount(pageComponentCollectionData.length);
             });
 
-            it('Rotating an element on stage, updates the rotate property of the corresponding component in the viewModel', function() {
+            it('Rotating an element on stage, updates the rotate property of the corresponding component in the viewModel', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
                 expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
                 var check = sinon.spy();
-                $.each(stage.items(), function(index, item) {
+                $.each(stage.items(), function (index, item) {
                     check();
-                    $(item).simulate('mousedown', {bubbles: true}); //display handles
-                    expect(viewModel.get('current')).to.have.property('uid', $(item).attr(kendo.attr('uid'))); //check selected item
-                    //record coordinates before dragging
+                    $(item).simulate('mousedown', {bubbles: true}); // display handles
+                    expect(viewModel.get('current')).to.have.property('uid', $(item).attr(kendo.attr('uid'))); // check selected item
+                    // record coordinates before dragging
                     var top = viewModel.get('current.top'),
                         left = viewModel.get('current.left'),
                         height = viewModel.get('current.height'),
                         width = viewModel.get('current.width'),
                         rotate = viewModel.get('current.rotate'),
                         handle = stage.wrapper.find('span.kj-handle[data-command="rotate"]');
-                    //check move handle and calculate center
+                    // check move handle and calculate center
                     expect(handle).to.be.an.instanceof($).with.property('length', 1);
                     var center = findCenter(handle), moves = 10, dx = 50, dy = 100,
                         x = center.x, y = center.y;
-                    //initiate drag with mousedown event
-                    handle.simulate('mousedown', {bubbles: true, clientX: x, clientY: y}); //initiate drag on move handle
-                    //move item
+                    // initiate drag with mousedown event
+                    handle.simulate('mousedown', {bubbles: true, clientX: x, clientY: y}); // initiate drag on move handle
+                    // move item
                     for (var i = 0; i < moves; i++) {
                         x += dx / moves;
                         y += dy / moves;
                         $(item).simulate('mousemove', {bubbles: true, clientX: x, clientY: y});
                     }
-                    //end drag with mouseup event
+                    // end drag with mouseup event
                     $(item).simulate('mouseup', {bubbles: true, clientX: x, clientY: y});
-                    //check new coordinates
+                    // check new coordinates
                     var c = findCenter($(item)), p1 = center, p2 = { x: x, y: y},
                         dr = (Math.atan2(p2.y - c.y, p2.x - c.x) - Math.atan2(p1.y - c.y, p1.x - c.x)) * 180 / Math.PI;
                     expect(viewModel.get('current.top')).to.equal(top);
@@ -588,44 +588,44 @@
                     expect(viewModel.get('current.height')).to.equal(height);
                     expect(viewModel.get('current.width')).to.equal(width);
                     expect(viewModel.get('current.rotate')).not.to.equal(rotate);
-                    //TODO: Better to recalculate the correct value instead of simply assessing change
-                    //expect(viewModel.get('current.rotate')).to.equal((360 + rotate + dr) % 360);
+                    // TODO: Better to recalculate the correct value instead of simply assessing change
+                    // expect(viewModel.get('current.rotate')).to.equal((360 + rotate + dr) % 360);
                 });
                 expect(check).to.have.callCount(pageComponentCollectionData.length);
             });
 
-            it('Resizing an element on stage, updates the top, left, height & width properties of the corresponding component in the viewModel', function() {
+            it('Resizing an element on stage, updates the top, left, height & width properties of the corresponding component in the viewModel', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
                 expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
                 var check = sinon.spy();
-                $.each(stage.items(), function(index, item) {
+                $.each(stage.items(), function (index, item) {
                     check();
-                    $(item).simulate('mousedown', {bubbles: true}); //display handles
-                    expect(viewModel.get('current')).to.have.property('uid', $(item).attr(kendo.attr('uid'))); //check selected item
-                    //record coordinates before dragging
+                    $(item).simulate('mousedown', {bubbles: true}); // display handles
+                    expect(viewModel.get('current')).to.have.property('uid', $(item).attr(kendo.attr('uid'))); // check selected item
+                    // record coordinates before dragging
                     var top = viewModel.get('current.top'),
                         left = viewModel.get('current.left'),
                         height = viewModel.get('current.height'),
                         width = viewModel.get('current.width'),
                         rotate = viewModel.get('current.rotate'),
                         handle = stage.wrapper.find('span.kj-handle[data-command="resize"]');
-                    //check move handle and calculate center
+                    // check move handle and calculate center
                     expect(handle).to.be.an.instanceof($).with.property('length', 1);
                     var center = findCenter(handle), moves = 10, dx = 80, dy = 120,
                         x = center.x, y = center.y;
-                    //initiate drag with mousedown event
-                    handle.simulate('mousedown', {bubbles: true, clientX: x, clientY: y}); //initiate drag on resize handle
-                    //resize item
+                    // initiate drag with mousedown event
+                    handle.simulate('mousedown', {bubbles: true, clientX: x, clientY: y}); // initiate drag on resize handle
+                    // resize item
                     for (var i = 0; i < moves; i++) {
                         x += dx / moves;
                         y += dy / moves;
                         $(item).simulate('mousemove', {bubbles: true, clientX: x, clientY: y});
                     }
-                    //end drag with mouseup event
+                    // end drag with mouseup event
                     $(item).simulate('mouseup', {bubbles: true, clientX: x, clientY: y});
-                    //check new coordinates
+                    // check new coordinates
                     if (rotate) {
                         expect(viewModel.get('current.top')).not.to.equal(top);
                         expect(viewModel.get('current.left')).not.to.equal(left);
@@ -642,23 +642,23 @@
 
         });
 
-        describe('Events', function() {
+        describe('Events', function () {
 
             var element, stage;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 element = $(STAGE1).appendTo(FIXTURES);
             });
 
-            it('dataBinding & dataBound', function() {
+            it('dataBinding & dataBound', function () {
                 var dataBinding = sinon.spy(),
                     dataBound = sinon.spy();
                 stage = element.kendoStage({
                     dataSource: pageComponentCollectionData,
-                    dataBinding: function(e) {
+                    dataBinding: function (e) {
                         dataBinding(e.sender);
                     },
-                    dataBound: function(e) {
+                    dataBound: function (e) {
                         dataBound(e.sender);
                     }
                 }).data('kendoStage');
@@ -671,16 +671,16 @@
                 expect(dataBinding).to.have.been.calledBefore(dataBound);
             });
 
-            it('propertyBinding & propertyBound', function() {
+            it('propertyBinding & propertyBound', function () {
                 var propertyBinding = sinon.spy(),
                     propertyBound = sinon.spy();
                 stage = element.kendoStage({
-                    mode: kendo.ui.Stage.fn.modes.play,   //TODO only in play mode
+                    mode: kendo.ui.Stage.fn.modes.play,   // TODO only in play mode
                     dataSource: pageComponentCollectionData,
-                    propertyBinding: function(e) {
+                    propertyBinding: function (e) {
                         propertyBinding(e.sender);
                     },
-                    propertyBound: function(e) {
+                    propertyBound: function (e) {
                         propertyBound(e.sender);
                     }
                 }).data('kendoStage');
@@ -693,11 +693,11 @@
                 expect(propertyBinding).to.have.been.calledBefore(propertyBound);
             });
 
-            it('change', function() {
+            it('change', function () {
                 var change = sinon.spy();
                 stage = element.kendoStage({
                     dataSource: pageComponentCollectionData,
-                    change: function(e) {
+                    change: function (e) {
                         change(e.value);
                     }
                 }).data('kendoStage');
@@ -711,32 +711,32 @@
                 expect(change).to.have.been.calledWith(component);
             });
 
-            //TODO: select event
+            // TODO: select event
 
         });
 
-        xdescribe('XSS', function() {
+        xdescribe('XSS', function () {
 
-            //TODO: extremely important: test XSS, tool by tool
-            xit('button', function() {
-                //TODO text and style * 2
+            // TODO: extremely important: test XSS, tool by tool
+            xit('button', function () {
+                // TODO text and style * 2
             });
 
-            xit('label', function() {
-                //TODO text and style
+            xit('label', function () {
+                // TODO text and style
             });
 
-            xit('image', function() {
-                //TODO image and style
+            xit('image', function () {
+                // TODO image and style
             });
 
-            xit('textbox', function() {
-                //TODO style
+            xit('textbox', function () {
+                // TODO style
             });
 
         });
 
-        afterEach(function() {
+        afterEach(function () {
             var fixtures = $(FIXTURES);
             kendo.destroy(fixtures);
             fixtures.find('*').off();

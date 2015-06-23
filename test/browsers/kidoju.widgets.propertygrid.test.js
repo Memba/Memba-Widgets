@@ -31,17 +31,17 @@
         }
     }
 
-    describe('kidoju.widgets.propertygrid', function() {
+    describe('kidoju.widgets.propertygrid', function () {
 
-        before(function() {
+        before(function () {
             if (window.__karma__ && $(FIXTURES).length === 0) {
                 $('body').append('<div id="fixtures"></div>');
             }
         });
 
-        describe('Availability', function() {
+        describe('Availability', function () {
 
-            it('requirements', function() {
+            it('requirements', function () {
                 expect($).not.to.be.undefined;
                 expect(kendo).not.to.be.undefined;
                 expect(kendo.version).to.be.a('string');
@@ -54,7 +54,7 @@
 
         });
 
-        describe('Basic Initialization', function() {
+        describe('Basic Initialization', function () {
 
             it('from code without option', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
@@ -72,7 +72,7 @@
 
         });
 
-        describe('String Initialization', function() {
+        describe('String Initialization', function () {
 
             it('string object value', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
@@ -97,7 +97,7 @@
                 expect(title).to.equal('Sample');
             });
 
-            it('string object value with basic rows options (title only)', function() {
+            it('string object value with basic rows options (title only)', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: 'Sample' },
@@ -123,7 +123,7 @@
                 expect(title).to.equal(propertyGrid.options.rows[0].title);
             });
 
-            it('string object value with textarea editor', function() {
+            it('string object value with textarea editor', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: 'Sample' },
@@ -148,7 +148,7 @@
                 expect(title).to.equal(propertyGrid.options.rows[0].title);
             });
 
-            it('string object value with span editor and attributes', function() {
+            it('string object value with span editor and attributes', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: 'Sample' },
@@ -174,7 +174,7 @@
                 expect(title).to.equal(propertyGrid.options.rows[0].title);
             });
 
-            it('string object value with kendo widget (color picker)', function() {
+            it('string object value with kendo widget (color picker)', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: '#ffffff' },
@@ -199,12 +199,12 @@
                 expect(title).to.equal('Sample');
             });
 
-            it('string object value with custom widget', function() {
+            it('string object value with custom widget', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: 'W1N 1AC' },
                         rows: [
-                            { field: 'sample', editor: function(container, options){
+                            { field: 'sample', editor: function (container, options) {
                                 $('<input data-bind="value: ' + options.field + '"/>')
                                     .appendTo(container)
                                     .kendoMaskedTextBox({
@@ -254,7 +254,7 @@
                     span = row.find('span[' + kendo.attr('bind') + ']'),
                     title = row.find('td:first-of-type').text();
                 expect(value.sample).to.be.a('string');
-                expect(keys).to.be.an.instanceof(Array).with.property('length', 5); //including _events, uid, dirty and id
+                expect(keys).to.be.an.instanceof(Array).with.property('length', 5); // including _events, uid, dirty and id
                 expect(row).to.exist;
                 expect(input).not.to.exist;
                 expect(span).to.exist;
@@ -277,7 +277,7 @@
                     div = row.find('div[' + kendo.attr('bind') + ']'),
                     title = row.find('td:first-of-type').text();
                 expect(value.sample).to.be.a('string');
-                expect(keys).to.be.an.instanceof(Array).with.property('length', 1); //including _events, uid, dirty and id
+                expect(keys).to.be.an.instanceof(Array).with.property('length', 1); // including _events, uid, dirty and id
                 expect(row).to.exist;
                 expect(input).not.to.exist;
                 expect(div).to.exist;
@@ -285,7 +285,7 @@
                 expect(div).to.have.text(value.sample);
             });
 
-            it('string object value with basic rows options (title only)', function() {
+            it('string object value with basic rows options (title only)', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: { subvalue: 'Sample' } },
@@ -313,9 +313,9 @@
 
         });
 
-        describe('Number Initialization', function() {
+        describe('Number Initialization', function () {
 
-            it('number object value', function() {
+            it('number object value', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: 3 }
@@ -338,7 +338,7 @@
                 expect(title).to.equal('Sample');
             });
 
-            it('number object value with basic rows options (title only)', function() {
+            it('number object value with basic rows options (title only)', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: 5.41 },
@@ -364,7 +364,7 @@
                 expect(title).to.equal(propertyGrid.options.rows[0].title);
             });
 
-            it('number object value with kendo editor (slider)', function() {
+            it('number object value with kendo editor (slider)', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: 5.41 },
@@ -390,12 +390,12 @@
                 expect(title).to.equal(propertyGrid.options.rows[0].title);
             });
 
-            it('number object value with custom widget', function() {
+            it('number object value with custom widget', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: 3 },
                         rows: [
-                            { field: 'sample', title: 'Category', editor: function(container, options){
+                            { field: 'sample', title: 'Category', editor: function (container, options) {
                                 $('<input data-bind="value: ' + options.field + '"/>')
                                     .appendTo(container)
                                     .kendoDropDownList({
@@ -433,9 +433,9 @@
 
         });
 
-        describe('Date Initialization', function() {
+        describe('Date Initialization', function () {
 
-            it('date object value', function() {
+            it('date object value', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: new Date(1966, 2, 14) }
@@ -457,7 +457,7 @@
                 expect(row.find('['+ kendo.attr('role') + ']')).to.have.attr(kendo.attr('role'), 'datepicker');
             });
 
-            it('date object value with basic rows options (title only)', function() {
+            it('date object value with basic rows options (title only)', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: new Date(1966, 2, 14) },
@@ -483,7 +483,7 @@
                 expect(title).to.equal(propertyGrid.options.rows[0].title);
             });
 
-            it('date object value with kendo editor (datetimepicker)', function() {
+            it('date object value with kendo editor (datetimepicker)', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: new Date(1966, 2, 14) },
@@ -509,12 +509,12 @@
                 expect(title).to.equal(propertyGrid.options.rows[0].title);
             });
 
-            it('date object value with custom widget', function() {
+            it('date object value with custom widget', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: new Date(1966, 2, 14) },
                         rows: [
-                            { field: 'sample', title: 'Birthday', editor: function(container, options){
+                            { field: 'sample', title: 'Birthday', editor: function (container, options) {
                                 $('<span data-bind="text: ' + options.field + '"/>')
                                     .appendTo(container);
                             } }
@@ -539,9 +539,9 @@
 
         });
 
-        describe('Boolean Initialization', function() {
+        describe('Boolean Initialization', function () {
 
-            it('boolean object value', function() {
+            it('boolean object value', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: true }
@@ -563,7 +563,7 @@
                 expect(row.find('['+ kendo.attr('role') + ']')).to.have.attr(kendo.attr('role'), 'switch');
             });
 
-            it('boolean object value with basic rows options (title and attributes)', function() {
+            it('boolean object value with basic rows options (title and attributes)', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: true },
@@ -591,12 +591,12 @@
                 expect(row.find('span.km-switch-label-off')).to.have.text('No');
             });
 
-            it('boolean object value with custom widget', function() {
+            it('boolean object value with custom widget', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: new Date(1966, 2, 14) },
                         rows: [
-                            { field: 'sample', title: 'Birthday', editor: function(container, options){
+                            { field: 'sample', title: 'Birthday', editor: function (container, options) {
                                 $('<input type="checkbox" data-bind="checked: ' + options.field + '"/>')
                                     .appendTo(container);
                             } }
@@ -622,9 +622,9 @@
 
         });
 
-        describe('Composite Object Initialization', function() {
+        describe('Composite Object Initialization', function () {
 
-            it('from code with object value only', function() {
+            it('from code with object value only', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: {
@@ -639,7 +639,7 @@
                 validateGridHtml(element, Object.keys(propertyGrid.value()).length);
             });
 
-            it('from code with object value and rows options', function() {
+            it('from code with object value and rows options', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: {
@@ -667,15 +667,15 @@
                             {field: 'backgroundColor', title: 'Colour', editor: 'colorpicker'},
                             {field: 'created', title: 'Creation Date', editor:'datepicker', format: 'dd MMM yyyy'},
                             {field: 'scale', title: 'Scale', editor: 'slider'}//,
-                            //{field: 'active', title: 'Active'}
+                            // {field: 'active', title: 'Active'}
                         ]
                     }).data('kendoPropertyGrid');
                 expect(propertyGrid).to.be.an.instanceof(kendo.ui.PropertyGrid);
-                //One row has been commented out and should not be displayed
+                // One row has been commented out and should not be displayed
                 validateGridHtml(element, Object.keys(propertyGrid.value()).length - 1);
             });
 
-            it('from markup', function() {
+            it('from markup', function () {
                 var element = $(PROPERTYGRID2).appendTo(FIXTURES),
                     viewModel = kendo.observable({
 
@@ -685,7 +685,7 @@
                 expect(propertyGrid).to.be.an.instanceof(kendo.ui.PropertyGrid);
             });
 
-            it('from markup and rows', function() {
+            it('from markup and rows', function () {
                 var element = $(PROPERTYGRID2).appendTo(FIXTURES),
                     viewModel = kendo.observable({
 
@@ -697,9 +697,9 @@
 
         });
 
-        describe('Validation', function() {
+        describe('Validation', function () {
 
-            it('required', function() {
+            it('required', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     Sample = kendo.data.Model.define({
                         id: 'id',
@@ -727,7 +727,7 @@
                 expect(propertyGrid.validate()).to.be.false;
             });
 
-            it('regex pattern', function() {
+            it('regex pattern', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     Sample = kendo.data.Model.define({
                         id: 'id',
@@ -757,7 +757,7 @@
                 expect(propertyGrid.errors()[0]).to.equal('sample is not valid');
             });
 
-            it('min, max, step', function() {
+            it('min, max, step', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: -100 },
@@ -772,7 +772,7 @@
                 expect(propertyGrid.errors()[0]).to.equal('sample should be greater than or equal to 0');
             });
 
-            it('url', function() {
+            it('url', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: 'Sample' },
@@ -787,7 +787,7 @@
                 expect(propertyGrid.errors()[0]).to.equal('sample is not valid URL');
             });
 
-            it('email', function() {
+            it('email', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: 'Sample' },
@@ -802,7 +802,7 @@
                 expect(propertyGrid.errors()[0]).to.equal('sample is not valid email');
             });
 
-            it('custom validation rules', function() {
+            it('custom validation rules', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { sample: 'Sample' },
@@ -811,7 +811,7 @@
                                 custom: 'Please enter a valid value for my custom rule',
                             },
                             rules: {
-                                custom: function(input) {
+                                custom: function (input) {
                                     if (input.is('[name="sample"]')) {
                                         return input.val() === 'Tom';
                                     }
@@ -829,9 +829,9 @@
 
         });
 
-        describe('Methods', function() {
+        describe('Methods', function () {
 
-            it('Get/set value', function() {
+            it('Get/set value', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid().data('kendoPropertyGrid'),
                     fn = function () {
@@ -853,7 +853,7 @@
                 expect(propertyGrid.value()).to.be.null;
             });
 
-            it('Get/set rows', function() {
+            it('Get/set rows', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
                         value: { firstName: 'John', lastName: 'Smith', dateOfBirth: new Date(1966, 2, 14), married: true, children: 3 }
@@ -877,23 +877,23 @@
                 expect(propertyGrid.rows()).to.equal(rows2);
             });
 
-            //TODO: refresh and destroy
+            // TODO: refresh and destroy
 
         });
 
-        describe('MVVM', function() {
+        describe('MVVM', function () {
 
             var element, propertyGrid, viewModel;
 
             /*
-             //For obscure reasons, setting the viewModel here does not work
+             // For obscure reasons, setting the viewModel here does not work
              viewModel = kendo.observable({
                 components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionData }),
                 current: null
              });
              */
 
-            beforeEach(function() {
+            beforeEach(function () {
                 element = $(PROPERTYGRID2).appendTo(FIXTURES);
                 viewModel = kendo.observable({
                     current: null
@@ -902,20 +902,20 @@
                 propertyGrid = element.data('kendoPropertyGrid');
             });
 
-            it('Instantiating the propertyGrid on a null bound value, displays no row', function() {
+            it('Instantiating the propertyGrid on a null bound value, displays no row', function () {
                 expect(propertyGrid).to.be.an.instanceof(kendo.ui.PropertyGrid);
                 expect(propertyGrid.value()).to.equal(viewModel.get('current'));
                 validateGridHtml(element, 0);
             });
 
-            it('Setting the bound value to a non object, throws a type error', function() {
-                var fn = function() {
+            it('Setting the bound value to a non object, throws a type error', function () {
+                var fn = function () {
                     viewModel.set('current', true);
                 };
                 expect(fn).to.throw(TypeError);
             });
 
-            it('Setting the bound value to an object, display rows', function() {
+            it('Setting the bound value to an object, display rows', function () {
                 viewModel.set('current', {
                     firstName: 'John',
                     lastName: 'Smith',
@@ -925,10 +925,10 @@
                 });
                 expect(propertyGrid).to.be.an.instanceof(kendo.ui.PropertyGrid);
                 expect(propertyGrid.value()).to.equal(viewModel.get('current'));
-                validateGridHtml(element, 6); //including uid
+                validateGridHtml(element, 6); // including uid
             });
 
-            it('Adding rows options customizes the display', function() {
+            it('Adding rows options customizes the display', function () {
                 viewModel.set('current', {
                     firstName: 'John',
                     lastName: 'Smith',
@@ -945,10 +945,10 @@
                     { field: 'married', title: 'Married', attributes: { style: 'background-color: #FF0000;' } },
                     { field: 'children', title: 'Children', attributes: { style: 'background-color: #FF0000;' } }
                 ]);
-                validateGridHtml(element, 5); //now excluding uid
+                validateGridHtml(element, 5); // now excluding uid
             });
 
-            it('Setting a value in the property grid updates the view model', function() {
+            it('Setting a value in the property grid updates the view model', function () {
                 var change = sinon.spy();
                 viewModel.set('current', {
                     firstName: 'John',
@@ -957,27 +957,27 @@
                     married: true,
                     children: 3
                 });
-                viewModel.bind('change', function(e) {
+                viewModel.bind('change', function (e) {
                     change(e.field);
                 });
                 expect(propertyGrid).to.be.an.instanceof(kendo.ui.PropertyGrid);
                 expect(propertyGrid.value()).to.equal(viewModel.get('current'));
                 var input = element.find('input[data-bind]').first();
                 input.val('Paul');
-                input.change(); //trigger change
+                input.change(); // trigger change
                 expect(viewModel.get('current.firstName')).to.equal('Paul');
                 expect(change).to.have.been.calledWith('current.firstName');
             });
 
         });
 
-        //There are currently no event implemented in the property grid
-        //describe('Events', function() {
-        //});
+        // There are currently no event implemented in the property grid
+        // describe('Events', function () {
+        // });
 
-        afterEach(function() {
+        afterEach(function () {
             var fixtures = $(FIXTURES);
-            //kendo.destroy(fixtures); //TODO: RangeError: Maximum call stack size exceeded
+            // kendo.destroy(fixtures); // TODO: RangeError: Maximum call stack size exceeded
             fixtures.find('*').off();
             fixtures.empty();
         });

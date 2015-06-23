@@ -47,17 +47,17 @@
         pageCollectionData2.push({ id: kendo.guid(), components: [] });
     }
 
-    describe('kidoju.widgets.playbar', function() {
+    describe('kidoju.widgets.playbar', function () {
 
-        before(function() {
+        before(function () {
             if (window.__karma__ && $(FIXTURES).length === 0) {
                 $('body').append('<div id="fixtures"></div>');
             }
         });
 
-        describe('Availability', function() {
+        describe('Availability', function () {
 
-            it('requirements', function() {
+            it('requirements', function () {
                 expect($).not.to.be.undefined;
                 expect(kendo).not.to.be.undefined;
                 expect(kendo.version).to.be.a('string');
@@ -70,9 +70,9 @@
 
         });
 
-        describe('Initialization', function() {
+        describe('Initialization', function () {
 
-            it('from code with all options', function() {
+            it('from code with all options', function () {
                 var element = $(PLAYBAR1).appendTo(FIXTURES);
                 var playbar = element.kendoPlayBar({
                     input: true
@@ -89,7 +89,7 @@
                 expect(element.find('span.k-pager-info')).to.be.an.instanceof($).with.property('length', 1);
             });
 
-            it('from code with minimal options', function() {
+            it('from code with minimal options', function () {
                 var element = $(PLAYBAR1).appendTo(FIXTURES);
                 var playbar = element.kendoPlayBar({
                     numeric: false,
@@ -112,7 +112,7 @@
                 expect(element).to.be.empty;
             });
 
-            it('from code with dataSource', function() {
+            it('from code with dataSource', function () {
                 var element = $(PLAYBAR1).appendTo(FIXTURES);
                 var playbar = element.kendoPlayBar({
                     dataSource: pageCollectionData1
@@ -129,7 +129,7 @@
                 expect(element.find('span.k-pager-info')).to.be.an.instanceof($).with.property('length', 1);
             });
 
-            it('from code with large dataSource and options.buttonCount', function() {
+            it('from code with large dataSource and options.buttonCount', function () {
                 var element = $(PLAYBAR1).appendTo(FIXTURES);
                 var playbar = element.kendoPlayBar({
                     dataSource: pageCollectionData2
@@ -146,7 +146,7 @@
                 expect(element.find('span.k-pager-info')).to.be.an.instanceof($).with.property('length', 1);
             });
 
-            it('from markup', function() {
+            it('from markup', function () {
                 var viewModel = kendo.observable({
                         pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData1 }),
                         current: undefined
@@ -167,25 +167,25 @@
             });
         });
 
-        describe('Methods', function() {
+        describe('Methods', function () {
 
             var element, playbar;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 element = $(PLAYBAR1).appendTo(FIXTURES);
                 playbar = element.kendoPlayBar({
                     dataSource: pageCollectionData1
                 }).data('kendoPlayBar');
             });
 
-            it('length', function() {
+            it('length', function () {
                 expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
                 expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 expect(playbar.length()).to.equal(pageCollectionData1.length);
             });
 
             /*
-            it('items', function() {
+            it('items', function () {
                 expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
                 expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 var items = playbar.items();
@@ -200,8 +200,8 @@
             });
             */
 
-            it('value', function() {
-                var fn = function() {
+            it('value', function () {
+                var fn = function () {
                     playbar.value(0);
                 };
                 expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
@@ -215,12 +215,12 @@
                 }
             });
 
-            it('index', function() {
-                var fn1 = function() {
+            it('index', function () {
+                var fn1 = function () {
                     playbar.index('not a number');
                 };
-                var fn2 = function() {
-                    playbar.index(300); //not in range
+                var fn2 = function () {
+                    playbar.index(300); // not in range
                 };
                 expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
                 expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
@@ -234,8 +234,8 @@
                 }
             });
 
-            it('id', function() {
-                var fn = function() {
+            it('id', function () {
+                var fn = function () {
                     playbar.id({});
                 };
                 expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
@@ -254,19 +254,19 @@
 
         });
 
-        describe('MVVM', function() {
+        describe('MVVM', function () {
 
             var element, playbar, viewModel;
 
             /*
-             //For obscure reasons, setting the viewModel here does not work
+             // For obscure reasons, setting the viewModel here does not work
              viewModel = kendo.observable({
              pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData }),
              current: undefined
              });
              */
 
-            beforeEach(function() {
+            beforeEach(function () {
                 element = $(PLAYBAR2).appendTo(FIXTURES);
                 viewModel = kendo.observable({
                     pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData1 }),
@@ -276,7 +276,7 @@
                 playbar = element.data('kendoPlayBar');
             });
 
-            it('Adding a page to the viewModel adds the corresponding item to the playbar', function() {
+            it('Adding a page to the viewModel adds the corresponding item to the playbar', function () {
                 expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
                 expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 expect(playbar.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length);
@@ -287,7 +287,7 @@
                 expect(playbar.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length + 1);
             });
 
-            it('Removing a page from the viewModel removes the corresponding item from the playbar', function() {
+            it('Removing a page from the viewModel removes the corresponding item from the playbar', function () {
                 expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
                 expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 expect(playbar.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length);
@@ -298,13 +298,13 @@
             // Note: Since kendo.ui.PlayBar is a collection of kendo.ui.Stage, we are assuming that
             // if kendo.ui.Stage properly handles a change of page content, kendo.ui.PlayBar also properly handles a change of page content
 
-            it('Changing the selected page in the viewModel changes the corresponding item in the playbar', function() {
-                //TODO: also test binding on id and index?
+            it('Changing the selected page in the viewModel changes the corresponding item in the playbar', function () {
+                // TODO: also test binding on id and index?
                 expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
                 expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 expect(playbar.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length);
                 var check = sinon.spy();
-                $.each(viewModel.pages.data(), function(index, page) {
+                $.each(viewModel.pages.data(), function (index, page) {
                     check();
                     viewModel.set('current', page);
                     expect($(playbar.items()[index]).find('span')).to.have.class('k-state-selected');
@@ -312,13 +312,13 @@
                 expect(check).to.have.callCount(pageCollectionData1.length);
             });
 
-            it('Changing the selected page by clicking a number in the playbar, changes the corresponding page in the viewModel', function() {
+            it('Changing the selected page by clicking a number in the playbar, changes the corresponding page in the viewModel', function () {
                 expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
                 expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 var check = sinon.spy();
                 /*
-                //For whatever reason , second click does not work
-                $.each(element.find('ul.k-pager-numbers>li>a.k-link'), function(index, item) {
+                // For whatever reason , second click does not work
+                $.each(element.find('ul.k-pager-numbers>li>a.k-link'), function (index, item) {
                     check();
                     $(item).simulate('click');
                     expect(playbar.dataSource.indexOf(viewModel.get('current'))).to.equal(parseInt($(item).attr(kendo.attr('index')), 10));
@@ -326,38 +326,38 @@
                 expect(check).to.have.callCount(pageCollectionData1.length - 1);
                 */
                 var items = element.find('ul.k-pager-numbers>li>a.k-link');
-                //$(items[0]).simulate('click');
+                // $(items[0]).simulate('click');
                 $(items[1]).simulate('click');
                 expect(playbar.dataSource.indexOf(viewModel.get('current'))).to.equal(parseInt($(items[1]).attr(kendo.attr('index')), 10));
             });
 
-            //TODO: first
-            //TODO: previous
-            //TODO: more...
-            //TODO: next
-            //TODO: last
-            //TODO: input
-            //TODO: refresh button
+            // TODO: first
+            // TODO: previous
+            // TODO: more...
+            // TODO: next
+            // TODO: last
+            // TODO: input
+            // TODO: refresh button
 
         });
 
-        describe('Events', function() {
+        describe('Events', function () {
 
             var element, playbar;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 element = $(PLAYBAR1).appendTo(FIXTURES);
             });
 
-            it('dataBinding & dataBound', function() {
+            it('dataBinding & dataBound', function () {
                 var dataBinding = sinon.spy(),
                     dataBound = sinon.spy();
                 playbar = element.kendoPlayBar({
                     dataSource: pageCollectionData2,
-                    dataBinding: function(e) {
+                    dataBinding: function (e) {
                         dataBinding(e.sender);
                     },
-                    dataBound: function(e) {
+                    dataBound: function (e) {
                         dataBound(e.sender);
                     }
                 }).data('kendoPlayBar');
@@ -370,11 +370,11 @@
                 expect(dataBinding).to.have.been.calledBefore(dataBound);
             });
 
-            it('change', function() {
+            it('change', function () {
                 var change = sinon.spy();
                 playbar = element.kendoPlayBar({
                     dataSource: pageCollectionData1,
-                    change: function(e) {
+                    change: function (e) {
                         change(e.value);
                     }
                 }).data('kendoPlayBar');
@@ -388,11 +388,11 @@
                 expect(change).to.have.been.calledWith(page);
             });
 
-            it('click', function() {
+            it('click', function () {
                 var click = sinon.spy();
                 playbar = element.kendoPlayBar({
                     dataSource: pageCollectionData1,
-                    click: function(e) {
+                    click: function (e) {
                         click();
                     }
                 }).data('kendoPlayBar');
@@ -404,7 +404,7 @@
 
         });
 
-        afterEach(function() {
+        afterEach(function () {
             var fixtures = $(FIXTURES);
             kendo.unbind(fixtures);
             kendo.destroy(fixtures);

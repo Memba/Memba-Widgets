@@ -6,10 +6,10 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function(f, define){
+(function (f, define) {
     'use strict';
     define(['./vendor/kendo/kendo.binder'], f);
-})(function() {
+})(function () {
 
     'use strict';
 
@@ -20,19 +20,19 @@
    (function ($, undefined) {
 
         // shorten references to variables for uglification
-        var //fn = Function,
-            //global = fn('return this')(),
+        var // fn = Function,
+            // global = fn('return this')(),
             kendo = window.kendo,
             ui = kendo.ui,
             Widget = ui.Widget,
             ObservableArray = kendo.data.ObservableArray,
             ns = '.kendoMultiInput',
 
-            //Types
-            //NUMBER = 'number',
+            // Types
+            // NUMBER = 'number',
             STRING = 'string',
 
-            //Events
+            // Events
             CHANGE = 'change',
             CLICK = 'click' + ns,
             KEYPRESS = 'keypress' + ns,
@@ -41,25 +41,25 @@
             MOUSELEAVE = 'mouseleave' + ns,
             HOVEREVENTS = MOUSEENTER + ' ' + MOUSELEAVE,
 
-            //Templates
+            // Templates
             ID = 'id',
             LI = 'li',
             ARIA_DISABLED = 'aria-disabled',
             ARIA_READONLY = 'aria-readonly',
-            //FOCUSEDCLASS = 'k-state-focused',
+            // FOCUSEDCLASS = 'k-state-focused',
             HOVERCLASS = 'k-state-hover',
             STATEDISABLED = 'k-state-disabled',
             DISABLED = 'disabled',
             READONLY = 'readonly';
 
-            //MODULE = 'MultiInput Widget: ',
-            //DEBUG = true;
+            // MODULE = 'MultiInput Widget: ',
+            // DEBUG = true;
 
         /*******************************************************************************************
          * MultiInput
          *******************************************************************************************/
 
-        //TODO: hide k-delete when readonly
+        // TODO: hide k-delete when readonly
 
         /**
          * MultiInput (kendoMultiInput)
@@ -93,9 +93,9 @@
             options: {
                 name: 'MultiInput',
                 value: null,
-                match: null, //RegExp match like email address, cancels separator
+                match: null, // RegExp match like email address, cancels separator
                 readonly: true,
-                separators: ',;' //string of separators
+                separators: ',;' // string of separators
             },
 
             /**
@@ -109,7 +109,7 @@
              * Initialization of values from HTML markup
              * @private
              */
-            _initValue: function() {
+            _initValue: function () {
                 var that = this,
                     initialValue = that.element.val(),
                     value = that.options.value || initialValue;
@@ -167,8 +167,8 @@
              */
             _layout: function () {
                 var that = this,
-                    //options = that.options,
-                    element = $(that.element), //the <input> element
+                    // options = that.options,
+                    element = $(that.element), // the <input> element
                     id = element.attr(ID);
                 that._clear();
                 element.attr({
@@ -195,7 +195,7 @@
              * @param options
              * @private
              */
-            _editable: function(options) {
+            _editable: function (options) {
                 var that = this,
                     disable = options.disable,
                     readonly = options.readonly,
@@ -218,8 +218,8 @@
                         .on(FOCUSOUT, $.proxy(that._onInputFocusOut, that));
 
                     tagList
-                        .on(MOUSEENTER, LI, function() { $(this).addClass(HOVERCLASS); })
-                        .on(MOUSELEAVE, LI, function() { $(this).removeClass(HOVERCLASS); })
+                        .on(MOUSEENTER, LI, function () { $(this).addClass(HOVERCLASS); })
+                        .on(MOUSELEAVE, LI, function () { $(this).removeClass(HOVERCLASS); })
                         .on(CLICK, '.k-delete', $.proxy(that._onTagClick, that));
 
                 } else {
@@ -236,18 +236,18 @@
                 }
             },
 
-            focus: function() {
+            focus: function () {
                 this.element.focus();
             },
 
-            readonly: function(readonly) {
+            readonly: function (readonly) {
                 this._editable({
                     readonly: readonly === undefined ? true : readonly,
                     disable: false
                 });
             },
 
-            enable: function(enable) {
+            enable: function (enable) {
                 this._editable({
                     readonly: false,
                     disable: !(enable = enable === undefined ? true : enable)
@@ -258,7 +258,7 @@
              * Refreshes the widget
              * @method refresh
              */
-            refresh: function() {
+            refresh: function () {
                 var that = this;
                 that.tagList.empty();
                 that._addTags(that._values);
@@ -268,16 +268,16 @@
             /**
              * Add a tag(s) to display
              */
-            _addTags: function(values) {
+            _addTags: function (values) {
                 var that = this;
                 if (!Array.isArray(values) && !(values instanceof ObservableArray)) {
                     values = [values];
                 }
-                $.each(values, function(index, value) {
+                $.each(values, function (index, value) {
                     var tagItem = $(kendo.format(
                         '<li class="k-button" unselectable="on"><span unselectable="on">{0}</span><span unselectable="on" class="k-icon k-delete">{1}</span></li>',
                         kendo.htmlEncode(value),
-                        'delete'                         //TODO: translate delete!
+                        'delete'                         // TODO: translate delete!
                     ));
                     that.tagList.append(tagItem);
                 });
@@ -288,7 +288,7 @@
              * @param tag
              * @private
              */
-            _removeTag: function(tag) {
+            _removeTag: function (tag) {
                 var that = this,
                     index = tag.index();
                 tag.remove();
@@ -299,7 +299,7 @@
              * Trigger a change event if values have changed
              * @private
              */
-            _change: function() {
+            _change: function () {
                 var that = this,
                     value = that.value();
                 if (!compare(value, that._oldValues)) {
@@ -314,13 +314,13 @@
              * @param e
              * @private
              */
-            _onTagClick: function(e) {
+            _onTagClick: function (e) {
                 var that = this,
                     tag = $(e.target).closest(LI),
                     index = that._removeTag(tag);
                 that._values.splice(index, 1);
                 that._change();
-                //that._placeholder();
+                // that._placeholder();
             },
 
             /**
@@ -328,7 +328,7 @@
              * @param e
              * @private
              */
-            _onInputKeyPress: function(e) {
+            _onInputKeyPress: function (e) {
                 var that = this,
                     separators = that.options.separators || '',
                     code = e.keyCode || e.which;
@@ -343,11 +343,11 @@
              * @param e
              * @private
              */
-            _onInputFocusOut: function() {
+            _onInputFocusOut: function () {
                 this._fromInputToTag();
             },
 
-            _fromInputToTag: function() {
+            _fromInputToTag: function () {
                 var that = this,
                     input = that.element,
                     value = input.val().trim();
@@ -359,7 +359,7 @@
                 input.val(null);
             },
 
-            _toggleHover: function(e) {
+            _toggleHover: function (e) {
                 $(e.currentTarget).toggleClass(HOVERCLASS, e.type === 'mouseenter');
             },
 
@@ -368,13 +368,13 @@
              * @method _clear
              * @private
              */
-            _clear: function() {
+            _clear: function () {
                 var that = this,
                     ns = that.ns;
-                //unbind descendant events
-                //$(that.element).find('*').off();
-                //clear element
-                //$(that.element)
+                // unbind descendant events
+                // $(that.element).find('*').off();
+                // clear element
+                // $(that.element)
                 //    .empty()
                 //    .off()
                 //    .removeClass('k-widget k-multiinput');
@@ -383,7 +383,7 @@
                  element = $(that.element),
                  wrapper = element.parent();
                  that.unbind(CHANGE);
-                 //remove wrapper and stars
+                 // remove wrapper and stars
                  if (wrapper.length > 0 && wrapper[0].tagName.toLowerCase() === SPAN && wrapper.hasClass('k-rating')) {
                  wrapper.find('span.k-rating-star').off().remove();
                  wrapper.off();
@@ -440,4 +440,4 @@
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

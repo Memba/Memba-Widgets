@@ -6,10 +6,10 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function(f, define){
+(function (f, define){
     'use strict';
     define(['./vendor/kendo/kendo.binder', './kidoju.data', './kidoju.tools'], f);
-})(function() {
+})(function () {
 
     'use strict';
 
@@ -19,14 +19,14 @@
             Widget = kendo.ui.Widget,
             kidoju = window.kidoju,
 
-        //TYPES
+        // TYPES
             STRING = 'string',
 
-        //EVENTS
+        // EVENTS
             CLICK = 'click',
             CHANGE = 'change',
 
-        //Miscellaneous
+        // Miscellaneous
             WIDGET_CLASS = 'k-widget kj-toolbox',
             IMAGE = '<img src="{0}" alt="{1}">',
             IMAGE_CLASS = 'kj-tool',
@@ -129,7 +129,7 @@
                 $(that.element).addClass(WIDGET_CLASS);
                 $.each(that.options.tools, function (index, tool) {
                     if (tool instanceof kidoju.Tool && that.options.tools.hasOwnProperty(tool.id)) {
-                        //TODO Translate tooltips and consider SVG alternatives
+                        // TODO Translate tooltips and consider SVG alternatives
                         var toolElement = $(kendo.format(IMAGE, that.options.iconPath + tool.icon + '.svg', 'TODO: Translate'))
                             .attr(DATA_TOOL, tool.id)
                             .addClass(IMAGE_CLASS)
@@ -162,7 +162,7 @@
                 var that = this;
                 $(that.element).find('[' + DATA_SELECTED + ']').removeAttr(DATA_SELECTED);
                 $(that.element).find('[' + DATA_TOOL + '=' + that.options.tools.get(ACTIVE_TOOL) + ']').attr(DATA_SELECTED, true);
-                //TODO: add/remove k-state-selected class
+                // TODO: add/remove k-state-selected class
             },
 
             /**
@@ -172,14 +172,14 @@
              */
             _clear: function () {
                 var that = this;
-                //unbind kendo
-                //kendo.unbind($(that.element));
-                //unbind all other events
+                // unbind kendo
+                // kendo.unbind($(that.element));
+                // unbind all other events
                 $(that.element).find('*').off();
                 $(that.element).off();
-                //remove descendants
+                // remove descendants
                 $(that.element).empty();
-                //remove element classes
+                // remove element classes
                 $(that.element).removeClass(WIDGET_CLASS);
             },
 
@@ -205,4 +205,4 @@
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f){ 'use strict'; f(); });

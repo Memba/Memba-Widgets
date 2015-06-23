@@ -14,9 +14,9 @@ var Browser = require('zombie'),
 
 var httpServer, browser;
 
-describe('kidoju.integration.designmode.test.js', function() {
+describe('kidoju.integration.designmode.test.js', function () {
 
-    before(function(done) {
+    before(function (done) {
         console.log('Start http server');
         httpServer = require('../../nodejs/http.server.js');
         console.log('Initialize browser');
@@ -25,16 +25,16 @@ describe('kidoju.integration.designmode.test.js', function() {
         browser.visit('http://localhost:8080/src/kidoju.integration.designmode.html', done);
     });
 
-    describe('When page is loaded', function() {
-        it('It should have navigation and stages', function() {
+    describe('When page is loaded', function () {
+        it('It should have navigation and stages', function () {
             expect(browser.query('[data-role="navigation"]')).to.be.ok;
             expect(browser.query('[data-role="stage"]')).to.be.ok;
         });
     });
 
-    after(function(done) {
+    after(function (done) {
         browser.close();
-        //httpServer.close(done);
+        // httpServer.close(done);
         done();
     });
 

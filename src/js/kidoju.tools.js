@@ -6,10 +6,10 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function(f, define){
+(function (f, define) {
     'use strict';
     define(['./vendor/kendo/kendo.binder', './kidoju.data'], f);
-})(function() {
+})(function () {
 
     'use strict';
 
@@ -18,35 +18,35 @@
         var kendo = window.kendo,
             kidoju = window.kidoju = window.kidoju || {},
 
-        //Types
+        // Types
             OBJECT = 'object',
             STRING = 'string',
             NUMBER = 'number',
             BOOLEAN = 'boolean',
             DATE = 'date',
 
-        //Tools
+        // Tools
             CURSOR_DEFAULT = 'default',
             CURSOR_CROSSHAIR = 'crosshair',
             REGISTER = 'register',
             ACTIVE = 'active',
             POINTER = 'pointer',
 
-        //HTML
+        // HTML
             ELEMENT_CLASS = '.kj-element',
-        //POSITION = 'position',
+        // POSITION = 'position',
             ABSOLUTE = 'absolute',
             DIALOG_DIV = '<div class="k-popup-edit-form {0}"></div>',
             DIALOG_CLASS = '.kj-dialog',
 
-        //Event
+        // Event
             CLICK = 'click';
 
         /*********************************************************************************
          * Culture
          *********************************************************************************/
         var culture = kidoju.culture = kidoju.culture || {};
-        culture.tools = {}; //TODO
+        culture.tools = {}; // TODO
 
         /*********************************************************************************
          * Helpers
@@ -69,13 +69,13 @@
         kidoju.tools = kendo.observable({
             active: null,
             register: function (Class) {
-                //if(Class instanceof constructor) {
+                // if(Class instanceof constructor) {
                 if ($.type(Class.fn) === OBJECT) {
                     var obj = new Class();
                     if (obj instanceof Tool && $.type(obj.id) === STRING) {
                         if (obj.id === ACTIVE || obj.id === REGISTER) {
                             throw new Error('You cannot name your tool `active` or `register`');
-                        } else if (!this[obj.id]) { //make sure (our system) tools are not being replaced
+                        } else if (!this[obj.id]) { // make sure (our system) tools are not being replaced
                             this[obj.id] = obj;
                             if (obj.id === POINTER) {
                                 this.active = POINTER;
@@ -110,9 +110,9 @@
                     if ($.type(options.icon) === STRING) {
                         this.icon = options.icon;
                     }
-                    //if ($.type(options.name) === STRING) {
+                    // if ($.type(options.name) === STRING) {
                     //    this.name = options.name;
-                    //}
+                    // }
                     if ($.type(options.cursor) === STRING) {
                         this.cursor = options.cursor;
                     }
@@ -151,15 +151,15 @@
             _getAttributeRows: function () {
                 var rows = [];
 
-                //Add top, left, height, width, rotation
-                //rows.push(new adapters.NumberAdapter({attributes:{'data-min': 0}}).getRow('top'));
+                // Add top, left, height, width, rotation
+                // rows.push(new adapters.NumberAdapter({attributes:{'data-min': 0}}).getRow('top'));
                 rows.push(new adapters.NumberAdapter().getRow('top'));
                 rows.push(new adapters.NumberAdapter().getRow('left'));
                 rows.push(new adapters.NumberAdapter().getRow('height'));
                 rows.push(new adapters.NumberAdapter().getRow('width'));
                 rows.push(new adapters.NumberAdapter().getRow('rotate'));
 
-                //Add other attributes
+                // Add other attributes
                 for (var attr in this.attributes) {
                     if (this.attributes.hasOwnProperty(attr)) {
                         if (this.attributes[attr] instanceof adapters.BaseAdapter) {
@@ -183,7 +183,7 @@
                         if (this.properties[prop] instanceof adapters.BaseAdapter) {
                             model.fields[prop] = this.properties[prop].getField();
                             if (prop === 'name') {
-                                //Add a property field name
+                                // Add a property field name
                                 model.fields[prop].defaultValue = 'val_' + Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1);
                             }
                         }
@@ -242,9 +242,9 @@
              */
             init: function (options) {
                 options = options || {};
-                //this.value = options.value;
+                // this.value = options.value;
 
-                //See http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
+                // See http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
                 this.defaultValue = options.defaultValue;
                 this.editable = options.editable;
                 this.nullable = options.nullable;
@@ -252,13 +252,13 @@
                 this.from = options.from;
                 this.validation = options.validation;
 
-                //See http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns
+                // See http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns
                 this.field = options.field;
                 this.title = options.title;
                 this.format = options.format;
                 this.template = options.template;
                 this.editor = options.editor;
-                //TODO: HTML encode????
+                // TODO: HTML encode????
                 this.attributes = options.attributes;
             },
 
@@ -273,7 +273,7 @@
                     field.type = this.type;
                 }
                 if ($.type(this.defaultValue) === this.type ||
-                    this.type === undefined) { //TODO: test that defaultValue is null or an object
+                    this.type === undefined) { // TODO: test that defaultValue is null or an object
                     field.defaultValue = this.defaultValue;
                 }
                 if ($.type(this.editable) === BOOLEAN) {
@@ -305,7 +305,7 @@
                     throw new TypeError();
                 }
                 var row = {};
-                row.field = field; //Mandatory
+                row.field = field; // Mandatory
                 if ($.type(this.title) === STRING) {
                     row.title = this.title;
                 }
@@ -319,7 +319,7 @@
                     ($.type(this.editor) === STRING && (kidoju.editors === undefined || $.isFunction(kidoju.editors[this.editor])))) {
                     row.editor = this.editor;
                 }
-                //TODO: HTML encode????
+                // TODO: HTML encode????
                 if ($.isPlainObject(this.attributes)) {
                     row.attributes = this.attributes;
                 }
@@ -404,7 +404,7 @@
                         })
                         .appendTo(div);
                     var input = $('<input/>')
-                        .addClass('k-textbox') //or k-input
+                        .addClass('k-textbox') // or k-input
                         .css({width: '100%'})
                         .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
                         .appendTo(span);
@@ -414,7 +414,7 @@
                         .css({
                             display: 'table-cell',
                             minWidth: '40px',
-                            height: input.css('height'), //to match input,
+                            height: input.css('height'), // to match input,
                             margin: 0
                         })
                         .appendTo(div)
@@ -425,7 +425,7 @@
                 var that = this,
                     dialog = $(DIALOG_CLASS).data('kendoWindow');
                 if (!(dialog instanceof kendo.ui.Window)) {
-                    //Create dialog
+                    // Create dialog
                     dialog = $(kendo.format(DIALOG_DIV, DIALOG_CLASS.substr(1)))
                         .appendTo(document.body)
                         .kendoWindow({
@@ -437,7 +437,7 @@
                         .data('kendoWindow');
                     dialog.element.on(CLICK, '.k-button', $.proxy(that.closeDialog, that, options, dialog));
                 }
-                //Prepare dialog (the content method destroys widgets and unbinds data)
+                // Prepare dialog (the content method destroys widgets and unbinds data)
                 dialog.title(options.title);
                 var content = '<div class="k-edit-form-container kj-style-edit-form">' +
                     '<div class="k-edit-label"><label for="title">Title</label></div><div data-container-for="title" class="k-edit-field"><input type="text" class="k-input k-textbox" name="title" data-bind="value:title"></div>' +
@@ -449,7 +449,7 @@
                     '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="save" href="#">Save</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
                     '</div>';
                 dialog.content(content);
-                //Show dialog
+                // Show dialog
                 dialog.center().open();
             },
             closeDialog: function (options, dialog, e) {
@@ -503,8 +503,8 @@
                         .addClass('k-textbox')
                         .css({width: '100%'})
                         .prop({readonly: true})
-                        //.attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
-                        //TODO: Display validator name
+                        // .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
+                        // TODO: Display validator name
                         .appendTo(span);
                     $('<button/>')
                         .text('...')
@@ -512,7 +512,7 @@
                         .css({
                             display: 'table-cell',
                             minWidth: '40px',
-                            height: input.css('height'), //to match input,
+                            height: input.css('height'), // to match input,
                             margin: 0
                         })
                         .appendTo(div)
@@ -523,7 +523,7 @@
                 var that = this,
                     dialog = $(DIALOG_CLASS).data('kendoWindow');
                 if (!(dialog instanceof kendo.ui.Window)) {
-                    //Create dialog
+                    // Create dialog
                     dialog = $(kendo.format(DIALOG_DIV, DIALOG_CLASS.substr(1)))
                         .appendTo(document.body)
                         .kendoWindow({
@@ -535,16 +535,16 @@
                         .data('kendoWindow');
                     dialog.element.on(CLICK, '.k-button', $.proxy(that.closeDialog, that, options, dialog));
                 }
-                //Prepare dialog (the content method destroys widgets and unbinds data)
+                // Prepare dialog (the content method destroys widgets and unbinds data)
                 dialog.title(options.title);
                 var content = '<div class="k-edit-form-container kj-validation-edit-form">' +
-                        //TODO: Add test textbox and button + help + possibly a combo of predefined functions
-                        //'<div>' +
+                        // TODO: Add test textbox and button + help + possibly a combo of predefined functions
+                        // '<div>' +
                         //    '<div class="k-edit-label"><label for="title">Title</label></div>' +
                         //    '<div data-container-for="title" class="k-edit-field"><input type="text" class="k-input k-textbox" name="title" data-bind="value:title"></div>' +
-                        //'</div>' +
+                        // '</div>' +
                     '<div class="kj-codemirror"></div>' +
-                        //Buttons
+                        // Buttons
                     '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="save" href="#">Save</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
                     '</div>';
                 dialog.content(content);
@@ -557,23 +557,23 @@
                         mode: 'javascript',
                         value: that.defaultValue
                     });
-                    //Set actual validation formula
+                    // Set actual validation formula
                     dialog.codemirror.getDoc().setValue(options.model.properties.get('validation'));
                     dialog.codemirror.on('beforeChange', function (cm, change) {
-                        if ((change.from.line === 0) || //prevent changing the first line
-                            (change.from.line === cm.display.renderedView.length - 1) || //prevent changing the last line
-                            (change.origin === '+delete' && change.to.line === cm.display.renderedView.length - 1)) { //prevent backspace on the last line or suppr on the previous line
+                        if ((change.from.line === 0) || // prevent changing the first line
+                            (change.from.line === cm.display.renderedView.length - 1) || // prevent changing the last line
+                            (change.origin === '+delete' && change.to.line === cm.display.renderedView.length - 1)) { // prevent backspace on the last line or suppr on the previous line
                             change.cancel();
                         }
                     });
                     dialog.bind('activate', function () {
-                        //IMPORTANT, we need to refresh codemirror here
-                        //otherwise the open animation messes with CodeMirror calculations
-                        //and gutter and line numbers are displayed at the wrong coordinates
+                        // IMPORTANT, we need to refresh codemirror here
+                        // otherwise the open animation messes with CodeMirror calculations
+                        // and gutter and line numbers are displayed at the wrong coordinates
                         dialog.codemirror.refresh();
                         dialog.unbind('activate');
                     });
-                    //open dialog
+                    // open dialog
                     dialog.center().open();
 
                 }
@@ -586,13 +586,13 @@
                         options.model.properties.set('validation', dialog.codemirror.getDoc().getValue());
                     }
                     dialog.close();
-                    //restore
+                    // restore
                     dialog.content('');
                     dialog.codemirror = undefined;
                 }
             },
             prerequisites: {
-                string: '', //TODO
+                string: '', // TODO
                 number: '',
                 boolean: '',
                 date: '',
@@ -600,25 +600,25 @@
             },
             validators: {
                 string: [
-                    //TODO: provide a Soundex and doubleMetaphone function to web worker
-                    //See https://github.com/hgoebl/doublemetaphone
-                    //See https://github.com/NaturalNode/natural
+                    // TODO: provide a Soundex and doubleMetaphone function to web worker
+                    // See https://github.com/hgoebl/doublemetaphone
+                    // See https://github.com/NaturalNode/natural
                     {
-                        name: 'toUpperCase', //TODO use cultures
+                        name: 'toUpperCase', // TODO use cultures
                         formula: 'function validate(value, solution) {\n\treturn typeof value === "string" && typeof solution === "string" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}'
                     }
                 ],
                 number: [
                     {
-                        name: 'float', //TODO use cultures
+                        name: 'float', // TODO use cultures
                         formula: 'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
                     },
                     {
-                        name: 'integer', //TODO use cultures
+                        name: 'integer', // TODO use cultures
                         formula: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
                     },
                     {
-                        name: 'rounded to 2 decimals', //TODO use cultures
+                        name: 'rounded to 2 decimals', // TODO use cultures
                         formula: 'function validate(value, solution) {\n\treturn typeof value === "number" && typeof solution === "number" && Math.round(value*100)/100 === Math.round(solution*100)/100;\n}'
                     }
                 ],
@@ -637,7 +637,7 @@
                 default: [
                     {
                         name: 'deepEqual',
-                        formula: '' //TODO: deepEqual - consider https://github.com/jquery/qunit/blob/0cf737d46775aecb06780e3df36cb9cac6d01b0c/src/equiv.js
+                        formula: '' // TODO: deepEqual - consider https://github.com/jquery/qunit/blob/0cf737d46775aecb06780e3df36cb9cac6d01b0c/src/equiv.js
                     }
                 ]
             }
@@ -722,12 +722,12 @@
                         })
                         .width(component.width);
                     stageElement.after(clone);
-                    //if no overflow, increase until overflow
+                    // if no overflow, increase until overflow
                     while (clone.height() < component.height) {
                         fontSize++;
                         clone.css('font-size', fontSize);
                     }
-                    //if overflow, decrease until no overflow
+                    // if overflow, decrease until no overflow
                     while (clone.height() > component.height) {
                         fontSize--;
                         clone.css('font-size', fontSize);
@@ -735,9 +735,9 @@
                     clone.remove();
                     content.css('font-size', fontSize);
 
-                    //prevent any side effect
+                    // prevent any side effect
                     e.preventDefault();
-                    //prevent event to bubble on stage
+                    // prevent event to bubble on stage
                     e.stopPropagation();
                 }
             }
@@ -789,9 +789,9 @@
                     if ($.type(component.height) === NUMBER) {
                         content.height(component.height);
                     }
-                    //prevent any side effect
+                    // prevent any side effect
                     e.preventDefault();
-                    //prevent event to bubble on stage
+                    // prevent event to bubble on stage
                     e.stopPropagation();
                 }
             }
@@ -856,9 +856,9 @@
                         content.height(component.height);
                         content.css('font-size', Math.floor(0.75 * component.height));
                     }
-                    //prevent any side effect
+                    // prevent any side effect
                     e.preventDefault();
-                    //prevent event to bubble on stage
+                    // prevent event to bubble on stage
                     e.stopPropagation();
                 }
             }
@@ -875,7 +875,7 @@
             cursor: CURSOR_CROSSHAIR,
             templates: {
                 default: '<a class="k-toggle-button k-button" style="#: attributes.style #">#: attributes.text #</a><input type="hidden" data-#= ns #bind="value: #: properties.name #">'
-                //k-state-active
+                // k-state-active
             },
             height: 100,
             width: 300,
@@ -933,7 +933,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { //TODO: same id, same tool?
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { // TODO: same id, same tool?
                     var anchor = stageElement.find('>a');
                     if ($.type(component.width) === NUMBER) {
                         anchor.width(component.width - 14);
@@ -942,9 +942,9 @@
                         anchor.height(component.height - 4);
                         anchor.css('font-size', Math.floor(0.6 * component.height));
                     }
-                    //prevent any side effect
+                    // prevent any side effect
                     e.preventDefault();
-                    //prevent event to bubble on stage
+                    // prevent event to bubble on stage
                     e.stopPropagation();
                 }
             }
@@ -960,7 +960,7 @@
             icon: 'checkbox',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                //TODO See http://www.telerik.com/forums/font-size-of-styled-radio-buttons-and-checkboxes
+                // TODO See http://www.telerik.com/forums/font-size-of-styled-radio-buttons-and-checkboxes
                 default: '<div><input id="#: properties.name #" type="checkbox" style="#: attributes.checkboxStyle #" data-#= ns #bind="checked: #: properties.name #"><label for="#: properties.name #" style="#: attributes.labelStyle #">#: attributes.text #</label></div>'
             },
             height: 60,
@@ -1004,7 +1004,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { //TODO: same id, same tool?
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { // TODO: same id, same tool?
                     var content = stageElement.find('>div');
                     var clone = content.clone()
                         .hide()
@@ -1017,7 +1017,7 @@
                     var input = clone.find('input[type="checkbox"]'),
                         label = clone.find('label'),
                         fontSize = parseInt(label.css('font-size'));
-                    //if no overflow, increase until overflow
+                    // if no overflow, increase until overflow
                     while (clone.width() <= component.width && clone.height() <= component.height) {
                         fontSize++;
                         label.css('font-size', fontSize);
@@ -1026,7 +1026,7 @@
                             width: fontSize * 2 / 3
                         });
                     }
-                    //if overflow, decrease until no overflow
+                    // if overflow, decrease until no overflow
                     while (clone.width() > component.width || clone.height() > component.height) {
                         fontSize--;
                         label.css('font-size', fontSize);
@@ -1041,9 +1041,9 @@
                         height: fontSize * 2 / 3,
                         width: fontSize * 2 / 3
                     });
-                    //prevent any side effect
+                    // prevent any side effect
                     e.preventDefault();
-                    //prevent event to bubble on stage
+                    // prevent event to bubble on stage
                     e.stopPropagation();
                 }
             }
@@ -1060,7 +1060,7 @@
             icon: 'radio_button_group',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                //TODO See http://www.telerik.com/forums/font-size-of-styled-radio-buttons-and-checkboxes
+                // TODO See http://www.telerik.com/forums/font-size-of-styled-radio-buttons-and-checkboxes
                 default: '<div>' +
                 '<div><input id="#: properties.name #_1" type="radio" name="#: properties.name #" style="#: attributes.radioStyle #" value="1" data-#= ns #bind="checked: #: properties.name #"><label for="#: properties.name #_1" style="#: attributes.labelStyle #">#: attributes.text1 #</label></div>' +
                 '<div><input id="#: properties.name #_2" type="radio" name="#: properties.name #" style="#: attributes.radioStyle #" value="2" data-#= ns #bind="checked: #: properties.name #"><label for="#: properties.name #_2" style="#: attributes.labelStyle #">#: attributes.text2 #</label></div>' +
@@ -1112,7 +1112,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { //TODO: same id, same tool?
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { // TODO: same id, same tool?
                     var content = stageElement.find('>div');
                     /*
                      stageElement.css({
@@ -1131,7 +1131,7 @@
                     var inputs = clone.find('input[type="radio"]'),
                         labels = clone.find('label'),
                         fontSize = parseInt(labels.css('font-size'));
-                    //if no overflow, increase until overflow
+                    // if no overflow, increase until overflow
                     while (clone.width() <= component.width && clone.height() <= component.height) {
                         fontSize++;
                         labels.css('font-size', fontSize);
@@ -1140,7 +1140,7 @@
                             width: fontSize * 2 / 3
                         });
                     }
-                    //if overflow, decrease until no overflow
+                    // if overflow, decrease until no overflow
                     while (clone.width() > component.width || clone.height() > component.height) {
                         fontSize--;
                         labels.css('font-size', fontSize);
@@ -1155,9 +1155,9 @@
                         height: fontSize * 2 / 3,
                         width: fontSize * 2 / 3
                     });
-                    //prevent any side effect
+                    // prevent any side effect
                     e.preventDefault();
-                    //prevent event to bubble on stage
+                    // prevent event to bubble on stage
                     e.stopPropagation();
                 }
             }
@@ -1192,4 +1192,4 @@
 
     return window.kidoju;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

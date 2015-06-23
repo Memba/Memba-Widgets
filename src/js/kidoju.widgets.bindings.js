@@ -6,10 +6,10 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function(f, define){
+(function (f, define) {
     'use strict';
     define(['./vendor/kendo/kendo.binder'], f);
-})(function() {
+})(function () {
 
     'use strict';
 
@@ -21,14 +21,14 @@
             Binder = data.Binder,
             ui = kendo.ui,
 
-        //Types
+        // Types
             STRING = 'string',
             NUMBER = 'number',
 
-        //Events
+        // Events
             CHANGE = 'change';
 
-        //For more information, see http://docs.telerik.com/kendo-ui/framework/mvvm/bindings/custom
+        // For more information, see http://docs.telerik.com/kendo-ui/framework/mvvm/bindings/custom
 
         /*********************************************************************************
          * Helpers
@@ -41,7 +41,7 @@
         }
 
         function isGuid(value) {
-            //http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
+            // http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
             return ($.type(value) === STRING) && (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value));
         }
 
@@ -55,22 +55,22 @@
          */
         /*
          binders.widget.index = Binder.extend({
-         init: function(widget, bindings, options) {
+         init: function (widget, bindings, options) {
          Binder.fn.init.call(this, widget.element[0], bindings, options);
          this.widget = widget;
          this._change = $.proxy(this.change, this);
          this.widget.bind(CHANGE, this._change);
          },
-         change: function() {
+         change: function () {
          this.bindings.index.set(this.widget.index());
          },
-         refresh: function() {
+         refresh: function () {
          var index = this.bindings.index.get();
-         if ($.type(index) === NUMBER) { //&& index >= 0) {
+         if ($.type(index) === NUMBER) { // && index >= 0) {
          this.widget.index(index);
          }
          },
-         destroy: function() {
+         destroy: function () {
          this.widget.unbind(CHANGE, this._change);
          }
          });
@@ -82,22 +82,22 @@
          */
         /*
          binders.widget.id = Binder.extend({
-         init: function(widget, bindings, options) {
+         init: function (widget, bindings, options) {
          Binder.fn.init.call(this, widget.element[0], bindings, options);
          this.widget = widget;
          this._change = $.proxy(this.change, this);
          this.widget.bind(CHANGE, this._change);
          },
-         change: function() {
+         change: function () {
          this.bindings.id.set(this.widget.id());
          },
-         refresh: function() {
+         refresh: function () {
          var id = this.bindings.id.get();
          if (isGuid(id)) {
          this.widget.id(id);
          }
          },
-         destroy: function() {
+         destroy: function () {
          this.widget.unbind(CHANGE, this._change);
          }
          });
@@ -109,19 +109,19 @@
          */
         /*
          binders.widget.selection = Binder.extend({
-         init: function(widget, bindings, options) {
+         init: function (widget, bindings, options) {
          Binder.fn.init.call(this, widget.element[0], bindings, options);
          this.widget = widget;
          this._change = $.proxy(this.change, this);
          this.widget.bind(CHANGE, this._change);
          },
-         change: function() {
+         change: function () {
          this.bindings.selection.set(this.widget.selection());
          },
-         refresh: function() {
+         refresh: function () {
          this.widget.selection(this.bindings.selection.get());
          },
-         destroy: function() {
+         destroy: function () {
          this.widget.unbind(CHANGE, this._change);
          }
          });
@@ -154,4 +154,4 @@
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

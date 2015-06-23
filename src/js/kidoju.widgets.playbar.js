@@ -6,10 +6,10 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function(f, define){
+(function (f, define) {
     'use strict';
     define(['./vendor/kendo/kendo.binder', './kidoju.data', './kidoju.tools'], f);
-})(function() {
+})(function () {
 
     'use strict';
 
@@ -20,12 +20,12 @@
             Widget = kendo.ui.Widget,
             kidoju = window.kidoju,
 
-        //Types
+        // Types
             STRING = 'string',
             NUMBER = 'number',
             NULL = null,
 
-        //Events
+        // Events
             CHANGE = 'change',
             CLICK = 'click',
             DATABINDING = 'dataBinding',
@@ -33,7 +33,7 @@
             KEYDOWN = 'keydown',
             NS = '.kendoPlayBar',
 
-        //Widget
+        // Widget
             WIDGET_CLASS = 'k-widget k-pager-wrap kj-playbar',
             FIRST = '.k-i-seek-w',
             LAST = '.k-i-seek-e',
@@ -52,7 +52,7 @@
         }
 
         function isGuid(value) {
-            //http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
+            // http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
             return ($.type(value) === STRING) && (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value));
         }
 
@@ -83,22 +83,22 @@
         }
 
         function first(element, index) {
-            //update(element, FIRST, 1, index <= 1);
+            // update(element, FIRST, 1, index <= 1);
             update(element, FIRST, 0, index <= 0);
         }
 
         function prev(element, index) {
-            //update(element, PREV, Math.max(1, index - 1), index <= 1);
+            // update(element, PREV, Math.max(1, index - 1), index <= 1);
             update(element, PREV, Math.max(0, index - 1), index <= 0);
         }
 
         function next(element, index, length) {
-            //update(element, NEXT, Math.min(length, index + 1), index >= length);
+            // update(element, NEXT, Math.min(length, index + 1), index >= length);
             update(element, NEXT, Math.min(length - 1, index + 1), index >= length - 1);
         }
 
         function last(element, index, length) {
-            //update(element, LAST, length, index >= length);
+            // update(element, LAST, length, index >= length);
             update(element, LAST, length - 1, index >= length - 1);
         }
 
@@ -125,7 +125,7 @@
                 // base call to widget initialization
                 Widget.fn.init.call(that, element, options);
                 log('widget initialized');
-                //TODO: review how index is set
+                // TODO: review how index is set
                 that._selectedIndex = that.options.index || 0;
                 that._templates();
                 that._layout();
@@ -137,14 +137,14 @@
              */
             options: {
                 name: 'PlayBar',
-                //dataSource: undefined, //Important undefined is required for _setDataSource to initialize a dataSource
-                //value: undefined
+                // dataSource: undefined, // Important undefined is required for _setDataSource to initialize a dataSource
+                // value: undefined
                 iconTemplate: '<a href="\\#" title="#:text#" class="k-link k-pager-nav #= wrapClassName #"><span class="k-icon #= className #">#:text#</span></a>',
                 selectTemplate: '<li><span class="k-state-selected">#: text #</span></li>',
                 linkTemplate: '<li><a tabindex="-1" href="\\#" class="k-link" data-#=ns#index="#=idx#" #if (title !== "") {# title="#=title#" #}#>#:text#</a></li>',
                 buttonCount: 10,
                 autoBind: true,
-                index: 0, //do we need id too?
+                index: 0, // do we need id too?
                 numeric: true,
                 info: true,
                 input: false,
@@ -169,9 +169,9 @@
              * @method setOptions
              * @param options
              */
-            //setOptions: function(options) {
+            // setOptions: function (options) {
             //    Widget.fn.setOptions.call(this, options);
-            //},
+            // },
 
             /**
              * @property events
@@ -229,10 +229,10 @@
                     page = that.dataSource.get(id);
                     if (page !== undefined) {
                         var index = that.dataSource.indexOf(page);
-                        if (index >= 0) { //index = -1 if not found
+                        if (index >= 0) { // index = -1 if not found
                             that.index(index);
                         }
-                        //if page not found, we do nothing
+                        // if page not found, we do nothing
                     }
                 } else {
                     page = that.dataSource.at(that._selectedIndex);
@@ -251,7 +251,7 @@
             value: function (page) {
                 var that = this;
                 if (page === NULL) {
-                    $.noop(); //TODO
+                    $.noop(); // TODO
                 } else if (page !== undefined) {
                     if (!(page instanceof kidoju.Page)) {
                         throw new TypeError();
@@ -261,7 +261,7 @@
                         that.index(index);
                     }
                 } else {
-                    return that.dataSource.at(that._selectedIndex); //This returns undefined if not found
+                    return that.dataSource.at(that._selectedIndex); // This returns undefined if not found
                 }
             },
 
@@ -316,13 +316,13 @@
                 // if the DataSource is defined and the _refreshHandler is wired up, unbind because
                 // we need to rebuild the DataSource
 
-                //There is no reason why, in its current state, it would not work with any dataSource
-                //if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
+                // There is no reason why, in its current state, it would not work with any dataSource
+                // if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
                 if (that.dataSource instanceof kidoju.PageCollectionDataSource && that._refreshHandler) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
 
-                if (that.options.dataSource !== NULL) {  //use null to explicitely destroy the dataSource bindings
+                if (that.options.dataSource !== NULL) {  // use null to explicitely destroy the dataSource bindings
                     // returns the datasource OR creates one if using array or configuration object
                     that.dataSource = kidoju.PageCollectionDataSource.create(that.options.dataSource);
 
@@ -354,7 +354,7 @@
                     index = that.index(),
                     length = that.length();
 
-                //Add first and previous buttons
+                // Add first and previous buttons
                 if (options.previousNext) {
                     if (!playbar.find(FIRST).length) {
                         playbar.append(icon(that.iconTemplate, FIRST, options.messages.first, 'k-pager-first'));
@@ -366,7 +366,7 @@
                     }
                 }
 
-                //Add numeric buttons
+                // Add numeric buttons
                 if (options.numeric) {
                     that.list = playbar.find('.k-pager-numbers');
                     if (!that.list.length) {
@@ -374,7 +374,7 @@
                     }
                 }
 
-                //Add input
+                // Add input
                 if (options.input) {
                     if (!playbar.find('.k-pager-input').length) {
                         playbar.append('<span class="k-pager-input k-label">' +
@@ -386,7 +386,7 @@
                     playbar.on(KEYDOWN + NS, '.k-pager-input input', $.proxy(that._keydown, that));
                 }
 
-                //Add next and last buttons
+                // Add next and last buttons
                 if (options.previousNext) {
                     if (!playbar.find(NEXT).length) {
                         playbar.append(icon(that.iconTemplate, NEXT, options.messages.next, 'k-pager-next'));
@@ -398,12 +398,12 @@
                     }
                 }
 
-                //Add tick
+                // Add tick
                 if (options.tick) {
                     playbar.append(icon(that.iconTemplate, TICK, options.messages.tick, 'k-pager-tick'));
                 }
 
-                //Add refresh button
+                // Add refresh button
                 if (options.refresh) {
                     if (!playbar.find('.k-pager-refresh').length) {
                         playbar.append('<a href="#" class="k-pager-refresh k-link" title="' + options.messages.refresh +
@@ -412,24 +412,24 @@
                     playbar.on(CLICK + NS, '.k-pager-refresh', $.proxy(that._refreshClick, that));
                 }
 
-                //Add info
+                // Add info
                 if (options.info) {
                     if (!playbar.find('.k-pager-info').length) {
                         playbar.append('<span class="k-pager-info k-label" />');
                     }
                 }
 
-                //Add click handler
+                // Add click handler
                 playbar
                     .addClass(WIDGET_CLASS)
                     .on(CLICK + NS, 'a', $.proxy(that._navClick, that));
 
 
-                //if (options.autoBind) {
+                // if (options.autoBind) {
                 //    that.refresh();
-                //}
+                // }
 
-                //Required for visible binding
+                // Required for visible binding
                 that.wrapper = that.element;
 
                 kendo.notify(that);
@@ -450,17 +450,17 @@
                     html = '', position;
 
                 if (e && e.action === 'itemchange') {
-                    return; //we only update the playbar on loading, 'add' and 'remove'
+                    return; // we only update the playbar on loading, 'add' and 'remove'
                 }
 
                 if (e && e.action === undefined) {
                     that.trigger(DATABINDING);
                 }
 
-                //Update numeric buttons
+                // Update numeric buttons
                 if (options.numeric) {
-                    //start is the index of the first numeric button
-                    //end is the index of the last numeric button
+                    // start is the index of the first numeric button
+                    // end is the index of the last numeric button
                     if (index > options.buttonCount - 1) {
                         start = index - index % options.buttonCount;
                     }
@@ -471,7 +471,7 @@
                     for (idx = start; idx <= end; idx++) {
                         html += button(idx === index ? that.selectTemplate : that.linkTemplate, idx, idx + 1, true);
                     }
-                    if (end < length - 1) { //idx = end + 1 here
+                    if (end < length - 1) { // idx = end + 1 here
                         html += button(that.linkTemplate, idx, '...', false, options.messages.morePages);
                     }
                     if (html === '') {
@@ -480,7 +480,7 @@
                     that.list.html(html);
                 }
 
-                //Update info
+                // Update info
                 if (options.info) {
                     if (length > 0) {
                         html = options.messages.page +
@@ -492,7 +492,7 @@
                     that.element.find('.k-pager-info').html(html);
                 }
 
-                //Update input
+                // Update input
                 if (options.input) {
                     that.element.find('.k-pager-input')
                         .html(options.messages.page +
@@ -504,7 +504,7 @@
                         .toggleClass('k-state-disabled', length < 1);
                 }
 
-                //Update first, pervious, next, last buttons
+                // Update first, pervious, next, last buttons
                 if (options.previousNext) {
                     first(that.element, index, length);
                     prev(that.element, index, length);
@@ -513,8 +513,8 @@
                 }
 
                 if (e && e.action === undefined) {
-                    //TODO: we are cheating here: we should have in addedDataItems the pages displayed as numbers
-                    //Without addedDataItems, it fails because all data items are not displayed
+                    // TODO: we are cheating here: we should have in addedDataItems the pages displayed as numbers
+                    // Without addedDataItems, it fails because all data items are not displayed
                     that.trigger(DATABOUND, {addedDataItems: []});
                 }
             },
@@ -564,7 +564,7 @@
                         if (!isNaN(index)) {
                             this.index(index);
                         } else if (target.hasClass('k-pager-tick')) {
-                            this.trigger(CLICK); //Clicking on tick
+                            this.trigger(CLICK); // Clicking on tick
                         }
                     }
                 }
@@ -576,9 +576,9 @@
              */
             _clear: function () {
                 var that = this;
-                //unbind kendo
-                //kendo.unbind($(that.element));
-                //unbind all other events
+                // unbind kendo
+                // kendo.unbind($(that.element));
+                // unbind all other events
                 $(that.element).find('*').off();
                 $(that.element)
                     .off()
@@ -605,4 +605,4 @@
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

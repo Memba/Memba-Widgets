@@ -42,17 +42,17 @@
         }
     ];
 
-    describe('kidoju.widgets.navigation', function() {
+    describe('kidoju.widgets.navigation', function () {
 
-        before(function() {
+        before(function () {
             if (window.__karma__ && $(FIXTURES).length === 0) {
                 $('body').append('<div id="fixtures"></div>');
             }
         });
 
-        describe('Availability', function() {
+        describe('Availability', function () {
 
-            it('requirements', function() {
+            it('requirements', function () {
                 expect($).not.to.be.undefined;
                 expect(kendo).not.to.be.undefined;
                 expect(kendo.version).to.be.a('string');
@@ -66,9 +66,9 @@
 
         });
 
-        describe('Initialization', function() {
+        describe('Initialization', function () {
 
-            it('from code', function() {
+            it('from code', function () {
                 var element = $(NAVIGATION1).appendTo(FIXTURES);
                 var navigation = element.kendoNavigation().data('kendoNavigation');
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
@@ -79,7 +79,7 @@
                 expect(element).to.be.empty;
             });
 
-            it('from code with dataSource', function() {
+            it('from code with dataSource', function () {
                 var element = $(NAVIGATION1).appendTo(FIXTURES);
                 var navigation = element.kendoNavigation({
                     dataSource: pageCollectionData
@@ -92,7 +92,7 @@
                 expect(element.find('div.kj-item>div.kj-stage')).to.be.an.instanceof($).with.property('length', pageCollectionData.length);
             });
 
-            it('from markup', function() {
+            it('from markup', function () {
                 var viewModel = kendo.observable({
                         pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData }),
                         current: undefined
@@ -110,24 +110,24 @@
 
         });
 
-        describe('Methods', function() {
+        describe('Methods', function () {
 
             var element, navigation;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 element = $(NAVIGATION1).appendTo(FIXTURES);
                 navigation = element.kendoNavigation({
                     dataSource: pageCollectionData
                 }).data('kendoNavigation');
             });
 
-            it('length', function() {
+            it('length', function () {
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 expect(navigation.length()).to.equal(pageCollectionData.length);
             });
 
-            it('items', function() {
+            it('items', function () {
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 var items = navigation.items();
@@ -141,8 +141,8 @@
                 expect(check).to.have.callCount(pageCollectionData.length);
             });
 
-            it('value', function() {
-                var fn = function() {
+            it('value', function () {
+                var fn = function () {
                     navigation.value(0);
                 };
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
@@ -156,12 +156,12 @@
                 }
             });
 
-            it('index', function() {
-                var fn1 = function() {
+            it('index', function () {
+                var fn1 = function () {
                     navigation.index('not a number');
                 };
-                var fn2 = function() {
-                    navigation.index(300); //not in range
+                var fn2 = function () {
+                    navigation.index(300); // not in range
                 };
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
@@ -175,8 +175,8 @@
                 }
             });
 
-            it('id', function() {
-                var fn = function() {
+            it('id', function () {
+                var fn = function () {
                     navigation.id({});
                 };
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
@@ -197,19 +197,19 @@
 
         });
 
-        describe('MVVM', function() {
+        describe('MVVM', function () {
 
             var element, navigation, viewModel;
 
             /*
-            //For obscure reasons, setting the viewModel here does not work
+            // For obscure reasons, setting the viewModel here does not work
             viewModel = kendo.observable({
                 pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData }),
                 current: undefined
             });
             */
 
-            beforeEach(function() {
+            beforeEach(function () {
                 element = $(NAVIGATION2).appendTo(FIXTURES);
                 viewModel = kendo.observable({
                     pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData }),
@@ -219,7 +219,7 @@
                 navigation = element.data('kendoNavigation');
             });
 
-            it('Adding a page to the viewModel adds the corresponding item to the navigation', function() {
+            it('Adding a page to the viewModel adds the corresponding item to the navigation', function () {
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length);
@@ -230,7 +230,7 @@
                 expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length + 1);
             });
 
-            it('Removing a page from the viewModel removes the corresponding item from the navigation', function() {
+            it('Removing a page from the viewModel removes the corresponding item from the navigation', function () {
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length);
@@ -241,13 +241,13 @@
             // Note: Since kendo.ui.Navigation is a collection of kendo.ui.Stage, we are assuming that
             // if kendo.ui.Stage properly handles a change of page content, kendo.ui.Navigation also properly handles a change of page content
 
-            it('Changing the selected page in the viewModel changes the corresponding item in the navigation', function() {
-                //TODO: also test binding on id and index?
+            it('Changing the selected page in the viewModel changes the corresponding item in the navigation', function () {
+                // TODO: also test binding on id and index?
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length);
                 var check = sinon.spy();
-                $.each(viewModel.pages.data(), function(index, page) {
+                $.each(viewModel.pages.data(), function (index, page) {
                     check();
                     viewModel.set('current', page);
                     expect(navigation.element.find(kendo.format('[{0}="{1}"]', kendo.attr('uid'), page.uid))).to.have.class('k-state-selected');
@@ -255,11 +255,11 @@
                 expect(check).to.have.callCount(pageCollectionData.length);
             });
 
-            it('Changing the selected page in the navigation, changes the corresponding page in the viewModel', function() {
+            it('Changing the selected page in the navigation, changes the corresponding page in the viewModel', function () {
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 var check = sinon.spy();
-                $.each(navigation.element.find('div.kj-item'), function(index, item) {
+                $.each(navigation.element.find('div.kj-item'), function (index, item) {
                     check();
                     $(item).simulate('click');
                     expect(viewModel.get('current')).to.have.property('uid', $(item).attr(kendo.attr('uid')));
@@ -269,23 +269,23 @@
 
         });
 
-        describe('Events', function() {
+        describe('Events', function () {
 
             var element, navigation;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 element = $(NAVIGATION1).appendTo(FIXTURES);
             });
 
-            it('dataBinding & dataBound', function() {
+            it('dataBinding & dataBound', function () {
                 var dataBinding = sinon.spy(),
                     dataBound = sinon.spy();
                 navigation = element.kendoNavigation({
                     dataSource: pageCollectionData,
-                    dataBinding: function(e) {
+                    dataBinding: function (e) {
                         dataBinding(e.sender);
                     },
-                    dataBound: function(e) {
+                    dataBound: function (e) {
                         dataBound(e.sender);
                     }
                 }).data('kendoNavigation');
@@ -298,11 +298,11 @@
                 expect(dataBinding).to.have.been.calledBefore(dataBound);
             });
 
-            it('change', function() {
+            it('change', function () {
                 var change = sinon.spy();
                 navigation = element.kendoNavigation({
                     dataSource: pageCollectionData,
-                    change: function(e) {
+                    change: function (e) {
                         change(e.value);
                     }
                 }).data('kendoNavigation');
@@ -316,11 +316,11 @@
                 expect(change).to.have.been.calledWith(page);
             });
 
-            //TODO: select event
+            // TODO: select event
 
         });
 
-        afterEach(function() {
+        afterEach(function () {
             var fixtures = $(FIXTURES);
             kendo.unbind(fixtures);
             kendo.destroy(fixtures);

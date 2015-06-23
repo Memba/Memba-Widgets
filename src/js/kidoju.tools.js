@@ -8,7 +8,7 @@
 
 (function(f, define){
     'use strict';
-    define(['./vendor/kendo/kendo.core', './vendor/kendo/kendo.data', './kidoju.data'], f);
+    define(['./vendor/kendo/kendo.binder', './kidoju.data'], f);
 })(function() {
 
     'use strict';

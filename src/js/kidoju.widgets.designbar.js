@@ -8,7 +8,7 @@
 
 (function(f, define){
     'use strict';
-    define(['./vendor/kendo/kendo.core', './vendor/kendo/kendo.data'], f);
+    define(['./vendor/kendo/kendo.binder'], f);
 })(function() {
 
     'use strict';

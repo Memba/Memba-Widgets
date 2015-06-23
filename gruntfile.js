@@ -49,7 +49,7 @@ module.exports = function (grunt) {
             }
         },
         // TODO: Consider linting html too
-        mocha: {
+        mocha: { //Tests running in a browser (phantomJS)
             browsers: {
                 options: {
                     //debug: true,
@@ -62,7 +62,7 @@ module.exports = function (grunt) {
                 src: ['test/browsers/kidoju.*.test.html']
             }
         },
-        mochaTest: {
+        mochaTest: { //Test running in nodeJS (supertest, zombie, ...)
             zombie: {
                 options: {
                     //debug: true,

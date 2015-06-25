@@ -4,24 +4,30 @@
 
 //Install: add --debug=8081 in Node parameters
 
-var http = require("http"),
-    path = require("path"),
-    url = require("url"),
-    fs = require("fs"),
+var http = require('http'),
+    path = require('path'),
+    url = require('url'),
+    fs = require('fs'),
     port = /*process.argv[2] ||*/ 8080,
     types = {
         'html'  : 'text/html',
         'txt'   : 'text/plain',
         'css'   : 'text/css',
         'js'    : 'text/javascript',
+        'ico'   : 'image/x-icon',
         'jpg'   : 'image/jpeg',
         'png'   : 'image/png',
         'gif'   : 'image/gif',
         'svg'   : 'image/svg+xml',
         'json'  : 'application/json',
         'xml'   : 'text/xml',
-        'bin'   : 'application/octet-stream'
+        'bin'   : 'application/octet-stream',
+        'ttf'  : 'font/ttf',
+        'woff'  : 'font/woff'
+
     };
+
+console.log('Server Running on port ' + port.toString() + '\n');
 
 module.exports = http.createServer(function(request,response){
     //debugger;
@@ -31,8 +37,8 @@ module.exports = http.createServer(function(request,response){
     console.log(filename);
     fs.exists(filename,function(exists){
         if(!exists){
-            response.writeHeader(404, {'Content-Type': "text/plain"});
-            response.write("404 Not Found\n");
+            response.writeHeader(404, {'Content-Type': 'text/plain'});
+            response.write('404 Not Found\n');
             response.end();
             return;
         }
@@ -46,5 +52,4 @@ module.exports = http.createServer(function(request,response){
         response.writeHead(200, { 'Content-Type': (types[type] || types['bin']) + '; charset=utf-8' });
         fs.createReadStream(filename).pipe(response);
     });
-    console.log("Server Running on port " + port.toString());
 }).listen(parseInt(port, 10));

@@ -31,7 +31,7 @@ var __meta__ = {
             this.element
                 .addClass("k-rpanel k-rpanel-" + this.options.orientation);
 
-            this._resizeHandler = proxy(this.resize, this);
+            this._resizeHandler = proxy(this.resize, this, false);
             $(window).on("resize" + NS, this._resizeHandler);
         },
         _mediaQuery:
@@ -72,13 +72,13 @@ var __meta__ = {
             var head = $("head,body")[0];
             var style = document.createElement('style');
 
+            head.appendChild(style);
+
             if (style.styleSheet){
                 style.styleSheet.cssText = cssText;
             } else {
                 style.appendChild(document.createTextNode(cssText));
             }
-
-            head.appendChild(style);
         },
         options: {
             name: "ResponsivePanel",

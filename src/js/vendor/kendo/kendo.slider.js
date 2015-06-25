@@ -1299,6 +1299,14 @@ var __meta__ = {
             firstInput.type = "text";
             secondInput.type = "text";
 
+            if (options && options.showButtons) {
+                if (window.console) {
+                    window.console.warn("showbuttons option is not supported for the range slider, ignoring");
+                }
+
+                options.showButtons = false;
+            }
+
             options = extend({}, {
                 selectionStart: parseAttr(firstInput, "value"),
                 min: parseAttr(firstInput, "min"),
@@ -1498,7 +1506,7 @@ var __meta__ = {
                     }
                 }
 
-                that._setValueInRange(selectionStartValue, selectionEndValue);
+                that._setValueInRange(round(selectionStartValue), round(selectionEndValue));
 
                 dragSelectionStart = Math.max(selectionStartValue, that.options.selectionStart);
                 dragSelectionEnd = Math.min(selectionEndValue, that.options.selectionEnd);

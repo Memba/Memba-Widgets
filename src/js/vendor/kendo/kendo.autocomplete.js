@@ -66,7 +66,7 @@ var __meta__ = {
 
     var AutoComplete = List.extend({
         init: function (element, options) {
-            var that = this, wrapper;
+            var that = this, wrapper, disabled;
 
             that.ns = ns;
             options = $.isArray(options) ? { dataSource: options} : options;
@@ -126,6 +126,12 @@ var __meta__ = {
 
             that._initList();
 
+            disabled = $(that.element).parents("fieldset").is(':disabled');
+
+            if (disabled) {
+                that.enable(false);
+            }
+
             kendo.notify(that);
         },
 
@@ -134,6 +140,8 @@ var __meta__ = {
             enabled: true,
             suggest: false,
             template: "",
+            groupTemplate: "#:data#",
+            fixedGroupTemplate: "#:data#",
             dataTextField: "",
             minLength: 1,
             delay: 200,
@@ -147,7 +155,6 @@ var __meta__ = {
             value: null
         },
 
-        //Use Select._dataSource method here!
         _dataSource: function() {
             var that = this;
 
@@ -161,7 +168,6 @@ var __meta__ = {
                 .bind("progress", that._progressHandler);
         },
 
-        //TODO: Use Select.setDataSource method here
         setDataSource: function(dataSource) {
             this.options.dataSource = dataSource;
             this._dataSource();
@@ -180,10 +186,13 @@ var __meta__ = {
         ],
 
         setOptions: function(options) {
+            var listOptions = this._listOptions(options);
+
             List.fn.setOptions.call(this, options);
 
-            this.listView.setOptions(options);
+            listOptions.dataValueField = listOptions.dataTextField;
 
+            this.listView.setOptions(listOptions);
             this._accessors();
             this._aria();
         },
@@ -254,7 +263,7 @@ var __meta__ = {
 
             word = word || that._accessor();
 
-            clearTimeout(that._typing);
+            clearTimeout(that._typingTimeout);
 
             if (separator) {
                 word = wordAtCaret(caret(that.element)[0], word, separator);
@@ -265,6 +274,7 @@ var __meta__ = {
             if (!length || length >= options.minLength) {
                 that._open = true;
 
+                that.listView.filter(true);
                 that._filterSource({
                     value: ignoreCase ? word.toLowerCase() : word,
                     operator: options.filter,
@@ -310,6 +320,7 @@ var __meta__ = {
             value = words[wordIndex].substring(0, idx);
 
             if (word) {
+                word = word.toString();
                 idx = word.toLowerCase().indexOf(value.toLowerCase());
                 if (idx > -1) {
                     word = word.substring(idx + value.length);
@@ -362,68 +373,60 @@ var __meta__ = {
 
         _initList: function() {
             var that = this;
-            var options = this.options;
-            var template = options.template || options.itemTemplate || "#:" + kendo.expr(options.dataTextField, "data") + "#";
+            var virtual = that.options.virtual;
+            var hasVirtual = !!virtual;
+
+            var listBoundHandler = proxy(that._listBound, that);
 
             var listOptions = {
                 autoBind: false,
-                height: options.height,
-                dataValueField: options.dataValueField,
-                dataSource: this.dataSource,
-                groupTemplate: options.groupTemplate || "#:data#",
-                fixedGroupTemplate: options.fixedGroupTemplate || "#:data#",
-                template: template,
                 selectable: true,
-                activate: function() {
-                    var current = this.focus();
-                    if (current) {
-                        that._focused.add(that.filterInput).attr("aria-activedescendant", current.attr("id"));
-                    }
-                },
-                click: $.proxy(this._click, this),
-                change: $.proxy(this._listChange, this),
-                deactivate: function() {
-                    that._focused.add(that.filterInput).removeAttr("aria-activedescendant");
-                },
+                dataSource: that.dataSource,
+                click: $.proxy(that._click, this),
+                change: $.proxy(that._listChange, this),
+                activate: proxy(that._activateItem, that),
+                deactivate: proxy(that._deactivateItem, that),
                 dataBinding: function() {
-                    that.trigger("dataBinding"); //TODO: make preventable
+                    that.trigger("dataBinding");
                     that._angularItems("cleanup");
                 },
-                listBound: $.proxy(this._listBound, this),
-                dataBound: $.proxy(this._listBound, this)
+                dataBound: listBoundHandler,
+                listBound: listBoundHandler
             };
 
-            if (options.virtual) {
-                if (typeof options.virtual === "object") {
-                    $.extend(listOptions, {
-                        listBound: $.proxy(this._listBound, this)
-                    }, options.virtual);
-                }
+            listOptions = $.extend(that._listOptions(), listOptions, typeof virtual === "object" ? virtual : {});
 
-                this.listView = new kendo.ui.VirtualList(this.ul, listOptions);
+            listOptions.dataValueField = listOptions.dataTextField;
+
+            if (!hasVirtual) {
+                that.listView = new kendo.ui.StaticList(that.ul, listOptions);
             } else {
-                this.listView = new kendo.ui.StaticList(this.ul, listOptions);
+                that.listView = new kendo.ui.VirtualList(that.ul, listOptions);
             }
 
-            this.listView.value(this.options.value);
+            that.listView.value(that.options.value);
         },
 
         _listBound: function() {
             var that = this;
             var popup = that.popup;
             var options = that.options;
-            var data = that.listView.data();
+            var data = that.dataSource.flatView();
             var length = data.length;
             var isActive = that.element[0] === activeElement();
             var action;
 
             that._angularItems("compile");
 
+            //reset list value
+            that.listView.value([]);
+            that.listView.focus(-1);
+
+            that.listView.filter(false);
+
             that._calculateGroupPadding(that._height(length));
 
-            if (popup.visible()) {
-                popup._position();
-            }
+            popup.position();
 
             if (length) {
                 var current = this.listView.focus();
@@ -441,26 +444,28 @@ var __meta__ = {
                 that._open = false;
                 action = length ? "open" : "close";
 
-                if (that._typing && !isActive) {
+                if (that._typingTimeout && !isActive) {
                     action = "close";
                 }
 
                 popup[action]();
-                that._typing = undefined;
+                that._typingTimeout = undefined;
             }
 
             if (that._touchScroller) {
                 that._touchScroller.reset();
             }
 
+            that._hideBusy();
             that._makeUnselectable();
 
-            that._hideBusy();
             that.trigger("dataBound");
         },
 
         _listChange: function() {
-            this._selectValue(this.listView.selectedDataItems()[0]);
+            if (!this.listView.filter()) {
+                this._selectValue(this.listView.selectedDataItems()[0]);
+            }
         },
 
         _selectValue: function(dataItem) {
@@ -546,6 +551,7 @@ var __meta__ = {
                 that.close();
             } else {
                 that._search();
+                that._typing = true;
             }
         },
 
@@ -618,9 +624,9 @@ var __meta__ = {
 
         _search: function () {
             var that = this;
-            clearTimeout(that._typing);
+            clearTimeout(that._typingTimeout);
 
-            that._typing = setTimeout(function () {
+            that._typingTimeout = setTimeout(function () {
                 if (that._prev !== that._accessor()) {
                     that._prev = that._accessor();
                     that.search();

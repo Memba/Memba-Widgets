@@ -1,5 +1,4 @@
-
-
+(function ($, undefined) {
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -154,6 +153,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "canceledit": "Fortryd",
     "update": "Opdatér",
     "edit": "Redigér",
+    "excel": "Export to Excel",
+    "pdf": "Export to PDF",
     "select": "Vælg",
     "cancel": "Fortryd ændringer",
     "save": "Gem ændringer"
@@ -213,7 +214,7 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "cancel": "Annuller",
   "operator": "Operatør",
   "value": "Value",
-  "or": "Or"
+  "or": "Eller"
 });
 }
 
@@ -317,7 +318,9 @@ kendo.ui.Scheduler.prototype.options.messages =
 $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "allDay": "all day",
   "cancel": "Cancel",
-  "confirmation": "Are you sure you want to delete this event?",
+  "editable": {
+    "confirmation": "Are you sure you want to delete this event?"
+  },
   "date": "Date",
   "destroy": "Delete",
   "editor": {
@@ -362,3 +365,4 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "showWorkDay": "Show business hours"
 });
 }
+})(window.kendo.jQuery);

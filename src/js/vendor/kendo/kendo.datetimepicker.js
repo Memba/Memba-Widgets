@@ -66,6 +66,8 @@ var __meta__ = {
 
             normalize(options);
 
+            that._initialOptions = extend({}, options);
+
             that._wrapper();
 
             that._views();
@@ -88,9 +90,9 @@ var __meta__ = {
                    });
 
 
-            that._midnight = getMilliseconds(options.min) + getMilliseconds(options.max) === 0;
+            that._midnight = that._calculateMidnight(options.min, options.max);
 
-            disabled = element.is("[disabled]");
+            disabled = element.is("[disabled]") || $(that.element).parents("fieldset").is(':disabled');
             if (disabled) {
                 that.enable(false);
             } else {
@@ -144,6 +146,8 @@ var __meta__ = {
             options.max = max = parse(options.max);
 
             normalize(options);
+
+            that._midnight = that._calculateMidnight(options.min, options.max);
 
             currentValue = options.value || that._value || that.dateView._current;
 
@@ -326,8 +330,10 @@ var __meta__ = {
 
                 that.trigger(CHANGE);
 
-                // trigger the DOM change event so any subscriber gets notified
-                that.element.trigger(CHANGE);
+                if (!that._typing) {
+                    // trigger the DOM change event so any subscriber gets notified
+                    that.element.trigger(CHANGE);
+                }
             }
         },
 
@@ -357,7 +363,7 @@ var __meta__ = {
             options[option] = new DATE(value.getTime());
             that.dateView[option](value);
 
-            that._midnight = getMilliseconds(options.min) + getMilliseconds(options.max) === 0;
+            that._midnight = that._calculateMidnight(options.min, options.max);
 
             if (current) {
                 minDateEqual = isEqualDatePart(options.min, current);
@@ -489,6 +495,8 @@ var __meta__ = {
                 timeView.move(e);
             } else if (e.keyCode === kendo.keys.ENTER && value !== that._oldText) {
                 that._change(value);
+            } else {
+                that._typing = true;
             }
         },
 
@@ -686,6 +694,8 @@ var __meta__ = {
             if (form[0]) {
                 that._resetHandler = function() {
                     that.value(element[0].defaultValue);
+                    that.max(that._initialOptions.max);
+                    that.min(that._initialOptions.min);
                 };
 
                 that._form = form.on("reset", that._resetHandler);
@@ -694,6 +704,10 @@ var __meta__ = {
 
         _template: function() {
             this._ariaTemplate = kendo.template(this.options.ARIATemplate);
+        },
+
+        _calculateMidnight: function(min, max) {
+            return getMilliseconds(min) + getMilliseconds(max) === 0;
         },
 
         _updateARIA: function(date) {
@@ -724,11 +738,17 @@ var __meta__ = {
 
     function normalize(options) {
         var patterns = kendo.getCulture(options.culture).calendars.standard.patterns,
+            parseFormats = !options.parseFormats.length,
             timeFormat;
 
         options.format = extractFormat(options.format || patterns.g);
         options.timeFormat = timeFormat = extractFormat(options.timeFormat || patterns.t);
         kendo.DateView.normalize(options);
+
+        if (parseFormats) {
+            options.parseFormats.push("yyyy-MM-ddTHH:mm:ss");
+        }
+
         if ($.inArray(timeFormat, options.parseFormats) === -1) {
             options.parseFormats.splice(1, 0, timeFormat);
         }

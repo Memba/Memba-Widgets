@@ -1,5 +1,4 @@
-
-
+(function ($, undefined) {
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -186,6 +185,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "create": "Lägg till post",
     "destroy": "Radera",
     "edit": "Ändra",
+    "excel": "Export to Excel",
+    "pdf": "Export to PDF",
     "save": "Spara ändringar",
     "select": "Välj",
     "update": "Spara"
@@ -317,7 +318,9 @@ kendo.ui.Scheduler.prototype.options.messages =
 $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "allDay": "all day",
   "cancel": "Avbryt",
-  "confirmation": "Are you sure you want to delete this event?",
+  "editable": {
+    "confirmation": "Are you sure you want to delete this event?"
+  },
   "date": "Date",
   "destroy": "Delete",
   "editor": {
@@ -362,3 +365,4 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "showWorkDay": "Show business hours"
 });
 }
+})(window.kendo.jQuery);

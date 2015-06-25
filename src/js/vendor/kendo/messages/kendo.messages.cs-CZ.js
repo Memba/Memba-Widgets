@@ -1,5 +1,4 @@
-
-
+(function ($, undefined) {
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -184,6 +183,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "create": "Přidat nový záznam",
     "destroy": "Smazat",
     "edit": "Upravit",
+    "excel": "Export to Excel",
+    "pdf": "Export to PDF",
     "save": "Uložit změny",
     "select": "Vybrat",
     "update": "Odemknout"
@@ -313,7 +314,9 @@ kendo.ui.Scheduler.prototype.options.messages =
 $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "allDay": "celý den",
   "cancel": "Zrušit",
-  "confirmation": "Opravdu chcete smazat tuto událost?",
+  "editable": {
+    "confirmation": "Opravdu chcete smazat tuto událost?"
+  },
   "date": "Datum",
   "destroy": "Smazat",
   "editor": {
@@ -356,3 +359,4 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "showWorkDay": "Zobrazit pracovní dobu"
 });
 }
+})(window.kendo.jQuery);

@@ -1,5 +1,4 @@
-
-
+(function ($, undefined) {
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -251,6 +250,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "create": "Item toevoegen",
     "destroy": "Verwijderen",
     "edit": "Bewerken",
+    "excel": "Export to Excel",
+    "pdf": "Export to PDF",
     "save": "Wijzigingen opslaan",
     "select": "Selecteren",
     "update": "Bijwerken"
@@ -298,7 +299,9 @@ kendo.ui.Scheduler.prototype.options.messages =
 $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "allDay": "Toon hele dag",
   "cancel": "Annuleren",
-  "confirmation": "Weet u zeker dat u deze afspraak wilt verwijderen?",
+  "editable": {
+    "confirmation": "Weet u zeker dat u deze afspraak wilt verwijderen?"
+  },
   "date": "Datum",
   "deleteWindowTitle": "Afspraak verwijderen",
   "destroy": "Verwijderen",
@@ -362,3 +365,4 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "uploadSelectedFiles": "Bestanden uploaden"
 });
 }
+})(window.kendo.jQuery);

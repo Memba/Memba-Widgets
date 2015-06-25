@@ -1,5 +1,4 @@
-
-
+(function ($, undefined) {
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -246,6 +245,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "create": "Inserir",
     "destroy": "Excluir",
     "edit": "Editar",
+    "excel": "Export to Excel",
+    "pdf": "Export to PDF",
     "save": "Salvar alterações",
     "select": "Selecionar",
     "update": "Atualizar"
@@ -293,7 +294,9 @@ kendo.ui.Scheduler.prototype.options.messages =
 $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "allDay": "dia inteiro",
   "cancel": "Cancelar",
-  "confirmation": "Tem certeza que deseja excluir este evento?",
+  "editable": {
+    "confirmation": "Tem certeza que deseja excluir este evento?"
+  },
   "date": "Data",
   "deleteWindowTitle": "Excluir evento",
   "destroy": "Excluir",
@@ -359,3 +362,4 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "uploadSelectedFiles1": "Enviar arquivos"
 });
 }
+})(window.kendo.jQuery);

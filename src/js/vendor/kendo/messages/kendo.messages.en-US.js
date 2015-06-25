@@ -1,3 +1,4 @@
+(function ($, undefined) {
 /* FlatColorPicker messages */
 
 if (kendo.ui.FlatColorPicker) {
@@ -224,6 +225,17 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
 });
 }
 
+/* FilterMultiCheck messages */
+
+if (kendo.ui.FilterMultiCheck) {
+kendo.ui.FilterMultiCheck.prototype.options.messages =
+$.extend(true, kendo.ui.FilterMultiCheck.prototype.options.messages,{
+  "checkAll": "Select All",
+  "clear": "Clear",
+  "filter": "Filter"
+});
+}
+
 /* Gantt messages */
 
 if (kendo.ui.Gantt) {
@@ -275,6 +287,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "create": "Add new record",
     "destroy": "Delete",
     "edit": "Edit",
+    "excel": "Export to Excel",
+    "pdf": "Export to PDF",
     "save": "Save changes",
     "select": "Select",
     "update": "Update"
@@ -283,7 +297,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "cancelDelete": "Cancel",
     "confirmation": "Are you sure you want to delete this record?",
     "confirmDelete": "Delete"
-  }
+  },
+  "noRecords": "No records available."
 });
 }
 
@@ -439,7 +454,9 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "deleteWindowTitle": "Delete event",
   "ariaSlotLabel": "Selected from {0:t} to {1:t}",
   "ariaEventLabel": "{0} on {1:D} at {2:t}",
-  "confirmation": "Are you sure you want to delete this event?",
+  "editable": {
+    "confirmation": "Are you sure you want to delete this event?"
+  },
   "views": {
     "day": "Day",
     "week": "Week",
@@ -487,6 +504,28 @@ $.extend(true, kendo.ui.Slider.prototype.options,{
 });
 }
 
+/* TreeList messages */
+
+if (kendo.ui.TreeList) {
+kendo.ui.TreeList.prototype.options.messages =
+$.extend(true, kendo.ui.TreeList.prototype.options.messages,{
+  "noRows": "No records to display",
+  "loading": "Loading...",
+  "requestFailed": "Request failed.",
+  "retry": "Retry",
+  "commands": {
+      "edit": "Edit",
+      "update": "Update",
+      "canceledit": "Cancel",
+      "create": "Add new record",
+      "createchild": "Add child record",
+      "destroy": "Delete",
+      "excel": "Export to Excel",
+      "pdf": "Export to PDF"
+  }
+});
+}
+
 /* TreeView messages */
 
 if (kendo.ui.TreeView) {
@@ -530,6 +569,8 @@ $.extend(true, kendo.ui.Validator.prototype.options.messages,{
   "step": "{0} is not valid",
   "email": "{0} is not valid email",
   "url": "{0} is not valid URL",
-  "date": "{0} is not valid date"
+  "date": "{0} is not valid date",
+  "dateCompare": "End date should be greater than or equal to the start date"
 });
 }
+})(window.kendo.jQuery);

@@ -385,6 +385,7 @@ var __meta__ = {
 
         setOptions: function(options) {
             Widget.fn.setOptions.call(this, options);
+            this.restore();
             this._animations();
             this._dimensions();
             this._position();
@@ -686,7 +687,8 @@ var __meta__ = {
                 options = that.options,
                 showOptions = options.animation.open,
                 contentElement = wrapper.children(KWINDOWCONTENT),
-                overlay;
+                overlay,
+                doc = $(document);
 
             if (!that.trigger(OPEN)) {
                 if (that._closing) {
@@ -731,7 +733,8 @@ var __meta__ = {
             }
 
             if (options.isMaximized) {
-                that._documentScrollTop = $(document).scrollTop();
+                that._documentScrollTop = doc.scrollTop();
+                that._documentScrollLeft = doc.scrollLeft();
                 $("html, body").css(OVERFLOW, HIDDEN);
             }
 
@@ -772,7 +775,8 @@ var __meta__ = {
                 wrapper = that.wrapper,
                 options = that.options,
                 showOptions = options.animation.open,
-                hideOptions = options.animation.close;
+                hideOptions = options.animation.close,
+                doc = $(document);
 
             if (wrapper.is(VISIBLE) && !that.trigger(CLOSE, { userTriggered: !systemTriggered })) {
                 if (that._closing) {
@@ -804,7 +808,10 @@ var __meta__ = {
             if (that.options.isMaximized) {
                 $("html, body").css(OVERFLOW, "");
                 if (that._documentScrollTop && that._documentScrollTop > 0) {
-                    $(document).scrollTop(that._documentScrollTop);
+                    doc.scrollTop(that._documentScrollTop);
+                }
+                if (that._documentScrollLeft && that._documentScrollLeft > 0) {
+                    doc.scrollLeft(that._documentScrollLeft);
                 }
             }
         },
@@ -899,6 +906,7 @@ var __meta__ = {
             var options = that.options;
             var minHeight = options.minHeight;
             var restoreOptions = that.restoreOptions;
+            var doc = $(document);
 
             if (!options.isMaximized && !options.isMinimized) {
                 return that;
@@ -927,7 +935,10 @@ var __meta__ = {
 
             $("html, body").css(OVERFLOW, "");
             if (this._documentScrollTop && this._documentScrollTop > 0) {
-                $(document).scrollTop(this._documentScrollTop);
+                doc.scrollTop(this._documentScrollTop);
+            }
+            if (this._documentScrollLeft && this._documentScrollLeft > 0) {
+                doc.scrollLeft(this._documentScrollLeft);
             }
 
             options.isMaximized = options.isMinimized = false;
@@ -940,7 +951,8 @@ var __meta__ = {
         maximize: sizingAction("maximize", function() {
             var that = this,
                 wrapper = that.wrapper,
-                position = wrapper.position();
+                position = wrapper.position(),
+                doc = $(document);
 
             extend(that.restoreOptions, {
                 left: position.left,
@@ -954,7 +966,8 @@ var __meta__ = {
                 })
                 .addClass(MAXIMIZEDSTATE);
 
-            this._documentScrollTop = $(document).scrollTop();
+            this._documentScrollTop = doc.scrollTop();
+            this._documentScrollLeft = doc.scrollLeft();
             $("html, body").css(OVERFLOW, HIDDEN);
 
             that.options.isMaximized = true;

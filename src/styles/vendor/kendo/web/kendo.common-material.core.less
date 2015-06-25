@@ -28,8 +28,8 @@
     padding: 0;
 }
 
-.k-tabstrip > .k-content,
-.k-panelbar .k-tabstrip > .k-content
+.k-tabstrip > div.k-content,
+.k-panelbar .k-tabstrip > div.k-content
 {
     margin: 0;
 }
@@ -47,16 +47,43 @@
     margin-top: 16px;
 }
 
-.k-tabstrip-items .k-tab-on-top,
-.k-tabstrip-items .k-state-active {
-    margin-bottom: -2px;
-    padding-bottom: 0;
+.k-tabstrip > .k-tabstrip-items > .k-item {
+    text-transform: uppercase;
+    border-width: 0;
+    border-style: solid;
+    padding: 0;
 }
 
-.k-tabstrip-items > .k-item {
+.k-tabstrip-left > .k-tabstrip-items .k-loading,
+.k-tabstrip-right > .k-tabstrip-items .k-loading
+{
+    display: none;
+}
+
+.k-tabstrip-top > .k-tabstrip-items .k-tab-on-top,
+.k-tabstrip-top > .k-tabstrip-items .k-state-active {
+    margin-bottom: -1px;
+}
+
+.k-tabstrip-top > .k-tabstrip-items > .k-item {
     border-bottom-width: 2px;
-    border-bottom-style: solid;
-    text-transform: uppercase;
+}
+
+.k-tabstrip-left > .k-tabstrip-items .k-tab-on-top,
+.k-tabstrip-left > .k-tabstrip-items .k-state-active {
+    margin-right: -2px;
+}
+
+.k-tabstrip-left > .k-tabstrip-items > .k-item {
+    border-right-width: 2px;
+}
+
+.k-tabstrip-right > .k-tabstrip-items > .k-item {
+    border-left-width: 2px;
+}
+
+.k-tabstrip-bottom > .k-tabstrip-items > .k-item {
+    border-top-width: 2px;
 }
 
 .k-tabstrip-items .k-link {
@@ -350,13 +377,18 @@
 
 .k-multiselect-wrap li {
     border-radius: 1.071em;
-    margin: 3px;
-    padding: 0 .15em 0 .857em;
+    margin: 3px 0 3px 3px;
+    padding: 0 1.6em 0 .857em;
     line-height: 1.86em;
 }
 
 .k-multiselect-wrap li span {
-    margin-right: 1.071em;   
+    margin-right: .4em;   
+}
+
+.k-multiselect-wrap .k-select
+{
+    padding-top: 0;
 }
 
 .k-numeric-wrap .k-select {
@@ -523,10 +555,6 @@ div.editorToolbarWindow.k-window-content {
 
 .k-file {
     padding: 0.357em .167em 0.357em .8em;
-}
-
-.k-scheduler-table td {
-	vertical-align: middle;
 }
 
 .k-scheduler-table td,
@@ -1113,10 +1141,13 @@ div.editorToolbarWindow.k-window-content {
 }
 
 .km-pane-wrapper .k-pager-numbers .k-link,
-.km-pane-wrapper .k-pager-numbers .k-state-selected,
 .km-pane-wrapper .k-pager-wrap >.k-link,
 .km-pane-wrapper .k-pager-wrap> .k-pager-info {
     padding: .571em .86em;
+}
+
+.km-pane-wrapper .k-pager-numbers .k-state-selected {
+    padding: .971em .86em .571em;
 }
 
 .k-ie7 input.k-textbox { 

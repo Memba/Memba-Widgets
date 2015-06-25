@@ -1,5 +1,4 @@
-
-
+(function ($, undefined) {
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -144,11 +143,11 @@ $.extend(true, kendo.ui.RecurrenceEditor.prototype.options.messages,{
 });
 }
 
-/* FilterCenn messages */
+/* FilterCell messages */
 
-if (kendo.ui.FilterCenn) {
-kendo.ui.FilterCenn.prototype.options.messages =
-$.extend(true, kendo.ui.FilterCenn.prototype.options.messages,{
+if (kendo.ui.FilterCell) {
+kendo.ui.FilterCell.prototype.options.messages =
+$.extend(true, kendo.ui.FilterCell.prototype.options.messages,{
   "clear": "Rimuovi",
   "filter": "Filtro",
   "isFalse": "è falso",
@@ -187,6 +186,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "create": "Aggiungi nuovo elemento",
     "destroy": "Rimuovi",
     "edit": "Edit",
+    "excel": "Export to Excel",
+    "pdf": "Export to PDF",
     "save": "Salva le modifiche",
     "select": "Seleziona",
     "update": "Aggiorna"
@@ -317,7 +318,9 @@ kendo.ui.Scheduler.prototype.options.messages =
 $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "allDay": "tutto il giorno",
   "cancel": "Annulla",
-  "confirmation": "Sicuro di voler rimuovere questo evento?",
+  "editable": {
+    "confirmation": "Sicuro di voler rimuovere questo evento?"
+  },
   "date": "Data",
   "destroy": "Rimuovi",
   "editor": {
@@ -362,3 +365,4 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "showWorkDay": "Mostra solo le ore lavorative"
 });
 }
+})(window.kendo.jQuery);

@@ -297,16 +297,23 @@ span.k-datetimepicker .k-select+.k-select
     margin: 0;
 }
 
-/* fix missing bottom border on browser zoom in Chrome */
-.k-webkit .k-combobox .k-dropdown-wrap:before,
-.k-webkit .k-picker-wrap:before,
-.k-webkit .k-numeric-wrap:before
+.k-combobox .k-dropdown-wrap:before,
+.k-picker-wrap:before,
+.k-numeric-wrap:before
 {
     content: "\a0";
     display: inline-block;
     width: 0;
     height: @input-height;
-    padding-bottom: 0.4em;
+    padding-bottom: 0.3em;
+}
+
+/* fix missing bottom border on browser zoom in Chrome */
+.k-webkit .k-combobox .k-dropdown-wrap:before,
+.k-webkit .k-picker-wrap:before,
+.k-webkit .k-numeric-wrap:before
+{
+    padding-bottom: 0.38em;
 }
 
 /* above style breaks NumericTextBox layout due display:block style applied to the input */
@@ -397,14 +404,16 @@ body .k-datetimepicker .k-select
 .k-popup .k-list .k-item,
 .k-fieldselector .k-list .k-item,
 .k-list-optionlabel,
-.k-popup > .k-static-header
+.k-popup > .k-group-header,
+.k-popup > .k-virtual-wrap > .k-group-header
 {
     padding: 1px 5px 1px 5px;
     line-height: 1.8em;
     min-height: 1.8em;
 }
 
-.k-popup > .k-static-header
+.k-popup > .k-group-header,
+.k-popup > .k-virtual-wrap > .k-group-header
 {
     padding-right: 22px;
 }
@@ -451,8 +460,8 @@ body .k-datetimepicker .k-select
 .k-list-filter > .k-icon
 {
     position: absolute;
-    right: 4px;
-    top: 3px;
+    right: 6px;
+    top: 1px;
 }
 
 /* MultiSelect */
@@ -483,9 +492,10 @@ body .k-datetimepicker .k-select
 .k-multiselect-wrap li
 {
     margin: 1px 0 1px 1px;
-    padding: .1em .15em .1em .4em;
+    padding: .1em 1.6em .1em .4em;
     line-height: (@input-height - .15);
     float: left;
+    position: relative;
 }
 
 .k-autocomplete .k-loading,
@@ -499,6 +509,15 @@ body .k-datetimepicker .k-select
 .k-multiselect .k-loading-hidden
 {
     visibility: hidden;
+}
+
+.k-multiselect-wrap .k-select
+{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    padding: .1em .2em;
 }
 
 /* Date/Time Pickers */
@@ -560,6 +579,11 @@ body .k-datetimepicker .k-select
 .k-textbox
 {
     outline: 0;
+}
+
+input.k-textbox,
+textarea.k-textbox
+{
     padding: 2px .3em;
 }
 

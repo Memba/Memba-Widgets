@@ -9,33 +9,34 @@
 
 'use strict';
 
-var Browser = require('zombie'),
-    expect = require('chai').expect;
-
-var httpServer, browser;
+var httpServer = require('../../nodejs/http.server.js'),
+    Zombie = require('zombie'),
+    browser = new Zombie({ site: 'http://localhost:8080', waitDuration: '10s' });
+    //browser = new Zombie({ site: 'http://poc.kidoju.com'/*, waitDuration: '10s'*/ });
 
 describe('kidoju.integration.designmode.test.js', function () {
 
     before(function (done) {
-        console.log('Start http server');
-        httpServer = require('../../nodejs/http.server.js');
-        console.log('Initialize browser');
-        browser = new Browser();
-        console.log('Visit url');
-        browser.visit('http://localhost:8080/src/kidoju.integration.designmode.html', done);
+        //Increase max listeners in case of timeout
+        browser.setMaxListeners(30);
+        browser.visit('/src/kidoju.integration.designmode.html', function(a, b) {
+            done();
+        });
     });
 
     describe('When page is loaded', function () {
         it('It should have navigation and stages', function () {
-            expect(browser.query('[data-role="navigation"]')).to.be.ok;
-            expect(browser.query('[data-role="stage"]')).to.be.ok;
+            console.log('ok');
+            browser.assert.success();
+            //browser.assert.url(webapp.index);
+            //browser.assert.attribute('html', 'lang', 'en');
+            //browser.assert.element('div.uk.flag');
+            //browser.assert.text('div.page-header span', 'Support');
         });
     });
 
-    after(function (done) {
-        browser.close();
-        // httpServer.close(done);
-        done();
+    after(function () {
+        browser.destroy();
     });
 
 });

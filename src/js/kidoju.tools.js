@@ -34,8 +34,8 @@
 
         // HTML
             ELEMENT_CLASS = '.kj-element',
-        // POSITION = 'position',
             ABSOLUTE = 'absolute',
+            AUTO = 'auto',
             DIALOG_DIV = '<div class="k-popup-edit-form {0}"></div>',
             DIALOG_CLASS = '.kj-dialog',
 
@@ -706,34 +706,40 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) {
-                    var content = stageElement.find('>span');
-                    if ($.type(component.width) === NUMBER) {
-                        content.width(component.width);
+                    var content = stageElement.find('>span'),
+                        fontSize = parseInt(content.css('font-size'), 10);
+                    if (!isNaN(fontSize)) {
+                        // The Nan test prevents the following loops from executing in Zombie
+                        // see https://github.com/assaf/zombie/issues/929
+                        var height, width,
+                            clone = content
+                                .clone()
+                                .hide()
+                                .css({
+                                    position: ABSOLUTE,
+                                    height: AUTO,
+                                    width: AUTO
+                                });
+                        stageElement.after(clone);
+                        // if no overflow, increase until overflow
+                        while (clone.width() <= component.width && clone.height() <= component.height) {
+                            width = clone.width(); height = clone.height(); fontSize++;
+                            clone.css('font-size', fontSize);
+                            if (clone.width() === width && clone.height() === height) {
+                                break; //avoid an infinite loop if fontSize has no impact on dimensions
+                            }
+                        }
+                        // if overflow, decrease until no overflow
+                        while (clone.width() > component.width || clone.height() > component.height) {
+                            width = clone.width(); height = clone.height(); fontSize--;
+                            clone.css('font-size', fontSize);
+                            if (clone.width() === width && clone.height() === height) {
+                                break; //avoid an infinite loop if fontSize has no impact on dimensions
+                            }
+                        }
+                        clone.remove();
+                        content.css('font-size', fontSize);
                     }
-                    if ($.type(component.height) === NUMBER) {
-                        content.height(component.height);
-                    }
-                    var fontSize = parseInt(content.css('font-size'), 10);
-                    var clone = content.clone()
-                        .hide()
-                        .css({
-                            position: ABSOLUTE,
-                            height: 'auto'
-                        })
-                        .width(component.width);
-                    stageElement.after(clone);
-                    // if no overflow, increase until overflow
-                    while (clone.height() < component.height) {
-                        fontSize++;
-                        clone.css('font-size', fontSize);
-                    }
-                    // if overflow, decrease until no overflow
-                    while (clone.height() > component.height) {
-                        fontSize--;
-                        clone.css('font-size', fontSize);
-                    }
-                    clone.remove();
-                    content.css('font-size', fontSize);
 
                     // prevent any side effect
                     e.preventDefault();
@@ -1005,42 +1011,54 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { // TODO: same id, same tool?
-                    var content = stageElement.find('>div');
-                    var clone = content.clone()
-                        .hide()
-                        .css({
-                            position: 'absolute',
-                            height: 'auto',
-                            width: 'auto'
-                        });
-                    stageElement.after(clone);
-                    var input = clone.find('input[type="checkbox"]'),
-                        label = clone.find('label'),
-                        fontSize = parseInt(label.css('font-size'));
-                    // if no overflow, increase until overflow
-                    while (clone.width() <= component.width && clone.height() <= component.height) {
-                        fontSize++;
-                        label.css('font-size', fontSize);
-                        input.css({
+                    var content = stageElement.find('>div'),
+                        fontSize = parseInt(content.find('label').css('font-size'), 10);
+                    if (!isNaN(fontSize)) {
+                        // The Nan test prevents the following loops from executing in Zombie
+                        // see https://github.com/assaf/zombie/issues/929
+                        var height, width,
+                            clone = content
+                                .clone()
+                                .hide()
+                                .css({
+                                    position: ABSOLUTE,
+                                    height: AUTO,
+                                    width: AUTO
+                                }),
+                            input = clone.find('input[type="checkbox"]'),
+                            label = clone.find('label');
+                        stageElement.after(clone);
+                        // if no overflow, increase until overflow
+                        while (clone.width() <= component.width && clone.height() <= component.height) {
+                            width = clone.width(); height = clone.height(); fontSize++;
+                            label.css('font-size', fontSize);
+                            input.css({
+                                height: fontSize * 2 / 3,
+                                width: fontSize * 2 / 3
+                            });
+                            if (clone.width() === width && clone.height() === height) {
+                                break; //avoid an infinite loop if fontSize has no impact on dimensions
+                            }
+                        }
+                        // if overflow, decrease until no overflow
+                        while (clone.width() > component.width || clone.height() > component.height) {
+                            width = clone.width(); height = clone.height(); fontSize--;
+                            label.css('font-size', fontSize);
+                            input.css({
+                                height: fontSize * 2 / 3,
+                                width: fontSize * 2 / 3
+                            });
+                            if (clone.width() === width && clone.height() === height) {
+                                break; //avoid an infinite loop if fontSize has no impact on dimensions
+                            }
+                        }
+                        clone.remove();
+                        content.find('label').css('font-size', fontSize);
+                        content.find('input[type="checkbox"]').css({
                             height: fontSize * 2 / 3,
                             width: fontSize * 2 / 3
                         });
                     }
-                    // if overflow, decrease until no overflow
-                    while (clone.width() > component.width || clone.height() > component.height) {
-                        fontSize--;
-                        label.css('font-size', fontSize);
-                        input.css({
-                            height: fontSize * 2 / 3,
-                            width: fontSize * 2 / 3
-                        });
-                    }
-                    clone.remove();
-                    content.find('label').css('font-size', fontSize);
-                    content.find('input[type="checkbox"]').css({
-                        height: fontSize * 2 / 3,
-                        width: fontSize * 2 / 3
-                    });
                     // prevent any side effect
                     e.preventDefault();
                     // prevent event to bubble on stage
@@ -1113,48 +1131,55 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { // TODO: same id, same tool?
-                    var content = stageElement.find('>div');
-                    /*
-                     stageElement.css({
-                     height: height,
-                     width: width
-                     });
-                     */
-                    var clone = content.clone()
-                        .hide()
-                        .css({
-                            position: 'absolute',
-                            height: 'auto',
-                            width: 'auto'
-                        });
-                    stageElement.after(clone);
-                    var inputs = clone.find('input[type="radio"]'),
-                        labels = clone.find('label'),
-                        fontSize = parseInt(labels.css('font-size'));
-                    // if no overflow, increase until overflow
-                    while (clone.width() <= component.width && clone.height() <= component.height) {
-                        fontSize++;
-                        labels.css('font-size', fontSize);
-                        inputs.css({
+                    var content = stageElement.find('>div'),
+                        fontSize = parseInt(content.find('label').css('font-size'), 10);
+                    if (!isNaN(fontSize)) {
+                        // The Nan test prevents the following loops from executing in Zombie
+                        // see https://github.com/assaf/zombie/issues/929
+                        var height, width,
+                            clone = content
+                                .clone()
+                                .hide()
+                                .css({
+                                    position: ABSOLUTE,
+                                    height: AUTO,
+                                    width: AUTO
+                                }),
+                            inputs = clone.find('input[type="radio"]'),
+                            labels = clone.find('label');
+                        stageElement.after(clone);
+                        // if no overflow, increase until overflow
+                        while (clone.width() <= component.width && clone.height() <= component.height)
+                        {
+                            width = clone.width(); height = clone.height(); fontSize++;
+                            labels.css('font-size', fontSize);
+                            inputs.css({
+                                height: fontSize * 2 / 3,
+                                width: fontSize * 2 / 3
+                            });
+                            if (clone.width() === width && clone.height() === height) {
+                                break; //avoid an infinite loop if fontSize has no impact on dimensions
+                            }
+                        }
+                        // if overflow, decrease until no overflow
+                        while (clone.width() > component.width || clone.height() > component.height) {
+                            width = clone.width(); height = clone.height(); fontSize--;
+                            labels.css('font-size', fontSize);
+                            inputs.css({
+                                height: fontSize * 2 / 3,
+                                width: fontSize * 2 / 3
+                            });
+                            if (clone.width() === width && clone.height() === height) {
+                                break; //avoid an infinite loop if fontSize has no impact on dimensions
+                            }
+                        }
+                        clone.remove();
+                        content.find('label').css('font-size', fontSize);
+                        content.find('input[type="radio"]').css({
                             height: fontSize * 2 / 3,
                             width: fontSize * 2 / 3
                         });
                     }
-                    // if overflow, decrease until no overflow
-                    while (clone.width() > component.width || clone.height() > component.height) {
-                        fontSize--;
-                        labels.css('font-size', fontSize);
-                        inputs.css({
-                            height: fontSize * 2 / 3,
-                            width: fontSize * 2 / 3
-                        });
-                    }
-                    clone.remove();
-                    content.find('label').css('font-size', fontSize);
-                    content.find('input[type="radio"]').css({
-                        height: fontSize * 2 / 3,
-                        width: fontSize * 2 / 3
-                    });
                     // prevent any side effect
                     e.preventDefault();
                     // prevent event to bubble on stage

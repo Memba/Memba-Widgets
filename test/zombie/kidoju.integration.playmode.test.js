@@ -9,33 +9,45 @@
 
 'use strict';
 
-var Browser = require('zombie');
-var expect = require('chai').expect;
-var httpServer;
-var browser;
+var httpServer = require('../../nodejs/http.server.js'),
+    Zombie = require('zombie'),
+    browser = new Zombie({ site: 'http://localhost:8080', waitDuration: '10s' });
+    //browser = new Zombie({ site: 'http://poc.kidoju.com'/*, waitDuration: '10s'*/ });
+
 
 describe('kidoju.integration.playmode.test.js', function () {
 
     before(function (done) {
-        console.log('Start http server');
-        httpServer = require('../../nodejs/http.server.js');
-        console.log('Initialize browser');
-        browser = new Browser();
-        console.log('Visit url');
-        browser.visit('http://localhost:8080/src/kidoju.integration.playmode.html', done);
+        // Increase max listeners in case of timeout
+        browser.setMaxListeners(30);
+        // browser.features = 'scripts no-css no-img iframe'; //by default
+        // browser.features = 'scripts css img iframe';
+        // browser.visit('/src/kidoju.integration.designmode.html', done);  // Freezes
+        browser.visit('/src/kidoju.integration.playmode.html', done);    // Freezes
+        // browser.visit('/src/kidoju.widgets.attributes.html', done);      // OK
+        // browser.visit('/src/kidoju.widgets.explorer.html', done);        // OK
+        // browser.visit('/src/kidoju.widgets.multiinput.html', done);      // JS error
+        // browser.visit('/src/kidoju.widgets.navigation.html', done);      // OK
+        // browser.visit('/src/kidoju.widgets.playbar.html', done);         // OK
+        // browser.visit('/src/kidoju.widgets.propertygrid.html', done);    // OK
+        // browser.visit('/src/kidoju.widgets.rating.html', done);          // OK
+        // browser.visit('/src/kidoju.widgets.stage.html', done);           // OK
+        // browser.visit('/src/kidoju.widgets.toolbox.html', done);         // OK
     });
 
     describe('When page is loaded', function () {
-        it('It should have a stage and a playbar', function () {
-            expect(browser.query('[data-role="stage"]')).to.be.ok;
-            expect(browser.query('[data-role="playbar"]')).to.be.ok;
+        it('It should have navigation and stages', function () {
+            console.log('ok');
+            browser.assert.success();
+            //browser.assert.url(webapp.index);
+            //browser.assert.attribute('html', 'lang', 'en');
+            //browser.assert.element('div.uk.flag');
+            //browser.assert.text('div.page-header span', 'Support');
         });
     });
 
-    after(function (done) {
-        browser.close();
-        // httpServer.close(done);
-        done();
+    after(function () {
+        browser.destroy();
     });
 
 });

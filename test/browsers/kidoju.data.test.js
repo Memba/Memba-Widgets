@@ -1493,7 +1493,7 @@
                     expect(update).to.have.property('id', stream.id);
                     expect(update).to.have.property('pages').that.is.an.instanceof(Array).with.property('length', index + 1);
                     expect(update.pages[index]).to.have.property('id', stream.pages.at(index).id);
-                    expect(update.pages[index]).to.have.property('style', stream.pages.at(index).styles);
+                    expect(update.pages[index]).to.have.property('style', stream.pages.at(index).style);
                     expect(update.pages[index].components[0]).to.have.property('top', stream.pages.at(index).components.at(0).top);
                     expect(update.pages[index].components[0]).to.have.property('left', stream.pages.at(index).components.at(0).left);
                     expect(update.pages[index].components[0]).to.have.property('rotate', stream.pages.at(index).components.at(0).rotate);

@@ -10,6 +10,9 @@ module.exports = function(config) {
         // base path that will be used to resolve all patterns (eg. files, exclude)
         basePath: '',
 
+        // Increase timeout especially for phantomJS
+        browserDisconnectTimeout: 5000,
+
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
         //frameworks: ['mocha', 'requirejs', 'chai', 'sinon'],
@@ -18,10 +21,11 @@ module.exports = function(config) {
         // list of files / patterns to load in the browser
         // See: http://karma-runner.github.io/0.12/config/files.html
         files: [
-            {pattern: 'src/styles/vendor/kendo.common.min.css', served: true, included: true},
-            {pattern: 'src/styles/vendor/kendo.default.min.css', served: true, included: true},
-            {pattern: 'src/js/vendor/jquery.min.js', served: true, included: true},
-            {pattern: 'src/js/vendor/kendo.all.min.js', served: true, included: true},
+            {pattern: 'src/styles/vendor/kendo/web/kendo.common.min.css', served: true, included: true},
+            {pattern: 'src/styles/vendor/kendo/web/kendo.default.min.css', served: true, included: true},
+            {pattern: 'src/styles/vendor/kendo/web/kendo.default.mobile.min.css', served: true, included: true},
+            {pattern: 'src/js/vendor/kendo/jquery.min.js', served: true, included: true},
+            {pattern: 'src/js/vendor/kendo/kendo.all.min.js', served: true, included: true},
             {pattern: 'src/js/kidoju.data.js', served: true, included: true},
             {pattern: 'src/js/kidoju.tools.js', served: true, included: true},
             {pattern: 'src/js/kidoju.widgets.bindings.js', served: true, included: true},

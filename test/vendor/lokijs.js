@@ -478,7 +478,7 @@
 
     Loki.prototype.loadCollection = function (collection) {
       if (!collection.name) {
-        throw new Error('Collection must be have a name property to be loaded');
+        throw new Error('Collection must have a name property to be loaded');
       }
       this.collections.push(collection);
     };
@@ -561,7 +561,7 @@
 
       var obj = JSON.parse(serializedDb),
         i = 0,
-        len = obj.collections.length,
+        len = obj.collections ? obj.collections.length : 0,
         coll,
         copyColl,
         clen,
@@ -1216,10 +1216,16 @@
         if (ltHelper(val, minVal, true)) {
           return [0, -1];
         }
+        if (ltHelper(maxVal, val)) {
+          return [0, rcd.length-1];
+        }
         break;
       case '$lte':
         if (ltHelper(val, minVal)) {
           return [0, -1];
+        }
+        if (ltHelper(maxVal, val, true)) {
+          return [0, rcd.length-1];
         }
         break;
       }
@@ -1540,7 +1546,9 @@
           if (p.indexOf('.') != -1) {
             usingDotNotation = true;
           }
-          if (typeof queryObject[p] !== 'object') {
+
+          // see if query object is in shorthand mode (assuming eq operator)
+          if (queryObject[p] === null || typeof queryObject[p] !== 'object') {
             operator = '$eq';
             value = queryObject[p];
           } else if (typeof queryObject[p] === 'object') {
@@ -1984,14 +1992,24 @@
      * @constructor
      * @param {Collection} collection - A reference to the collection to work against
      * @param {string} name - The name of this dynamic view
-     * @param {boolean} persistent - (Optional) If true, the results will be copied into an internal array for read efficiency or binding to.
+     * @param {object} options - (Optional) Pass in object with 'persistent' and/or 'sortPriority' options.
      */
-    function DynamicView(collection, name, persistent) {
+    function DynamicView(collection, name, options) {
       this.collection = collection;
       this.name = name;
+      this.rebuildPending = false;
+      this.options = options || {};
 
-      this.persistent = false;
-      if (typeof (persistent) !== 'undefined') this.persistent = persistent;
+      if (!this.options.hasOwnProperty('persistent')) {
+        this.options.persistent = false;
+      }
+
+      // 'persistentSortPriority': 
+      // 'passive' will defer the sort phase until they call data(). (most efficient overall)
+      // 'active' will sort async whenever next idle. (prioritizes read speeds)
+      if (!this.options.hasOwnProperty('sortPriority')) {
+        this.options.sortPriority = 'passive';
+      }
 
       this.resultset = new Resultset(collection);
       this.resultdata = [];
@@ -2094,7 +2112,7 @@
      *
      */
     DynamicView.prototype.toJSON = function () {
-      var copy = new DynamicView(this.collection, this.name, this.persistent);
+      var copy = new DynamicView(this.collection, this.name, this.options);
 
       copy.resultset = this.resultset;
       copy.resultdata = []; // let's not save data (copy) to minimize size
@@ -2196,7 +2214,7 @@
     DynamicView.prototype.rollback = function () {
       this.resultset = this.cachedresultset;
 
-      if (this.persistent) {
+      if (this.options.persistent) {
         // for now just rebuild the persistent dynamic view data in this worst case scenario
         // (a persistent view utilizing transactions which get rolled back), we already know the filter so not too bad.
         this.resultdata = this.resultset.data();
@@ -2227,7 +2245,7 @@
         this.queueSortPhase();
       }
 
-      if (this.persistent) {
+      if (this.options.persistent) {
         this.resultsdirty = true;
         this.queueSortPhase();
       }
@@ -2254,7 +2272,7 @@
         this.sortDirty = true;
         this.queueSortPhase();
       }
-      if (this.persistent) {
+      if (this.options.persistent) {
         this.resultsdirty = true;
         this.queueSortPhase();
       }
@@ -2272,7 +2290,7 @@
         this.performSortPhase();
       }
 
-      if (!this.persistent) {
+      if (!this.options.persistent) {
         return this.resultset.data();
       }
 
@@ -2280,7 +2298,28 @@
     };
 
     /**
-     *
+     * queueRebuildEvent() - When the view is not sorted we may still wish to be notified of rebuild events.
+     *     This event will throttle and queue a single rebuild event when batches of updates affect the view.
+     */
+    DynamicView.prototype.queueRebuildEvent = function() {
+      var self = this;
+
+      if (this.rebuildPending) {
+        return;
+      }
+
+      this.rebuildPending = true;
+
+      setTimeout(function() {
+        self.rebuildPending = false;
+        self.emit('rebuild', this);
+      }, 1);
+    };
+    
+    /**
+     * queueSortPhase : If the view is sorted we will throttle sorting to either :
+     *    (1) passive - when the user calls data(), or
+     *    (2) active - once they stop updating and yield js thread control
      */
     DynamicView.prototype.queueSortPhase = function () {
       var self = this;
@@ -2292,10 +2331,17 @@
 
       this.sortDirty = true;
 
-      // queue async call to performSortPhase()
-      setTimeout(function () {
-        self.performSortPhase();
-      }, 1);
+      if (this.options.sortPriority === "active") {
+        // active sorting... once they are done and yield js thread, run async performSortPhase()
+        setTimeout(function () {
+          self.performSortPhase();
+        }, 1);
+      }
+      else {
+        // must be passive sorting... since not calling performSortPhase (until data call), lets use queueRebuildEvent to 
+        // potentially notify user that data has changed.
+        this.queueRebuildEvent();
+      }
     };
 
     /**
@@ -2316,7 +2362,7 @@
         this.resultset.compoundsort(this.sortCriteria);
       }
 
-      if (!this.persistent) {
+      if (!this.options.persistent) {
         this.sortDirty = false;
         return;
       }
@@ -2366,13 +2412,16 @@
       if (oldPos === -1 && newPos !== -1) {
         ofr.push(objIndex);
 
-        if (this.persistent) {
+        if (this.options.persistent) {
           this.resultdata.push(this.collection.data[objIndex]);
         }
 
         // need to re-sort to sort new document
         if (this.sortFunction || this.sortCriteria) {
           this.queueSortPhase();
+        }
+        else {
+          this.queueRebuildEvent();
         }
 
         return;
@@ -2385,14 +2434,14 @@
           ofr[oldPos] = ofr[oldlen - 1];
           ofr.length = oldlen - 1;
 
-          if (this.persistent) {
+          if (this.options.persistent) {
             this.resultdata[oldPos] = this.resultdata[oldlen - 1];
             this.resultdata.length = oldlen - 1;
           }
         } else {
           ofr.length = oldlen - 1;
 
-          if (this.persistent) {
+          if (this.options.persistent) {
             this.resultdata.length = oldlen - 1;
           }
         }
@@ -2401,20 +2450,26 @@
         if (this.sortFunction || this.sortCriteria) {
           this.queueSortPhase();
         }
+        else {
+          this.queueRebuildEvent();
+        }
 
         return;
       }
 
       // was in resultset, should still be now... (update persistent only?)
       if (oldPos !== -1 && newPos !== -1) {
-        if (this.persistent) {
+        if (this.options.persistent) {
           // in case document changed, replace persistent view data with the latest collection.data document
           this.resultdata[oldPos] = this.collection.data[objIndex];
         }
 
         // in case changes to data altered a sort column
         if (this.sortFunction || this.sortCriteria) {
-          this.sortDirty = true;
+          this.queueSortPhase();
+        }
+        else {
+          this.queueRebuildEvent();
         }
 
         return;
@@ -2436,7 +2491,7 @@
           ofr[oldPos] = ofr[oldlen - 1];
           ofr.length = oldlen - 1;
 
-          if (this.persistent) {
+          if (this.options.persistent) {
             this.resultdata[oldPos] = this.resultdata[oldlen - 1];
             this.resultdata.length = oldlen - 1;
           }
@@ -2445,7 +2500,7 @@
         else {
           ofr.length = oldlen - 1;
 
-          if (this.persistent) {
+          if (this.options.persistent) {
             this.resultdata.length = oldlen - 1;
           }
         }
@@ -3114,7 +3169,9 @@
           position = arr[1];
         var self = this;
         Object.keys(this.constraints.unique).forEach(function (key) {
-          self.constraints.unique[key].remove(doc);
+          if( doc[key] !== null && typeof doc[key] !== 'undefined' ) {
+            self.constraints.unique[key].remove(doc[key]);
+          }
         });
         // now that we can efficiently determine the data[] position of newly added document,
         // submit it for all registered DynamicViews to remove
@@ -3636,11 +3693,13 @@
     UniqueIndex.prototype.keyMap = {};
     UniqueIndex.prototype.lokiMap = {};
     UniqueIndex.prototype.set = function (obj) {
-      if (this.keyMap[obj[this.field]]) {
-        throw new Error('Duplicate key for property ' + this.field + ': ' + obj[this.field]);
-      } else {
-        this.keyMap[obj[this.field]] = obj;
-        this.lokiMap[obj.$loki] = obj[this.field];
+      if (obj[this.field] !== null && typeof(obj[this.field]) !== 'undefined') {
+        if (this.keyMap[obj[this.field]]) {
+          throw new Error('Duplicate key for property ' + this.field + ': ' + obj[this.field]);
+        } else {
+          this.keyMap[obj[this.field]] = obj;
+          this.lokiMap[obj.$loki] = obj[this.field];
+        }
       }
     };
     UniqueIndex.prototype.get = function (key) {
@@ -3662,8 +3721,12 @@
     };
     UniqueIndex.prototype.remove = function (key) {
       var obj = this.keyMap[key];
-      this.keyMap[key] = undefined;
-      this.lokiMap[obj.$loki] = undefined;
+      if( obj !== null && typeof obj !== 'undefined') {
+        this.keyMap[key] = undefined;
+        this.lokiMap[obj.$loki] = undefined;
+      } else {
+        throw new Error('Key is not in unique index: ' + this.field);
+      }
     };
     UniqueIndex.prototype.clear = function () {
       this.keyMap = {};

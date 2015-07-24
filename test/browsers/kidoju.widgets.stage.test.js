@@ -17,7 +17,7 @@
         STAGE1 = '<div></div>',
         STAGE2 = '<div data-role="stage" data-bind="source: components, value: current" data-mode="design"></div>';
 
-    var pageComponentCollectionData = [
+    var pageComponentCollectionArray = [
         { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
         { id: kendo.guid(), tool : 'image', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { src: 'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg' } },
         { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'World' } },
@@ -80,11 +80,11 @@
                 var element = $(STAGE1).appendTo(FIXTURES),
                     stage = element.kendoStage({
                         mode: kendo.ui.Stage.fn.modes.thumbnail,
-                        dataSource: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionData })
+                        dataSource: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray })
                     }).data('kendoStage');
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
                 expect(stage.mode()).to.equal(kendo.ui.Stage.fn.modes.thumbnail);
                 // expect(stage.wrapper).to.equal(element.parent());
                 expect(stage.wrapper[0]).to.equal(element.parent()[0]);
@@ -96,7 +96,7 @@
                 expect($(document.body)).not.to.have.descendants('ul.kj-stage-menu'); // <------------------------- in thumbnail mode, there is no contextual menu
                 expect(stage.menu).to.be.undefined;
                 var items = element.find('div.kj-element');
-                expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionData.length);
+                expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionArray.length);
                 $.each(items, function (index, item) {
                     var data = stage.dataSource.at(index);
                     expect($(item).attr(kendo.attr('uid'))).to.equal(data.uid);
@@ -115,11 +115,11 @@
                 var element = $(STAGE1).appendTo(FIXTURES),
                     stage = element.kendoStage({
                         mode: kendo.ui.Stage.fn.modes.design,
-                        dataSource: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionData })
+                        dataSource: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray })
                     }).data('kendoStage');
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
                 expect(stage.mode()).to.equal(kendo.ui.Stage.fn.modes.design);
                 // expect(stage.wrapper).to.equal(element.parent());
                 expect(stage.wrapper[0]).to.equal(element.parent()[0]);
@@ -134,7 +134,7 @@
                 expect($(document.body)).to.have.descendants('ul.kj-stage-menu'); // <------------------------- in thumbnail mode, there is a contextual menu
                 expect(stage.menu).to.be.an.instanceof(kendo.ui.ContextMenu);
                 var items = element.find('div.kj-element');
-                expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionData.length);
+                expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionArray.length);
                 $.each(items, function (index, item) {
                     var data = stage.dataSource.at(index);
                     expect($(item).attr(kendo.attr('uid'))).to.equal(data.uid);
@@ -153,11 +153,11 @@
                 var element = $(STAGE1).appendTo(FIXTURES),
                     stage = element.kendoStage({
                         mode: kendo.ui.Stage.fn.modes.play,
-                        dataSource: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionData })
+                        dataSource: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray })
                     }).data('kendoStage');
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
                 expect(stage.mode()).to.equal(kendo.ui.Stage.fn.modes.play);
                 // expect(stage.wrapper).to.equal(element.parent());
                 expect(stage.wrapper[0]).to.equal(element.parent()[0]);
@@ -169,7 +169,7 @@
                 expect($(document.body)).not.to.have.descendants('ul.kj-stage-menu'); // <------------------------- in play mode, there is no contextual menu
                 expect(stage.menu).to.be.undefined;
                 var items = element.find('div.kj-element');
-                expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionData.length);
+                expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionArray.length);
                 $.each(items, function (index, item) {
                     var data = stage.dataSource.at(index);
                     expect($(item).attr(kendo.attr('uid'))).to.equal(data.uid);
@@ -186,7 +186,7 @@
 
             it('from markup', function () {
                 var viewModel = kendo.observable({
-                        components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionData }),
+                        components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
                         current: undefined
                     }),
                     element = $(STAGE2).appendTo(FIXTURES);
@@ -194,7 +194,7 @@
                 var stage = element.data('kendoStage');
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
                 expect(stage.mode()).to.equal(kendo.ui.Stage.fn.modes.design);
                 // expect(stage.wrapper).to.equal(element.parent());
                 expect(stage.wrapper[0]).to.equal(element.parent()[0]);
@@ -204,7 +204,7 @@
                 expect(stage.wrapper).not.to.have.descendants('div.kj-overlay'); // <------------------------- in design mode, there is no overlay
                 expect(stage.wrapper).to.have.descendants('div.kj-handle-box');  // <------------------------- in design mode, there is a handle box (with handles)
                 var items = element.find('div.kj-element');
-                expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionData.length);
+                expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionArray.length);
                 $.each(items, function (index, item) {
                     var component = stage.dataSource.at(index);
                     expect($(item).attr(kendo.attr('uid'))).to.equal(component.uid);
@@ -227,7 +227,7 @@
             beforeEach(function () {
                 element = $(STAGE1).appendTo(FIXTURES);
                 stage = element.kendoStage({
-                    dataSource: pageComponentCollectionData,
+                    dataSource: pageComponentCollectionArray,
                     mode: kendo.ui.Stage.fn.modes.design
                 }).data('kendoStage');
             });
@@ -235,14 +235,14 @@
             it('length', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.length()).to.equal(pageComponentCollectionData.length);
+                expect(stage.length()).to.equal(pageComponentCollectionArray.length);
             });
 
             it('items', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 var items = stage.items();
-                expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
+                expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
                 var check = sinon.spy();
                 $.each(items, function (index, item) {
                     check();
@@ -250,7 +250,7 @@
                     expect($(item)).to.have.class('kj-element');
                     expect($(item)).to.have.attr(kendo.attr('uid'));
                 });
-                expect(check).to.have.callCount(pageComponentCollectionData.length);
+                expect(check).to.have.callCount(pageComponentCollectionArray.length);
             });
 
             it('value', function () {
@@ -260,7 +260,7 @@
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(fn).to.throw(TypeError);
-                for (var idx = 0; idx < pageComponentCollectionData.length; idx++) {
+                for (var idx = 0; idx < pageComponentCollectionArray.length; idx++) {
                     var component = stage.dataSource.at(idx);
                     stage.value(component);
                     expect(stage.index()).to.equal(idx);
@@ -279,7 +279,7 @@
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(fn1).to.throw(TypeError);
                 expect(fn2).to.throw(RangeError);
-                for (var idx = 0; idx < pageComponentCollectionData.length; idx++) {
+                for (var idx = 0; idx < pageComponentCollectionArray.length; idx++) {
                     var component = stage.dataSource.at(idx);
                     stage.index(idx);
                     expect(stage.value()).to.equal(component);
@@ -294,7 +294,7 @@
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
                 expect(fn).to.throw(TypeError);
-                for (var idx = 0; idx < pageComponentCollectionData.length; idx++) {
+                for (var idx = 0; idx < pageComponentCollectionArray.length; idx++) {
                     var component = stage.dataSource.at(idx);
                     stage.id(component.id);
                     expect(stage.value()).to.equal(component);
@@ -373,7 +373,7 @@
             /*
              // For obscure reasons, setting the viewModel here does not work
              viewModel = kendo.observable({
-                components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionData }),
+                components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
                 current: null
              });
              */
@@ -381,7 +381,7 @@
             beforeEach(function () {
                 element = $(STAGE2).appendTo(FIXTURES);
                 viewModel = kendo.observable({
-                    components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionData }),
+                    components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
                     current: null
                 });
                 kendo.bind(FIXTURES, viewModel);
@@ -391,8 +391,8 @@
             it('Adding a component to the viewModel adds the corresponding element to the stage', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
+                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
                 viewModel.components.add(new kidoju.PageComponent({
                     id: kendo.guid(),
                     tool : 'label',
@@ -406,25 +406,25 @@
                         text: 'World'
                     }
                 }));
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length + 1);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length + 1);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length + 1);
+                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length + 1);
             });
 
             it('Removing a component from the viewModel removes the corresponding element from the stage', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
+                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
                 viewModel.components.remove(viewModel.components.at(0));
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length - 1);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length - 1);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length - 1);
+                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length - 1);
             });
 
             it('Changing the selected component in the viewModel changes the corresponding element in the stage', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
+                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
                 var check = sinon.spy();
                 $.each(viewModel.components.data(), function (index, component) {
                     check();
@@ -433,14 +433,14 @@
                     expect(handleBox).to.be.an.instanceof($).with.property('length', 1);
                     expect(handleBox).to.have.attr(kendo.attr('uid'), component.uid);
                 });
-                expect(check).to.have.callCount(pageComponentCollectionData.length);
+                expect(check).to.have.callCount(pageComponentCollectionArray.length);
             });
 
             it('Changing the selected element in the stage, changes the corresponding component in the viewModel', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
+                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
                 var check = sinon.spy();
                 $.each(stage.items(), function (index, item) {
                     check();
@@ -456,15 +456,15 @@
                     expect(handleBox).to.have.css('width', component.width + 'px');
                     // rotate?
                 });
-                expect(check).to.have.callCount(pageComponentCollectionData.length);
+                expect(check).to.have.callCount(pageComponentCollectionArray.length);
             });
 
             it('Adding a new element to the stage, adds the corresponding component to the viewModel', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
-                var total = pageComponentCollectionData.length,
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
+                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                var total = pageComponentCollectionArray.length,
                     offset = element.offset(),
                     count = 0;
                 var check = sinon.spy();
@@ -506,8 +506,8 @@
             it('Moving an element on stage, updates top & left properties of the corresponding component in the viewModel', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
+                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
                 var check = sinon.spy();
                 $.each(stage.items(), function (index, item) {
                     check();
@@ -546,14 +546,14 @@
                     expect(viewModel.get('current.width')).to.equal(width);
                     expect(viewModel.get('current.rotate')).to.equal(rotate);
                 });
-                expect(check).to.have.callCount(pageComponentCollectionData.length);
+                expect(check).to.have.callCount(pageComponentCollectionArray.length);
             });
 
             it('Rotating an element on stage, updates the rotate property of the corresponding component in the viewModel', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
+                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
                 var check = sinon.spy();
                 $.each(stage.items(), function (index, item) {
                     check();
@@ -591,14 +591,14 @@
                     // TODO: Better to recalculate the correct value instead of simply assessing change
                     // expect(viewModel.get('current.rotate')).to.equal((360 + rotate + dr) % 360);
                 });
-                expect(check).to.have.callCount(pageComponentCollectionData.length);
+                expect(check).to.have.callCount(pageComponentCollectionArray.length);
             });
 
             it('Resizing an element on stage, updates the top, left, height & width properties of the corresponding component in the viewModel', function () {
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionData.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionData.length);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
+                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
                 var check = sinon.spy();
                 $.each(stage.items(), function (index, item) {
                     check();
@@ -637,7 +637,7 @@
                     expect(viewModel.get('current.width')).not.to.equal(width);
                     expect(viewModel.get('current.rotate')).to.equal(rotate);
                 });
-                expect(check).to.have.callCount(pageComponentCollectionData.length);
+                expect(check).to.have.callCount(pageComponentCollectionArray.length);
             });
 
         });
@@ -654,7 +654,7 @@
                 var dataBinding = sinon.spy(),
                     dataBound = sinon.spy();
                 stage = element.kendoStage({
-                    dataSource: pageComponentCollectionData,
+                    dataSource: pageComponentCollectionArray,
                     dataBinding: function (e) {
                         dataBinding(e.sender);
                     },
@@ -676,7 +676,7 @@
                     propertyBound = sinon.spy();
                 stage = element.kendoStage({
                     mode: kendo.ui.Stage.fn.modes.play,   // TODO only in play mode
-                    dataSource: pageComponentCollectionData,
+                    dataSource: pageComponentCollectionArray,
                     propertyBinding: function (e) {
                         propertyBinding(e.sender);
                     },
@@ -696,14 +696,14 @@
             it('change', function () {
                 var change = sinon.spy();
                 stage = element.kendoStage({
-                    dataSource: pageComponentCollectionData,
+                    dataSource: pageComponentCollectionArray,
                     change: function (e) {
                         change(e.value);
                     }
                 }).data('kendoStage');
                 expect(stage).to.be.an.instanceof(kendo.ui.Stage);
                 expect(stage.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
-                expect(stage.dataSource.data()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', pageComponentCollectionData.length);
+                expect(stage.dataSource.data()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', pageComponentCollectionArray.length);
                 var component = stage.dataSource.at(1);
                 expect(component).to.be.an.instanceof(kidoju.PageComponent);
                 stage.value(component);

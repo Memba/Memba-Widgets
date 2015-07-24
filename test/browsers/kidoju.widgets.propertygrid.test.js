@@ -888,7 +888,7 @@
             /*
              // For obscure reasons, setting the viewModel here does not work
              viewModel = kendo.observable({
-                components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionData }),
+                components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
                 current: null
              });
              */

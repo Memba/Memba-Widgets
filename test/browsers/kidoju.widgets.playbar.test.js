@@ -261,7 +261,7 @@
             /*
              // For obscure reasons, setting the viewModel here does not work
              viewModel = kendo.observable({
-             pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData }),
+             pages: new kidoju.PageCollectionDataSource({ data: pageCollectionArray }),
              current: undefined
              });
              */

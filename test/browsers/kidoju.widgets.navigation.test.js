@@ -17,7 +17,7 @@
         NAVIGATION1 = '<div></div>',
         NAVIGATION2 = '<div data-role="navigation" data-bind="source: pages, value: current"></div>';
 
-    var pageCollectionData = [
+    var pageCollectionArray = [
         {
             id: kendo.guid(),
             components: [
@@ -82,19 +82,19 @@
             it('from code with dataSource', function () {
                 var element = $(NAVIGATION1).appendTo(FIXTURES);
                 var navigation = element.kendoNavigation({
-                    dataSource: pageCollectionData
+                    dataSource: pageCollectionArray
                 }).data('kendoNavigation');
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
-                expect(navigation.dataSource.data()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', pageCollectionData.length);
+                expect(navigation.dataSource.data()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', pageCollectionArray.length);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-navigation');
-                expect(element.find('div.kj-item>div.kj-stage')).to.be.an.instanceof($).with.property('length', pageCollectionData.length);
+                expect(element.find('div.kj-item>div.kj-stage')).to.be.an.instanceof($).with.property('length', pageCollectionArray.length);
             });
 
             it('from markup', function () {
                 var viewModel = kendo.observable({
-                        pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData }),
+                        pages: new kidoju.PageCollectionDataSource({ data: pageCollectionArray }),
                         current: undefined
                     }),
                     element = $(NAVIGATION2).appendTo(FIXTURES);
@@ -102,10 +102,10 @@
                 var navigation = element.data('kendoNavigation');
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
-                expect(navigation.dataSource.data()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', pageCollectionData.length);
+                expect(navigation.dataSource.data()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', pageCollectionArray.length);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-navigation');
-                expect(element.find('div.kj-item>div.kj-stage')).to.be.an.instanceof($).with.property('length', pageCollectionData.length);
+                expect(element.find('div.kj-item>div.kj-stage')).to.be.an.instanceof($).with.property('length', pageCollectionArray.length);
             });
 
         });
@@ -117,28 +117,28 @@
             beforeEach(function () {
                 element = $(NAVIGATION1).appendTo(FIXTURES);
                 navigation = element.kendoNavigation({
-                    dataSource: pageCollectionData
+                    dataSource: pageCollectionArray
                 }).data('kendoNavigation');
             });
 
             it('length', function () {
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
-                expect(navigation.length()).to.equal(pageCollectionData.length);
+                expect(navigation.length()).to.equal(pageCollectionArray.length);
             });
 
             it('items', function () {
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 var items = navigation.items();
-                expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length);
+                expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionArray.length);
                 var check = sinon.spy();
                 $.each(items, function (index, item) {
                     check();
                     expect($(item)).to.match('div');
                     expect($(item)).to.have.class('kj-item');
                 });
-                expect(check).to.have.callCount(pageCollectionData.length);
+                expect(check).to.have.callCount(pageCollectionArray.length);
             });
 
             it('value', function () {
@@ -148,7 +148,7 @@
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 expect(fn).to.throw(TypeError);
-                for (var idx = 0; idx < pageCollectionData.length; idx++) {
+                for (var idx = 0; idx < pageCollectionArray.length; idx++) {
                     var page = navigation.dataSource.at(idx);
                     navigation.value(page);
                     expect(navigation.index()).to.equal(idx);
@@ -167,7 +167,7 @@
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 expect(fn1).to.throw(TypeError);
                 expect(fn2).to.throw(RangeError);
-                for (var idx = 0; idx < pageCollectionData.length; idx++) {
+                for (var idx = 0; idx < pageCollectionArray.length; idx++) {
                     var page = navigation.dataSource.at(idx);
                     navigation.index(idx);
                     expect(navigation.value()).to.equal(page);
@@ -182,7 +182,7 @@
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
                 expect(fn).to.throw(TypeError);
-                for (var idx = 0; idx < pageCollectionData.length; idx++) {
+                for (var idx = 0; idx < pageCollectionArray.length; idx++) {
                     var page = navigation.dataSource.at(idx);
                     navigation.id(page.id);
                     expect(navigation.value()).to.equal(page);
@@ -204,7 +204,7 @@
             /*
             // For obscure reasons, setting the viewModel here does not work
             viewModel = kendo.observable({
-                pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData }),
+                pages: new kidoju.PageCollectionDataSource({ data: pageCollectionArray }),
                 current: undefined
             });
             */
@@ -212,7 +212,7 @@
             beforeEach(function () {
                 element = $(NAVIGATION2).appendTo(FIXTURES);
                 viewModel = kendo.observable({
-                    pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData }),
+                    pages: new kidoju.PageCollectionDataSource({ data: pageCollectionArray }),
                     current: undefined
                 });
                 kendo.bind(FIXTURES, viewModel);
@@ -222,20 +222,20 @@
             it('Adding a page to the viewModel adds the corresponding item to the navigation', function () {
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
-                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length);
+                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionArray.length);
                 viewModel.pages.add(new kidoju.Page({
                     id: kendo.guid(),
                     style: 'font-family: Georgia, serif; color: #FF0000;'
                 }));
-                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length + 1);
+                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionArray.length + 1);
             });
 
             it('Removing a page from the viewModel removes the corresponding item from the navigation', function () {
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
-                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length);
+                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionArray.length);
                 viewModel.pages.remove(viewModel.pages.at(0));
-                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length - 1);
+                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionArray.length - 1);
             });
 
             // Note: Since kendo.ui.Navigation is a collection of kendo.ui.Stage, we are assuming that
@@ -245,14 +245,14 @@
                 // TODO: also test binding on id and index?
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
-                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData.length);
+                expect(navigation.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionArray.length);
                 var check = sinon.spy();
                 $.each(viewModel.pages.data(), function (index, page) {
                     check();
                     viewModel.set('current', page);
                     expect(navigation.element.find(kendo.format('[{0}="{1}"]', kendo.attr('uid'), page.uid))).to.have.class('k-state-selected');
                 });
-                expect(check).to.have.callCount(pageCollectionData.length);
+                expect(check).to.have.callCount(pageCollectionArray.length);
             });
 
             it('Changing the selected page in the navigation, changes the corresponding page in the viewModel', function () {
@@ -264,7 +264,7 @@
                     $(item).simulate('click');
                     expect(viewModel.get('current')).to.have.property('uid', $(item).attr(kendo.attr('uid')));
                 });
-                expect(check).to.have.callCount(pageCollectionData.length);
+                expect(check).to.have.callCount(pageCollectionArray.length);
             });
 
         });
@@ -281,7 +281,7 @@
                 var dataBinding = sinon.spy(),
                     dataBound = sinon.spy();
                 navigation = element.kendoNavigation({
-                    dataSource: pageCollectionData,
+                    dataSource: pageCollectionArray,
                     dataBinding: function (e) {
                         dataBinding(e.sender);
                     },
@@ -301,14 +301,14 @@
             it('change', function () {
                 var change = sinon.spy();
                 navigation = element.kendoNavigation({
-                    dataSource: pageCollectionData,
+                    dataSource: pageCollectionArray,
                     change: function (e) {
                         change(e.value);
                     }
                 }).data('kendoNavigation');
                 expect(navigation).to.be.an.instanceof(kendo.ui.Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
-                expect(navigation.dataSource.data()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', pageCollectionData.length);
+                expect(navigation.dataSource.data()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', pageCollectionArray.length);
                 var page = navigation.dataSource.at(1);
                 expect(page).to.be.an.instanceof(kidoju.Page);
                 navigation.value(page);

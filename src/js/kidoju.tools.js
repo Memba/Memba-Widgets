@@ -24,6 +24,7 @@
             NUMBER = 'number',
             BOOLEAN = 'boolean',
             DATE = 'date',
+            UNDEFINED = 'undefined',
 
         // Tools
             CURSOR_DEFAULT = 'default',
@@ -56,6 +57,20 @@
             if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
                 window.console.log('kidoju.tools: ' + message);
             }
+        }
+
+        /**
+         * Build a random hex string of length characters
+         * @param length
+         * @returns {string}
+         */
+        function randomString(length) {
+            var s = new Array(length + 1).join('x');
+            return s.replace(/x/g, function(c) {
+                /* jshint -W016 */
+                return (Math.random()*16|0).toString(16);
+                /* jshint +W016 */
+            });
         }
 
         /*********************************************************************************
@@ -126,9 +141,9 @@
             },
 
             /**
-             * Get a kendo.data.Model for attributes
+             * Get a kidoju.Model for attributes
              * @method _getAttributeModel
-             * @returns {kendo.data.Model}
+             * @returns {kidoju.Model}
              * @private
              */
             _getAttributeModel: function () {
@@ -140,7 +155,7 @@
                         }
                     }
                 }
-                return kendo.data.Model.define(model);
+                return kidoju.Model.define(model);
             },
 
             /**
@@ -171,9 +186,9 @@
             },
 
             /**
-             * Get a kendo.data.Model for properties
+             * Get a kidoju.Model for properties
              * @method _getPropertyModel
-             * @returns {kendo.data.Model}
+             * @returns {kidoju.Model}
              * @private
              */
             _getPropertyModel: function () {
@@ -183,13 +198,13 @@
                         if (this.properties[prop] instanceof adapters.BaseAdapter) {
                             model.fields[prop] = this.properties[prop].getField();
                             if (prop === 'name') {
-                                // Add a property field name
-                                model.fields[prop].defaultValue = 'val_' + Math.floor((1 + Math.random()) * 0x1000000).toString(16).substring(1);
+                                // TODO: Add a property field name
+                                model.fields[prop].defaultValue = 'val_' + randomString(4);
                             }
                         }
                     }
                 }
-                return kendo.data.Model.define(model);
+                return kidoju.Model.define(model);
             },
 
             /**

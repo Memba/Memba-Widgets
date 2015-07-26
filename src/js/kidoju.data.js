@@ -16,28 +16,23 @@
     (function ($, undefined) {
 
         var kendo = window.kendo,
-            // Class = kendo.Class,
-            Model = kendo.data.Model,
-            DataSource = kendo.data.DataSource,
-            // ObservableArray = kendo.data.ObservableArray,
             kidoju = window.kidoju = window.kidoju || {},
 
-            // Types
+        // Types
             OBJECT = 'object',
             STRING = 'string',
             NUMBER = 'number',
-            // DATE = 'date',
-            // BOOLEAN = 'boolean',
+            UNDEFINED = 'undefined',
 
-            // Event
+        // Event
             CHANGE = 'change',
             ERROR = 'error',
 
-            // Defaults
+        // Defaults
             ZERO_NUMBER = 0,
             NEGATIVE_NUMBER = -1,
 
-            // Miscellaneous
+        // Miscellaneous
             RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i;
 
         /*********************************************************************************
@@ -63,9 +58,275 @@
             };
         }
 
+        /*********************************************************************************
+         * Base Model
+         *********************************************************************************/
+
+        /**
+         * kidoju.Model enhances kendo.data.Model
+         * for aggregation of submodels as as a mongoose document property can designate a subdocument
+         * for DataSource of submodels as a mongoose document property can designate an array of subdocuments
+         */
+        var Model = kidoju.Model = kendo.data.Model.define({
+
+            /**
+             * Function called in init(data) and accept(data)
+             * to parse data and convert fields to model field types
+             * @param data
+             * @private
+             */
+            _parseData: function(data) {
+                var that = this, parsed = {};
+                // We need a clone to avoid modifications to original data
+                for (var field in that.fields) {
+                    if (that.fields.hasOwnProperty(field)) {
+                        if (data && $.isFunction(data.hasOwnProperty) && data.hasOwnProperty(field) && $.type(data[field]) !== UNDEFINED) {
+                            parsed[field] = that._parse(field, data[field]);
+                        } else if (that.defaults && that.defaults.hasOwnProperty(field)) {
+                            if (that[field] instanceof kendo.data.DataSource) {
+                                // Important! Do not erase existing dataSources
+                                // unless data.hasOwnProperty(field) here above
+                                parsed[field] = that[field];
+                            } else {
+                                // Important! We need to parse default values
+                                // especially to initialize Stream.pages.defaultValue
+                                // and Page.components.defaultValue
+                                parsed[field] = that._parse(field, that.defaults[field]);
+                            }
+                        } else if (that.fields[field].type === 'string') {
+                            parsed[field] = '';
+                        } else if (that.fields[field].type === 'number') {
+                            parsed[field] = 0;
+                        } else if (that.fields[field].type === 'boolean') {
+                            parsed[field] = false;
+                        } else if (that.fields[field].type === 'date') {
+                            parsed[field] = new Date();
+                        } else {
+                            // Any field which is part of the model schema/definition
+                            // and which has no type and no defaultValue infers a null default value
+                            parsed[field] = null;
+                        }
+                    }
+                }
+                return parsed;
+            },
+
+            /**
+             * Modify original init method
+             * to add casting of properties into their underlying type
+             * For example, if a model field of type date receives a string value, it will be cast into a date
+             * and if a model field designates a submodel, it will be cast into that submodel
+             * @see http://www.telerik.com/forums/parsing-on-initialization-of-kendo-data-model
+             * @param data
+             */
+            init: function(data) {
+                // Call the base init method after parsing data
+                kendo.data.Model.fn.init.call(this, this._parseData(data));
+            },
+
+            /**
+             * Modify original accept method
+             * Add casting of properties into their underlying type (see init above)
+             * @see http://www.telerik.com/forums/parsing-on-initialization-of-kendo-data-model
+             * Trigger a change event on the parent observable (hierarchies of models and submodels)
+             * @see http://www.telerik.com/forums/triggering-a-change-event-on-the-parent-observable-when-calling-kendo-data-model-accept-method
+             * @param data
+             * @returns {boolean}
+             */
+            accept: function(data) {
+                // Call the base accept method
+                kendo.data.Model.fn.accept.call(this, this._parseData(data));
+
+                // Trigger a change event on the parent observable (possibly a viewModel)
+                // Without it, any UI wodget data bound to the parent is not updated
+                // TODO Review this event thing.......
+                if ($.isFunction(this.parent)) {
+                    var parent = this.parent();
+                    if (parent instanceof kendo.data.ObservableObject) {
+                        for (var key in parent) {
+                            if (parent.hasOwnProperty(key) && parent[key] instanceof this.constructor && parent[key].uid === this.uid) {
+                                // As we have found our nested object in the parent
+                                // trigger a change event otherwise UI won't be updated via MVVM
+                                parent.trigger(CHANGE, { field: key });
+                                // Once we have found the key holding our model in its parent and triggered the change event,
+                                // break out of for loop
+                                break;
+                            }
+                        }
+                        // } else if (parent instanceof kendo.data.ObservableArray) {
+                        // TODO: What in this case ????
+                    }
+                }
+            },
+
+            /**
+             * Override shouldSerialize to
+             * 1) only serialize fields defined in the Model (any other value should be discarded)
+             * 2) discard model fields with property serializable === false
+             * @param field
+             */
+            shouldSerialize: function(field) {
+                return this.fields.hasOwnProperty(field) && this.fields[field].serializable !== false &&
+                    kendo.data.Model.fn.shouldSerialize.call(this, field);
+            },
+
+
+            /**
+             * Modify original toJSON method to:
+             * (1) only serialize actual editable fields with their id
+             * (2) optionally serialize the entire tree
+             *
+             * Note that we have also considered taking a list of fields as parameters
+             * to only send the data we know has been modified
+             * toPartialJSON was not copied when moving app.models.BaseModel to kidoju.Model
+             * @param includeDataSources defines whether to include datasources in the result or not
+             * This would actually depend upon the fact whether the hierarchy is saved with the root object
+             * or the data sources have their own transport to save their nodes.
+             * @returns {{}}
+             */
+            toJSON: function(includeDataSources) {
+                var json = {},
+                    value, field;
+
+                for (field in this) {
+                    if (this.shouldSerialize(field)) {
+
+                        value = this[field];
+
+                        // Also call toJSON on any kidoju.DataSource which aggregates a collection of models (not in original toJSON method)
+                        // if (value instanceof kendo.data.ObservableObject || value instanceof kendo.data.ObservableArray) {
+                        if (value instanceof kendo.data.ObservableObject || value instanceof kendo.data.ObservableArray || (includeDataSources && value instanceof kidoju.DataSource)) {
+                            value = value.toJSON(includeDataSources);
+                        }
+
+                        // Also discard undefined values and empty objects (not in original toJSON method)
+                        // Note: we are not discarding empty arrays though:
+                        // We are considering that an empty object is a collection of undefined attributes
+                        // It is not the same with an empty array
+                        if ($.type(value) !== UNDEFINED && // Not an undefined value
+                            !($.isPlainObject(value) && $.isEmptyObject(value)) && // Not an empty object {}
+                            !($.type(value) === OBJECT && value.constructor !== Object)) { // Not an instance of a Class, Model or DataSource
+                            json[field] = value;
+                        }
+
+                        // `undefined` is ambiguous because it is also the value of a missing property.
+                        // if we really want to assign data = undefined or data = {}, we should make data nullable and assign data = null
+                        // See https://github.com/christkv/mongodb-core/issues/31
+                        // Note also that this is consistent with JSON.stringify which ignores undefined values
+                    }
+                }
+
+                return json;
+            },
+
+            /**
+             * Execute validation of the model data considering the rules defined on fields
+             * @returns {boolean}
+             */
+            validate: function() {
+                var that = this, validated = true;
+                for (var field in that.fields) {
+                    if(that.fields.hasOwnProperty(field)) {
+                        var validation = that.fields[field].validation;
+                        if ($.isPlainObject(validation)) {
+                            if (validation.required === true && !that[field]) {
+                                validated = false;
+                            } else if (that[field]) {
+                                if ($.type(validation.pattern) === STRING && !(new RegExp(validation.pattern)).test(that[field])) {
+                                    validated = false;
+                                }
+                                if ($.type(validation.min) === NUMBER && !isNaN(parseFloat(that[field])) && parseFloat(that[field]) < validation.min) {
+                                    validated = false;
+                                }
+                                if ($.type(validation.max) === NUMBER && !isNaN(parseFloat(that[field])) && parseFloat(that[field]) > validation.max) {
+                                    validated = false;
+                                }
+                            }
+                        }
+                    }
+                }
+                return validated; // Should we return an array of errors instead
+            }
+
+            // Consider a function that populates validation rules on forms
+            // See http://docs.telerik.com/kendo-ui/framework/validator/overview
+
+        });
+
 
         /*********************************************************************************
-         * Models
+         * Base DataReader
+         *********************************************************************************/
+
+        /**
+         * ModelCollectionDataReader
+         * @class ModelCollectionDataReader
+         */
+        var ModelCollectionDataReader = kendo.Class.extend({
+            init: function(reader) {
+                this.reader = reader;
+                if (reader.model) {
+                    this.model = reader.model;
+                }
+            },
+            errors: function(data) {
+                return this.reader.errors(data);
+            },
+            parse: function(data) {
+                return this.reader.parse(data);
+            },
+            data: function(data) {
+                // We get funny values from the original kendo.data.DataReader
+                // due to the getters in the convertRecords(...) function in kendo.data.js
+                // especially with page components
+                // This can be checked by uncommenting the following line
+                // return this.reader.data(data);
+                return data;
+                // By simply returning data, we let kidoju.Model._parseData do its work
+            },
+            total: function(data) {
+                return this.reader.total(data);
+            },
+            groups: function(data) {
+                return this.reader.groups(data);
+            },
+            aggregates: function(data) {
+                return this.reader.aggregates(data);
+            },
+            serialize: function(data) {
+                return this.reader.serialize(data);
+            }
+        });
+
+
+        /*********************************************************************************
+         * Base DataSource
+         *********************************************************************************/
+
+        /**
+         * kidoju.DataSource enhances kendo.data.DataSource
+         * especially to serialize the stream tree as a whole
+         */
+        var DataSource = kidoju.DataSource = kendo.data.DataSource.extend({
+
+            /**
+             * toJSON
+             */
+            toJSON: function() {
+                var json = [];
+                for(var i = 0; i < this.total(); i++) {
+                    // If we pass includeDataSource === true to kidoju.Model.toJSON
+                    // this method is executed and we should call toJSON(true) on each DataSource item
+                    // So has to serialize the whole tree
+                    json.push(this.at(i).toJSON(true));
+                }
+                return json;
+            }
+
+        });
+
+        /*********************************************************************************
+         * PageComponent Model and DataSource
          *********************************************************************************/
 
         /**
@@ -73,12 +334,13 @@
          * @class PageComponent
          * @type {void|*}
          */
-        var PageComponent = kidoju.PageComponent = Model.define({
+        var PageComponent = kidoju.PageComponent = kidoju.Model.define({
             id: 'id',
             fields: {
                 id: {
                     type: STRING,
-                    editable: false
+                    editable: false,
+                    nullable: true
                 },
                 tool: {
                     type: STRING,
@@ -105,18 +367,18 @@
                     type: NUMBER,
                     defaultValue: ZERO_NUMBER,
                     parse: function (value) {
-                        return (value + 360) % 360;
+                        return $.type(value) === NUMBER ? (value + 360) % 360 : ZERO_NUMBER;
                     }
                 },
-                tag: { // A tag for future 3rd party integration (for example treasure hunt quizz linked to GeoJSON coordinates)
+                tag: {
                     type: STRING,
                     defaultValue: null
                 },
                 attributes: {
-                    defaultValue: {}
+                    defaultValue: null
                 },
                 properties: {
-                    defaultValue: {}
+                    defaultValue: null
                 }
             },
 
@@ -128,9 +390,9 @@
             /* This function's cyclomatic complexity is too high. */
             init: function (component) {
 
-                // Note: Kendo UI requires that new PageComponent() works, i.e. component = undefined
                 var that = this;
 
+                // Note: Kendo UI requires that new PageComponent() works, i.e. component = undefined
                 if ($.type(component) === OBJECT /*&& !$.isEmptyObject(component)*/) {
                     if (!kidoju.tools) {
                         throw new Error('Kidoju tools are missing');
@@ -138,7 +400,6 @@
                     if ($.type(component.tool) !== STRING || component.tool.length === 0 || !(kidoju.tools[component.tool] instanceof kidoju.Tool)) {
                         throw new Error(kendo.format('`{0}` is not a valid Kidoju tool', component.tool));
                     }
-                    component = $.extend({}, that.defaults, component); // otherwise we are missing default property values
                 }
 
                 Model.fn.init.call(that, component);
@@ -148,24 +409,21 @@
                     var tool = kidoju.tools[that.tool];
                     if (tool instanceof kidoju.Tool) {
 
-                        // Let the tool build a kendo.data.Model for attributes to allow validation in the property grid
+                        // Let the tool build a Model for attributes to allow validation in the property grid
                         var Attributes = tool._getAttributeModel(),
                         // Extend component attributes with possible new attributes as tools improve
                             attributes = $.extend({}, Attributes.prototype.defaults, that.attributes);
                         // Cast with Model
                         // that.set('attributes', new Attributes(attributes)); // <--- this sets the dirty flag and raises the change event
+                        that.attributes = new Attributes(attributes);
 
-                        // Let the tool build a kendo.data.Model for properties to allow validation in the property grid
+                        // Let the tool build a Model for properties to allow validation in the property grid
                         var Properties = tool._getPropertyModel(),
                         // Extend component properties with possible new properties as tools improve
                             properties = $.extend({}, Properties.prototype.defaults, that.properties);
                         // Cast with Model
                         // that.set('properties', new Properties(properties)); // <--- this sets the dirty flag and raises the change event
-
-                        that.accept({ // <---- this neither sets teh dirty flag nor raises the change event
-                            attributes: new Attributes(attributes),
-                            properties: new Properties(properties)
-                        });
+                        that.properties = new Properties(properties);
 
                     }
                 }
@@ -177,29 +435,43 @@
              * @returns {*}
              */
             page: function () {
-                var componentCollection = this.parent();
-                return componentCollection.parent();
+                if ($.isFunction(this.parent)) {
+                    var componentCollectionArray = this.parent();
+                    if ($.isFunction(componentCollectionArray.parent)) {
+                        return componentCollectionArray.parent();
+                    }
+                }
             }
+
         });
 
         /**
          * @class PageComponentCollectionDataSource
          * @type {*|void|Object}
          */
-        var PageComponentCollectionDataSource =  kidoju.PageComponentCollectionDataSource = DataSource.extend({
+        var PageComponentCollectionDataSource =  kidoju.PageComponentCollectionDataSource = kidoju.DataSource.extend({
+
+            /**
+             * Constructor
+             * @constructor
+             * @param options
+             */
             init: function (options) {
 
-                var SubPageComponent = PageComponent.define({
-                    components: options
-                });
+                // Enforce the use of PageComponent items in the collection data source
+                // options contains a property options.schema.model which needs to be replaced
+                // DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: PageComponent, model: PageComponent } }, options));
+                DataSource.fn.init.call(this, $.extend(true, {}, options, { schema: { modelBase: PageComponent, model: PageComponent } }));
 
-                DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: SubPageComponent, model: SubPageComponent } }, options));
-
-                // If there is a necessity to transform data, there is a possibility to change the reader as follows
-                // this.reader = new PageComponentCollectionDataReader(this.options.schema, this.reader);
-                // See kendo.scheduler.SchedulerDataReader which transforms dates with timezones
+                // Let's use a slightly modified reader to leave data convertions to kidoju.Modek._parseData
+                this.reader = new ModelCollectionDataReader(this.reader);
             },
 
+            /**
+             * Remove
+             * @param model
+             * @returns {*}
+             */
             remove: function (model) {
                 return DataSource.fn.remove.call(this, model);
             },
@@ -237,28 +509,49 @@
 
             dataSource.data = data;
 
-            if (!(dataSource instanceof PageComponentCollectionDataSource) && dataSource instanceof DataSource) {
+            if (!(dataSource instanceof PageComponentCollectionDataSource) && dataSource instanceof kendo.data.DataSource) {
                 throw new Error('Incorrect DataSource type. Only PageComponentCollectionDataSource instances are supported');
             }
 
             return dataSource instanceof PageComponentCollectionDataSource ? dataSource : new PageComponentCollectionDataSource(dataSource);
         };
 
+        /*********************************************************************************
+         * Page Model and DataSource
+         *********************************************************************************/
+
         /**
          * Page
          * @class Page
          * @type {void|*}
          */
-        var Page = kidoju.Page = Model.define({
-
+        var Page = kidoju.Page = kidoju.Model.define({
             id: 'id',
             fields: {
                 id: {
                     type: STRING,
+                    nullable: true,
                     editable:false
                 },
                 style: {
                     type: STRING
+                },
+                components: {
+                    // We cannot assign a data source as default value of a model
+                    // because otherwise it might be reused amongst instances.
+                    // The only way to ensure that a new instance gets a new default value is to initialize with []
+                    // and have kidoju.Model._parseData initialize the instance data source from [].
+                    // defaultValue: new kidoju.PageComponentCollectionDataSource({ data: [] }),
+                    defaultValue: [],
+                    parse: function(value) {
+                        if (value instanceof kidoju.PageComponentCollectionDataSource) {
+                            return value;
+                        } else if (value && value.push) {
+                            return new kidoju.PageComponentCollectionDataSource({ data: value });
+                        } else {
+                            return new kidoju.PageComponentCollectionDataSource(value);
+                        }
+                    }
                 }
             },
 
@@ -269,88 +562,62 @@
             init: function (value) {
                 var that = this;
 
+                // Call the base init method
                 Model.fn.init.call(that, value);
 
-                that._componentsOptions = {};
-
-                if($.isPlainObject(that.components)) {
-                    $.extend(that._componentsOptions, that.components);
+                if (that.model && that.model.components) {
+                    // Reset PageCollectionDataSource with model.pages dataSource options
+                    // especially for the case where we have defined CRUD transports
+                    that.components = new kidoju.PageComponentCollectionDataSource(that.model.components);
                 }
 
-                // if (that.schema && that.schema.model && that.schema.model.components && that.schema.model.components.transport) {
-                //  $.extend(that._componentsOptions, {transport: that.schema.model.components.transport});
-                // }
+                /*
+                    TODO: hy this?
+                 var transport = components.transport,
+                 parameterMap = transport.parameterMap;
+                 transport.parameterMap = function (data, type) {
+                 data[that.idField || 'id'] = that.id;
+                 if (parameterMap) {
+                 data = parameterMap(data, type);
+                 }
+                 return data;
+                 };
 
-                if (value && $.isArray(value.components)) { // ObservableArray? PageComponentDataSource?
-                    $.extend(that._componentsOptions, {data: value.components});
+                 */
+
+                // Add parent function
+                if (that.components instanceof kidoju.PageComponentCollectionDataSource) {
+                    that.components.parent = function () {
+                        return that;
+                    };
                 }
 
-                that._initComponents();
+                /*
+                 components.bind(CHANGE, function (e) {
+                 e.node = e.node || that; // TODO: review
+                 that.trigger(CHANGE, e);
+                 });
+
+                 components.bind(ERROR, function (e) {
+                 var collection = that.parent();
+
+                 if (collection) {
+                 e.node = e.node || that; // TODO: review
+                 collection.trigger(ERROR, e);
+                 }
+                 });
+                 */
+
                 that._loaded = !!(value && (value.components || value._loaded));
             },
 
             /**
-             * @method _initComponents
-             * @private
-             */
-            _initComponents: function () {
-                var that = this;
-                var components, transport, parameterMap;
-
-                if (!(that.components instanceof PageComponentCollectionDataSource)) {
-                    components = that.components = new PageComponentCollectionDataSource(that._componentsOptions);
-
-                    transport = components.transport;
-                    parameterMap = transport.parameterMap;
-
-                    transport.parameterMap = function (data, type) {
-                        data[that.idField || 'id'] = that.id;
-
-                        if (parameterMap) {
-                            data = parameterMap(data, type);
-                        }
-
-                        return data;
-                    };
-
-                    components.parent = function () {
-                        return that;
-                    };
-
-                    /*
-                    components.bind(CHANGE, function (e) {
-                        e.node = e.node || that; // TODO: review
-                        that.trigger(CHANGE, e);
-                    });
-
-                    components.bind(ERROR, function (e) {
-                        var collection = that.parent();
-
-                        if (collection) {
-                            e.node = e.node || that; // TODO: review
-                            collection.trigger(ERROR, e);
-                        }
-                    });
-                    */
-                }
-            },
-
-            /**
              * @method append
-             * @param model
+             * @param component
              */
-            append: function (model) {
-                this._initComponents();
+            append: function (component) {
                 this.loaded(true);
-                this.components.add(model);
-            },
-
-            /**
-             * @method _componentsLoaded
-             * @private
-             */
-            _componentsLoaded: function () {
-                this._loaded = true;
+                this.components.add(component);
             },
 
             /**
@@ -362,21 +629,17 @@
                 var method = '_query';
                 var components, promise;
 
-                // if (this.hasComponents) {
+                components = this.components;
 
-                    this._initComponents();
+                options[this.idField || 'id'] = this.id; // TODO why this?
 
-                    components = this.components;
+                if (!this._loaded) {
+                    components._data = undefined;
+                    method = 'read';
+                }
 
-                    options[this.idField || 'id'] = this.id;
-
-                    if (!this._loaded) {
-                        components._data = undefined;
-                        method = 'read';
-                    }
-
-                    components.one(CHANGE, $.proxy(this._componentsLoaded, this));
-                    promise = components[method](options);
+                components.one(CHANGE, $.proxy(function() { this.loaded(true); }, this));
+                promise = components[method](options);
 
                 // } else {
                 //  this.loaded(true);
@@ -387,12 +650,16 @@
             },
 
             /**
-             * Get the parent stream
+             * Get the parent stream if any
              * @returns {*}
              */
             stream: function () {
-                var pageCollection = this.parent();
-                return pageCollection.parent();
+                if ($.isFunction(this.parent)) {
+                    var pageCollectionArray = this.parent();
+                    if ($.isFunction(pageCollectionArray.parent)) {
+                        return pageCollectionArray.parent();
+                    }
+                }
             },
 
             /**
@@ -406,19 +673,6 @@
                 } else {
                     return this._loaded;
                 }
-            },
-
-            /**
-             * Fields to serialize
-             * @param field
-             * @returns {*|boolean}
-             */
-            shouldSerialize: function (field) {
-                return Model.fn.shouldSerialize.call(this, field) &&
-                    field !== 'components' &&
-                    field !== '_loaded' &&
-                    // field !== 'hasComponents' &&
-                    field !== '_componentsOptions';
             }
         });
 
@@ -426,7 +680,7 @@
          * @class PageCollectionDataSource
          * @type {*|void|Object}
          */
-        var PageCollectionDataSource =  kidoju.PageCollectionDataSource = DataSource.extend({
+        var PageCollectionDataSource =  kidoju.PageCollectionDataSource = kidoju.DataSource.extend({
 
             /**
              * @constructor
@@ -434,18 +688,17 @@
              */
             init: function (options) {
 
-                /*
-                var SubPage = Page.define({
-                    components: options
-                });
-                DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: SubPage, model: SubPage } }, options));
-                */
+                // PageWithOptions propagates configuration options to PageComponentCollectionDataSource
+                var PageWithOptions = options && options.schema && ($.type(options.schema.model) === OBJECT) ?
+                    Page.define({ model: options.schema.model }) : Page;
 
-                DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: Page, model: Page } }, options));
+                // Enforce the use of PageWithOptions items in the page collection data source
+                // options contains a property options.schema.model which needs to be replaced
+                // kidoju.DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: PageWithOptions, model: PageWithOptions } }, options));
+                kidoju.DataSource.fn.init.call(this, $.extend(true, {}, options, { schema: { modelBase: PageWithOptions, model: PageWithOptions } }));
 
-                // If there is a necessity to transform data, there is a possibility to change the reader as follows
-                // this.reader = new PageComponentCollectionDataReader(this.options.schema, this.reader);
-                // See kendo.scheduler.SchedulerDataReader which transforms dates with timezones
+                // Let's use a slightly modified reader to leave data convertions to kidoju.Modek._parseData
+                this.reader = new ModelCollectionDataReader(this.reader);
 
                 this._attachBubbleHandlers();
 
@@ -472,9 +725,9 @@
                 return DataSource.fn.remove.call(this, model);
             },
 
-            // success: dataMethod("success"),
+            // success: dataMethod("success"), //see _attachBubbleHandlers
 
-            // data: dataMethod("data"),
+            // data: dataMethod("data"), //see _attachBubbleHandlers
 
             /**
              * @method insert
@@ -675,114 +928,118 @@
 
             dataSource.data = data;
 
-            if (!(dataSource instanceof PageCollectionDataSource) && dataSource instanceof DataSource) {
+            if (!(dataSource instanceof PageCollectionDataSource) && dataSource instanceof kendo.data.DataSource) {
                 throw new Error('Incorrect DataSource type. Only PageCollectionDataSource instances are supported');
             }
 
             return dataSource instanceof PageCollectionDataSource ? dataSource : new PageCollectionDataSource(dataSource);
         };
 
+        /*********************************************************************************
+         * Stream
+         *********************************************************************************/
+
         /**
+         * A stream is essentially a collection of pages
          * @class Stream
          */
-        var Stream = kidoju.Stream = Model.define({
+        var Stream = kidoju.Stream = kidoju.Model.define({
             id: 'id',
             fields: {
+                /**
+                 * nullable, non-editable database identifier
+                 */
                 id: {
                     type: STRING,
+                    nullable: true,
                     editable:false
+                },
+                /**
+                 * pages
+                 */
+                pages: {
+                    // We cannot assign a data source as default value of a model
+                    // because otherwise it might be reused amongst instances.
+                    // The only way to ensure that a new instance gets a new default value is to initialize with []
+                    // and have kidoju.Model._parseData initialize the instance data source from [].
+                    // defaultValue: new kidoju.PageCollectionDataSource({ data: [] }),
+                    defaultValue: [],
+                    parse: function(value) {
+                        if (value instanceof kidoju.PageCollectionDataSource) {
+                            return value;
+                        } else if (value && value.push) {
+                            return new kidoju.PageCollectionDataSource({ data: value });
+                        } else {
+                            return new kidoju.PageCollectionDataSource(value);
+                        }
+                    }
                 }
-                // TODO: register assets
             },
 
             /**
              * Constructor
+             * @constructor
              * @param value
              */
             init: function (value) {
                 var that = this;
 
+                // Call the base init method
                 Model.fn.init.call(that, value);
 
-                that._pagesOptions = {};
-
-                if($.isPlainObject(that.pages)) {
-                    $.extend(that._pagesOptions, that.pages);
+                if (that.model && that.model.pages) {
+                    // Reset PageCollectionDataSource with model.pages dataSource options
+                    that.pages = new PageCollectionDataSource(that.model.pages);
                 }
 
-                if (value && value.pages) {
-                    $.extend(that._pagesOptions, {data: value.pages});
-                }
+                /*
+                 // TODO: why would we need this?
+                 var transport = pages.transport,
+                 parameterMap = transport.parameterMap;
+                 transport.parameterMap = function (data, type) {
+                 data[that.idField || 'id'] = that.id;
+                 if (parameterMap) {
+                 data = parameterMap(data, type);
+                 }
+                 return data;
+                 };
+                 */
 
-                that._initPages();
-
-                that._loaded = !!(value && (value.pages || value._loaded));
-            },
-
-            /**
-             * @method _initPages
-             * @private
-             */
-            _initPages: function () {
-                var that = this;
-                var pages, transport, parameterMap;
-
-                if (!(that.pages instanceof PageCollectionDataSource)) {
-                    pages = that.pages = new PageCollectionDataSource(that._pagesOptions);
-
-                    transport = pages.transport;
-                    parameterMap = transport.parameterMap;
-
-                    transport.parameterMap = function (data, type) {
-                        data[that.idField || 'id'] = that.id;
-
-                        if (parameterMap) {
-                            data = parameterMap(data, type);
-                        }
-
-                        return data;
-                    };
-
-                    pages.parent = function () {
+                // Add parent() function
+                if (that.pages instanceof PageCollectionDataSource) {
+                    that.pages.parent = function () {
                         return that;
                     };
-
-                    /*
-                    pages.bind(CHANGE, function (e) {
-                        e.node = e.node || that;
-                        that.trigger(CHANGE, e);
-                    });
-
-                    pages.bind(ERROR, function (e) {
-                        var collection = that.parent();
-
-                        if (collection) {
-                            e.node = e.node || that;
-                            collection.trigger(ERROR, e);
-                        }
-                    });
-                    */
-
-                    // that._updatePagesField();
                 }
+
+                /*
+                 // TODO
+                 pages.bind(CHANGE, function (e) {
+                 e.node = e.node || that;
+                 that.trigger(CHANGE, e);
+                 });
+
+                 pages.bind(ERROR, function (e) {
+                 var collection = that.parent();
+
+                 if (collection) {
+                 e.node = e.node || that;
+                 collection.trigger(ERROR, e);
+                 }
+                 });
+                 */
+
+                // TODO: Review _loaded: what is used it for?
+                that._loaded = !!(value && (value.pages || value._loaded));
             },
 
             /**
              * Append a page
              * @param model
              */
-            append: function (model) {
-                this._initPages();
+            append: function (page) {
                 this.loaded(true);
-                this.pages.add(model);
-            },
-
-            /**
-             *
-             * @private
-             */
-            _pagesLoaded: function () {
-                this._loaded = true;
+                this.pages.add(page);
             },
 
             /**
@@ -794,20 +1051,16 @@
                 var method = '_query';
                 var pages, promise;
 
-                // if (this.hasPages) {
-
-                this._initPages();
-
                 pages = this.pages;
 
-                options[this.idField || 'id'] = this.id;
+                options[this.idField || 'id'] = this.id; //TODO: not sure about this!!!
 
                 if (!this._loaded) {
                     pages._data = undefined;
                     method = 'read';
                 }
 
-                pages.one(CHANGE, $.proxy(this._pagesLoaded, this));
+                pages.one(CHANGE, $.proxy(function() { this.loaded(true); }, this));
                 promise = pages[method](options);
 
                 // } else {
@@ -849,18 +1102,6 @@
                 } else {
                     return this._loaded;
                 }
-            },
-
-            /**
-             * Check which field should be serialized
-             * @param field
-             * @returns {*|boolean}
-             */
-            shouldSerialize: function (field) {
-                return Model.fn.shouldSerialize.call(this, field) &&
-                    field !== 'pages' &&
-                    field !== '_loaded' &&
-                    field !== '_pagesOptions';
             }
         });
 

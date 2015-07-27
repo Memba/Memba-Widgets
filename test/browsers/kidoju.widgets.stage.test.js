@@ -482,7 +482,7 @@
                         expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', total + count);
                         var component = stage.dataSource.at(total + count - 1),
                             item = stage.items()[total + count - 1];
-                        expect(component).to.have.property('id', '');
+                        expect(component).to.have.property('id', null);
                         expect(component).to.have.property('tool', tool.id);
                         expect(component).to.have.property('top', 60 * count);
                         expect(component).to.have.property('left', 80 * count);

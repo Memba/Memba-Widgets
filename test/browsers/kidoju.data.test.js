@@ -1917,7 +1917,12 @@
                 });
             });
 
-            it('Mixing operations and saving stream', function (done) {
+        });
+
+
+        describe('Same with batch: true and submit method', function () {
+
+            xit('Mixing operations and saving stream', function (done) {
                 // window.console.log('--------------');
                 expect(stream.pages.total()).to.equal(3);
                 expect(stream.pages.at(0).components.total()).to.equal(1);
@@ -1936,22 +1941,8 @@
                 stream.pages.at(1).components.remove(stream.pages.at(1).components.at(0));
                 stream.pages.at(1).components.add({tool: 'textbox'});
                 stream.pages.at(0).components.at(0).set('rotate', 45);
-                stream.save().always(function () {
-                    expect(pages.update).to.have.callCount(1);
-                    expect(pages.destroy).to.have.callCount(1);
-                    expect(components.create).to.have.callCount(2);
-                    expect(components.update).to.have.callCount(1);
-                    expect(components.destroy).to.have.callCount(1);
-                    done();
-                });
+                // TODO
             });
-
-        });
-
-
-        describe('Same with batch: true and submit method', function () {
-
-            // TODO use submit instead of create, update and destroy
 
         });
 

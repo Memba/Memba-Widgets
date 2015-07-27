@@ -36,29 +36,6 @@
             RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i;
 
         /*********************************************************************************
-         * Helpers
-         *********************************************************************************/
-
-        function log(message) {
-            if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
-                window.console.log('kidoju.data: ' + message);
-            }
-        }
-
-        function dataMethod(name) {
-            return function () {
-                var data = this._data,
-                    result = DataSource.fn[name].apply(this, [].slice.call(arguments));
-
-                if (this._data !== data) {
-                    this._attachBubbleHandlers();
-                }
-
-                return result;
-            };
-        }
-
-        /*********************************************************************************
          * Base Model
          *********************************************************************************/
 
@@ -253,7 +230,6 @@
 
         });
 
-
         /*********************************************************************************
          * Base DataReader
          *********************************************************************************/
@@ -312,10 +288,27 @@
             }
         });
 
-
         /*********************************************************************************
          * Base DataSource
          *********************************************************************************/
+
+        /**
+         * @see kendo.data.HierarchicalDataSource
+         * @param name
+         * @returns {Function}
+         */
+        function dataMethod(name) {
+            return function () {
+                var data = this._data,
+                    result = kendo.data.DataSource.fn[name].apply(this, [].slice.call(arguments));
+
+                if (this._data !== data) {
+                    this._attachBubbleHandlers();
+                }
+
+                return result;
+            };
+        }
 
         /**
          * kidoju.DataSource enhances kendo.data.DataSource
@@ -324,7 +317,34 @@
         var DataSource = kidoju.DataSource = kendo.data.DataSource.extend({
 
             /**
-             * toJSON
+             * @ constructor
+             * @param options
+             */
+            init: dataMethod('init'),
+
+            /**
+             * @method success
+             */
+            success: dataMethod('success'),
+
+            /**
+             * @method data
+             */
+            data: dataMethod('data'),
+
+            /**
+             * @method _attachBubbleHandlers
+             * @private
+             */
+            _attachBubbleHandlers: function () {
+                var that = this;
+                that._data.bind(ERROR, function (e) {
+                    that.trigger(ERROR, e);
+                });
+            },
+
+            /**
+             * @method toJSON
              */
             toJSON: function() {
                 var json = [];
@@ -490,22 +510,22 @@
                 return DataSource.fn.remove.call(this, model);
             },
 
-            // success: dataMethod("success"),
-
-            // data: dataMethod("data"),
-
+            /**
+             * Insert
+             * @param index
+             * @param model
+             * @returns {*}
+             */
             insert: function (index, model) {
                 if (!model) {
                     return;
                 }
-
                 if (!(model instanceof PageComponent)) {
                     var component = model;
 
                     model = this._createNewModel();
                     model.accept(component);
                 }
-
                 return DataSource.fn.insert.call(this, index, model);
             }
 
@@ -536,6 +556,7 @@
 
         /**
          * Page
+         * @see kendo.data.HierarchicalDataSource and kendo.data.Node for implementation details
          * @class Page
          * @type {void|*}
          */
@@ -585,42 +606,43 @@
                     that.components = new kidoju.PageComponentCollectionDataSource(that.model.components);
                 }
 
+                var components = that.components;
+
                 /*
-                    TODO: hy this?
-                 var transport = components.transport,
-                 parameterMap = transport.parameterMap;
-                 transport.parameterMap = function (data, type) {
-                 data[that.idField || 'id'] = that.id;
-                 if (parameterMap) {
-                 data = parameterMap(data, type);
-                 }
-                 return data;
-                 };
+                var transport = components.transport,
+                    parameterMap = transport.parameterMap;
+                transport.parameterMap = function (data, type) {
+                    data[that.idField || 'id'] = that.id;
+                    if (parameterMap) {
+                        data = parameterMap(data, type);
+                    }
+                    return data;
+                };
+                */
 
-                 */
+                if (components instanceof kidoju.PageComponentCollectionDataSource) {
 
-                // Add parent function
-                if (that.components instanceof kidoju.PageComponentCollectionDataSource) {
-                    that.components.parent = function () {
+                    // Add parent function
+                    components.parent = function () {
                         return that;
                     };
+
+                    // Bind errors
+                    components.bind(ERROR, function (e) {
+                        var collection = that.parent();
+                        if ($.isFunction(collection.trigger)) {
+                            e.node = e.node || that;
+                            collection.trigger(ERROR, e);
+                        }
+                    });
+
+                    /*
+                    components.bind(CHANGE, function (e) {
+                        e.node = e.node || that;
+                        that.trigger(CHANGE, e);
+                    });
+                    */
                 }
-
-                /*
-                 components.bind(CHANGE, function (e) {
-                 e.node = e.node || that; // TODO: review
-                 that.trigger(CHANGE, e);
-                 });
-
-                 components.bind(ERROR, function (e) {
-                 var collection = that.parent();
-
-                 if (collection) {
-                 e.node = e.node || that; // TODO: review
-                 collection.trigger(ERROR, e);
-                 }
-                 });
-                 */
 
                 that._loaded = !!(value && (value.components || value._loaded));
             },
@@ -641,26 +663,16 @@
             load: function () {
                 var options = {};
                 var method = '_query';
-                var components, promise;
-
-                components = this.components;
-
-                options[this.idField || 'id'] = this.id; // TODO why this?
-
+                var components = this.components;
+                // Passing the id of the page to the components _query method
+                // is suggested by lendo.data.Node
+                options[this.idField || 'id'] = this.id;
                 if (!this._loaded) {
                     components._data = undefined;
                     method = 'read';
                 }
-
                 components.one(CHANGE, $.proxy(function() { this.loaded(true); }, this));
-                promise = components[method](options);
-
-                // } else {
-                //  this.loaded(true);
-                // }
-
-                return promise || $.Deferred().resolve().promise();
-
+                return components[method](options);
             },
 
             /**
@@ -713,21 +725,6 @@
 
                 // Let's use a slightly modified reader to leave data conversions to kidoju.Model._parseData
                 this.reader = new ModelCollectionDataReader(this.reader);
-
-                this._attachBubbleHandlers();
-
-            },
-
-            /**
-             * @method _attachBubbleHandlers
-             * @private
-             */
-            _attachBubbleHandlers: function () {
-                var that = this;
-
-                that._data.bind(ERROR, function (e) {
-                    that.trigger(ERROR, e);
-                });
             },
 
             /**
@@ -739,10 +736,6 @@
                 return DataSource.fn.remove.call(this, model);
             },
 
-            // success: dataMethod("success"), //see _attachBubbleHandlers
-
-            // data: dataMethod("data"), //see _attachBubbleHandlers
-
             /**
              * @method insert
              * @param index
@@ -753,14 +746,11 @@
                 if (!model) {
                     return;
                 }
-
                 if (!(model instanceof Page)) {
                     var page = model;
-
                     model = this._createNewModel();
                     model.accept(page);
                 }
-
                 return DataSource.fn.insert.call(this, index, model);
             },
 
@@ -1006,44 +996,42 @@
                     that.pages = new PageCollectionDataSource(that.model.pages);
                 }
 
-                /*
-                 // TODO: why would we need this?
-                 var transport = pages.transport,
-                 parameterMap = transport.parameterMap;
-                 transport.parameterMap = function (data, type) {
-                 data[that.idField || 'id'] = that.id;
-                 if (parameterMap) {
-                 data = parameterMap(data, type);
-                 }
-                 return data;
-                 };
-                 */
+                var pages = that.pages;
 
-                // Add parent() function
-                if (that.pages instanceof PageCollectionDataSource) {
+                /*
+                var transport = pages.transport,
+                    parameterMap = transport.parameterMap;
+                transport.parameterMap = function (data, type) {
+                    data[that.idField || 'id'] = that.id;
+                    if (parameterMap) {
+                        data = parameterMap(data, type);
+                    }
+                    return data;
+                };
+                */
+
+                if (pages instanceof PageCollectionDataSource) {
+
+                    // Add parent() function
                     that.pages.parent = function () {
                         return that;
                     };
+
+                    pages.bind(CHANGE, function (e) {
+                        e.node = e.node || that;
+                        that.trigger(CHANGE, e);
+                    });
+
+                    pages.bind(ERROR, function (e) {
+                        var collection = that.parent();
+
+                        if (collection) {
+                            e.node = e.node || that;
+                            collection.trigger(ERROR, e);
+                        }
+                    });
                 }
 
-                /*
-                 // TODO
-                 pages.bind(CHANGE, function (e) {
-                 e.node = e.node || that;
-                 that.trigger(CHANGE, e);
-                 });
-
-                 pages.bind(ERROR, function (e) {
-                 var collection = that.parent();
-
-                 if (collection) {
-                 e.node = e.node || that;
-                 collection.trigger(ERROR, e);
-                 }
-                 });
-                 */
-
-                // TODO: Review _loaded: what is used it for?
                 that._loaded = !!(value && (value.pages || value._loaded));
             },
 
@@ -1063,46 +1051,16 @@
             load: function () {
                 var options = {};
                 var method = '_query';
-                var pages, promise;
-
-                pages = this.pages;
-
-                options[this.idField || 'id'] = this.id; //TODO: not sure about this!!!
-
+                var pages = this.pages;
+                // Passing the id of the page to the components _query method
+                // is suggested by kendo.data.Node
+                options[this.idField || 'id'] = this.id;
                 if (!this._loaded) {
                     pages._data = undefined;
                     method = 'read';
                 }
-
                 pages.one(CHANGE, $.proxy(function() { this.loaded(true); }, this));
-                promise = pages[method](options);
-
-                // } else {
-                //  this.loaded(true);
-                // }
-
-                return promise || $.Deferred().resolve().promise();
-
-            },
-
-            /**
-             * Save
-             */
-            save: function () {
-                var that = this,
-                    promises = [];
-
-                // TODO: save stream....
-
-                // Save pages
-                promises.push(that.pages.sync());
-
-                // Save page components
-                $.each(that.pages.data(), function (index, page) {
-                    promises.push(page.components.sync());
-                });
-
-                return $.when.apply($, promises);
+                return pages[method](options);
             },
 
             /**

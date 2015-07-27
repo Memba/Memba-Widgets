@@ -320,28 +320,30 @@
              * @ constructor
              * @param options
              */
-            init: dataMethod('init'),
+            // init: dataMethod('init'),
 
             /**
              * @method success
              */
-            success: dataMethod('success'),
+            // success: dataMethod('success'),
 
             /**
              * @method data
              */
-            data: dataMethod('data'),
+            // data: dataMethod('data'),
 
             /**
              * @method _attachBubbleHandlers
              * @private
              */
+            /*
             _attachBubbleHandlers: function () {
                 var that = this;
                 that._data.bind(ERROR, function (e) {
                     that.trigger(ERROR, e);
                 });
             },
+            */
 
             /**
              * @method toJSON
@@ -627,21 +629,9 @@
                         return that;
                     };
 
-                    // Bind errors
-                    components.bind(ERROR, function (e) {
-                        var collection = that.parent();
-                        if ($.isFunction(collection.trigger)) {
-                            e.node = e.node || that;
-                            collection.trigger(ERROR, e);
-                        }
-                    });
+                    // Note: this is where kendo.data.Node bind the change and error events
+                    // to propage them from the components collection to the page node or page collection
 
-                    /*
-                    components.bind(CHANGE, function (e) {
-                        e.node = e.node || that;
-                        that.trigger(CHANGE, e);
-                    });
-                    */
                 }
 
                 that._loaded = !!(value && (value.components || value._loaded));
@@ -1017,19 +1007,9 @@
                         return that;
                     };
 
-                    pages.bind(CHANGE, function (e) {
-                        e.node = e.node || that;
-                        that.trigger(CHANGE, e);
-                    });
+                    // Note: this is where kendo.data.Node bind the change and error events
+                    // to propagate them from the pages collection to the stream node or a parent collection
 
-                    pages.bind(ERROR, function (e) {
-                        var collection = that.parent();
-
-                        if (collection) {
-                            e.node = e.node || that;
-                            collection.trigger(ERROR, e);
-                        }
-                    });
                 }
 
                 that._loaded = !!(value && (value.pages || value._loaded));

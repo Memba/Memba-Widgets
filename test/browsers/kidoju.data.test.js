@@ -680,7 +680,7 @@
                 expect(testFn).to.throw(Error);
             });
 
-            xit('if initialized with a new model, it should throw', function () {
+            it('if initialized with a new model, it should throw', function () {
                 function testFn() {
                     var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
                         data: books,
@@ -1410,7 +1410,7 @@
      * Stream
      *********************************************************************************************************/
 
-    xdescribe('Test Stream', function () {
+    describe('Test Stream', function () {
 
         var stream;
 
@@ -1471,12 +1471,14 @@
                 var s = {
                         pages: [
                             {
+                                style: 'background-colour: lightblue;',
                                 components: [
                                     { tool: 'label', attributes: { style: 'color: red;', text: 'Label1'} },
                                     { tool: 'image', attributes: { alt: 'Label1', src: 'photo1.jpg' } }
                                 ]
                             },
                             {
+                                style: 'background-colour: lightgreen;',
                                 components: [
                                     { tool: 'label', attributes: { style: 'color: blue;', text: 'Label2'} },
                                     { tool: 'image', attributes: { alt: 'Label2', src: 'photo2.jpg' } }
@@ -1523,7 +1525,7 @@
      *
      *********************************************************************************************************/
 
-    xdescribe('Test a complex schema with sinonJS', function () {
+    describe('Test a complex schema with sinonJS', function () {
 
         // See http://docs.telerik.com/kendo-ui/framework/hierarchicaldatasource/overview#binding-a-hierarchicaldatasource-to-remote-data-with-multiple-service-end-points
 
@@ -1625,57 +1627,112 @@
 
             it('Creating', function (done) {
                 expect(stream.pages.total()).to.equal(1);
+                expect(stream.pages.at(0).components.total()).to.equal(1);
                 stream.pages.add({});
                 expect(stream.pages.total()).to.equal(2);
                 stream.pages.at(1).components.add({tool: 'label'});
                 stream.pages.at(1).components.add({tool: 'textbox'});
-                expect(stream.pages.total()).to.equal(2);
                 expect(stream.pages.at(1).components.total()).to.equal(2);
-                var promises = [
-                    stream.pages.sync(),
-                    stream.pages.at(1).components.sync()
-                ];
-                $.when.apply($, promises).always(function () {
-                    expect(pages.create).to.have.been.calledOnce;
-                    expect(components.create).to.have.been.calledTwice;
-                    done();
-                });
+                stream.pages.add({});
+                expect(stream.pages.total()).to.equal(3);
+                stream.pages.at(2).components.add({tool: 'label'});
+                stream.pages.at(2).components.add({tool: 'textbox'});
+                expect(stream.pages.at(2).components.total()).to.equal(2);
+                stream.pages.sync()
+                    .done(function() {
+                        expect(pages.create).to.have.callCount(2);
+                        expect(stream.pages.total()).to.equal(3);
+                        expect(stream.pages.at(0).components.total()).to.equal(1);
+                        expect(stream.pages.at(1).components.total()).to.equal(2);
+                        expect(stream.pages.at(2).components.total()).to.equal(2);
+                        var promises = [];
+                        for (var i = 0; i < stream.pages.total(); i++) {
+                            promises.push(stream.pages.at(i).components.sync());
+                        }
+                        $.when.apply($, promises)
+                            .always(function () {
+                                expect(components.create).to.callCount(4);
+                                expect(stream.pages.total()).to.equal(3);
+                                expect(stream.pages.at(0).components.total()).to.equal(1);
+                                expect(stream.pages.at(1).components.total()).to.equal(2);
+                                expect(stream.pages.at(2).components.total()).to.equal(2);
+                                done();
+                            });
+                    })
+                    .fail(done);
             });
 
             it('Updating', function (done) {
-                expect(stream.pages.total()).to.equal(2);
+                expect(stream.pages.total()).to.equal(3);
+                expect(stream.pages.at(0).components.total()).to.equal(1);
+                expect(stream.pages.at(1).components.total()).to.equal(2);
+                expect(stream.pages.at(2).components.total()).to.equal(2);
                 stream.pages.at(1).set('style', 'background-color: #FF0000;');
                 stream.pages.at(1).components.at(0).set('top', 50);
                 stream.pages.at(1).components.at(0).set('left', 50);
-                expect(stream.pages.total()).to.equal(2);
+                stream.pages.at(2).set('style', 'background-color: #FF0000;');
+                stream.pages.at(2).components.at(0).set('top', 50);
+                stream.pages.at(2).components.at(0).set('left', 50);
+                expect(stream.pages.total()).to.equal(3);
+                expect(stream.pages.at(0).components.total()).to.equal(1);
                 expect(stream.pages.at(1).components.total()).to.equal(2);
-                var promises = [
-                    stream.pages.sync(),
-                    stream.pages.at(1).components.sync()
-                ];
-                $.when.apply($, promises).always(function () {
-                    expect(pages.update).to.have.been.calledOnce;
-                    expect(components.update).to.have.been.calledOnce;
-                    done();
-                });
+                expect(stream.pages.at(2).components.total()).to.equal(2);
+                stream.pages.sync()
+                    .done(function() {
+                        expect(pages.update).to.have.callCount(2);
+                        expect(stream.pages.total()).to.equal(3);
+                        expect(stream.pages.at(0).components.total()).to.equal(1);
+                        expect(stream.pages.at(1).components.total()).to.equal(2);
+                        expect(stream.pages.at(2).components.total()).to.equal(2);
+                        var promises = [];
+                        for (var i = 0; i < stream.pages.total(); i++) {
+                            promises.push(stream.pages.at(i).components.sync());
+                        }
+                        $.when.apply($, promises)
+                            .always(function () {
+                                expect(components.update).to.callCount(2);
+                                expect(stream.pages.total()).to.equal(3);
+                                expect(stream.pages.at(0).components.total()).to.equal(1);
+                                expect(stream.pages.at(1).components.total()).to.equal(2);
+                                expect(stream.pages.at(2).components.total()).to.equal(2);
+                                done();
+                            });
+                    })
+                    .fail(done);
             });
 
             it('Deleting', function (done) {
-                expect(stream.pages.total()).to.equal(2);
+                expect(stream.pages.total()).to.equal(3);
+                expect(stream.pages.at(0).components.total()).to.equal(1);
                 expect(stream.pages.at(1).components.total()).to.equal(2);
-                stream.pages.at(0).components.remove(stream.pages.at(0).components.at(0));
-                expect(stream.pages.at(0).components.total()).to.equal(0);
-                stream.pages.remove(stream.pages.at(1));
-                expect(stream.pages.total()).to.equal(1);
-                var promises = [
-                    stream.pages.at(0).components.sync(),
-                    stream.pages.sync()
-                ];
-                $.when.apply($, promises).always(function () {
-                    expect(pages.destroy).to.have.been.calledOnce;
-                    expect(components.destroy).to.have.been.calledOnce;
-                    done();
-                });
+                expect(stream.pages.at(2).components.total()).to.equal(2);
+                // Destroying a page on the client might require server code to delete its components
+                // because the framework does not call the destroy method on components of removed pages
+                stream.pages.remove(stream.pages.at(0));
+                stream.pages.at(0).components.remove(stream.pages.at(0).components.at(0)); // page 1 became page 0
+                expect(stream.pages.total()).to.equal(2);
+                expect(stream.pages.at(0).components.total()).to.equal(1);
+                expect(stream.pages.at(1).components.total()).to.equal(2);
+                stream.pages.sync()
+                    .done(function() {
+                        expect(pages.destroy).to.have.been.calledOnce;
+                        expect(stream.pages.total()).to.equal(2);
+                        expect(stream.pages.at(0).components.total()).to.equal(1);
+                        expect(stream.pages.at(1).components.total()).to.equal(2);
+                        var promises = [];
+                        for (var i = 0; i < stream.pages.total(); i++) {
+                            promises.push(stream.pages.at(i).components.sync());
+                        }
+                        $.when.apply($, promises)
+                            .always(function () {
+                                expect(components.destroy).to.have.been.calledOnce;
+                                expect(stream.pages.total()).to.equal(2);
+                                expect(stream.pages.at(0).components.total()).to.equal(1);
+                                expect(stream.pages.at(1).components.total()).to.equal(2);
+                                done();
+                            });
+                    })
+                    .fail(done);
             });
         });
 
@@ -1685,69 +1742,69 @@
                 var SuperStream = kidoju.Stream.define({
                     model: {
                         pages: {
-                        transport: {
-                            read: function (options) {
-                                pages.read(options);
-                                // window.console.log('reading pages...');
-                                options.success([{id: ObjectId()}]);
-                            },
-                            create: function (options) {
-                                pages.create(options);
-                                // window.console.log('creating pages...');
-                                if ($.isArray(options.data.models)) {
-                                    $.each(options.data.models, function (index, model) {
-                                        model.id = ObjectId(); // id set on server
-                                    });
+                            transport: {
+                                read: function (options) {
+                                    pages.read(options);
+                                    // window.console.log('reading pages...');
+                                    options.success([{id: ObjectId()}]);
+                                },
+                                create: function (options) {
+                                    pages.create(options);
+                                    // window.console.log('creating pages...');
+                                    if ($.isArray(options.data.models)) {
+                                        $.each(options.data.models, function (index, model) {
+                                            model.id = ObjectId(); // id set on server
+                                        });
+                                    }
+                                    options.success(options.data.models);
+                                },
+                                update: function (options) {
+                                    pages.update(options);
+                                    // window.console.log('updating pages...');
+                                    options.success(options.data.models);
+                                },
+                                destroy: function (options) {
+                                    pages.destroy(options);
+                                    // window.console.log('deleting pages...');
+                                    options.success(options.data.models);
                                 }
-                                options.success(options.data.models);
                             },
-                            update: function (options) {
-                                pages.update(options);
-                                // window.console.log('updating pages...');
-                                options.success(options.data.models);
-                            },
-                            destroy: function (options) {
-                                pages.destroy(options);
-                                // window.console.log('deleting pages...');
-                                options.success(options.data.models);
-                            }
-                        },
-                        batch: true,
-                        schema: {
-                            model: {
-                                components: {
-                                    transport: {
-                                        read: function (options) {
-                                            components.read(options);
-                                            // window.console.log('reading components...');
-                                            options.success([{id: ObjectId(), tool: 'label'}]);
-                                        },
-                                        create: function (options) {
-                                            components.create(options);
-                                            // window.console.log('creating components...');
-                                            if ($.isArray(options.data.models)) {
-                                                $.each(options.data.models, function (index, model) {
-                                                    model.id = ObjectId(); // id set on server
-                                                });
+                            batch: true,
+                            schema: {
+                                model: {
+                                    components: {
+                                        transport: {
+                                            read: function (options) {
+                                                components.read(options);
+                                                // window.console.log('reading components...');
+                                                options.success([{id: ObjectId(), tool: 'label'}]);
+                                            },
+                                            create: function (options) {
+                                                components.create(options);
+                                                // window.console.log('creating components...');
+                                                if ($.isArray(options.data.models)) {
+                                                    $.each(options.data.models, function (index, model) {
+                                                        model.id = ObjectId(); // id set on server
+                                                    });
+                                                }
+                                                options.success(options.data.models);
+                                            },
+                                            update: function (options) {
+                                                components.update(options);
+                                                // window.console.log('updating components...');
+                                                options.success(options.data.models);
+                                            },
+                                            destroy: function (options) {
+                                                components.destroy(options);
+                                                // window.console.log('deleting components...');
+                                                options.success(options.data.models);
                                             }
-                                            options.success(options.data.models);
                                         },
-                                        update: function (options) {
-                                            components.update(options);
-                                            // window.console.log('updating components...');
-                                            options.success(options.data.models);
-                                        },
-                                        destroy: function (options) {
-                                            components.destroy(options);
-                                            // window.console.log('deleting components...');
-                                            options.success(options.data.models);
-                                        }
-                                    },
-                                    batch: true
+                                        batch: true
+                                    }
                                 }
                             }
                         }
-                    }
                     }
                 });
                 stream =  new SuperStream();
@@ -1784,26 +1841,40 @@
             });
 
             it('Creating', function (done) {
+                expect(stream.pages.total()).to.equal(1);
+                expect(stream.pages.at(0).components.total()).to.equal(1);
                 stream.pages.add({});
-                stream.pages.add({});
-                expect(stream.pages.total()).to.equal(3);
+                expect(stream.pages.total()).to.equal(2);
                 stream.pages.at(1).components.add({tool: 'label'});
                 stream.pages.at(1).components.add({tool: 'textbox'});
+                expect(stream.pages.at(1).components.total()).to.equal(2);
+                stream.pages.add({});
+                expect(stream.pages.total()).to.equal(3);
                 stream.pages.at(2).components.add({tool: 'label'});
                 stream.pages.at(2).components.add({tool: 'textbox'});
-                expect(stream.pages.total()).to.equal(3);
-                expect(stream.pages.at(1).components.total()).to.equal(2);
                 expect(stream.pages.at(2).components.total()).to.equal(2);
-                var promises = [
-                    stream.pages.sync(),
-                    stream.pages.at(1).components.sync(),
-                    stream.pages.at(2).components.sync()
-                ];
-                $.when.apply($, promises).always(function () {
-                    expect(pages.create).to.have.been.calledOnce;
-                    expect(components.create).to.have.been.calledTwice;
-                    done();
-                });
+                stream.pages.sync()
+                    .done(function() {
+                        expect(pages.create).to.have.been.calledOnce;
+                        expect(stream.pages.total()).to.equal(3);
+                        expect(stream.pages.at(0).components.total()).to.equal(1);
+                        expect(stream.pages.at(1).components.total()).to.equal(2);
+                        expect(stream.pages.at(2).components.total()).to.equal(2);
+                        var promises = [];
+                        for (var i = 0; i < stream.pages.total(); i++) {
+                            promises.push(stream.pages.at(i).components.sync());
+                        }
+                        $.when.apply($, promises)
+                            .always(function () {
+                                expect(components.create).to.have.been.calledTwice;
+                                expect(stream.pages.total()).to.equal(3);
+                                expect(stream.pages.at(0).components.total()).to.equal(1);
+                                expect(stream.pages.at(1).components.total()).to.equal(2);
+                                expect(stream.pages.at(2).components.total()).to.equal(2);
+                                done();
+                            });
+                    })
+                    .fail(done);
             });
 
             it('Updating', function (done) {
@@ -1876,13 +1947,21 @@
             });
 
         });
+
+
+        describe('Same with batch: true and submit method', function () {
+
+            // TODO use submit instead of create, update and destroy
+
+        });
+
     });
 
     /*********************************************************************************************************
      * Synchronization localStorage
      *********************************************************************************************************/
 
-    xdescribe('Test synchronization with localStorage', function () {
+    describe('Test synchronization with localStorage', function () {
 
         var storageKey = 'stream',
             stream,
@@ -1914,24 +1993,9 @@
 
             before(function () {
                 var SuperStream = kidoju.Stream.define({
-                    load: function () {
+                    _fetchAll: function() {
                         var that = this,
-                            dfd = $.Deferred(),
-                            stream = localStorage.getItem(storageKey),
-                            pages = [];
-                        if($.type(stream) === 'string') {
-                            try {
-                                stream = $.parseJSON(stream);
-                            } catch(e) {
-                                stream = {};
-                            }
-                        }
-                        if($.isArray(stream.pages)) {
-                            pages = stream.pages.slice();
-                        }
-                        stream.pages = undefined;
-                        that.accept(stream);
-                        that.pages = new kidoju.PageCollectionDataSource({data: pages});
+                            dfd = $.Deferred();
                         that.pages.fetch()
                             .done(function () {
                                 var promises = [];
@@ -1945,34 +2009,24 @@
                             .fail(dfd.reject);
                         return dfd.promise();
                     },
-                    save: function () {
-                        // TODO: check changes and avoid saving without changes
+                    load: function () {
                         var that = this,
-                            dfd = $.Deferred();
-                        if (that.isNew()) {
-                            that.accept({id: ObjectId()});
-                        }
-                        var data = $.extend(that.toJSON(), { pages : [] });
-                        $.each(that.pages.data(), function (pageIdx, page) {
-                            if (page.isNew()) {
-                                page.accept({id: ObjectId()});
-                            }
-                            if (page.dirty) {
-                                page.dirty = false;
-                            }
-                            data.pages.push($.extend(page.toJSON(), { components: [] }));
-                            $.each(page.components.data(), function (componentIdx, component) {
-                                if (component.isNew()) {
-                                    component.accept({id: ObjectId()});
-                                }
-                                if (component.dirty) {
-                                    component.dirty = false;
-                                }
-                                data.pages[data.pages.length - 1].components.push(component.toJSON());
+                            stream = $.parseJSON(localStorage.getItem(storageKey)) || {};
+                        that.accept(stream);
+                        return that._fetchAll();
+                    },
+                    save: function () {
+                        var that = this,
+                            data = that.toJSON(true);
+                        $.each(data.pages, function (pageIdx, page) {
+                            page.id = page.id || ObjectId();
+                            $.each(page.components, function (componentIdx, component) {
+                                component.id = component.id || ObjectId();
                             });
                         });
                         localStorage.setItem(storageKey, kendo.stringify(data));
-                        return dfd.resolve().promise();
+                        that.accept(data);
+                        return that._fetchAll();
                     }
                 });
                 stream = new SuperStream();
@@ -2059,9 +2113,7 @@
                 });
             });
 
-
         });
-
 
         describe('atomized CRUD operations on pages and components', function () {
 

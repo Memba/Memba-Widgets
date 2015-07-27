@@ -278,7 +278,14 @@
                 if ($.isArray(data) && $.isFunction(this.model)) {
                     var defaults = (new this.model()).defaults;
                     for (var i = 0; i < data.length; i++) {
-                        data[i] = $.extend({}, defaults, data[i]);
+                        // We assume data[i] is an object
+                        for (var field in defaults) {
+                            if (!data[i].hasOwnProperty(field) && defaults.hasOwnProperty(field) && !$.isArray(defaults[field])) {
+                                // Set default values unless they are arrays
+                                // Otherwise we might erase dependant collections (i.e pages or components)
+                                data[i][field] = defaults[field];
+                            }
+                        }
                     }
                 }
                 return this.reader.parse(data);

@@ -23,9 +23,5 @@ node_modules/
 validation-status.json
 validation-report.json
 
-# Ignore Kendo UI
-**/2014.*/
-**/2015.*/
-
 # Ignore Dummy Files
 temp/

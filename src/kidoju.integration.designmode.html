@@ -136,7 +136,9 @@
 
             'use strict';
 
-            var kidoju = window.kidoju,
+            var kendo = window.kendo,
+                ObjectId = kendo.guid,
+                kidoju = window.kidoju,
                 tools = kidoju.tools,
                 Tool = kidoju.Tool,
                 Stream = kidoju.data.Stream,
@@ -148,28 +150,13 @@
             //LocalStream with localStorage methods
             var storageKey = 'kidoju.integration',
                 LocalStream = Stream.define({
-                    load: function() {
+                    _fetchAll: function() {
                         var that = this,
-                            dfd = $.Deferred(),
-                            stream = localStorage.getItem(storageKey),
-                            pages = [];
-                        if($.type(stream) === 'string') {
-                            try {
-                                stream = $.parseJSON(stream);
-                            } catch(e) {
-                                stream = {};
-                            }
-                        }
-                        if($.isArray(stream.pages)) {
-                            pages = stream.pages.slice();
-                        }
-                        stream.pages = undefined;
-                        that.accept(stream);
-                        that.pages = new PageCollectionDataSource({data: pages});
+                            dfd = $.Deferred();
                         that.pages.fetch()
-                            .done(function() {
+                            .done(function () {
                                 var promises = [];
-                                $.each(that.pages.data(), function(index, page) {
+                                $.each(that.pages.data(), function (index, page) {
                                     promises.push(page.components.fetch());
                                 });
                                 $.when.apply($, promises)
@@ -179,34 +166,24 @@
                             .fail(dfd.reject);
                         return dfd.promise();
                     },
-                    save: function() {
-                        //TODO: check changes and avoid saving without changes
+                    load: function () {
                         var that = this,
-                            dfd = $.Deferred();
-                        if (that.isNew()) {
-                            that.accept({id: kendo.guid()});
-                        }
-                        var data = $.extend(that.toJSON(), { pages : [] });
-                        $.each(that.pages.data(), function(pageIdx, page){
-                            if (page.isNew()) {
-                                page.accept({id: kendo.guid()});
-                            }
-                            if (page.dirty) {
-                                page.dirty = false;
-                            }
-                            data.pages.push($.extend(page.toJSON(), { components: [] }));
-                            $.each(page.components.data(), function(componentIdx, component) {
-                                if (component.isNew()) {
-                                    component.accept({id: kendo.guid()});
-                                }
-                                if (component.dirty) {
-                                    component.dirty = false;
-                                }
-                                data.pages[data.pages.length - 1].components.push(component.toJSON());
+                            stream = $.parseJSON(localStorage.getItem(storageKey)) || {};
+                        that.accept(stream);
+                        return that._fetchAll();
+                    },
+                    save: function () {
+                        var that = this,
+                            data = that.toJSON(true);
+                        $.each(data.pages, function (pageIdx, page) {
+                            page.id = page.id || ObjectId();
+                            $.each(page.components, function (componentIdx, component) {
+                                component.id = component.id || ObjectId();
                             });
                         });
                         localStorage.setItem(storageKey, kendo.stringify(data));
-                        return dfd.resolve().promise();
+                        that.accept(data);
+                        return that._fetchAll();
                     }
                 }),
                 streamData = {

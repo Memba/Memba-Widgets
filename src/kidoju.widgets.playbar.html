@@ -38,28 +38,38 @@
 <input data-role="dropdownlist" data-bind="source: pages, value: page" data-text-field="id" data-value-field="id" style="width: 400px"></select>
 </body>
 <script>
-    var pageCollectionData = [];
-    for (var i = 0; i < 16; i++) {
-        pageCollectionData.push({
-            id: kendo.guid(),
-            components: []
-        });
-    }
-    var pageCollectionDataSource = new kidoju.PageCollectionDataSource({ data:pageCollectionData });
-    var viewModel = window.viewModel = kendo.observable({
-        pages: pageCollectionDataSource,
-        current: undefined,
-        isVisible: true,
-        reset: function() {
-            this.set('current', null);
-        },
-        alert: function() {
-            window.alert('tick!');
-        }
-    });
+    ;(function(window, $, undefined){
 
-    $(document).ready(function() {
-        kendo.bind('body', viewModel);
-    });
+        'use strict';
+
+        var kidoju = window.kidoju,
+            PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+
+        var pageCollectionData = [];
+        for (var i = 0; i < 16; i++) {
+            pageCollectionData.push({
+                id: kendo.guid(),
+                components: []
+            });
+        }
+        var pageCollectionDataSource = new PageCollectionDataSource({ data:pageCollectionData });
+        var viewModel = window.viewModel = kendo.observable({
+            pages: pageCollectionDataSource,
+            current: undefined,
+            isVisible: true,
+            reset: function() {
+                this.set('current', null);
+            },
+            alert: function() {
+                window.alert('tick!');
+            }
+        });
+
+        $(document).ready(function() {
+            kendo.bind('body', viewModel);
+        });
+
+
+    }(this, jQuery));
 </script>
 </html>

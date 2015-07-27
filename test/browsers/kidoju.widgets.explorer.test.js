@@ -12,7 +12,13 @@
     var expect = window.chai.expect,
         sinon = window.sinon,
         kendo = window.kendo,
+        ui = kendo.ui,
+        Explorer = ui.Explorer,
         kidoju = window.kidoju,
+        tools = kidoju.tools,
+        Page = kidoju.data.Page,
+        PageComponent = kidoju.data.PageComponent,
+        PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource,
         FIXTURES = '#fixtures',
         ICON_PATH = '../../src/styles/images/',
         EXPLORER1 = '<div id="explorer1"></div>',
@@ -41,9 +47,9 @@
                 expect(kendo).not.to.be.undefined;
                 expect(kendo.version).to.be.a('string');
                 expect(kidoju).not.to.be.undefined;
-                expect(kidoju.tools).not.to.be.undefined;
-                expect(kidoju.Page).not.to.be.undefined;
-                expect(kidoju.PageComponent).not.to.be.undefined;
+                expect(tools).not.to.be.undefined;
+                expect(Page).not.to.be.undefined;
+                expect(PageComponent).not.to.be.undefined;
                 expect($.fn.kendoExplorer).to.be.an.instanceof(Function);
             });
 
@@ -54,8 +60,8 @@
             it('from code without datasource', function () {
                 var element = $(EXPLORER1).appendTo(FIXTURES),
                     explorer = element.kendoExplorer().data('kendoExplorer');
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(explorer.dataSource.total()).to.equal(0);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-explorer');
@@ -69,8 +75,8 @@
                         dataSource: pageComponentCollectionArray,
                         iconPath: ICON_PATH
                     }).data('kendoExplorer');
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(explorer.dataSource.data()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', pageComponentCollectionArray.length);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-explorer');
@@ -80,14 +86,14 @@
 
             it('from markup', function () {
                 var viewModel = kendo.observable({
-                        components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
+                        components: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
                         current: undefined
                     }),
                     element = $(EXPLORER3).appendTo(FIXTURES);
                 kendo.bind(FIXTURES, viewModel);
                 var explorer = element.data('kendoExplorer');
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(explorer.dataSource.data()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', pageComponentCollectionArray.length);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-explorer');
@@ -110,14 +116,14 @@
             });
 
             it('length', function () {
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(explorer.length()).to.equal(pageComponentCollectionArray.length);
             });
 
             it('items', function () {
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 var items = explorer.items();
                 expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
                 var check = sinon.spy();
@@ -134,8 +140,8 @@
                 var fn = function () {
                     explorer.value(0);
                 };
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(fn).to.throw(TypeError);
                 for (var idx = 0; idx < pageComponentCollectionArray.length; idx++) {
                     var component = explorer.dataSource.at(idx);
@@ -152,8 +158,8 @@
                 var fn2 = function () {
                     explorer.index(300); // not in range
                 };
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(fn1).to.throw(TypeError);
                 expect(fn2).to.throw(RangeError);
                 for (var idx = 0; idx < pageComponentCollectionArray.length; idx++) {
@@ -168,8 +174,8 @@
                 var fn = function () {
                     explorer.id({});
                 };
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(fn).to.throw(TypeError);
                 for (var idx = 0; idx < pageComponentCollectionArray.length; idx++) {
                     var component = explorer.dataSource.at(idx);
@@ -188,7 +194,7 @@
             /*
              // For obscure reasons, setting the viewModel here does not work
             viewModel = kendo.observable({
-                components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
+                components: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
                 current: null
             });
             */
@@ -196,7 +202,7 @@
             beforeEach(function () {
                 element = $(EXPLORER3).appendTo(FIXTURES);
                 viewModel = kendo.observable({
-                    components: new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
+                    components: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
                     current: null
                 });
                 kendo.bind(FIXTURES, viewModel);
@@ -204,10 +210,10 @@
             });
 
             it('Adding a component to the viewModel adds the corresponding item to the explorer', function () {
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(explorer.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
-                viewModel.components.add(new kidoju.PageComponent({
+                viewModel.components.add(new PageComponent({
                     id: kendo.guid(),
                     tool : 'label',
                     top: 250,
@@ -224,8 +230,8 @@
             });
 
             it('Removing a component from the viewModel removes the corresponding item from the explorer', function () {
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(explorer.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
                 viewModel.components.remove(viewModel.components.at(0));
                 expect(explorer.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length - 1);
@@ -236,8 +242,8 @@
 
             it('Changing the selected component in the viewModel changes the corresponding item in the explorer', function () {
                 // TODO: also test binding on id and index?
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(explorer.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
                 var check = sinon.spy();
                 $.each(viewModel.components.data(), function (index, component) {
@@ -249,8 +255,8 @@
             });
 
             it('Changing the selected item in the explorer, changes the corresponding component in the viewModel', function () {
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 var check = sinon.spy();
                 $.each(explorer.element.find('li.kj-item'), function (index, item) {
                     check();
@@ -283,8 +289,8 @@
                         dataBound(e.sender);
                     }
                 }).data('kendoExplorer');
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(dataBinding).to.have.been.calledOnce;
                 expect(dataBinding).to.have.been.calledWith(explorer);
                 expect(dataBound).to.have.been.calledOnce;
@@ -301,11 +307,11 @@
                         change(e.value);
                     }
                 }).data('kendoExplorer');
-                expect(explorer).to.be.an.instanceof(kendo.ui.Explorer);
-                expect(explorer.dataSource).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(explorer).to.be.an.instanceof(Explorer);
+                expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(explorer.dataSource.data()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', pageComponentCollectionArray.length);
                 var component = explorer.dataSource.at(1);
-                expect(component).to.be.an.instanceof(kidoju.PageComponent);
+                expect(component).to.be.an.instanceof(PageComponent);
                 explorer.value(component);
                 expect(change).to.have.been.calledOnce;
                 expect(change).to.have.been.calledWith(component);

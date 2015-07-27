@@ -19,6 +19,8 @@
             data = kendo.data,
             Widget = kendo.ui.Widget,
             kidoju = window.kidoju,
+            Page = kidoju.data.Page,
+            PageCollectionDataSource = kidoju.data.PageCollectionDataSource,
 
         // Types
             STRING = 'string',
@@ -199,7 +201,7 @@
                         throw new RangeError();
                     } else if (index !== that._selectedIndex) {
                         var page = that.dataSource.at(index);
-                        if (page instanceof kidoju.Page) {
+                        if (page instanceof Page) {
                             that._selectedIndex = index;
                             log('selected index set to ' + index);
                             that.refresh();
@@ -236,7 +238,7 @@
                     }
                 } else {
                     page = that.dataSource.at(that._selectedIndex);
-                    if (page instanceof kidoju.Page) {
+                    if (page instanceof Page) {
                         return page[page.idField];
                     }
                 }
@@ -253,7 +255,7 @@
                 if (page === NULL) {
                     $.noop(); // TODO
                 } else if (page !== undefined) {
-                    if (!(page instanceof kidoju.Page)) {
+                    if (!(page instanceof Page)) {
                         throw new TypeError();
                     }
                     var index = that.dataSource.indexOf(page);
@@ -270,7 +272,7 @@
              * @returns {*}
              */
             length: function () {
-                return (this.dataSource instanceof kidoju.PageCollectionDataSource) ? this.dataSource.total() : -1;
+                return (this.dataSource instanceof PageCollectionDataSource) ? this.dataSource.total() : -1;
             },
 
             /**
@@ -318,13 +320,13 @@
 
                 // There is no reason why, in its current state, it would not work with any dataSource
                 // if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
-                if (that.dataSource instanceof kidoju.PageCollectionDataSource && that._refreshHandler) {
+                if (that.dataSource instanceof PageCollectionDataSource && that._refreshHandler) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
 
                 if (that.options.dataSource !== NULL) {  // use null to explicitely destroy the dataSource bindings
                     // returns the datasource OR creates one if using array or configuration object
-                    that.dataSource = kidoju.PageCollectionDataSource.create(that.options.dataSource);
+                    that.dataSource = PageCollectionDataSource.create(that.options.dataSource);
 
                     that._refreshHandler = $.proxy(that.refresh, that);
 

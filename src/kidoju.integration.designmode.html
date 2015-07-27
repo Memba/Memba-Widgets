@@ -136,9 +136,18 @@
 
             'use strict';
 
+            var kidoju = window.kidoju,
+                tools = kidoju.tools,
+                Tool = kidoju.Tool,
+                Stream = kidoju.data.Stream,
+                Page = kidoju.data.Page,
+                PageComponent = kidoju.data.PageComponent,
+                PageCollectionDataSource = kidoju.data.PageCollectionDataSource,
+                PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
+
             //LocalStream with localStorage methods
             var storageKey = 'kidoju.integration',
-                LocalStream = kidoju.Stream.define({
+                LocalStream = Stream.define({
                     load: function() {
                         var that = this,
                             dfd = $.Deferred(),
@@ -156,7 +165,7 @@
                         }
                         stream.pages = undefined;
                         that.accept(stream);
-                        that.pages = new kidoju.PageCollectionDataSource({data: pages});
+                        that.pages = new PageCollectionDataSource({data: pages});
                         that.pages.fetch()
                             .done(function() {
                                 var promises = [];
@@ -503,8 +512,8 @@
                 if(e.field === 'currentPage') {
                     viewModel.set('currentComponent', undefined);
                 } else if(e.field === 'currentComponent') {
-                    var tool = kidoju.tools[e.sender.get('currentComponent.tool')];
-                    if (tool instanceof kidoju.Tool) {
+                    var tool = tools[e.sender.get('currentComponent.tool')];
+                    if (tool instanceof Tool) {
                         var grid1 = $('#attributes').data('kendoPropertyGrid'),
                             grid2 = $('#properties').data('kendoPropertyGrid');
                         if (grid1) {
@@ -562,7 +571,7 @@
                                 var navigation = $(kendo.roleSelector('navigation')).data('kendoNavigation');
                                 if (navigation instanceof kendo.ui.Navigation) {
                                     var page = navigation.value();
-                                    if (page instanceof kidoju.Page) {
+                                    if (page instanceof Page) {
                                         viewModel.stream.pages.remove(page);
                                     }
                                 }

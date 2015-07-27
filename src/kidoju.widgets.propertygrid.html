@@ -56,146 +56,152 @@
 <div id="grid6"></div>
 
 <script>
-    var Properties = kendo.data.Model.define({
-            id: 'docId', // the identifier of the model
-            fields: {
-                'docId': {
-                    type: 'string',
-                    nullable: false,
-                    editable: false,
-                    defaultValue: '00000000-0000-0000-0000-000000000000'
-                },
-                'title': {
-                    type: 'string',
-                    nullable: true
-                },
-                'description': {
-                    type: 'string',
-                    nullable: true
-                },
-                'category': {
-                    type: 'string',
-                    nullable: true
-                },
-                'tags': {
-                    type: 'string',
-                    nullable: true
-                },
-                'language': {
-                    type: 'string',
-                    nullable: true
-                },
-                'author': {
-                    type: 'string',
-                    //nullable: false,
-                    editable: false
-                },
-                'width': {
-                    type: 'number',
-                    defaultValue: 500
-                },
-                'height': {
-                    type: 'number',
-                    defaultValue: 300
-                },
-                'background': {
-                    type: 'string' //URL?
-                },
-                'colour': {
-                    type: 'string',
-                    defaultValue: '#FF0000'
-                },
-                'publicationDate': {
-                    type: 'date',
-                    nullable: false
-                },
-                'like' : {
-                    type: 'boolean'
-                },
-                'rating': {
-                    type: 'number',
-                    defaultValue: 0
-                },
-                'views': {
-                    type: 'number',
-                    nullable: false,
-                    editable: false
-                }
-            }
-        }),
-        viewModel = new Properties(),
-        rows = [
-            //See the columns property of a kendoGrid
-            //See http://docs.kendoui.com/getting-started/framework/globalization/numberformatting
-            //See http://docs.kendoui.com/getting-started/framework/globalization/dateformatting
-            //We have also introduced controls:
-            //- url
-            //- textarea
-            //- list
-            //- rating
-            {field: 'title', title: 'Title'},
-            {field: 'description', title: 'Description', editor: 'textarea'},
-            {field: 'category', title: 'Category', editor: window.categoryDropDownEditor},
-            {field: 'tags', title: 'Tags'}, //TODO: multiselect
-            {field: 'language', title: 'Language'},
-            {field: 'author', title: 'Author'},
-            {field: 'width', title: 'Width'},
-            {field: 'height', title: 'Height', editor: 'slider'},
-            {field: 'background', title: 'Background', editor: 'url'},
-            {field: 'colour', title: 'Colour', editor: 'colorpicker'},
-            {field: 'publicationDate', title: 'Creation Date', editor:'datepicker', format: 'dd MMM yyyy'}, //TODO: format
-            {field: 'like', title: 'Like'},
-            //{field: 'rating', title: 'Rating', editor: 'rating'},
-            {field: 'rating', title: 'Rating'},
-            {field: 'views', title: 'Views', format: 'n0'}
-        ];
+    ;(function(window, $, undefined){
 
-    $(document).ready(function(){
-        $('#grid1').kendoPropertyGrid({
-            value: viewModel,
-            rows: rows
-        });
+        'use strict';
 
-        //Property grid bound to nothing (should gracefully fallback)
-        $('#grid2').kendoPropertyGrid();
-
-        //Read-only property grid
-        $('#grid3').kendoPropertyGrid({
-            value: viewModel,
-            rows: rows,
-            readonly: true
-        });
-
-        //Property grid initialized with an object without schema and without row metadata (best guesses based on value types)
-        $('#grid5').kendoPropertyGrid({
-            value: {
-                string: 'Hello',
-                number: 100,
-                boolean: false,
-                date: new Date(),
-                object: { oops: true }
-            }
-        });
-    });
-
-    //This function is taken from http://demos.kendoui.com/web/grid/editing-custom.html
-    function categoryDropDownEditor(container, options) {
-        $('<input data-bind="value: ' + options.field + '"/>')
-                .appendTo(container)
-                .kendoDropDownList({
-                    autoBind: false,
-                    dataTextField: 'CategoryName',
-                    dataValueField: 'CategoryID',
-                    valuePrimitive: true,
-                    dataSource: {
-                        type: "odata",
-                        transport: {
-                            read: "http://demos.kendoui.com/service/Northwind.svc/Categories"
-                        }
+        var Properties = kendo.data.Model.define({
+                id: 'docId', // the identifier of the model
+                fields: {
+                    'docId': {
+                        type: 'string',
+                        nullable: false,
+                        editable: false,
+                        defaultValue: '00000000-0000-0000-0000-000000000000'
+                    },
+                    'title': {
+                        type: 'string',
+                        nullable: true
+                    },
+                    'description': {
+                        type: 'string',
+                        nullable: true
+                    },
+                    'category': {
+                        type: 'string',
+                        nullable: true
+                    },
+                    'tags': {
+                        type: 'string',
+                        nullable: true
+                    },
+                    'language': {
+                        type: 'string',
+                        nullable: true
+                    },
+                    'author': {
+                        type: 'string',
+                        //nullable: false,
+                        editable: false
+                    },
+                    'width': {
+                        type: 'number',
+                        defaultValue: 500
+                    },
+                    'height': {
+                        type: 'number',
+                        defaultValue: 300
+                    },
+                    'background': {
+                        type: 'string' //URL?
+                    },
+                    'colour': {
+                        type: 'string',
+                        defaultValue: '#FF0000'
+                    },
+                    'publicationDate': {
+                        type: 'date',
+                        nullable: false
+                    },
+                    'like' : {
+                        type: 'boolean'
+                    },
+                    'rating': {
+                        type: 'number',
+                        defaultValue: 0
+                    },
+                    'views': {
+                        type: 'number',
+                        nullable: false,
+                        editable: false
                     }
-                });
-    }
+                }
+            }),
+            viewModel = new Properties(),
+            rows = [
+                //See the columns property of a kendoGrid
+                //See http://docs.kendoui.com/getting-started/framework/globalization/numberformatting
+                //See http://docs.kendoui.com/getting-started/framework/globalization/dateformatting
+                //We have also introduced controls:
+                //- url
+                //- textarea
+                //- list
+                //- rating
+                {field: 'title', title: 'Title'},
+                {field: 'description', title: 'Description', editor: 'textarea'},
+                {field: 'category', title: 'Category', editor: window.categoryDropDownEditor},
+                {field: 'tags', title: 'Tags'}, //TODO: multiselect
+                {field: 'language', title: 'Language'},
+                {field: 'author', title: 'Author'},
+                {field: 'width', title: 'Width'},
+                {field: 'height', title: 'Height', editor: 'slider'},
+                {field: 'background', title: 'Background', editor: 'url'},
+                {field: 'colour', title: 'Colour', editor: 'colorpicker'},
+                {field: 'publicationDate', title: 'Creation Date', editor:'datepicker', format: 'dd MMM yyyy'}, //TODO: format
+                {field: 'like', title: 'Like'},
+                //{field: 'rating', title: 'Rating', editor: 'rating'},
+                {field: 'rating', title: 'Rating'},
+                {field: 'views', title: 'Views', format: 'n0'}
+            ];
 
+        $(document).ready(function(){
+            $('#grid1').kendoPropertyGrid({
+                value: viewModel,
+                rows: rows
+            });
+
+            //Property grid bound to nothing (should gracefully fallback)
+            $('#grid2').kendoPropertyGrid();
+
+            //Read-only property grid
+            $('#grid3').kendoPropertyGrid({
+                value: viewModel,
+                rows: rows,
+                readonly: true
+            });
+
+            //Property grid initialized with an object without schema and without row metadata (best guesses based on value types)
+            $('#grid5').kendoPropertyGrid({
+                value: {
+                    string: 'Hello',
+                    number: 100,
+                    boolean: false,
+                    date: new Date(),
+                    object: { oops: true }
+                }
+            });
+        });
+
+        //This function is taken from http://demos.kendoui.com/web/grid/editing-custom.html
+        function categoryDropDownEditor(container, options) {
+            $('<input data-bind="value: ' + options.field + '"/>')
+                    .appendTo(container)
+                    .kendoDropDownList({
+                        autoBind: false,
+                        dataTextField: 'CategoryName',
+                        dataValueField: 'CategoryID',
+                        valuePrimitive: true,
+                        dataSource: {
+                            type: "odata",
+                            transport: {
+                                read: "http://demos.kendoui.com/service/Northwind.svc/Categories"
+                            }
+                        }
+                    });
+        }
+
+
+    }(this, jQuery));
 </script>
 </body>
 </html>

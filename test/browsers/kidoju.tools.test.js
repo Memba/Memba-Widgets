@@ -11,24 +11,28 @@
 
     var expect = window.chai.expect,
         kendo = window.kendo,
-        kidoju = window.kidoju;
+        kidoju = window.kidoju,
+        PageComponent = kidoju.data.PageComponent,
+        Tool = kidoju.Tool,
+        tools = kidoju.tools,
+        adapters = kidoju.adapters;
 
 
-    describe('kidoju.tools', function () {
+    describe('tools', function () {
 
         describe('Loading', function () {
 
-            it('it should find kidoju.tools', function () {
-                expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject);
-                expect(kidoju.tools).to.have.property('active');
-                expect(kidoju.tools).to.respondTo('register');
+            it('it should find tools', function () {
+                expect(tools).to.be.an.instanceof(kendo.data.ObservableObject);
+                expect(tools).to.have.property('active');
+                expect(tools).to.respondTo('register');
             });
 
             it('it should have a pointer, a label and an image tool', function () {
-                expect(kidoju.tools).to.have.property('pointer').that.is.an.instanceof(kidoju.Tool);
-                expect(kidoju.tools).to.have.property('label').that.is.an.instanceof(kidoju.Tool);
-                expect(kidoju.tools).to.have.property('image').that.is.an.instanceof(kidoju.Tool);
-                expect(kidoju.tools).to.have.property('active', 'pointer');
+                expect(tools).to.have.property('pointer').that.is.an.instanceof(Tool);
+                expect(tools).to.have.property('label').that.is.an.instanceof(Tool);
+                expect(tools).to.have.property('image').that.is.an.instanceof(Tool);
+                expect(tools).to.have.property('active', 'pointer');
             });
 
         });
@@ -36,63 +40,63 @@
         describe('Registering a new tool', function () {
 
             it('it should discard a tool that is not a class', function () {
-                var keys = Object.keys(kidoju.tools),
+                var keys = Object.keys(tools),
                     obj = {id:'dummy'};
-                kidoju.tools.register(obj);
-                expect(Object.keys(kidoju.tools)).to.eql(keys);
+                tools.register(obj);
+                expect(Object.keys(tools)).to.eql(keys);
             });
 
-            it('it should discard a tool that is a class which is not inherited from kidoju.Tool', function () {
-                function Tool(options) {
+            it('it should discard a tool that is a class which is not inherited from Tool', function () {
+                function DummyTool(options) {
                     this.id = 'dummy';
                     this.options = options;
                 }
-                var keys = Object.keys(kidoju.tools);
-                kidoju.tools.register(Tool);
-                expect(Object.keys(kidoju.tools)).to.eql(keys);
+                var keys = Object.keys(tools);
+                tools.register(DummyTool);
+                expect(Object.keys(tools)).to.eql(keys);
             });
 
             it('it should discard a tool without id', function () {
-                var Tool = kidoju.Tool.extend({}),
-                    keys = Object.keys(kidoju.tools);
-                kidoju.tools.register(Tool);
-                expect(Object.keys(kidoju.tools)).to.eql(keys);
+                var ToolWithoutId = Tool.extend({}),
+                    keys = Object.keys(tools);
+                tools.register(ToolWithoutId);
+                expect(Object.keys(tools)).to.eql(keys);
             });
 
             it('it should raise an error when registering a tool named `active`', function () {
                 var fn = function () {
-                    var Active = kidoju.Tool.extend({id: 'active'});
-                    kidoju.tools.register(Active);
+                    var Active = Tool.extend({id: 'active'});
+                    tools.register(Active);
                 };
                 expect(fn).to.throw(Error);
             });
 
             it('it should raise an error when registering a tool named `register`', function () {
                 var fn = function () {
-                    var Register = kidoju.Tool.extend({id: 'register'});
-                    kidoju.tools.register(Register);
+                    var Register = Tool.extend({id: 'register'});
+                    tools.register(Register);
                 };
                 expect(fn).to.throw(Error);
             });
 
             it('it should discard a tool with an existing id', function () {
-                var Tool = kidoju.Tool.extend({id: 'image', add: function (a, b) { return a + b; }}),
-                    keys = Object.keys(kidoju.tools);
-                kidoju.tools.register(Tool);
-                expect(Object.keys(kidoju.tools)).to.eql(keys);
-                expect(kidoju.tools).to.have.property('image').that.is.an.instanceof(kidoju.Tool);
-                expect(kidoju.tools.image.add).to.be.undefined;
+                var ExistingTool = Tool.extend({id: 'image', add: function (a, b) { return a + b; }}),
+                    keys = Object.keys(tools);
+                tools.register(ExistingTool);
+                expect(Object.keys(tools)).to.eql(keys);
+                expect(tools).to.have.property('image').that.is.an.instanceof(Tool);
+                expect(tools.image.add).to.be.undefined;
             });
 
             it('it should accept a tool with a new id', function () {
-                var Calculator = kidoju.Tool.extend({id: 'calculator', add: function (a, b) { return a + b; }}),
-                    keys = Object.keys(kidoju.tools);
-                kidoju.tools.register(Calculator);
-                expect(Object.keys(kidoju.tools)).to.not.eql(keys);
-                expect(kidoju.tools).to.have.property('calculator').that.is.an.instanceof(Calculator);
-                expect(kidoju.tools.calculator.add(1, 2)).to.equal(3);
+                var CalculatorTool = Tool.extend({id: 'calculator', add: function (a, b) { return a + b; }}),
+                    keys = Object.keys(tools);
+                tools.register(CalculatorTool);
+                expect(Object.keys(tools)).to.not.eql(keys);
+                expect(tools).to.have.property('calculator').that.is.an.instanceof(CalculatorTool);
+                expect(tools.calculator.add(1, 2)).to.equal(3);
                 // clean
-                delete kidoju.tools.calculator;
+                delete tools.calculator;
             });
 
         });
@@ -100,38 +104,35 @@
         describe('Attribute Adapters', function () {
 
             it('Validate StringAdapter', function () {
-                var adapter = new kidoju.adapters.StringAdapter(),
+                var adapter = new adapters.StringAdapter(),
                     field = adapter.getField(),
                     row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
             });
 
             it('Validate NumberAdapter', function () {
-                var adapter = new kidoju.adapters.NumberAdapter(),
+                var adapter = new adapters.NumberAdapter(),
                     field = adapter.getField(),
                     row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
-
             });
 
             it('Validate BooleanAdapter', function () {
-                var adapter = new kidoju.adapters.BooleanAdapter(),
+                var adapter = new adapters.BooleanAdapter(),
                     field = adapter.getField(),
                     row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
-
             });
 
             it('Validate DateAdapter', function () {
-                var adapter = new kidoju.adapters.DateAdapter(),
+                var adapter = new adapters.DateAdapter(),
                     field = adapter.getField(),
                     row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
-
             });
 
             it('Validate StyleAdapter', function () {
-                var adapter = new kidoju.adapters.StyleAdapter(),
+                var adapter = new adapters.StyleAdapter(),
                     field = adapter.getField(),
                     row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
@@ -142,7 +143,7 @@
         describe('Pointer', function () {
 
             it('Validate pointer properties', function () {
-                var pointer = kidoju.tools.pointer;
+                var pointer = tools.pointer;
                 expect(pointer.id).to.equal('pointer');
                 expect(pointer.icon).to.equal('mouse_pointer');
                 expect(pointer.cursor).to.equal('default');
@@ -159,7 +160,7 @@
         describe('Label', function () {
 
             it('Validate label properties', function () {
-                var label = kidoju.tools.label;
+                var label = tools.label;
                 expect(label.id).to.equal('label');
                 expect(label.icon).to.equal('document_orientation_landscape');
                 expect(label.cursor).to.equal('crosshair');
@@ -172,8 +173,8 @@
             });
 
             it('Check getHtml', function () {
-                var label = kidoju.tools.label,
-                    component = new kidoju.PageComponent({tool: 'label'}),
+                var label = tools.label,
+                    component = new PageComponent({tool: 'label'}),
                     html;
 
                 // If we do not submit a page component
@@ -191,7 +192,7 @@
         describe('Image', function () {
 
             it('Validate image properties', function () {
-                var image = kidoju.tools.image;
+                var image = tools.image;
                 expect(image.id).to.equal('image');
                 expect(image.icon).to.equal('painting_landscape');
                 expect(image.cursor).to.equal('crosshair');
@@ -204,8 +205,8 @@
             });
 
             it('Check getHtml', function () {
-                var image = kidoju.tools.image,
-                    component = new kidoju.PageComponent({tool: 'image'}),
+                var image = tools.image,
+                    component = new PageComponent({tool: 'image'}),
                     html;
 
                 // If we do not submit a page component
@@ -221,7 +222,7 @@
         describe('Textbox', function () {
 
             it('Validate textbox properties', function () {
-                var textbox = kidoju.tools.textbox;
+                var textbox = tools.textbox;
                 expect(textbox.id).to.equal('textbox');
                 expect(textbox.icon).to.equal('text_field');
                 expect(textbox.cursor).to.equal('crosshair');
@@ -234,8 +235,8 @@
             });
 
             it('Check getHtml', function () {
-                var textbox = kidoju.tools.textbox;
-                var component = new kidoju.PageComponent({tool: 'textbox'});
+                var textbox = tools.textbox;
+                var component = new PageComponent({tool: 'textbox'});
                 var html;
 
                 // If we do not submit a page component
@@ -251,7 +252,7 @@
         describe('Button', function () {
 
             it('Validate button properties', function () {
-                var button = kidoju.tools.button;
+                var button = tools.button;
                 expect(button.id).to.equal('button');
                 expect(button.icon).to.equal('button');
                 expect(button.cursor).to.equal('crosshair');
@@ -264,8 +265,8 @@
             });
 
             it('Check getHtml', function () {
-                var button = kidoju.tools.button,
-                    component = new kidoju.PageComponent({tool: 'button'}),
+                var button = tools.button,
+                    component = new PageComponent({tool: 'button'}),
                     html;
 
                 // If we do not submit a page component

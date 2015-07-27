@@ -13,7 +13,7 @@
     <!--script src="./js/vendor/kendo/kendo.core.js"></script>
     <script src="./js/vendor/kendo/kendo.data.js"></script>
     <script src="./js/vendor/kendo/kendo.binder.js"></script-->
-    <!-- Toolbox requirements -->
+    <!-- ToolBox requirements -->
     <link rel="stylesheet" href="./styles/kidoju.widgets.toolbox.css">
     <script src="./js/kidoju.data.js"></script>
     <script src="./js/kidoju.tools.js"></script>
@@ -26,20 +26,30 @@
 <div data-bind="text: active"></div>
 </body>
 <script>
-    $(document).ready(function() {
-        $('#toolbox1').kendoToolbox();
-        if (kidoju.tools) {
-            kidoju.tools.getTools = function() {
-                var ret = [];
-                for (var prop in kidoju.tools) {
-                    if (kidoju.tools[prop] instanceof kidoju.Tool) {
-                        ret.push(prop);
+    ;(function(window, $, undefined){
+
+        'use strict';
+
+        var kidoju = window.kidoju,
+            tools = kidoju.tools,
+            Tool = kidoju.Tool;
+
+        $(document).ready(function() {
+            $('#toolbox1').kendoToolBox();
+            if (tools) {
+                tools.getTools = function() {
+                    var ret = [];
+                    for (var prop in kidoju.tools) {
+                        if (tools[prop] instanceof Tool) {
+                            ret.push(prop);
+                        }
                     }
-                }
-                return ret;
-            };
-            kendo.bind('body', kidoju.tools);
-        }
-    });
+                    return ret;
+                };
+                kendo.bind('body', tools);
+            }
+        });
+
+    }(this, jQuery));
 </script>
 </html>

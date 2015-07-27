@@ -12,7 +12,14 @@
     var expect = window.chai.expect,
         sinon = window.sinon,
         kendo = window.kendo,
+        ui = kendo.ui,
+        PlayBar = ui.PlayBar,
+        ObservableArray = kendo.data.ObservableArray,
         kidoju = window.kidoju,
+        tools = kidoju.tools,
+        Page = kidoju.data.Page,
+        PageComponent = kidoju.data.PageComponent,
+        PageCollectionDataSource = kidoju.data.PageCollectionDataSource,
         FIXTURES = '#fixtures',
         PLAYBAR1 = '<div></div>',
         PLAYBAR2 = '<div data-role="playbar" data-bind="source: pages, value: current"></div>';
@@ -62,9 +69,9 @@
                 expect(kendo).not.to.be.undefined;
                 expect(kendo.version).to.be.a('string');
                 expect(kidoju).not.to.be.undefined;
-                expect(kidoju.tools).not.to.be.undefined;
-                expect(kidoju.Page).not.to.be.undefined;
-                expect(kidoju.PageComponent).not.to.be.undefined;
+                expect(tools).not.to.be.undefined;
+                expect(Page).not.to.be.undefined;
+                expect(PageComponent).not.to.be.undefined;
                 expect($.fn.kendoPlayBar).to.be.an.instanceof(Function);
             });
 
@@ -77,8 +84,8 @@
                 var playbar = element.kendoPlayBar({
                     input: true
                 }).data('kendoPlayBar');
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(playbar.dataSource.total()).to.equal(0);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-playbar');
@@ -99,8 +106,8 @@
                     tick: false,
                     refresh: false
                 }).data('kendoPlayBar');
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(playbar.dataSource.total()).to.equal(0);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-playbar');
@@ -117,8 +124,8 @@
                 var playbar = element.kendoPlayBar({
                     dataSource: pageCollectionData1
                 }).data('kendoPlayBar');
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(playbar.dataSource.total()).to.equal(pageCollectionData1.length);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-playbar');
@@ -134,8 +141,8 @@
                 var playbar = element.kendoPlayBar({
                     dataSource: pageCollectionData2
                 }).data('kendoPlayBar');
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(playbar.dataSource.total()).to.equal(pageCollectionData2.length);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-playbar');
@@ -148,14 +155,14 @@
 
             it('from markup', function () {
                 var viewModel = kendo.observable({
-                        pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData1 }),
+                        pages: new PageCollectionDataSource({ data: pageCollectionData1 }),
                         current: undefined
                     }),
                     element =  $(PLAYBAR2).appendTo(FIXTURES);
                 kendo.bind(FIXTURES, viewModel);
                 var playbar = element.data('kendoPlayBar');
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(playbar.dataSource.total()).to.equal(pageCollectionData1.length);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-playbar');
@@ -179,15 +186,15 @@
             });
 
             it('length', function () {
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(playbar.length()).to.equal(pageCollectionData1.length);
             });
 
             /*
             it('items', function () {
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 var items = playbar.items();
                 expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length);
                 var check = sinon.spy();
@@ -204,8 +211,8 @@
                 var fn = function () {
                     playbar.value(0);
                 };
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(fn).to.throw(TypeError);
                 for (var idx = 0; idx < pageCollectionData1.length; idx++) {
                     var page = playbar.dataSource.at(idx);
@@ -222,8 +229,8 @@
                 var fn2 = function () {
                     playbar.index(300); // not in range
                 };
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(fn1).to.throw(TypeError);
                 expect(fn2).to.throw(RangeError);
                 for (var idx = 0; idx < pageCollectionData1.length; idx++) {
@@ -238,8 +245,8 @@
                 var fn = function () {
                     playbar.id({});
                 };
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(fn).to.throw(TypeError);
                 for (var idx = 0; idx < pageCollectionData1.length; idx++) {
                     var page = playbar.dataSource.at(idx);
@@ -261,7 +268,7 @@
             /*
              // For obscure reasons, setting the viewModel here does not work
              viewModel = kendo.observable({
-             pages: new kidoju.PageCollectionDataSource({ data: pageCollectionArray }),
+             pages: new PageCollectionDataSource({ data: pageCollectionArray }),
              current: undefined
              });
              */
@@ -269,7 +276,7 @@
             beforeEach(function () {
                 element = $(PLAYBAR2).appendTo(FIXTURES);
                 viewModel = kendo.observable({
-                    pages: new kidoju.PageCollectionDataSource({ data: pageCollectionData1 }),
+                    pages: new PageCollectionDataSource({ data: pageCollectionData1 }),
                     current: undefined
                 });
                 kendo.bind(FIXTURES, viewModel);
@@ -277,10 +284,10 @@
             });
 
             it('Adding a page to the viewModel adds the corresponding item to the playbar', function () {
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(playbar.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length);
-                viewModel.pages.add(new kidoju.Page({
+                viewModel.pages.add(new Page({
                     id: kendo.guid(),
                     style: 'font-family: Georgia, serif; color: #FF0000;'
                 }));
@@ -288,20 +295,20 @@
             });
 
             it('Removing a page from the viewModel removes the corresponding item from the playbar', function () {
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(playbar.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length);
                 viewModel.pages.remove(viewModel.pages.at(0));
                 expect(playbar.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length - 1);
             });
 
-            // Note: Since kendo.ui.PlayBar is a collection of kendo.ui.Stage, we are assuming that
-            // if kendo.ui.Stage properly handles a change of page content, kendo.ui.PlayBar also properly handles a change of page content
+            // Note: Since PlayBar is a collection of kendo.ui.Stage, we are assuming that
+            // if kendo.ui.Stage properly handles a change of page content, PlayBar also properly handles a change of page content
 
             it('Changing the selected page in the viewModel changes the corresponding item in the playbar', function () {
                 // TODO: also test binding on id and index?
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(playbar.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length);
                 var check = sinon.spy();
                 $.each(viewModel.pages.data(), function (index, page) {
@@ -313,8 +320,8 @@
             });
 
             it('Changing the selected page by clicking a number in the playbar, changes the corresponding page in the viewModel', function () {
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 var check = sinon.spy();
                 /*
                 // For whatever reason , second click does not work
@@ -361,8 +368,8 @@
                         dataBound(e.sender);
                     }
                 }).data('kendoPlayBar');
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(dataBinding).to.have.been.calledOnce;
                 expect(dataBinding).to.have.been.calledWith(playbar);
                 expect(dataBound).to.have.been.calledOnce;
@@ -378,11 +385,11 @@
                         change(e.value);
                     }
                 }).data('kendoPlayBar');
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
-                expect(playbar.dataSource.data()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', pageCollectionData1.length);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
+                expect(playbar.dataSource.data()).to.be.an.instanceof(ObservableArray).with.property('length', pageCollectionData1.length);
                 var page = playbar.dataSource.at(1);
-                expect(page).to.be.an.instanceof(kidoju.Page);
+                expect(page).to.be.an.instanceof(Page);
                 playbar.value(page);
                 expect(change).to.have.been.calledOnce;
                 expect(change).to.have.been.calledWith(page);
@@ -396,8 +403,8 @@
                         click();
                     }
                 }).data('kendoPlayBar');
-                expect(playbar).to.be.an.instanceof(kendo.ui.PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(playbar).to.be.an.instanceof(PlayBar);
+                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 element.find('a.k-pager-tick').simulate('click');
                 expect(click).to.have.been.calledOnce;
             });

@@ -12,6 +12,8 @@
     var expect = window.chai.expect,
         sinon = window.sinon,
         kendo = window.kendo,
+        ui = kendo.ui,
+        ToolBox = ui.ToolBox,
         kidoju = window.kidoju,
         FIXTURES = '#fixtures',
         ICON_PATH = '../../src/styles/images/',
@@ -35,7 +37,7 @@
                 expect(kendo.version).to.be.a('string');
                 expect(kidoju).not.to.be.undefined;
                 expect(kidoju.tools).not.to.be.undefined;
-                expect($.fn.kendoToolbox).to.be.an.instanceof(Function);
+                expect($.fn.kendoToolBox).to.be.an.instanceof(Function);
             });
 
         });
@@ -44,8 +46,8 @@
 
             it('from code', function () {
                 var element = $(TOOLBOX1).appendTo(FIXTURES),
-                    toolbox = element.kendoToolbox({ iconPath: ICON_PATH }).data('kendoToolbox');
-                expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
+                    toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
+                expect(toolbox).to.be.an.instanceof(ToolBox);
                 expect(element.hasClass('k-widget')).to.be.true;
                 expect(element.hasClass('kj-toolbox')).to.be.true;
                 expect(element.find('img.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
@@ -55,8 +57,8 @@
 
             it('from code with options', function () {
                 var element = $(TOOLBOX1).appendTo(FIXTURES),
-                    toolbox = element.kendoToolbox({ iconPath: ICON_PATH, size: 64 }).data('kendoToolbox');
-                expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
+                    toolbox = element.kendoToolBox({ iconPath: ICON_PATH, size: 64 }).data('kendoToolBox');
+                expect(toolbox).to.be.an.instanceof(ToolBox);
                 expect(element.hasClass('k-widget')).to.be.true;
                 expect(element.hasClass('kj-toolbox')).to.be.true;
                 expect(element.find('img.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
@@ -67,8 +69,8 @@
             it('from markup', function () {
                 var element = $(TOOLBOX2).appendTo(FIXTURES);
                 kendo.init(FIXTURES);
-                var toolbox = element.data('kendoToolbox');
-                expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
+                var toolbox = element.data('kendoToolBox');
+                expect(toolbox).to.be.an.instanceof(ToolBox);
                 expect(element.hasClass('k-widget')).to.be.true;
                 expect(element.hasClass('kj-toolbox')).to.be.true;
                 expect(element.find('img.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
@@ -84,11 +86,11 @@
 
             beforeEach(function () {
                 element = $(TOOLBOX1).appendTo(FIXTURES);
-                toolbox = element.kendoToolbox({ iconPath: ICON_PATH }).data('kendoToolbox');
+                toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
             });
 
             it('Set/Get the current tool with valid values', function () {
-                expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
+                expect(toolbox).to.be.an.instanceof(ToolBox);
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
                 expect(toolbox.tool()).to.equal('pointer');
                 toolbox.tool('label');
@@ -106,13 +108,13 @@
                 function fn2() {
                     toolbox.tool('dummy');
                 }
-                expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
+                expect(toolbox).to.be.an.instanceof(ToolBox);
                 expect(fn1).to.throw(TypeError);
                 expect(fn2).to.throw(RangeError);
             });
 
             it('Reset', function () {
-                expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
+                expect(toolbox).to.be.an.instanceof(ToolBox);
                 toolbox.tool('label');
                 expect(kidoju.tools).to.have.property('active', 'label');
                 toolbox.reset();
@@ -131,11 +133,11 @@
 
             beforeEach(function () {
                 element = $(TOOLBOX1).appendTo(FIXTURES);
-                toolbox = element.kendoToolbox({ iconPath: ICON_PATH }).data('kendoToolbox');
+                toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
             });
 
             it('A change of tool raises a change in the toolbox', function () {
-                expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
+                expect(toolbox).to.be.an.instanceof(ToolBox);
                 toolbox.reset();
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
                 expect(toolbox.tool()).to.equal('pointer');
@@ -152,12 +154,12 @@
 
             beforeEach(function () {
                 element = $(TOOLBOX1).appendTo(FIXTURES);
-                toolbox = element.kendoToolbox({ iconPath: ICON_PATH }).data('kendoToolbox');
+                toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
             });
 
             it('Change event', function () {
                 var change = sinon.spy();
-                expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
+                expect(toolbox).to.be.an.instanceof(ToolBox);
                 toolbox.reset();
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
                 toolbox.bind('change', function (e) {
@@ -169,7 +171,7 @@
 
             it('Click event', function () {
                 var click = sinon.spy();
-                expect(toolbox).to.be.an.instanceof(kendo.ui.Toolbox);
+                expect(toolbox).to.be.an.instanceof(ToolBox);
                 toolbox.reset();
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
                 toolbox.bind('click', function (e) {

@@ -35,23 +35,27 @@
 </pre>
 
 <script>
-    $(document).ready(function () {
+    ;(function(window, $, undefined){
 
-        "use strict";
+        'use strict';
 
-        var viewModel = window.viewModel = kendo.observable({
-            value: ["hello", "world"],
-            visible: true,
-            enabled: true,
-            readonly: true,
-            displayValue: function() {
-                return this.get("value").join(", ");
-            }
+        $(document).ready(function () {
+
+            var viewModel = window.viewModel = kendo.observable({
+                value: ['hello', 'world'],
+                visible: true,
+                enabled: true,
+                readonly: true,
+                displayValue: function() {
+                    return this.get('value').join(', ');
+                }
+            });
+
+            kendo.bind($('body'), viewModel);
+
         });
 
-        kendo.bind($("body"), viewModel);
-
-    });
+    }(this, jQuery));
 </script>
 </body>
 </html>

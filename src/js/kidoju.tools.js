@@ -17,6 +17,8 @@
 
         var kendo = window.kendo,
             kidoju = window.kidoju = window.kidoju || {},
+            Model = kidoju.data.Model,
+            PageComponent = kidoju.data.PageComponent,
 
         // Types
             OBJECT = 'object',
@@ -81,7 +83,7 @@
          * Registry of tools
          * @type {{register: Function}}
          */
-        kidoju.tools = kendo.observable({
+        var tools = kidoju.tools = kendo.observable({
             active: null,
             register: function (Class) {
                 // if(Class instanceof constructor) {
@@ -141,9 +143,9 @@
             },
 
             /**
-             * Get a kidoju.Model for attributes
+             * Get a kidoju.data.Model for attributes
              * @method _getAttributeModel
-             * @returns {kidoju.Model}
+             * @returns {kidoju.data.Model}
              * @private
              */
             _getAttributeModel: function () {
@@ -155,12 +157,13 @@
                         }
                     }
                 }
-                return kidoju.Model.define(model);
+                return Model.define(model);
             },
 
             /**
              * Gets property grid row specifications for attributes
-             * @returns {Array}
+             * @method _getAttributeRows
+             * @returns {kArray}
              * @private
              */
             _getAttributeRows: function () {
@@ -186,9 +189,9 @@
             },
 
             /**
-             * Get a kidoju.Model for properties
+             * Get a kidoju.data.Model for properties
              * @method _getPropertyModel
-             * @returns {kidoju.Model}
+             * @returns {kidoju.data.Model}
              * @private
              */
             _getPropertyModel: function () {
@@ -204,7 +207,7 @@
                         }
                     }
                 }
-                return kidoju.Model.define(model);
+                return Model.define(model);
             },
 
             /**
@@ -679,7 +682,7 @@
             width: 0,
             getHtml: undefined
         });
-        kidoju.tools.register(Pointer);
+        tools.register(Pointer);
 
         /**
          * @class Label tool
@@ -706,7 +709,7 @@
              * @returns {*}
              */
             getHtml: function (component) {
-                if (component instanceof kidoju.PageComponent) {
+                if (component instanceof PageComponent) {
                     var template = kendo.template(this.templates.default);
                     return template(component);
                 }
@@ -720,7 +723,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) {
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
                     var content = stageElement.find('>span'),
                         fontSize = parseInt(content.css('font-size'), 10);
                     if (!isNaN(fontSize)) {
@@ -763,7 +766,7 @@
                 }
             }
         });
-        kidoju.tools.register(Label);
+        tools.register(Label);
 
         /**
          * @class Image tool
@@ -789,7 +792,7 @@
              * @returns {*}
              */
             getHtml: function (component) {
-                if (component instanceof kidoju.PageComponent) {
+                if (component instanceof PageComponent) {
                     var template = kendo.template(this.templates.default);
                     return template(component);
                 }
@@ -802,7 +805,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) {
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
                     var content = stageElement.find('>img');
                     if ($.type(component.width) === NUMBER) {
                         content.width(component.width);
@@ -817,7 +820,7 @@
                 }
             }
         });
-        kidoju.tools.register(Image);
+        tools.register(Image);
 
         /**
          * @class Textbox tool
@@ -854,7 +857,7 @@
              * @returns {*}
              */
             getHtml: function (component) {
-                if (component instanceof kidoju.PageComponent) {
+                if (component instanceof PageComponent) {
                     var template = kendo.template(this.templates.default);
                     return template($.extend(component, {ns: kendo.ns}));
                 }
@@ -868,7 +871,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) {
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
                     var content = stageElement.find('>input');
                     if ($.type(component.width) === NUMBER) {
                         content.width(component.width);
@@ -884,7 +887,7 @@
                 }
             }
         });
-        kidoju.tools.register(Textbox);
+        tools.register(Textbox);
 
         /**
          * @class Button tool
@@ -925,7 +928,7 @@
              * @returns {*}
              */
             getHtml: function (component) {
-                if (component instanceof kidoju.PageComponent) {
+                if (component instanceof PageComponent) {
                     var template = kendo.template(this.templates.default);
                     return template($.extend(component, {ns: kendo.ns}));
                 }
@@ -954,7 +957,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { // TODO: same id, same tool?
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) { // TODO: same id, same tool?
                     var anchor = stageElement.find('>a');
                     if ($.type(component.width) === NUMBER) {
                         anchor.width(component.width - 14);
@@ -970,7 +973,7 @@
                 }
             }
         });
-        kidoju.tools.register(Button);
+        tools.register(Button);
 
         /**
          * @class Quiz tool
@@ -1011,7 +1014,7 @@
              * @returns {*}
              */
             getHtml: function (component) {
-                if (component instanceof kidoju.PageComponent) {
+                if (component instanceof PageComponent) {
                     var template = kendo.template(this.templates.default);
                     return template($.extend(component, {ns: kendo.ns}));
                 }
@@ -1025,7 +1028,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { // TODO: same id, same tool?
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) { // TODO: same id, same tool?
                     var content = stageElement.find('>div'),
                         fontSize = parseInt(content.find('label').css('font-size'), 10);
                     if (!isNaN(fontSize)) {
@@ -1082,7 +1085,7 @@
             }
 
         });
-        kidoju.tools.register(CheckBox);
+        tools.register(CheckBox);
 
         /**
          * @class Quiz tool
@@ -1131,7 +1134,7 @@
              * @returns {*}
              */
             getHtml: function (component) {
-                if (component instanceof kidoju.PageComponent) {
+                if (component instanceof PageComponent) {
                     var template = kendo.template(this.templates.default);
                     return template($.extend(component, {ns: kendo.ns}));
                 }
@@ -1145,7 +1148,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof kidoju.PageComponent) { // TODO: same id, same tool?
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) { // TODO: same id, same tool?
                     var content = stageElement.find('>div'),
                         fontSize = parseInt(content.find('label').css('font-size'), 10);
                     if (!isNaN(fontSize)) {
@@ -1203,7 +1206,7 @@
             }
 
         });
-        kidoju.tools.register(Quiz);
+        tools.register(Quiz);
 
 
         /**

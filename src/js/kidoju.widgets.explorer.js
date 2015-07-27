@@ -20,8 +20,12 @@
         //    global = fn('return this')(),
         var kendo = window.kendo,
             data = kendo.data,
+            ObservableArray = kendo.data.ObservableArray,
             Widget = kendo.ui.Widget,
             kidoju = window.kidoju,
+            PageComponent = kidoju.data.PageComponent,
+            PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource,
+            PageCollectionDataSource = kidoju.data.PageCollectionDataSource,
 
         //Types
             STRING = 'string',
@@ -140,7 +144,7 @@
                     }
                 } else {
                     component = that.dataSource.getByUid(that._selectedUid);
-                    if (component instanceof kidoju.PageComponent) {
+                    if (component instanceof PageComponent) {
                         return that.dataSource.indexOf(component);
                     } else {
                         return -1;
@@ -163,7 +167,7 @@
                     that.value(component);
                 } else {
                     component = that.dataSource.getByUid(that._selectedUid);
-                    if (component instanceof kidoju.PageComponent) {
+                    if (component instanceof PageComponent) {
                         return component[component.idField];
                     }
                 }
@@ -188,7 +192,7 @@
                         });
                     }
                 } else if (component !== undefined) {
-                    if (!(component instanceof kidoju.PageComponent)) {
+                    if (!(component instanceof PageComponent)) {
                         throw new TypeError();
                     }
                     // Note: when that.value() was previously named that.selection() with a custom binding
@@ -223,7 +227,7 @@
              * @returns {*}
              */
             length: function () {
-                return (this.dataSource instanceof kidoju.PageComponentCollectionDataSource) ? this.dataSource.total() : -1;
+                return (this.dataSource instanceof PageComponentCollectionDataSource) ? this.dataSource.total() : -1;
             },
 
             /**
@@ -270,13 +274,13 @@
 
                 //There is no reason why, in its current state, it would not work with any dataSource
                 //if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
-                if (that.dataSource instanceof kidoju.PageComponentCollectionDataSource && that._refreshHandler) {
+                if (that.dataSource instanceof PageComponentCollectionDataSource && that._refreshHandler) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
 
                 if (that.options.dataSource !== NULL) {  //use null to explicitely destroy the dataSource bindings
                     // returns the datasource OR creates one if using array or configuration object
-                    that.dataSource = kidoju.PageComponentCollectionDataSource.create(that.options.dataSource);
+                    that.dataSource = PageComponentCollectionDataSource.create(that.options.dataSource);
 
                     that._refreshHandler = $.proxy(that.refresh, that);
 
@@ -326,7 +330,7 @@
 
                 //Check that we get a component that is not already in explorer
                 if (that.ul instanceof $ && that.ul.length &&
-                    component instanceof kidoju.PageComponent &&
+                    component instanceof PageComponent &&
                     that.ul.find(kendo.format(ITEM_BYUID_SELECTOR, component.uid)).length === 0) {
 
                     var tool = kidoju.tools[component.tool];
@@ -370,9 +374,9 @@
 
                 if (e === undefined || e.action === undefined) {
                     var components = [];
-                    if (e === undefined && that.dataSource instanceof kidoju.PageCollectionDataSource) {
+                    if (e === undefined && that.dataSource instanceof PageCollectionDataSource) {
                         components = that.dataSource.data();
-                    } else if (e && e.items instanceof kendo.data.ObservableArray) {
+                    } else if (e && e.items instanceof ObservableArray) {
                         components = e.items;
                     }
                     $.each(that.element.find(ALL_ITEMS_SELECTOR), function (index, item) {

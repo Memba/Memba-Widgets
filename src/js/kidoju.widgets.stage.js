@@ -18,7 +18,14 @@
         var kendo = window.kendo,
             ui = kendo.ui,
             Widget = ui.Widget,
+            data = kendo.data,
+            ObservableObject = data.ObservableObject,
+            ObservableArray = data.ObservableArray,
             kidoju = window.kidoju,
+            tools = kidoju.tools,
+            Tool = kidoju.Tool,
+            PageComponent = kidoju.data.PageComponent,
+            PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource,
 
         // Types
             STRING = 'string',
@@ -180,7 +187,7 @@
                 scale: DEFAULTS.SCALE,
                 height: DEFAULTS.HEIGHT,
                 width: DEFAULTS.WIDTH,
-                tools: kidoju.tools,
+                tools: tools,
                 dataSource: undefined
             },
 
@@ -318,7 +325,7 @@
                     }
                 } else {
                     component = that.dataSource.getByUid(that._selectedUid);
-                    if (component instanceof kidoju.PageComponent) {
+                    if (component instanceof PageComponent) {
                         return that.dataSource.indexOf(component);
                     } else {
                         return -1;
@@ -341,7 +348,7 @@
                     that.value(component);
                 } else {
                     component = that.dataSource.getByUid(that._selectedUid);
-                    if (component instanceof kidoju.PageComponent) {
+                    if (component instanceof PageComponent) {
                         return component[component.idField];
                     }
                 }
@@ -366,7 +373,7 @@
                         });
                     }
                 } else if (component !== undefined) {
-                    if (!(component instanceof kidoju.PageComponent)) {
+                    if (!(component instanceof PageComponent)) {
                         throw new TypeError();
                     }
                     // Note: when that.value() was previously named that.selection() with a custom binding
@@ -401,7 +408,7 @@
              * @returns {*}
              */
             length: function () {
-                return (this.dataSource instanceof kidoju.PageComponentCollectionDataSource) ? this.dataSource.total() : -1;
+                return (this.dataSource instanceof PageComponentCollectionDataSource) ? this.dataSource.total() : -1;
             },
 
             /**
@@ -412,7 +419,7 @@
             properties: function (value) {
                 var that = this;
                 if (value) {
-                    // if(!(value instanceof kendo.data.ObervableObject)) {
+                    // if(!(value instanceof ObervableObject)) {
                     //    throw new TypeError();
                     // }
                     if (value !== that._properties) {
@@ -448,14 +455,14 @@
                 // we need to rebuild the DataSource
 
                 // There is no reason why, in its current state, it would not work with any dataSource
-                // if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
-                if (that.dataSource instanceof kidoju.PageComponentCollectionDataSource && that._refreshHandler) {
+                // if ( that.dataSource instanceof DataSource && that._refreshHandler ) {
+                if (that.dataSource instanceof PageComponentCollectionDataSource && that._refreshHandler) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
 
                 if (that.options.dataSource !== NULL) {  // use null to explicitely destroy the dataSource bindings
                     // returns the datasource OR creates one if using array or configuration object
-                    that.dataSource = kidoju.PageComponentCollectionDataSource.create(that.options.dataSource);
+                    that.dataSource = PageComponentCollectionDataSource.create(that.options.dataSource);
 
                     that._refreshHandler = $.proxy(that.refresh, that);
 
@@ -579,9 +586,9 @@
              */
             _moveStageElement: function (e, component) {
                 var that = this;
-                if (that.options.tools instanceof kendo.data.ObservableObject) {
+                if (that.options.tools instanceof ObservableObject) {
                     var tool = that.options.tools[component.tool];
-                    if (tool instanceof kidoju.Tool && $.isFunction(tool.onMove)) {
+                    if (tool instanceof Tool && $.isFunction(tool.onMove)) {
                         tool.onMove(e, component);
                     }
                 }
@@ -595,9 +602,9 @@
              */
             _resizeStageElement: function (e, component) {
                 var that = this;
-                if (that.options.tools instanceof kendo.data.ObservableObject) {
+                if (that.options.tools instanceof ObservableObject) {
                     var tool = that.options.tools[component.tool];
-                    if (tool instanceof kidoju.Tool && $.isFunction(tool.onResize)) {
+                    if (tool instanceof Tool && $.isFunction(tool.onResize)) {
                         tool.onResize(e, component);
                     }
                 }
@@ -611,9 +618,9 @@
              */
             _rotateStageElement: function (e, component) {
                 var that = this;
-                if (that.options.tools instanceof kendo.data.ObservableObject) {
+                if (that.options.tools instanceof ObservableObject) {
                     var tool = that.options.tools[component.tool];
-                    if (tool instanceof kidoju.Tool && $.isFunction(tool.onRotate)) {
+                    if (tool instanceof Tool && $.isFunction(tool.onRotate)) {
                         tool.onRotate(e, component);
                     }
                 }
@@ -752,7 +759,7 @@
                 }
                 that._propertyBinding = $.proxy(function () {
                     var widget = this;
-                    if (widget.properties() instanceof kendo.data.ObservableObject) {
+                    if (widget.properties() instanceof ObservableObject) {
                         $.each(widget.stage.find(ELEMENT_CLASS), function (index, stageElement) {
                             // kendo.unbind(stageElement); // kendo.bind does unbind
                             kendo.bind(stageElement, widget.properties());
@@ -774,7 +781,7 @@
                 var that = this;
 
                 // Check we have an component which is not already on stage
-                if (component instanceof kidoju.PageComponent && that.stage.find(kendo.format(ELEMENT_SELECTOR, component.uid)).length === 0) {
+                if (component instanceof PageComponent && that.stage.find(kendo.format(ELEMENT_SELECTOR, component.uid)).length === 0) {
 
                     // When adding a new component on the stage, position it at mouse click coordinates
                     if ($.type(mouseX) === NUMBER && $.type(mouseY) === NUMBER) {
@@ -783,7 +790,7 @@
                     }
 
                     var tool = that.options.tools[component.tool];
-                    if (tool instanceof kidoju.Tool) {
+                    if (tool instanceof Tool) {
 
                         var stageElement = $(kendo.format(ELEMENT, component.uid, component.tool))
                             .css({
@@ -907,8 +914,8 @@
                 if (activeToolId !== POINTER) {
                     // TODO: show optional creation dialog and test OK/Cancel
                     var tool = that.options.tools[activeToolId];
-                    if (tool instanceof kidoju.Tool) {
-                        var item = new kidoju.PageComponent({
+                    if (tool instanceof Tool) {
+                        var item = new PageComponent({
                             // id: kendo.guid(),
                             tool: tool.id,
                             // e.offsetX and e.offsetY do not work in Firefox
@@ -956,7 +963,7 @@
                     uid = stageElement.attr(DATA_UID);
                     if (util.isGuid(uid)) {
                         var component = that.dataSource.getByUid(uid);
-                        if (component instanceof kidoju.PageComponent) {
+                        if (component instanceof PageComponent) {
                             that.value(component);
                         }
                     }
@@ -1087,9 +1094,9 @@
                 var that = this;
                 if (e === undefined || e.action === undefined) {
                     var components = [];
-                    if (e === undefined && that.dataSource instanceof kendo.data.PageComponentCollectionDataSource) {
+                    if (e === undefined && that.dataSource instanceof PageComponentCollectionDataSource) {
                         components = that.dataSource.data();
-                    } else if (e && e.items instanceof kendo.data.ObservableArray) {
+                    } else if (e && e.items instanceof ObservableArray) {
                         components = e.items;
                     }
                     that._hideHandles();
@@ -1160,8 +1167,8 @@
                                     break;
                                 default:
                                     if (/^attributes/.test(e.field) || /^properties/.test(e.field)) {
-                                        var tool = kidoju.tools[component.tool];
-                                        if (tool instanceof kidoju.Tool) {
+                                        var tool = tools[component.tool];
+                                        if (tool instanceof Tool) {
                                             // TODO: clean events/destroy
                                             stageElement.html(tool.getHtml(component));
                                             // stageElement.trigger(MOVE + NS, component);

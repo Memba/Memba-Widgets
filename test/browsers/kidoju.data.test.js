@@ -11,9 +11,16 @@
 
     var expect = window.chai.expect,
         sinon = window.sinon,
+        localStorage = window.localStorage,
         kendo = window.kendo,
         kidoju = window.kidoju,
-        localStorage = window.localStorage;
+        Model = kidoju.data.Model,
+        PageComponent = kidoju.data.PageComponent,
+        Page = kidoju.data.Page,
+        Stream = kidoju.data.Stream,
+        DataSource = kidoju.data.DataSource,
+        PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource,
+        PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
 
     /**
      * MongoDB-like id generator
@@ -92,9 +99,9 @@
      * Base Model and DataSource
      *********************************************************************************/
 
-    describe('Problems we had to solve with kendo.data.Model which lead to creating kidoju.Model', function() {
+    describe('Problems we had to solve with kendo.data.Model which lead to creating kidoju.data.Model', function() {
 
-        describe('When instantiating a kidoju.Model: init and accept', function() {
+        describe('When instantiating a kidoju.data.Model: init and accept', function() {
 
             var BadModel = kendo.data.Model.define({
                 id: 'id',
@@ -112,7 +119,7 @@
                 }
             });
 
-            var FixedModel = kidoju.Model.define({
+            var FixedModel = Model.define({
                 id: 'id',
                 fields: {
                     id: {
@@ -130,8 +137,8 @@
 
             it('it should assign default values any time fields are not initialized', function() {
 
-                // TODO: we should update the following tests unit tests
-                // to apply the same def to kendo.data.Model and kidoju.Model
+                // TODO: we should update the following unit tests
+                // to apply the same def to kendo.data.Model and kidoju.data.Model
                 // insisting on the defect fixed
                 // This should allow us to detect fixes in future versions of Kendo UI
                 // in view to remove our custom code.....
@@ -170,7 +177,7 @@
 
                 //---------------------------------------------
 
-                Test = kidoju.Model.define(def);
+                Test = Model.define(def);
                 t1 = new Test();
                 t2 = new Test({});
                 t3 = new Test({ id: '1' });
@@ -185,7 +192,7 @@
                 expect(t2).to.have.property('dob').that.is.a('date');
                 expect(t2).to.have.property('age', 10);
 
-                // undefined fields have been fixed in kidoju.Model
+                // undefined fields have been fixed in kidoju.data.Model
                 expect(t3).to.have.property('id', '1');
                 expect(t3).to.have.property('title', 'hey');
                 expect(t3).to.have.property('dob').that.is.a('date');
@@ -216,7 +223,7 @@
                 expect(badObject.date).to.equal(past.toISOString());
 
                 expect(fixedObject).to.have.property('id').that.is.equal(pastId);
-                // The fix in kidoju.Model is discussed and explained at http://www.telerik.com/forums/parsing-on-initialization-of-kendo-data-model
+                // The fix in kidoju.data.Model is discussed and explained at http://www.telerik.com/forums/parsing-on-initialization-of-kendo-data-model
                 expect(fixedObject).to.have.property('date').that.is.an.instanceof(Date);
                 expect(fixedObject.date.getTime()).to.equal(past.getTime());
 
@@ -260,14 +267,14 @@
 
             it('We expect to parse nested models', function() {
                 var change = false,
-                    Author = kidoju.Model.define({
+                    Author = Model.define({
                         id: 'userId',
                         fields: {
                             userId: { type: 'string', nullable: true },
                             name: { type: 'string' }
                         }
                     }),
-                    Book = kidoju.Model.define({
+                    Book = Model.define({
                         id: 'id',
                         fields: {
                             id: { type: 'string', nullable: true },
@@ -356,7 +363,7 @@
                     date: now
                 });
 
-                //FixedModel inherited from our kidoju.Model does trigger a change event
+                //FixedModel inherited from our kidoju.data.Model does trigger a change event
                 //on the parent observable when changing values via accept method
                 expect(change).to.be.true;
 
@@ -374,7 +381,7 @@
 
             it('it should serialize a basic object derived from a model and apply new serializable attribute', function() {
 
-                var People = kidoju.Model.define({
+                var People = Model.define({
                     id: 'id',
                     fields: {
                         id: {
@@ -420,14 +427,14 @@
 
             it('it should serialize a complex object derived from a model aggregating a submodel', function() {
 
-                var Author = kidoju.Model.define({
+                var Author = Model.define({
                         id: 'userId',
                         fields: {
                             userId: { type: 'string', nullable: true },
                             name: { type: 'string', serializable: false }
                         }
                     }),
-                    Book = kidoju.Model.define({
+                    Book = Model.define({
                         id: 'id',
                         fields: {
                             id: { type: 'string', nullable: true, editable: false },
@@ -455,22 +462,22 @@
 
             it('it should serialize a complex object derived from a model aggregating a dataSource of submodels', function() {
 
-                var Book = kidoju.Model.define({
+                var Book = Model.define({
                         id: 'id',
                         fields: {
                             id: { type: 'string', nullable: true, editable: false },
                             title: { type: 'string' }
                         }
                     }),
-                    Author = kidoju.Model.define({
+                    Author = Model.define({
                         id: 'id',
                         fields: {
                             id: { type: 'string', nullable: true, editable: false },
                             name: { type: 'string' },
                             books: {
-                                defaultValue: new kidoju.DataSource({ data: [], schema: { model: Book } }),
+                                defaultValue: new DataSource({ data: [], schema: { model: Book } }),
                                 parse: function(value) {
-                                    return value instanceof kidoju.DataSource ? value : new kidoju.DataSource({ data: value, schema: { model: Book } });
+                                    return value instanceof DataSource ? value : new DataSource({ data: value, schema: { model: Book } });
                                 }
                             }
                         }
@@ -485,11 +492,11 @@
                     book2 = new Book(b2);
 
                 expect(author1).to.be.an.instanceof(Author);
-                expect(author1.books).to.be.an.instanceof(kidoju.DataSource);
+                expect(author1.books).to.be.an.instanceof(DataSource);
                 author1.books.read(); //IMPORTANT
 
                 expect(author2).to.be.an.instanceof(Author);
-                expect(author2.books).to.be.an.instanceof(kidoju.DataSource);
+                expect(author2.books).to.be.an.instanceof(DataSource);
                 author2.books.read(); //IMPORTANT
 
                 expect(author2.books.at(0)).to.be.an.instanceof(Book);
@@ -546,7 +553,7 @@
 
             it('if initialized from an undefined, it should pass although tool is null', function () {
                 // Unfortunately, initilization without parameter is a Kendo UI requirement
-                var component = new kidoju.PageComponent();
+                var component = new PageComponent();
                 // Test default values
                 expect(component).to.have.property('attributes').that.is.null;
                 expect(component).to.have.property('height', -1);
@@ -562,21 +569,21 @@
 
             it('if initialized from an object without tool, it should throw', function () {
                 function testFn() {
-                    var component = new kidoju.PageComponent({dummy: true});
+                    var component = new PageComponent({dummy: true});
                 }
                 expect(testFn).to.throw(Error);
             });
 
             it('if initialized from an object with an invalid tool, it should throw', function () {
                 function testFn() {
-                    var component = new kidoju.PageComponent({tool: 'dummy'});
+                    var component = new PageComponent({tool: 'dummy'});
                 }
                 expect(testFn).to.throw(Error);
             });
 
             it('if initialized from a valid object, it should pass', function () {
-                var component = new kidoju.PageComponent({tool: 'label'});
-                expect(component).to.be.an.instanceof(kidoju.PageComponent);
+                var component = new PageComponent({tool: 'label'});
+                expect(component).to.be.an.instanceof(PageComponent);
             });
 
             it('if initialized from a complete label, it should pass', function () {
@@ -593,7 +600,7 @@
                             text: 'World'
                         }
                     };
-                var component = new kidoju.PageComponent(obj);
+                var component = new PageComponent(obj);
                 for (var prop in obj) {
                     if (obj.hasOwnProperty(prop)) {
                         if (prop === 'attributes' || prop === 'properties') {
@@ -623,12 +630,12 @@
                             alt: 'Google Logo'
                         }
                     },
-                    component = new kidoju.PageComponent(obj);
+                    component = new PageComponent(obj);
 
             });
 
             it('if initialized from a complete textbox, it shoud pass', function () {
-                var component = new kidoju.PageComponent({
+                var component = new PageComponent({
                     id: ObjectId(),
                     tool : 'textbox',
                     top: 20,
@@ -655,12 +662,12 @@
         describe('When initializing a PageComponentCollectionDataSource', function (done) {
 
             it('if initialized from an empty array, the count of components should match', function (done) {
-                var pageComponentCollectionDataSource1 = new kidoju.PageComponentCollectionDataSource();
-                var pageComponentCollectionDataSource2 = new kidoju.PageComponentCollectionDataSource({ data: [] });
+                var pageComponentCollectionDataSource1 = new PageComponentCollectionDataSource();
+                var pageComponentCollectionDataSource2 = new PageComponentCollectionDataSource({ data: [] });
                 expect(pageComponentCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(pageComponentCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageComponentCollectionDataSource1.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
-                expect(new pageComponentCollectionDataSource2.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageComponentCollectionDataSource1.options.schema.model()).to.be.an.instanceof(PageComponent);
+                expect(new pageComponentCollectionDataSource2.options.schema.model()).to.be.an.instanceof(PageComponent);
                 $.when(
                     pageComponentCollectionDataSource1.read(),
                     pageComponentCollectionDataSource2.read()
@@ -674,7 +681,7 @@
 
             it('if initialized from a stupid array (components have no valid tool), it should throw', function () {
                 function testFn() {
-                    var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({data: books});
+                    var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({data: books});
                     pageComponentCollectionDataSource.read();
                 }
                 expect(testFn).to.throw(Error);
@@ -682,7 +689,7 @@
 
             it('if initialized with a new model, it should throw', function () {
                 function testFn() {
-                    var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
+                    var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
                         data: books,
                         schema: {
                             model: Book
@@ -694,9 +701,9 @@
             });
 
             it('if initialized from a proper array, the count of components should match and dirty === false', function (done) {
-                var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
+                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
                 expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length);
                     for (var i = 0; i < pageComponentCollectionArray.length; i++) {
@@ -707,9 +714,9 @@
             });
 
             it('if initialized from a proper array, attributes and properties should be instances of kendo.data.Model', function (done) {
-                var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
+                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
                 expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length);
                     for (var i = 0; i < pageComponentCollectionArray.length; i++) {
@@ -722,18 +729,18 @@
 
             it('if initialized from a kendo.data.DataSource that is not a kendo.PageComponentCollectionDataSource, it should throw', function () {
                 var testFn = function () {
-                    var dataSource = kidoju.PageComponentCollectionDataSource.create(new kendo.data.DataSource({ data: [] }));
+                    var dataSource = PageComponentCollectionDataSource.create(new kendo.data.DataSource({ data: [] }));
                 };
                 expect(testFn).to.throw(Error);
             });
 
-            it('if initialized from a kidoju.PageComponentCollectionDataSource, the number of components should match', function (done) {
-                var pageComponentCollectionDataSource1 = kidoju.PageComponentCollectionDataSource.create(pageComponentCollectionArray);
-                var pageComponentCollectionDataSource2 = kidoju.PageComponentCollectionDataSource.create(pageComponentCollectionDataSource1);
+            it('if initialized from a PageComponentCollectionDataSource, the number of components should match', function (done) {
+                var pageComponentCollectionDataSource1 = PageComponentCollectionDataSource.create(pageComponentCollectionArray);
+                var pageComponentCollectionDataSource2 = PageComponentCollectionDataSource.create(pageComponentCollectionDataSource1);
                 expect(pageComponentCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(pageComponentCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageComponentCollectionDataSource1.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
-                expect(new pageComponentCollectionDataSource2.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageComponentCollectionDataSource1.options.schema.model()).to.be.an.instanceof(PageComponent);
+                expect(new pageComponentCollectionDataSource2.options.schema.model()).to.be.an.instanceof(PageComponent);
                 $.when(
                     pageComponentCollectionDataSource1.read(),
                     pageComponentCollectionDataSource2.read()
@@ -746,8 +753,8 @@
             });
 
             it('if initialized from a transport, the number of components should match', function (done) {
-                var pageComponentCollectionDataSource1 = kidoju.PageComponentCollectionDataSource.create(pageComponentCollectionArray);
-                var pageComponentCollectionDataSource2 = new kidoju.PageComponentCollectionDataSource({
+                var pageComponentCollectionDataSource1 = PageComponentCollectionDataSource.create(pageComponentCollectionArray);
+                var pageComponentCollectionDataSource2 = new PageComponentCollectionDataSource({
                     transport: {
                         read: function (options) {
                             options.success(pageComponentCollectionArray);
@@ -756,8 +763,8 @@
                 });
                 expect(pageComponentCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(pageComponentCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageComponentCollectionDataSource1.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
-                expect(new pageComponentCollectionDataSource2.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageComponentCollectionDataSource1.options.schema.model()).to.be.an.instanceof(PageComponent);
+                expect(new pageComponentCollectionDataSource2.options.schema.model()).to.be.an.instanceof(PageComponent);
                 $.when(
                     pageComponentCollectionDataSource1.read(),
                     pageComponentCollectionDataSource2.read()
@@ -770,7 +777,7 @@
             });
 
             it('if initialized from $.ajax, the number of components should match', function (done) {
-                var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
+                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
                     transport: {
                         read: {
                             url: dataUrl('pageComponentCollection.json'),
@@ -779,7 +786,7 @@
                     }
                 });
                 expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 $.when(
                     pageComponentCollectionDataSource.read(),
                     $.getJSON(pageComponentCollectionDataSource.options.transport.read.url)
@@ -788,7 +795,7 @@
                         expect(response2[0]).to.be.an.instanceof(Array);
                         expect(pageComponentCollectionDataSource.total()).to.equal(response2[0].length);
                         var pageComponent = pageComponentCollectionDataSource.at(0);
-                        expect(pageComponent).to.be.an.instanceof(kidoju.PageComponent);
+                        expect(pageComponent).to.be.an.instanceof(PageComponent);
                         done();
                     }
                 );
@@ -799,12 +806,12 @@
         describe('When creating a page component', function () {
 
             it('If dataSource initialized from in-memory array, there should be one page component more', function (done) {
-                var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
+                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
                 expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length);
-                    pageComponentCollectionDataSource.add(new kidoju.PageComponent({ tool: 'label' }));
+                    pageComponentCollectionDataSource.add(new PageComponent({ tool: 'label' }));
                     expect(pageComponentCollectionDataSource.at(pageComponentCollectionArray.length).isNew()).to.be.true;
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length + 1);
                     done();
@@ -815,7 +822,7 @@
                 var create = sinon.spy(),
                     update = sinon.spy(),
                     destroy = sinon.spy();
-                var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
+                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
                     transport: {
                         read: function (options) {
                             options.success(pageComponentCollectionArray);
@@ -835,10 +842,10 @@
                     }
                 });
                 expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length);
-                    pageComponentCollectionDataSource.add(new kidoju.PageComponent({tool: 'label'}));
+                    pageComponentCollectionDataSource.add(new PageComponent({tool: 'label'}));
                     expect(pageComponentCollectionDataSource.at(pageComponentCollectionArray.length).isNew()).to.be.true;
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length + 1);
                     pageComponentCollectionDataSource.sync()
@@ -856,9 +863,9 @@
         describe('When updating a page component', function () {
 
             it('If dataSource initialized from in-memory array, there should be one updated page component', function (done) {
-                var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
+                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
                 expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     pageComponentCollectionDataSource.at(0).set('top', 111);
                     expect(pageComponentCollectionDataSource.at(0).dirty).to.be.true;
@@ -871,7 +878,7 @@
                 var create = sinon.spy(),
                     update = sinon.spy(),
                     destroy = sinon.spy();
-                var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
+                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
                     transport: {
                         read: function (options) {
                             options.success(pageComponentCollectionArray);
@@ -891,7 +898,7 @@
                     }
                 });
                 expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     pageComponentCollectionDataSource.at(0).set('top', 111);
                     expect(pageComponentCollectionDataSource.at(0).dirty).to.be.true;
@@ -911,9 +918,9 @@
         describe('When removing a page component', function () {
 
             it('If dataSource initialized from in-memory array, there should be one page component less', function (done) {
-                var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
+                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
                 expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length);
                     pageComponentCollectionDataSource.remove(pageComponentCollectionDataSource.at(0));
@@ -926,7 +933,7 @@
                 var create = sinon.spy(),
                     update = sinon.spy(),
                     destroy = sinon.spy();
-                var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({
+                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
                     transport: {
                         read: function (options) {
                             options.success(pageComponentCollectionArray);
@@ -946,7 +953,7 @@
                     }
                 });
                 expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length);
                     pageComponentCollectionDataSource.remove(pageComponentCollectionDataSource.at(0));
@@ -964,9 +971,9 @@
         describe('toJSON', function() {
 
             it('it should implement toJSON', function(done) {
-                var pageComponentCollectionDataSource = new kidoju.PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
+                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
                 expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.PageComponent);
+                expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource).to.have.property('toJSON').that.is.a('function');
                     var pageComponentCollectionJSON = pageComponentCollectionDataSource.toJSON();
@@ -1005,8 +1012,8 @@
 
             it('if initialized from an undefined, it should pass', function (done) {
                 // Unfortunately, this is a Kendo UI requirement
-                var page = new kidoju.Page();
-                expect(page).to.have.property('components').that.is.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                var page = new Page();
+                expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
                 expect(page).to.have.property('id').that.is.null;
                 expect(page).to.have.property('style', '');
                 expect(page.components.fetch).to.respond;
@@ -1017,8 +1024,8 @@
             });
 
             it('if initialized from an object without components, it should pass', function (done) {
-                var page = new kidoju.Page({dummy: true});
-                expect(page).to.have.property('components').that.is.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                var page = new Page({dummy: true});
+                expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
                 expect(page).to.have.property('id').that.is.null;
                 expect(page).to.have.property('style', '');
                 expect(page.dummy).to.be.undefined;
@@ -1030,8 +1037,8 @@
             });
 
             it('if initialized from an object with components, it should pass', function (done) {
-                var page = new kidoju.Page({components: [{tool: 'label'}, {tool: 'image'}]});
-                expect(page).to.have.property('components').that.is.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                var page = new Page({components: [{tool: 'label'}, {tool: 'image'}]});
+                expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
                 expect(page).to.have.property('id').that.is.null;
                 expect(page).to.have.property('style', '');
                 expect(page.components.fetch).to.respond;
@@ -1039,11 +1046,11 @@
                     expect(page.components.total()).to.equal(2);
                     for (var i = 0; i < page.components.total(); i++) {
                         var component = page.components.at(i);
-                        expect(component).to.have.property('attributes').that.is.an.instanceof(kidoju.Model);
+                        expect(component).to.have.property('attributes').that.is.an.instanceof(Model);
                         expect(component).to.have.property('height', -1);
                         expect(component).to.have.property('id').that.is.null;
                         expect(component).to.have.property('left', 0);
-                        expect(component).to.have.property('properties').that.is.an.instanceof(kidoju.Model);
+                        expect(component).to.have.property('properties').that.is.an.instanceof(Model);
                         expect(component).to.have.property('rotate', 0);
                         expect(component).to.have.property('tag').that.is.null;
                         expect(component).to.have.property('tool').that.is.a('string'); // label or image
@@ -1065,12 +1072,12 @@
         describe('When initializing a PageCollectionDataSource', function () {
 
             it('if initialized from an empty array, the count of pages should match', function (done) {
-                var pageCollectionDataSource1 = new kidoju.PageCollectionDataSource();
-                var pageCollectionDataSource2 = new kidoju.PageCollectionDataSource({data: []});
+                var pageCollectionDataSource1 = new PageCollectionDataSource();
+                var pageCollectionDataSource2 = new PageCollectionDataSource({data: []});
                 expect(pageCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(pageCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageCollectionDataSource1.options.schema.model()).to.be.an.instanceof(kidoju.Page);
-                expect(new pageCollectionDataSource2.options.schema.model()).to.be.an.instanceof(kidoju.Page);
+                expect(new pageCollectionDataSource1.options.schema.model()).to.be.an.instanceof(Page);
+                expect(new pageCollectionDataSource2.options.schema.model()).to.be.an.instanceof(Page);
                 $.when(
                     pageCollectionDataSource1.read(),
                     pageCollectionDataSource2.read()
@@ -1089,9 +1096,9 @@
                     {title: 'The third man'},
                     {title: 'The guns of Navarone'}
                 ];
-                var pageCollectionDataSource = new kidoju.PageCollectionDataSource({data: books});
+                var pageCollectionDataSource = new PageCollectionDataSource({data: books});
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
+                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {                                     // TODO: any way to throw??????
                     expect(pageCollectionDataSource.total()).to.equal(books.length);
                     done();
@@ -1100,7 +1107,7 @@
 
             xit('if initialized with a new model, it should throw', function () {
                 function testFn() {
-                    var pageCollectionDataSource = new kidoju.PageCollectionDataSource({
+                    var pageCollectionDataSource = new PageCollectionDataSource({
                         data: books,
                         schema: {
                             model: Book
@@ -1112,9 +1119,9 @@
             });
 
             it('if initialized from a proper array, the count of pages should match and dirty === false', function (done) {
-                var pageCollectionDataSource = new kidoju.PageCollectionDataSource({data: pageCollectionArray});
+                var pageCollectionDataSource = new PageCollectionDataSource({data: pageCollectionArray});
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
+                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length);
                     for (var i = 0; i < pageCollectionArray.length; i++) {
@@ -1127,8 +1134,8 @@
             it('if initialized from a proper array, there should be page components', function (done) {
                 function test(page) {
                     var dfd = $.Deferred();
-                    expect(page).to.be.an.instanceof(kidoju.Page);
-                    expect(page.components).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                    expect(page).to.be.an.instanceof(Page);
+                    expect(page.components).to.be.an.instanceof(PageComponentCollectionDataSource);
                     expect(page.components.parent()).to.equal(page);
                     expect(page.components.total()).to.equal(0);
                     page.load().then(function () {
@@ -1137,9 +1144,9 @@
                     });
                     return dfd.promise();
                 }
-                var pageCollectionDataSource = new kidoju.PageCollectionDataSource({data: pageCollectionArray});
+                var pageCollectionDataSource = new PageCollectionDataSource({data: pageCollectionArray});
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
+                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length);
                     var promises = [];
@@ -1152,18 +1159,18 @@
 
             it('if initialized from a kendo.data.DataSource, an exception should be raised', function () {
                 var fn = function () {
-                    var dataSource = kidoju.PageCollectionDataSource.create(new kendo.data.DataSource({data: []}));
+                    var dataSource = PageCollectionDataSource.create(new kendo.data.DataSource({data: []}));
                 };
                 expect(fn).to.throw(Error);
             });
 
-            it('if initialized from a kidoju.PageCollectionDataSource, the number of pages should match', function (done) {
-                var pageCollectionDataSource1 = kidoju.PageCollectionDataSource.create(pageCollectionArray);
-                var pageCollectionDataSource2 = kidoju.PageCollectionDataSource.create(pageCollectionDataSource1);
+            it('if initialized from a PageCollectionDataSource, the number of pages should match', function (done) {
+                var pageCollectionDataSource1 = PageCollectionDataSource.create(pageCollectionArray);
+                var pageCollectionDataSource2 = PageCollectionDataSource.create(pageCollectionDataSource1);
                 expect(pageCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(pageCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageCollectionDataSource1.options.schema.model()).to.be.an.instanceof(kidoju.Page);
-                expect(new pageCollectionDataSource2.options.schema.model()).to.be.an.instanceof(kidoju.Page);
+                expect(new pageCollectionDataSource1.options.schema.model()).to.be.an.instanceof(Page);
+                expect(new pageCollectionDataSource2.options.schema.model()).to.be.an.instanceof(Page);
                 $.when(
                     pageCollectionDataSource1.read(),
                     pageCollectionDataSource2.read()
@@ -1176,8 +1183,8 @@
             });
 
             it('if initialized from a transport, the number of pages should match', function (done) {
-                var pageCollectionDataSource1 = kidoju.PageCollectionDataSource.create(pageCollectionArray);
-                var pageCollectionDataSource2 = new kidoju.PageCollectionDataSource({
+                var pageCollectionDataSource1 = PageCollectionDataSource.create(pageCollectionArray);
+                var pageCollectionDataSource2 = new PageCollectionDataSource({
                     transport: {
                         read: function (options) {
                             options.success(pageCollectionArray);
@@ -1186,8 +1193,8 @@
                 });
                 expect(pageCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(pageCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageCollectionDataSource1.options.schema.model()).to.be.an.instanceof(kidoju.Page);
-                expect(new pageCollectionDataSource2.options.schema.model()).to.be.an.instanceof(kidoju.Page);
+                expect(new pageCollectionDataSource1.options.schema.model()).to.be.an.instanceof(Page);
+                expect(new pageCollectionDataSource2.options.schema.model()).to.be.an.instanceof(Page);
                 $.when(
                     pageCollectionDataSource1.read(),
                     pageCollectionDataSource2.read()
@@ -1200,7 +1207,7 @@
             });
 
             it('if initialized from $.ajax, the number of pages and components should match', function (done) {
-                var pageCollectionDataSource = new kidoju.PageCollectionDataSource({
+                var pageCollectionDataSource = new PageCollectionDataSource({
                     transport: {
                         read: {
                             url: dataUrl('pageCollection.json'),
@@ -1209,7 +1216,7 @@
                     }
                 });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
+                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 $.when(
                     pageCollectionDataSource.read(),
                     $.getJSON(pageCollectionDataSource.options.transport.read.url)
@@ -1221,8 +1228,8 @@
                         var promises = [];
                         for (var i = 0; i <  pageCollectionDataSource.total(); i++) {
                             var page = pageCollectionDataSource.at(i);
-                            expect(page).to.be.an.instanceof(kidoju.Page);
-                            expect(page.components).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                            expect(page).to.be.an.instanceof(Page);
+                            expect(page.components).to.be.an.instanceof(PageComponentCollectionDataSource);
                             expect(page.components.total()).to.equal(0);
                             /* jshint -W083 */
                             var promise = page.load().done(function () {
@@ -1240,12 +1247,12 @@
         describe('When creating a page', function () {
 
             it('If dataSource initialized from in-memory array, there should be one page component more', function (done) {
-                var pageCollectionDataSource = new kidoju.PageCollectionDataSource({ data: pageCollectionArray });
+                var pageCollectionDataSource = new PageCollectionDataSource({ data: pageCollectionArray });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
+                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length);
-                    pageCollectionDataSource.add(new kidoju.Page());
+                    pageCollectionDataSource.add(new Page());
                     expect(pageCollectionDataSource.at(pageCollectionArray.length).isNew()).to.be.true;
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length + 1);
                     done();
@@ -1256,7 +1263,7 @@
                 var create = sinon.spy(),
                     update = sinon.spy(),
                     destroy = sinon.spy();
-                var pageCollectionDataSource = new kidoju.PageCollectionDataSource({
+                var pageCollectionDataSource = new PageCollectionDataSource({
                     transport: {
                         read: function (options) {
                             options.success(pageCollectionArray);
@@ -1276,10 +1283,10 @@
                     }
                 });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
+                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length);
-                    pageCollectionDataSource.add(new kidoju.Page());
+                    pageCollectionDataSource.add(new Page());
                     expect(pageCollectionDataSource.at(pageCollectionArray.length).isNew()).to.be.true;
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length + 1);
                     pageCollectionDataSource.sync()
@@ -1297,9 +1304,9 @@
         describe('When updating a page', function () {
 
             it('If dataSource initialized from in-memory array, there should be one updated page', function (done) {
-                var pageCollectionDataSource = new kidoju.PageCollectionDataSource({ data: pageCollectionArray });
+                var pageCollectionDataSource = new PageCollectionDataSource({ data: pageCollectionArray });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
+                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     pageCollectionDataSource.at(0).set('style', 'background-color: #555555;');
                     expect(pageCollectionDataSource.at(0).dirty).to.be.true;
@@ -1312,7 +1319,7 @@
                 var create = sinon.spy(),
                     update = sinon.spy(),
                     destroy = sinon.spy();
-                var pageCollectionDataSource = new kidoju.PageCollectionDataSource({
+                var pageCollectionDataSource = new PageCollectionDataSource({
                     transport: {
                         read: function (options) {
                             options.success(pageCollectionArray);
@@ -1332,7 +1339,7 @@
                     }
                 });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
+                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     pageCollectionDataSource.at(0).set('style', 'background-color: #555555;');
                     expect(pageCollectionDataSource.at(0).dirty).to.be.true;
@@ -1352,9 +1359,9 @@
         describe('When removing a page', function () {
 
             it('If dataSource initialized from in-memory array, there should be one page less', function (done) {
-                var pageCollectionDataSource = new kidoju.PageCollectionDataSource({data: pageCollectionArray});
+                var pageCollectionDataSource = new PageCollectionDataSource({data: pageCollectionArray});
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
+                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length);
                     pageCollectionDataSource.remove(pageCollectionDataSource.at(0));
@@ -1367,7 +1374,7 @@
                 var create = sinon.spy(),
                     update = sinon.spy(),
                     destroy = sinon.spy();
-                var pageCollectionDataSource = new kidoju.PageCollectionDataSource({
+                var pageCollectionDataSource = new PageCollectionDataSource({
                     transport: {
                         read: function (options) {
                             options.success(pageCollectionArray);
@@ -1387,7 +1394,7 @@
                     }
                 });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(kidoju.Page);
+                expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length);
                     pageCollectionDataSource.remove(pageCollectionDataSource.at(0));
@@ -1418,7 +1425,7 @@
 
             it('if initialized from an undefined, it should pass', function (done) {
                 // Unfortunately, this is a Kendo UI requirement
-                stream = new kidoju.Stream();
+                stream = new Stream();
                 expect(stream).to.have.property('id');
                 expect(stream.pages.fetch).to.respond;
                 stream.pages.fetch().then(function () {
@@ -1428,9 +1435,9 @@
             });
 
             it('if initialized from an object without pages, it should pass', function (done) {
-                stream = new kidoju.Stream({dummy: true});
+                stream = new Stream({dummy: true});
                 expect(stream).to.have.property('id');
-                expect(stream.pages).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(stream.pages).to.be.an.instanceof(PageCollectionDataSource);
                 expect(stream.dummay).to.be.undefined;
                 expect(stream.pages.fetch).to.respond;
                 stream.pages.fetch().then(function () {
@@ -1440,20 +1447,20 @@
             });
 
             it('if initialized from an object with pages and components, it should pass', function (done) {
-                stream = new kidoju.Stream({pages: [
+                stream = new Stream({pages: [
                     { components : [{tool: 'label'}, {tool: 'image'}] },
                     { components : [{tool: 'textbox'}, {tool: 'button'}] }
                 ]});
                 expect(stream).to.have.property('id');
-                expect(stream.pages).to.be.an.instanceof(kidoju.PageCollectionDataSource);
+                expect(stream.pages).to.be.an.instanceof(PageCollectionDataSource);
                 expect(stream.pages.fetch).to.respond;
                 stream.pages.fetch().then(function () {
                     expect(stream.pages.total()).to.equal(2);
                     var page = stream.pages.at(0);
-                    expect(page).to.be.an.instanceof(kidoju.Page);
+                    expect(page).to.be.an.instanceof(Page);
                     expect(stream.pages.load).to.respond;
                     page.load().then(function () {
-                        expect(page.components).to.be.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                        expect(page.components).to.be.an.instanceof(PageComponentCollectionDataSource);
                         expect(page.components.total()).to.equal(2);
                         done();
                     });
@@ -1486,7 +1493,7 @@
                             }
                         ]
                     },
-                    defaults = new kidoju.PageComponent().defaults,
+                    defaults = new PageComponent().defaults,
                     d = {
                         id: null,
                         pages: [
@@ -1494,7 +1501,7 @@
                             { id: null, components: [$.extend({}, defaults), $.extend({}, defaults)] }
                         ]
                     },
-                    stream = new kidoju.Stream(s);
+                    stream = new Stream(s);
 
                 stream.pages.read();
                 for (var i = 0; i < stream.pages.total(); i++) {
@@ -1534,7 +1541,7 @@
         describe('Syncing at various levels of the hierarchy', function () {
 
             before(function () {
-                var SuperStream = kidoju.Stream.define({
+                var SuperStream = Stream.define({
                     model: {
                         pages: {
                             transport: {
@@ -1739,7 +1746,7 @@
         describe('Same with batch: true', function () {
 
             before(function () {
-                var SuperStream = kidoju.Stream.define({
+                var SuperStream = Stream.define({
                     model: {
                         pages: {
                             transport: {
@@ -1983,7 +1990,7 @@
         describe('Load and save hierarchy as a whole', function () {
 
             before(function () {
-                var SuperStream = kidoju.Stream.define({
+                var SuperStream = Stream.define({
                     _fetchAll: function() {
                         var that = this,
                             dfd = $.Deferred();
@@ -2030,7 +2037,7 @@
                     expect(stream.isNew()).to.be.false;
                     expect(stream.dirty).to.be.false;
                     expect(stream).to.have.property('id', original.id);
-                    expect(stream).to.have.property('pages').that.is.an.instanceof(kidoju.PageCollectionDataSource);
+                    expect(stream).to.have.property('pages').that.is.an.instanceof(PageCollectionDataSource);
                     expect(stream.pages.total()).to.equal(2);
                     for (var i = 0; i < stream.pages.total(); i++) {
                         var page = stream.pages.at(i);
@@ -2123,7 +2130,7 @@
     describe('Miscellaneous to improve code coverage', function () {
 
         it('Stream.append & Page.append', function () {
-            var stream = new kidoju.Stream({});
+            var stream = new Stream({});
             expect(stream.pages.total()).to.equal(0);
             stream.append({});
             expect(stream.pages.total()).to.equal(1);
@@ -2132,7 +2139,7 @@
         });
 
         it('PageComponentCollectionDataSource.insert & PageCollectionDataSource.insert', function () {
-            var stream = new kidoju.Stream({});
+            var stream = new Stream({});
             expect(stream.pages.total()).to.equal(0);
             stream.pages.insert(0);
             expect(stream.pages.total()).to.equal(0);
@@ -2165,14 +2172,14 @@
                         }
                     ]
                 },
-                stream = new kidoju.Stream(s);
+                stream = new Stream(s);
             expect(stream).to.have.property('id', s.id);
-            expect(stream).to.have.property('pages').that.is.an.instanceof(kidoju.PageCollectionDataSource);
+            expect(stream).to.have.property('pages').that.is.an.instanceof(PageCollectionDataSource);
             stream.pages.fetch().always(function () {
                 expect(stream.pages.total()).to.equal(1);
                 expect(stream.pages.parent()).to.equal(stream);
                 var page = stream.pages.at(0);
-                expect(page).to.have.property('components').that.is.an.instanceof(kidoju.PageComponentCollectionDataSource);
+                expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
                 expect(page).to.have.property('id', s.pages[0].id);
                 expect(page).to.have.property('style', s.pages[0].style);
                 expect(page.stream()).to.equal(stream);
@@ -2200,7 +2207,7 @@
 
                 delete kidoju.tools;
                 var fn = function () {
-                    var pageComponent = new kidoju.PageComponent({});
+                    var pageComponent = new PageComponent({});
                 };
                 expect(fn).to.throw(Error);
             });

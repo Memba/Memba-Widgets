@@ -18,6 +18,8 @@
         var kendo = window.kendo,
             Widget = kendo.ui.Widget,
             kidoju = window.kidoju,
+            tools = kidoju.tools,
+            Tool = kidoju.Tool,
 
         // TYPES
             STRING = 'string',
@@ -52,9 +54,9 @@
          *********************************************************************************/
 
         /**
-         * @class Toolbox Widget (kendoToolbox)
+         * @class ToolBox Widget (kendoToolbox)
          */
-        var Toolbox = Widget.extend({
+        var ToolBox = Widget.extend({
 
             /**
              * Initializes the widget
@@ -74,10 +76,10 @@
              * @property options
              */
             options: {
-                name: 'Toolbox',
+                name: 'ToolBox',
                 size: DEFAULT_SIZE,
                 iconPath: './styles/images/',
-                tools: kidoju.tools
+                tools: tools
             },
 
             /**
@@ -128,7 +130,7 @@
                 var that = this;
                 $(that.element).addClass(WIDGET_CLASS);
                 $.each(that.options.tools, function (index, tool) {
-                    if (tool instanceof kidoju.Tool && that.options.tools.hasOwnProperty(tool.id)) {
+                    if (tool instanceof Tool && that.options.tools.hasOwnProperty(tool.id)) {
                         // TODO Translate tooltips and consider SVG alternatives
                         var toolElement = $(kendo.format(IMAGE, that.options.iconPath + tool.icon + '.svg', 'TODO: Translate'))
                             .attr(DATA_TOOL, tool.id)
@@ -199,7 +201,7 @@
 
         });
 
-        kendo.ui.plugin(Toolbox);
+        kendo.ui.plugin(ToolBox);
 
     }(window.jQuery));
 

@@ -17,6 +17,7 @@
 
         var kendo = window.kendo,
             kidoju = window.kidoju = window.kidoju || {},
+            models = kidoju.data = kidoju.data || {},
 
         // Types
             OBJECT = 'object',
@@ -40,11 +41,11 @@
          *********************************************************************************/
 
         /**
-         * kidoju.Model enhances kendo.data.Model
+         * kidoju.data.Model enhances kendo.data.Model
          * for aggregation of submodels as as a mongoose document property can designate a subdocument
          * for DataSource of submodels as a mongoose document property can designate an array of subdocuments
          */
-        var Model = kidoju.Model = kendo.data.Model.define({
+        var Model = models.Model = kendo.data.Model.define({
 
             /**
              * Function called in init(data) and accept(data)
@@ -155,7 +156,7 @@
              *
              * Note that we have also considered taking a list of fields as parameters
              * to only send the data we know has been modified
-             * toPartialJSON was not copied when moving app.models.BaseModel to kidoju.Model
+             * toPartialJSON was not copied when moving app.models.BaseModel to kidoju.data.Model
              * @param includeDataSources defines whether to include datasources in the result or not
              * This would actually depend upon the fact whether the hierarchy is saved with the root object
              * or the data sources have their own transport to save their nodes.
@@ -170,9 +171,9 @@
 
                         value = this[field];
 
-                        // Also call toJSON on any kidoju.DataSource which aggregates a collection of models (not in original toJSON method)
+                        // Also call toJSON on any kidoju.data.DataSource which aggregates a collection of models (not in original toJSON method)
                         // if (value instanceof kendo.data.ObservableObject || value instanceof kendo.data.ObservableArray) {
-                        if (value instanceof kendo.data.ObservableObject || value instanceof kendo.data.ObservableArray || (includeDataSources && value instanceof kidoju.DataSource)) {
+                        if (value instanceof kendo.data.ObservableObject || value instanceof kendo.data.ObservableArray || (includeDataSources && value instanceof DataSource)) {
                             value = value.toJSON(includeDataSources);
                         }
 
@@ -311,10 +312,10 @@
         }
 
         /**
-         * kidoju.DataSource enhances kendo.data.DataSource
+         * kidoju.data.DataSource enhances kendo.data.DataSource
          * especially to serialize the stream tree as a whole
          */
-        var DataSource = kidoju.DataSource = kendo.data.DataSource.extend({
+        var DataSource = models.DataSource = kendo.data.DataSource.extend({
 
             /**
              * @ constructor
@@ -351,7 +352,7 @@
             toJSON: function() {
                 var json = [];
                 for(var i = 0; i < this.total(); i++) {
-                    // If we pass includeDataSource === true to kidoju.Model.toJSON
+                    // If we pass includeDataSource === true to kidoju.data.Model.toJSON
                     // this method is executed and we should call toJSON(true) on each DataSource item
                     // So has to serialize the whole tree
                     json.push(this.at(i).toJSON(true));
@@ -370,7 +371,7 @@
          * @class PageComponent
          * @type {void|*}
          */
-        var PageComponent = kidoju.PageComponent = kidoju.Model.define({
+        var PageComponent = models.PageComponent = Model.define({
             id: 'id',
             fields: {
                 id: {
@@ -485,7 +486,7 @@
          * @class PageComponentCollectionDataSource
          * @type {*|void|Object}
          */
-        var PageComponentCollectionDataSource =  kidoju.PageComponentCollectionDataSource = kidoju.DataSource.extend({
+        var PageComponentCollectionDataSource =  models.PageComponentCollectionDataSource = DataSource.extend({
 
             /**
              * Constructor
@@ -499,7 +500,7 @@
                 // DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: PageComponent, model: PageComponent } }, options));
                 DataSource.fn.init.call(this, $.extend(true, {}, options, { schema: { modelBase: PageComponent, model: PageComponent } }));
 
-                // Let's use a slightly modified reader to leave data conversions to kidoju.Model._parseData
+                // Let's use a slightly modified reader to leave data conversions to kidoju.data.Model._parseData
                 this.reader = new ModelCollectionDataReader(this.reader);
             },
 
@@ -562,7 +563,7 @@
          * @class Page
          * @type {void|*}
          */
-        var Page = kidoju.Page = kidoju.Model.define({
+        var Page = models.Page = Model.define({
             id: 'id',
             fields: {
                 id: {
@@ -577,16 +578,16 @@
                     // We cannot assign a data source as default value of a model
                     // because otherwise it might be reused amongst instances.
                     // The only way to ensure that a new instance gets a new default value is to initialize with []
-                    // and have kidoju.Model._parseData initialize the instance data source from [].
-                    // defaultValue: new kidoju.PageComponentCollectionDataSource({ data: [] }),
+                    // and have kidoju.data.Model._parseData initialize the instance data source from [].
+                    // defaultValue: new kidoju.data.PageComponentCollectionDataSource({ data: [] }),
                     defaultValue: [],
                     parse: function(value) {
-                        if (value instanceof kidoju.PageComponentCollectionDataSource) {
+                        if (value instanceof PageComponentCollectionDataSource) {
                             return value;
                         } else if (value && value.push) {
-                            return new kidoju.PageComponentCollectionDataSource({ data: value });
+                            return new PageComponentCollectionDataSource({ data: value });
                         } else {
-                            return new kidoju.PageComponentCollectionDataSource(value);
+                            return new PageComponentCollectionDataSource(value);
                         }
                     }
                 }
@@ -605,7 +606,7 @@
                 if (that.model && that.model.components) {
                     // Reset PageCollectionDataSource with model.pages dataSource options
                     // especially for the case where we have defined CRUD transports
-                    that.components = new kidoju.PageComponentCollectionDataSource(that.model.components);
+                    that.components = new PageComponentCollectionDataSource(that.model.components);
                 }
 
                 var components = that.components;
@@ -622,7 +623,7 @@
                 };
                 */
 
-                if (components instanceof kidoju.PageComponentCollectionDataSource) {
+                if (components instanceof PageComponentCollectionDataSource) {
 
                     // Add parent function
                     components.parent = function () {
@@ -696,7 +697,7 @@
          * @class PageCollectionDataSource
          * @type {*|void|Object}
          */
-        var PageCollectionDataSource =  kidoju.PageCollectionDataSource = kidoju.DataSource.extend({
+        var PageCollectionDataSource =  models.PageCollectionDataSource = DataSource.extend({
 
             /**
              * @constructor
@@ -710,10 +711,10 @@
 
                 // Enforce the use of PageWithOptions items in the page collection data source
                 // options contains a property options.schema.model which needs to be replaced with PageWithOptions
-                // kidoju.DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: PageWithOptions, model: PageWithOptions } }, options));
-                kidoju.DataSource.fn.init.call(this, $.extend(true, {}, options, { schema: { modelBase: PageWithOptions, model: PageWithOptions } }));
+                // kidoju.data.DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: PageWithOptions, model: PageWithOptions } }, options));
+                DataSource.fn.init.call(this, $.extend(true, {}, options, { schema: { modelBase: PageWithOptions, model: PageWithOptions } }));
 
-                // Let's use a slightly modified reader to leave data conversions to kidoju.Model._parseData
+                // Let's use a slightly modified reader to leave data conversions to kidoju.data.Model._parseData
                 this.reader = new ModelCollectionDataReader(this.reader);
             },
 
@@ -937,7 +938,7 @@
          * A stream is essentially a collection of pages
          * @class Stream
          */
-        var Stream = kidoju.Stream = kidoju.Model.define({
+        var Stream = models.Stream = Model.define({
             id: 'id',
             fields: {
                 /**
@@ -955,16 +956,16 @@
                     // We cannot assign a data source as default value of a model
                     // because otherwise it might be reused amongst instances.
                     // The only way to ensure that a new instance gets a new default value is to initialize with []
-                    // and have kidoju.Model._parseData initialize the instance data source from [].
-                    // defaultValue: new kidoju.PageCollectionDataSource({ data: [] }),
+                    // and have kidoju.data.Model._parseData initialize the instance data source from [].
+                    // defaultValue: new kidoju.data.PageCollectionDataSource({ data: [] }),
                     defaultValue: [],
                     parse: function(value) {
-                        if (value instanceof kidoju.PageCollectionDataSource) {
+                        if (value instanceof PageCollectionDataSource) {
                             return value;
                         } else if (value && value.push) {
-                            return new kidoju.PageCollectionDataSource({ data: value });
+                            return new PageCollectionDataSource({ data: value });
                         } else {
-                            return new kidoju.PageCollectionDataSource(value);
+                            return new PageCollectionDataSource(value);
                         }
                     }
                 }

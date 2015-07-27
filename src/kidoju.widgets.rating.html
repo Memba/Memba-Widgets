@@ -45,18 +45,23 @@
 </pre>
 
 <script>
-    $(document).ready(function () {
+    ;(function(window, $, undefined){
 
-        "use strict";
+        'use strict';
 
-        var viewModel = kendo.observable({
-            rating: 3,
-            visible: true,
-            enabled: true
+        $(document).ready(function () {
+
+            var viewModel = kendo.observable({
+                rating: 3,
+                visible: true,
+                enabled: true
+            });
+
+            kendo.bind($('body'), viewModel);
         });
 
-        kendo.bind($("body"), viewModel);
-    });
+
+    }(this, jQuery));
 </script>
 </body>
 </html>

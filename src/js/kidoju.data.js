@@ -260,6 +260,8 @@
 
         /**
          * ModelCollectionDataReader
+         * We cannot subclass kendo.data.DataReader because the data function is created in the constructor
+         * using a wrapDataAccess private function
          * @class ModelCollectionDataReader
          */
         var ModelCollectionDataReader = kendo.Class.extend({
@@ -273,16 +275,21 @@
                 return this.reader.errors(data);
             },
             parse: function(data) {
+                if ($.isArray(data) && $.isFunction(this.model)) {
+                    var defaults = (new this.model()).defaults;
+                    for (var i = 0; i < data.length; i++) {
+                        data[i] = $.extend({}, defaults, data[i]);
+                    }
+                }
                 return this.reader.parse(data);
             },
             data: function(data) {
                 // We get funny values from the original kendo.data.DataReader
                 // due to the getters in the convertRecords(...) function in kendo.data.js
                 // especially with page components
-                // This can be checked by uncommenting the following line
-                // return this.reader.data(data);
-                return data;
-                // By simply returning data, we let kidoju.Model._parseData do its work
+                // This can be checked by commenting the if block in the parse function
+                // Note: we did the fix in the parse function so as to apply to this.data and this.groups.
+                return this.reader.data(data);
             },
             total: function(data) {
                 return this.reader.total(data);
@@ -463,7 +470,7 @@
                 // DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: PageComponent, model: PageComponent } }, options));
                 DataSource.fn.init.call(this, $.extend(true, {}, options, { schema: { modelBase: PageComponent, model: PageComponent } }));
 
-                // Let's use a slightly modified reader to leave data convertions to kidoju.Modek._parseData
+                // Let's use a slightly modified reader to leave data conversions to kidoju.Model._parseData
                 this.reader = new ModelCollectionDataReader(this.reader);
             },
 
@@ -693,11 +700,11 @@
                     Page.define({ model: options.schema.model }) : Page;
 
                 // Enforce the use of PageWithOptions items in the page collection data source
-                // options contains a property options.schema.model which needs to be replaced
+                // options contains a property options.schema.model which needs to be replaced with PageWithOptions
                 // kidoju.DataSource.fn.init.call(this, $.extend(true, {}, { schema: { modelBase: PageWithOptions, model: PageWithOptions } }, options));
                 kidoju.DataSource.fn.init.call(this, $.extend(true, {}, options, { schema: { modelBase: PageWithOptions, model: PageWithOptions } }));
 
-                // Let's use a slightly modified reader to leave data convertions to kidoju.Modek._parseData
+                // Let's use a slightly modified reader to leave data conversions to kidoju.Model._parseData
                 this.reader = new ModelCollectionDataReader(this.reader);
 
                 this._attachBubbleHandlers();

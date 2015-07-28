@@ -1426,7 +1426,7 @@
             it('if initialized from an undefined, it should pass', function (done) {
                 // Unfortunately, this is a Kendo UI requirement
                 stream = new Stream();
-                expect(stream).to.have.property('id');
+                //expect(stream).to.have.property('id');
                 expect(stream.pages.fetch).to.respond;
                 stream.pages.fetch().then(function () {
                     expect(stream.pages.total()).to.equal(0);
@@ -1436,7 +1436,7 @@
 
             it('if initialized from an object without pages, it should pass', function (done) {
                 stream = new Stream({dummy: true});
-                expect(stream).to.have.property('id');
+                //expect(stream).to.have.property('id');
                 expect(stream.pages).to.be.an.instanceof(PageCollectionDataSource);
                 expect(stream.dummay).to.be.undefined;
                 expect(stream.pages.fetch).to.respond;
@@ -1451,7 +1451,7 @@
                     { components : [{tool: 'label'}, {tool: 'image'}] },
                     { components : [{tool: 'textbox'}, {tool: 'button'}] }
                 ]});
-                expect(stream).to.have.property('id');
+                //expect(stream).to.have.property('id');
                 expect(stream.pages).to.be.an.instanceof(PageCollectionDataSource);
                 expect(stream.pages.fetch).to.respond;
                 stream.pages.fetch().then(function () {
@@ -1495,7 +1495,6 @@
                     },
                     defaults = new PageComponent().defaults,
                     d = {
-                        id: null,
                         pages: [
                             { id: null, components: [$.extend({}, defaults), $.extend({}, defaults)] },
                             { id: null, components: [$.extend({}, defaults), $.extend({}, defaults)] }
@@ -1964,7 +1963,6 @@
         var storageKey = 'stream',
             stream,
             original = {
-                id: ObjectId(),
                 pages: [
                     {
                         id: ObjectId(),
@@ -2034,9 +2032,9 @@
 
             it('Reading', function (done) {
                 stream.load().always(function () {
-                    expect(stream.isNew()).to.be.false;
+                    //expect(stream.isNew()).to.be.false;
                     expect(stream.dirty).to.be.false;
-                    expect(stream).to.have.property('id', original.id);
+                    //expect(stream).to.have.property('id', original.id);
                     expect(stream).to.have.property('pages').that.is.an.instanceof(PageCollectionDataSource);
                     expect(stream.pages.total()).to.equal(2);
                     for (var i = 0; i < stream.pages.total(); i++) {
@@ -2072,7 +2070,7 @@
                 stream.pages.at(index).components.add({tool: 'label'});
                 stream.save().always(function () {
                     var update = $.parseJSON(localStorage.getItem(storageKey));
-                    expect(update).to.have.property('id', stream.id);
+                    //expect(update).to.have.property('id', stream.id);
                     expect(update).to.have.property('pages').that.is.an.instanceof(Array).with.property('length', index + 1);
                     expect(update.pages[index]).to.have.property('id', stream.pages.at(index).id);
                     expect(update.pages[index]).to.have.property('components').that.is.an.instanceof(Array).with.property('length', stream.pages.at(index).components.total());
@@ -2089,7 +2087,7 @@
                 stream.pages.at(index).components.at(0).set('rotate', 45);
                 stream.save().always(function () {
                     var update = $.parseJSON(localStorage.getItem(storageKey));
-                    expect(update).to.have.property('id', stream.id);
+                    //expect(update).to.have.property('id', stream.id);
                     expect(update).to.have.property('pages').that.is.an.instanceof(Array).with.property('length', index + 1);
                     expect(update.pages[index]).to.have.property('id', stream.pages.at(index).id);
                     expect(update.pages[index]).to.have.property('style', stream.pages.at(index).style);
@@ -2105,7 +2103,7 @@
                 stream.pages.remove(stream.pages.at(index));
                 stream.save().always(function () {
                     var update = $.parseJSON(localStorage.getItem(storageKey));
-                    expect(update).to.have.property('id', stream.id);
+                    //expect(update).to.have.property('id', stream.id);
                     expect(update).to.have.property('pages').that.is.an.instanceof(Array).with.property('length', index);
                     done();
                 });
@@ -2156,7 +2154,6 @@
         it('page.stream, component.page, pages.parent & components.parent', function (done) {
 
             var s = {
-                    id: ObjectId(),
                     pages: [
                         {
                             id: ObjectId(),
@@ -2173,7 +2170,7 @@
                     ]
                 },
                 stream = new Stream(s);
-            expect(stream).to.have.property('id', s.id);
+            //expect(stream).to.have.property('id', s.id);
             expect(stream).to.have.property('pages').that.is.an.instanceof(PageCollectionDataSource);
             stream.pages.fetch().always(function () {
                 expect(stream.pages.total()).to.equal(1);

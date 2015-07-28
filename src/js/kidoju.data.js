@@ -939,16 +939,7 @@
          * @class Stream
          */
         var Stream = models.Stream = Model.define({
-            id: 'id',
             fields: {
-                /**
-                 * nullable, non-editable database identifier
-                 */
-                id: {
-                    type: STRING,
-                    nullable: true,
-                    editable:false
-                },
                 /**
                  * pages
                  */

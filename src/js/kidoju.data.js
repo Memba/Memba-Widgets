@@ -241,7 +241,7 @@
          * using a wrapDataAccess private function
          * @class ModelCollectionDataReader
          */
-        var ModelCollectionDataReader = kendo.Class.extend({
+        var ModelCollectionDataReader = kidoju.data.ModelCollectionDataReader = kendo.Class.extend({
             init: function(reader) {
                 this.reader = reader;
                 if (reader.model) {

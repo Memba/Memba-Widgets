@@ -68,25 +68,6 @@
         }
     ];
 
-    var Book = kendo.data.Model.define({
-        idField: 'id',
-        fields: {
-            id: {
-                type: 'string'
-            },
-            title: {
-                type: 'string'
-            }
-        }
-    });
-
-    var books = [
-        {id: ObjectId(), title: 'Gone with the wind'},
-        {id: ObjectId(), title: 'OK Coral'},
-        {id: ObjectId(), title: 'The third man'},
-        {id: ObjectId(), title: 'The guns of Navarone'}
-    ];
-
     function dataUrl(file) {
         if (window.__karma__) {
             return '/base/test/data/' + file;
@@ -521,10 +502,91 @@
 
         describe('Events', function () {
 
-            xit('change event', function (done) {
-                done();
+            it('change event with submodel', function (done) {
+                var Author = Model.define({
+                        id: 'userId',
+                        fields: {
+                            userId: { type: 'string', nullable: true },
+                            name: { type: 'string' }
+                        }
+                    }),
+                    Book = Model.define({
+                        id: 'id',
+                        fields: {
+                            id: { type: 'string', nullable: true },
+                            title: { type: 'string' },
+                            author: {
+                                defaultValue: null,
+                                parse: function(value) {
+                                    return value instanceof Author ? value : new Author(value);
+                                }
+                            }
+                        }
+                    }),
+                    viewModel = kendo.observable({
+                        book: new Book({
+                            id: '1',
+                            title: 'Les Misérables',
+                            author: {
+                                userId: 'a',
+                                name: 'Victor Hugo'
+                            }
+                        })
+                    });
+                    viewModel.bind('change', function(e) {
+                        expect(e).to.have.property('field', 'book.author.name');
+                        done();
+                    });
+                // viewModel.book.set('title', 'Germinal');
+                viewModel.book.author.set('name', 'Emile Zola');
             });
 
+            it('change event with subdatasource', function (done) {
+                var Book = Model.define({
+                        id: 'id',
+                        fields: {
+                            id: { type: 'string', nullable: true },
+                            title: { type: 'string' }
+                        }
+                    }),
+                    BookDataSource = DataSource.extend({
+                        init: function(options) {
+                            // Enforce the use of PageWithOptions items in the page collection data source
+                            DataSource.fn.init.call(this, $.extend(true, {}, options, { schema: { modelBase: Book, model: Book } }));
+                            // Let's use a slightly modified reader to leave data conversions to kidoju.data.Model._parseData
+                            this.reader = new kidoju.data.ModelCollectionDataReader(this.reader);
+                        }
+                    }),
+                    Author = Model.define({
+                        id: 'id',
+                        fields: {
+                            id: { type: 'string', nullable: true },
+                            name: { type: 'string' },
+                            books: {
+                                defaultValue: [],
+                                parse: function(value) {
+                                    return value instanceof BookDataSource ? value : new BookDataSource(value);
+                                }
+                            }
+                        }
+                    }),
+                    b = { title: 'Le Compte de Monte-Cristo'},
+                    viewModel = kendo.observable({
+                        author: new Author({
+                            id: ObjectId(),
+                            name: 'Victor Hugo',
+                            books: [ { id: ObjectId(), title: 'Les Misérables'} ]
+                        })
+                    });
+                viewModel.bind('change', function(e) {
+                    expect(e).to.have.property('action', 'add')
+                    expect(e).to.have.property('field', 'author.books');
+                    expect(e).to.have.property('items').that.is.an.instanceof(Array).with.property('length', 1);
+                    expect(e.items[0]).to.have.property('title', b.title);
+                    done();
+                });
+                viewModel.author.books.add(b);
+            });
 
             xit('error event', function (done) {
                 done();
@@ -688,6 +750,24 @@
             });
 
             it('if initialized with a new model, it should throw', function () {
+                var Book = kendo.data.Model.define({
+                    idField: 'id',
+                    fields: {
+                        id: {
+                            type: 'string'
+                        },
+                        title: {
+                            type: 'string'
+                        }
+                    }
+                });
+
+                var books = [
+                    {id: ObjectId(), title: 'Gone with the wind'},
+                    {id: ObjectId(), title: 'OK Coral'},
+                    {id: ObjectId(), title: 'The third man'},
+                    {id: ObjectId(), title: 'The guns of Navarone'}
+                ];
                 function testFn() {
                     var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
                         data: books,
@@ -1106,6 +1186,24 @@
             });
 
             xit('if initialized with a new model, it should throw', function () {
+                var Book = kendo.data.Model.define({
+                    idField: 'id',
+                    fields: {
+                        id: {
+                            type: 'string'
+                        },
+                        title: {
+                            type: 'string'
+                        }
+                    }
+                });
+
+                var books = [
+                    {id: ObjectId(), title: 'Gone with the wind'},
+                    {id: ObjectId(), title: 'OK Coral'},
+                    {id: ObjectId(), title: 'The third man'},
+                    {id: ObjectId(), title: 'The guns of Navarone'}
+                ];
                 function testFn() {
                     var pageCollectionDataSource = new PageCollectionDataSource({
                         data: books,

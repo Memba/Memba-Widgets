@@ -351,7 +351,9 @@
              */
             toJSON: function() {
                 var json = [];
-                for(var i = 0; i < this.total(); i++) {
+                // total() give the total number of items, all of which are not necessarily available considering paging
+                // for(var i = 0; i < this.total(); i++) {
+                for(var i = 0; i < this.data().length; i++) {
                     // If we pass includeDataSource === true to kidoju.data.Model.toJSON
                     // this method is executed and we should call toJSON(true) on each DataSource item
                     // So has to serialize the whole tree

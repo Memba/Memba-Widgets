@@ -381,7 +381,7 @@
             /**
              * Add a navigation item containing a stage(page) wrapped in a div
              * @param page
-             * @param index // TODO with sorting -----------------------------------------------------------------------
+             * @param index
              * @private
              */
             _addItem: function (page, index) {
@@ -400,12 +400,8 @@
                             margin: parseInt(that.options.pageSpacing, 10) - parseInt(that.options.selectionBorder, 10)
                         });
 
-                    // append the menu icon // TODO<------------------------------------------------------------ icon
-                    // Top left should be determined by that.options.selectionBorder
-                    navigationItem.append('<div style="position:absolute; top: 10px; left: 10px; height: 20px; width: 20px; background-color: black;"></div>');
-
                     // Add to navigation
-                    navigation.append(navigationItem); // TODO <----------------------------------------------------- index
+                    navigation.append(navigationItem);
 
                     // Make the stage and bind to components
                     navigationItem.find(kendo.roleSelector('stage')).kendoStage({

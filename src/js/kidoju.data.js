@@ -467,7 +467,7 @@
                         // Cast with Model
                         // that.set('properties', new Properties(properties)); // <--- this sets the dirty flag and raises the change event
                         that.properties = new Properties(properties);
-                        that.attributes.bind(CHANGE, function(e) {
+                        that.properties.bind(CHANGE, function(e) {
                             e.field = 'properties.' + e.field;
                             that.trigger(CHANGE, e);
                         });

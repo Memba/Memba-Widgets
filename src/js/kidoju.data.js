@@ -455,6 +455,10 @@
                         // Cast with Model
                         // that.set('attributes', new Attributes(attributes)); // <--- this sets the dirty flag and raises the change event
                         that.attributes = new Attributes(attributes);
+                        that.attributes.bind(CHANGE, function(e) {
+                            e.field = 'attributes.' + e.field;
+                            that.trigger(CHANGE, e);
+                        });
 
                         // Let the tool build a Model for properties to allow validation in the property grid
                         var Properties = tool._getPropertyModel(),
@@ -463,6 +467,10 @@
                         // Cast with Model
                         // that.set('properties', new Properties(properties)); // <--- this sets the dirty flag and raises the change event
                         that.properties = new Properties(properties);
+                        that.attributes.bind(CHANGE, function(e) {
+                            e.field = 'properties.' + e.field;
+                            that.trigger(CHANGE, e);
+                        });
 
                     }
                 }

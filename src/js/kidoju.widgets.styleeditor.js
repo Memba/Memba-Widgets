@@ -265,7 +265,7 @@
                         ]
                     });
                 } else {
-                    // TODO a simple textarea will do
+                    // TODO a simple textarea would do when running kendo-core
                 }
             },
 

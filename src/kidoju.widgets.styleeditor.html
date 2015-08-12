@@ -9,20 +9,14 @@
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <script src="./js/vendor/kendo/jquery.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <style>
-        td[role=gridcell] {
-           height: 25px;
-        }
-        td>span.k-dirty {
-           border-color: transparent;
-        }
-    </style>
+    <script src="./js/vendor/kendo/kendo.all.js"></script>
+    <!-- Style Editor requirements -->
+    <script src="./js/kidoju.widgets.styleeditor.js"></script>
 </head>
 <body>
 <h1>Style Editor</h1>
-<div id="grid1"></div>
-
+<div data-bind="attr: { style: style }">Hello World</div><hr/>
+<div data-role="styleeditor" data-bind="value: style"></div>
 <script>
     ;(function(window, $, undefined){
 
@@ -30,149 +24,12 @@
 
         var kendo = window.kendo,
             viewModel = kendo.observable({
-                styles: new kendo.data.DataSource({
-                    autoSync: true,
-                    data: [],
-                    schema: {
-                        model: {
-                            id: 'name',
-                            fields: {
-                                name: {
-                                    type: 'string',
-                                    validation: {
-                                        required: true
-                                    }
-                                },
-                                value: {
-                                    type: 'string',
-                                    validation: {
-                                        required: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                })
+                style: 'color: #FF0000;'
             });
 
         $(document).ready(function(){
-            $('#grid1').kendoGrid({
-                columns: [
-                    { field: 'name', title: 'Name', editor: cssDropDownEditor, template: '#=name#' },
-                    { field: 'value', title: 'Value' }
-                ],
-                dataBound: function(e) {
-                    if (e.sender instanceof kendo.ui.Grid) {
-                        var selected = e.sender.select();
-                        if (selected instanceof jQuery && selected.length === 0) {
-                            e.sender.select('tr:eq(1)');
-                            e.sender.editCell('tr:eq(1) td:eq(0)');
-                        }
-                    }
-                },
-                dataSource: viewModel.styles,
-                edit: function(e) {
-                    if (e && e.sender instanceof kendo.ui.Grid && e.container instanceof $) {
-                        var comboBox = e.container.find('input:not(.k-input)').data('kendoComboBox');
-                        if (comboBox instanceof kendo.ui.ComboBox) {
-                            var styles = e.sender.dataSource.data(), css = [], all = [
-                                    { name: 'background-color', value: '#FFFFFF' },
-                                    { name: 'border-color', value: '#000000' },
-                                    { name: 'border-radius', value: '5px' },
-                                    { name: 'border-style', value: 'solid' },
-                                    { name: 'border-width', value: '1px' },
-                                    { name: 'color', value: '#000000' },
-                                    { name: 'font-family', value: 'Arial, Helvetica Neue, Helvetica, sans-serif' },
-                                    { name: 'font-size', value: '20px' },
-                                    { name: 'font-style', value: 'italic' },
-                                    { name: 'font-weight', value: 'bold' },
-                                    { name: 'text-align', value: 'center' },
-                                    { name: 'text-decoration', value: 'underline' }
-                                ];
-                            for (var i = 0; i < all.length; i++) {
-                                var found = false;
-                                for (var j = 0; j < styles.length; j++) {
-                                    if (all[i].name === styles[j].name && all[i].name !== comboBox.value()) {
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                                if (!found) {
-                                    css.push(all[i]);
-                                }
-                            }
-                            comboBox.setDataSource(css);
-                        }
-                    }
-                },
-                editable: true,
-                height: 550,
-                selectable: 'row',
-                toolbar: [
-                    { name: 'create', text: 'Nouveau Style' },
-                    { name: 'destroy', text: 'Supprimer' }
-                ]
-            });
-
-            $('#grid1>.k-grid-toolbar>.k-grid-delete').click(function(e){
-                var cssGrid = $('#grid1').data('kendoGrid');
-                if (cssGrid instanceof kendo.ui.Grid) {
-                    var selected = cssGrid.select();
-                    if (selected instanceof $ && selected.length) {
-                        // allthough shorter, the following displays an alert to confirm deletion
-                        // cssGrid.removeRow(selected);
-                        var uid = selected.attr('data-uid'),
-                            style = cssGrid.dataSource.getByUid(uid);
-                        cssGrid.dataSource.remove(style);
-                    }
-                }
-            });
-
-            $('#grid1 table').on('keypress', function(e) {
-                if (e && e.target instanceof window.HTMLElement) {
-                    var input = $(e.target);
-                    if (input.hasClass('k-input') && input.parent().hasClass('k-dropdown-wrap')) {
-                        // the drop down with a list of style names has the focus
-                        // allowed characters are a-z (96-123) and minus/hiphen/dash (45)
-                        if (!(e.which === 45 || (e.which > 96 && e.which < 123))) {
-                            e.preventDefault();
-                        }
-                    } else if (input.hasClass('k-textbox') && input.parent().hasClass('k-edit-cell')) {
-                        // the textbox for style value has the focus
-                        // do not allow < (60), > (62), ; (59) and " (34)
-                        if (e.which === 34 || e.which === 59 || e.which === 60 || e.which === 62) {
-                            e.preventDefault();
-                        }
-                    }
-                }
-            });
-
+           kendo.bind('body', viewModel);
         });
-
-        // This function is taken from http://demos.kendoui.com/web/grid/editing-custom.html
-        // See also http://www.telerik.com/forums/kendo-ui-grid-s-combobox-editor-template-validation
-        function cssDropDownEditor(container, options) {
-            $('<input name="name" data-bind="value: ' + options.field + '" required />')
-                    .appendTo(container)
-                    .kendoComboBox({
-                        autoBind: false,
-                        change: function(e) {
-                            if (e && e.sender instanceof kendo.ui.ComboBox) {
-                                var dataItem = e.sender.dataItem(),
-                                    cssGrid = $('#grid1').data('kendoGrid'),
-                                    uid = container.parent().attr('data-uid');
-                                if (cssGrid instanceof kendo.ui.Grid && $.type(uid) === 'string' && $.type(dataItem) !== 'undefined') {
-                                    var style = cssGrid.dataSource.getByUid(uid);
-                                    style.set('value', dataItem.get('value'));
-                                }
-                            }
-                        },
-                        //dataSource: viewModel.css,
-                        dataTextField: 'name',
-                        dataValueField: 'name'
-                    });
-            $('<span class="k-invalid-msg" data-for="name"></span>').appendTo(container);
-        }
 
     }(this, jQuery));
 </script>

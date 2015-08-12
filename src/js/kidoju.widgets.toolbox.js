@@ -54,7 +54,7 @@
          *********************************************************************************/
 
         /**
-         * @class ToolBox Widget (kendoToolbox)
+         * @class ToolBox Widget (kendoToolBox)
          */
         var ToolBox = Widget.extend({
 

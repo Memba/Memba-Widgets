@@ -442,6 +442,7 @@
             showDialog: function (options) {
                 var that = this,
                     dialog = $(DIALOG_CLASS).data('kendoWindow');
+                // Find or create dialog frame
                 if (!(dialog instanceof kendo.ui.Window)) {
                     // Create dialog
                     dialog = $(kendo.format(DIALOG_DIV, DIALOG_CLASS.substr(1)))
@@ -453,32 +454,40 @@
                             visible: false
                         })
                         .data('kendoWindow');
-                    dialog.element.on(CLICK, '.k-button', $.proxy(that.closeDialog, that, options, dialog));
                 }
-                // Prepare dialog (the content method destroys widgets and unbinds data)
+                // Create viewModel (Cancel shall not save changes to main model)
+                dialog.viewModel = kendo.observable({
+                    style: options.model.get(options.field)
+                });
+                // Prepare UI
                 dialog.title(options.title);
-                var content = '<div class="k-edit-form-container kj-style-edit-form">' +
-                    '<div class="k-edit-label"><label for="title">Title</label></div><div data-container-for="title" class="k-edit-field"><input type="text" class="k-input k-textbox" name="title" data-bind="value:title"></div>' +
-                    '<div class="k-edit-label"><label for="start">Start</label></div><div data-container-for="start" class="k-edit-field"><span class="k-widget k-datetimepicker k-header"><span class="k-picker-wrap k-state-default"><input type="text" required="" data-type="date" data-role="datetimepicker" data-bind="value:start" data-validate="true" name="start" data-datecompare-msg="Start date should be before or equal to the end date" class="k-input" role="combobox" aria-expanded="false" aria-disabled="false" aria-readonly="false" style="width: 100%;"><span unselectable="on" class="k-select"><span unselectable="on" class="k-icon k-i-calendar" role="button">select</span><span unselectable="on" class="k-icon k-i-clock" role="button">select</span></span></span></span><span data-for="start" class="k-invalid-msg" style="display: none;"></span></div>' +
-                    '<div class="k-edit-label"><label for="end">End</label></div><div data-container-for="end" class="k-edit-field"><span class="k-widget k-datetimepicker k-header"><span class="k-picker-wrap k-state-default"><input type="text" required="" data-type="date" data-role="datetimepicker" data-bind="value:end" data-validate="true" name="end" data-datecompare-msg="End date should be after or equal to the start date" class="k-input" role="combobox" aria-expanded="false" aria-disabled="false" aria-readonly="false" style="width: 100%;"><span unselectable="on" class="k-select"><span unselectable="on" class="k-icon k-i-calendar" role="button">select</span><span unselectable="on" class="k-icon k-i-clock" role="button">select</span></span></span></span><span data-for="end" class="k-invalid-msg" style="display: none;"></span></div>' +
-                    '<div class="k-edit-label"><label for="percentComplete">Complete</label></div><div data-container-for="percentComplete" class="k-edit-field"><span class="k-widget k-numerictextbox"><span class="k-numeric-wrap k-state-default"><input type="text" class="k-formatted-value k-input" tabindex="0" aria-disabled="false" aria-readonly="false" style="display: inline-block;"><input type="text" name="percentComplete" required="required" min="0" max="1" step="0.01" data-type="number" data-bind="value:percentComplete" data-role="numerictextbox" role="spinbutton" class="k-input" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0" aria-disabled="false" aria-readonly="false" style="display: none;"><span class="k-select"><span unselectable="on" class="k-link"><span unselectable="on" class="k-icon k-i-arrow-n" title="Increase value">Increase value</span></span><span unselectable="on" class="k-link"><span unselectable="on" class="k-icon k-i-arrow-s" title="Decrease value">Decrease value</span></span></span></span></span><span data-for="percentComplete" class="k-invalid-msg" style="display: none;"></span></div>' +
-                    '<div class="k-edit-label"><label for="resources">Resources</label></div><div class="k-gantt-resources" style="display:none"></div><div data-container-for="resources" class="k-edit-field"><a href="#" class="k-button">Assign</a></div>' +
-
-                    '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="save" href="#">Save</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
+                var content = '<div class="k-edit-form-container">' +
+                    '<div data-role="styleeditor" data-bind="value: style"></div>' +
+                    '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="ok" href="#">OK</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
                     '</div>';
                 dialog.content(content);
+                kendo.bind(dialog.element, dialog.viewModel);
+                dialog.element.addClass('kj-no-padding');
+                // Bind click handler for edit buttons
+                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
                 // Show dialog
                 dialog.center().open();
             },
             closeDialog: function (options, dialog, e) {
                 var that = this;
-                if (e instanceof $.Event && $(e.target) instanceof $) {
+                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
                     var command = $(e.target).attr(kendo.attr('command'));
-                    if (command === 'save') {
-                        $.noop();
+                    if (command === 'ok') {
+                        options.model.set(options.field, dialog.viewModel.get('style'));
                     }
-                    dialog.close();
-                    dialog.content('');
+                    if (command === 'ok' || command === 'cancel') {
+                        dialog.close();
+                        dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
+                        dialog.element.removeClass('kj-no-padding');
+                        // The content method destroys widgets and unbinds data
+                        dialog.content('');
+                        dialog.viewModel = undefined;
+                    }
                 }
             }
         });
@@ -598,7 +607,7 @@
             },
             closeDialog: function (options, dialog, e) {
                 var that = this;
-                if (e instanceof $.Event && $(e.target) instanceof $) {
+                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
                     var command = $(e.target).attr(kendo.attr('command'));
                     if (command === 'save') {
                         options.model.properties.set('validation', dialog.codemirror.getDoc().getValue());

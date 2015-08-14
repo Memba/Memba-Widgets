@@ -20,7 +20,9 @@
             Widget = ui.Widget,
             STRING = 'string',
             CHANGE = 'change',
-            WIDGET_CLASS = 'kj-style-editor';
+            KEYPRESS = 'keypress',
+            NS = ".kendoStyleEditor",
+            WIDGET_CLASS = 'kj-styleeditor'; // k-widget is added when initializing this.element as a grid
 
 
         /*********************************************************************************
@@ -320,7 +322,7 @@
              */
             _setKeyPressHandler: function() {
                 var element = this.element;
-                element.find('table').on('keypress', function(e) {
+                element.find('table').on(KEYPRESS, function(e) {
                     if (e /*instanceof $.Event*/ && e.target instanceof window.HTMLElement) {
                         var input = $(e.target);
                         if (input.hasClass('k-input') && input.parent().hasClass('k-dropdown-wrap')) {

@@ -1,0 +1,24 @@
+.kj-codeeditor .k-header {
+    padding: 3px;
+}
+.kj-codeeditor .k-header > div:first-child {
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 0 5px 0 0;
+    width: 50%;
+}
+.kj-codeeditor .k-header > div:first-child .k-dropdown {
+    width: 100%;
+}
+.kj-codeeditor .k-header > div:last-child {
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 0 2px 0 3px;
+    width: 50%;
+}
+.kj-codeeditor .k-header > div:last-child .k-textbox {
+    width: 100%;
+}
+.CodeMirror-lint-tooltip {
+    z-index: 10100;
+}

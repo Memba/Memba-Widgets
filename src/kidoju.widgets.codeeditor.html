@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Code Editor</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <script src="./js/vendor/kendo/jquery.min.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
+    <script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script>
+    <script src="./js/vendor/kendo/kendo.popup.js"></script>
+    <script src="./js/vendor/kendo/kendo.list.js"></script>
+    <script src="./js/vendor/kendo/kendo.dropdownlist.js"></script>
+    <!-- Code mirror -->
+    <link href="./styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
+    <link href="./styles/vendor/codemirror/addon/lint/lint.css" rel="stylesheet">
+    <script src="./js/vendor/codemirror/lib/codemirror.js"></script>
+    <script src="./js/vendor/codemirror/mode/javascript/javascript.js"></script>
+    <script src="./js/vendor/codemirror/addon/lint/jshint.js"></script>
+    <script src="./js/vendor/codemirror/addon/lint/lint.js"></script>
+    <script src="./js/vendor/codemirror/addon/lint/javascript-lint.js"></script>
+    <!-- Code Editor requirements -->
+    <link href="./styles/kidoju.widgets.codeeditor.css" rel="stylesheet">
+    <script src="./js/kidoju.widgets.codeeditor.js"></script>
+    <style>
+        .kj-codeeditor-header {
+            padding: 3px;
+        }
+        .kj-codeeditor-header .k-dropdown {
+            width: 100%
+        }
+    </style>
+</head>
+<body>
+<h1>Code Editor</h1>
+<div data-role="codeeditor" data-bind="value: code, source: library" data-default-formula="intEqual" data-solution="0"></div>
+<pre data-bind="text: code"></pre>
+<script>
+    ;(function(window, $, undefined){
+
+        'use strict';
+
+        var kendo = window.kendo,
+            viewModel = kendo.observable({
+                code: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === 5 + parseInt(solution, 10);\n}',
+                library: new kendo.data.DataSource({ data:[
+                    {
+                        name: 'custom',
+                        formula: 'function validate(value, solution) {\n\t// Your code should return true when value is validated against solution.\n}'
+                    },
+                    {
+                        name: 'intEqual',
+                        formula: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
+                    },
+                    {
+                        name: 'floatEqual',
+                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
+                    },
+                    {
+                        name: 'round2DecimalEqual',
+                        formula: 'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}'
+                    },
+                    {
+                        name: 'greaterThan',
+                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}'
+                    },
+                    {
+                        name: 'greaterThanOrEqual',
+                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) >= parseFloat(solution);\n}'
+                    },
+                    {
+                        name: 'lowerThan',
+                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) < parseFloat(solution);\n}'
+                    },
+                    {
+                        name: 'lowerThanOrEqual',
+                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
+                    }
+                ]})
+            });
+
+        $(document).ready(function(){
+            kendo.bind('body', viewModel);
+        });
+
+    }(this, jQuery));
+</script>
+</body>
+</html>

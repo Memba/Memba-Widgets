@@ -1,21 +1,15 @@
-.kj-validation-edit-form {
-  width: 800px;
+.kj-no-padding {
+    padding: 0 !important;
 }
-.kj-validation-edit-form .kj-codemirror {
-  padding: 0 1em;
+.kj-no-padding .k-edit-form-container {
+    width: 100%;
 }
-.kj-validation-edit-form .kj-codemirror .CodeMirror {
-  border: solid 1px #c5c5c5;
+.kj-no-padding .k-edit-form-container .kj-codeeditor {
+    border-style: none;
 }
-.kj-style-edit-form {
-  width: 500px;
+.kj-no-padding .k-edit-form-container .kj-styleeditor {
+    border-style: none;
 }
-.kj-style-edit-form .k-edit-label {
-  width: 17%;
-}
-.kj-style-edit-form .k-edit-field {
-  width: 77%;
-}
-.CodeMirror-lint-tooltip {
-  z-index: 10100;
+.kj-no-padding .k-edit-form-container .k-edit-buttons {
+    bottom: 0;
 }

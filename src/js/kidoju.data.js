@@ -472,6 +472,12 @@
                             that.trigger(CHANGE, e);
                         });
 
+                        // Add the SolutionAdapter library if any
+                        if (tool.properties && tool.properties.validation instanceof kidoju.adapters.ValidationAdapter &&
+                            tool.properties.validation.solutionAdapter instanceof kidoju.adapters.BaseAdapter) {
+                            that._library = tool.properties.validation.solutionAdapter.library;
+                        }
+
                     }
                 }
             },

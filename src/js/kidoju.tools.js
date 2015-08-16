@@ -43,7 +43,13 @@
             DIALOG_CLASS = '.kj-dialog',
 
         // Event
-            CLICK = 'click';
+            CLICK = 'click',
+
+            FORMULA = 'function validate(value, solution) {\n\t{0}\n}',
+            CUSTOM = {
+                name: 'custom',
+                formula: kendo.format(FORMULA, '// Your code should return true when value is validated against solution.')
+            };
 
         /*********************************************************************************
          * Culture
@@ -120,26 +126,15 @@
              * @param options
              */
             init: function (options) {
-                if ($.type(options) === OBJECT) {
-                    if ($.type(options.id) === STRING) {
-                        this.id = options.id;
-                    }
-                    if ($.type(options.icon) === STRING) {
-                        this.icon = options.icon;
-                    }
-                    // if ($.type(options.name) === STRING) {
-                    //    this.name = options.name;
-                    // }
-                    if ($.type(options.cursor) === STRING) {
-                        this.cursor = options.cursor;
-                    }
-                    if ($.type(options.height) === NUMBER) {
-                        this.height = options.height;
-                    }
-                    if ($.type(options.width) === NUMBER) {
-                        this.width = options.width;
-                    }
+
+                // Extend tool with init options
+                $.extend(this, options);
+
+                // Pass solution adapter to validation adapter, especially for the code editor
+                if (this.properties && this.properties.solution instanceof adapters.BaseAdapter && this.properties.validation instanceof adapters.ValidationAdapter) {
+                    this.properties.validation.solutionAdapter = this.properties.solution;
                 }
+
             },
 
             /**
@@ -281,6 +276,29 @@
             },
 
             /**
+             * Get a dialog window
+             */
+            getDialog: function() {
+                var that = this,
+                    dialog = $(DIALOG_CLASS).data('kendoWindow');
+                // Find or create dialog frame
+                if (!(dialog instanceof kendo.ui.Window)) {
+                    // Create dialog
+                    dialog = $(kendo.format(DIALOG_DIV, DIALOG_CLASS.substr(1)))
+                        .appendTo(document.body)
+                        .kendoWindow({
+                            actions: ['close'],
+                            modal: true,
+                            resizable: false,
+                            visible: false,
+                            width: 800
+                        })
+                        .data('kendoWindow');
+                }
+                return dialog;
+            },
+
+            /**
              * Get a kendo.data.Model field
              * See http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
              * @returns {{}}
@@ -356,7 +374,25 @@
                 this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 this.editor = 'input';
                 this.attributes = $.extend({}, this.attributes, {type: 'text', class: 'k-textbox'});
-            }
+            },
+            library: [
+                // TODO: provide a Soundex and doubleMetaphone function to web worker
+                // See https://github.com/hgoebl/doublemetaphone
+                // See https://github.com/NaturalNode/natural
+                {
+                    name: 'equal',
+                    formula: kendo.format(FORMULA, 'return value === solution;')
+                },
+                {
+                    name: 'ignoreCaseEqual',
+                    formula: kendo.format(FORMULA, 'return value.trim().toUpperCase() === solution.trim.toLowerCase();')
+                },
+                {
+                    name: 'match',
+                    formula: kendo.format(FORMULA, 'return (new RegExp(solution)).match(value);')
+                }
+            ],
+            libraryDefault: 'equal'
         });
 
         /**
@@ -370,7 +406,31 @@
                 this.editor = 'input';
                 this.attributes = $.extend({}, this.attributes);
                 this.attributes[kendo.attr('role')] = 'numerictextbox';
-            }
+            },
+            library: [
+                {
+                    name: 'equal',
+                    // TODO: parsing raises a culture issue with 5.3 in english and 5,3 in french
+                    formula: kendo.format(FORMULA, 'return parseFloat(value) === parseFloat(solution);')
+                },
+                {
+                    name: 'greaterThan',
+                    formula: kendo.format(FORMULA, 'return parseFloat(value) > parseFloat(solution);')
+                },
+                {
+                    name: 'greaterThanOrEqual',
+                    formula: kendo.format(FORMULA, 'return parseFloat(value) >= parseFloat(solution);')
+                },
+                {
+                    name: 'lowerThan',
+                    formula: kendo.format(FORMULA, 'return parseFloat(value) < parseFloat(solution);')
+                },
+                {
+                    name: 'lowerThanOrEqual',
+                    formula: kendo.format(FORMULA, 'return parseFloat(value) <= parseFloat(solution);')
+                }
+            ],
+            libraryDefault: 'equal'
         });
 
         /**
@@ -384,7 +444,14 @@
                 this.editor = 'input';
                 this.attributes = $.extend({}, this.attributes);
                 this.attributes[kendo.attr('role')] = 'switch';
-            }
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(FORMULA, 'return String(value).toLowerCase() === String(solution).toLowerCase();')
+                }
+            ],
+            libraryDefault: 'equal'
         });
 
         /**
@@ -398,7 +465,15 @@
                 this.editor = 'input';
                 this.attributes = $.extend({}, this.attributes);
                 this.attributes[kendo.attr('role')] = 'datepicker';
-            }
+            },
+            library: [
+                {
+                    name: 'equal',
+                    // TODO: parsing raises a culture issue with MM/DD/YYYY in english and DD/MM/YYYY in french
+                    formula: kendo.format(FORMULA, 'return new Date(value) === new Date(solution);')
+                }
+            ],
+            libraryDefault: 'equal'
         });
 
         /**
@@ -410,22 +485,23 @@
                 adapters.BaseAdapter.fn.init.call(that, options);
                 that.type = STRING;
                 that.defaultValue = that.defaultValue || (that.nullable ? null : '');
+                // This is the inline editor with a [...] button which triggers this.showDialog
                 that.editor = function (container, options) {
-                    var div = $('<div/>')
-                        .css({display: 'table'})
+                    var table = $('<div/>')
+                        .css({ display: 'table' })
                         .appendTo(container);
-                    var span = $('<span/>')
+                    var cell = $('<div/>')
                         .css({
                             display: 'table-cell',
                             width: '100%',
                             paddingRight: '8px'
                         })
-                        .appendTo(div);
+                        .appendTo(table);
                     var input = $('<input/>')
                         .addClass('k-textbox') // or k-input
                         .css({width: '100%'})
                         .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
-                        .appendTo(span);
+                        .appendTo(cell);
                     $('<button/>')
                         .text('...')
                         .addClass('k-button')
@@ -435,26 +511,13 @@
                             height: input.css('height'), // to match input,
                             margin: 0
                         })
-                        .appendTo(div)
+                        .appendTo(table)
                         .on(CLICK, $.proxy(that.showDialog, that, options));
                 };
             },
             showDialog: function (options) {
                 var that = this,
-                    dialog = $(DIALOG_CLASS).data('kendoWindow');
-                // Find or create dialog frame
-                if (!(dialog instanceof kendo.ui.Window)) {
-                    // Create dialog
-                    dialog = $(kendo.format(DIALOG_DIV, DIALOG_CLASS.substr(1)))
-                        .appendTo(document.body)
-                        .kendoWindow({
-                            actions: ['close'],
-                            modal: true,
-                            resizable: false,
-                            visible: false
-                        })
-                        .data('kendoWindow');
-                }
+                    dialog = that.getDialog();
                 // Create viewModel (Cancel shall not save changes to main model)
                 dialog.viewModel = kendo.observable({
                     style: options.model.get(options.field)
@@ -505,168 +568,84 @@
                 var that = this;
                 adapters.BaseAdapter.fn.init.call(that, options);
                 that.type = STRING;
-                switch (options.solutionType) {
-                    case STRING:
-                    case NUMBER:
-                    case BOOLEAN:
-                    case DATE:
-                        that.defaultValue = that.validators[options.solutionType][0].formula;
-                        break;
-                    default:
-                        that.defaultValue = that.validators.default[0].formula;
-                }
                 that.editor = function (container, options) {
-                    var div = $('<div/>')
+                    var table = $('<div/>')
                         .css({display: 'table'})
                         .appendTo(container);
-                    var span = $('<span/>')
+                    var cell = $('<div/>')
                         .css({
                             display: 'table-cell',
                             width: '100%',
                             paddingRight: '8px'
                         })
-                        .appendTo(div);
-                    var input = $('<input/>')
-                        .addClass('k-textbox')
-                        .css({width: '100%'})
-                        .prop({readonly: true})
-                        // .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
-                        // TODO: Display validator name
-                        .appendTo(span);
+                        .appendTo(table);
+                    var input = $('<div data-role="codeinput" />')
+                        .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field + ', source: _library'}))
+                        .appendTo(cell);
                     $('<button/>')
                         .text('...')
                         .addClass('k-button')
                         .css({
                             display: 'table-cell',
                             minWidth: '40px',
-                            height: input.css('height'), // to match input,
+                            height: $('input.k-textbox').first().css('height'), // hopefully there is one available before CodeInput widget is initialized
                             margin: 0
                         })
-                        .appendTo(div)
+                        .appendTo(table)
                         .on(CLICK, $.proxy(that.showDialog, that, options));
                 };
             },
             showDialog: function (options/*,evt*/) {
                 var that = this,
-                    dialog = $(DIALOG_CLASS).data('kendoWindow');
-                if (!(dialog instanceof kendo.ui.Window)) {
-                    // Create dialog
-                    dialog = $(kendo.format(DIALOG_DIV, DIALOG_CLASS.substr(1)))
-                        .appendTo(document.body)
-                        .kendoWindow({
-                            actions: ['close'],
-                            modal: true,
-                            resizable: false,
-                            visible: false
-                        })
-                        .data('kendoWindow');
-                    dialog.element.on(CLICK, '.k-button', $.proxy(that.closeDialog, that, options, dialog));
-                }
-                // Prepare dialog (the content method destroys widgets and unbinds data)
+                    dialog = that.getDialog();
+                // Create viewModel (Cancel shall not save changes to main model)
+                dialog.viewModel = kendo.observable({
+                    code: options.model.get(options.field),
+                    library: [CUSTOM].concat(that.solutionAdapter.library)
+                });
+                // Prepare UI
                 dialog.title(options.title);
-                var content = '<div class="k-edit-form-container kj-validation-edit-form">' +
-                        // TODO: Add test textbox and button + help + possibly a combo of predefined functions
-                        // '<div>' +
-                        //    '<div class="k-edit-label"><label for="title">Title</label></div>' +
-                        //    '<div data-container-for="title" class="k-edit-field"><input type="text" class="k-input k-textbox" name="title" data-bind="value:title"></div>' +
-                        // '</div>' +
-                    '<div class="kj-codemirror"></div>' +
-                        // Buttons
-                    '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="save" href="#">Save</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
+                var content = '<div class="k-edit-form-container">' +
+                    '<div data-role="codeeditor" data-bind="value: code, source: library" data-default="' + that.solutionAdapter.libraryDefault + '" data-solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"></div>' +
+                    '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="ok" href="#">OK</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
                     '</div>';
                 dialog.content(content);
-                var div = dialog.element.find('.kj-codemirror').get(0);
-                if (div instanceof window.HTMLElement) {
-                    dialog.codemirror = window.CodeMirror(div, {
-                        gutters: ['CodeMirror-lint-markers'],
-                        lineNumbers: true,
-                        lint: true,
-                        mode: 'javascript',
-                        value: that.defaultValue
-                    });
-                    // Set actual validation formula
-                    dialog.codemirror.getDoc().setValue(options.model.properties.get('validation'));
-                    dialog.codemirror.on('beforeChange', function (cm, change) {
-                        if ((change.from.line === 0) || // prevent changing the first line
-                            (change.from.line === cm.display.renderedView.length - 1) || // prevent changing the last line
-                            (change.origin === '+delete' && change.to.line === cm.display.renderedView.length - 1)) { // prevent backspace on the last line or suppr on the previous line
-                            change.cancel();
-                        }
-                    });
-                    dialog.bind('activate', function () {
-                        // IMPORTANT, we need to refresh codemirror here
-                        // otherwise the open animation messes with CodeMirror calculations
-                        // and gutter and line numbers are displayed at the wrong coordinates
-                        dialog.codemirror.refresh();
-                        dialog.unbind('activate');
-                    });
-                    // open dialog
-                    dialog.center().open();
-
-                }
+                kendo.bind(dialog.element, dialog.viewModel);
+                dialog.element.addClass('kj-no-padding');
+                // Bind click handler for edit buttons
+                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                // Bind window activate handler
+                dialog.bind('activate', function () {
+                    // IMPORTANT, we need to refresh codemirror here
+                    // otherwise the open animation messes with CodeMirror calculations
+                    // and gutter and line numbers are displayed at the wrong coordinates
+                    var codeEditor = dialog.element
+                        .find('.kj-codeeditor')
+                        .data('kendoCodeEditor');
+                    if (codeEditor instanceof kendo.ui.CodeEditor && codeEditor.codeMirror instanceof window.CodeMirror) {
+                        codeEditor.codeMirror.refresh();
+                    }
+                    dialog.unbind('activate');
+                });
+                // Show dialog
+                dialog.center().open();
             },
             closeDialog: function (options, dialog, e) {
                 var that = this;
                 if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
                     var command = $(e.target).attr(kendo.attr('command'));
-                    if (command === 'save') {
-                        options.model.properties.set('validation', dialog.codemirror.getDoc().getValue());
+                    if (command === 'ok') {
+                        options.model.set(options.field, dialog.viewModel.get('code'));
                     }
-                    dialog.close();
-                    // restore
-                    dialog.content('');
-                    dialog.codemirror = undefined;
+                    if (command === 'ok' || command === 'cancel') {
+                        dialog.close();
+                        dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
+                        dialog.element.removeClass('kj-no-padding');
+                        // The content method destroys widgets and unbinds data
+                        dialog.content('');
+                        dialog.viewModel = undefined;
+                    }
                 }
-            },
-            prerequisites: {
-                string: '', // TODO
-                number: '',
-                boolean: '',
-                date: '',
-                default: '' // '' + func converts a function to a string including the code - see http://jsfiddle.net/VUZck/146/ and http://stackoverflow.com/questions/12807263/prevent-uglifyjs-from-renaming-certain-functions
-            },
-            validators: {
-                string: [
-                    // TODO: provide a Soundex and doubleMetaphone function to web worker
-                    // See https://github.com/hgoebl/doublemetaphone
-                    // See https://github.com/NaturalNode/natural
-                    {
-                        name: 'toUpperCase', // TODO use cultures
-                        formula: 'function validate(value, solution) {\n\treturn typeof value === "string" && typeof solution === "string" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}'
-                    }
-                ],
-                number: [
-                    {
-                        name: 'float', // TODO use cultures
-                        formula: 'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
-                    },
-                    {
-                        name: 'integer', // TODO use cultures
-                        formula: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
-                    },
-                    {
-                        name: 'rounded to 2 decimals', // TODO use cultures
-                        formula: 'function validate(value, solution) {\n\treturn typeof value === "number" && typeof solution === "number" && Math.round(value*100)/100 === Math.round(solution*100)/100;\n}'
-                    }
-                ],
-                boolean: [
-                    {
-                        name: 'default',
-                        formula: 'function validate(value, solution) {\n\treturn typeof value === "boolean" && typeof solution === "boolean" && value === solution;\n}'
-                    }
-                ],
-                date: [
-                    {
-                        name: 'date',
-                        formula: 'function validate(value, solution) {\n\treturn typeof value === "date" && typeof solution === "date" && value.toDateString() === solution.toDateString();\n}'
-                    }
-                ],
-                default: [
-                    {
-                        name: 'deepEqual',
-                        formula: '' // TODO: deepEqual - consider https://github.com/jquery/qunit/blob/0cf737d46775aecb06780e3df36cb9cac6d01b0c/src/equiv.js
-                    }
-                ]
             }
         });
 
@@ -853,7 +832,7 @@
                 solution: new adapters.StringAdapter({title: 'Solution'}),
                 validation: new adapters.ValidationAdapter({
                     title: 'Validation',
-                    solutionType: STRING
+                    solutionAdapter: new adapters.StringAdapter({title: 'Solution'})
                 }),
                 success: new adapters.ScoreAdapter({title: 'Success'}),
                 failure: new adapters.ScoreAdapter({title: 'Failure'}),
@@ -923,7 +902,7 @@
                 solution: new adapters.BooleanAdapter({title: 'Solution'}),
                 validation: new adapters.ValidationAdapter({
                     title: 'Validation',
-                    solutionType: BOOLEAN
+                    solutionAdapter: new adapters.BooleanAdapter({title: 'Solution'})
                 }),
                 success: new adapters.ScoreAdapter({title: 'Success'}),
                 failure: new adapters.ScoreAdapter({title: 'Failure'}),

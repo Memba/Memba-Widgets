@@ -10,6 +10,7 @@
     'use strict';
     define([
         './vendor/kendo/kendo.binder',
+        './vendor/kendo/kendo.dropdownlist',
         './vendor/codemirror/lib/codemirror.js',
         './vendor/codemirror/mode/javascript/javascript.js',
         './vendor/codemirror/addon/lint/lint.js',

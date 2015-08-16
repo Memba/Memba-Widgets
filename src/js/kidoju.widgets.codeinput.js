@@ -105,9 +105,11 @@
                 var that = this;
                 that.wrapper = that.element;
                 that.input = $('<input class="k-textbox k-state-disabled" disabled>')
+                    .width('100%')
                     .val(that.options.custom)
                     .appendTo(that.element);
                 that.dropDownList = $('<input>')
+                    .width('100%')
                     .appendTo(that.element)
                     .kendoDropDownList({
                         autoBind: that.options.autoBind,

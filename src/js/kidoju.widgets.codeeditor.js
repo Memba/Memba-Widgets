@@ -72,8 +72,7 @@
                 autoBind: true,
                 //dataSource
                 custom: 'custom',
-                // TODO add type for better input
-                defaultFormula: 'Equal',
+                default: 'Equal',
                 solution: ''
             },
 
@@ -86,7 +85,8 @@
             ],
 
             /**
-             * Value for bindings
+             * Value for MVVM binding
+             * Returns either a JS function as a string or a library formula name
              * @param value
              */
             value: function(value) {
@@ -100,13 +100,13 @@
                             var found = that.dropDownList.dataSource.data().filter(function(value) {
                                 return value.name === libraryMatches[1];
                             });
-                            found = $.isArray(found) && found.length ? libraryMatches[1] : that.options.defaultFormula;
+                            found = $.isArray(found) && found.length ? libraryMatches[1] : that.options.default;
                             that.dropDownList.text(found);
                             that._onDropDownListChange();
                         } else if ($.isArray(customMatches) && customMatches.length === 1) {
                             that.codeMirror.getDoc().setValue(value);
                         } else {
-                            that.dropDownList.text(that.options.defaultFormula);
+                            that.dropDownList.text(that.options.default);
                             that._onDropDownListChange();
                         }
                     }
@@ -118,7 +118,7 @@
                         return '// ' + that.dropDownList.text();
                     }
                 } else {
-                    throw new TypeError('value is expected to be a string if not undefined');
+                    throw new TypeError('`value` is expected to be a string if not undefined');
                 }
             },
 

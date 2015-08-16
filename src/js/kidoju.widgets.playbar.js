@@ -438,7 +438,7 @@
             },
 
             /**
-             * Refreshed teh widget when dataSource changes
+             * Refresh the widget when dataSource changes
              * @method refresh
              * @param e
              */

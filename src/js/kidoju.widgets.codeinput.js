@@ -11,12 +11,7 @@
     define([
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.dropdownlist',
-        './vendor/kendo/kendo.multiselect', // required becasue of test in kendo.binder.js
-        './vendor/codemirror/lib/codemirror.js',
-        './vendor/codemirror/mode/javascript/javascript.js',
-        './vendor/codemirror/addon/lint/lint.js',
-        './vendor/codemirror/addon/lint/jshint.js',
-        './vendor/codemirror/addon/lint/javascript-lint.js'
+        './vendor/kendo/kendo.multiselect' // required becasue of test in kendo.binder.js
     ], f);
 })(function () {
 
@@ -27,10 +22,9 @@
         var kendo = window.kendo,
             Widget = kendo.ui.Widget,
             STRING = 'string',
-            BEFORECHANGE = 'beforeChange',
             CHANGE = 'change',
-            NS = '.kendoCodeEditor',
-            WIDGET_CLASS = 'k-widget kj-codeeditor';
+            NS = '.kendoCodeInput',
+            WIDGET_CLASS = 'k-widget kj-codeinput';
 
         /*********************************************************************************
          * Helpers
@@ -38,7 +32,7 @@
 
         function log(message) {
             if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
-                window.console.log('kidoju.widgets.codeeditor: ' + message);
+                window.console.log('kidoju.widgets.codeinput: ' + message);
             }
         }
 
@@ -47,9 +41,9 @@
          *********************************************************************************/
 
         /**
-         * @class CodeEditor Widget (kendoCodeEditor)
+         * @class CodeInput Widget (kendoCodeInput)
          */
-        var CodeEditor = Widget.extend({
+        var CodeInput = Widget.extend({
 
             /**
              * Initializes the widget
@@ -70,7 +64,7 @@
              * @property options
              */
             options: {
-                name: 'CodeEditor',
+                name: 'CodeInput',
                 autoBind: true,
                 //dataSource
                 custom: 'custom',
@@ -94,43 +88,12 @@
             value: function(value) {
                 var that = this;
                 if ($.type(value) === STRING) {
-                    that._toggle(value);
+                    that._value = value;
+                    that._toggle(that._value);
                 } else if ($.type(value) === 'undefined') {
-                    var formula = that.dropDownList.text();
-                    if (formula === that.options.custom) {
-                        return that.codeMirror.getDoc().getValue();
-                    } else {
-                        return '// ' + that.dropDownList.text();
-                    }
+                    return that._value;
                 } else {
                     throw new TypeError('`value` is expected to be a string if not undefined');
-                }
-            },
-
-            /**
-             * toggle UI for custom vs library code
-             * @param value
-             * @private
-             */
-            _toggle: function(value) {
-                var that = this;
-                if ($.type(value) === STRING && that.dropDownList instanceof kendo.ui.DropDownList && that.input instanceof $ && that.codeMirror instanceof window.CodeMirror) {
-                    var libraryMatches = value.match(/^\/\/ ([^\n]+)$/),
-                        customMatches = value.match(/^function validate\(value, solution\) {[\s\S]+}$/);
-                    if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
-                        // Find in the code library
-                        var found = that.dropDownList.dataSource.data().filter(function(item) {
-                            return item.name === libraryMatches[1];
-                        });
-                        found = $.isArray(found) && found.length ? libraryMatches[1] : that.options.default;
-                        that.dropDownList.text(found);
-                        that._onDropDownListChange();
-                    } else if ($.isArray(customMatches) && customMatches.length === 1) {
-                        that.codeMirror.getDoc().setValue(value);
-                    } else {
-                        that.dropDownList.text(that.options.default);
-                        that._onDropDownListChange();
-                    }
                 }
             },
 
@@ -141,23 +104,11 @@
             _layout: function () {
                 var that = this;
                 that.wrapper = that.element;
-                that.element.addClass(WIDGET_CLASS);
-                that._setHeader();
-                that._setCodeMirror();
-            },
-
-            /**
-             * Set drop down list with code library and value input
-             * @private
-             */
-            _setHeader: function() {
-                var that = this,
-                    header = $('<div class="k-header"><div></div><div></div></div>').appendTo(that.element),
-                    left = header.find('div').first(),
-                    right = header.find('div').last();
-                // Create the dropDownList
-                that.dropDownList = $('<select/>')
-                    .appendTo(left)
+                that.input = $('<input class="k-textbox k-state-disabled" disabled>')
+                    .val(that.options.custom)
+                    .appendTo(that.element);
+                that.dropDownList = $('<input>')
+                    .appendTo(that.element)
                     .kendoDropDownList({
                         autoBind: that.options.autoBind,
                         change: $.proxy(that._onDropDownListChange, that), // change is not triggered by dropDownList api calls incl. value(), text(), ...
@@ -166,10 +117,6 @@
                         dataSource: that.options.dataSource
                     })
                     .data('kendoDropDownList');
-                // create the input field to display solution
-                that.input = $('<input class="k-textbox k-state-disabled" disabled>')
-                    .appendTo(right)
-                    .val(that.options.solution);
             },
 
             /**
@@ -177,50 +124,38 @@
              * @private
              */
             _onDropDownListChange: function() {
-                if (this.dropDownList instanceof kendo.ui.DropDownList && this.input instanceof $ && this.codeMirror instanceof window.CodeMirror) {
-                    this.codeMirror.getDoc().setValue(this.dropDownList.value());
+                if (this.dropDownList instanceof kendo.ui.DropDownList && this.input instanceof $) {
+                    this._value = '// ' + this.dropDownList.text();
+                    this.trigger(CHANGE);
                 }
             },
 
             /**
-             * Set CodeMirror editor
+             * Toggle UI for custom vs library code
              * @private
              */
-            _setCodeMirror: function() {
-                var that = this,
-                    div = $('<div class="kj-codemirror"></div>')
-                        .appendTo(that.element)
-                        .get(0);
-                if (div instanceof window.HTMLElement) {
-                    that.codeMirror = window.CodeMirror(div, {
-                        gutters: ['CodeMirror-lint-markers'],
-                        lineNumbers: true,
-                        lint: true,
-                        mode: 'javascript',
-                        value: ''
-                    });
-                    // Prevent from modifying first lines and last line
-                    that.codeMirror.on(BEFORECHANGE, function (cm, change) {
-                        if (change.origin === 'setValue') {
-                            return; //updated using this.value(value)
-                        }
-                        // if updated by typing into the code editor
-                        if ((change.from.line === 0) || // prevent changing the first line
-                            (change.from.line === cm.display.renderedView.length - 1) || // prevent changing the last line
-                            (change.origin === '+delete' && change.to.line === cm.display.renderedView.length - 1)) { // prevent backspace on the last line or suppr on the previous line
-                            // cancel change
-                            change.cancel();
-                        }
-                    });
-                    that.codeMirror.on(CHANGE, function(cm, change) {
-                        if (that.dropDownList.text() !== that.options.custom) {
-                            if (that.codeMirror.getDoc().getValue() !== that.dropDownList.value()) {
-                                that.dropDownList.text(that.options.custom);
-                            }
-                        }
-                        // trigger a change event for MVVM value binding
-                        that.trigger(CHANGE);
-                    });
+            _toggle: function(value) {
+                var that = this;
+                if ($.type(value) === STRING && that.dropDownList instanceof kendo.ui.DropDownList && that.input instanceof $) {
+                    var libraryMatches = value.match(/^\/\/ ([^\n]+)$/),
+                        customMatches = value.match(/^function validate\(value, solution\) {[\s\S]+}$/);
+                    if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
+                        // Find in the code library
+                        var found = that.dropDownList.dataSource.data().filter(function(item) {
+                            return item.name === libraryMatches[1];
+                        });
+                        found = $.isArray(found) && found.length ? libraryMatches[1] : that.options.default;
+                        that.dropDownList.text(found);
+                        that.dropDownList.wrapper.show();
+                        that.input.hide();
+                    } else if ($.isArray(customMatches) && customMatches.length === 1) {
+                        that.dropDownList.wrapper.hide();
+                        that.input.show();
+                    } else {
+                        that.dropDownList.text(that.options.default);
+                        that.dropDownList.wrapper.show();
+                        that.input.hide();
+                    }
                 }
             },
 
@@ -278,7 +213,7 @@
                 // remove descendants
                 $(that.element).empty();
                 // remove element classes
-                $(that.element).removeClass(WIDGET_CLASS);
+                // $(that.element).removeClass(WIDGET_CLASS);
             },
 
             /**
@@ -294,7 +229,7 @@
 
         });
 
-        kendo.ui.plugin(CodeEditor);
+        kendo.ui.plugin(CodeInput);
 
     }(window.jQuery));
 

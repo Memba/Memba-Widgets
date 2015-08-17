@@ -1,0 +1,9 @@
+.kj-assetmanager .k-tabstrip-left > div.k-content {
+    padding: 0;
+}
+.kj-assetmanager .k-filebrowser {
+    margin-top: -8px;
+}
+.kj-assetmanager .k-filebrowser .k-upload .k-icon {
+    vertical-align: text-top;
+}

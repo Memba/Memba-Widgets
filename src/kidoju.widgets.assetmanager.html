@@ -30,6 +30,9 @@
 
         $(document).ready(function(){
             $('#assets').kendoAssetManager({
+                change: function(e) {
+                    viewModel.set('url', e.sender.value());
+                },
                 transport: {
                     read: function(options) {
                         options.success({

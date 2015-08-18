@@ -16,7 +16,8 @@
 </head>
 <body>
 <h1>Asset Manager</h1>
-<div data-role="assetmanager"></div>
+<div id="assets"></div>
+<div data-bind="text: url" ></div>
 <script>
     ;(function(window, $, undefined){
 
@@ -24,10 +25,78 @@
 
         var kendo = window.kendo,
             viewModel = kendo.observable({
-
+                url: undefined
             });
 
         $(document).ready(function(){
+            $('#assets').kendoAssetManager({
+                transport: {
+                    read: function(options) {
+                        options.success({
+                            total: 1,
+                            data: [
+                                { "url": "https://s3-eu-west-1.amazonaws.com/kidoju.test/s/en/55c9c75dcc8974a01a397472/item204.jpg", "size": 3177 }
+                            ]
+                        });
+                    },
+                    create: function(options) {
+
+                    },
+                    destroy: function(options) {
+
+                    }
+                    // update is same as create
+                },
+                collections: [
+                    {
+                        name: 'O-collection',
+                        transport: {
+                            read: function (options) {
+                                options.success({
+                                    total: 1,
+                                    data: [
+                                        { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/add.svg", "size": 580 },
+                                        { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/airship.svg", "size": 779 },
+                                        { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/apple.svg", "size": 842 },
+                                        { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/atom.svg", "size": 1090 },
+                                        { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/baseball.svg", "size": 1930 },
+                                        { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/typewriter.svg", "size": 895 },
+                                        { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/user.svg", "size": 591 }
+                                    ]
+                                });
+                            }
+                        }
+                        /*
+                        collections: [
+                            {
+                                name: 'dark_grey',
+                                transport: {
+                                    read: function (options) {
+
+                                    }
+                                }
+                            },
+                            {
+                                name: 'office',
+                                transport: {
+                                    read: function (options) {
+
+                                    }
+                                }
+                            },
+                            {
+                                name: 'white',
+                                transport: {
+                                    read: function (options) {
+
+                                    }
+                                }
+                            },
+                        ]
+                        */
+                    }
+                ]
+            });
             kendo.bind('body', viewModel);
         });
 

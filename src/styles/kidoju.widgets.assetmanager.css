@@ -2,8 +2,17 @@
     padding: 0;
 }
 .kj-assetmanager .k-filebrowser {
-    margin-top: -8px;
+    padding: .5em;
+}
+.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar {
+    margin: 0;
 }
 .kj-assetmanager .k-filebrowser .k-upload .k-icon {
-    vertical-align: text-top;
+    vertical-align: baseline;
 }
+.kj-assetmanager .k-filebrowser .k-listview {
+    height: 400px;
+    overflow: auto;
+    border-top-style: none;
+}
+

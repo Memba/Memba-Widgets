@@ -52,7 +52,7 @@
                 },
                 collections: [
                     {
-                        name: 'O-collection',
+                        name: 'O-Collection',
                         transport: {
                             read: function (options) {
                                 options.success({
@@ -69,34 +69,29 @@
                                 });
                             }
                         }
-                        /*
+                    },
+                    {
+                        name: 'V-Collection',
                         collections: [
                             {
-                                name: 'dark_grey',
+                                name: 'Dark Grey',
                                 transport: {
-                                    read: function (options) {
-
-                                    }
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/o_collection_dark_grey.json'
                                 }
                             },
                             {
-                                name: 'office',
+                                name: 'Office',
                                 transport: {
-                                    read: function (options) {
-
-                                    }
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/o_collection_office.json'
                                 }
                             },
                             {
-                                name: 'white',
+                                name: 'White',
                                 transport: {
-                                    read: function (options) {
-
-                                    }
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/o_collection_white.json'
                                 }
-                            },
+                            }
                         ]
-                        */
                     }
                 ]
             });

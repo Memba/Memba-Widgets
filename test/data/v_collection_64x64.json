@@ -1,10 +1,13 @@
-[
-    { "url": "", "size": 0 },
-    { "url": "", "size": 0 },
-    { "url": "", "size": 0 },
-    { "url": "", "size": 0 },
-    { "url": "", "size": 0 },
-    { "url": "", "size": 0 },
-    { "url": "", "size": 0 },
-    { "url": "", "size": 0 }
-]
+{
+    "total": 8,
+    "data": [
+        { "url": "", "size": 0 },
+        { "url": "", "size": 0 },
+        { "url": "", "size": 0 },
+        { "url": "", "size": 0 },
+        { "url": "", "size": 0 },
+        { "url": "", "size": 0 },
+        { "url": "", "size": 0 },
+        { "url": "", "size": 0 }
+    ]
+}

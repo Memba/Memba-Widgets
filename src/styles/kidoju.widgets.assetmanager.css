@@ -7,6 +7,9 @@
 .kj-assetmanager .k-filebrowser .k-filebrowser-toolbar {
     margin: 0;
 }
+.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-upload {
+    margin-right: .3em;
+}
 .kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-upload .k-icon {
     vertical-align: middle;
 }

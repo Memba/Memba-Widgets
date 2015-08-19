@@ -23,10 +23,15 @@
         var kendo = window.kendo,
             Widget = kendo.ui.Widget,
             DataSource = kendo.data.DataSource,
+            ObservableObject = kendo.data.ObservableObject,
+            DropDownList = kendo.ui.DropDownList,
+            ListView = kendo.ui.ListView,
+            TabStrip = kendo.ui.TabStrip,
             NUMBER = 'number',
             STRING = 'string',
             ARRAY = 'array',
             CHANGE = 'change',
+            CLICK = 'click',
             DELETE = 'delete',
             ERROR = 'error',
             UPLOAD = 'upload',
@@ -41,7 +46,7 @@
                     '<label style="display:none">#=messages.toolbar.filter#<select /></label>' +
                 '</div>' +
                 '<div class="k-tiles-arrange">' +
-                    '<div class="k-widget k-search-wrap k-textbox"><input placeholder="#=messages.toolbar.search#" class="k-input"><a href="\\#" class="k-icon k-i-search k-search"></a></div>' +
+                    '<div class="k-widget k-search-wrap k-textbox"><input placeholder="#=messages.toolbar.search#" class="k-input"><a href="\\#" class="k-icon k-i-close k-search"></a></div>' +
                 '</div>' +
             '</div>',
             ITEM_TMPL = '<li class="k-tile" ' + kendo.attr("uid") + '="#=uid#" ' + kendo.attr("type") + '="#=type$()#">' +
@@ -298,7 +303,7 @@
             value: function() {
                 var that = this,
                     selected = that._selectedItem();
-                if (selected instanceof kendo.data.ObservableObject) {
+                if (selected instanceof ObservableObject) {
                     return selected.url;
                 }
             },
@@ -342,6 +347,8 @@
                     animation: { open: { effects: 'fadeIn' } },
                     select: $.proxy(this._onTabSelect, this)
                 }).data('kendoTabStrip');
+
+                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
             },
 
             /**
@@ -350,7 +357,7 @@
              * @private
              */
             _tabContent: function() {
-                assert.instanceof(kendo.ui.TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.tabStrip'));
+                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
 
                 // Add the file browser wrapping div
                 this.fileBrowser = $('<div class="k-filebrowser"></div>')
@@ -379,9 +386,6 @@
                 })).appendTo(that.fileBrowser);
                 assert.instanceof($, that.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'window.jQuery'));
 
-                // TODO Upload
-                // TODO Delete
-
                 // Collection drop down list
                 that.dropDownList = that.toolbar.find('div.k-toolbar-wrap select')
                     .kendoDropDownList({
@@ -389,15 +393,44 @@
                         change: $.proxy(that._onDropDownListChange, that)
                     })
                     .data('kendoDropDownList');
-                assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
 
                 // Search
                 that.searchInput = that.toolbar
-                    .find('input.k-input')
-                    .on(CHANGE, $.proxy(that._onSearchInputChange, that));
+                    .find('input.k-input');
                 assert.instanceof($, that.searchInput, kendo.format(assert.messages.instanceof.default, 'this.searchInput', 'window.jQuery'));
 
+                // Events
+                that.toolbar
+                    .on(CHANGE + NS, '.k-upload input[type=file]', $.proxy(that._onFileInputChange, that))
+                    .on(CLICK + NS, 'button:not(.k-state-disabled):has(.k-delete)', $.proxy(that._onDeleteButtonClick, that))
+                    .on(CHANGE + NS, 'input.k-input', $.proxy(that._onSearchInputChange, that))
+                    .on(CLICK + NS, 'a.k-i-close', $.proxy(that._onSearchClearClick, that));
+
+
                 // TODO that._attachDropzoneEvents();
+            },
+
+            /**
+             * Event handler triggered when clicking the upload button and selecting a file (which changes teh file input)
+             * @param e
+             * @private
+             */
+            _onFileInputChange: function(e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
+                assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
+                var files = e.target.files;
+                if (files instanceof window.FileList && files.length) {
+                    window.alert('Upload ' + files[0].name); //TODO
+                }
+            },
+
+            /**
+             * Event handler triggered when clicking the delete button
+             * @private
+             */
+            _onDeleteButtonClick: function() {
+                window.alert('Delete ' + this.value());
             },
 
             /**
@@ -406,8 +439,8 @@
              */
             _onDropDownListChange: function(e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(kendo.ui.DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
-                assert.instanceof(kendo.ui.TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.tabStrip'));
+                assert.instanceof(DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
+                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
                 this._resetTransport(this.tabStrip.select().index() - 1, e.sender.selectedIndex /*, false*/);
             },
 
@@ -441,36 +474,37 @@
             },
 
             /**
+             * Event handler triggered whhen clicking the clear icon in the search input
+             * @private
+             */
+            _onSearchClearClick: function() {
+                var searchInput = this.searchInput;
+                assert.instanceof($, searchInput, kendo.format(assert.messages.instanceof.default, 'this.searchInput', 'window.jQuery'));
+                if (searchInput.val() !== '') {
+                    searchInput.val('').trigger(CHANGE + NS);
+                }
+            },
+
+            /**
              * Add the list view to the file browser
              * Note: selecting a file in the list view updates the widget value() and triggers the change event
              * @private
              */
             _listView: function() {
-                assert.instanceof($, this.fileBrowser, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
+                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'window.jQuery'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 this.listView = $('<ul class="k-reset k-floats k-tiles"/>')
                     .appendTo(this.fileBrowser)
                     .kendoListView({
                         //autoBind: false,
                         change: $.proxy(this._onListViewChange, this),
-                        dataBinding: function(e) {
-                            //that.toolbar.find(".k-delete").parent().addClass("k-state-disabled");
-                            //if (e.action === "remove" || e.action === "sync") {
-                            //    e.preventDefault();
-                            //}
-                        },
-                        dataBound: function() {
-                            //if (that.dataSource.view().length) {
-                            //    that._tiles = this.items().filter("[" + kendo.attr("type") + "=f]");
-                            //} else {
-                            //    this.wrapper.append(EMPTYTILE({ text: that.options.messages.emptyFolder }));
-                            //}
-                        },
+                        dataBinding: $.proxy(this._onListViewDataBinding, this),
                         dataSource: this.dataSource,
                         selectable: true,
                         template: kendo.template(this.options.itemTemplate)
                     })
                     .data('kendoListView');
+                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
             },
 
             /**
@@ -478,11 +512,23 @@
              * @private
              */
             _onListViewChange: function() {
-                var selected = this._selectedItem();
-                if (selected) {
-                    this.toolbar.find(".k-delete").parent().removeClass("k-state-disabled");
+                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
+                assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'window.jQuery'));
+                if (this._selectedItem() instanceof ObservableObject) {
+                    if (this.tabStrip.select().index() === 0) {
+                        this.toolbar.find('.k-delete').parent().removeClass('k-state-disabled').show();
+                    }
                     this.trigger(CHANGE);
                 }
+            },
+
+            /**
+             * Event handler triggered when data binding a new collection
+             * @private
+             */
+            _onListViewDataBinding: function() {
+                assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'window.jQuery'));
+                this.toolbar.find('.k-delete').parent().addClass('k-state-disabled').hide();
             },
 
             /**
@@ -491,7 +537,7 @@
              * @private
              */
             _selectedItem: function() {
-                assert.instanceof(kendo.ui.ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 var listView = this.listView,
                     selected = listView.select();
@@ -506,9 +552,9 @@
              */
             _onTabSelect: function(e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(window.HTMLElement, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'window.HTMLElement'));
-                assert.instanceof(kendo.ui.TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.tabStrip'));
-                assert.instanceof($, this.fileBrowser, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
+                assert.instanceof(window.HTMLLIElement, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'window.HTMLLIElement'));
+                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
+                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'window.jQuery'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 var tabIndex = $(e.item).index();
                 // Move file browser to the selected tab
@@ -529,6 +575,7 @@
              * @private
              */
             _resetTransport: function(colIndex, subIndex, all) {
+
                 function getTransport(options) {
                     var transport;
                     if (options) {
@@ -539,10 +586,18 @@
                     }
                     return transport;
                 }
+
                 assert.type(NUMBER, colIndex, kendo.format(assert.messages.type.default, 'colIndex', NUMBER));
                 assert.type(NUMBER, subIndex, kendo.format(assert.messages.type.default, 'subIndex', NUMBER));
                 assert.type(ARRAY, this.options.collections, kendo.format(assert.messages.type.default, 'this.options.collections', ARRAY));
+                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'window.jQuery'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+
+                // Clear search
+                this.searchInput.val('');
+                this.dataSource.filter(this.options.filter);
+
                 if (colIndex >= 0 && colIndex < this.options.collections.length) {
                     var collection = this.options.collections[colIndex];
                     if ($.isPlainObject(collection.transport)) {
@@ -565,6 +620,7 @@
                     this.dropDownList.setDataSource([]);
                     this.dropDownList.wrapper.parent().hide();
                 }
+
                 return this.dataSource.read();
             },
 
@@ -573,23 +629,23 @@
              * @private
              */
             _dataSource: function(transport) {
-                var that = this;
-                    //typeSortOrder = extend({}, DEFAULTSORTORDER),
-                    //nameSortOrder = { field: NAMEFIELD, dir: "asc" },
 
-                if (that.dataSource && that._errorHandler) {
-                    that.dataSource.unbind(ERROR, that._errorHandler);
+                if (this.dataSource instanceof DataSource && this._errorHandler) {
+                    this.dataSource.unbind(ERROR, this._errorHandler);
                 } else {
-                    that._errorHandler = $.proxy(that._dataError, that);
+                    this._errorHandler = $.proxy(this._dataError, this);
                 }
 
-                that.dataSource = DataSource
+                this.dataSource = DataSource
                     .create({
-                        schema: that.options.schema,
-                        // sort:
-                        transport: $.isPlainObject(transport) ? transport : that.options.transport
+                        filter: this.options.filter,
+                        schema: this.options.schema,
+                        // keep ddefault sort order
+                        transport: $.isPlainObject(transport) ? transport : this.options.transport
                     })
-                    .bind(ERROR, that._errorHandler);
+                    .bind(ERROR, this._errorHandler);
+
+                this.dataSource.filter(this.options.filter)
 
             },
 

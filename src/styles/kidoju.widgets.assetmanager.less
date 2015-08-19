@@ -6,16 +6,32 @@
         padding: 0.5em;
         .k-filebrowser-toolbar {
             margin: 0;
-        }
-        .k-upload {
-            .k-icon {
-                vertical-align: baseline;
+            .k-upload {
+                .k-icon {
+                    vertical-align: middle;
+                }
+            }
+            .k-textbox {
+                width:100%;
+                .k-search {
+                    // ENforce values of .k-textbox .k-icon
+                    top: 50%;
+                    margin: -8px 0 0;
+                }
             }
         }
-        .k-listview {
-            height: 400px;
-            overflow: auto;
+        .k-listview.k-tiles {
             border-top-style: none;
+            height: 400px;
+            margin: 0;
+            overflow: auto;
+            .k-tile {
+                // width: 88px;
+                .k-image {
+                    width: 80px;
+                    height: auto;
+                }
+            }
         }
     }
 }

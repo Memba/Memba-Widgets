@@ -8,16 +8,15 @@
 
 (function (f, define){
     'use strict';
-    define(['./vendor/kendo/kendo.binder', './vendor/kendo/kendo.tabstrip', './vendor/kendo/kendo.listview'], f);
+    define([
+        './vendor/kendo/kendo.binder',
+        './vendor/kendo/kendo.dropdownlist',
+        './vendor/kendo/kendo.tabstrip',
+        './vendor/kendo/kendo.listview'
+    ],f);
 })(function () {
 
     'use strict';
-
-
-    // TODO: http://localhost:63342/Kidoju.Widgets/test/data/o_collection_white.json
-
-
-
 
     (function ($, undefined) {
 
@@ -34,19 +33,20 @@
             MODULE = 'kidoju.widgets.assetmanager',
             NS = '.kendoAssetManager',
             WIDGET_CLASS = 'k-widget kj-assetmanager',
+            DEFAULT_FILTER = {},
             TOOLBAR_TMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
                 '<div class="k-toolbar-wrap">' +
                     '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button"><span class="k-icon k-add"></span>#=messages.toolbar.upload#<input type="file" name="file" /></div></div>' +
                     '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-delete" /></button>&nbsp;' +
-                    '<label>#=messages.toolbar.filter#<select /></label>' +
+                    '<label style="display:none">#=messages.toolbar.filter#<select /></label>' +
                 '</div>' +
                 '<div class="k-tiles-arrange">' +
                     '<div class="k-widget k-search-wrap k-textbox"><input placeholder="#=messages.toolbar.search#" class="k-input"><a href="\\#" class="k-icon k-i-search k-search"></a></div>' +
                 '</div>' +
             '</div>',
             ITEM_TMPL = '<li class="k-tile" ' + kendo.attr("uid") + '="#=uid#" ' + kendo.attr("type") + '="#=type$()#">' +
-                '#if(type$() === "d"){#' +
-                    '<div class="k-thumb"><span class="k-icon k-folder"></span></div>' +
+                '#if(/^image\\//.test(type$())){#' +
+                    '<div class="k-thumb"><img alt="#=name$()#" src="#=url#" class="k-image"></span></div>' +
                 '#}else{#' +
                     '<div class="k-thumb"><span class="k-icon k-file"></span></div>' +
                 '#}#' +
@@ -183,7 +183,8 @@
         }
 
         /**
-         *
+         * Convert file extension to mime type
+         * @see http://hul.harvard.edu/ois/systems/wax/wax-public-help/mimetypes.htm
          * @param url
          * @returns {*}
          */
@@ -194,10 +195,19 @@
                 case 'gif':
                     return 'image/gif';
                 case 'jpg':
-                case 'jpeg':
+                //case 'jpeg':
                     return 'image/jpeg';
+                case 'mp3':
+                    // @see http://tools.ietf.org/html/rfc3003
+                    // @see https://developer.mozilla.org/en-US/docs/Web/HTML/Supported_media_formats#MP3
+                    return 'audio/mpeg';
+                case 'mp4':
+                    // @see http://www.rfc-editor.org/rfc/rfc4337.txt
+                    return 'video/mp4';
                 case 'png':
                     return 'image/png';
+                case 'svg':
+                    return 'image/svg+xml';
                 default:
                     return 'application/octet-stream';
             }
@@ -237,7 +247,7 @@
                 schema: SCHEMA,
                 transport: {},
                 collections: [],
-                filter: [], // TODO
+                filter: DEFAULT_FILTER,
                 messages: {
                     toolbar: {
                         upload: 'Upload',
@@ -261,33 +271,37 @@
                 UPLOAD
             ],
 
+
+            /**
+             * Predefined filtes
+             */
+            filters: {
+                default: DEFAULT_FILTER,
+                images: {
+                    logic: 'or',
+                    filters: [
+                        { 'field': 'url', operator: 'endswith', value: '.gif' },
+                        { 'field': 'url', operator: 'endswith', value: '.jpg' },
+                        //{ 'field': 'url', operator: 'endswith', value: '.jpeg' },
+                        { 'field': 'url', operator: 'endswith', value: '.png' },
+                        { 'field': 'url', operator: 'endswith', value: '.svg' }
+                    ]
+                },
+                audio: { 'field': 'url', operator: 'endswith', value: '.mp3' },
+                video: { 'field': 'url', operator: 'endswith', value: '.mp4' }
+            },
+
+            /**
+             * Gets the url of the selected item
+             * @returns {*}
+             */
             value: function() {
-                /*
                 var that = this,
-                    selected = that._selectedItem(),
-                    path,
-                    fileUrl = that.options.transport.fileUrl;
-
-                if (selected && selected.get(TYPEFIELD) === "f") {
-                    path = concatPaths(that.path(), selected.get(NAMEFIELD)).replace(trimSlashesRegExp, "");
-                    if (fileUrl) {
-                        path = isFunction(fileUrl) ? fileUrl(path) : kendo.format(fileUrl, encodeURIComponent(path));
-                    }
-                    return path;
-                }
-                */
-            },
-
-            /*
-            _selectedItem: function() {
-                var listView = this.listView,
-                    selected = listView.select();
-
-                if (selected.length) {
-                    return this.dataSource.getByUid(selected.attr(kendo.attr("uid")));
+                    selected = that._selectedItem();
+                if (selected instanceof kendo.data.ObservableObject) {
+                    return selected.url;
                 }
             },
-            */
 
             /**
              * Builds the widget layout
@@ -359,17 +373,71 @@
                     template = kendo.template(that.options.toolbarTemplate),
                     messages = that.options.messages;
 
+                // Add template
                 that.toolbar = $(template({
                     messages: messages
                 })).appendTo(that.fileBrowser);
+                assert.instanceof($, that.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'window.jQuery'));
 
                 // TODO Upload
                 // TODO Delete
-                // TODO Search
 
-                /*
-                that._attachDropzoneEvents();
-                */
+                // Collection drop down list
+                that.dropDownList = that.toolbar.find('div.k-toolbar-wrap select')
+                    .kendoDropDownList({
+                        dataSource: [],
+                        change: $.proxy(that._onDropDownListChange, that)
+                    })
+                    .data('kendoDropDownList');
+                assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+
+                // Search
+                that.searchInput = that.toolbar
+                    .find('input.k-input')
+                    .on(CHANGE, $.proxy(that._onSearchInputChange, that));
+                assert.instanceof($, that.searchInput, kendo.format(assert.messages.instanceof.default, 'this.searchInput', 'window.jQuery'));
+
+                // TODO that._attachDropzoneEvents();
+            },
+
+            /**
+             * Event handler triggered when selecting another collection in the toolbar drop down list
+             * @private
+             */
+            _onDropDownListChange: function(e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(kendo.ui.DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
+                assert.instanceof(kendo.ui.TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.tabStrip'));
+                this._resetTransport(this.tabStrip.select().index() - 1, e.sender.selectedIndex /*, false*/);
+            },
+
+            /**
+             * Event handler trigger when changing search input
+             * @param e
+             * @private
+             */
+            _onSearchInputChange: function(e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
+                assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
+                var filter = this.options.filter,
+                    value =  $(e.target).val(),
+                    search = { field: 'url', operator: 'contains', value: value };
+                if ($.type(value) === STRING && value.length) {
+                    if ($.isArray(filter)) {
+                        // We assume all array items are valid filters
+                        filter = filter.slice().push(search);
+                    } else if ($.isPlainObject(filter) && $.type(filter.field) === STRING && $.type(filter.operator) === STRING && filter.value) {
+                        filter = [filter, search];
+                    } else if ($.isPlainObject(filter) && filter.logic === 'and' && $.isArray(filter.filters)) {
+                        filter = $.extend(true, {}, filter).filters.push(search);
+                    } else if ($.isPlainObject(filter) && filter.logic === 'or' && $.isArray(filter.filters)) {
+                        filter = {logic: 'and', filters: [filter, search]};
+                    } else {
+                        filter = search;
+                    }
+                }
+                // Note: no need to sort the default alphabetical order
+                this.dataSource.query({ filter: filter });
             },
 
             /**
@@ -380,13 +448,56 @@
             _listView: function() {
                 assert.instanceof($, this.fileBrowser, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
-                this.listView = $('<div/>')
+                this.listView = $('<ul class="k-reset k-floats k-tiles"/>')
                     .appendTo(this.fileBrowser)
                     .kendoListView({
+                        //autoBind: false,
+                        change: $.proxy(this._onListViewChange, this),
+                        dataBinding: function(e) {
+                            //that.toolbar.find(".k-delete").parent().addClass("k-state-disabled");
+                            //if (e.action === "remove" || e.action === "sync") {
+                            //    e.preventDefault();
+                            //}
+                        },
+                        dataBound: function() {
+                            //if (that.dataSource.view().length) {
+                            //    that._tiles = this.items().filter("[" + kendo.attr("type") + "=f]");
+                            //} else {
+                            //    this.wrapper.append(EMPTYTILE({ text: that.options.messages.emptyFolder }));
+                            //}
+                        },
                         dataSource: this.dataSource,
+                        selectable: true,
                         template: kendo.template(this.options.itemTemplate)
                     })
                     .data('kendoListView');
+            },
+
+            /**
+             * Event handler triggered when the asset selection changes in the list view
+             * @private
+             */
+            _onListViewChange: function() {
+                var selected = this._selectedItem();
+                if (selected) {
+                    this.toolbar.find(".k-delete").parent().removeClass("k-state-disabled");
+                    this.trigger(CHANGE);
+                }
+            },
+
+            /**
+             * Returns the selected item (a data source item) from the list view
+             * @returns {*}
+             * @private
+             */
+            _selectedItem: function() {
+                assert.instanceof(kendo.ui.ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+                var listView = this.listView,
+                    selected = listView.select();
+                if (selected instanceof $ && selected.length) {
+                    return this.dataSource.getByUid(selected.attr(kendo.attr("uid")));
+                }
             },
 
             /**
@@ -403,18 +514,21 @@
                 // Move file browser to the selected tab
                 this.fileBrowser.appendTo(this.tabStrip.contentHolder(tabIndex));
                 // Show/hide upload and delete buttons which are only available on the default Tab
-                this.fileBrowser.find('div.k-toolbar-wrap').toggle(tabIndex === 0);
+                this.fileBrowser.find('div.k-toolbar-wrap>.k-upload').toggle(tabIndex === 0);
+                this.fileBrowser.find('div.k-toolbar-wrap>.k-button').toggle(tabIndex === 0);
+                this.fileBrowser.find('div.k-toolbar-wrap>label').toggle(tabIndex !== 0);
                 // Change data source transport
-                this._resetTransport(tabIndex-1, 0);
+                this._resetTransport(tabIndex-1, 0, true);
             },
 
             /**
              * Change data source transport based on selected collection
              * @param colIndex
              * @param subIndex
+             * @param all to also reset the toolbar drop down list data source
              * @private
              */
-            _resetTransport: function(colIndex, subIndex) {
+            _resetTransport: function(colIndex, subIndex, all) {
                 function getTransport(options) {
                     var transport;
                     if (options) {
@@ -433,12 +547,23 @@
                     var collection = this.options.collections[colIndex];
                     if ($.isPlainObject(collection.transport)) {
                         this.dataSource.transport = getTransport(collection.transport);
+                        this.dropDownList.setDataSource([]);
+                        this.dropDownList.wrapper.parent().hide();
                     } else if ($.isArray(collection.collections) && collection.collections.length &&
                         $.isPlainObject(collection.collections[subIndex].transport)) {
                         this.dataSource.transport = getTransport(collection.collections[subIndex].transport);
+                        if (all) {
+                            this.dropDownList.setDataSource(collection.collections.map(function (item) {
+                                return item.name;
+                            }));
+                            this.dropDownList.select(subIndex);
+                            this.dropDownList.wrapper.parent().show();
+                        }
                     }
                 } else {
                     this.dataSource.transport = getTransport(this.options.transport);
+                    this.dropDownList.setDataSource([]);
+                    this.dropDownList.wrapper.parent().hide();
                 }
                 return this.dataSource.read();
             },
@@ -465,6 +590,7 @@
                         transport: $.isPlainObject(transport) ? transport : that.options.transport
                     })
                     .bind(ERROR, that._errorHandler);
+
             },
 
             /**
@@ -473,6 +599,8 @@
              * @private
              */
             _dataError: function(e) {
+                // TODO
+
                 /*
                 var that = this,
                     status;

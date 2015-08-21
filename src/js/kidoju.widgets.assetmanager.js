@@ -421,7 +421,7 @@
                 assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
                 var files = e.target.files;
                 if (files instanceof window.FileList && files.length) {
-                    window.alert('Upload ' + files[0].name); //TODO
+                    window.alert('Upload ' + files[0].name); //TODO ------------------------------------------------------------------------------------------------
                 }
             },
 
@@ -430,7 +430,7 @@
              * @private
              */
             _onDeleteButtonClick: function() {
-                window.alert('Delete ' + this.value());
+                window.alert('Delete ' + this.value()); //TODO --------------------------------------------------------------------------------------------------------
             },
 
             /**
@@ -655,7 +655,7 @@
              * @private
              */
             _dataError: function(e) {
-                // TODO
+                // TODO ----------------------------------------------------------------------------------------------------------------------------------
 
                 /*
                 var that = this,

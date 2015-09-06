@@ -14,9 +14,10 @@
     'use strict';
 
     // TODO: check touch interfaces
-    // TODO: Add tooltip with value
+    // TODO: Add tooltip with value and/or description
     // TODO: Display half stars
     // TODO: Should we bind to the DOM change event to be notified when input value changes?????
+    // TODO: https://developers.google.com/structured-data/rich-snippets/reviews
 
     (function ($, undefined) {
 
@@ -26,10 +27,10 @@
             kendo = window.kendo,
             ui = kendo.ui,
             Widget = ui.Widget,
-            ns = '.kendoRating',
             SPAN = 'span',
             NUMBER = 'number',
-            STAR = '&#x2605;',
+            STAR = 'star',
+            STAR_P = '&#x2605;',
             STAR_O = '&#x2606;',
             STAR_SELECTOR = 'span.k-rating-star',
             STATE_HOVER = 'k-state-hover',
@@ -43,10 +44,11 @@
             PRECISION = 3,
 
             // Events
-            CLICK = 'click' + ns,
-            MOUSEENTER = 'mouseenter' + ns,
-            MOUSELEAVE = 'mouseleave' + ns,
-            HOVEREVENTS = MOUSEENTER + ' ' + MOUSELEAVE,
+            NS = '.kendoRating',
+            CLICK = 'click' + NS,
+            MOUSEENTER = 'mouseenter',
+            MOUSELEAVE = 'mouseleave',
+            HOVEREVENTS = MOUSEENTER + NS + ' ' + MOUSELEAVE + NS,
             CHANGE = 'change';
 
         /*********************************************************************************
@@ -92,6 +94,17 @@
             }
         );
 
+        /**
+         * rounding numbers for the star rating widget
+         * @method round
+         * @param value {Number}
+         * @return {Number}
+         */
+        function round(value) {
+            value = parseFloat(value);
+            var power = Math.pow(10, PRECISION || 0);
+            return Math.round(value * power) / power;
+        }
 
         /*******************************************************************************************
          * Rating
@@ -117,7 +130,7 @@
                 var that = this,
                     input = $(element);
                 input.type = NUMBER;
-                that.ns = ns;
+                that.ns = NS;
                 options = $.extend({}, {
                     value: parseFloat(input.attr('value') || RATING_MIN),
                     min: parseFloat(input.attr('min') || RATING_MIN),
@@ -128,6 +141,7 @@
                 }, options);
                 Widget.fn.init.call(that, element, options);
                 that._layout();
+                that.value(options.value);
                 that.refresh();
                 kendo.notify(that);
             },
@@ -162,18 +176,16 @@
                 var that = this,
                     input = that.element,
                     options = that.options;
-                value = parseFloat(value, 10);
+                value = parseFloat(value);
                 if (isNaN(value)) {
-                    return options.value;
+                    return parseFloat(input.val());
                 } else if (value >= options.min && value <= options.max) {
-                    if (options.value !== value) {
-                        options.value = value;
-                        // that.element.prop("value", formatValue(value));
+                    if (parseFloat(input.val()) !== value) {
+                        // update input element
                         input.val(value);
-                        that.refresh();
-                        that.trigger(CHANGE, { value: value });
-                        that.element.trigger(CHANGE); // also trigger the DOM change event so any subscriber gets notified
+                        // also trigger the DOM change event so any subscriber gets notified
                         // http://stackoverflow.com/questions/4672505/why-does-the-jquery-change-event-not-trigger-when-i-set-the-value-of-a-select-us
+                        input.trigger(CHANGE + NS);
                     }
                 } else {
                     throw new RangeError(kendo.format('Expecting a number between {0} and {1}', options.min, options.max));
@@ -192,6 +204,11 @@
                 that._clear();
                 input.wrap('<span class="k-widget k-rating"/>');
                 input.hide();
+                input.on(CHANGE + NS, function(e) {
+                    // update widget
+                    that.refresh();
+                    that.trigger(CHANGE, { value: parseFloat(input.val()) });
+                });
                 // We need that.wrapper for visible/invisible bindings
                 that.wrapper = input.parent();
                 // Calculate the number of stars
@@ -213,7 +230,7 @@
                     disabled = options.disabled,
                     readonly = options.readonly,
                     wrapper = that.wrapper;
-                wrapper.find(STAR_SELECTOR).off(ns);
+                wrapper.find(STAR_SELECTOR).off(NS);
                 if (!readonly && !disabled) {
                     wrapper.removeClass(STATE_DISABLED);
                     wrapper.find(STAR_SELECTOR)
@@ -246,8 +263,8 @@
                     var i = round((that.value() - options.min)/options.step);
                     $.each(that.wrapper.find(STAR_SELECTOR), function (index, element) {
                         var star = $(element);
-                        if(parseFloat(star.attr('data-star')) <= i) {
-                            star.html(STAR).addClass(STATE_SELECTED);
+                        if(parseFloat(star.attr(kendo.attr(STAR))) <= i) {
+                            star.html(STAR_P).addClass(STATE_SELECTED);
                         } else {
                             star.html(STAR_O).removeClass(STATE_SELECTED);
                         }
@@ -264,7 +281,7 @@
                 var that = this,
                     options = that.options;
                 e.preventDefault();
-                var i = parseFloat($(e.currentTarget).attr('data-star')),
+                var i = parseFloat($(e.currentTarget).attr(kendo.attr(STAR))),
                     value = options.min + i * options.step;
                 that.value(value);
             },
@@ -276,13 +293,13 @@
              */
             _toggleHover: function (e) {
                 var that = this,
-                    i = parseFloat($(e.currentTarget).attr('data-star'));
+                    i = parseFloat($(e.currentTarget).attr(kendo.attr(STAR)));
                 $.each(that.wrapper.find(STAR_SELECTOR), function (index, element) {
                     var star = $(element);
-                    if(e.type=== 'mouseenter' && parseFloat(star.attr('data-star')) <= i) {
-                        star.html(STAR).addClass(STATE_HOVER);
+                    if(e.type=== MOUSEENTER && parseFloat(star.attr(kendo.attr(STAR))) <= i) {
+                        star.html(STAR_P).addClass(STATE_HOVER);
                     } else {
-                        star.html(star.hasClass(STATE_SELECTED) ? STAR : STAR_O).removeClass(STATE_HOVER);
+                        star.html(star.hasClass(STATE_SELECTED) ? STAR_P : STAR_O).removeClass(STATE_HOVER);
                     }
                 });
             },
@@ -297,9 +314,10 @@
                     input = that.element;
                 // remove wrapper and stars
                 if (that.wrapper) {
-                    that.wrapper.find(STAR_SELECTOR).off(ns).remove();
+                    that.wrapper.find(STAR_SELECTOR).off(NS).remove();
                     input.unwrap();
                     delete that.wrapper;
+                    // TODO remove input change event
                     input.show();
                 }
             },
@@ -316,18 +334,6 @@
         });
 
         ui.plugin(Rating);
-
-        /**
-         * rounding numbers for the star rating widget
-         * @method round
-         * @param value {Number}
-         * @return {Number}
-         */
-        function round(value) {
-            value = parseFloat(value, 10);
-            var power = Math.pow(10, PRECISION || 0);
-            return Math.round(value * power) / power;
-        }
 
     } (window.jQuery));
 

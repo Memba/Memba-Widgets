@@ -1,6 +1,6 @@
 /*!
     localForage -- Offline Storage, Improved
-    Version 1.2.4
+    Version 1.2.10
     https://mozilla.github.io/localForage
     (c) 2013-2015 Mozilla, Apache License 2.0
 */
@@ -546,7 +546,8 @@
                         if (_isEncodedBlob(value)) {
                             value = _decodeBlob(value);
                         }
-                        var result = iterator(value, cursor.key, iterationNumber++);
+                        var result = iterator(value, cursor.key,
+                                              iterationNumber++);
 
                         if (result !== void(0)) {
                             resolve(result);
@@ -983,8 +984,19 @@
             var keyPrefixLength = keyPrefix.length;
             var length = localStorage.length;
 
+            // We use a dedicated iterator instead of the `i` variable below
+            // so other keys we fetch in localStorage aren't counted in
+            // the `iterationNumber` argument passed to the `iterate()`
+            // callback.
+            //
+            // See: github.com/mozilla/localForage/pull/435#discussion_r38061530
+            var iterationNumber = 1;
+
             for (var i = 0; i < length; i++) {
                 var key = localStorage.key(i);
+                if (key.indexOf(keyPrefix) !== 0) {
+                    continue;
+                }
                 var value = localStorage.getItem(key);
 
                 // If a result was found, parse it from the serialized
@@ -995,7 +1007,8 @@
                     value = serializer.deserialize(value);
                 }
 
-                value = iterator(value, key.substring(keyPrefixLength), i + 1);
+                value = iterator(value, key.substring(keyPrefixLength),
+                                 iterationNumber++);
 
                 if (value !== void(0)) {
                     return value;
@@ -1246,8 +1259,8 @@
                                          dbInfo.description, dbInfo.size);
             } catch (e) {
                 return self.setDriver(self.LOCALSTORAGE).then(function() {
-    return self._initStorage(options);
-}).then(resolve)["catch"](reject);
+                    return self._initStorage(options);
+                }).then(resolve)["catch"](reject);
             }
 
             // Create our key/value table if it doesn't exist.

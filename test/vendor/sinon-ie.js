@@ -1,5 +1,5 @@
 /**
- * Sinon.JS 1.15.4, 2015/06/27
+ * Sinon.JS 1.16.1, 2015/08/20
  *
  * @author Christian Johansen (christian@cjohansen.no)
  * @author Contributors: https://github.com/cjohansen/Sinon.JS/blob/master/AUTHORS
@@ -46,6 +46,7 @@
  *
  * Copyright (c) 2010-2013 Christian Johansen
  */
+/*eslint-disable strict, no-inner-declarations, no-unused-vars*/
 if (typeof window !== "undefined") {
     function setTimeout() {}
     function clearTimeout() {}
@@ -57,14 +58,16 @@ if (typeof window !== "undefined") {
 
     // Reassign the original functions. Now their writable attribute
     // should be true. Hackish, I know, but it works.
+    /*global sinon*/
     setTimeout = sinon.timers.setTimeout;
     clearTimeout = sinon.timers.clearTimeout;
     setImmediate = sinon.timers.setImmediate;
     clearImmediate = sinon.timers.clearImmediate;
     setInterval = sinon.timers.setInterval;
     clearInterval = sinon.timers.clearInterval;
-    Date = sinon.timers.Date;
+    Date = sinon.timers.Date; // eslint-disable-line no-native-reassign
 }
+/*eslint-enable no-inner-declarations*/
 
 /**
  * Helps IE run the fake XMLHttpRequest. By defining global functions, IE allows
@@ -79,13 +82,16 @@ if (typeof window !== "undefined") {
  *
  * Copyright (c) 2010-2013 Christian Johansen
  */
+/*eslint-disable strict*/
 if (typeof window !== "undefined") {
-    function XMLHttpRequest() {}
+    function XMLHttpRequest() {} // eslint-disable-line no-unused-vars, no-inner-declarations
 
     // Reassign the original function. Now its writable attribute
     // should be true. Hackish, I know, but it works.
+    /*global sinon*/
     XMLHttpRequest = sinon.xhr.XMLHttpRequest || undefined;
 }
+/*eslint-enable strict*/
 /**
  * Helps IE run the fake XDomainRequest. By defining global functions, IE allows
  * them to be overwritten at a later point. If these are not defined like
@@ -94,10 +100,13 @@ if (typeof window !== "undefined") {
  *
  * If you don't require fake XDR to work in IE, don't include this file.
  */
+/*eslint-disable strict*/
 if (typeof window !== "undefined") {
-    function XDomainRequest() {}
+    function XDomainRequest() {} // eslint-disable-line no-unused-vars, no-inner-declarations
 
     // Reassign the original function. Now its writable attribute
     // should be true. Hackish, I know, but it works.
+    /*global sinon*/
     XDomainRequest = sinon.xdr.XDomainRequest || undefined;
 }
+/*eslint-enable strict*/

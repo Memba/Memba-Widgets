@@ -134,15 +134,24 @@
                 expect(fn).to.throw(RangeError);
             });
 
-            it('enable', function () {
+            it('enable/readonly', function () {
                 expect(rating).to.be.an.instanceof(Rating);
+                expect(rating.wrapper).to.be.an.instanceof($).with.property('length', 1);
                 rating.enable(false);
-
+                expect(rating.wrapper).to.have.class('k-state-disabled');
+                rating.enable(true);
+                expect(rating.wrapper).not.to.have.class('k-state-disabled');
             });
 
-            it('destroy', function () {
+            //it('visible', function () {
+                //expect(rating).to.be.an.instanceof(Rating);
+                //expect(rating.wrapper).to.be.an.instanceof($).with.property('length', 1);
+                //TODO
+            //});
+
+            //it('destroy', function () {
                 // TODO
-            });
+            //});
 
         });
 
@@ -160,7 +169,7 @@
             beforeEach(function () {
                 element = $(RATING2).appendTo(FIXTURES);
                 viewModel = kendo.observable({
-                    rating: undefined
+                    current: undefined
                 });
                 kendo.bind(FIXTURES, viewModel);
                 rating = element.data('kendoRating');
@@ -175,17 +184,16 @@
                 var stars = rating.wrapper.find('span.k-rating-star');
                 expect(stars).to.be.an.instanceof($).with.property('length', count);
                 for (var value = min; value <= max; value+= step) {
-                    viewModel.set('rating', value);
-                    // TODO
-                    //expect(parseFloat(input.val())).to.equal(value);
-                    //var pos = Math.round((value-min)/step)-1;
-                    //for (var i = 0; i < count; i++) {
-                    //    if (i <= pos) {
-                    //        expect($(stars.get(i))).to.have.class('k-state-selected');
-                    //    } else {
-                    //        expect($(stars.get(i))).to.not.have.class('k-state-selected');
-                    //    }
-                    //}
+                    viewModel.set('current', value);
+                    expect(parseFloat(input.val())).to.equal(value);
+                    var pos = Math.round((value-min)/step)-1;
+                    for (var i = 0; i < count; i++) {
+                        if (i <= pos) {
+                            expect($(stars.get(i))).to.have.class('k-state-selected');
+                        } else {
+                            expect($(stars.get(i))).to.not.have.class('k-state-selected');
+                        }
+                    }
                 }
             });
 
@@ -214,12 +222,32 @@
 
         describe('UI Interactions', function () {
 
-            it('mouseover', function() {
+            var element, rating;
 
+            beforeEach(function () {
+                element = $(RATING1).appendTo(FIXTURES);
+                rating = element.kendoRating().data('kendoRating');
+            });
+
+            it('mouseover', function() {
+                expect(rating).to.be.an.instanceof(Rating);
+                var min = rating.options.min, max = rating.options.max, step = rating.options.step;
+                var count = Math.round((max-min)/step);
+                var stars = rating.wrapper.find('span.k-rating-star');
+                expect(stars).to.be.an.instanceof($).with.property('length', count);
+                for (var pos = 0; pos < count; pos++) {
+                    $(stars.get(pos)).simulate('mouseover');
+                    for(var i = 0; i < count; i++) {
+                        if (i <= pos) {
+                            expect($(stars.get(i))).to.have.class('k-state-hover');
+                        } else {
+                            expect($(stars.get(i))).to.not.have.class('k-state-hover');
+                        }
+                    }
+                }
             });
 
         });
-
 
         describe('Events', function () {
 

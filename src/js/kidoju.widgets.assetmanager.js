@@ -127,13 +127,13 @@
                 if (!test) { throw new Error(message); }
             },
             {
-                enum: function(array, value, message) { if (array.indexOf(value) === -1) { throw new Error(message); } },
-                equal: function(expected, actual, message) { if (expected !== actual) { throw new Error(message); } },
+                //enum: function(array, value, message) { if (array.indexOf(value) === -1) { throw new Error(message); } },
+                //equal: function(expected, actual, message) { if (expected !== actual) { throw new Error(message); } },
                 instanceof: function(Class, value, message) { if (!(value instanceof Class)) { throw new Error(message); } },
-                isOptionalObject: function(value, message) { if ($.type(value) !== 'undefined' && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
+                //isOptionalObject: function(value, message) { if ($.type(value) !== 'undefined' && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
                 isPlainObject: function(value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new Error(message); } },
                 isUndefined: function(value, message) { if ($.type(value) !== 'undefined') { throw new Error(message); } },
-                match: function(rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new Error(message); } },
+                //match: function(rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new Error(message); } },
                 ok: function(test, message) { return assert(test, message); },
                 type: function(type, value, message) { if ($.type(value) !== type) { throw new TypeError(message); } }
             },
@@ -407,7 +407,6 @@
                     .on(CHANGE + NS, 'input.k-input', $.proxy(that._onSearchInputChange, that))
                     .on(CLICK + NS, 'a.k-i-close', $.proxy(that._onSearchClearClick, that));
 
-
                 // TODO that._attachDropzoneEvents();
             },
 
@@ -640,12 +639,12 @@
                     .create({
                         filter: this.options.filter,
                         schema: this.options.schema,
-                        // keep ddefault sort order
+                        // keep default sort order
                         transport: $.isPlainObject(transport) ? transport : this.options.transport
                     })
                     .bind(ERROR, this._errorHandler);
 
-                this.dataSource.filter(this.options.filter)
+                this.dataSource.filter(this.options.filter);
 
             },
 

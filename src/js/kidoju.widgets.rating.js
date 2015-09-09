@@ -27,7 +27,6 @@
             kendo = window.kendo,
             ui = kendo.ui,
             Widget = ui.Widget,
-            SPAN = 'span',
             NUMBER = 'number',
             STAR = 'star',
             STAR_P = '&#x2605;',
@@ -55,9 +54,13 @@
          * Helpers
          *********************************************************************************/
 
+        /**
+         * Log a message
+         * @param message
+         */
         function log(message) {
             if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
-                window.console.log('kidoju.widgets.explorer: ' + message);
+                window.console.log('kidoju.widgets.rating: ' + message);
             }
         }
 
@@ -204,7 +207,7 @@
                 that._clear();
                 input.wrap('<span class="k-widget k-rating"/>');
                 input.hide();
-                input.on(CHANGE + NS, function(e) {
+                input.on(CHANGE + NS, function() {
                     // update widget
                     that.refresh();
                     that.trigger(CHANGE, { value: parseFloat(input.val()) });
@@ -256,7 +259,7 @@
              * Refreshes the widget
              * @method refresh
              */
-            refresh: function (e) {
+            refresh: function () {
                 var that = this,
                     options = that.options;
                 if (that.wrapper) {
@@ -316,8 +319,8 @@
                 if (that.wrapper) {
                     that.wrapper.find(STAR_SELECTOR).off(NS).remove();
                     input.unwrap();
+                    input.off(NS);
                     delete that.wrapper;
-                    // TODO remove input change event
                     input.show();
                 }
             },

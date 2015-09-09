@@ -46,6 +46,7 @@
     <link href="./styles/kidoju.widgets.stage.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.toolbox.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.codeeditor.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.assetmanager.css" rel="stylesheet">
     <script src="./js/kidoju.data.js"></script>
     <script src="./js/kidoju.tools.js"></script>
     <script src="./js/kidoju.widgets.bindings.js"></script>
@@ -57,6 +58,7 @@
     <script src="./js/kidoju.widgets.codeinput.js"></script>
     <script src="./js/kidoju.widgets.codeeditor.js"></script>
     <script src="./js/kidoju.widgets.styleeditor.js"></script>
+    <script src="./js/kidoju.widgets.assetmanager.js"></script>
     <style>
         html, body {
             font: 14px sans-serif;
@@ -518,8 +520,8 @@
 
             //onResize event handler
             function onResize() {
-                var navigationWidget = $('[data-role="navigation"]').data('kendoNavigation'),
-                    stage = $('#center-pane [data-role="stage"]'),
+                var navigationWidget = $(kendo.roleSelector('navigation')).data('kendoNavigation'),
+                    stage = $('#center-pane').find(kendo.roleSelector('stage')),
                     stageWidget = stage.data('kendoStage');
                 if (navigationWidget instanceof kendo.ui.Navigation) {
                     navigationWidget.resize();
@@ -589,7 +591,7 @@
                 });
 
                 //Bind resize events and resize
-                $('main [data-role="splitter"]').data('kendoSplitter').bind('resize', onResize);
+                $('main').find(kendo.roleSelector('splitter')).data('kendoSplitter').bind('resize', onResize);
                 $(window).on('resize', onResize);
                 onResize();
             });

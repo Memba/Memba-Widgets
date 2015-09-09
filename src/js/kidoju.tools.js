@@ -61,11 +61,55 @@
          * Helpers
          *********************************************************************************/
 
+        /**
+         * Log a message
+         * @param message
+         */
         function log(message) {
             if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
                 window.console.log('kidoju.tools: ' + message);
             }
         }
+
+        /**
+         * Asserts
+         * Note: Use asserts where unmet conditions are independent from user entries, and
+         * developers should be warned that there is probably something unexpected in their code
+         */
+        var assert = $.extend(
+            // By extending assert, we ensure we can call both assert() and assert.ok() for the same result (like in nodeJS)
+            function(test, message) {
+                if (!test) { throw new Error(message); }
+            },
+            {
+                enum: function(array, value, message) { if (array.indexOf(value) === -1) { throw new Error(message); } },
+                equal: function(expected, actual, message) { if (expected !== actual) { throw new Error(message); } },
+                instanceof: function(Class, value, message) { if (!(value instanceof Class)) { throw new Error(message); } },
+                isOptionalObject: function(value, message) { if ($.type(value) !== 'undefined' && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
+                isPlainObject: function(value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new Error(message); } },
+                isUndefined: function(value, message) { if ($.type(value) !== 'undefined') { throw new Error(message); } },
+                match: function(rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new Error(message); } },
+                ok: function(test, message) { return assert(test, message); },
+                type: function(type, value, message) { if ($.type(value) !== type) { throw new TypeError(message); } }
+            },
+            {
+                messages: {
+                    instanceof: {
+                        default: '`{0}` is expected to be an instance of `{1}`'
+                    },
+                    isPlainObject: {
+                        default: '`{0}` is expected to be a plain object'
+                    },
+                    isUndefined: {
+                        default: '`{0}` is expected to be undefined'
+                    },
+                    type: {
+                        default: '`{0}` is expected to be a(n) `{1}`'
+                    }
+                }
+            }
+        );
+
 
         /**
          * Build a random hex string of length characters
@@ -130,9 +174,10 @@
                 // Extend tool with init options
                 $.extend(this, options);
 
-                // Pass solution adapter to validation adapter, especially for the code editor
+                // Pass solution adapter library to validation adapter, especially for the code editor
                 if (this.properties && this.properties.solution instanceof adapters.BaseAdapter && this.properties.validation instanceof adapters.ValidationAdapter) {
-                    this.properties.validation.solutionAdapter = this.properties.solution;
+                    this.properties.validation.library = this.properties.solution.library;
+                    this.properties.validation.defaultValue = this.properties.solution.libraryDefault;
                 }
 
             },
@@ -190,14 +235,18 @@
              * @private
              */
             _getPropertyModel: function () {
-                var model = {fields: {}};
-                for (var prop in this.properties) {
-                    if (this.properties.hasOwnProperty(prop)) {
-                        if (this.properties[prop] instanceof adapters.BaseAdapter) {
-                            model.fields[prop] = this.properties[prop].getField();
+                var properties = this.properties,
+                    model = { fields: {} };
+                for (var prop in properties) {
+                    if (properties.hasOwnProperty(prop)) {
+                        if (properties[prop] instanceof adapters.BaseAdapter) {
+                            model.fields[prop] = properties[prop].getField();
                             if (prop === 'name') {
-                                // TODO: Add a property field name
-                                model.fields[prop].defaultValue = 'val_' + randomString(4);
+                                // This cannot be set as a default value on the  adapter because each instance should have a different name
+                                model.fields.name.defaultValue = 'val_' + randomString(4);
+                            } else if (prop === 'validation') {
+                                // We need the code library otherwise we won't have code to execute when validation === '// equal' or any other library value
+                                model._library = properties.validation.library;
                             }
                         }
                     }
@@ -242,6 +291,9 @@
          *******************************************************************************************/
         var adapters = kidoju.adapters = {};
 
+        /**
+         * Base (abstract) adapter
+         */
         adapters.BaseAdapter = kendo.Class.extend({
 
             /**
@@ -381,15 +433,19 @@
                 // See https://github.com/NaturalNode/natural
                 {
                     name: 'equal',
-                    formula: kendo.format(FORMULA, 'return value === solution;')
+                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
                 },
                 {
                     name: 'ignoreCaseEqual',
-                    formula: kendo.format(FORMULA, 'return value.trim().toUpperCase() === solution.trim.toLowerCase();')
+                    formula: kendo.format(FORMULA, 'return String(value).trim().toUpperCase() === String(solution).trim().toUpperCase();')
+                },
+                {
+                    name: 'ignoreCaseMatch',
+                    formula: kendo.format(FORMULA, 'return (new RegExp(String(solution), \'i\')).match(String(value));')
                 },
                 {
                     name: 'match',
-                    formula: kendo.format(FORMULA, 'return (new RegExp(solution)).match(value);')
+                    formula: kendo.format(FORMULA, 'return (new RegExp(String(solution))).match(String(value));')
                 }
             ],
             libraryDefault: 'equal'
@@ -477,6 +533,17 @@
         });
 
         /**
+         * Text (multiline) adapter
+         */
+        adapters.TextAdapter = adapters.StringAdapter.extend({
+            init: function (options) {
+                adapters.StringAdapter.fn.init.call(this, options);
+                this.editor = 'textarea';
+                this.attributes = $.extend({}, this.attributes, { style: 'resize:vertical;' });
+            }
+        });
+
+        /**
          * Style adapter
          */
         adapters.StyleAdapter = adapters.BaseAdapter.extend({
@@ -556,6 +623,151 @@
         });
 
         /**
+         * Asset Adapter
+         */
+        adapters.AssetAdapter = adapters.BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                adapters.BaseAdapter.fn.init.call(that, options);
+                that.type = STRING;
+                that.defaultValue = that.defaultValue || (that.nullable ? null : '');
+                // This is the inline editor with a [...] button which triggers this.showDialog
+                that.editor = function (container, options) {
+                    var table = $('<div/>')
+                        .css({ display: 'table' })
+                        .appendTo(container);
+                    var cell = $('<div/>')
+                        .css({
+                            display: 'table-cell',
+                            width: '100%',
+                            paddingRight: '8px'
+                        })
+                        .appendTo(table);
+                    var input = $('<input/>')
+                        .addClass('k-textbox') // or k-input
+                        .css({width: '100%'})
+                        .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field}))
+                        .appendTo(cell);
+                    $('<button/>')
+                        .text('...')
+                        .addClass('k-button')
+                        .css({
+                            display: 'table-cell',
+                            minWidth: '40px',
+                            height: input.css('height'), // to match input,
+                            margin: 0
+                        })
+                        .appendTo(table)
+                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                };
+            },
+            showDialog: function (options) {
+                var that = this,
+                    dialog = that.getDialog();
+                // Create viewModel (Cancel shall not save changes to main model)
+                dialog.viewModel = kendo.observable({
+                    url: options.model.get(options.field)
+                });
+                // Prepare UI
+                dialog.title(options.title);
+                var content = '<div class="k-edit-form-container">' +
+                    '<div data-role="assetmanager" data-bind="value: url"></div>' +
+                    '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="ok" href="#">OK</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
+                    '</div>';
+                dialog.content(content);
+                dialog.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager({
+                    //change: function(e) {
+                    //    dialog.viewModel.set('url', e.sender.value());
+                    //},
+                    transport: {
+                        read: function(options) {
+                            options.success({
+                                total: 1,
+                                data: [
+                                    { "url": "https://s3-eu-west-1.amazonaws.com/kidoju.test/s/en/55c9c75dcc8974a01a397472/item204.jpg", "size": 3177 }
+                                ]
+                            });
+                        },
+                        create: function(options) {
+
+                        },
+                        destroy: function(options) {
+
+                        }
+                        // update is same as create
+                    },
+                    collections: [
+                        {
+                            name: 'O-Collection',
+                            transport: {
+                                read: function (options) {
+                                    options.success({
+                                        total: 1,
+                                        data: [
+                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/add.svg", "size": 580 },
+                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/airship.svg", "size": 779 },
+                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/apple.svg", "size": 842 },
+                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/atom.svg", "size": 1090 },
+                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/baseball.svg", "size": 1930 },
+                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/typewriter.svg", "size": 895 },
+                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/user.svg", "size": 591 }
+                                        ]
+                                    });
+                                }
+                            }
+                        },
+                        {
+                            name: 'V-Collection',
+                            collections: [
+                                {
+                                    name: 'Dark Grey',
+                                    transport: {
+                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/o_collection_dark_grey.json'
+                                    }
+                                },
+                                {
+                                    name: 'Office',
+                                    transport: {
+                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/o_collection_office.json'
+                                    }
+                                },
+                                {
+                                    name: 'White',
+                                    transport: {
+                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/o_collection_white.json'
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                });
+                kendo.bind(dialog.element, dialog.viewModel);
+                dialog.element.addClass('kj-no-padding');
+                // Bind click handler for edit buttons
+                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                // Show dialog
+                dialog.center().open();
+            },
+            closeDialog: function (options, dialog, e) {
+                var that = this;
+                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
+                    var command = $(e.target).attr(kendo.attr('command'));
+                    if (command === 'ok') {
+                        options.model.set(options.field, dialog.viewModel.get('url'));
+                    }
+                    if (command === 'ok' || command === 'cancel') {
+                        dialog.close();
+                        dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
+                        dialog.element.removeClass('kj-no-padding');
+                        // The content method destroys widgets and unbinds data
+                        dialog.content('');
+                        dialog.viewModel = undefined;
+                    }
+                }
+            }
+        });
+
+        /**
          * Property name adapter
          */
         adapters.NameAdapter = adapters.StringAdapter.extend({});
@@ -580,6 +792,7 @@
                         })
                         .appendTo(table);
                     var input = $('<div data-role="codeinput" />')
+                        // Note: _library is added to the data bound PageComponent in its init method
                         .attr($.extend({}, options.attributes, {'data-bind': 'value: ' + options.field + ', source: _library'}))
                         .appendTo(cell);
                     $('<button/>')
@@ -601,12 +814,12 @@
                 // Create viewModel (Cancel shall not save changes to main model)
                 dialog.viewModel = kendo.observable({
                     code: options.model.get(options.field),
-                    library: [CUSTOM].concat(that.solutionAdapter.library)
+                    library: [CUSTOM].concat(that.library)
                 });
                 // Prepare UI
                 dialog.title(options.title);
                 var content = '<div class="k-edit-form-container">' +
-                    '<div data-role="codeeditor" data-bind="value: code, source: library" data-default="' + that.solutionAdapter.libraryDefault + '" data-solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"></div>' +
+                    '<div data-role="codeeditor" data-bind="value: code, source: library" data-default="' + that.defaultValue + '" data-solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"></div>' +
                     '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="ok" href="#">OK</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
                     '</div>';
                 dialog.content(content);
@@ -681,13 +894,13 @@
             icon: 'document_orientation_landscape',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<span style="#: attributes.style #">#: attributes.text #</span>'
+                default: '<div style="#: attributes.style #">#: attributes.text #</div>'
             },
             height: 100,
             width: 300,
             attributes: {
                 text: new adapters.StringAdapter({defaultValue: 'Label'}),
-                style: new adapters.StyleAdapter({defaultValue: 'font-family: Georgia, serif; color: #FF0000;'})
+                style: new adapters.StyleAdapter({defaultValue: 'font-family: Georgia, serif; font-size: 80px; color: #000000;'})
             },
 
             /**
@@ -701,7 +914,7 @@
                     var template = kendo.template(this.templates.default);
                     return template(component);
                 }
-            },
+            }
 
             /**
              * onResize Event Handler
@@ -709,15 +922,19 @@
              * @param e
              * @param component
              */
+            /*
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    var content = stageElement.find('>span'),
-                        fontSize = parseInt(content.css('font-size'), 10);
-                    if (!isNaN(fontSize)) {
-                        // The Nan test prevents the following loops from executing in Zombie
-                        // see https://github.com/assaf/zombie/issues/929
-                        var height, width,
+                    var content = stageElement.find('>div'),
+                        style = content.attr('style');
+                    //if (!isNaN(fontSize)) {
+                    // The NaN test prevents the following loops from executing in Zombie
+                    // see https://github.com/assaf/zombie/issues/929
+                    if (!/font(-size)?:[^;]*[0-9]+px/.test(style)) {
+                        // Since we have not defined any font-size, try adapting using div height
+                        var fontSize = content.height(),
+                            height, width,
                             clone = content
                                 .clone()
                                 .hide()
@@ -729,7 +946,9 @@
                         stageElement.after(clone);
                         // if no overflow, increase until overflow
                         while (clone.width() <= component.width && clone.height() <= component.height) {
-                            width = clone.width(); height = clone.height(); fontSize++;
+                            width = clone.width();
+                            height = clone.height();
+                            fontSize++;
                             clone.css('font-size', fontSize);
                             if (clone.width() === width && clone.height() === height) {
                                 break; //avoid an infinite loop if fontSize has no impact on dimensions
@@ -737,7 +956,9 @@
                         }
                         // if overflow, decrease until no overflow
                         while (clone.width() > component.width || clone.height() > component.height) {
-                            width = clone.width(); height = clone.height(); fontSize--;
+                            width = clone.width();
+                            height = clone.height();
+                            fontSize--;
                             clone.css('font-size', fontSize);
                             if (clone.width() === width && clone.height() === height) {
                                 break; //avoid an infinite loop if fontSize has no impact on dimensions
@@ -746,13 +967,13 @@
                         clone.remove();
                         content.css('font-size', fontSize);
                     }
-
                     // prevent any side effect
                     e.preventDefault();
                     // prevent event to bubble on stage
                     e.stopPropagation();
                 }
             }
+            */
         });
         tools.register(Label);
 
@@ -770,8 +991,8 @@
             height: 250,
             width: 250,
             attributes: {
-                src: new adapters.StringAdapter(),
-                alt: new adapters.StringAdapter()
+                src: new adapters.AssetAdapter({ title: 'Image', defaultValue: 'https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/painting_landscape.svg' }),
+                alt: new adapters.StringAdapter({ title: 'Text', defaultValue: 'Painting Landscape' })
             },
             /**
              * Get Html content
@@ -828,15 +1049,17 @@
             },
             properties: {
                 name: new adapters.NameAdapter({title: 'Name'}),
-                description: new adapters.StringAdapter({title: 'Description'}),
-                solution: new adapters.StringAdapter({title: 'Solution'}),
+                description: new adapters.StringAdapter({ title: 'Description' }),
+                solution: new adapters.StringAdapter({ title: 'Solution' }),
                 validation: new adapters.ValidationAdapter({
-                    title: 'Validation',
-                    solutionAdapter: new adapters.StringAdapter({title: 'Solution'})
+                    title: 'Validation'
+                    // The following is now achieved in kidoju.Tool.init
+                    // solutionAdapter: new adapters.StringAdapter({ title: 'Solution' }),
+                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault
                 }),
-                success: new adapters.ScoreAdapter({title: 'Success'}),
-                failure: new adapters.ScoreAdapter({title: 'Failure'}),
-                omit: new adapters.ScoreAdapter({title: 'Omit'})
+                success: new adapters.ScoreAdapter({ title: 'Success', defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: 'Failure', defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: 'Omit', defaultValue: 0 })
             },
             /**
              * Get Html content
@@ -879,7 +1102,7 @@
 
         /**
          * @class Button tool
-         * @type {void|*}
+         * @type {Button|*}
          */
         var Button = kidoju.Tool.extend({
             id: 'button',
@@ -894,19 +1117,21 @@
             attributes: {
                 style: new adapters.StyleAdapter(),
                 activeStyle: new adapters.StyleAdapter(),
-                text: new adapters.StringAdapter({defaultValue: 'Button'})
+                text: new adapters.StringAdapter({ defaultValue: 'Button' })
             },
             properties: {
                 name: new adapters.NameAdapter({title: 'Name'}),
                 description: new adapters.StringAdapter({title: 'Description'}),
                 solution: new adapters.BooleanAdapter({title: 'Solution'}),
                 validation: new adapters.ValidationAdapter({
-                    title: 'Validation',
-                    solutionAdapter: new adapters.BooleanAdapter({title: 'Solution'})
+                    title: 'Validation'
+                    // The following is now achieved in kidoju.Tool.init
+                    // solutionAdapter: new adapters.BooleanAdapter({ title: 'Solution' }),
+                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault
                 }),
-                success: new adapters.ScoreAdapter({title: 'Success'}),
-                failure: new adapters.ScoreAdapter({title: 'Failure'}),
-                omit: new adapters.ScoreAdapter({title: 'Omit'})
+                success: new adapters.ScoreAdapter({ title: 'Success', defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: 'Failure', defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: 'Omit', defaultValue: 0 })
             },
 
             /**
@@ -980,19 +1205,21 @@
             attributes: {
                 checkboxStyle: new adapters.StyleAdapter(),
                 labelStyle: new adapters.StyleAdapter(),
-                text: new adapters.StringAdapter({defaultValue: 'text'})
+                text: new adapters.StringAdapter({ defaultValue: 'text' })
             },
             properties: {
-                name: new adapters.NameAdapter({title: 'Name'}),
-                description: new adapters.StringAdapter({title: 'Description'}),
-                solution: new adapters.BooleanAdapter({title: 'Solution'}),
+                name: new adapters.NameAdapter({ title: 'Name' }),
+                description: new adapters.StringAdapter({ title: 'Description' }),
+                solution: new adapters.BooleanAdapter({ title: 'Solution' }),
                 validation: new adapters.ValidationAdapter({
-                    title: 'Validation',
-                    solutionType: BOOLEAN
+                    title: 'Validation'
+                    // The following is now achieved in kidoju.Tool.init
+                    // solutionAdapter: new adapters.BooleanAdapter({ title: 'Solution' }),
+                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault
                 }),
-                success: new adapters.ScoreAdapter({title: 'Success'}),
-                failure: new adapters.ScoreAdapter({title: 'Failure'}),
-                omit: new adapters.ScoreAdapter({title: 'Omit'})
+                success: new adapters.ScoreAdapter({ title: 'Success', defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: 'Failure', defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: 'Omit', defaultValue: 0 })
             },
 
             /**
@@ -1076,7 +1303,8 @@
         tools.register(CheckBox);
 
         /**
-         * @class Quiz tool
+         * Quiz tool
+         * @class Quiz
          * @type {void|*}
          */
         var Quiz = kidoju.Tool.extend({
@@ -1103,16 +1331,18 @@
                 text4: new adapters.StringAdapter({defaultValue: 'text4'})
             },
             properties: {
-                name: new adapters.NameAdapter({title: 'Name'}),
-                description: new adapters.StringAdapter({title: 'Description'}),
-                solution: new adapters.StringAdapter({title: 'Solution'}),
+                name: new adapters.NameAdapter({ title: 'Name' }),
+                description: new adapters.StringAdapter({ title: 'Description' }),
+                solution: new adapters.StringAdapter({ title: 'Solution' }),
                 validation: new adapters.ValidationAdapter({
-                    title: 'Validation',
-                    solutionType: STRING
+                    title: 'Validation'
+                    // The following is now achieved in kidoju.Tool.init
+                    // solutionAdapter: new adapters.BooleanAdapter({ title: 'Solution' }),
+                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault)
                 }),
-                success: new adapters.ScoreAdapter({title: 'Success'}),
-                failure: new adapters.ScoreAdapter({title: 'Failure'}),
-                omit: new adapters.ScoreAdapter({title: 'Omit'})
+                success: new adapters.ScoreAdapter({ title: 'Success', defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: 'Failure', defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: 'Omit', defaultValue: 0 })
             },
 
             /**
@@ -1126,7 +1356,7 @@
                     var template = kendo.template(this.templates.default);
                     return template($.extend(component, {ns: kendo.ns}));
                 }
-            },
+            }
 
             /**
              * onResize Event Handler
@@ -1134,6 +1364,7 @@
              * @param e
              * @param component
              */
+            /*
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) { // TODO: same id, same tool?
@@ -1191,11 +1422,48 @@
                     // prevent event to bubble on stage
                     e.stopPropagation();
                 }
-            }
+            }*/
 
         });
         tools.register(Quiz);
 
+        /**
+         * Audio tool
+         * @class Audio
+         */
+        var Audio = kidoju.Tool.extend({
+            id: 'audio',
+            icon: 'loudspeaker3',
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                // TODO Make a Kendo UI media Player - See http://blog.falafel.com/new-kendo-ui-media-player-widget-mvvm/
+                default: '<audio controls>' +
+                    // TODO test attributes.ogg and attributes.mpeg
+                    '<source src="#= attributes.ogg #" type="audio/ogg" />' +
+                    '<source src="#= attributes.mpeg #" type="audio/mpeg" />' +
+                '</audio>'
+            },
+            height: 50,
+            width: 500,
+            attributes: {
+                ogg: new adapters.AssetAdapter({ title: 'Ogg File' }),
+                mpeg: new adapters.AssetAdapter({ title: 'Mpeg File' })
+            },
+
+            /**
+             * Get Html content
+             * @method getHtml
+             * @param component
+             * @returns {*}
+             */
+            getHtml: function (component) {
+                if (component instanceof PageComponent) {
+                    var template = kendo.template(this.templates.default);
+                    return template($.extend(component, {ns: kendo.ns}));
+                }
+            }
+        });
+        tools.register(Audio);
 
         /**
          * We could also consider
@@ -1209,7 +1477,6 @@
          * Connector
          * Clock
          * Video
-         * Sound
          * Text-to-Speech
          * MathJax
          * Grid

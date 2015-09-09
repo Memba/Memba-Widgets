@@ -22,6 +22,7 @@
         // Types
             OBJECT = 'object',
             STRING = 'string',
+            BOOLEAN = 'boolean',
             NUMBER = 'number',
             UNDEFINED = 'undefined',
 
@@ -35,6 +36,60 @@
 
         // Miscellaneous
             RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i;
+
+
+        /*********************************************************************************
+         * Helpers
+         *********************************************************************************/
+
+        /**
+         * Log a message
+         * @param message
+         */
+        function log(message) {
+            if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
+                window.console.log('kidoju.tools: ' + message);
+            }
+        }
+
+        /**
+         * Asserts
+         * Note: Use asserts where unmet conditions are independent from user entries, and
+         * developers should be warned that there is probably something unexpected in their code
+         */
+        var assert = $.extend(
+            // By extending assert, we ensure we can call both assert() and assert.ok() for the same result (like in nodeJS)
+            function(test, message) {
+                if (!test) { throw new Error(message); }
+            },
+            {
+                enum: function(array, value, message) { if (array.indexOf(value) === -1) { throw new Error(message); } },
+                equal: function(expected, actual, message) { if (expected !== actual) { throw new Error(message); } },
+                instanceof: function(Class, value, message) { if (!(value instanceof Class)) { throw new Error(message); } },
+                isOptionalObject: function(value, message) { if ($.type(value) !== 'undefined' && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
+                isPlainObject: function(value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new Error(message); } },
+                isUndefined: function(value, message) { if ($.type(value) !== 'undefined') { throw new Error(message); } },
+                match: function(rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new Error(message); } },
+                ok: function(test, message) { return assert(test, message); },
+                type: function(type, value, message) { if ($.type(value) !== type) { throw new TypeError(message); } }
+            },
+            {
+                messages: {
+                    instanceof: {
+                        default: '`{0}` is expected to be an instance of `{1}`'
+                    },
+                    isPlainObject: {
+                        default: '`{0}` is expected to be a plain object'
+                    },
+                    isUndefined: {
+                        default: '`{0}` is expected to be undefined'
+                    },
+                    type: {
+                        default: '`{0}` is expected to be a(n) `{1}`'
+                    }
+                }
+            }
+        );
 
         /*********************************************************************************
          * Base Model
@@ -144,6 +199,9 @@
              * @param field
              */
             shouldSerialize: function(field) {
+
+                assert.type(STRING, field, kendo.format(assert.messages.type.default, 'field', STRING));
+
                 return this.fields.hasOwnProperty(field) && this.fields[field].serializable !== false &&
                     kendo.data.Model.fn.shouldSerialize.call(this, field);
             },
@@ -163,6 +221,7 @@
              * @returns {{}}
              */
             toJSON: function(includeDataSources) {
+
                 var json = {},
                     value, field;
 
@@ -472,10 +531,9 @@
                             that.trigger(CHANGE, e);
                         });
 
-                        // Add the SolutionAdapter library if any
-                        if (tool.properties && tool.properties.validation instanceof kidoju.adapters.ValidationAdapter &&
-                            tool.properties.validation.solutionAdapter instanceof kidoju.adapters.BaseAdapter) {
-                            that._library = tool.properties.validation.solutionAdapter.library;
+                        // Add the code library if any, otherwise we will be missing code for any items designated by a name
+                        if (tool.properties && tool.properties.validation instanceof kidoju.adapters.ValidationAdapter) {
+                            that._library = tool.properties.validation.library;
                         }
 
                     }
@@ -834,9 +892,9 @@
              * @returns {*}
              */
             validateTestFromProperties: function (test) {
-                if($.type(test) !== OBJECT) {
-                    return undefined;
-                }
+
+                // Note: the model being created on the fly, we only have an ObservableObject
+                assert.instanceof(kendo.data.ObservableObject, test, kendo.format(assert.messages.instanceof.default, 'test', 'kendo.data.ObservableObject'));
 
                 var that = this,
                     deferred = $.Deferred(),
@@ -866,16 +924,32 @@
 
                 $.each(that.data(), function (index, page) {
                     $.each(page.components.data(), function (index, component) {
-                        var properties = component.properties,
-                            name, code, value, solution;
-                        if (properties instanceof kendo.data.Model &&
-                            $.isPlainObject(properties.fields) && !$.isEmptyObject(properties.fields) && $.type(properties.name) === STRING) {
+
+                        var properties = component.properties, found;
+
+                        assert.instanceof(kendo.data.Model, properties, kendo.format(assert.messages.instanceof.default, 'properties', 'kendo.data.Model'));
+                        assert.type(OBJECT, properties.fields, kendo.format(assert.messages.type.default, 'properties.fields', OBJECT));
+
+                        // Note: some components like textboxes have properties, others likes labels and images don't
+                        // assert.type(STRING, properties.name, kendo.format(assert.messages.type.default, 'properties.name', STRING));
+                        if ($.type(properties.name) === STRING) {
+
+                            var libraryMatches = properties.validation.match(/^\/\/ ([^\n]+)$/);
+                            if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
+                                // Find in the code library
+                                found = properties._library.filter(function(item) {
+                                    return item.name === libraryMatches[1];
+                                });
+                                assert.ok($.isArray(found) && found.length, 'properties.validation cannot be found in code library');
+                            }
+
                             promises.push(that.validateNamedValue(
                                 properties.name,        // name
-                                properties.validation,  // code
+                                $.isArray(found) ? found[0].formula : properties.validation,  // code
                                 test[properties.name],  // value
                                 properties.solution     // solution
                             ));
+
                             result[properties.name] = {
                                 name: properties.name,
                                 description: properties.description,

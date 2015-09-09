@@ -29,7 +29,8 @@
             STRING = 'string',
             BEFORECHANGE = 'beforeChange',
             CHANGE = 'change',
-            NS = '.kendoCodeEditor',
+            JS_COMMENT = '// ',
+            // NS = '.kendoCodeEditor',
             WIDGET_CLASS = 'k-widget kj-codeeditor';
 
         /*********************************************************************************
@@ -133,7 +134,7 @@
                     if (formula === that.options.custom) {
                         return that.codeMirror.getDoc().getValue();
                     } else {
-                        return '// ' + that.dropDownList.text();
+                        return JS_COMMENT + that.dropDownList.text();
                     }
                 } else {
                     throw new TypeError('`value` is expected to be a string if not undefined');

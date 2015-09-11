@@ -24,7 +24,7 @@
         mocha.setup('bdd');
         mocha.timeout(10000);
     </script>
-    <!-- Style editor requirements -->
+    <!-- StyleEditor requirements -->
     <!--link href="../../src/styles/kidoju.widgets.styleeditor.css" rel="stylesheet"-->
     <script src="../../src/js/kidoju.widgets.styleeditor.js" data-cover></script>
 </head>
@@ -33,7 +33,7 @@
 <div id="fixtures"></div>
 <script src="kidoju.widgets.styleeditor.test.js"></script>
 <script>
-    mocha.checkLeaks().globals(['_jb_debug_helper', 'jQuery', 'kendo', 'kidoju', 'chai', 'sinon']);
+    mocha.checkLeaks().globals(['_jb_debug_helper', 'jQuery', 'kendo', 'chai', 'sinon']);
     if (!window.blanket && !window.PHANTOMJS) {
         mocha.run();
     }

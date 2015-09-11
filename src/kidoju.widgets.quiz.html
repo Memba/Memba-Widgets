@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>kidoju.widgets.quiz</title>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <script src="./js/vendor/kendo/jquery.min.js"></script>
+    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script-->
+    <!-- MultiInput requirements -->
+    <!--link href="./styles/kidoju.widgets.quiz.css" rel="stylesheet" /-->
+    <script src="./js/kidoju.widgets.quiz.js"></script>
+</head>
+<body>
+<h1>kidoju.widgets.quiz</h1>
+
+
+<h2>Quiz bound to observable</h2>
+<div id="quiz1" data-role="quiz" data-bind="value: value"></div>
+
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled&nbsp;
+    <input type="checkbox" data-bind="checked: readonly" />Readonly
+</div>
+<pre>
+    {
+        value: [<span data-bind="text: displayValue"></span>],
+        visible: <span data-bind="text: visible"></span>,
+        enabled: <span data-bind="text: enabled"></span>,
+        readonly: <span data-bind="text: readonly"></span>
+    }
+</pre>
+
+<script>
+    ;(function(window, $, undefined){
+
+        'use strict';
+
+        var kendo = window.kendo;
+
+        $(document).ready(function () {
+
+            var viewModel = window.viewModel = kendo.observable({
+                value: undefined,
+                visible: true,
+                enabled: true,
+                readonly: true
+            });
+
+            kendo.bind($('body'), viewModel);
+
+        });
+
+    }(this, jQuery));
+</script>
+</body>
+</html>

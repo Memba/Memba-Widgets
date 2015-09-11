@@ -1,0 +1,27 @@
+.k-mediaplayer {
+    position: relative;
+}
+.k-i-play:after,
+.k-i-play:before
+{
+    content: "\E000";
+}
+.km-pause:before
+{
+    content: "\e0e3";
+}
+.km-sound-0:after,
+.km-sound-0:before
+{
+    content: "\e040";
+}
+.km-sound-1:after,
+.km-sound-1:before
+{
+    content: "\e041";
+}
+.km-sound-2:after,
+.km-sound-2:before
+{
+    content: "\e042";
+}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>kidoju.widgets.mediaplayer</title>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <script src="./js/vendor/kendo/jquery.min.js"></script>
+    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script-->
+    <!-- MediaPlayer requirements -->
+    <link href="./styles/kidoju.widgets.mediaplayer.css" rel="stylesheet">
+    <script src="./js/kidoju.widgets.mediaplayer.js"></script>
+</head>
+<body>
+<h1>kidoju.widgets.mediaplayer</h1>
+<h2>Audio MediaPlayer</h2>
+<div id="audio" data-role="mediaplayer" data-mode="audio" data-files="['http://www.nyan.cat/music/original.ogg', 'http://www.nyan.cat/music/original.mp3']"></div>
+<h2>Video MediaPlayer</h2>
+<!--div id="video" data-role="mediaplayer" data-mode="video" data-files="['http://g-ec2.images-amazon.com/images/G/02/IMDb/ads/23037/everest-tv-spot.mp4', 'http://g-ec2.images-amazon.com/images/G/02/IMDb/ads/23037/everest-tv-spot.webm']"></div-->
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled&nbsp;
+    <input type="checkbox" data-bind="checked: readonly" />Readonly
+</div>
+<pre>
+    {
+        visible: <span data-bind="text: visible"></span>,
+        enabled: <span data-bind="text: enabled"></span>,
+        readonly: <span data-bind="text: readonly"></span>
+    }
+</pre>
+
+<script>
+    ;(function(window, $, undefined){
+
+        'use strict';
+
+        var kendo = window.kendo;
+
+        $(document).ready(function () {
+
+            var viewModel = window.viewModel = kendo.observable({
+                visible: true,
+                enabled: true,
+                readonly: true
+            });
+
+            kendo.bind($('body'), viewModel);
+
+        });
+
+    }(this, jQuery));
+</script>
+</body>
+</html>

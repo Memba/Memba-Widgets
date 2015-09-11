@@ -200,7 +200,8 @@
                 case 'gif':
                     return 'image/gif';
                 case 'jpg':
-                //case 'jpeg':
+                case 'jpeg':
+                    //case 'jpeg':
                     return 'image/jpeg';
                 case 'mp3':
                     // @see http://tools.ietf.org/html/rfc3003
@@ -209,10 +210,18 @@
                 case 'mp4':
                     // @see http://www.rfc-editor.org/rfc/rfc4337.txt
                     return 'video/mp4';
+                case 'ogg':
+                    return 'audio/ogg';
+                case 'ogv':
+                    return 'video/ogg';
                 case 'png':
                     return 'image/png';
                 case 'svg':
                     return 'image/svg+xml';
+                case 'wav':
+                    return 'audio/wav';
+                case 'webm':
+                    return 'video/webm';
                 default:
                     return 'application/octet-stream';
             }
@@ -550,18 +559,27 @@
              * @private
              */
             _onTabSelect: function(e) {
+
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
                 assert.instanceof(window.HTMLLIElement, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'window.HTMLLIElement'));
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
                 assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'window.jQuery'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
-                var tabIndex = $(e.item).index();
+
+                var oldIndex = this.tabStrip.select().index(),
+                    tabIndex = $(e.item).index();
+
+                // Ensure all content holders have the same height
+                this.tabStrip.contentHolder(tabIndex).height(this.tabStrip.contentHolder(oldIndex).height());
+
                 // Move file browser to the selected tab
                 this.fileBrowser.appendTo(this.tabStrip.contentHolder(tabIndex));
+
                 // Show/hide upload and delete buttons which are only available on the default Tab
                 this.fileBrowser.find('div.k-toolbar-wrap>.k-upload').toggle(tabIndex === 0);
                 this.fileBrowser.find('div.k-toolbar-wrap>.k-button').toggle(tabIndex === 0);
                 this.fileBrowser.find('div.k-toolbar-wrap>label').toggle(tabIndex !== 0);
+
                 // Change data source transport
                 this._resetTransport(tabIndex-1, 0, true);
             },

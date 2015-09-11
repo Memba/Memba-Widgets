@@ -698,43 +698,76 @@
                     },
                     collections: [
                         {
-                            name: 'O-Collection',
+                            name: 'G-Collection',
                             transport: {
-                                read: function (options) {
-                                    options.success({
-                                        total: 1,
-                                        data: [
-                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/add.svg", "size": 580 },
-                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/airship.svg", "size": 779 },
-                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/apple.svg", "size": 842 },
-                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/atom.svg", "size": 1090 },
-                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/baseball.svg", "size": 1930 },
-                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/typewriter.svg", "size": 895 },
-                                            { "url": "https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/user.svg", "size": 591 }
-                                        ]
-                                    });
-                                }
+                                read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/g_collection/svg/all/index.json'
                             }
                         },
                         {
-                            name: 'V-Collection',
+                            name: 'O-Collection',
                             collections: [
                                 {
                                     name: 'Dark Grey',
                                     transport: {
-                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/o_collection_dark_grey.json'
+                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/dark_grey/index.json'
                                     }
                                 },
                                 {
                                     name: 'Office',
                                     transport: {
-                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/o_collection_office.json'
+                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/office/index.json'
                                     }
                                 },
                                 {
                                     name: 'White',
                                     transport: {
-                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/o_collection_white.json'
+                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/white/index.json'
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            name: 'V-Collection',
+                            collections: [
+                                {
+                                    name: 'Small',
+                                    transport: {
+                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/32x32/index.json'
+                                    }
+                                },
+                                {
+                                    name: 'Medium',
+                                    transport: {
+                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/64x64/index.json'
+                                    }
+                                },
+                                {
+                                    name: 'Large',
+                                    transport: {
+                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/128x128/index.json'
+                                    }
+                                },
+                                {
+                                    name: 'Huge',
+                                    transport: {
+                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/256x256/index.json'
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            name: 'X-Collection',
+                            collections: [
+                                {
+                                    name: 'Small',
+                                    transport: {
+                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/x_collection/png/32x32/index.json'
+                                    }
+                                },
+                                {
+                                    name: 'Large',
+                                    transport: {
+                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/x_collection/png/128x128/index.json'
                                     }
                                 }
                             ]

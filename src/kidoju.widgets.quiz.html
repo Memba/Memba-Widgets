@@ -17,24 +17,25 @@
 <body>
 <h1>kidoju.widgets.quiz</h1>
 
+<h2>Quiz initiated from code</h2>
+<div id="quiz1" style="font-size: 30px;"></div>
 
 <h2>Quiz bound to observable</h2>
-<div id="quiz1" data-role="quiz" data-bind="value: value"></div>
-
+<div id="quiz2" data-mode="button" data-role="quiz" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+<div id="quiz3" data-mode="dropdown" data-role="quiz" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+<div id="quiz4" data-mode="radio" data-role="quiz" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled&nbsp;
-    <input type="checkbox" data-bind="checked: readonly" />Readonly
 </div>
 <pre>
     {
-        value: [<span data-bind="text: displayValue"></span>],
+        value: <span data-bind="text: value"></span>,
         visible: <span data-bind="text: visible"></span>,
-        enabled: <span data-bind="text: enabled"></span>,
-        readonly: <span data-bind="text: readonly"></span>
+        enabled: <span data-bind="text: enabled"></span>
     }
 </pre>
-
+<textarea data-bind="text:source" class="k-textbox" rows="5"></textarea>
 <script>
     ;(function(window, $, undefined){
 
@@ -44,11 +45,22 @@
 
         $(document).ready(function () {
 
+            // Quiz initiated from code
+            $('#quiz1').kendoQuiz({
+                value: null,
+                mode: kendo.ui.Quiz.fn.modes.dropdown,
+                dataSource: ['1975', '1982', '1989']
+            });
+
             var viewModel = window.viewModel = kendo.observable({
                 value: undefined,
+                source: '1975\n1982\n1989',
                 visible: true,
                 enabled: true,
-                readonly: true
+                readonly: true,
+                source$: function() {
+                    return this.get('source').split('\n');
+                }
             });
 
             kendo.bind($('body'), viewModel);

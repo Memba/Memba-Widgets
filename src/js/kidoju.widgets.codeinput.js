@@ -101,7 +101,7 @@
                 autoBind: true,
                 //dataSource
                 custom: 'custom',
-                default: 'Equal',
+                default: 'equal',
                 solution: ''
             },
 
@@ -161,7 +161,7 @@
             _onDropDownListChange: function() {
                 if (this.dropDownList instanceof kendo.ui.DropDownList && this.input instanceof $) {
                     this._value = '// ' + this.dropDownList.text();
-                    this.trigger(CHANGE);
+                    this.trigger(CHANGE, { value: this._value });
                 }
             },
 

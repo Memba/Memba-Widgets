@@ -18,13 +18,21 @@
         var kendo = window.kendo,
             ui = kendo.ui,
             Widget = ui.Widget,
+            NS = '.kendoQuiz',
+            STRING = 'string',
+            UNDEFINED = 'undefined',
+            CHANGE = 'change',
+            CLICK = 'click',
             ACTIVE = 'k-state-active',
             DISABLE = 'k-state-disabled',
-            SELECT = 'select',
+            WIDGET_CLASS = 'kj-quiz', //'k-widget kj-quiz',
+            GROUP_CLASS = 'kj-quiz-group',
+            BUTTON = '<input type="button" class="k-button" value="{0}" style="{1}">',
+            RADIO = '<div><input id="{0}_{1}" name="{0}" type="radio" value="{2}" style="{3}"><label for="{0}_{1}" style="{4}">{2}</label></div>',
             MODES = {
-                BUTTONS: 'buttons',
+                BUTTON: 'button',
                 DROPDOWN: 'dropdown',
-                OPTIONS: 'options'
+                RADIO: 'radio'
             };
 
         /*********************************************************************************
@@ -51,24 +59,48 @@
                 enum: function(array, value, message) { if (array.indexOf(value) === -1) { throw new Error(message); } },
                 equal: function(expected, actual, message) { if (expected !== actual) { throw new Error(message); } },
                 instanceof: function(Class, value, message) { if (!(value instanceof Class)) { throw new Error(message); } },
-                isOptionalObject: function(value, message) { if ($.type(value) !== 'undefined' && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
+                isOptionalObject: function(value, message) { if ($.type(value) !== UNDEFINED && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
                 isPlainObject: function(value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new Error(message); } },
-                isUndefined: function(value, message) { if ($.type(value) !== 'undefined') { throw new Error(message); } },
+                isUndefined: function(value, message) { if ($.type(value) !== UNDEFINED) { throw new Error(message); } },
                 match: function(rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new Error(message); } },
                 ok: function(test, message) { return assert(test, message); },
                 type: function(type, value, message) { if ($.type(value) !== type) { throw new TypeError(message); } }
             },
             {
                 messages: {
+                    instanceof: {
+                        default: '`{0}` is expected to be an instance of `{1}`'
+                    },
                     isPlainObject: {
+                        default: '`{0}` is expected to be a non-empty plain object'
                     },
                     isUndefined: {
+                        default: '`{0}` is expected to be undefined'
                     },
-                    match: {
+                    type: {
+                        default: '`{0}` is expected to be a(n) `{1}`'
                     }
                 }
             }
         );
+
+        /**
+         * Build a random hex string of length characters
+         * @param length
+         * @returns {string}
+         */
+        function randomString(length) {
+            var s = new Array(length + 1).join('x');
+            return s.replace(/x/g, function(c) {
+                /* jshint -W016 */
+                return (Math.random()*16|0).toString(16);
+                /* jshint +W016 */
+            });
+        }
+
+        function randomId() {
+            return 'id_' + randomString(6);
+        }
 
         /*********************************************************************************
          * Widget
@@ -86,7 +118,10 @@
              */
             init: function(element, options) {
                 var that = this;
+                options = options || {};
                 Widget.fn.init.call(that, element, options);
+                that._value = that.options.value;
+                that._randomId = randomId();
                 that._layout();
                 that._dataSource();
 
@@ -101,20 +136,36 @@
                 */
             },
 
+            /**
+             * Diplay modes
+             */
             modes: {
-                buttons: MODES.BUTTONS,
-                options: MODES.OPTIONS,
-                dropdown: MODES.DROPDOWN
+                button: MODES.BUTTON,
+                dropdown: MODES.DROPDOWN,
+                radio: MODES.RADIO
             },
 
+            /**
+             * Widget options
+             */
             options: {
                 name: 'Quiz',
-                mode: MODES.OPTIONS,
+                autoBind: true,
+                dataSource: [],
+                mode: MODES.BUTTON,
+                optionalLabel: 'Select...',
+                buttonStyle: '',
+                radioStyle: '',
+                labelStyle: '',
+                value: null,
                 enable: true
             },
 
+            /**
+             * Widget events
+             */
             events: [
-                SELECT
+                CHANGE
             ],
 
             /**
@@ -122,30 +173,214 @@
              * @param value
              */
             value: function(value) {
-
+                var that = this;
+                if ($.type(value) === STRING || value === null) {
+                    that._value = value;
+                    that._toggle(that._value);
+                } else if ($.type(value) === 'undefined') {
+                    return that._value;
+                } else {
+                    throw new TypeError('`value` is expected to be a string if not undefined');
+                }
             },
 
             /**
-             * Layout
+             * Widget layout
              * @private
              */
             _layout: function() {
                 var that = this;
                 that.wrapper = that.element;
+                that.element.addClass(WIDGET_CLASS);
+                if (that.options.mode === MODES.DROPDOWN) {
+                    that._layoutDropDown();
+                } else if (that.options.mode === MODES.BUTTON || that.options.mode === MODES.RADIO) {
+                    that._layoutGroup();
+                } else {
+                    throw new Error('Unknown `mode`');
+                }
             },
 
+            /**
+             * Widget layout as dropdown list
+             * @private
+             */
+            _layoutDropDown: function() {
+                var that = this;
+                that.dropDownList = $('<input>')
+                    .width('100%')
+                    .appendTo(that.element)
+                    .kendoDropDownList({
+                        autoBind: that.options.autoBind,
+                        change: $.proxy(that._onDropDownListChange, that), // change is not triggered by dropDownList api calls incl. value(), text(), ...
+                        dataSource: that.options.dataSource,
+                        optionalLabel: that.options.optionalLabel,
+                        value: that.options.value,
+                        valuePrimitive: true
+                    })
+                    .data('kendoDropDownList');
+            },
+
+            /**
+             * Event handler triggered when changing the value of the drop down list in the header
+             * @private
+             */
+            _onDropDownListChange: function() {
+                var that = this;
+                assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                that._value = that.dropDownList.text();
+                that.trigger(CHANGE, { value: this._value });
+            },
+
+            /**
+             * Widget layout as buttons or radios
+             * @private
+             */
+            _layoutGroup: function() {
+                var that = this;
+                that.groupList = $('<div>')
+                    .addClass(GROUP_CLASS)
+                    .on(CLICK + NS, 'input', $.proxy(that._onClick, that))
+                    .appendTo(that.element);
+            },
+
+            /**
+             * Event handler for click event and radios and buttons
+             * Handles
+             * @param e
+             * @private
+             */
+            _onClick: function(e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($, this.groupList, kendo.format(assert.messages.instanceof.default, 'this.groupList', 'jQuery'));
+                var that = this,
+                    target = $(e.target),
+                    value = target.val();
+                if (that.options.mode === MODES.BUTTON) {
+                    assert.equal('button', target.attr('type'), '`e.target` input type is expected to equal `button`');
+                    that.groupList.find('input[type=button]').removeClass(ACTIVE);
+                    if (value !== that._value) {
+                        that._value = value;
+                        target.addClass(ACTIVE);
+                    } else { // clicking the same value resets the button (and value)
+                        that._value = null;
+                    }
+                } else if (that.options.mode === MODES.RADIO) {
+                    assert.equal('radio', target.attr('type'), '`e.target` input type is expected to equal `radio`');
+                    if (value !== that._value) {
+                        that._value = value;
+                    } else { // clicking the same value resets the radio (and value)
+                        that._value = null;
+                        target.prop('checked', false);
+                    }
+                }
+                that.trigger(CHANGE, { value: that._value });
+            },
+
+            /**
+             * Update UI when value is changed using MVVM or this.value()
+             * @private
+             */
+            _toggle: function() {
+                var that = this;
+                switch(that.options.mode) {
+                    case MODES.BUTTON:
+                        assert.instanceof($, that.groupList, kendo.format(assert.messages.instanceof.default, 'this.groupList', 'jQuery'));
+                        that.groupList.find('input[type=button]').removeClass(ACTIVE);
+                        if (that._value) {
+                            that.groupList.find('input[type=button][value=' + that._value + ']').addClass(ACTIVE);
+                        }
+                        break;
+                    case MODES.DROPDOWN:
+                        assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                        that.dropDownList.text(that._value);
+                        break;
+                    case MODES.RADIO:
+                        assert.instanceof($, that.groupList, kendo.format(assert.messages.instanceof.default, 'this.groupList', 'jQuery'));
+                        if (that._value) {
+                            that.groupList.find('input[type=radio][value=' + that._value + ']').prop('checked', true);
+                        } else {
+                            that.groupList.find('input[type=radio]:checked').prop('checked', false);
+                        }
+                        break;
+                }
+            },
+
+            /**
+             * _dataSource function to bind refresh to the change event
+             * @private
+             */
             _dataSource: function() {
+                var that = this;
 
+                // returns the datasource OR creates one if using array or configuration
+                that.dataSource = kendo.data.DataSource.create(that.options.dataSource);
+
+                // bind to the change event to refresh the widget
+                if (that._refreshHandler) {
+                    that.dataSource.unbind(CHANGE, that._refreshHandler);
+                }
+                that._refreshHandler = $.proxy(that.refresh, that);
+                that.dataSource.bind(CHANGE, that._refreshHandler);
+
+                // Assign dataSource to dropDownList
+                var dropDownList = that.dropDownList;
+                if (dropDownList instanceof kendo.ui.DropDownList && dropDownList.dataSource !== that.dataSource ) {
+                    dropDownList.setDataSource(that.dataSource);
+                }
+
+                // trigger a read on the dataSource if one hasn't happened yet
+                if (that.options.autoBind) {
+                    that.dataSource.fetch();
+                }
             },
 
-            refresh: function() {
-
+            /**
+             * sets the dataSource for source binding
+             * @param dataSource
+             */
+            setDataSource: function(dataSource) {
+                var that = this;
+                // set the internal datasource equal to the one passed in by MVVM
+                that.options.dataSource = dataSource;
+                // rebuild the datasource if necessary, or just reassign
+                that._dataSource();
             },
 
+            /**
+             * Refresh method (called when dataSource is updated)
+             * for example to add buttons or options
+             * @param e
+             */
+            refresh: function(e) {
+                var that = this;
+                if (that.options.mode === MODES.DROPDOWN) {
+                    assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'that.dropDownList', 'kendo.ui.DropDownList'));
+                    that.dropDownList.refresh(e);
+                } else {
+                    // TODO without e!
+                    if (e && e.items instanceof kendo.data.ObservableArray) {
+                        assert.instanceof($, that.groupList, kendo.format(assert.messages.instanceof.default, 'that.groupList', 'jQuery'));
+                        $(e.items).each(function(index, value) {
+                            if (that.options.mode === MODES.BUTTON) {
+                                that.groupList.append(kendo.format(BUTTON, value, that.options.buttonStyle));
+                            } else if (that.options.mode === MODES.RADIO) {
+                                that.groupList.append(kendo.format(RADIO, that._randomId, index, value, that.options.radioStyle, that.options.labelStyle));
+                            }
+                        });
+                    }
+                    // TODO: Add / remove
+                }
+            },
+
+            /**
+             * Enable/disable the widget
+             * @param enable
+             */
             enable: function(enable) {
                 var wrapper = this.wrapper;
 
-                if(typeof enable == "undefined") {
+                if(typeof enable === UNDEFINED) {
                     enable = true;
                 }
 
@@ -158,36 +393,32 @@
                 this._enable = this.options.enable = enable;
             },
 
-            _option: function() {
-
+            /**
+             * Clear layout
+             * @private
+             */
+            _clear: function() {
+                var that = this;
+                // unbind kendo
+                kendo.unbind($(that.element));
+                // unbind all other events
+                that.element.find('*').off(NS);
+                // remove descendants
+                that.element.empty();
+                // remove element classes
+                that.element.removeClass(WIDGET_CLASS);
             },
 
-            _button: function() {
-                var button = $(this).addClass("km-button"),
-                    icon = kendo.attrValue(button, "icon"),
-                    badge = kendo.attrValue(button, "badge"),
-                    span = button.children("span"),
-                    image = button.find("img").addClass("km-image");
-
-                if (!span[0]) {
-                    span = button.wrapInner("<span/>").children("span");
-                }
-
-                span.addClass("km-text");
-
-                if (!image[0] && icon) {
-                    button.prepend($('<span class="km-icon km-' + icon + '"/>'));
-                }
-            },
-
-            _select: function(e) {
-                if (e.which > 1 || e.isDefaultPrevented() || !this._enable) {
-                    return;
-                }
-
-                this.select(e.currentTarget);
-                this.trigger(SELECT, { index: this.selectedIndex });
+            /**
+             * Destroy widget
+             */
+            destroy: function() {
+                var that = this;
+                Widget.fn.destroy.call(that);
+                that._clear();
+                kendo.destroy(that.element);
             }
+
         });
 
         ui.plugin(Quiz);

@@ -8,7 +8,11 @@
 
 (function (f, define) {
     'use strict';
-    define(['./vendor/kendo/kendo.binder', './kidoju.data', './kidoju.tools'], f);
+    define([
+        './vendor/kendo/kendo.binder',
+        './kidoju.data',
+        './kidoju.tools'
+    ], f);
 })(function () {
 
     'use strict';
@@ -835,6 +839,7 @@
                     var tool = that.options.tools[component.tool];
                     if (tool instanceof Tool) {
 
+                        // Create stageElement
                         var stageElement = $(kendo.format(ELEMENT, component.uid, component.tool))
                             .css({
                                 position: ABSOLUTE,
@@ -845,9 +850,13 @@
                                 // transformOrigin: 'center center', // by default
                                 transform: kendo.format(CSS_ROTATE, component.get(ROTATE))
                             });
-
                         stageElement.append(tool.getHtml(component));
+
+                        // Append to the stage
                         that.stage.append(stageElement);
+
+                        // In case stageElement is made from kendo UI controls
+                        kendo.init(stageElement);
 
                         // Transform the stageElement (most often resize), without triggering events
                         that._moveStageElement({
@@ -1212,8 +1221,9 @@
                                     if (/^attributes/.test(e.field) || /^properties/.test(e.field)) {
                                         var tool = tools[component.tool];
                                         if (tool instanceof Tool) {
-                                            // TODO: clean events/destroy
+                                            kendo.destroy(stageElement);
                                             stageElement.html(tool.getHtml(component));
+                                            kendo.init(stageElement);
                                             // stageElement.trigger(MOVE + NS, component);
                                             // stageElement.trigger(RESIZE + NS, component);
                                             // stageElement.trigger(ROTATE + NS, component);

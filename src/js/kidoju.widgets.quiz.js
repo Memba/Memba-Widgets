@@ -8,7 +8,10 @@
 
 (function (f, define) {
     'use strict';
-    define(['./vendor/kendo/kendo.binder'], f);
+    define([
+        './vendor/kendo/kendo.binder',
+        './vendor/kendo/kendo.dropdownlist'
+    ], f);
 })(function () {
 
     'use strict';
@@ -29,6 +32,7 @@
             GROUP_CLASS = 'kj-quiz-group',
             BUTTON = '<input type="button" class="k-button" value="{0}">',
             RADIO = '<div><input id="{1}_{2}" name="{1}" type="radio" value="{0}"><label for="{1}_{2}">{0}</label></div>',
+            MARGIN = '0.2em',
             MODES = {
                 BUTTON: 'button',
                 DROPDOWN: 'dropdown',
@@ -138,17 +142,10 @@
              */
             init: function(element, options) {
                 var that = this;
-                options = options || {};
                 Widget.fn.init.call(that, element, options);
-                that.options.groupStyle = formatStyle(that.options.groupStyle);
-                that.options.itemStyle = formatStyle(that.options.itemStyle);
-                if (that.options.mode === MODES.BUTTON) {
-                    // Add default space between buttons
-                    that.options.itemStyle = $.extend({ marginRight: '0.2em' }, that.options.itemStyle);
-                }
-                that.options.activeStyle = formatStyle(that.options.activeStyle);
                 that._value = that.options.value;
                 that._randomId = randomId();
+                that.setOptions(that.options);
                 that._layout();
                 that._dataSource();
                 that._enable = true;
@@ -181,6 +178,23 @@
                 activeStyle: {},
                 value: null,
                 enable: true
+            },
+
+            /**
+             *
+             * @param options
+             */
+            setOptions: function(options) {
+                var that = this;
+                Widget.fn.setOptions.call(that, options);
+                options = that.options;
+                options.groupStyle = formatStyle(options.groupStyle);
+                options.itemStyle = formatStyle(options.itemStyle);
+                if (options.mode === MODES.BUTTON) {
+                    // Add default space between buttons
+                    options.itemStyle = $.extend({ marginRight: MARGIN, marginBottom: MARGIN }, options.itemStyle);
+                }
+                options.activeStyle = formatStyle(options.activeStyle);
             },
 
             /**
@@ -306,7 +320,7 @@
                             .attr('style', '')
                             .css(that.options.itemStyle);
                         if (that._value) {
-                            that.groupList.find('input[type=button][value=' + that._value + ']')
+                            that.groupList.find('input[type=button][value="' + that._value + '"]')
                                 .addClass(ACTIVE)
                                 .attr('style', '')
                                 .css($.extend({}, that.options.itemStyle, that.options.activeStyle));
@@ -322,7 +336,7 @@
                             .attr('style', '')
                             .css(that.options.itemStyle);
                         if (that._value) {
-                            that.groupList.find('input[type=radio][value=' + that._value + ']')
+                            that.groupList.find('input[type=radio][value="' + that._value + '"]')
                                 .prop('checked', true)
                                 .parent()
                                     .attr('style', '')
@@ -402,9 +416,10 @@
                             var radio = $(kendo.format(RADIO, value, that._randomId, index))
                                 .css(that.options.itemStyle)
                                 .appendTo(that.groupList);
-                            // TODO consider as part of resize event handler
                             var size = parseInt(radio.css('fontSize'));
                             if(!isNaN(size)){
+                                // TODO See http://www.telerik.com/forums/font-size-of-styled-radio-buttons-and-checkboxes
+                                // TODO consider as part of resize event handler
                                 radio.find('input[type=radio]')
                                     .height(0.6*size)
                                     .width(0.6*size);

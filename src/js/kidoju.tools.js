@@ -125,6 +125,8 @@
             });
         }
 
+
+
         /*********************************************************************************
          * Tools
          *********************************************************************************/
@@ -279,6 +281,9 @@
             getHtml: function (component) {
                 throw new Error('Please implement in subclassed tool.');
             }
+
+            //addEvents(mode)
+            //removeEvents(mode)
 
             // onMove(e.component)
             // onResize(e.component)
@@ -539,7 +544,20 @@
             init: function (options) {
                 adapters.StringAdapter.fn.init.call(this, options);
                 this.editor = 'textarea';
-                this.attributes = $.extend({}, this.attributes, { style: 'resize:vertical;' });
+                this.attributes = $.extend({}, this.attributes, { rows: 4, style: 'resize:vertical; width: 100%;' });
+            }
+        });
+
+        /**
+         * Enum adapter
+         */
+        adapters.EnumAdapter = adapters.StringAdapter.extend({
+            init: function (options) {
+                adapters.StringAdapter.fn.init.call(this, options);
+                this.editor = 'input';
+                this.attributes = $.extend({}, this.attributes, { style: 'width: 100%;' });
+                this.attributes[kendo.attr('role')] = 'dropdownlist';
+                this.attributes[kendo.attr('source')] = JSON.stringify(options.enum);
             }
         });
 
@@ -1134,94 +1152,6 @@
         tools.register(Textbox);
 
         /**
-         * @class Button tool
-         * @type {Button|*}
-         */
-        var Button = kidoju.Tool.extend({
-            id: 'button',
-            icon: 'button',
-            cursor: CURSOR_CROSSHAIR,
-            templates: {
-                default: '<a class="k-toggle-button k-button" style="#: attributes.style #">#: attributes.text #</a><input type="hidden" data-#= ns #bind="value: #: properties.name #">'
-                // k-state-active
-            },
-            height: 100,
-            width: 300,
-            attributes: {
-                style: new adapters.StyleAdapter(),
-                activeStyle: new adapters.StyleAdapter(),
-                text: new adapters.StringAdapter({ defaultValue: 'Button' })
-            },
-            properties: {
-                name: new adapters.NameAdapter({title: 'Name'}),
-                description: new adapters.StringAdapter({title: 'Description'}),
-                solution: new adapters.BooleanAdapter({title: 'Solution'}),
-                validation: new adapters.ValidationAdapter({
-                    title: 'Validation'
-                    // The following is now achieved in kidoju.Tool.init
-                    // solutionAdapter: new adapters.BooleanAdapter({ title: 'Solution' }),
-                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault
-                }),
-                success: new adapters.ScoreAdapter({ title: 'Success', defaultValue: 1 }),
-                failure: new adapters.ScoreAdapter({ title: 'Failure', defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: 'Omit', defaultValue: 0 })
-            },
-
-            /**
-             * Get Html content
-             * @method getHtml
-             * @param component
-             * @returns {*}
-             */
-            getHtml: function (component) {
-                if (component instanceof PageComponent) {
-                    var template = kendo.template(this.templates.default);
-                    return template($.extend(component, {ns: kendo.ns}));
-                }
-            },
-
-            /**
-             * Add event handlers
-             * @param component
-             */
-            addEvents: function (component) {
-
-            },
-
-            /**
-             * Remove event handlers
-             * @param component
-             */
-            removeEvents: function (component) {
-
-            },
-            /**
-             * onResize Event Handler
-             * @method onResize
-             * @param e
-             * @param component
-             */
-            onResize: function (e, component) {
-                var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) { // TODO: same id, same tool?
-                    var anchor = stageElement.find('>a');
-                    if ($.type(component.width) === NUMBER) {
-                        anchor.width(component.width - 14);
-                    }
-                    if ($.type(component.height) === NUMBER) {
-                        anchor.height(component.height - 4);
-                        anchor.css('font-size', Math.floor(0.6 * component.height));
-                    }
-                    // prevent any side effect
-                    e.preventDefault();
-                    // prevent event to bubble on stage
-                    e.stopPropagation();
-                }
-            }
-        });
-        tools.register(Button);
-
-        /**
          * @class Quiz tool
          * @type {void|*}
          */
@@ -1277,54 +1207,8 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) { // TODO: same id, same tool?
-                    var content = stageElement.find('>div'),
-                        fontSize = parseInt(content.find('label').css('font-size'), 10);
-                    if (!isNaN(fontSize)) {
-                        // The Nan test prevents the following loops from executing in Zombie
-                        // see https://github.com/assaf/zombie/issues/929
-                        var height, width,
-                            clone = content
-                                .clone()
-                                .hide()
-                                .css({
-                                    position: ABSOLUTE,
-                                    height: AUTO,
-                                    width: AUTO
-                                }),
-                            input = clone.find('input[type="checkbox"]'),
-                            label = clone.find('label');
-                        stageElement.after(clone);
-                        // if no overflow, increase until overflow
-                        while (clone.width() <= component.width && clone.height() <= component.height) {
-                            width = clone.width(); height = clone.height(); fontSize++;
-                            label.css('font-size', fontSize);
-                            input.css({
-                                height: fontSize * 2 / 3,
-                                width: fontSize * 2 / 3
-                            });
-                            if (clone.width() === width && clone.height() === height) {
-                                break; //avoid an infinite loop if fontSize has no impact on dimensions
-                            }
-                        }
-                        // if overflow, decrease until no overflow
-                        while (clone.width() > component.width || clone.height() > component.height) {
-                            width = clone.width(); height = clone.height(); fontSize--;
-                            label.css('font-size', fontSize);
-                            input.css({
-                                height: fontSize * 2 / 3,
-                                width: fontSize * 2 / 3
-                            });
-                            if (clone.width() === width && clone.height() === height) {
-                                break; //avoid an infinite loop if fontSize has no impact on dimensions
-                            }
-                        }
-                        clone.remove();
-                        content.find('label').css('font-size', fontSize);
-                        content.find('input[type="checkbox"]').css({
-                            height: fontSize * 2 / 3,
-                            width: fontSize * 2 / 3
-                        });
-                    }
+                    var content = stageElement.find('>div');
+                    //TODO
                     // prevent any side effect
                     e.preventDefault();
                     // prevent event to bubble on stage
@@ -1345,23 +1229,16 @@
             icon: 'radio_button_group',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                // TODO See http://www.telerik.com/forums/font-size-of-styled-radio-buttons-and-checkboxes
-                default: '<div>' +
-                '<div><input id="#: properties.name #_1" type="radio" name="#: properties.name #" style="#: attributes.radioStyle #" value="1" data-#= ns #bind="checked: #: properties.name #"><label for="#: properties.name #_1" style="#: attributes.labelStyle #">#: attributes.text1 #</label></div>' +
-                '<div><input id="#: properties.name #_2" type="radio" name="#: properties.name #" style="#: attributes.radioStyle #" value="2" data-#= ns #bind="checked: #: properties.name #"><label for="#: properties.name #_2" style="#: attributes.labelStyle #">#: attributes.text2 #</label></div>' +
-                '<div><input id="#: properties.name #_3" type="radio" name="#: properties.name #" style="#: attributes.radioStyle #" value="3" data-#= ns #bind="checked: #: properties.name #"><label for="#: properties.name #_3" style="#: attributes.labelStyle #">#: attributes.text3 #</label></div>' +
-                '<div><input id="#: properties.name #_4" type="radio" name="#: properties.name #" style="#: attributes.radioStyle #" value="4" data-#= ns #bind="checked: #: properties.name #"><label for="#: properties.name #_4" style="#: attributes.labelStyle #">#: attributes.text4 #</label></div>' +
-                '</div>'
+                default: '<div data-role="quiz" data-mode="#: attributes.mode #" data-#= ns #bind="value: #: properties.name #" data-source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" data-group-style="#: attributes.groupStyle #" data-item-style="#: attributes.itemStyle #" data-active-style="#: attributes.activeStyle #"></div>'
             },
             height: 300,
             width: 500,
             attributes: {
-                labelStyle: new adapters.StyleAdapter(),
-                radioStyle: new adapters.StyleAdapter(),
-                text1: new adapters.StringAdapter({defaultValue: 'text1'}),
-                text2: new adapters.StringAdapter({defaultValue: 'text2'}),
-                text3: new adapters.StringAdapter({defaultValue: 'text3'}),
-                text4: new adapters.StringAdapter({defaultValue: 'text4'})
+                mode: new adapters.EnumAdapter({ title: 'Mode', defaultValue: 'button', enum: ['button', 'dropdown', 'radio'] }),
+                groupStyle: new adapters.StyleAdapter({ title: 'Group Style' }),
+                itemStyle: new adapters.StyleAdapter({ title: 'Item Style' }),
+                activeStyle: new adapters.StyleAdapter({ title: 'Active Style' }),
+                data: new adapters.TextAdapter({ title: 'Data', defaultValue: 'Text 1\nText 2' })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: 'Name' }),
@@ -1389,7 +1266,7 @@
                     var template = kendo.template(this.templates.default);
                     return template($.extend(component, {ns: kendo.ns}));
                 }
-            }
+            },
 
             /**
              * onResize Event Handler
@@ -1397,66 +1274,33 @@
              * @param e
              * @param component
              */
-            /*
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) { // TODO: same id, same tool?
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
                     var content = stageElement.find('>div'),
-                        fontSize = parseInt(content.find('label').css('font-size'), 10);
-                    if (!isNaN(fontSize)) {
-                        // The Nan test prevents the following loops from executing in Zombie
-                        // see https://github.com/assaf/zombie/issues/929
-                        var height, width,
-                            clone = content
-                                .clone()
-                                .hide()
-                                .css({
-                                    position: ABSOLUTE,
-                                    height: AUTO,
-                                    width: AUTO
-                                }),
-                            inputs = clone.find('input[type="radio"]'),
-                            labels = clone.find('label');
-                        stageElement.after(clone);
-                        // if no overflow, increase until overflow
-                        while (clone.width() <= component.width && clone.height() <= component.height)
-                        {
-                            width = clone.width(); height = clone.height(); fontSize++;
-                            labels.css('font-size', fontSize);
-                            inputs.css({
-                                height: fontSize * 2 / 3,
-                                width: fontSize * 2 / 3
-                            });
-                            if (clone.width() === width && clone.height() === height) {
-                                break; //avoid an infinite loop if fontSize has no impact on dimensions
-                            }
-                        }
-                        // if overflow, decrease until no overflow
-                        while (clone.width() > component.width || clone.height() > component.height) {
-                            width = clone.width(); height = clone.height(); fontSize--;
-                            labels.css('font-size', fontSize);
-                            inputs.css({
-                                height: fontSize * 2 / 3,
-                                width: fontSize * 2 / 3
-                            });
-                            if (clone.width() === width && clone.height() === height) {
-                                break; //avoid an infinite loop if fontSize has no impact on dimensions
-                            }
-                        }
-                        clone.remove();
-                        content.find('label').css('font-size', fontSize);
-                        content.find('input[type="radio"]').css({
-                            height: fontSize * 2 / 3,
-                            width: fontSize * 2 / 3
-                        });
+                        data = component.attributes.data,
+                        length = data.trim().split('\n').length || 1,
+                        height = $.type(component.height) === NUMBER ? component.height : 0;
+                        //width = $.type(component.width) === NUMBER ? component.width : 0;
+                    //content.width(width);
+                    //content.height(height);
+                    switch(component.attributes.mode) {
+                        case 'button':
+                            content.css('font-size', Math.floor(0.57 * height));
+                            break;
+                        case 'dropdown':
+                            content.css('font-size', Math.floor(0.5 * height));
+                            break;
+                        case 'radio':
+                            content.css('font-size', Math.floor(0.9 * height / (length || 1)));
+                            break;
                     }
                     // prevent any side effect
                     e.preventDefault();
                     // prevent event to bubble on stage
                     e.stopPropagation();
                 }
-            }*/
-
+            }
         });
         tools.register(Quiz);
 

@@ -27,8 +27,8 @@
             DISABLE = 'k-state-disabled',
             WIDGET_CLASS = 'kj-quiz', //'k-widget kj-quiz',
             GROUP_CLASS = 'kj-quiz-group',
-            BUTTON = '<input type="button" class="k-button" value="{0}" style="{1}">',
-            RADIO = '<div><input id="{0}_{1}" name="{0}" type="radio" value="{2}" style="{3}"><label for="{0}_{1}" style="{4}">{2}</label></div>',
+            BUTTON = '<input type="button" class="k-button" value="{0}">',
+            RADIO = '<div><input id="{1}_{2}" name="{1}" type="radio" value="{0}"><label for="{1}_{2}">{0}</label></div>',
             MODES = {
                 BUTTON: 'button',
                 DROPDOWN: 'dropdown',
@@ -102,6 +102,26 @@
             return 'id_' + randomString(6);
         }
 
+        function formatStyle(style) {
+            if ($.isPlainObject(style)) {
+                return style;
+            } else if ($.type(style) === STRING) {
+                var ret = {}, styleArray = style.split(';');
+                for (var i = 0; i < styleArray.length; i++) {
+                    var styleKeyValue = styleArray[i].split(':');
+                    if ($.isArray(styleKeyValue) && styleKeyValue.length === 2) {
+                        var key = styleKeyValue[0].trim(), value = styleKeyValue[1].trim();
+                        if (key.length && value.length) {
+                            ret[key] = value;
+                        }
+                    }
+                }
+                return ret;
+            } else {
+                throw new Error('`style` is expected to be a string or a plain object');
+            }
+        }
+
         /*********************************************************************************
          * Widget
          *********************************************************************************/
@@ -120,20 +140,22 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
+                that.options.groupStyle = formatStyle(that.options.groupStyle);
+                that.options.itemStyle = formatStyle(that.options.itemStyle);
+                if (that.options.mode === MODES.BUTTON) {
+                    // Add default space between buttons
+                    that.options.itemStyle = $.extend({ marginRight: '0.2em' }, that.options.itemStyle);
+                }
+                that.options.activeStyle = formatStyle(that.options.activeStyle);
                 that._value = that.options.value;
                 that._randomId = randomId();
                 that._layout();
                 that._dataSource();
-
-                /*
                 that._enable = true;
-                that.select(that.options.index);
-
                 if(!that.options.enable) {
                     that._enable = false;
                     that.wrapper.addClass(DISABLE);
                 }
-                */
             },
 
             /**
@@ -153,10 +175,10 @@
                 autoBind: true,
                 dataSource: [],
                 mode: MODES.BUTTON,
-                optionalLabel: 'Select...',
-                buttonStyle: '',
-                radioStyle: '',
-                labelStyle: '',
+                optionLabel: 'Select...',
+                groupStyle: {},
+                itemStyle: {},
+                activeStyle: {},
                 value: null,
                 enable: true
             },
@@ -176,7 +198,7 @@
                 var that = this;
                 if ($.type(value) === STRING || value === null) {
                     that._value = value;
-                    that._toggle(that._value);
+                    that._toggleUI();
                 } else if ($.type(value) === 'undefined') {
                     return that._value;
                 } else {
@@ -214,9 +236,9 @@
                         autoBind: that.options.autoBind,
                         change: $.proxy(that._onDropDownListChange, that), // change is not triggered by dropDownList api calls incl. value(), text(), ...
                         dataSource: that.options.dataSource,
-                        optionalLabel: that.options.optionalLabel,
-                        value: that.options.value,
-                        valuePrimitive: true
+                        optionLabel: that.options.optionLabel,
+                        value: that.options.value
+                        //valuePrimitive: true
                     })
                     .data('kendoDropDownList');
             },
@@ -228,7 +250,12 @@
             _onDropDownListChange: function() {
                 var that = this;
                 assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
-                that._value = that.dropDownList.text();
+                var value = that.dropDownList.value();
+                if ($.type(value) === STRING && value.length) {
+                    that._value = value;
+                } else {
+                    that._value = null;
+                }
                 that.trigger(CHANGE, { value: this._value });
             },
 
@@ -240,6 +267,7 @@
                 var that = this;
                 that.groupList = $('<div>')
                     .addClass(GROUP_CLASS)
+                    .css(that.options.groupStyle)
                     .on(CLICK + NS, 'input', $.proxy(that._onClick, that))
                     .appendTo(that.element);
             },
@@ -252,43 +280,36 @@
              */
             _onClick: function(e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                assert.instanceof($, this.groupList, kendo.format(assert.messages.instanceof.default, 'this.groupList', 'jQuery'));
                 var that = this,
                     target = $(e.target),
                     value = target.val();
-                if (that.options.mode === MODES.BUTTON) {
-                    assert.equal('button', target.attr('type'), '`e.target` input type is expected to equal `button`');
-                    that.groupList.find('input[type=button]').removeClass(ACTIVE);
-                    if (value !== that._value) {
-                        that._value = value;
-                        target.addClass(ACTIVE);
-                    } else { // clicking the same value resets the button (and value)
-                        that._value = null;
-                    }
-                } else if (that.options.mode === MODES.RADIO) {
-                    assert.equal('radio', target.attr('type'), '`e.target` input type is expected to equal `radio`');
-                    if (value !== that._value) {
-                        that._value = value;
-                    } else { // clicking the same value resets the radio (and value)
-                        that._value = null;
-                        target.prop('checked', false);
-                    }
+                if (value !== that._value) {
+                    that._value = value;
+                } else { // clicking the same value resets the button (and value)
+                    that._value = null;
                 }
+                that._toggleUI();
                 that.trigger(CHANGE, { value: that._value });
             },
 
             /**
-             * Update UI when value is changed using MVVM or this.value()
+             * Update UI when value is changed
              * @private
              */
-            _toggle: function() {
+            _toggleUI: function() {
                 var that = this;
                 switch(that.options.mode) {
                     case MODES.BUTTON:
                         assert.instanceof($, that.groupList, kendo.format(assert.messages.instanceof.default, 'this.groupList', 'jQuery'));
-                        that.groupList.find('input[type=button]').removeClass(ACTIVE);
+                        that.groupList.find('input[type=button]')
+                            .removeClass(ACTIVE)
+                            .attr('style', '')
+                            .css(that.options.itemStyle);
                         if (that._value) {
-                            that.groupList.find('input[type=button][value=' + that._value + ']').addClass(ACTIVE);
+                            that.groupList.find('input[type=button][value=' + that._value + ']')
+                                .addClass(ACTIVE)
+                                .attr('style', '')
+                                .css($.extend({}, that.options.itemStyle, that.options.activeStyle));
                         }
                         break;
                     case MODES.DROPDOWN:
@@ -297,10 +318,18 @@
                         break;
                     case MODES.RADIO:
                         assert.instanceof($, that.groupList, kendo.format(assert.messages.instanceof.default, 'this.groupList', 'jQuery'));
+                        that.groupList.find('div')
+                            .attr('style', '')
+                            .css(that.options.itemStyle);
                         if (that._value) {
-                            that.groupList.find('input[type=radio][value=' + that._value + ']').prop('checked', true);
+                            that.groupList.find('input[type=radio][value=' + that._value + ']')
+                                .prop('checked', true)
+                                .parent()
+                                    .attr('style', '')
+                                    .css($.extend({}, that.options.itemStyle, that.options.activeStyle));
                         } else {
-                            that.groupList.find('input[type=radio]:checked').prop('checked', false);
+                            that.groupList.find('input[type=radio]:checked')
+                                .prop('checked', false);
                         }
                         break;
                 }
@@ -358,18 +387,30 @@
                     assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'that.dropDownList', 'kendo.ui.DropDownList'));
                     that.dropDownList.refresh(e);
                 } else {
-                    // TODO without e!
+                    assert.instanceof($, that.groupList, kendo.format(assert.messages.instanceof.default, 'that.groupList', 'jQuery'));
+                    var items = that.dataSource.data();
                     if (e && e.items instanceof kendo.data.ObservableArray) {
-                        assert.instanceof($, that.groupList, kendo.format(assert.messages.instanceof.default, 'that.groupList', 'jQuery'));
-                        $(e.items).each(function(index, value) {
-                            if (that.options.mode === MODES.BUTTON) {
-                                that.groupList.append(kendo.format(BUTTON, value, that.options.buttonStyle));
-                            } else if (that.options.mode === MODES.RADIO) {
-                                that.groupList.append(kendo.format(RADIO, that._randomId, index, value, that.options.radioStyle, that.options.labelStyle));
-                            }
-                        });
+                        items = e.items;
                     }
-                    // TODO: Add / remove
+                    that.groupList.empty();
+                    $(e.items).each(function(index, value) {
+                        if (that.options.mode === MODES.BUTTON) {
+                            $(kendo.format(BUTTON, value))
+                                .css(that.options.itemStyle)
+                                .appendTo(that.groupList);
+                        } else if (that.options.mode === MODES.RADIO) {
+                            var radio = $(kendo.format(RADIO, value, that._randomId, index))
+                                .css(that.options.itemStyle)
+                                .appendTo(that.groupList);
+                            // TODO consider as part of resize event handler
+                            var size = parseInt(radio.css('fontSize'));
+                            if(!isNaN(size)){
+                                radio.find('input[type=radio]')
+                                    .height(0.6*size)
+                                    .width(0.6*size);
+                            }
+                        }
+                    });
                 }
             },
 

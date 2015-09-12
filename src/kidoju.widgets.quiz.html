@@ -10,7 +10,7 @@
     <!--script src="./js/vendor/kendo/kendo.core.js"></script>
     <script src="./js/vendor/kendo/kendo.data.js"></script>
     <script src="./js/vendor/kendo/kendo.binder.js"></script-->
-    <!-- MultiInput requirements -->
+    <!-- Quiz requirements -->
     <!--link href="./styles/kidoju.widgets.quiz.css" rel="stylesheet" /-->
     <script src="./js/kidoju.widgets.quiz.js"></script>
 </head>
@@ -18,7 +18,7 @@
 <h1>kidoju.widgets.quiz</h1>
 
 <h2>Quiz initiated from code</h2>
-<div id="quiz1" style="font-size: 30px;"></div>
+<div id="quiz1"></div>
 
 <h2>Quiz bound to observable</h2>
 <div id="quiz2" data-mode="button" data-role="quiz" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
@@ -31,11 +31,14 @@
 <pre>
     {
         value: <span data-bind="text: value"></span>,
+        source:
+            <div data-bind="text: source" style="margin-left: 80px;"></div>
+        source$: <span data-bind="text: source$"></span>
         visible: <span data-bind="text: visible"></span>,
         enabled: <span data-bind="text: enabled"></span>
     }
 </pre>
-<textarea data-bind="text:source" class="k-textbox" rows="5"></textarea>
+<textarea data-bind="value: source" class="k-textbox" rows="5"></textarea>
 <script>
     ;(function(window, $, undefined){
 
@@ -48,7 +51,17 @@
             // Quiz initiated from code
             $('#quiz1').kendoQuiz({
                 value: null,
-                mode: kendo.ui.Quiz.fn.modes.dropdown,
+                mode: kendo.ui.Quiz.fn.modes.radio,
+                groupStyle: {
+                    borderStyle: 'solid',
+                    fontSize: '60px'
+                },
+                itemStyle: {
+                    color: '#FF0000'
+                },
+                activeStyle: {
+                    backgroundColor: '#00FF00'
+                },
                 dataSource: ['1975', '1982', '1989']
             });
 

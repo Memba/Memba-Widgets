@@ -557,7 +557,7 @@
                 this.editor = 'input';
                 this.attributes = $.extend({}, this.attributes, { style: 'width: 100%;' });
                 this.attributes[kendo.attr('role')] = 'dropdownlist';
-                this.attributes[kendo.attr('source')] = JSON.stringify(options.enum);
+                this.attributes[kendo.attr('source')] = JSON.stringify(options.enum); // kendo.htmlEncode??
             }
         });
 
@@ -1344,11 +1344,9 @@
 
         /**
          * We could also consider
-         * ButtonGroup
          * HTML
          * Drawing surface
          * Shape
-         * Select
          * Checkbox
          * Drop Target
          * Connector

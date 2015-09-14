@@ -946,7 +946,9 @@
                             promises.push(that.validateNamedValue(
                                 properties.name,        // name
                                 $.isArray(found) ? found[0].formula : properties.validation,  // code
-                                test[properties.name],  // value
+                                // tools built upon kendo ui widgets cannot have undefined values because value(undefined) === value() so they use null
+                                // requiring users to test null || undefined is too complicated so we turn null into undefined
+                                $.type(test[properties.name]) === 'null' ? undefined : test[properties.name],  // value
                                 properties.solution     // solution
                             ));
 

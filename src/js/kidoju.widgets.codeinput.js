@@ -175,7 +175,8 @@
                 var that = this;
                 if ($.type(value) === STRING && that.dropDownList instanceof kendo.ui.DropDownList && that.input instanceof $) {
                     var libraryMatches = value.match(/^\/\/ ([^\n]+)$/),
-                        customMatches = value.match(/^function validate\(value, solution\) {[\s\S]+}$/);
+                        //customMatches = value.match(/^function validate\(value, solution\) {[\s\S]+}$/);
+                        customMatches = value.match(/^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/);
                     if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
                         // Find in the code library
                         var found = that.dropDownList.dataSource.data().filter(function(item) {
@@ -185,7 +186,7 @@
                         that.dropDownList.text(found);
                         that.dropDownList.wrapper.show();
                         that.input.hide();
-                    } else if ($.isArray(customMatches) && customMatches.length === 1) {
+                    } else if ($.isArray(customMatches) && customMatches.length === 2) {
                         that.dropDownList.wrapper.hide();
                         that.input.show();
                     } else {

@@ -848,9 +848,10 @@
              * @param code
              * @param value
              * @param solution
+             * @param all
              * @returns {*}
              */
-            validateNamedValue: function (name, code, value, solution) {
+            validateNamedValue: function (name, code, value, solution, all) {
                 var dfd = $.Deferred();
                 if (!window.Worker) {
                     dfd.reject({filename: undefined, lineno: undefined, message: 'Web workers are not supported' });
@@ -860,13 +861,18 @@
                     dfd.reject({filename: undefined, lineno: undefined, message: 'A valid name has not been provided' });
                     return dfd;
                 }
-                if ($.type(code) !== STRING) {
+                if ($.type(code) !== STRING) { //TODO review
                     dfd.reject({filename: undefined, lineno: undefined, message: 'Code has not been provided' });
                     return dfd;
                 }
                 // TODO: Add prerequisites (some custom helpers)
-                var blob = new Blob(['onmessage=function (e) {' + code + 'if(typeof(e.data.value)==="undefined") {postMessage(e.data.value);}else{postMessage(validate(e.data.value,e.data.solution));}self.close();}']);
+                // Note: we need postMessage(undefined) instead of postMessage() otherwise we get the following error:
+                // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.
+                var blob = new Blob(['onmessage=function (e) {' + code + 'if(typeof(e.data.value)==="undefined") {postMessage(undefined);}else{postMessage(validate(e.data.value,e.data.solution,e.data.all));}self.close();}']);
                 var blobURL = window.URL.createObjectURL(blob);
+
+                log(blobURL);
+
                 var worker = new Worker(blobURL);
                 worker.onmessage = function (e) {
                     dfd.resolve({ name: name, result: e.data });
@@ -874,7 +880,7 @@
                 worker.onerror = function (err) {
                     dfd.reject(err);
                 };
-                worker.postMessage({value: value, solution: solution});
+                worker.postMessage({value: value, solution: solution, all: all});
                 // terminate long workers (>50ms)
                 setTimeout(function () {
                     worker.terminate();
@@ -922,6 +928,16 @@
                         }
                     };
 
+                // Sanitize test
+                // tools built upon kendo ui widgets cannot have undefined values because value(undefined) === value() so they use null
+                // requiring users to test null || undefined is too complicated so we turn null into undefined
+                var all = test.toJSON();
+                for (var prop in all) {
+                    if (all.hasOwnProperty(prop) && all[prop] === null) {
+                        all[prop] = undefined;
+                    }
+                }
+
                 $.each(that.data(), function (index, page) {
                     $.each(page.components.data(), function (index, component) {
 
@@ -935,6 +951,7 @@
                         if ($.type(properties.name) === STRING) {
 
                             var libraryMatches = properties.validation.match(/^\/\/ ([^\n]+)$/);
+                                // customMatches = value.match(/^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/);
                             if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
                                 // Find in the code library
                                 found = properties._library.filter(function(item) {
@@ -944,12 +961,11 @@
                             }
 
                             promises.push(that.validateNamedValue(
-                                properties.name,        // name
+                                properties.name,       // name
                                 $.isArray(found) ? found[0].formula : properties.validation,  // code
-                                // tools built upon kendo ui widgets cannot have undefined values because value(undefined) === value() so they use null
-                                // requiring users to test null || undefined is too complicated so we turn null into undefined
-                                $.type(test[properties.name]) === 'null' ? undefined : test[properties.name],  // value
-                                properties.solution     // solution
+                                all[properties.name],  // value
+                                properties.solution,   // solution
+                                all                    // all (hash object of values - that is test with null values turned into undefined)
                             ));
 
                             result[properties.name] = {

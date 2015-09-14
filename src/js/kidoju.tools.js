@@ -44,8 +44,8 @@
 
         // Event
             CLICK = 'click',
-
-            FORMULA = 'function validate(value, solution) {\n\t{0}\n}',
+            FORMULA = 'function validate(value, solution, all) {\n\t{0}\n}',
+            JS_COMMENT = '// ',
             CUSTOM = {
                 name: 'custom',
                 formula: kendo.format(FORMULA, '// Your code should return true when value is validated against solution.')
@@ -179,7 +179,7 @@
                 // Pass solution adapter library to validation adapter, especially for the code editor
                 if (this.properties && this.properties.solution instanceof adapters.BaseAdapter && this.properties.validation instanceof adapters.ValidationAdapter) {
                     this.properties.validation.library = this.properties.solution.library;
-                    this.properties.validation.defaultValue = this.properties.solution.libraryDefault;
+                    this.properties.validation.defaultValue = JS_COMMENT + this.properties.solution.libraryDefault;
                 }
 
             },
@@ -446,11 +446,11 @@
                 },
                 {
                     name: 'ignoreCaseMatch',
-                    formula: kendo.format(FORMULA, 'return (new RegExp(String(solution), \'i\')).match(String(value));')
+                    formula: kendo.format(FORMULA, 'return (new RegExp(\'^\' + String(solution) + \'$\', \'i\')).test(String(value));')
                 },
                 {
                     name: 'match',
-                    formula: kendo.format(FORMULA, 'return (new RegExp(String(solution))).match(String(value));')
+                    formula: kendo.format(FORMULA, 'return (new RegExp(\'^\' + String(solution) + \'$\')).test(String(value));')
                 }
             ],
             libraryDefault: 'equal'
@@ -472,23 +472,23 @@
                 {
                     name: 'equal',
                     // TODO: parsing raises a culture issue with 5.3 in english and 5,3 in french
-                    formula: kendo.format(FORMULA, 'return parseFloat(value) === parseFloat(solution);')
+                    formula: kendo.format(FORMULA, 'return Number(value) === Number(solution);')
                 },
                 {
                     name: 'greaterThan',
-                    formula: kendo.format(FORMULA, 'return parseFloat(value) > parseFloat(solution);')
+                    formula: kendo.format(FORMULA, 'return Number(value) > Number(solution);')
                 },
                 {
                     name: 'greaterThanOrEqual',
-                    formula: kendo.format(FORMULA, 'return parseFloat(value) >= parseFloat(solution);')
+                    formula: kendo.format(FORMULA, 'return Number(value) >= Number(solution);')
                 },
                 {
                     name: 'lowerThan',
-                    formula: kendo.format(FORMULA, 'return parseFloat(value) < parseFloat(solution);')
+                    formula: kendo.format(FORMULA, 'return Number(value) < Number(solution);')
                 },
                 {
                     name: 'lowerThanOrEqual',
-                    formula: kendo.format(FORMULA, 'return parseFloat(value) <= parseFloat(solution);')
+                    formula: kendo.format(FORMULA, 'return Number(value) <= Number(solution);')
                 }
             ],
             libraryDefault: 'equal'
@@ -531,7 +531,8 @@
                 {
                     name: 'equal',
                     // TODO: parsing raises a culture issue with MM/DD/YYYY in english and DD/MM/YYYY in french
-                    formula: kendo.format(FORMULA, 'return new Date(value) === new Date(solution);')
+                    // Note: new Date(1994,1,1) !== new Date(1994,1,1) as they are two different objects
+                    formula: kendo.format(FORMULA, 'return new Date(value) - new Date(solution) === 0;')
                 }
             ],
             libraryDefault: 'equal'

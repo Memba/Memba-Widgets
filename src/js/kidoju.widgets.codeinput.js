@@ -22,7 +22,9 @@
         var kendo = window.kendo,
             Widget = kendo.ui.Widget,
             STRING = 'string',
+            UNDEFINED = 'undefined',
             CHANGE = 'change',
+            JS_COMMENT = '// ',
             NS = '.kendoCodeInput',
             WIDGET_CLASS = 'k-widget kj-codeinput';
 
@@ -50,9 +52,9 @@
                 enum: function(array, value, message) { if (array.indexOf(value) === -1) { throw new Error(message); } },
                 equal: function(expected, actual, message) { if (expected !== actual) { throw new Error(message); } },
                 instanceof: function(Class, value, message) { if (!(value instanceof Class)) { throw new Error(message); } },
-                isOptionalObject: function(value, message) { if ($.type(value) !== 'undefined' && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
+                isOptionalObject: function(value, message) { if ($.type(value) !== UNDEFINED && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
                 isPlainObject: function(value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new Error(message); } },
-                isUndefined: function(value, message) { if ($.type(value) !== 'undefined') { throw new Error(message); } },
+                isUndefined: function(value, message) { if ($.type(value) !== UNDEFINED) { throw new Error(message); } },
                 match: function(rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new Error(message); } },
                 ok: function(test, message) { return assert(test, message); },
                 type: function(type, value, message) { if ($.type(value) !== type) { throw new TypeError(message); } }
@@ -123,8 +125,8 @@
                 if ($.type(value) === STRING) {
                     that._value = value;
                     that._toggle(that._value);
-                } else if ($.type(value) === 'undefined') {
-                    return that._value;
+                } else if ($.type(value) === UNDEFINED) {
+                    return JS_COMMENT + that._value;
                 } else {
                     throw new TypeError('`value` is expected to be a string if not undefined');
                 }
@@ -160,7 +162,7 @@
              */
             _onDropDownListChange: function() {
                 if (this.dropDownList instanceof kendo.ui.DropDownList && this.input instanceof $) {
-                    this._value = '// ' + this.dropDownList.text();
+                    this._value = this.dropDownList.text();
                     this.trigger(CHANGE, { value: this._value });
                 }
             },

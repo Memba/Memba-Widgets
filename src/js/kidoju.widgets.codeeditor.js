@@ -9,18 +9,22 @@
 (function (f, define){
     'use strict';
     define([
-        './vendor/kendo/kendo.binder',
-        './vendor/kendo/kendo.dropdownlist',
-        './vendor/kendo/kendo.multiselect', // required becasue of test in kendo.binder.js
         './vendor/codemirror/lib/codemirror.js',
         './vendor/codemirror/mode/javascript/javascript.js',
         './vendor/codemirror/addon/lint/lint.js',
         './vendor/codemirror/addon/lint/jshint.js',
-        './vendor/codemirror/addon/lint/javascript-lint.js'
+        './vendor/codemirror/addon/lint/javascript-lint.js',
+        './vendor/kendo/kendo.binder',
+        './vendor/kendo/kendo.dropdownlist',
+        './vendor/kendo/kendo.multiselect' // required because of a test in kendo.binder.js
     ], f);
-})(function () {
+})(function (CodeMirror) {
 
     'use strict';
+
+    // Depending how codemirror.js is loaded
+    // We need `CodeMirror` for webpack and `window.CodeMirror` for grunt mocha
+    CodeMirror = CodeMirror || window.CodeMirror;
 
     (function ($, undefined) {
 
@@ -149,7 +153,7 @@
              */
             _toggle: function(value) {
                 var that = this;
-                if ($.type(value) === STRING && that.dropDownList instanceof kendo.ui.DropDownList && that.input instanceof $ && that.codeMirror instanceof window.CodeMirror) {
+                if ($.type(value) === STRING && that.dropDownList instanceof kendo.ui.DropDownList && that.input instanceof $ && that.codeMirror instanceof CodeMirror) {
                     var libraryMatches = value.match(/^\/\/ ([^\n]+)$/),
                         //customMatches = value.match(/^function validate\(value, solution\) {[\s\S]+}$/);
                         customMatches = value.match(/^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/);
@@ -213,7 +217,7 @@
              * @private
              */
             _onDropDownListChange: function() {
-                if (this.dropDownList instanceof kendo.ui.DropDownList && this.input instanceof $ && this.codeMirror instanceof window.CodeMirror) {
+                if (this.dropDownList instanceof kendo.ui.DropDownList && this.input instanceof $ && this.codeMirror instanceof CodeMirror) {
                     this.codeMirror.getDoc().setValue(this.dropDownList.value());
                 }
             },
@@ -228,7 +232,7 @@
                         .appendTo(that.element)
                         .get(0);
                 if (div instanceof window.HTMLElement) {
-                    that.codeMirror = window.CodeMirror(div, {
+                    that.codeMirror = CodeMirror(div, {
                         gutters: ['CodeMirror-lint-markers'],
                         lineNumbers: true,
                         lint: true,

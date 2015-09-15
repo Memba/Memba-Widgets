@@ -887,7 +887,7 @@
                     var codeEditor = dialog.element
                         .find('.kj-codeeditor')
                         .data('kendoCodeEditor');
-                    if (codeEditor instanceof kendo.ui.CodeEditor && codeEditor.codeMirror instanceof window.CodeMirror) {
+                    if (codeEditor instanceof kendo.ui.CodeEditor && codeEditor.codeMirror && $.isFunction(codeEditor.codeMirror.refresh)) {
                         codeEditor.codeMirror.refresh();
                     }
                     dialog.unbind('activate');

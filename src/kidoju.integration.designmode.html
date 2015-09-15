@@ -509,13 +509,23 @@
                     if (tool instanceof Tool) {
                         var grid1 = $('#attributes').data('kendoPropertyGrid'),
                             grid2 = $('#properties').data('kendoPropertyGrid');
-                        if (grid1) {
+                        if (grid1 instanceof kendo.ui.PropertyGrid) {
                             grid1.rows(tool._getAttributeRows());
                         }
-                        if (grid2) {
+                        if (grid2 instanceof kendo.ui.PropertyGrid) {
                             grid2.rows(tool._getPropertyRows());
                         }
                     }
+                }
+            });
+
+            // Bind set event to ensure property grid changes are passed to viewModel when changing currentPage or currentComponent
+            viewModel.bind('set', function(e) {
+                // IMPORTANT: by default changing currentComponent does not trigger a blur event on the input holding the property grid value being edited if any.
+                // So one may edit a component value in a property grid, click another component on stage, the selected component would then change on stage and in the property grid
+                // and the value being edited would not have been changed in the view Model. Below is a fix.
+                if(e.field === 'currentComponent') {
+                    $(document.activeElement).blur();
                 }
             });
 

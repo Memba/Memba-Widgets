@@ -425,11 +425,13 @@
              * @private
              */
             _onFileInputChange: function(e) {
+                var that = this;
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
                 assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
                 var files = e.target.files;
                 if (files instanceof window.FileList && files.length) {
-                    window.alert('Upload ' + files[0].name); //TODO ------------------------------------------------------------------------------------------------
+                    that.trigger(UPLOAD, { files: files });
+                    that.toolbar.find('.k-upload input[type=file]').val('');
                 }
             },
 
@@ -438,7 +440,8 @@
              * @private
              */
             _onDeleteButtonClick: function() {
-                window.alert('Delete ' + this.value()); //TODO --------------------------------------------------------------------------------------------------------
+                var that = this;
+                that.trigger(DELETE, { value: that.value() });
             },
 
             /**
@@ -526,7 +529,7 @@
                     if (this.tabStrip.select().index() === 0) {
                         this.toolbar.find('.k-delete').parent().removeClass('k-state-disabled').show();
                     }
-                    this.trigger(CHANGE);
+                    this.trigger(CHANGE, { value: this.value() });
                 }
             },
 

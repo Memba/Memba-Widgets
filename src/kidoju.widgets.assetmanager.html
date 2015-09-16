@@ -33,6 +33,14 @@
                 change: function(e) {
                     viewModel.set('url', e.sender.value());
                 },
+                upload: function(e) {
+                    if (e.files instanceof window.FileList && e.files.length) {
+                        alert('Upload ' + e.files[0].name);
+                    }
+                },
+                delete: function(e) {
+                    alert('Delete ' + e.sender.value());
+                },
                 transport: {
                     read: function(options) {
                         options.success({

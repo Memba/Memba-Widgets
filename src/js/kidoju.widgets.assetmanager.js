@@ -26,6 +26,7 @@
             ObservableObject = kendo.data.ObservableObject,
             DropDownList = kendo.ui.DropDownList,
             ListView = kendo.ui.ListView,
+            Pager = kendo.ui.Pager,
             TabStrip = kendo.ui.TabStrip,
             NUMBER = 'number',
             STRING = 'string',
@@ -482,7 +483,7 @@
                     }
                 }
                 // Note: no need to sort the default alphabetical order
-                this.dataSource.query({ filter: filter });
+                this.dataSource.query({ filter: filter, page: 1, pageSize: this.dataSource.pageSize() });
             },
 
             /**
@@ -503,7 +504,7 @@
              * @private
              */
             _listView: function() {
-                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'window.jQuery'));
+                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 this.listView = $('<ul class="k-reset k-floats k-tiles"/>')
                     .appendTo(this.fileBrowser)
@@ -516,7 +517,14 @@
                         template: kendo.template(this.options.itemTemplate)
                     })
                     .data('kendoListView');
+                this.pager = $('<div class="k-pager-wrap"></div>')
+                    .appendTo(this.fileBrowser)
+                    .kendoPager({
+                        dataSource: this.dataSource
+                    })
+                    .data('kendoPager');
                 assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(Pager, this.pager, kendo.format(assert.messages.instanceof.default, 'this.pager', 'kendo.ui.Pager'));
             },
 
             /**
@@ -525,7 +533,7 @@
              */
             _onListViewChange: function() {
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
-                assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'window.jQuery'));
+                assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
                 if (this._selectedItem() instanceof ObservableObject) {
                     if (this.tabStrip.select().index() === 0) {
                         this.toolbar.find('.k-delete').parent().removeClass('k-state-disabled').show();
@@ -539,7 +547,7 @@
              * @private
              */
             _onListViewDataBinding: function() {
-                assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'window.jQuery'));
+                assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
                 this.toolbar.find('.k-delete').parent().addClass('k-state-disabled').hide();
             },
 
@@ -565,9 +573,9 @@
             _onTabSelect: function(e) {
 
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(window.HTMLLIElement, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'window.HTMLLIElement'));
+                assert.instanceof(window.HTMLLIElement, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'HTMLLIElement'));
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
-                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'window.jQuery'));
+                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
 
                 var oldIndex = this.tabStrip.select().index(),
@@ -586,6 +594,9 @@
 
                 // Change data source transport
                 this._resetTransport(tabIndex-1, 0, true);
+
+                // refresh pager
+                this.pager.refresh();
             },
 
             /**
@@ -611,7 +622,7 @@
                 assert.type(NUMBER, colIndex, kendo.format(assert.messages.type.default, 'colIndex', NUMBER));
                 assert.type(NUMBER, subIndex, kendo.format(assert.messages.type.default, 'subIndex', NUMBER));
                 assert.type(ARRAY, this.options.collections, kendo.format(assert.messages.type.default, 'this.options.collections', ARRAY));
-                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'window.jQuery'));
+                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
 
@@ -663,7 +674,7 @@
                         schema: this.options.schema,
                         // keep default sort order
                         transport: $.isPlainObject(transport) ? transport : this.options.transport,
-                        pageSize: 20
+                        pageSize: 12
                     })
                     .bind(ERROR, this._errorHandler);
 

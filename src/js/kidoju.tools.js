@@ -348,7 +348,7 @@
                             modal: true,
                             resizable: false,
                             visible: false,
-                            width: 800
+                            width: 860
                         })
                         .data('kendoWindow');
                 }

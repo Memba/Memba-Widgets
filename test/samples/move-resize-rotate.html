@@ -470,11 +470,16 @@
 
         kendo.bind('body', viewModel);
         //$('#stage').on('click', util.onClick);
-        $('#wrapper').on('mousedown touchstart', util.onDragStart);
-        $('#wrapper').on('mousemove touchmove', util.onDrag);
         //dragenter, dragleave, dragover, drop
-        $('#wrapper').on('mouseup touchend', util.onDragEnd);
+        //$('#wrapper')
+        //    .on('mousedown touchstart', util.onDragStart)
+        //    .on('mousemove touchmove', util.onDrag)
+        //    .on('mouseup touchend', util.onDragEnd);
 
+        $(document.body)
+            .on('mousedown touchstart', util.onDragStart)
+            .on('mousemove touchmove', util.onDrag)
+            .on('mouseup touchend', util.onDragEnd);
     });
 
 } (this, jQuery));

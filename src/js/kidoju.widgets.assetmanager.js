@@ -282,6 +282,7 @@
             events: [
                 CHANGE,
                 DELETE,
+                ERROR,
                 UPLOAD
             ],
 
@@ -661,7 +662,8 @@
                         filter: this.options.filter,
                         schema: this.options.schema,
                         // keep default sort order
-                        transport: $.isPlainObject(transport) ? transport : this.options.transport
+                        transport: $.isPlainObject(transport) ? transport : this.options.transport,
+                        pageSize: 20
                     })
                     .bind(ERROR, this._errorHandler);
 

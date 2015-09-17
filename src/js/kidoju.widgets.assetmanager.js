@@ -12,7 +12,8 @@
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.tabstrip',
-        './vendor/kendo/kendo.listview'
+        './vendor/kendo/kendo.listview',
+        './vendor/kendo/kendo.pager'
     ],f);
 })(function () {
 

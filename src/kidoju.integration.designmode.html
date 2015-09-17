@@ -44,7 +44,6 @@
     <link href="./styles/kidoju.widgets.explorer.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.navigation.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.stage.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.toolbox.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.codeeditor.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.assetmanager.css" rel="stylesheet">
     <script src="./js/kidoju.data.js"></script>
@@ -203,287 +202,257 @@
                     }
                 }),
                 streamData = {
-                    "id": "a795f4da-a38b-459a-8709-63529faa7a5b",
                     "pages": [{
-                        "id": "000574bf-eae6-427c-99ff-0fae9c20c74b",
+                        "id": "40365503-413a-49e2-990b-bde37541892b",
+                        "style": "",
                         "components": [{
-                            "id": "881e9724-7590-4bd8-856c-3e8f2e43cf26",
-                            "tool": "image",
-                            "top": 50,
-                            "left": 370,
-                            "height": 250,
-                            "width": 250,
-                            "rotate": 0,
-                            "tag": null,
-                            "attributes": {
-                                "src": "http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png",
-                                "alt": "",
-                                "dirty": false
-                            },
-                            "properties": {"dirty": false}
-                        }, {
-                            "id": "fbc75ed3-e459-449e-9ae0-5244c270d03c",
+                            "id": "f96ade80-c6bd-415e-a58e-200097bdc1da",
                             "tool": "label",
-                            "top": 305.769653320313,
-                            "left": 114.216812133789,
-                            "height": 103.38539553752535,
-                            "width": 812.1719630380888,
+                            "top": 40.578599999999994,
+                            "left": 51.72249999999997,
+                            "height": 205.25181614231724,
+                            "width": 985.1008153217304,
                             "rotate": 0,
                             "tag": null,
                             "attributes": {
-                                "text": "What is this company?",
-                                "style": "font-family: Georgia, serif; color: #0000FF;",
-                                "dirty": false
-                            },
-                            "properties": {"dirty": false}
+                                "text": "Who painted this self-portrait?",
+                                "style": "font-family:Georgia, serif;font-size:80px;color:#663300;"
+                            }
                         }, {
-                            "id": "c62d4e8e-2692-4959-a38f-0588dc73d255",
+                            "id": "54a74fb1-12f0-43b2-a9ac-b03325624276",
                             "tool": "quiz",
-                            "top": 405.632720947266,
-                            "left": 346.598449707031,
-                            "height": 328.8460671624972,
-                            "width": 404.75839531214785,
+                            "top": 310.956,
+                            "left": 460.161,
+                            "height": 282.8705707252113,
+                            "width": 472.5791326949279,
                             "rotate": 0,
                             "tag": null,
                             "attributes": {
-                                "labelStyle": "color:#0000FF;",
-                                "radioStyle": "",
-                                "text1": "Google",
-                                "text2": "Apple",
-                                "text3": "Microsoft",
-                                "text4": "IBM",
-                                "dirty": false
+                                "mode": "radio",
+                                "groupStyle": "",
+                                "itemStyle": "font-family:Georgia, serif;color:#663300;font-size:60px;",
+                                "activeStyle": "background-color:#c7aa7d;",
+                                "data": "Fernand Léger\nPablo Picasso\nGeorge Braque\nPaul Cézanne"
                             },
                             "properties": {
-                                "name": "val_544da5",
-                                "description": "What is this company?",
-                                "solution": "1",
-                                "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
+                                "name": "val_e573",
+                                "description": "Self-portrait",
+                                "solution": "Pablo Picasso",
+                                "validation": "// equal",
                                 "success": 1,
-                                "failure": -0.25,
-                                "omit": 0,
-                                "dirty": false
-                            },
-                            "ns": ""
-                        }]
-                    }, {
-                        "id": "a4178055-65a7-4fef-b22d-9d928b2f1f32",
-                        "components": [{
-                            "id": "04d9eedb-0e3b-4dbd-b637-2a4a7eb36eba",
-                            "tool": "label",
-                            "top": 143.07640288556954,
-                            "left": 154.22131658024924,
-                            "height": 109.15393283750282,
-                            "width": 722.3932837502817,
-                            "rotate": 0,
-                            "tag": null,
-                            "attributes": {
-                                "text": "What year did Elvis die?",
-                                "style": "font-family: Georgia, serif; color: #FF0000;",
-                                "dirty": false
-                            },
-                            "properties": {"dirty": false}
+                                "failure": 0,
+                                "omit": 0
+                            }
                         }, {
-                            "id": "68fc850f-14e6-4580-87e7-b9f61fd6e5e8",
-                            "tool": "textbox",
-                            "top": 317.1709420851335,
-                            "left": 354.66807742201587,
-                            "height": 100,
-                            "width": 300,
-                            "rotate": 0,
-                            "tag": null,
-                            "attributes": {"style": "", "dirty": false},
-                            "properties": {
-                                "name": "val_cc5522",
-                                "description": "Year Elvis died",
-                                "solution": "1977",
-                                "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
-                                "success": 1,
-                                "failure": -0.25,
-                                "omit": 0,
-                                "dirty": false
-                            },
-                            "ns": ""
-                        }]
-                    }, {
-                        "id": "c60e5d19-eaa4-4b5b-a7d1-9bda6ee37d62",
-                        "components": [{
-                            "id": "0b2f712b-f8d9-4034-b968-a795f5091ac6",
+                            "id": "c971f83d-2dcf-48f4-ab96-7fbbefd870ed",
                             "tool": "image",
-                            "top": 196.4001471016735,
-                            "left": 51.04672077085242,
-                            "height": 471.5551048005409,
-                            "width": 380.39441063781834,
+                            "top": 274.08236689477866,
+                            "left": 67.62462653898558,
+                            "height": 450.3310599182495,
+                            "width": 370.7123053353555,
                             "rotate": 0,
                             "tag": null,
                             "attributes": {
                                 "src": "http://uploads2.wikiart.org/images/pablo-picasso/self-portrait-1907.jpg",
-                                "alt": "",
-                                "dirty": false
-                            },
-                            "properties": {"dirty": false}
-                        }, {
-                            "id": "882cbcd0-76e9-4100-b087-d7f77320c910",
-                            "tool": "label",
-                            "top": 72.0922779249183,
-                            "left": 107.42761017595447,
-                            "height": 103.46179851250845,
-                            "width": 803.1147171512283,
-                            "rotate": 0,
-                            "tag": null,
-                            "attributes": {
-                                "text": "Who painted this self portrait?",
-                                "style": "font-family: Georgia, serif; color: #FF0000;",
-                                "dirty": false
-                            },
-                            "properties": {"dirty": false}
-                        }, {
-                            "id": "7dd82e58-782e-436a-ba94-c68b79500c56",
-                            "tool": "quiz",
-                            "top": 249.39901733398438,
-                            "left": 455.8208923339844,
-                            "height": 300,
-                            "width": 500,
-                            "rotate": 0,
-                            "tag": null,
-                            "attributes": {
-                                "labelStyle": "",
-                                "radioStyle": "",
-                                "text1": "Georges Braque",
-                                "text2": "Pablo Picasso",
-                                "text3": "Francis Bacon",
-                                "text4": "Fernand Léger",
-                                "dirty": false
-                            },
-                            "properties": {
-                                "name": "val_7c6b20",
-                                "description": "Self portrait",
-                                "solution": "2",
-                                "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
-                                "success": 1,
-                                "failure": -0.25,
-                                "omit": 0,
-                                "dirty": false
-                            },
-                            "ns": ""
+                                "alt": "Painting Landscape"
+                            }
                         }]
                     }, {
-                        "id": "d2350965-9c39-4666-8d64-9a2111e9f486",
+                        "id": "c9caa1a7-8f5f-4b4a-a4dc-c9a98652dc2a",
                         "style": "",
                         "components": [{
-                            "id": "ecfd9684-330c-4817-b670-bfcf27e28935",
-                            "tool": "image",
-                            "top": 155.0581455417471,
-                            "left": 218.753723144531,
-                            "height": 592.2051936994466,
-                            "width": 569.318859088974,
+                            "id": "31ba6ec9-5b77-45cd-b11f-e659b3a1d8e3",
+                            "tool": "textbox",
+                            "top": 227.49649001362508,
+                            "left": 637.9709592339135,
+                            "height": 101.28417346101442,
+                            "width": 288.44243885087025,
                             "rotate": 0,
                             "tag": null,
-                            "attributes": {
-                                "src": "http://static.intellego.fr/uploads/8/4/84305/media/HistoireGeographie/carte%20de%20france%20fleuve%20vide.GIF",
-                                "alt": "French Map",
-                                "dirty": false
-                            },
-                            "properties": {"dirty": false}
+                            "attributes": {"style": "font-family:Georgia, serif;"},
+                            "properties": {
+                                "name": "val_1b08",
+                                "description": "Year Elvis dies",
+                                "solution": "1977",
+                                "validation": "// equal",
+                                "success": 1,
+                                "failure": 0,
+                                "omit": 0
+                            }
                         }, {
-                            "id": "2bbd052d-4c60-4412-8709-492063197481",
+                            "id": "ed5d0c8f-7e77-4b57-881a-ec11f76279a2",
                             "tool": "label",
-                            "top": 44.9261779785156,
-                            "left": 108.87930297851597,
-                            "height": 95.6406981694338,
-                            "width": 787.1519795657726,
+                            "top": 61.1472,
+                            "left": 52.1087,
+                            "height": 115.39929575927398,
+                            "width": 932.8489991794131,
                             "rotate": 0,
                             "tag": null,
                             "attributes": {
-                                "text": "Name the rivers on the map",
-                                "style": "font-family: Georgia, serif; color: #000000;",
-                                "dirty": false
-                            },
-                            "properties": {"dirty": false}
+                                "text": "Which year did Elvis die?",
+                                "style": "font-family:Georgia, serif;font-size:80px;color:#FF0000;"
+                            }
                         }, {
-                            "id": "f96497f1-8c69-4ed1-bd52-1a80a52afdb9",
-                            "tool": "textbox",
-                            "top": 266.09390892785615,
-                            "left": 412.3641901645526,
-                            "height": 46.59855257556407,
-                            "width": 186.65815240527883,
+                            "id": "285b7355-91dc-447e-869f-3db89d96fac0",
+                            "tool": "image",
+                            "top": 228.809,
+                            "left": 54.0779,
+                            "height": 397,
+                            "width": 520.2733876881153,
                             "rotate": 0,
                             "tag": null,
-                            "attributes": {"style": "opacity:0.7;", "dirty": false},
+                            "attributes": {
+                                "src": "http://www.billcopelandmusicnews.com/wp-content/uploads/2015/08/Elvis.jpg",
+                                "alt": "Painting Landscape"
+                            }
+                        }]
+                    }, {
+                        "id": "7c187777-deea-41e8-83f4-4b7fab333702",
+                        "style": "",
+                        "components": [{
+                            "id": "f294c11f-be14-4a93-9123-5748d20e3ee8",
+                            "tool": "image",
+                            "top": 30.69677098021929,
+                            "left": 343.4485672615572,
+                            "height": 710.3123417670396,
+                            "width": 652.4651547076974,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {
+                                "src": "http://st.hist-geo.co.uk/img/france/France-Fleuves-1.png",
+                                "alt": "Painting Landscape"
+                            }
+                        }, {
+                            "id": "76923b71-d891-4ef7-9090-f2cfe5e14bbb",
+                            "tool": "textbox",
+                            "top": 171.62935490109646,
+                            "left": 622.5297704967217,
+                            "height": 60,
+                            "width": 193.83823254504375,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {"style": "color:#0066CC;background-color:#E0F0FF;opacity:0.8;"},
                             "properties": {
-                                "name": "val_924bf9",
-                                "description": "",
+                                "name": "val_1238",
+                                "description": "French river (north)",
                                 "solution": "Seine",
-                                "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
-                                "success": 1,
+                                "validation": "// ignoreCaseEqual",
+                                "success": 0.25,
                                 "failure": 0,
-                                "omit": 0,
-                                "dirty": false
-                            },
-                            "ns": ""
+                                "omit": 0
+                            }
                         }, {
-                            "id": "f884a6bc-1467-4357-b735-90836dec484f",
+                            "id": "75275998-467d-4374-a6ea-d221b8c14d30",
                             "tool": "textbox",
-                            "top": 342.3753052667238,
-                            "left": 345.5080811820069,
-                            "height": 54.22733077905492,
-                            "width": 191.01745423584504,
+                            "top": 274.4763387252741,
+                            "left": 576.915586479145,
+                            "height": 60,
+                            "width": 183.45284225053717,
                             "rotate": 0,
                             "tag": null,
-                            "attributes": {"style": "opacity:0.7;", "dirty": false},
+                            "attributes": {"style": "color:#0066CC;background-color:#E0F0FF;opacity:0.8;"},
                             "properties": {
-                                "name": "val_082890",
-                                "description": "",
+                                "name": "val_5ee0",
+                                "description": "French river (west)",
                                 "solution": "Loire",
-                                "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
-                                "success": 1,
+                                "validation": "// ignoreCaseEqual",
+                                "success": 0.25,
                                 "failure": 0,
-                                "omit": 0,
-                                "dirty": false
-                            },
-                            "ns": ""
+                                "omit": 0
+                            }
                         }, {
-                            "id": "ee2499b8-8915-46fb-b1ba-d9e15e40ef66",
-                            "tool": "textbox",
-                            "top": 550.2497199112534,
-                            "left": 298.62174657153435,
-                            "height": 50.95785440613027,
-                            "width": 200.825883354619,
+                            "id": "b1222495-1bc1-41cc-8cc6-086057f769f6",
+                            "tool": "label",
+                            "top": 38.550700000000006,
+                            "left": 34.89619999999999,
+                            "height": 695.4290435517112,
+                            "width": 303.4617967648355,
                             "rotate": 0,
                             "tag": null,
-                            "attributes": {"style": "opacity:0.7;", "dirty": false},
+                            "attributes": {
+                                "text": "Please name the french rivers on the map",
+                                "style": "font-family:Georgia, serif;font-size:80px;color:#0066CC;"
+                            }
+                        }, {
+                            "id": "6c4dec80-6c44-4fa3-a919-904987ec5094",
+                            "tool": "textbox",
+                            "top": 555.4778278059582,
+                            "left": 475.6417598213902,
+                            "height": 60,
+                            "width": 230.99725829106276,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {"style": "color:#0066CC;background-color:#E0F0FF;opacity:0.8;"},
                             "properties": {
-                                "name": "val_f9e548",
-                                "description": "",
+                                "name": "val_3043",
+                                "description": "French river (south-west)",
                                 "solution": "Garonne",
-                                "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
-                                "success": 1,
+                                "validation": "// ignoreCaseEqual",
+                                "success": 0.25,
                                 "failure": 0,
-                                "omit": 0,
-                                "dirty": false
-                            },
-                            "ns": ""
+                                "omit": 0
+                            }
                         }, {
-                            "id": "25fcee00-94c9-493a-af8c-228af5b436d0",
+                            "id": "a08a68d2-7d19-4576-bf61-12f46acaeb02",
                             "tool": "textbox",
-                            "top": 558.8784981147442,
-                            "left": 522.7656375889885,
-                            "height": 46.59855257556407,
-                            "width": 191.01745423584504,
+                            "top": 523.6773368621847,
+                            "left": 734.913971300993,
+                            "height": 60,
+                            "width": 228.46477793384324,
                             "rotate": 0,
                             "tag": null,
-                            "attributes": {"style": "opacity:0.7;", "dirty": false},
+                            "attributes": {"style": "color:#0066CC;background-color:#E0F0FF;opacity:0.8;"},
                             "properties": {
-                                "name": "val_ac8c11",
-                                "description": "",
-                                "solution": "Rhône",
-                                "validation": "function validate(value, solution) {\n\treturn typeof value === \"string\" && typeof solution === \"string\" &&\n\t\tvalue.trim().toUpperCase() === solution.trim().toUpperCase();\n}",
+                                "name": "val_a8ae",
+                                "description": "French river (south-east)",
+                                "solution": "Rh(o|ô)ne",
+                                "validation": "// ignoreCaseMatch",
+                                "success": 0.25,
+                                "failure": 0,
+                                "omit": 0
+                            }
+                        }]
+                    }, {
+                        "id": "82b02398-7810-467c-9328-b554c26d5786",
+                        "style": "",
+                        "components": [{
+                            "id": "a23a63bb-6dfd-42f4-b828-2995cbe44e51",
+                            "tool": "label",
+                            "top": 60.01360970549341,
+                            "left": 99.66594843076753,
+                            "height": 395.4077765802525,
+                            "width": 818.6943741186842,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {
+                                "text": "\"S.O.S.,\" the Morse code distress signal, originally stood for \"Save Our Ship.\"",
+                                "style": "text-align:center;font-family:Georgia, serif;font-size:80px;color:#000000;"
+                            }
+                        }, {
+                            "id": "2c64f70f-727e-4d40-a070-2ad675ba4a5f",
+                            "tool": "quiz",
+                            "top": 503.9537451956031,
+                            "left": 201.7417805890132,
+                            "height": 138,
+                            "width": 646.1584095120944,
+                            "rotate": 0,
+                            "tag": null,
+                            "attributes": {
+                                "mode": "button",
+                                "groupStyle": "",
+                                "itemStyle": "width:300px;",
+                                "activeStyle": "",
+                                "data": "True\nFalse"
+                            },
+                            "properties": {
+                                "name": "val_6674",
+                                "description": "SOS for Save Our Ships",
+                                "solution": "False",
+                                "validation": "// equal",
                                 "success": 1,
                                 "failure": 0,
-                                "omit": 0,
-                                "dirty": false
-                            },
-                            "ns": ""
+                                "omit": 0
+                            }
                         }]
                     }]
                 };

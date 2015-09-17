@@ -14,17 +14,26 @@
     <script src="./js/vendor/kendo/kendo.data.js"></script>
     <script src="./js/vendor/kendo/kendo.binder.js"></script-->
     <!-- ToolBox requirements -->
-    <link rel="stylesheet" href="./styles/kidoju.widgets.toolbox.css">
+    <!--link rel="stylesheet" href="./styles/kidoju.widgets.toolbox.css"-->
     <script src="./js/kidoju.data.js"></script>
     <script src="./js/kidoju.tools.js"></script>
     <script src="./js/kidoju.widgets.toolbox.js"></script>
 </head>
 <body>
 <div id="toolbox1"></div>
-<div id="toolbox2" data-role="toolbox" data-size="64"></div>
-<select data-bind="value: active, source: getTools"></select>
-<div data-bind="text: active"></div>
-</body>
+<div id="toolbox2" data-role="toolbox" data-size="64" data-bind="visible: visible, enabled: enabled"></div>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled
+</div>
+<select data-bind="value: active, source: getIds"></select>
+<pre>
+    {
+        value: <span data-bind="text: active"></span>,
+        visible: <span data-bind="text: visible"></span>,
+        enabled: <span data-bind="text: enabled"></span>
+    }
+</pre>
 <script>
     ;(function(window, $, undefined){
 
@@ -32,25 +41,28 @@
 
         var kendo = window.kendo,
             kidoju = window.kidoju,
-            tools = kidoju.tools,
-            Tool = kidoju.Tool;
+            Tool = kidoju.Tool,
+            tools = kidoju.tools;
+
+        // Use kidoju.tools as viewModel and update for bindings
+        kidoju.tools.visible = true;
+        kidoju.tools.enabled = true;
+        kidoju.tools.getIds = function() {
+            var ret = [], tools = kidoju.tools;
+            for (var prop in tools) {
+                if (tools.hasOwnProperty(prop) && tools[prop] instanceof Tool) {
+                    ret.push(prop);
+                }
+            }
+            return ret;
+        };
 
         $(document).ready(function() {
             $('#toolbox1').kendoToolBox();
-            if (tools) {
-                tools.getTools = function() {
-                    var ret = [];
-                    for (var prop in kidoju.tools) {
-                        if (tools[prop] instanceof Tool) {
-                            ret.push(prop);
-                        }
-                    }
-                    return ret;
-                };
-                kendo.bind('body', tools);
-            }
+            kendo.bind('body', kidoju.tools);
         });
 
     }(this, jQuery));
 </script>
+</body>
 </html>

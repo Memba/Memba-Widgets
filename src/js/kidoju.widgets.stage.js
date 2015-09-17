@@ -700,7 +700,7 @@
                     .appendTo(that.wrapper);
 
                 // Add stage event handlers
-                $(document.body) // was that.wrapper
+                $(document) // was that.wrapper
                     .on(MOUSEDOWN + NS + ' ' + TOUCHSTART + NS, $.proxy(that._onMouseDown, that))
                     .on(MOUSEMOVE + NS + ' ' + TOUCHMOVE + NS, $.proxy(that._onMouseMove, that))
                     .on(MOUSEUP + NS + ' ' + TOUCHEND + NS, $.proxy(that._onMouseUp, that));
@@ -929,7 +929,7 @@
                 var that = this,
                     activeToolId = that.options.tools.get(ACTIVE_TOOL),
                     target = $(e.target),
-                    mouse = util.getMousePosition(e, that.element),
+                    mouse = util.getMousePosition(e, that.stage),
                     stageElement = target.closest(ELEMENT_CLASS),
                     handle = target.closest(HANDLE_CLASS),
                     uid;
@@ -1029,14 +1029,14 @@
                 // With a startState, we are dragging a handle
                 if ($.isPlainObject(startState)) {
 
-                    var mouse = util.getMousePosition(e, that.element),
+                    var mouse = util.getMousePosition(e, that.stage),
                         stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, startState.uid)),
                         item = that.dataSource.getByUid(startState.uid),
                         rect = stageElement[0].getBoundingClientRect(),
                         bounds = {
                             // TODO these calculations depend on the transformOrigin attribute of that.wrapper - ideally we should introduce transformOrigin in the calculation
-                            left: rect.left - that.stage.offset().left + $(document.body).scrollLeft(),
-                            top: rect.top - that.stage.offset().top + $(document.body).scrollTop(),
+                            left: rect.left - that.stage.offset().left + $(that.stage.get(0).ownerDocument).scrollLeft(),
+                            top: rect.top - that.stage.offset().top + $(that.stage.get(0).ownerDocument).scrollTop(),
                             height: rect.height,
                             width: rect.width
                         },
@@ -1401,8 +1401,8 @@
                     // IMPORTANT: Position is relative to the stage and e.offsetX / e.offsetY do not work in Firefox
                     // stage = $(e.target).closest('.kj-stage').find(kendo.roleSelector('stage'));
                 var mouse = {
-                        x: clientX - stage.offset().left + $(e.target.ownerDocument).scrollLeft(),
-                        y: clientY - stage.offset().top + $(e.target.ownerDocument).scrollTop()
+                        x: clientX - stage.offset().left + $(stage.get(0).ownerDocument).scrollLeft(),
+                        y: clientY - stage.offset().top + $(stage.get(0).ownerDocument).scrollTop()
                     };
                 return mouse;
             },

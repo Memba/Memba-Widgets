@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>kidoju.widgets.stage</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <script src="./js/vendor/kendo/jquery.min.js"></script>
+    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script-->
+    <!-- Stage requirements -->
+    <link rel="stylesheet" href="./styles/kidoju.widgets.stage.css">
+    <link rel="stylesheet" href="./styles/kidoju.widgets.toolbox.css">
+    <script src="./js/kidoju.data.js"></script>
+    <script src="./js/kidoju.tools.js"></script>
+    <script src="./js/kidoju.widgets.toolbox.js"></script>
+    <script src="./js/kidoju.widgets.stage.js"></script>
+    <style>
+        body {background-color:darkgrey;}
+    </style>
+</head>
+<body>
+<div id="toolbox"></div>
+<div id="stage"></div>
+</body>
+<script>
+
+    ;(function(window, $, undefined){
+
+        'use strict';
+
+        var kendo = window.kendo,
+            kidoju = window.kidoju;
+
+        $(document).ready(function() {
+
+            $('#toolbox').kendoToolBox();
+
+            var stage = $('#stage').kendoStage({
+                dataSource: undefined,
+                mode: 'design'
+            }).data('kendoStage');
+
+        });
+
+    }(this, jQuery));
+
+</script>
+</html>

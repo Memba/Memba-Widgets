@@ -175,32 +175,13 @@
              * @param options
              */
             init: function (element, options) {
-
-                /*
-                 var that = this,
-                 input = $(element);
-                 input.type = NUMBER;
-                 that.ns = ns;
-                 options = $.extend({}, {
-                 value: parseFloat(input.attr('value') || RATING_MIN),
-                 min: parseFloat(input.attr('min') || RATING_MIN),
-                 max: parseFloat(input.attr('max') || RATING_MAX),
-                 step: parseFloat(input.attr('step') || RATING_STEP),
-                 disabled: input.prop('disabled'),
-                 readonly: input.prop('readonly')
-                 }, options);
-                 Widget.fn.init.call(that, element, options);
-                 that._layout();
-                 that.refresh();
-                 kendo.notify(that);
-                 */
-
                 var that = this;
                 Widget.fn.init.call(that, element, options);
                 util.log('widget initialized');
                 that.setOptions(options);
                 that._layout();
                 that._dataSource();
+                kendo.notify(that);
             },
 
             /**
@@ -507,7 +488,7 @@
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
 
-                if (that.options.dataSource !== NULL) {  // use null to explicitely destroy the dataSource bindings
+                if (that.options.dataSource !== NULL) {  // use null to explicitly destroy the dataSource bindings
                     // returns the datasource OR creates one if using array or configuration object
                     that.dataSource = PageComponentCollectionDataSource.create(that.options.dataSource);
 
@@ -617,12 +598,10 @@
              */
             _addStageElementEventHandlers: function () {
                 var that = this;
-                // Translation
-                that.stage.on(MOVE + NS, ELEMENT_CLASS, $.proxy(that._moveStageElement, that));
-                // Resizing
-                that.stage.on(RESIZE + NS, ELEMENT_CLASS, $.proxy(that._resizeStageElement, that));
-                // Rotation
-                that.stage.on(ROTATE + NS, ELEMENT_CLASS, $.proxy(that._rotateStageElement, that));
+                that.stage
+                    .on(MOVE + NS, ELEMENT_CLASS, $.proxy(that._moveStageElement, that))
+                    .on(RESIZE + NS, ELEMENT_CLASS, $.proxy(that._resizeStageElement, that))
+                    .on(ROTATE + NS, ELEMENT_CLASS, $.proxy(that._rotateStageElement, that));
             },
 
             /**
@@ -721,10 +700,10 @@
                     .appendTo(that.wrapper);
 
                 // Add stage event handlers
-                // TODO: implement on $(document.body)
-                that.wrapper.on(MOUSEDOWN + NS + ' ' + TOUCHSTART + NS, $.proxy(that._onMouseDown, that));
-                that.wrapper.on(MOUSEMOVE + NS + ' ' + TOUCHMOVE + NS, $.proxy(that._onMouseMove, that));
-                that.wrapper.on(MOUSEUP + NS + ' ' + TOUCHEND + NS, $.proxy(that._onMouseUp, that));
+                $(document.body) // was that.wrapper
+                    .on(MOUSEDOWN + NS + ' ' + TOUCHSTART + NS, $.proxy(that._onMouseDown, that))
+                    .on(MOUSEMOVE + NS + ' ' + TOUCHMOVE + NS, $.proxy(that._onMouseMove, that))
+                    .on(MOUSEUP + NS + ' ' + TOUCHEND + NS, $.proxy(that._onMouseUp, that));
 
                 // Add delegated element event handlers
                 that._addStageElementEventHandlers();
@@ -744,7 +723,7 @@
                 var that = this;
                 // See http://docs.telerik.com/kendo-ui/api/javascript/ui/contextmenu
                 that.menu = $('<ul class="kj-stage-menu"></ul>')
-                    .append('<li ' + DATA_COMMAND + '="lock">Lock</li>') // TODO Use constants + localize in messages
+                    //.append('<li ' + DATA_COMMAND + '="lock">Lock</li>') // TODO Use constants + localize in messages
                     .append('<li ' + DATA_COMMAND + '="delete">Delete</li>')//TODO: Bring forward, Push backward, Edit, etc.....
                     .appendTo(that.wrapper)
                     .kendoContextMenu({
@@ -947,13 +926,10 @@
             // This function's cyclomatic complexity is too high.
             /* jshint -W074 */
             _onMouseDown: function (e) {
-
-                // TODO: also drag with keyboard arrows
-
                 var that = this,
                     activeToolId = that.options.tools.get(ACTIVE_TOOL),
                     target = $(e.target),
-                    mouse = util.getMousePosition(e),
+                    mouse = util.getMousePosition(e, that.element),
                     stageElement = target.closest(ELEMENT_CLASS),
                     handle = target.closest(HANDLE_CLASS),
                     uid;
@@ -962,9 +938,9 @@
                     that.menu.close();
                 }
 
-                // When clicking the stage with an active tool
                 if (activeToolId !== POINTER) {
-                    // TODO: show optional creation dialog and test OK/Cancel
+
+                    // When clicking the stage with an active tool, add a new element
                     var tool = that.options.tools[activeToolId];
                     if (tool instanceof Tool) {
                         var item = new PageComponent({
@@ -982,8 +958,12 @@
                     }
                     that.options.tools.set(ACTIVE_TOOL, POINTER);
 
-                    // When hitting a handle with the pointer tool
+                    e.preventDefault(); // otherwise both touchstart and mousedown are triggered and code is executed twice
+                    e.stopPropagation();
+
                 } else if (handle.length) {
+
+                    // When hitting a handle with the pointer tool
                     var command = handle.attr(DATA_COMMAND);
                     if (command === COMMANDS.MENU) {
                         $.noop(); // TODO: contextual menu here
@@ -1009,9 +989,11 @@
                         // log(handleBox.data(STATE));
                         $(document.body).css(CURSOR, target.css(CURSOR));
                     }
+                    e.preventDefault(); // otherwise both touchstart and mousedown are triggered and code is executed twice
+                    e.stopPropagation();
 
-                    // When hitting a stage element or the handle box with the pointer tool
                 } else if (stageElement.length || target.is(HANDLE_BOX_CLASS)) {
+                    // When hitting a stage element or the handle box with the pointer tool
                     uid = stageElement.attr(DATA_UID);
                     if (util.isGuid(uid)) {
                         var component = that.dataSource.getByUid(uid);
@@ -1020,13 +1002,16 @@
                         }
                     }
 
-                    // When hitting anything else with the pointer tool
-                } else {
+                } else if (that.wrapper.find(target).length) {
+
+                    // When hitting anything else in the wrapper with the pointer tool
                     that.value(NULL);
+                    e.preventDefault(); // otherwise both touchstart and mousedown are triggered and code is executed twice
+                    e.stopPropagation();
+
                 }
 
-                e.preventDefault(); // otherwise both touchstart and mousedown are triggered and code is executed twice
-                e.stopPropagation();
+                // Otherwise, let the event propagate
             },
             /* jshint +W074 */
 
@@ -1044,9 +1029,9 @@
                 // With a startState, we are dragging a handle
                 if ($.isPlainObject(startState)) {
 
-                    var mouse = util.getMousePosition(e),
+                    var mouse = util.getMousePosition(e, that.element),
                         stageElement = that.stage.find(kendo.format(ELEMENT_SELECTOR, startState.uid)),
-                        item = that.options.dataSource.getByUid(startState.uid),
+                        item = that.dataSource.getByUid(startState.uid),
                         rect = stageElement[0].getBoundingClientRect(),
                         bounds = {
                             // TODO these calculations depend on the transformOrigin attribute of that.wrapper - ideally we should introduce transformOrigin in the calculation
@@ -1403,20 +1388,21 @@
             /**
              * Get the mouse (or touch) position
              * @param e
+             * @param stage
              * @returns {{x: *, y: *}}
              */
-            getMousePosition: function (e) {
+            getMousePosition: function (e, stage) {
                 // See http://www.jacklmoore.com/notes/mouse-position/
                 // See http://www.jqwidgets.com/community/topic/dragend-event-properties-clientx-and-clienty-are-undefined-on-ios/
                 // See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
                 // ATTENTION: e.originalEvent.touches instanceof TouchList, not Array
                 var clientX = e.originalEvent && e.originalEvent.touches ? e.originalEvent.touches[0].clientX : e.clientX,
-                    clientY = e.originalEvent && e.originalEvent.touches ? e.originalEvent.touches[0].clientY : e.clientY,
-                // IMPORTANT: Pos is relative to the stage and e.offsetX / e.offsetY does not work in Firefox
-                    stage = $(e.currentTarget).find(kendo.roleSelector('stage')),
-                    mouse = {
-                        x: clientX - stage.offset().left + $(document.body).scrollLeft(), // TODO: any other scrolled parent to consider????????
-                        y: clientY - stage.offset().top + $(document.body).scrollTop()
+                    clientY = e.originalEvent && e.originalEvent.touches ? e.originalEvent.touches[0].clientY : e.clientY;
+                    // IMPORTANT: Position is relative to the stage and e.offsetX / e.offsetY do not work in Firefox
+                    // stage = $(e.target).closest('.kj-stage').find(kendo.roleSelector('stage'));
+                var mouse = {
+                        x: clientX - stage.offset().left + $(e.target.ownerDocument).scrollLeft(),
+                        y: clientY - stage.offset().top + $(e.target.ownerDocument).scrollTop()
                     };
                 return mouse;
             },

@@ -34,6 +34,9 @@
             BUTTON = '<a href="#" class="k-button" title="{1}"><img src="{0}" alt="{1}"></a>',
             SELECTED_CLASS = 'k-state-selected',
             DISABLED_CLASS = 'k-state-disabled',
+            ROLE = 'role',
+            MENU = 'menu',
+            MENUITEM = 'menuitem',
             TOOL = 'tool',
             ACTIVE_TOOL = 'active',
             POINTER = 'pointer',
@@ -169,11 +172,13 @@
                 var that = this;
                 that.wrapper = that.element;
                 that.element
-                    .addClass(WIDGET_CLASS);
+                    .addClass(WIDGET_CLASS)
+                    .attr(ROLE, MENU);
                 $.each(that.options.tools, function (index, tool) {
                     if (tool instanceof Tool && that.options.tools.hasOwnProperty(tool.id)) {
                         var button = $(kendo.format(BUTTON, that.options.iconPath + tool.icon + that.options.extension, tool.id))
                             .attr(kendo.attr(TOOL), tool.id)
+                            .attr(ROLE, MENUITEM)
                             .css({ lineHeight: 'normal', margin: Math.round(that.options.size/16) + 'px' });
                         button.find('img')
                             .height(that.options.size)

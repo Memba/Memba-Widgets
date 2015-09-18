@@ -1122,6 +1122,15 @@
             },
 
             /**
+             * Enable/disable interactions
+             * @param enable
+             */
+            enable: function(enable) {
+                // TODO replace thumbnail mode
+            },
+
+
+            /**
              * Refresh a stage widget
              * @param e
              */

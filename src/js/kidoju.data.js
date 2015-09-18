@@ -645,6 +645,9 @@
                     nullable: true,
                     editable:false
                 },
+                instructions: {
+                    type: STRING
+                },
                 style: {
                     type: STRING
                 },

@@ -464,12 +464,11 @@
              * @param e
              */
             refresh: function (e) {
-                var that = this;
-
+                var that = this,
+                    selectedIndex = that.index();
                 if (e && e.action === undefined) {
                     that.trigger(DATABINDING);
                 }
-
                 if (e === undefined || e.action === undefined) {
                     var pages = [];
                     if (e === undefined && that.dataSource instanceof PageCollectionDataSource) {
@@ -485,24 +484,30 @@
                     });
                 } else if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
                     $.each(e.items, function (index, page) {
+                        // TODO: Consider inserting the page at index + 1
                         that._addItem(page);
-                        that.trigger(CHANGE, {action: e.action, value: page}); // TODO <--------------------------------------------
                     });
-                    // that.select(e.items[e.items.length -1]); // TODO <---------------------------------------------
+                    selectedIndex = that.dataSource.indexOf(e.items[e.items.length - 1]);
                 } else if (e.action === 'remove' && $.isArray(e.items) && e.items.length) {
                     $.each(e.items, function (index, page) {
                         that._removeItemByUid(page.uid);
-                        that.trigger(CHANGE, {action: e.action, value: page});
-                        // that._selectByUid(null); // TODO
                     });
-
+                    selectedIndex = e.index || -1;
                 } else if (e.action === 'itemchange') {
-                    $.noop(); // TODO
+                    return;
                 }
-
-                that._toggleSelection();
+                var total = that.dataSource.total();
+                if (total > 0 && selectedIndex > -1 && selectedIndex < total ) {
+                    that.index(selectedIndex);
+                } else if (total > 0 && selectedIndex <= -1) {
+                    that.index(0);
+                } else if (total > 0 && selectedIndex >= total) {
+                    that.index(total - 1);
+                } else {
+                    that.value(null);
+                }
+                //that._toggleSelection();
                 that.resize();
-
                 if (e && e.action === undefined) {
                     that.trigger(DATABOUND);
                 }

@@ -5,6 +5,11 @@
 
 /* jshint browser: true, jquery: true */
 
+
+/**
+ * Note: this is not using the AMD pattern because it is loaded in a web worker
+ */
+
 (function (undefined) {
 
     'use strict';

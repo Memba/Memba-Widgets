@@ -11,7 +11,9 @@
     define([
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.dropdownlist',
-        './vendor/kendo/kendo.multiselect' // required becasue of test in kendo.binder.js
+        './vendor/kendo/kendo.multiselect', // required because of a test in kendo.binder.js
+        './window.assert',
+        './window.log'
     ], f);
 })(function () {
 
@@ -21,55 +23,14 @@
 
         var kendo = window.kendo,
             Widget = kendo.ui.Widget,
+            assert = window.assert,
+            logger = new window.Log('kidoju.widgets.codeeditor'),
             STRING = 'string',
             UNDEFINED = 'undefined',
             CHANGE = 'change',
             JS_COMMENT = '// ',
             NS = '.kendoCodeInput',
             WIDGET_CLASS = 'k-widget kj-codeinput';
-
-        /*********************************************************************************
-         * Helpers
-         *********************************************************************************/
-
-        function log(message) {
-            if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
-                window.console.log('kidoju.widgets.codeinput: ' + message);
-            }
-        }
-
-        /**
-         * Asserts
-         * Note: Use asserts where unmet conditions are independent from user entries, and
-         * developers should be warned that there is probably something unexpected in their code
-         */
-        var assert = $.extend(
-            // By extending assert, we ensure we can call both assert() and assert.ok() for the same result (like in nodeJS)
-            function(test, message) {
-                if (!test) { throw new Error(message); }
-            },
-            {
-                enum: function(array, value, message) { if (array.indexOf(value) === -1) { throw new Error(message); } },
-                equal: function(expected, actual, message) { if (expected !== actual) { throw new Error(message); } },
-                instanceof: function(Class, value, message) { if (!(value instanceof Class)) { throw new Error(message); } },
-                isOptionalObject: function(value, message) { if ($.type(value) !== UNDEFINED && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
-                isPlainObject: function(value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new Error(message); } },
-                isUndefined: function(value, message) { if ($.type(value) !== UNDEFINED) { throw new Error(message); } },
-                match: function(rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new Error(message); } },
-                ok: function(test, message) { return assert(test, message); },
-                type: function(type, value, message) { if ($.type(value) !== type) { throw new TypeError(message); } }
-            },
-            {
-                messages: {
-                    isPlainObject: {
-                    },
-                    isUndefined: {
-                    },
-                    match: {
-                    }
-                }
-            }
-        );
 
         /*********************************************************************************
          * Widget
@@ -89,7 +50,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                log('widget initialized');
+                logger.debug('widget initialized');
                 that._layout();
                 that._dataSource();
             },

@@ -4,6 +4,9 @@
   overflow-y: scroll;
   border: none;
 }
+.kj-navigation .kj-item * {
+    cursor: pointer;
+}
 .kj-navigation .kj-hint {
   opacity: 0.8;
   filter: alpha(opacity=80);

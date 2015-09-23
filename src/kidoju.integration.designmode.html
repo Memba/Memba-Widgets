@@ -46,6 +46,8 @@
     <link href="./styles/kidoju.widgets.stage.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.codeeditor.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.assetmanager.css" rel="stylesheet">
+    <script src="./js/window.assert.js"></script>
+    <script src="./js/window.log.js"></script>
     <script src="./js/kidoju.data.js"></script>
     <script src="./js/kidoju.tools.js"></script>
     <script src="./js/kidoju.widgets.bindings.js"></script>
@@ -540,12 +542,17 @@
                                 viewModel.stream.pages.add({}); //consider index position
                                 break;
                             case 'delete':
-                                var navigation = $(kendo.roleSelector('navigation')).data('kendoNavigation');
-                                if (navigation instanceof kendo.ui.Navigation) {
-                                    var page = navigation.value();
-                                    if (page instanceof Page) {
-                                        viewModel.stream.pages.remove(page);
-                                    }
+                                var navigation = $(kendo.roleSelector('navigation')).data('kendoNavigation'),
+                                    stage = $('#center-pane').find(kendo.roleSelector('stage')).data('kendoStage'),
+                                    explorer = $('#right-pane').find(kendo.roleSelector('explorer')).data('kendoExplorer'),
+                                    page = navigation.value();
+                                if (page instanceof Page) {
+                                    viewModel.set('currentComponent', undefined);
+                                    viewModel.set('currentPage', undefined); // This does not trigger source binding on currentPage.components
+                                    stage.setDataSource(undefined); // ... so we need to explicitely set the dataSource on the stage
+                                    explorer.setDataSource(undefined); // ... and on the explorer
+                                    viewModel.stream.pages.remove(page);
+
                                 }
                                 break;
                             case 'save':
@@ -554,7 +561,7 @@
                             case 'reset':
                                 window.localStorage.setItem(storageKey, kendo.stringify(streamData));
                                 viewModel.stream.load().then(function() {
-                                    window.viewModel.set('currentPage', viewModel.stream.pages.at(0));
+                                    viewModel.set('currentPage', viewModel.stream.pages.at(0));
                                 });
                                 break;
                             case 'play':
@@ -566,7 +573,7 @@
 
                 //Load stream
                 viewModel.stream.load().then(function() {
-                    window.viewModel.set('currentPage', viewModel.stream.pages.at(0));
+                    viewModel.set('currentPage', viewModel.stream.pages.at(0));
                     kendo.bind('body', viewModel);
                 });
 

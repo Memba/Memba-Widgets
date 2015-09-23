@@ -13,7 +13,9 @@
         './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.tabstrip',
         './vendor/kendo/kendo.listview',
-        './vendor/kendo/kendo.pager'
+        './vendor/kendo/kendo.pager',
+        './window.assert',
+        './window.log'
     ],f);
 })(function () {
 
@@ -29,6 +31,8 @@
             ListView = kendo.ui.ListView,
             Pager = kendo.ui.Pager,
             TabStrip = kendo.ui.TabStrip,
+            assert = window.assert,
+            logger = new window.Log('kidoju.widgets.assetmanager'),
             NUMBER = 'number',
             STRING = 'string',
             ARRAY = 'array',
@@ -79,83 +83,6 @@
         /*********************************************************************************
          * Helpers
          *********************************************************************************/
-
-        /**
-         * Log
-         */
-        var log = $.extend(
-            // By extending log, we ensure we can call both log() and log.info() for the same result
-            function(message, level) {
-                message = $.type(message) === STRING ? { message: message } : message;
-                level = (/^(debug|info|warn|error|crit)$/i).test(level) ? level.toLowerCase() : 'info';
-                var app = window.app,
-                    logEntry = $.extend({}, message, { module: MODULE });
-                if (app && app.logger) {
-                    // TODO ------------------------------------------------------------------------------------
-                    $.noop();
-                } else if (window.console && $.isFunction(window.console.log)) {
-                    window.console.log(
-                        logEntry.module + ': ' +
-                        logEntry.message +
-                        (logEntry.data ? ' - ' + JSON.stringify(logEntry.data) : ''));
-                }
-            },
-            {
-                debug: function(message) { return log(message, 'debug'); },
-                info: function(message) { return log(message, 'info'); },
-                warn: function(message) { return log(message, 'warn'); },
-                error: function(message) { return log(message, 'error'); },
-                crit: function(message) { return log(message, 'crit'); }
-            },
-            {
-                messages: {
-                    debug: {},
-                    info: {},
-                    warn: {},
-                    error: {},
-                    crit: {}
-                }
-            }
-        );
-
-        /**
-         * Asserts
-         * Note: Use asserts where unmet conditions are independent from user entries, and
-         * developers should be warned that there is probably something unexpected in their code
-         */
-        var assert = $.extend(
-            // By extending assert, we ensure we can call both assert() and assert.ok() for the same result (like in nodeJS)
-            function(test, message) {
-                if (!test) { throw new Error(message); }
-            },
-            {
-                //enum: function(array, value, message) { if (array.indexOf(value) === -1) { throw new Error(message); } },
-                //equal: function(expected, actual, message) { if (expected !== actual) { throw new Error(message); } },
-                instanceof: function(Class, value, message) { if (!(value instanceof Class)) { throw new Error(message); } },
-                //isOptionalObject: function(value, message) { if ($.type(value) !== 'undefined' && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
-                isPlainObject: function(value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new Error(message); } },
-                isUndefined: function(value, message) { if ($.type(value) !== 'undefined') { throw new Error(message); } },
-                //match: function(rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new Error(message); } },
-                ok: function(test, message) { return assert(test, message); },
-                type: function(type, value, message) { if ($.type(value) !== type) { throw new TypeError(message); } }
-            },
-            {
-                messages: {
-                    instanceof: {
-                        default: '`{0}` is expected to be an instance of `{1}`'
-                    },
-                    isPlainObject: {
-                        default: '`{0}` is expected to be a plain object'
-                    },
-                    isUndefined: {
-                        default: '`{0}` is expected to be undefined'
-                    },
-                    type: {
-                        default: '`{0}` is expected to be a(n) `{1}`'
-                    }
-                }
-            }
-        );
 
         /**
          * Extracts file name from url
@@ -247,7 +174,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                log('widget initialized');
+                logger.debug('widget initialized');
                 that._dataSource();
                 that._layout();
             },

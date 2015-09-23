@@ -8,7 +8,11 @@
 
 (function (f, define) {
     'use strict';
-    define(['./vendor/kendo/kendo.core'], f);
+    define([
+        './vendor/kendo/kendo.core',
+        './window.assert',
+        './window.log'
+    ], f);
 })(function () {
 
     'use strict';
@@ -18,6 +22,8 @@
         var kendo = window.kendo,
             ui = kendo.ui,
             Widget = ui.Widget,
+            assert = window.assert,
+            logger = new window.Log('kidoju.widgets.mediaplayer'),
             ARRAY = 'array',
             STRING = 'string',
             NUMBER = 'number',
@@ -48,51 +54,6 @@
         /*********************************************************************************
          * Helpers
          *********************************************************************************/
-
-        function log(message) {
-            if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
-                window.console.log('kidoju.widgets.mediaplayer: ' + message);
-            }
-        }
-
-        /**
-         * Asserts
-         * Note: Use asserts where unmet conditions are independent from user entries, and
-         * developers should be warned that there is probably something unexpected in their code
-         */
-        var assert = $.extend(
-            // By extending assert, we ensure we can call both assert() and assert.ok() for the same result (like in nodeJS)
-            function(test, message) {
-                if (!test) { throw new Error(message); }
-            },
-            {
-                enum: function(array, value, message) { if (array.indexOf(value) === -1) { throw new Error(message); } },
-                equal: function(expected, actual, message) { if (expected !== actual) { throw new Error(message); } },
-                instanceof: function(Class, value, message) { if (!(value instanceof Class)) { throw new Error(message); } },
-                isOptionalObject: function(value, message) { if ($.type(value) !== 'undefined' && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
-                isPlainObject: function(value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new Error(message); } },
-                isUndefined: function(value, message) { if ($.type(value) !== 'undefined') { throw new Error(message); } },
-                match: function(rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new Error(message); } },
-                ok: function(test, message) { return assert(test, message); },
-                type: function(type, value, message) { if ($.type(value) !== type) { throw new TypeError(message); } }
-            },
-            {
-                messages: {
-                    instanceof: {
-                        default: '`{0}` is expected to be an instance of `{1}`'
-                    },
-                    isPlainObject: {
-                        default: '`{0}` is expected to be a non-empty plain object'
-                    },
-                    isUndefined: {
-                        default: '`{0}` is expected to be undefined'
-                    },
-                    type: {
-                        default: '`{0}` is expected to be a(n) `{1}`'
-                    }
-                }
-            }
-        );
 
         /**
          * Convert file extension to mime type
@@ -141,6 +102,7 @@
             init: function(element, options) {
                 var that = this;
                 Widget.fn.init.call(that, element, options);
+                logger.debug('widget initialized');
                 that._layout();
 
                 /*

@@ -8,7 +8,13 @@
 
 (function (f, define) {
     'use strict';
-    define(['./vendor/kendo/kendo.binder', './kidoju.data', './kidoju.tools'], f);
+    define([
+        './vendor/kendo/kendo.binder',
+        './kidoju.data',
+        './kidoju.tools',
+        './window.assert',
+        './window.log'
+    ], f);
 })(function () {
 
     'use strict';
@@ -22,7 +28,8 @@
             kidoju = window.kidoju,
             Page = kidoju.data.Page,
             PageCollectionDataSource = kidoju.data.PageCollectionDataSource,
-
+            // assert = window.assert,
+            logger = new window.Log('kidoju.widgets.navigation'),
         // Types
             NULL = null,
             NUMBER = 'number',
@@ -55,45 +62,6 @@
          * Helpers
          *********************************************************************************/
 
-        function log(message) {
-            if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
-                window.console.log('kidoju.widgets.navigation: ' + message);
-            }
-        }
-
-        /**
-         * Asserts
-         * Note: Use asserts where unmet conditions are independent from user entries, and
-         * developers should be warned that there is probably something unexpected in their code
-         */
-        var assert = $.extend(
-            // By extending assert, we ensure we can call both assert() and assert.ok() for the same result (like in nodeJS)
-            function(test, message) {
-                if (!test) { throw new Error(message); }
-            },
-            {
-                enum: function(array, value, message) { if (array.indexOf(value) === -1) { throw new Error(message); } },
-                equal: function(expected, actual, message) { if (expected !== actual) { throw new Error(message); } },
-                instanceof: function(Class, value, message) { if (!(value instanceof Class)) { throw new Error(message); } },
-                isOptionalObject: function(value, message) { if ($.type(value) !== 'undefined' && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
-                isPlainObject: function(value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new Error(message); } },
-                isUndefined: function(value, message) { if ($.type(value) !== 'undefined') { throw new Error(message); } },
-                match: function(rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new Error(message); } },
-                ok: function(test, message) { return assert(test, message); },
-                type: function(type, value, message) { if ($.type(value) !== type) { throw new TypeError(message); } }
-            },
-            {
-                messages: {
-                    isPlainObject: {
-                    },
-                    isUndefined: {
-                    },
-                    match: {
-                    }
-                }
-            }
-        );
-
         function isGuid(value) {
             // See http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
             return ($.type(value) === STRING) && (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value));
@@ -119,12 +87,12 @@
                 var that = this;
                 // base call to widget initialization
                 Widget.fn.init.call(this, element, options);
+                logger.debug('widget initialized');
                 that._templates();
                 that._layout();
                 that._addSorting();
                 that._dataSource();
                 // that.refresh();
-                log('widget initialized');
             },
 
             /**
@@ -212,6 +180,7 @@
 
             /**
              * Gets/Sets the value of the selected page in the navigation
+             * Set to NULL to unselect a page
              * @method value
              * @param page
              * @returns {*}
@@ -221,7 +190,7 @@
                 if (page === NULL) {
                     if (that._selectedUid !== NULL) {
                         that._selectedUid = NULL;
-                        log('selected page uid set to null');
+                        logger.debug('selected page uid set to null');
                         that._toggleSelection();
                         that.trigger(CHANGE, {
                             index: undefined,
@@ -242,7 +211,7 @@
                         var index = that.dataSource.indexOf(page);
                         if (index > -1) {
                             that._selectedUid = page.uid;
-                            log('selected page uid set to ' + page.uid);
+                            logger.debug('selected page uid set to ' + page.uid);
                             that._toggleSelection();
                             that.trigger(CHANGE, {
                                 index: index,
@@ -361,6 +330,7 @@
                 }
 
                 if (that.options.dataSource !== NULL) {  // use null to explicitely destroy the dataSource bindings
+
                     // returns the datasource OR creates one if using array or configuration object
                     that.dataSource = PageCollectionDataSource.create(that.options.dataSource);
 

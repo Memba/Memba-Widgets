@@ -8,7 +8,13 @@
 
 (function (f, define){
     'use strict';
-    define(['./vendor/kendo/kendo.binder', './vendor/kendo/kendo.grid', './vendor/kendo/kendo.combobox'], f);
+    define([
+        './vendor/kendo/kendo.binder',
+        './vendor/kendo/kendo.grid',
+        './vendor/kendo/kendo.combobox',
+        './window.assert',
+        './window.log'
+    ], f);
 })(function () {
 
     'use strict';
@@ -18,55 +24,13 @@
         var kendo = window.kendo,
             ui = kendo.ui,
             Widget = ui.Widget,
+            // assert = window.assert,
+            logger = new window.Log('kidoju.widgets.styleeditor'),
             STRING = 'string',
             CHANGE = 'change',
             KEYPRESS = 'keypress',
             NS = ".kendoStyleEditor",
             WIDGET_CLASS = 'kj-styleeditor'; // k-widget is added when initializing this.element as a grid
-
-
-        /*********************************************************************************
-         * Helpers
-         *********************************************************************************/
-
-        function log(message) {
-            if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
-                window.console.log('kidoju.widgets.styleeditor: ' + message);
-            }
-        }
-
-        /**
-         * Asserts
-         * Note: Use asserts where unmet conditions are independent from user entries, and
-         * developers should be warned that there is probably something unexpected in their code
-         */
-        var assert = $.extend(
-            // By extending assert, we ensure we can call both assert() and assert.ok() for the same result (like in nodeJS)
-            function(test, message) {
-                if (!test) { throw new Error(message); }
-            },
-            {
-                enum: function(array, value, message) { if (array.indexOf(value) === -1) { throw new Error(message); } },
-                equal: function(expected, actual, message) { if (expected !== actual) { throw new Error(message); } },
-                instanceof: function(Class, value, message) { if (!(value instanceof Class)) { throw new Error(message); } },
-                isOptionalObject: function(value, message) { if ($.type(value) !== 'undefined' && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
-                isPlainObject: function(value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new Error(message); } },
-                isUndefined: function(value, message) { if ($.type(value) !== 'undefined') { throw new Error(message); } },
-                match: function(rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new Error(message); } },
-                ok: function(test, message) { return assert(test, message); },
-                type: function(type, value, message) { if ($.type(value) !== type) { throw new TypeError(message); } }
-            },
-            {
-                messages: {
-                    isPlainObject: {
-                    },
-                    isUndefined: {
-                    },
-                    match: {
-                    }
-                }
-            }
-        );
 
         /*********************************************************************************
          * Widget
@@ -86,7 +50,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                log('widget initialized');
+                logger.debug('widget initialized');
                 if ($.isFunction(ui.Grid)) {
                     that._setDataSource();
                     that._layout();

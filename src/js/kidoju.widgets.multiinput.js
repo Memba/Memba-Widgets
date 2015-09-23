@@ -8,7 +8,11 @@
 
 (function (f, define) {
     'use strict';
-    define(['./vendor/kendo/kendo.binder'], f);
+    define([
+        './vendor/kendo/kendo.binder',
+        './window.assert',
+        './window.log'
+    ], f);
 })(function () {
 
     'use strict';
@@ -26,13 +30,11 @@
             ui = kendo.ui,
             Widget = ui.Widget,
             ObservableArray = kendo.data.ObservableArray,
-            ns = '.kendoMultiInput',
-
-            // Types
+            //assert = window.assert,
+            logger = new window.Log('kidoju.widgets.multiinput'),
             // NUMBER = 'number',
             STRING = 'string',
-
-            // Events
+            ns = '.kendoMultiInput',
             CHANGE = 'change',
             CLICK = 'click' + ns,
             KEYPRESS = 'keypress' + ns,
@@ -40,8 +42,6 @@
             MOUSEENTER = 'mouseenter' + ns,
             MOUSELEAVE = 'mouseleave' + ns,
             HOVEREVENTS = MOUSEENTER + ' ' + MOUSELEAVE,
-
-            // Templates
             ID = 'id',
             LI = 'li',
             ARIA_DISABLED = 'aria-disabled',
@@ -51,53 +51,6 @@
             STATEDISABLED = 'k-state-disabled',
             DISABLED = 'disabled',
             READONLY = 'readonly';
-
-            // MODULE = 'MultiInput Widget: ',
-            // DEBUG = true;
-
-       /*********************************************************************************
-        * Helpers
-        *********************************************************************************/
-
-       function log(message) {
-           if (window.app && window.app.DEBUG && window.console && $.isFunction(window.console.log)) {
-               window.console.log('kidoju.widgets.explorer: ' + message);
-           }
-       }
-
-       /**
-        * Asserts
-        * Note: Use asserts where unmet conditions are independent from user entries, and
-        * developers should be warned that there is probably something unexpected in their code
-        */
-       var assert = $.extend(
-           // By extending assert, we ensure we can call both assert() and assert.ok() for the same result (like in nodeJS)
-           function(test, message) {
-               if (!test) { throw new Error(message); }
-           },
-           {
-               enum: function(array, value, message) { if (array.indexOf(value) === -1) { throw new Error(message); } },
-               equal: function(expected, actual, message) { if (expected !== actual) { throw new Error(message); } },
-               instanceof: function(Class, value, message) { if (!(value instanceof Class)) { throw new Error(message); } },
-               isOptionalObject: function(value, message) { if ($.type(value) !== 'undefined' && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
-               isPlainObject: function(value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new Error(message); } },
-               isUndefined: function(value, message) { if ($.type(value) !== 'undefined') { throw new Error(message); } },
-               match: function(rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new Error(message); } },
-               ok: function(test, message) { return assert(test, message); },
-               type: function(type, value, message) { if ($.type(value) !== type) { throw new TypeError(message); } }
-           },
-           {
-               messages: {
-                   isPlainObject: {
-                   },
-                   isUndefined: {
-                   },
-                   match: {
-                   }
-               }
-           }
-       );
-
 
         /*******************************************************************************************
          * Widget
@@ -122,6 +75,7 @@
                 var that = this;
                 that.ns = ns;
                 Widget.fn.init.call(that, element, options);
+                logger.debug('widget initialized');
                 options = $.extend(options, that.options);
                 that._initValue();
                 that._layout();

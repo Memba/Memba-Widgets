@@ -11,7 +11,9 @@
     define([
         './vendor/kendo/kendo.binder',
         './kidoju.data',
-        './kidoju.tools'
+        './kidoju.tools',
+        './window.assert',
+        './window.log'
     ], f);
 })(function () {
 
@@ -32,13 +34,11 @@
             Tool = kidoju.Tool,
             PageComponent = kidoju.data.PageComponent,
             PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource,
-
-        // Types
+            // assert = window.assert,
+            logger = new window.Log('kidoju.widgets.stage'),
             STRING = 'string',
             NUMBER = 'number',
             NULL = null,
-
-        // Events
             NS = '.kendoStage',
             MOUSEDOWN = 'mousedown',
             MOUSEMOVE = 'mousemove',
@@ -55,8 +55,6 @@
             MOVE = 'move',
             RESIZE = 'resize',
             ROTATE = 'rotate', // This constant is not simply an event
-
-        // CSS
             ABSOLUTE = 'absolute',
             RELATIVE = 'relative',
             HIDDEN = 'hidden',
@@ -71,13 +69,11 @@
             TRANSFORM = 'transform',
             CSS_ROTATE = 'rotate({0}deg)',
             CSS_SCALE = 'scale({0})',
-
-        // Elements
             DATA_UID = kendo.attr('uid'),
             DATA_TOOL = kendo.attr('tool'),
             DATA_COMMAND = kendo.attr('command'),
             WRAPPER = '<div class="k-widget kj-stage" />',
-        // WRAPPER_CLASS = '.kj-stage',
+            // WRAPPER_CLASS = '.kj-stage',
             ELEMENT = '<div ' + DATA_UID + '="{0}" ' + DATA_TOOL + '="{1}" class="kj-element"></div>',
             ELEMENT_SELECTOR = '.kj-element[' + DATA_UID + '="{0}"]',
             ELEMENT_CLASS = '.kj-element',
@@ -90,7 +86,7 @@
             HANDLE_RESIZE = '<span class="kj-handle" ' + DATA_COMMAND + '="resize"></span>',
             HANDLE_ROTATE = '<span class="kj-handle" ' + DATA_COMMAND + '="rotate"></span>',
             HANDLE_MENU = '<span class="kj-handle" ' + DATA_COMMAND + '="menu"></span>',
-        // HANDLE_SELECTOR = '.kj-handle[' + DATA_COMMAND + '="{0}"]',
+            // HANDLE_SELECTOR = '.kj-handle[' + DATA_COMMAND + '="{0}"]',
             HANDLE_CLASS = '.kj-handle',
             NODATA_MESSAGE = '<div class="kj-nodata">{0}</div>',
             NODATA_MESSAGE_CLASS = '.kj-nodata',
@@ -101,8 +97,6 @@
                 ROTATE: 'rotate',
                 MENU: 'menu'
             },
-
-        // Logic
             POINTER = 'pointer',
             ACTIVE_TOOL = 'active',
             DEFAULTS = {
@@ -111,8 +105,6 @@
                 WIDTH: 1024,
                 HEIGHT: 768
             },
-
-        // Debug
             DEBUG_MOUSE = '<div class="debug-mouse"></div>',
             DEBUG_MOUSE_CLASS = '.debug-mouse',
             DEBUG_BOUNDS = '<div class="debug-bounds"></div>',
@@ -163,7 +155,7 @@
             init: function (element, options) {
                 var that = this;
                 Widget.fn.init.call(that, element, options);
-                util.log('widget initialized');
+                logger.debug('widget initialized');
                 that.setOptions(options);
                 that._layout();
                 that._dataSource();
@@ -382,7 +374,7 @@
                 if (component === NULL) {
                     if (that._selectedUid !== NULL) {
                         that._selectedUid = NULL;
-                        util.log('selected component uid set to null');
+                        logger.debug('selected component uid set to null');
                         that._toggleSelection();
                         that.trigger(CHANGE, {
                             index: undefined,
@@ -403,7 +395,7 @@
                         var index = that.dataSource.indexOf(component);
                         if (index > -1) {
                             that._selectedUid = component.uid;
-                            util.log('selected component uid set to ' + component.uid);
+                            logger.debug('selected component uid set to ' + component.uid);
                             that._toggleSelection();
                             that.trigger(CHANGE, {
                                 index: index,

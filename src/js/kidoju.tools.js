@@ -906,8 +906,8 @@
             height: 100,
             width: 300,
             attributes: {
-                text: new adapters.StringAdapter({defaultValue: 'Label'}),
-                style: new adapters.StyleAdapter({defaultValue: 'font-family: Georgia, serif; font-size: 80px; color: #000000;'})
+                text: new adapters.StringAdapter({ title: 'Label', defaultValue: 'Label'}),
+                style: new adapters.StyleAdapter({ title: 'Style'})
             },
 
             /**
@@ -921,7 +921,7 @@
                     var template = kendo.template(this.templates.default);
                     return template(component);
                 }
-            }
+            },
 
             /**
              * onResize Event Handler
@@ -929,50 +929,18 @@
              * @param e
              * @param component
              */
-            /*
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    var content = stageElement.find('>div'),
-                        style = content.attr('style');
-                    //if (!isNaN(fontSize)) {
-                    // The NaN test prevents the following loops from executing in Zombie
-                    // see https://github.com/assaf/zombie/issues/929
-                    if (!/font(-size)?:[^;]*[0-9]+px/.test(style)) {
-                        // Since we have not defined any font-size, try adapting using div height
-                        var fontSize = content.height(),
-                            height, width,
-                            clone = content
-                                .clone()
-                                .hide()
-                                .css({
-                                    position: ABSOLUTE,
-                                    height: AUTO,
-                                    width: AUTO
-                                });
-                        stageElement.after(clone);
-                        // if no overflow, increase until overflow
-                        while (clone.width() <= component.width && clone.height() <= component.height) {
-                            width = clone.width();
-                            height = clone.height();
-                            fontSize++;
-                            clone.css('font-size', fontSize);
-                            if (clone.width() === width && clone.height() === height) {
-                                break; //avoid an infinite loop if fontSize has no impact on dimensions
-                            }
+                    var content = stageElement.find('>div');
+                    if ($.type(component.width) === NUMBER) {
+                        content.width(component.width);
+                    }
+                    if ($.type(component.height) === NUMBER) {
+                        content.height(component.height);
+                        if (component.attributes && !/font(-size)?:[^;]*[0-9]+px/.test(component.attributes.style)) {
+                            content.css('font-size', Math.floor(0.85 * component.height));
                         }
-                        // if overflow, decrease until no overflow
-                        while (clone.width() > component.width || clone.height() > component.height) {
-                            width = clone.width();
-                            height = clone.height();
-                            fontSize--;
-                            clone.css('font-size', fontSize);
-                            if (clone.width() === width && clone.height() === height) {
-                                break; //avoid an infinite loop if fontSize has no impact on dimensions
-                            }
-                        }
-                        clone.remove();
-                        content.css('font-size', fontSize);
                     }
                     // prevent any side effect
                     e.preventDefault();
@@ -980,7 +948,6 @@
                     e.stopPropagation();
                 }
             }
-            */
         });
         tools.register(Label);
 
@@ -1047,12 +1014,12 @@
             icon: 'text_field',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<input type="text" style="#: attributes.style #" data-#= ns #bind="value: #: properties.name #">'
+                default: '<input type="text" class="k-textbox" style="#: attributes.style #" data-#= ns #bind="value: #: properties.name #">'
             },
             height: 100,
             width: 300,
             attributes: {
-                style: new adapters.StyleAdapter()
+                style: new adapters.StyleAdapter({ title: 'Style' })
             },
             properties: {
                 name: new adapters.NameAdapter({title: 'Name'}),
@@ -1096,7 +1063,9 @@
                     }
                     if ($.type(component.height) === NUMBER) {
                         content.height(component.height);
-                        content.css('font-size', Math.floor(0.75 * component.height));
+                        if (component.attributes && !/font(-size)?:[^;]*[0-9]+px/.test(component.attributes.style)) {
+                            content.css('font-size', Math.floor(0.65 * component.height));
+                        }
                     }
                     // prevent any side effect
                     e.preventDefault();
@@ -1122,9 +1091,9 @@
             height: 60,
             width: 500,
             attributes: {
-                checkboxStyle: new adapters.StyleAdapter(),
-                labelStyle: new adapters.StyleAdapter(),
-                text: new adapters.StringAdapter({ defaultValue: 'text' })
+                checkboxStyle: new adapters.StyleAdapter({ title: 'Checkbox Style' }),
+                labelStyle: new adapters.StyleAdapter({ title: 'Label Style' }),
+                text: new adapters.StringAdapter({ title: 'Text', defaultValue: 'text' })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: 'Name' }),

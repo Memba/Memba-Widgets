@@ -41,6 +41,9 @@
             },
             {
                 messages: {
+                    enum: {
+                        default: '`{0}` is expected to be any of `{1}`'
+                    },
                     equal: {
                         default: '`{0}` is expected to equal `{1}`'
                     },

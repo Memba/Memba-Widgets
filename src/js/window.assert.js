@@ -41,6 +41,9 @@
             },
             {
                 messages: {
+                    equal: {
+                        default: '`{0}` is expected to equal `{1}`'
+                    },
                     instanceof: {
                         default: '`{0}` is expected to be an instance of `{1}`'
                     },
@@ -50,8 +53,11 @@
                     isUndefined: {
                         default: '`{0}` is expected to be undefined'
                     },
+                    match: {
+                        default: '`{0}` is expected to match `{1}`'
+                    },
                     type: {
-                        default: '`{0}` is expected to be a(n) `{1}`'
+                        default: '`{0}` is expected to have type `{1}`'
                     }
                 }
             }

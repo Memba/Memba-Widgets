@@ -895,8 +895,8 @@
                     }
                 }
 
-                $.each(that.data(), function (index, page) {
-                    $.each(page.components.data(), function (index, component) {
+                $.each(that.data(), function (pageIdx, page) {
+                    $.each(page.components.data(), function (componentIdx, component) {
 
                         var properties = component.properties, found;
 
@@ -926,6 +926,7 @@
                             ));
 
                             result[properties.name] = {
+                                page: pageIdx,
                                 name: properties.name,
                                 description: properties.description,
                                 value: test[properties.name],

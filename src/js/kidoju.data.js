@@ -25,23 +25,15 @@
             models = kidoju.data = kidoju.data || {},
             assert = window.assert,
             logger = new window.Log('kidoju.data'),
-
-        // Types
             OBJECT = 'object',
             STRING = 'string',
-            BOOLEAN = 'boolean',
+            // BOOLEAN = 'boolean',
             NUMBER = 'number',
             UNDEFINED = 'undefined',
-
-        // Event
             CHANGE = 'change',
-            ERROR = 'error',
-
-        // Defaults
+            // ERROR = 'error',
             ZERO_NUMBER = 0,
             NEGATIVE_NUMBER = -1,
-
-        // Miscellaneous
             RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i;
 
 

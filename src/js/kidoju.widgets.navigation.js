@@ -19,44 +19,42 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
-        var kendo = window.kendo,
-            data = kendo.data,
-            ObservableArray = data.ObservableArray,
-            Widget = kendo.ui.Widget,
-            kidoju = window.kidoju,
-            Page = kidoju.data.Page,
-            PageCollectionDataSource = kidoju.data.PageCollectionDataSource,
-            // assert = window.assert,
-            logger = new window.Log('kidoju.widgets.navigation'),
-        // Types
-            NULL = null,
-            NUMBER = 'number',
-            STRING = 'string',
-
-        // Events
-            CHANGE = 'change',
-            CLICK = 'click',
-            DATABINDING = 'dataBinding',
-            DATABOUND = 'dataBound',
-            MOUSEENTER = 'mouseenter',
-            MOUSELEAVE = 'mouseleave',
-            FOCUS = 'focus',
-            BLUR = 'blur',
-            SELECT = 'select',
-            NS = '.kendoNavigation',
-
-        // Widget
-            WIDGET_CLASS = 'k-widget k-group kj-navigation',
-            HOVER_CLASS = 'k-state-hover',
-            FOCUSED_CLASS = 'k-state-focused',
-            SELECTED_CLASS = 'k-state-selected',
-            HINT_CLASS = 'kj-hint',
-            DATA_UID = kendo.attr('uid'),
-            ALL_ITEMS_SELECTOR = 'div.kj-item[' + DATA_UID + ']',
-            ITEM_BYUID_SELECTOR = 'div.kj-item[' + DATA_UID + '="{0}"]',
-            ARIA_SELECTED = 'aria-selected';
+        var kendo = window.kendo;
+        var data = kendo.data;
+        var ObservableArray = data.ObservableArray;
+        var Widget = kendo.ui.Widget;
+        var kidoju = window.kidoju;
+        var Page = kidoju.data.Page;
+        var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+        // var assert = window.assert;
+        var logger = new window.Log('kidoju.widgets.navigation');
+        var NULL = null;
+        var NUMBER = 'number';
+        var STRING = 'string';
+        var CHANGE = 'change';
+        var CLICK = 'click';
+        var DATABINDING = 'dataBinding';
+        var DATABOUND = 'dataBound';
+        var MOUSEENTER = 'mouseenter';
+        var MOUSELEAVE = 'mouseleave';
+        var FOCUS = 'focus';
+        var BLUR = 'blur';
+        var SELECT = 'select';
+        var NS = '.kendoNavigation';
+        var WIDGET_CLASS = 'k-widget k-group kj-navigation';
+        var HOVER_CLASS = 'k-state-hover';
+        var FOCUSED_CLASS = 'k-state-focused';
+        var SELECTED_CLASS = 'k-state-selected';
+        var HINT_CLASS = 'kj-hint';
+        var DATA_UID = kendo.attr('uid');
+        var ALL_ITEMS_SELECTOR = 'div.kj-item[' + DATA_UID + ']';
+        var ITEM_BYUID_SELECTOR = 'div.kj-item[' + DATA_UID + '="{0}"]';
+        var ARIA_SELECTED = 'aria-selected';
 
         /*********************************************************************************
          * Helpers
@@ -136,7 +134,8 @@
              * @returns {*}
              */
             index: function (index) {
-                var that = this, page;
+                var that = this;
+                var page;
                 if (index !== undefined) {
                     if ($.type(index) !== NUMBER || index % 1 !== 0) {
                         throw new TypeError();
@@ -163,7 +162,8 @@
              * @returns {*}
              */
             id: function (id) {
-                var that = this, page;
+                var that = this;
+                var page;
                 if (id !== undefined) {
                     if ($.type(id) !== STRING && $.type(id) !== NUMBER) {
                         throw new TypeError();
@@ -177,6 +177,9 @@
                     }
                 }
             },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Gets/Sets the value of the selected page in the navigation
@@ -227,6 +230,8 @@
                     }
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * @method total()
@@ -388,14 +393,14 @@
              * @private
              */
             _addItem: function (page, index) {
-                var that = this,
-                    navigation = that.element;
+                var that = this;
+                var navigation = that.element;
 
                 // Check that we get a page that is not already in navigation
                 if (page instanceof Page && navigation.find(kendo.format(ITEM_BYUID_SELECTOR, page.uid)).length === 0) {
 
                     // Create navigation item (actually a selection frame around the thumbnail stage)
-                    var navigationItem = $(that._itemTemplate({uid: page.uid, ns: kendo.ns}))
+                    var navigationItem = $(that._itemTemplate({ uid: page.uid, ns: kendo.ns }))
                         .css({
                             boxSizing: 'border-box',
                             position: 'relative',
@@ -429,13 +434,16 @@
                 item.off().remove();
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Refreshes the widget when dataSource changes
              * @param e
              */
             refresh: function (e) {
-                var that = this,
-                    selectedIndex = that.index();
+                var that = this;
+                var selectedIndex = that.index();
                 if (e && e.action === undefined) {
                     that.trigger(DATABINDING);
                 }
@@ -467,7 +475,7 @@
                     return;
                 }
                 var total = that.dataSource.total();
-                if (total > 0 && selectedIndex > -1 && selectedIndex < total ) {
+                if (total > 0 && selectedIndex > -1 && selectedIndex < total) {
                     that.index(selectedIndex);
                 } else if (total > 0 && selectedIndex <= -1) {
                     that.index(0);
@@ -482,6 +490,8 @@
                     that.trigger(DATABOUND);
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * Adds the k-state-selected class to the selected page determined by that._selectedUid
@@ -516,9 +526,9 @@
              * @method resize
              */
             resize: function () {
-                var that = this,
-                    navigation = that.element,
-                    scale = that._getStageScale();
+                var that = this;
+                var navigation = that.element;
+                var scale = that._getStageScale();
 
                 // TODO: we are not clear with borders here
                 // we actually need the widget's outerWidth and outerHeight
@@ -566,8 +576,8 @@
             _click: function (e) {
                 if (e instanceof $.Event) {
                     e.preventDefault();
-                    var target = $(e.currentTarget),
-                        navigation = target.closest(kendo.roleSelector('navigation'));
+                    var target = $(e.currentTarget);
+                    var navigation = target.closest(kendo.roleSelector('navigation'));
                     if (!target.is('.' + SELECTED_CLASS)) {
                         var page = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
                         this.value(page);
@@ -607,6 +617,8 @@
         kendo.ui.plugin(Navigation);
 
     }(window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kendo;
 

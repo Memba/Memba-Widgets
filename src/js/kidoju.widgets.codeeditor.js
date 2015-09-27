@@ -6,7 +6,7 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function (f, define){
+(function (f, define) {
     'use strict';
     define([
         './vendor/codemirror/lib/codemirror.js',
@@ -30,17 +30,17 @@
 
     (function ($, undefined) {
 
-        var kendo = window.kendo,
-            Widget = kendo.ui.Widget,
-            assert = window.assert,
-            logger = new window.Log('kidoju.widgets.codeeditor'),
-            STRING = 'string',
-            UNDEFINED = 'undefined',
-            BEFORECHANGE = 'beforeChange',
-            CHANGE = 'change',
-            JS_COMMENT = '// ',
-            // NS = '.kendoCodeEditor',
-            WIDGET_CLASS = 'k-widget kj-codeeditor';
+        var kendo = window.kendo;
+        var Widget = kendo.ui.Widget;
+        var assert = window.assert;
+        var logger = new window.Log('kidoju.widgets.codeeditor');
+        var STRING = 'string';
+        var UNDEFINED = 'undefined';
+        var BEFORECHANGE = 'beforeChange';
+        var CHANGE = 'change';
+        var JS_COMMENT = '// ';
+        // var NS = '.kendoCodeEditor',
+        var WIDGET_CLASS = 'k-widget kj-codeeditor';
 
         /*********************************************************************************
          * Widget
@@ -91,7 +91,7 @@
              * Returns either a JS function as a string or a library formula name
              * @param value
              */
-            value: function(value) {
+            value: function (value) {
                 var that = this;
                 if ($.type(value) === STRING) {
                     that._toggle(value);
@@ -112,15 +112,15 @@
              * @param value
              * @private
              */
-            _toggle: function(value) {
+            _toggle: function (value) {
                 var that = this;
                 if ($.type(value) === STRING && that.dropDownList instanceof kendo.ui.DropDownList && that.input instanceof $ && that.codeMirror instanceof CodeMirror) {
-                    var libraryMatches = value.match(/^\/\/ ([^\n]+)$/),
-                        // customMatches = value.match(/^function validate\(value, solution\) {[\s\S]+}$/);
-                        customMatches = value.match(/^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/);
+                    var libraryMatches = value.match(/^\/\/ ([^\n]+)$/);
+                    // var customMatches = value.match(/^function validate\(value, solution\) {[\s\S]+}$/);
+                    var customMatches = value.match(/^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/);
                     if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
                         // Find in the code library
-                        var found = that.dropDownList.dataSource.data().filter(function(item) {
+                        var found = that.dropDownList.dataSource.data().filter(function (item) {
                             return item.name === libraryMatches[1];
                         });
                         found = $.isArray(found) && found.length ? libraryMatches[1] : that.options.default;
@@ -151,19 +151,19 @@
              * Set drop down list with code library and value input
              * @private
              */
-            _setHeader: function() {
-                var that = this,
-                    header = $('<div class="k-header"><div></div><div></div></div>').appendTo(that.element),
-                    left = header.find('div').first(),
-                    right = header.find('div').last();
+            _setHeader: function () {
+                var that = this;
+                var header = $('<div class="k-header"><div></div><div></div></div>').appendTo(that.element);
+                var left = header.find('div').first();
+                var right = header.find('div').last();
                 // Create the dropDownList
                 that.dropDownList = $('<select/>')
                     .appendTo(left)
                     .kendoDropDownList({
                         autoBind: that.options.autoBind,
                         change: $.proxy(that._onDropDownListChange, that), // change is not triggered by dropDownList api calls incl. value(), text(), ...
-                        dataTextField: "name",
-                        dataValueField: "formula",
+                        dataTextField: 'name',
+                        dataValueField: 'formula',
                         dataSource: that.options.dataSource
                     })
                     .data('kendoDropDownList');
@@ -177,7 +177,7 @@
              * Event handler triggered when changing the value of the drop down list in the header
              * @private
              */
-            _onDropDownListChange: function() {
+            _onDropDownListChange: function () {
                 if (this.dropDownList instanceof kendo.ui.DropDownList && this.input instanceof $ && this.codeMirror instanceof CodeMirror) {
                     this.codeMirror.getDoc().setValue(this.dropDownList.value());
                 }
@@ -187,9 +187,9 @@
              * Set CodeMirror editor
              * @private
              */
-            _setCodeMirror: function() {
-                var that = this,
-                    div = $('<div class="kj-codemirror"></div>')
+            _setCodeMirror: function () {
+                var that = this;
+                var div = $('<div class="kj-codemirror"></div>')
                         .appendTo(that.element)
                         .get(0);
                 if (div instanceof window.HTMLElement) {
@@ -213,7 +213,7 @@
                             change.cancel();
                         }
                     });
-                    that.codeMirror.on(CHANGE, function(cm, change) {
+                    that.codeMirror.on(CHANGE, function (cm, change) {
                         if (that.dropDownList.text() !== that.options.custom) {
                             if (that.codeMirror.getDoc().getValue() !== that.dropDownList.value()) {
                                 that.dropDownList.text(that.options.custom);
@@ -229,9 +229,9 @@
              * _dataSource function to bind refresh to the change event
              * @private
              */
-            _dataSource: function() {
-                var that = this,
-                    dropDownList = that.dropDownList;
+            _dataSource: function () {
+                var that = this;
+                var dropDownList = that.dropDownList;
                 if (dropDownList instanceof kendo.ui.DropDownList && dropDownList.dataSource instanceof kendo.data.DataSource) {
                     // MVVM bindings require that.dataSource
                     that.dataSource = that.dropDownList.dataSource;
@@ -247,10 +247,10 @@
              * sets the dataSource for source binding
              * @param dataSource
              */
-            setDataSource: function(dataSource) {
-                var that = this,
-                    dropDownList = that.dropDownList;
-                if (dropDownList instanceof kendo.ui.DropDownList && dropDownList.dataSource !== dataSource ) {
+            setDataSource: function (dataSource) {
+                var that = this;
+                var dropDownList = that.dropDownList;
+                if (dropDownList instanceof kendo.ui.DropDownList && dropDownList.dataSource !== dataSource) {
                     dropDownList.setDataSource(dataSource);
                     that._dataSource();
                 }
@@ -260,7 +260,7 @@
              * Refresh
              * @param e
              */
-            refresh: function(e) {
+            refresh: function (e) {
                 this.dropDownList.refresh(e);
             },
 
@@ -301,4 +301,4 @@
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function (_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

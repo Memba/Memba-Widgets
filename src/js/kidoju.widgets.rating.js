@@ -26,31 +26,31 @@
     (function ($, undefined) {
 
         // shorten references to variables for uglification
-        var // fn = Function,
-            // global = fn('return this')(),
-            kendo = window.kendo,
-            ui = kendo.ui,
-            Widget = ui.Widget,
-            // assert = window.assert,
-            logger = new window.Log('kidoju.widgets.rating'),
-            NUMBER = 'number',
-            STAR = 'star',
-            STAR_P = '&#x2605;',
-            STAR_O = '&#x2606;',
-            STAR_SELECTOR = 'span.k-rating-star',
-            STATE_HOVER = 'k-state-hover',
-            STATE_SELECTED = 'k-state-selected',
-            STATE_DISABLED = 'k-state-disabled',
-            RATING_MIN = 0,
-            RATING_MAX = 5,
-            RATING_STEP = 1,
-            PRECISION = 3,
-            NS = '.kendoRating',
-            CLICK = 'click' + NS,
-            MOUSEENTER = 'mouseenter',
-            MOUSELEAVE = 'mouseleave',
-            HOVEREVENTS = MOUSEENTER + NS + ' ' + MOUSELEAVE + NS,
-            CHANGE = 'change';
+        // var fn = Function;
+        // var global = fn('return this')();
+        var kendo = window.kendo;
+        var ui = kendo.ui;
+        var Widget = ui.Widget;
+        // var assert = window.assert,
+        var logger = new window.Log('kidoju.widgets.rating');
+        var NUMBER = 'number';
+        var STAR = 'star';
+        var STAR_P = '&#x2605;';
+        var STAR_O = '&#x2606;';
+        var STAR_SELECTOR = 'span.k-rating-star';
+        var STATE_HOVER = 'k-state-hover';
+        var STATE_SELECTED = 'k-state-selected';
+        var STATE_DISABLED = 'k-state-disabled';
+        var RATING_MIN = 0;
+        var RATING_MAX = 5;
+        var RATING_STEP = 1;
+        var PRECISION = 3;
+        var NS = '.kendoRating';
+        var CLICK = 'click' + NS;
+        var MOUSEENTER = 'mouseenter';
+        var MOUSELEAVE = 'mouseleave';
+        var HOVEREVENTS = MOUSEENTER + NS + ' ' + MOUSELEAVE + NS;
+        var CHANGE = 'change';
 
         /*********************************************************************************
          * Helpers
@@ -89,8 +89,8 @@
              * @param options
              */
             init: function (element, options) {
-                var that = this,
-                    input = $(element);
+                var that = this;
+                var input = $(element);
                 input.type = NUMBER;
                 that.ns = NS;
                 options = $.extend({}, {
@@ -136,9 +136,9 @@
              * @return {*}
              */
             value: function (value) {
-                var that = this,
-                    input = that.element,
-                    options = that.options;
+                var that = this;
+                var input = that.element;
+                var options = that.options;
                 value = parseFloat(value);
                 if (isNaN(value)) {
                     return parseFloat(input.val());
@@ -161,13 +161,13 @@
              * @private
              */
             _layout: function () {
-                var that = this,
-                    input = that.element,
-                    options = that.options;
+                var that = this;
+                var input = that.element;
+                var options = that.options;
                 that._clear();
                 input.wrap('<span class="k-widget k-rating"/>');
                 input.hide();
-                input.on(CHANGE + NS, function() {
+                input.on(CHANGE + NS, function () {
                     // update widget
                     that.refresh();
                     that.trigger(CHANGE, { value: parseFloat(input.val()) });
@@ -175,9 +175,9 @@
                 // We need that.wrapper for visible/invisible bindings
                 that.wrapper = input.parent();
                 // Calculate the number of stars
-                var n = round((options.max - options.min)/options.step);  // number of stars
+                var n = round((options.max - options.min) / options.step);  // number of stars
                 // Add stars to the DOM
-                for(var i = 1; i <= n; i++) {
+                for (var i = 1; i <= n; i++) {
                     that.wrapper.append(kendo.format('<span class="k-rating-star" data-star="{0}">{1}</span>', i, STAR_O));
                 }
                 // Make (non)editable
@@ -189,10 +189,10 @@
              * @private
              */
             _editable: function (options) {
-                var that = this,
-                    disabled = options.disabled,
-                    readonly = options.readonly,
-                    wrapper = that.wrapper;
+                var that = this;
+                var disabled = options.disabled;
+                var readonly = options.readonly;
+                var wrapper = that.wrapper;
                 wrapper.find(STAR_SELECTOR).off(NS);
                 if (!readonly && !disabled) {
                     wrapper.removeClass(STATE_DISABLED);
@@ -220,13 +220,13 @@
              * @method refresh
              */
             refresh: function () {
-                var that = this,
-                    options = that.options;
+                var that = this;
+                var options = that.options;
                 if (that.wrapper) {
-                    var i = round((that.value() - options.min)/options.step);
+                    var i = round((that.value() - options.min) / options.step);
                     $.each(that.wrapper.find(STAR_SELECTOR), function (index, element) {
                         var star = $(element);
-                        if(parseFloat(star.attr(kendo.attr(STAR))) <= i) {
+                        if (parseFloat(star.attr(kendo.attr(STAR))) <= i) {
                             star.html(STAR_P).addClass(STATE_SELECTED);
                         } else {
                             star.html(STAR_O).removeClass(STATE_SELECTED);
@@ -241,11 +241,11 @@
              * @private
              */
             _onStarClick: function (e) {
-                var that = this,
-                    options = that.options;
+                var that = this;
+                var options = that.options;
+                var i = parseFloat($(e.currentTarget).attr(kendo.attr(STAR)));
+                var value = options.min + i * options.step;
                 e.preventDefault();
-                var i = parseFloat($(e.currentTarget).attr(kendo.attr(STAR))),
-                    value = options.min + i * options.step;
                 that.value(value);
             },
 
@@ -255,11 +255,11 @@
              * @private
              */
             _toggleHover: function (e) {
-                var that = this,
-                    i = parseFloat($(e.currentTarget).attr(kendo.attr(STAR)));
+                var that = this;
+                var i = parseFloat($(e.currentTarget).attr(kendo.attr(STAR)));
                 $.each(that.wrapper.find(STAR_SELECTOR), function (index, element) {
                     var star = $(element);
-                    if(e.type=== MOUSEENTER && parseFloat(star.attr(kendo.attr(STAR))) <= i) {
+                    if (e.type === MOUSEENTER && parseFloat(star.attr(kendo.attr(STAR))) <= i) {
                         star.html(STAR_P).addClass(STATE_HOVER);
                     } else {
                         star.html(star.hasClass(STATE_SELECTED) ? STAR_P : STAR_O).removeClass(STATE_HOVER);
@@ -273,8 +273,8 @@
              * @private
              */
             _clear: function () {
-                var that = this,
-                    input = that.element;
+                var that = this;
+                var input = that.element;
                 // remove wrapper and stars
                 if (that.wrapper) {
                     that.wrapper.find(STAR_SELECTOR).off(NS).remove();

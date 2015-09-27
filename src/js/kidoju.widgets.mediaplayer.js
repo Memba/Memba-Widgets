@@ -17,28 +17,28 @@
 
     'use strict';
 
-    (function($, undefined) {
+    (function ($, undefined) {
 
-        var kendo = window.kendo,
-            ui = kendo.ui,
-            Widget = ui.Widget,
-            assert = window.assert,
-            logger = new window.Log('kidoju.widgets.mediaplayer'),
-            ARRAY = 'array',
-            STRING = 'string',
-            NUMBER = 'number',
-            UNDEFINED = 'undefined',
-            WIDGET_CLASS = 'k-mediaplayer',
-            CONTROLS_CLASS = 'k-mediaplayer-control',
-            ACTIVE = 'k-state-active',
-            DISABLE = 'k-state-disabled',
-            SELECT = 'select',
-            MODES = {
+        var kendo = window.kendo;
+        var ui = kendo.ui;
+        var Widget = ui.Widget;
+        var assert = window.assert;
+        var logger = new window.Log('kidoju.widgets.mediaplayer');
+        var ARRAY = 'array';
+        var STRING = 'string';
+        var NUMBER = 'number';
+        var UNDEFINED = 'undefined';
+        var WIDGET_CLASS = 'k-mediaplayer';
+        var CONTROLS_CLASS = 'k-mediaplayer-control';
+        var ACTIVE = 'k-state-active';
+        var DISABLE = 'k-state-disabled';
+        var SELECT = 'select';
+        var MODES = {
                 AUDIO: 'audio',
                 VIDEO: 'video'
-            },
-            COMMAND = 'command',
-            COMMANDS = {
+            };
+        var COMMAND = 'command';
+        var COMMANDS = {
                 PLAY: 'play',
                 MUTE: 'mute',
                 FULL: 'full' // full screen
@@ -64,7 +64,7 @@
         function typeFormatter(url) {
             assert.type(STRING, url, kendo.format(assert.messages.type.default, 'url', STRING));
             var ext = url.split('.').pop();
-            switch(ext) {
+            switch (ext) {
                 case 'mp3':
                     // @see http://tools.ietf.org/html/rfc3003
                     // @see https://developer.mozilla.org/en-US/docs/Web/HTML/Supported_media_formats#MP3
@@ -99,7 +99,7 @@
              * @param element
              * @param options
              */
-            init: function(element, options) {
+            init: function (element, options) {
                 var that = this;
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
@@ -107,7 +107,7 @@
 
                 /*
                 that._enable = true;
-                if(!that.options.enable) {
+                if (!that.options.enable) {
                     that._enable = false;
                     that.wrapper.addClass(DISABLE);
                 }
@@ -137,7 +137,7 @@
                 // TODO youtube, vimeo, dailymotion and others modes.
             },
 
-            _layout: function() {
+            _layout: function () {
                 var that = this;
                 that.wrapper = that.element;
                 that.element.addClass(WIDGET_CLASS);
@@ -149,7 +149,7 @@
              * Add native audio or video tag
              * @private
              */
-            _native: function() {
+            _native: function () {
                 var that = this;
                 if (that.options.mode === MODES.AUDIO) {
                     that.media = $('<audio></audio>');
@@ -158,7 +158,7 @@
                 }
                 var files = $.type(that.options.files) === STRING ? [that.options.files] : that.options.files;
                 assert.type(ARRAY, files, kendo.format(assert.messages.type.default, 'options.files', ARRAY));
-                $.each(files, function(index, url) {
+                $.each(files, function (index, url) {
                     $('<source>')
                         .attr({ src: url, type: typeFormatter(url) })
                         .appendTo(that.media);
@@ -170,7 +170,7 @@
              * Add controls (play/pause, sound, full screen)
              * @private
              */
-            _controls: function() {
+            _controls: function () {
                 var that = this;
                 that.controls = $('<div/>')
                     .addClass('k-pager-wrap')
@@ -227,7 +227,7 @@
             /**
              * Toggle play pause
              */
-            togglePlayPause: function() {
+            togglePlayPause: function () {
                 var mediaElement = this.media.get(0);
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
                 if (mediaElement.paused && mediaElement.readyState === 4) {
@@ -241,7 +241,7 @@
             /**
              * Toggle muted sound
              */
-            toggleMute: function() {
+            toggleMute: function () {
                 var mediaElement = this.media.get(0);
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
                 mediaElement.muted = !mediaElement.muted;
@@ -252,7 +252,7 @@
              * Toggle full screen mode
              * @see https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
              */
-            toggleFullScreen: function() {
+            toggleFullScreen: function () {
                 var mediaElement = this.media.get(0);
                 assert.instanceof(window.HTMLVideoElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLVideoElement'));
                 if (mediaElement.requestFullscreen) {
@@ -266,7 +266,7 @@
                 }
             },
 
-            volume: function(value) {
+            volume: function (value) {
                 var mediaElement = this.media.get(0);
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
                 if ($.type(value) === UNDEFINED) {
@@ -282,7 +282,7 @@
                 }
             },
 
-            _onVolumeSlide: function(e) {
+            _onVolumeSlide: function (e) {
                 $.noop();
             },
 
@@ -291,9 +291,9 @@
              * @param e
              * @private
              */
-            _buttonClick: function(e) {
+            _buttonClick: function (e) {
                 var command = $(e.currentTarget).attr(kendo.attr(COMMAND));
-                switch(command) {
+                switch (command) {
                     case COMMAND.PLAY:
                         this.togglePlayPause();
                         break;
@@ -306,14 +306,14 @@
                 }
             },
 
-            enable: function(enable) {
+            enable: function (enable) {
                 var wrapper = this.wrapper;
 
-                if(typeof enable === "undefined") {
+                if (typeof enable === UNDEFINED) {
                     enable = true;
                 }
 
-                if(enable) {
+                if (enable) {
                     wrapper.removeClass(DISABLE);
                 } else {
                     wrapper.addClass(DISABLE);
@@ -330,4 +330,4 @@
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

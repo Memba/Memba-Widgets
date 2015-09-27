@@ -229,7 +229,7 @@
                 rating = element.kendoRating().data('kendoRating');
             });
 
-            it('mouseover', function() {
+            it('mouseover', function () {
                 expect(rating).to.be.an.instanceof(Rating);
                 var min = rating.options.min, max = rating.options.max, step = rating.options.step;
                 var count = Math.round((max-min)/step);

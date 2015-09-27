@@ -83,7 +83,7 @@
             it('string object value', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
-                        value: {sample: 'Sample'}
+                        value: {sample: 'Sample' }
                     }).data('kendoPropertyGrid');
                 expect(propertyGrid).to.be.an.instanceof(PropertyGrid);
                 validateGridHtml(element, 1);
@@ -248,7 +248,7 @@
                         }
                     }),
                     propertyGrid = element.kendoPropertyGrid({
-                        value: new Sample({sample: 'Sample'}),
+                        value: new Sample({sample: 'Sample' }),
                         rows: [{ field: 'sample' }]
                     }).data('kendoPropertyGrid');
                 expect(propertyGrid).to.be.an.instanceof(PropertyGrid);
@@ -271,7 +271,7 @@
             it('string object value with template', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES),
                     propertyGrid = element.kendoPropertyGrid({
-                        value: {sample: 'Sample'},
+                        value: {sample: 'Sample' },
                         rows: [{ field: 'sample', template: '<div style="border: dashed 1px \\#000000;" data-bind="text: sample"></div>' }]
                     }).data('kendoPropertyGrid');
                 expect(propertyGrid).to.be.an.instanceof(PropertyGrid);
@@ -659,8 +659,8 @@
                             active: true
                         },
                         rows: [
-                            {field: 'title', title: 'Title'},
-                            {field: 'description', title: 'Description', editor: 'textarea'},
+                            {field: 'title', title: 'Title' },
+                            {field: 'description', title: 'Description', editor: 'textarea' },
                             {
                                 field: 'category',
                                 title: 'Category',
@@ -669,11 +669,11 @@
                                         .appendTo(container);
                                 }
                             },
-                            {field: 'image', title: 'Image', editor: 'url'},
-                            {field: 'backgroundColor', title: 'Colour', editor: 'colorpicker'},
-                            {field: 'created', title: 'Creation Date', editor:'datepicker', format: 'dd MMM yyyy'},
-                            {field: 'scale', title: 'Scale', editor: 'slider'}//,
-                            // {field: 'active', title: 'Active'}
+                            {field: 'image', title: 'Image', editor: 'url' },
+                            {field: 'backgroundColor', title: 'Colour', editor: 'colorpicker' },
+                            {field: 'created', title: 'Creation Date', editor:'datepicker', format: 'dd MMM yyyy' },
+                            {field: 'scale', title: 'Scale', editor: 'slider' }//,
+                            // {field: 'active', title: 'Active' }
                         ]
                     }).data('kendoPropertyGrid');
                 expect(propertyGrid).to.be.an.instanceof(PropertyGrid);

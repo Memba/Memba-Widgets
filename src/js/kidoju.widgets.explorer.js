@@ -6,7 +6,7 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function(f, define){
+(function (f, define) {
     'use strict';
     define([
         './vendor/kendo/kendo.binder',
@@ -15,46 +15,48 @@
         './window.assert',
         './window.log'
     ], f);
-})(function() {
+})(function () {
 
     'use strict';
+
+    /* jshint -W071 */
 
     (function ($, undefined) {
 
         // shorten references to variables for uglification
         // var fn = Function,
         //     global = fn('return this')(),
-        var kendo = window.kendo,
-            data = kendo.data,
-            ObservableArray = kendo.data.ObservableArray,
-            Widget = kendo.ui.Widget,
-            kidoju = window.kidoju,
-            PageComponent = kidoju.data.PageComponent,
-            PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource,
-            PageCollectionDataSource = kidoju.data.PageCollectionDataSource,
-            // assert = window.assert,
-            logger = new window.Log('kidoju.widgets.explorer'),
-            STRING = 'string',
-            NUMBER = 'number',
-            NULL = null,
-            CHANGE = 'change',
-            CLICK = 'click',
-            DATABINDING = 'dataBinding',
-            DATABOUND = 'dataBound',
-            MOUSEENTER = 'mouseenter',
-            MOUSELEAVE = 'mouseleave',
-            FOCUS = 'focus',
-            BLUR = 'blur',
-            SELECT = 'select',
-            NS = '.kendoExplorer',
-            WIDGET_CLASS = 'k-widget k-group kj-explorer', // k-list-container k-reset
-            HOVER_CLASS = 'k-state-hover',
-            FOCUSED_CLASS = 'k-state-focused',
-            SELECTED_CLASS = 'k-state-selected',
-            DATA_UID = kendo.attr('uid'),
-            ALL_ITEMS_SELECTOR = 'li.kj-item[' + DATA_UID + ']',
-            ITEM_BYUID_SELECTOR = 'li.kj-item[' + DATA_UID + '="{0}"]',
-            ARIA_SELECTED = 'aria-selected';
+        var kendo = window.kendo;
+        var data = kendo.data;
+        var ObservableArray = kendo.data.ObservableArray;
+        var Widget = kendo.ui.Widget;
+        var kidoju = window.kidoju;
+        var PageComponent = kidoju.data.PageComponent;
+        var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
+        var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+        // var assert = window.assert
+        var logger = new window.Log('kidoju.widgets.explorer');
+        var STRING = 'string';
+        var NUMBER = 'number';
+        var NULL = null;
+        var CHANGE = 'change';
+        var CLICK = 'click';
+        var DATABINDING = 'dataBinding';
+        var DATABOUND = 'dataBound';
+        var MOUSEENTER = 'mouseenter';
+        var MOUSELEAVE = 'mouseleave';
+        var FOCUS = 'focus';
+        var BLUR = 'blur';
+        var SELECT = 'select';
+        var NS = '.kendoExplorer';
+        var WIDGET_CLASS = 'k-widget k-group kj-explorer'; // k-list-container k-reset
+        var HOVER_CLASS = 'k-state-hover';
+        var FOCUSED_CLASS = 'k-state-focused';
+        var SELECTED_CLASS = 'k-state-selected';
+        var DATA_UID = kendo.attr('uid');
+        var ALL_ITEMS_SELECTOR = 'li.kj-item[' + DATA_UID + ']';
+        var ITEM_BYUID_SELECTOR = 'li.kj-item[' + DATA_UID + '="{0}"]';
+        var ARIA_SELECTED = 'aria-selected';
 
         /*********************************************************************************
          * Helpers
@@ -128,7 +130,8 @@
              * @returns {*}
              */
             index: function (index) {
-                var that = this, component;
+                var that = this;
+                var component;
                 if (index !== undefined) {
                     if ($.type(index) !== NUMBER || index % 1 !== 0) {
                         throw new TypeError();
@@ -154,7 +157,8 @@
              * @returns {*}
              */
             id: function (id) {
-                var that = this, component;
+                var that = this;
+                var component;
                 if (id !== undefined) {
                     if ($.type(id) !== NUMBER && $.type(id) !== STRING) {
                         throw new TypeError();
@@ -176,6 +180,8 @@
              * @returns {*}
              */
             value: function (component) {
+                /* This function's cyclomatic complexity is too high. */
+                /* jshint -W074 */
                 var that = this;
                 if (component === NULL) {
                     if (that._selectedUid !== NULL) {
@@ -216,6 +222,7 @@
                         return that.dataSource.getByUid(that._selectedUid); // Returns undefined if not found
                     }
                 }
+                /* jshint +W074 */
             },
 
             /**
@@ -362,8 +369,11 @@
              * @param e
              */
             refresh: function (e) {
-                var that = this,
-                    html = '';
+                /* This function's cyclomatic complexity is too high. */
+                /* jshint +W074 */
+
+                var that = this;
+                var html = '';
 
                 if (e && e.action === undefined) {
                     that.trigger(DATABINDING);
@@ -385,13 +395,13 @@
                 } else if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
                     $.each(e.items, function (index, component) {
                         that._addItem(component);
-                        that.trigger(CHANGE, {action: e.action, value: component}); // TODO <--------------------------------------------
+                        that.trigger(CHANGE, { action: e.action, value: component }); // TODO <--------------------------------------------
                     });
                     // that.select(e.items[e.items.length -1]); // TODO <---------------------------------------------
                 } else if (e.action === 'remove' && $.isArray(e.items) && e.items.length) {
                     $.each(e.items, function (index, page) {
                         that._removeItemByUid(page.uid);
-                        that.trigger(CHANGE, {action: e.action, value: page});
+                        that.trigger(CHANGE, { action: e.action, value: page });
                         // that._selectByUid(null); // TODO
                     });
 
@@ -409,9 +419,8 @@
                 if (e && e.action === undefined) {
                     that.trigger(DATABOUND);
                 }
-
+                /* jshint -W074 */
             },
-
 
             /**
              * Toggles class on selected item determined by value of widget
@@ -473,8 +482,8 @@
              * @private
              */
             _clear: function () {
-                var that = this,
-                    explorer = that.element;
+                var that = this;
+                var explorer = that.element;
                 // unbind kendo
                 kendo.unbind(explorer);
                 // unbind all other events
@@ -500,6 +509,8 @@
         kendo.ui.plugin(Explorer);
 
     }(window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kendo;
 

@@ -17,13 +17,15 @@ module.exports = function (grunt) {
             tasks: ['lint', 'test']
         },
         jscs: {
-            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
+            // files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
+            files: ['gruntfile.js'],
             options: {
                 config: '.jscsrc'
             }
         },
         jshint: {
-            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
+            // files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
+            files: ['gruntfile.js'],
             options: {
                 // options here to override JSHint defaults
                 jshintrc: '.jshintrc'
@@ -37,7 +39,7 @@ module.exports = function (grunt) {
                 */
             }
         },
-        kendo_lint: {
+        'kendo_lint': {
             files: ['src/js/kidoju.*.js']
         },
         csslint: {
@@ -49,10 +51,10 @@ module.exports = function (grunt) {
             }
         },
         // TODO: Consider linting html too
-        mocha: { //Tests running in a browser (phantomJS)
+        mocha: { // Tests running in a browser (phantomJS)
             browsers: {
                 options: {
-                    //debug: true,
+                    // debug: true,
                     log: true,
                     logErrors: true,
                     reporter: 'Spec',
@@ -62,10 +64,10 @@ module.exports = function (grunt) {
                 src: ['test/browsers/kidoju.*.test.html']
             }
         },
-        mochaTest: { //Test running in nodeJS (supertest, zombie, ...)
+        mochaTest: { // Test running in nodeJS (supertest, zombie, ...)
             zombie: {
                 options: {
-                    //debug: true,
+                    // debug: true,
                     quiet: false,
                     reporter: 'spec',
                     timeout: 10000,
@@ -80,7 +82,7 @@ module.exports = function (grunt) {
             dist: {
                 options: {
                     process: function(src, filepath) {
-                        //Replace with min versions
+                        // Replace with min versions
                         var ret;
                         if (filepath === 'src/js/init.js'){
                             ret = src
@@ -89,10 +91,10 @@ module.exports = function (grunt) {
                         }
                         return ret || src;
                     },*/
-                    //noProcess: ['**/*.{png,gif,jpg,ico,psd}'] //otherwise images are corrupted
-                /*},
+            // noProcess: ['**/*.{png,gif,jpg,ico,psd}'] // otherwise images are corrupted
+            /*},
                 files: [
-                    //{ cwd: 'src/styles', src: ['fonts/**'], dest: 'dist/styles', expand: true },
+            // { cwd: 'src/styles', src: ['fonts/**'], dest: 'dist/styles', expand: true },
                     { cwd: 'src/styles', src: ['images/**'], dest: 'dist/styles', expand: true }
                 ]
             },*/
@@ -113,8 +115,8 @@ module.exports = function (grunt) {
             js: {
                 options: {
                     separator: '\n;\n',
-                    process: function(src /*, filepath*/) {
-                        //Replace DEBUG = true with DEBUG = false
+                    process: function (src /*, filepath*/) {
+                        // Replace DEBUG = true with DEBUG = false
                         return src.replace(/DEBUG[\s]*=[\s]*true/gm, 'DEBUG = false');
                     }
                 },
@@ -180,20 +182,20 @@ module.exports = function (grunt) {
         */
     });
 
-    //Watching
+    // Watching
     grunt.loadNpmTasks('grunt-contrib-watch');
 
-    //Linting
+    // Linting
     grunt.loadNpmTasks('grunt-jscs');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-kendo-lint');
     grunt.loadNpmTasks('grunt-contrib-csslint');
 
-    //Testing
+    // Testing
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
 
-    //Building
+    // Building
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-concat');
@@ -201,7 +203,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-imagemin');
     grunt.loadNpmTasks('grunt-jsdoc');
-    //grunt.loadNpmTasks('grunt-contrib-yuidoc');
+    // grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
     grunt.registerTask('lint', ['jscs', 'jshint', 'kendo_lint', 'csslint']);
     grunt.registerTask('test', ['mocha', 'mochaTest']);

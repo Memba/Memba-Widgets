@@ -6,7 +6,7 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function (f, define){
+(function (f, define) {
     'use strict';
     define([], f);
 })(function () {
@@ -15,14 +15,13 @@
 
     (function ($, undefined) {
 
-        var STRING = 'string',
-            UNDEFINED = 'undefined';
+        var STRING = 'string';
 
         /**
          * Log class
          * @class Log
          */
-        var Log = window.Log = function(module) {
+        var Log = window.Log = function (module) {
 
             this._module = module;
 
@@ -32,13 +31,13 @@
              * @param level
              * @private
              */
-            this._print = function(message, level) {
+            this._print = function (message, level) {
 
                 message = $.type(message) === STRING ? { message: message } : message;
                 level = (/^(debug|info|warn|error|crit)$/i).test(level) ? level.toLowerCase() : 'info';
 
-                var app = window.app,
-                    logEntry = $.extend({}, message, { module: this._module });
+                var app = window.app;
+                var logEntry = $.extend({}, message, { module: this._module });
 
                 // If we have an app.logger, delegate to app logger
                 if (app && app.logger) {
@@ -60,35 +59,35 @@
          * Print debug message
          * @param message
          */
-        Log.prototype.debug = function(message) { return this._print(message, 'debug'); };
+        Log.prototype.debug = function (message) { return this._print(message, 'debug'); };
 
         /**
          * Print info message
          * @param message
          */
-        Log.prototype.info = function(message) { return this._print(message, 'info'); };
+        Log.prototype.info = function (message) { return this._print(message, 'info'); };
 
         /**
          * Print warn message
          * @param message
          */
-        Log.prototype.warn = function(message) { return this._print(message, 'warn'); };
+        Log.prototype.warn = function (message) { return this._print(message, 'warn'); };
 
         /**
          * Print error message
          * @param message
          */
-        Log.prototype.error = function(message) { return this._print(message, 'error'); };
+        Log.prototype.error = function (message) { return this._print(message, 'error'); };
 
         /**
          * Print critical message
          * @param message
          */
-        Log.prototype.crit = function(message) { return this._print(message, 'crit'); };
+        Log.prototype.crit = function (message) { return this._print(message, 'crit'); };
 
 
     }(window.jQuery));
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function (_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

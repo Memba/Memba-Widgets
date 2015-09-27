@@ -21,36 +21,36 @@
     // TODO implement regex match
     // TODO: implement _clear() properly
 
-   (function ($, undefined) {
+    (function ($, undefined) {
 
         // shorten references to variables for uglification
-        var // fn = Function,
-            // global = fn('return this')(),
-            kendo = window.kendo,
-            ui = kendo.ui,
-            Widget = ui.Widget,
-            ObservableArray = kendo.data.ObservableArray,
-            // assert = window.assert,
-            logger = new window.Log('kidoju.widgets.multiinput'),
-            // NUMBER = 'number',
-            STRING = 'string',
-            ns = '.kendoMultiInput',
-            CHANGE = 'change',
-            CLICK = 'click' + ns,
-            KEYPRESS = 'keypress' + ns,
-            FOCUSOUT = 'focusout' + ns,
-            MOUSEENTER = 'mouseenter' + ns,
-            MOUSELEAVE = 'mouseleave' + ns,
-            HOVEREVENTS = MOUSEENTER + ' ' + MOUSELEAVE,
-            ID = 'id',
-            LI = 'li',
-            ARIA_DISABLED = 'aria-disabled',
-            ARIA_READONLY = 'aria-readonly',
-            // FOCUSEDCLASS = 'k-state-focused',
-            HOVERCLASS = 'k-state-hover',
-            STATEDISABLED = 'k-state-disabled',
-            DISABLED = 'disabled',
-            READONLY = 'readonly';
+        // var fn = Function;
+        // var global = fn('return this')();
+        var kendo = window.kendo;
+        var ui = kendo.ui;
+        var Widget = ui.Widget;
+        var ObservableArray = kendo.data.ObservableArray;
+        // var assert = window.assert;
+        var logger = new window.Log('kidoju.widgets.multiinput');
+        // var NUMBER = 'number';
+        var STRING = 'string';
+        var ns = '.kendoMultiInput';
+        var CHANGE = 'change';
+        var CLICK = 'click' + ns;
+        var KEYPRESS = 'keypress' + ns;
+        var FOCUSOUT = 'focusout' + ns;
+        var MOUSEENTER = 'mouseenter' + ns;
+        var MOUSELEAVE = 'mouseleave' + ns;
+        var HOVEREVENTS = MOUSEENTER + ' ' + MOUSELEAVE;
+        var ID = 'id';
+        var LI = 'li';
+        var ARIA_DISABLED = 'aria-disabled';
+        var ARIA_READONLY = 'aria-readonly';
+        // var FOCUSEDCLASS = 'k-state-focused';
+        var HOVERCLASS = 'k-state-hover';
+        var STATEDISABLED = 'k-state-disabled';
+        var DISABLED = 'disabled';
+        var READONLY = 'readonly';
 
         /*******************************************************************************************
          * Widget
@@ -108,9 +108,9 @@
              * @private
              */
             _initValue: function () {
-                var that = this,
-                    initialValue = that.element.val(),
-                    value = that.options.value || initialValue;
+                var that = this;
+                var initialValue = that.element.val();
+                var value = that.options.value || initialValue;
 
                 if ($.type(initialValue) === STRING && initialValue.trim().length) {
                     that._initialValue = initialValue;
@@ -120,7 +120,7 @@
                 if ($.type(value) === STRING && initialValue.trim().length) {
                     try {
                         value = $.parseJSON(value);
-                    } catch(ex) {
+                    } catch (ex) {
                         value = [value];
                     }
                 }
@@ -143,10 +143,10 @@
             value: function (value) {
                 var that = this;
                 if (value) {
-                    if(!$.isArray(value) && !(value instanceof ObservableArray)) {
+                    if (!$.isArray(value) && !(value instanceof ObservableArray)) {
                         throw new TypeError();
                     }
-                    if(!compare(value, that._values)) {
+                    if (!compare(value, that._values)) {
                         that._values = value;
                         that.refresh();
                     }
@@ -164,10 +164,10 @@
              * @private
              */
             _layout: function () {
-                var that = this,
-                    // options = that.options,
-                    element = $(that.element), // the <input> element
-                    id = element.attr(ID);
+                var that = this;
+                // var options = that.options,
+                var element = $(that.element); // the <input> element
+                var id = element.attr(ID);
                 that._clear();
                 element.attr({
                     'class': 'k-input',
@@ -175,7 +175,7 @@
                     'autocomplete': 'off',
                     'tabindex' : 0,
                     'role': 'listbox',
-                    'aria-owns': id ? id + '_taglist': ''
+                    'aria-owns': id ? id + '_taglist' : ''
                 });
                 element.wrap('<div class="k-multiselect-wrap k-floatwrap" unselectable="on"/>');
                 that._innerWrapper = element.parent();
@@ -194,12 +194,12 @@
              * @private
              */
             _editable: function (options) {
-                var that = this,
-                    disable = options.disable,
-                    readonly = options.readonly,
-                    wrapper = that.wrapper.off(ns),
-                    tagList = that.tagList.off(ns),
-                    input = that.element.off(ns);
+                var that = this;
+                var disable = options.disable;
+                var readonly = options.readonly;
+                var wrapper = that.wrapper.off(ns);
+                var tagList = that.tagList.off(ns);
+                var input = that.element.off(ns);
 
                 if (!readonly && !disable) {
                     wrapper
@@ -287,8 +287,8 @@
              * @private
              */
             _removeTag: function (tag) {
-                var that = this,
-                    index = tag.index();
+                var that = this;
+                var index = tag.index();
                 tag.remove();
                 return index;
             },
@@ -298,8 +298,8 @@
              * @private
              */
             _change: function () {
-                var that = this,
-                    value = that.value();
+                var that = this;
+                var value = that.value();
                 if (!compare(value, that._oldValues)) {
                     that.trigger(CHANGE);
                     that.element.trigger(CHANGE); // also trigger the DOM change event so any subscriber gets notified
@@ -313,9 +313,9 @@
              * @private
              */
             _onTagClick: function (e) {
-                var that = this,
-                    tag = $(e.target).closest(LI),
-                    index = that._removeTag(tag);
+                var that = this;
+                var tag = $(e.target).closest(LI);
+                var index = that._removeTag(tag);
                 that._values.splice(index, 1);
                 that._change();
                 // that._placeholder();
@@ -327,10 +327,10 @@
              * @private
              */
             _onInputKeyPress: function (e) {
-                var that = this,
-                    separators = that.options.separators || '',
-                    code = e.keyCode || e.which;
-                if(separators.indexOf(String.fromCharCode(code)) > -1) {
+                var that = this;
+                var separators = that.options.separators || '';
+                var code = e.keyCode || e.which;
+                if (separators.indexOf(String.fromCharCode(code)) > -1) {
                     that._fromInputToTag();
                     return false;
                 }
@@ -346,9 +346,9 @@
             },
 
             _fromInputToTag: function () {
-                var that = this,
-                    input = that.element,
-                    value = input.val().trim();
+                var that = this;
+                var input = that.element;
+                var value = input.val().trim();
                 if (value.length) {
                     that._values.push(value);
                     that._addTags(value);
@@ -367,8 +367,8 @@
              * @private
              */
             _clear: function () {
-                var that = this,
-                    ns = that.ns;
+                var that = this;
+                var ns = that.ns;
                 // unbind descendant events
                 // $(that.element).find('*').off();
                 // clear element

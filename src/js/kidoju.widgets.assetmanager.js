@@ -6,7 +6,7 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function (f, define){
+(function (f, define) {
     'use strict';
     define([
         './vendor/kendo/kendo.binder',
@@ -16,36 +16,36 @@
         './vendor/kendo/kendo.pager',
         './window.assert',
         './window.log'
-    ],f);
+    ], f);
 })(function () {
 
     'use strict';
 
     (function ($, undefined) {
 
-        var kendo = window.kendo,
-            Widget = kendo.ui.Widget,
-            DataSource = kendo.data.DataSource,
-            ObservableObject = kendo.data.ObservableObject,
-            DropDownList = kendo.ui.DropDownList,
-            ListView = kendo.ui.ListView,
-            Pager = kendo.ui.Pager,
-            TabStrip = kendo.ui.TabStrip,
-            assert = window.assert,
-            logger = new window.Log('kidoju.widgets.assetmanager'),
-            NUMBER = 'number',
-            STRING = 'string',
-            ARRAY = 'array',
-            CHANGE = 'change',
-            CLICK = 'click',
-            DELETE = 'delete',
-            ERROR = 'error',
-            UPLOAD = 'upload',
-            MODULE = 'kidoju.widgets.assetmanager',
-            NS = '.kendoAssetManager',
-            WIDGET_CLASS = 'k-widget kj-assetmanager',
-            DEFAULT_FILTER = {},
-            TOOLBAR_TMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
+        var kendo = window.kendo;
+        var Widget = kendo.ui.Widget;
+        var DataSource = kendo.data.DataSource;
+        var ObservableObject = kendo.data.ObservableObject;
+        var DropDownList = kendo.ui.DropDownList;
+        var ListView = kendo.ui.ListView;
+        var Pager = kendo.ui.Pager;
+        var TabStrip = kendo.ui.TabStrip;
+        var assert = window.assert;
+        var logger = new window.Log('kidoju.widgets.assetmanager');
+        var NUMBER = 'number';
+        var STRING = 'string';
+        var ARRAY = 'array';
+        var CHANGE = 'change';
+        var CLICK = 'click';
+        var DELETE = 'delete';
+        var ERROR = 'error';
+        var UPLOAD = 'upload';
+        var MODULE = 'kidoju.widgets.assetmanager';
+        var NS = '.kendoAssetManager';
+        var WIDGET_CLASS = 'k-widget kj-assetmanager';
+        var DEFAULT_FILTER = {};
+        var TOOLBAR_TMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
                 '<div class="k-toolbar-wrap">' +
                     '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button"><span class="k-icon k-add"></span>#=messages.toolbar.upload#<input type="file" name="file" /></div></div>' +
                     '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-delete" /></button>&nbsp;' +
@@ -54,17 +54,17 @@
                 '<div class="k-tiles-arrange">' +
                     '<div class="k-widget k-search-wrap k-textbox"><input placeholder="#=messages.toolbar.search#" class="k-input"><a href="\\#" class="k-icon k-i-close k-search"></a></div>' +
                 '</div>' +
-            '</div>',
-            ITEM_TMPL = '<li class="k-tile" ' + kendo.attr("uid") + '="#=uid#" ' + kendo.attr("type") + '="#=type$()#">' +
-                '#if(/^image\\//.test(type$())){#' +
+            '</div>';
+        var ITEM_TMPL = '<li class="k-tile" ' + kendo.attr('uid') + '="#=uid#" ' + kendo.attr('type') + '="#=type$()#">' +
+                '#if (/^image\\//.test(type$())){#' +
                     '<div class="k-thumb"><img alt="#=name$()#" src="#=url#" class="k-image"></span></div>' +
                 '#}else{#' +
                     '<div class="k-thumb"><span class="k-icon k-file"></span></div>' +
                 '#}#' +
                 '<strong>#=name$()#</strong>' +
                 '<span class="k-filesize">#=size$()#</span>' +
-            '</li>',
-            SCHEMA = {
+            '</li>';
+        var SCHEMA = {
                 data: 'data',
                 model: {
                     id: 'url',
@@ -72,9 +72,9 @@
                         size: { type: NUMBER, editable: false },
                         url:  { type: STRING, editable: false, nullable: true }
                     },
-                    name$: function() { return nameFormatter(this.get('url')); },
-                    size$: function() { return sizeFormatter(this.get('size')); },
-                    type$: function() { return typeFormatter(this.get('url')); }
+                    name$: function () { return nameFormatter(this.get('url')); },
+                    size$: function () { return sizeFormatter(this.get('size')); },
+                    type$: function () { return typeFormatter(this.get('url')); }
                 },
                 total: 'total',
                 type: 'json'
@@ -101,7 +101,7 @@
          */
         function sizeFormatter(size) {
             assert.type(NUMBER, size, kendo.format(assert.messages.type.default, 'size', NUMBER));
-            if(!size) { return ''; }
+            if (!size) { return ''; }
             var suffix = ' bytes';
             if (size >= 1073741824) {
                 suffix = ' GB';
@@ -109,7 +109,7 @@
             } else if (size >= 1048576) {
                 suffix = ' MB';
                 size /= 1048576;
-            } else  if (size >= 1024) {
+            } else if (size >= 1024) {
                 suffix = ' KB';
                 size /= 1024;
             }
@@ -123,9 +123,11 @@
          * @returns {*}
          */
         function typeFormatter(url) {
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
             assert.type(STRING, url, kendo.format(assert.messages.type.default, 'url', STRING));
             var ext = url.split('.').pop();
-            switch(ext) {
+            switch (ext) {
                 case 'gif':
                     return 'image/gif';
                 case 'jpg':
@@ -154,6 +156,7 @@
                 default:
                     return 'application/octet-stream';
             }
+            /* jshint +W074 */
         }
 
         /*********************************************************************************
@@ -239,9 +242,9 @@
              * Gets the url of the selected item
              * @returns {*}
              */
-            value: function() {
-                var that = this,
-                    selected = that._selectedItem();
+            value: function () {
+                var that = this;
+                var selected = that._selectedItem();
                 if (selected instanceof ObservableObject) {
                     return selected.url;
                 }
@@ -263,11 +266,11 @@
              * Add a tabStrip with as many tabs as collections
              * @private
              */
-            _tabStrip: function() {
+            _tabStrip: function () {
                 assert.type(ARRAY, this.options.collections, kendo.format(assert.messages.type.default, 'this.options.collections', ARRAY));
-                var collections = this.options.collections,
-                    div = $('<div></div>'),
-                    ul = $('<ul></ul>').appendTo(div);
+                var collections = this.options.collections;
+                var div = $('<div></div>');
+                var ul = $('<ul></ul>').appendTo(div);
 
                 // Add default tab
                 ul.append('<li class="k-state-active">' + this.options.messages.tabs.default + '</li>');
@@ -295,7 +298,7 @@
              * Note: content shall be moved/shared accross tabs; Only the dataSource and toolbar are updated when changing tabs
              * @private
              */
-            _tabContent: function() {
+            _tabContent: function () {
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
 
                 // Add the file browser wrapping div
@@ -314,10 +317,10 @@
              * Note: all collections are read-only so upload/delete is hidden except on the default tab
              * @private
              */
-            _toolbar: function() {
-                var that = this,
-                    template = kendo.template(that.options.toolbarTemplate),
-                    messages = that.options.messages;
+            _toolbar: function () {
+                var that = this;
+                var template = kendo.template(that.options.toolbarTemplate);
+                var messages = that.options.messages;
 
                 // Add template
                 that.toolbar = $(template({
@@ -354,7 +357,7 @@
              * @param e
              * @private
              */
-            _onFileInputChange: function(e) {
+            _onFileInputChange: function (e) {
                 var that = this;
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
                 assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
@@ -369,7 +372,7 @@
              * Event handler triggered when clicking the delete button
              * @private
              */
-            _onDeleteButtonClick: function() {
+            _onDeleteButtonClick: function () {
                 var that = this;
                 that.trigger(DELETE, { value: that.value() });
             },
@@ -378,7 +381,7 @@
              * Event handler triggered when selecting another collection in the toolbar drop down list
              * @private
              */
-            _onDropDownListChange: function(e) {
+            _onDropDownListChange: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
                 assert.instanceof(DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
@@ -390,12 +393,12 @@
              * @param e
              * @private
              */
-            _onSearchInputChange: function(e) {
+            _onSearchInputChange: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
                 assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
-                var filter = this.options.filter,
-                    value =  $(e.target).val(),
-                    search = { field: 'url', operator: 'contains', value: value };
+                var filter = this.options.filter;
+                var value =  $(e.target).val();
+                var search = { field: 'url', operator: 'contains', value: value };
                 if ($.type(value) === STRING && value.length) {
                     if ($.isArray(filter)) {
                         // We assume all array items are valid filters
@@ -405,7 +408,7 @@
                     } else if ($.isPlainObject(filter) && filter.logic === 'and' && $.isArray(filter.filters)) {
                         filter = $.extend(true, {}, filter).filters.push(search);
                     } else if ($.isPlainObject(filter) && filter.logic === 'or' && $.isArray(filter.filters)) {
-                        filter = {logic: 'and', filters: [filter, search]};
+                        filter = { logic: 'and', filters: [filter, search] };
                     } else {
                         filter = search;
                     }
@@ -418,7 +421,7 @@
              * Event handler triggered whhen clicking the clear icon in the search input
              * @private
              */
-            _onSearchClearClick: function() {
+            _onSearchClearClick: function () {
                 var searchInput = this.searchInput;
                 assert.instanceof($, searchInput, kendo.format(assert.messages.instanceof.default, 'this.searchInput', 'window.jQuery'));
                 if (searchInput.val() !== '') {
@@ -431,7 +434,7 @@
              * Note: selecting a file in the list view updates the widget value() and triggers the change event
              * @private
              */
-            _listView: function() {
+            _listView: function () {
                 assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 this.listView = $('<ul class="k-reset k-floats k-tiles"/>')
@@ -459,7 +462,7 @@
              * Event handler triggered when the asset selection changes in the list view
              * @private
              */
-            _onListViewChange: function() {
+            _onListViewChange: function () {
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
                 assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
                 if (this._selectedItem() instanceof ObservableObject) {
@@ -474,7 +477,7 @@
              * Event handler triggered when data binding a new collection
              * @private
              */
-            _onListViewDataBinding: function() {
+            _onListViewDataBinding: function () {
                 assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
                 this.toolbar.find('.k-delete').parent().addClass('k-state-disabled').hide();
             },
@@ -484,13 +487,15 @@
              * @returns {*}
              * @private
              */
-            _selectedItem: function() {
+            _selectedItem: function () {
                 assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
-                var listView = this.listView,
-                    selected = listView.select();
+
+                var listView = this.listView;
+                var selected = listView.select();
+
                 if (selected instanceof $ && selected.length) {
-                    return this.dataSource.getByUid(selected.attr(kendo.attr("uid")));
+                    return this.dataSource.getByUid(selected.attr(kendo.attr('uid')));
                 }
             },
 
@@ -498,16 +503,15 @@
              * Event handler triggered when selecting a tab
              * @private
              */
-            _onTabSelect: function(e) {
-
+            _onTabSelect: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
                 assert.instanceof(window.HTMLLIElement, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'HTMLLIElement'));
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
                 assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
 
-                var oldIndex = this.tabStrip.select().index(),
-                    tabIndex = $(e.item).index();
+                var oldIndex = this.tabStrip.select().index();
+                var tabIndex = $(e.item).index();
 
                 // Ensure all content holders have the same height
                 this.tabStrip.contentHolder(tabIndex).height(this.tabStrip.contentHolder(oldIndex).height());
@@ -521,7 +525,7 @@
                 this.fileBrowser.find('div.k-toolbar-wrap>label').toggle(tabIndex !== 0);
 
                 // Change data source transport
-                this._resetTransport(tabIndex-1, 0, true);
+                this._resetTransport(tabIndex - 1, 0, true);
 
                 // refresh pager
                 this.pager.refresh();
@@ -534,7 +538,7 @@
              * @param all to also reset the toolbar drop down list data source
              * @private
              */
-            _resetTransport: function(colIndex, subIndex, all) {
+            _resetTransport: function (colIndex, subIndex, all) {
 
                 function getTransport(options) {
                     var transport;
@@ -588,7 +592,7 @@
              * Sets/updates the data source
              * @private
              */
-            _dataSource: function(transport) {
+            _dataSource: function (transport) {
 
                 if (this.dataSource instanceof DataSource && this._errorHandler) {
                     this.dataSource.unbind(ERROR, this._errorHandler);
@@ -615,7 +619,7 @@
              * @param e
              * @private
              */
-            _dataError: function(e) {
+            _dataError: function (e) {
                 // TODO ----------------------------------------------------------------------------------------------------------------------------------
 
                 /*
@@ -678,4 +682,4 @@
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function (_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

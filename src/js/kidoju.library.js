@@ -25,7 +25,7 @@
      * @param value
      * @constructor
      */
-    window.soundex = function(s) {
+    window.soundex = function (s) {
 
 
     };
@@ -34,7 +34,7 @@
      * Metaphone function
      * @param s
      */
-    window.metaphone = function(s) {
+    window.metaphone = function (s) {
 
 
     };

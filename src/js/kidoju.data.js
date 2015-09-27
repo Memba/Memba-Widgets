@@ -20,21 +20,21 @@
 
     (function ($, undefined) {
 
-        var kendo = window.kendo,
-            kidoju = window.kidoju = window.kidoju || {},
-            models = kidoju.data = kidoju.data || {},
-            assert = window.assert,
-            logger = new window.Log('kidoju.data'),
-            OBJECT = 'object',
-            STRING = 'string',
-            // BOOLEAN = 'boolean',
-            NUMBER = 'number',
-            UNDEFINED = 'undefined',
-            CHANGE = 'change',
-            // ERROR = 'error',
-            ZERO_NUMBER = 0,
-            NEGATIVE_NUMBER = -1,
-            RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i;
+        var kendo = window.kendo;
+        var kidoju = window.kidoju = window.kidoju || {};
+        var models = kidoju.data = kidoju.data || {};
+        var assert = window.assert;
+        var logger = new window.Log('kidoju.data');
+        var OBJECT = 'object';
+        var STRING = 'string';
+        // var BOOLEAN = 'boolean';
+        var NUMBER = 'number';
+        var UNDEFINED = 'undefined';
+        var CHANGE = 'change';
+        // var ERROR = 'error';
+        var ZERO_NUMBER = 0;
+        var NEGATIVE_NUMBER = -1;
+        var RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i;
 
 
         /*********************************************************************************
@@ -54,8 +54,11 @@
              * @param data
              * @private
              */
-            _parseData: function(data) {
-                var that = this, parsed = {};
+            _parseData: function (data) {
+                /* This function's cyclomatic complexity is too high */
+                /* jshint -W074 */
+                var that = this;
+                var parsed = {};
                 // We need a clone to avoid modifications to original data
                 for (var field in that.fields) {
                     if (that.fields.hasOwnProperty(field)) {
@@ -88,6 +91,7 @@
                     }
                 }
                 return parsed;
+                /* jshint -W074 */
             },
 
             /**
@@ -98,7 +102,7 @@
              * @see http://www.telerik.com/forums/parsing-on-initialization-of-kendo-data-model
              * @param data
              */
-            init: function(data) {
+            init: function (data) {
                 // Call the base init method after parsing data
                 kendo.data.Model.fn.init.call(this, this._parseData(data));
             },
@@ -112,7 +116,7 @@
              * @param data
              * @returns {boolean}
              */
-            accept: function(data) {
+            accept: function (data) {
                 // Call the base accept method
                 kendo.data.Model.fn.accept.call(this, this._parseData(data));
 
@@ -144,7 +148,7 @@
              * 2) discard model fields with property serializable === false
              * @param field
              */
-            shouldSerialize: function(field) {
+            shouldSerialize: function (field) {
 
                 assert.type(STRING, field, kendo.format(assert.messages.type.default, 'field', STRING));
 
@@ -166,10 +170,11 @@
              * or the data sources have their own transport to save their nodes.
              * @returns {{}}
              */
-            toJSON: function(includeDataSources) {
+            toJSON: function (includeDataSources) {
 
-                var json = {},
-                    value, field;
+                var json = {};
+                var value;
+                var field;
 
                 for (field in this) {
                     if (this.shouldSerialize(field)) {
@@ -206,29 +211,33 @@
              * Execute validation of the model data considering the rules defined on fields
              * @returns {boolean}
              */
-            validate: function() {
-                var that = this, validated = true;
+            validate: function () {
+                /* This function's cyclomatic complexity is too high */
+                /* jshint -W074 */
+                var that = this;
+                var validated = true;
                 for (var field in that.fields) {
-                    if(that.fields.hasOwnProperty(field)) {
+                    if (that.fields.hasOwnProperty(field)) {
                         var validation = that.fields[field].validation;
-                        if ($.isPlainObject(validation)) {
-                            if (validation.required === true && !that[field]) {
+                        if (!$.isPlainObject(validation)) {
+                            validated = false;
+                        } else if (validation.required === true && !that[field]) {
+                            validated = false;
+                        } else if (that[field]) {
+                            if ($.type(validation.pattern) === STRING && !(new RegExp(validation.pattern)).test(that[field])) {
                                 validated = false;
-                            } else if (that[field]) {
-                                if ($.type(validation.pattern) === STRING && !(new RegExp(validation.pattern)).test(that[field])) {
-                                    validated = false;
-                                }
-                                if ($.type(validation.min) === NUMBER && !isNaN(parseFloat(that[field])) && parseFloat(that[field]) < validation.min) {
-                                    validated = false;
-                                }
-                                if ($.type(validation.max) === NUMBER && !isNaN(parseFloat(that[field])) && parseFloat(that[field]) > validation.max) {
-                                    validated = false;
-                                }
+                            }
+                            if ($.type(validation.min) === NUMBER && !isNaN(parseFloat(that[field])) && parseFloat(that[field]) < validation.min) {
+                                validated = false;
+                            }
+                            if ($.type(validation.max) === NUMBER && !isNaN(parseFloat(that[field])) && parseFloat(that[field]) > validation.max) {
+                                validated = false;
                             }
                         }
                     }
                 }
                 return validated; // Should we return an array of errors instead
+                /* jshint +W074 */
             }
 
             // Consider a function that populates validation rules on forms
@@ -247,16 +256,16 @@
          * @class ModelCollectionDataReader
          */
         var ModelCollectionDataReader = kidoju.data.ModelCollectionDataReader = kendo.Class.extend({
-            init: function(reader) {
+            init: function (reader) {
                 this.reader = reader;
                 if (reader.model) {
                     this.model = reader.model;
                 }
             },
-            errors: function(data) {
+            errors: function (data) {
                 return this.reader.errors(data);
             },
-            parse: function(data) {
+            parse: function (data) {
                 if ($.isArray(data) && $.isFunction(this.model)) {
                     var defaults = (new this.model()).defaults;
                     for (var i = 0; i < data.length; i++) {
@@ -272,7 +281,7 @@
                 }
                 return this.reader.parse(data);
             },
-            data: function(data) {
+            data: function (data) {
                 // We get funny values from the original kendo.data.DataReader
                 // due to the getters in the convertRecords(...) function in kendo.data.js
                 // especially with page components
@@ -280,16 +289,16 @@
                 // Note: we did the fix in the parse function so as to apply to this.data and this.groups.
                 return this.reader.data(data);
             },
-            total: function(data) {
+            total: function (data) {
                 return this.reader.total(data);
             },
-            groups: function(data) {
+            groups: function (data) {
                 return this.reader.groups(data);
             },
-            aggregates: function(data) {
+            aggregates: function (data) {
                 return this.reader.aggregates(data);
             },
-            serialize: function(data) {
+            serialize: function (data) {
                 return this.reader.serialize(data);
             }
         });
@@ -305,8 +314,8 @@
          */
         function dataMethod(name) {
             return function () {
-                var data = this._data,
-                    result = kendo.data.DataSource.fn[name].apply(this, [].slice.call(arguments));
+                var data = this._data;
+                var result = kendo.data.DataSource.fn[name].apply(this, [].slice.call(arguments));
 
                 if (this._data !== data) {
                     this._attachBubbleHandlers();
@@ -354,11 +363,11 @@
             /**
              * @method toJSON
              */
-            toJSON: function() {
+            toJSON: function () {
                 var json = [];
                 // total() give the total number of items, all of which are not necessarily available considering paging
-                // for(var i = 0; i < this.total(); i++) {
-                for(var i = 0; i < this.data().length; i++) {
+                // for (var i = 0; i < this.total(); i++) {
+                for (var i = 0; i < this.data().length; i++) {
                     // If we pass includeDataSource === true to kidoju.data.Model.toJSON
                     // this method is executed and we should call toJSON(true) on each DataSource item
                     // So has to serialize the whole tree
@@ -454,25 +463,25 @@
                     if (tool instanceof kidoju.Tool) {
 
                         // Let the tool build a Model for attributes to allow validation in the property grid
-                        var Attributes = tool._getAttributeModel(),
+                        var Attributes = tool._getAttributeModel();
                         // Extend component attributes with possible new attributes as tools improve
-                            attributes = $.extend({}, Attributes.prototype.defaults, that.attributes);
+                        var attributes = $.extend({}, Attributes.prototype.defaults, that.attributes);
                         // Cast with Model
                         // that.set('attributes', new Attributes(attributes)); // <--- this sets the dirty flag and raises the change event
                         that.attributes = new Attributes(attributes);
-                        that.attributes.bind(CHANGE, function(e) {
+                        that.attributes.bind(CHANGE, function (e) {
                             e.field = 'attributes.' + e.field;
                             that.trigger(CHANGE, e);
                         });
 
                         // Let the tool build a Model for properties to allow validation in the property grid
-                        var Properties = tool._getPropertyModel(),
+                        var Properties = tool._getPropertyModel();
                         // Extend component properties with possible new properties as tools improve
-                            properties = $.extend({}, Properties.prototype.defaults, that.properties);
+                        var properties = $.extend({}, Properties.prototype.defaults, that.properties);
                         // Cast with Model
                         // that.set('properties', new Properties(properties)); // <--- this sets the dirty flag and raises the change event
                         that.properties = new Properties(properties);
-                        that.properties.bind(CHANGE, function(e) {
+                        that.properties.bind(CHANGE, function (e) {
                             e.field = 'properties.' + e.field;
                             that.trigger(CHANGE, e);
                         });
@@ -561,8 +570,8 @@
         PageComponentCollectionDataSource.create = function (options) {
             options = options && options.push ? { data: options } : options;
 
-            var dataSource = options || {},
-                data = dataSource.data;
+            var dataSource = options || {};
+            var data = dataSource.data;
 
             dataSource.data = data;
 
@@ -604,7 +613,7 @@
                     // and have kidoju.data.Model._parseData initialize the instance data source from [].
                     // defaultValue: new kidoju.data.PageComponentCollectionDataSource({ data: [] }),
                     defaultValue: [],
-                    parse: function(value) {
+                    parse: function (value) {
                         if (value instanceof PageComponentCollectionDataSource) {
                             return value;
                         } else if (value && value.push) {
@@ -685,7 +694,7 @@
                     components._data = undefined;
                     method = 'read';
                 }
-                components.one(CHANGE, $.proxy(function() { this.loaded(true); }, this));
+                components.one(CHANGE, $.proxy(function () { this.loaded(true); }, this));
                 return components[method](options);
             },
 
@@ -775,8 +784,8 @@
              * @returns {*}
              */
             getTestFromProperties: function () {
-                var that = this,
-                    test = {};
+                var that = this;
+                var test = {};
                 $.each(that.data(), function (index, page) {
                     $.each(page.components.data(), function (index, component) {
                         var properties = component.properties;
@@ -803,21 +812,21 @@
             validateNamedValue: function (name, code, value, solution, all) {
                 var dfd = $.Deferred();
                 if (!window.Worker) {
-                    dfd.reject({filename: undefined, lineno: undefined, message: 'Web workers are not supported' });
+                    dfd.reject({ filename: undefined, lineno: undefined, message: 'Web workers are not supported' });
                     return dfd;
                 }
                 if ($.type(name) !== STRING || !RX_VALID_NAME.test(name)) {
-                    dfd.reject({filename: undefined, lineno: undefined, message: 'A valid name has not been provided' });
+                    dfd.reject({ filename: undefined, lineno: undefined, message: 'A valid name has not been provided' });
                     return dfd;
                 }
                 if ($.type(code) !== STRING) { // TODO review
-                    dfd.reject({filename: undefined, lineno: undefined, message: 'Code has not been provided' });
+                    dfd.reject({ filename: undefined, lineno: undefined, message: 'Code has not been provided' });
                     return dfd;
                 }
                 // TODO: Add prerequisites (some custom helpers)
                 // Note: we need postMessage(undefined) instead of postMessage() otherwise we get the following error:
                 // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.
-                var blob = new Blob(['onmessage=function (e) {' + code + 'if(typeof(e.data.value)==="undefined") {postMessage(undefined);}else{postMessage(validate(e.data.value,e.data.solution,e.data.all));}self.close();}']);
+                var blob = new Blob(['onmessage=function (e) {' + code + 'if (typeof(e.data.value)==="undefined") {postMessage(undefined);}else{postMessage(validate(e.data.value,e.data.solution,e.data.all));}self.close();}']);
                 var blobURL = window.URL.createObjectURL(blob);
 
                 logger.debug(blobURL);
@@ -829,12 +838,12 @@
                 worker.onerror = function (err) {
                     dfd.reject(err);
                 };
-                worker.postMessage({value: value, solution: solution, all: all});
+                worker.postMessage({ value: value, solution: solution, all: all });
                 // terminate long workers (>50ms)
                 setTimeout(function () {
                     worker.terminate();
                     if (dfd.state() === 'pending') {
-                        dfd.reject({filename: undefined, lineno: undefined, message: 'Timeout error'});
+                        dfd.reject({ filename: undefined, lineno: undefined, message: 'Timeout error' });
                     }
                 }, 50);
                 return dfd.promise();
@@ -851,25 +860,26 @@
                 // Note: the model being created on the fly, we only have an ObservableObject
                 assert.instanceof(kendo.data.ObservableObject, test, kendo.format(assert.messages.instanceof.default, 'test', 'kendo.data.ObservableObject'));
 
-                var that = this,
-                    deferred = $.Deferred(),
-                    promises = [],
-                    result = {
+                var that = this;
+                var deferred = $.Deferred();
+                var promises = [];
+                var result = {
                         score: 0,
                         max: 0,
                         percent: function () {
-                            var max, score;
+                            var max;
+                            var score;
                             if (this instanceof kendo.data.ObservableObject) {
                                 max = this.get('max'); score = this.get('score');
                             } else {
                                 max = this.max; score = this.score;
                             }
-                            return score === 0 || max === 0 ?  kendo.toString(0, 'p0') : kendo.toString(score/max, 'p0');
+                            return score === 0 || max === 0 ?  kendo.toString(0, 'p0') : kendo.toString(score / max, 'p0');
                         },
                         getScoreArray: function () {
                             var array = [];
                             for (var name in this) {
-                                if(/^val_/.test(name) && this.hasOwnProperty(name)) {
+                                if (/^val_/.test(name) && this.hasOwnProperty(name)) {
                                     array.push(this[name]);
                                 }
                             }
@@ -890,7 +900,8 @@
                 $.each(that.data(), function (pageIdx, page) {
                     $.each(page.components.data(), function (componentIdx, component) {
 
-                        var properties = component.properties, found;
+                        var properties = component.properties;
+                        var found;
 
                         assert.instanceof(kendo.data.Model, properties, kendo.format(assert.messages.instanceof.default, 'properties', 'kendo.data.Model'));
                         assert.type(OBJECT, properties.fields, kendo.format(assert.messages.type.default, 'properties.fields', OBJECT));
@@ -900,10 +911,10 @@
                         if ($.type(properties.name) === STRING) {
 
                             var libraryMatches = properties.validation.match(/^\/\/ ([^\n]+)$/);
-                                // customMatches = value.match(/^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/);
+                            // var customMatches = value.match(/^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/);
                             if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
                                 // Find in the code library
-                                found = properties._library.filter(function(item) {
+                                found = properties._library.filter(function (item) {
                                     return item.name === libraryMatches[1];
                                 });
                                 assert.ok($.isArray(found) && found.length, 'properties.validation cannot be found in code library');
@@ -936,28 +947,28 @@
                     .done(function () {
                         $.each(arguments, function (index, argument) {
                             result[argument.name].result = argument.result;
-                            switch(argument.result) {
+                            switch (argument.result) {
                                 case true:
-                                    if(result[argument.name] && $.type(result[argument.name].success) === NUMBER) {
+                                    if (result[argument.name] && $.type(result[argument.name].success) === NUMBER) {
                                         result[argument.name].score = result[argument.name].success;
                                     }
                                     break;
                                 case false:
-                                    if(result[argument.name] && $.type(result[argument.name].failure) === NUMBER) {
+                                    if (result[argument.name] && $.type(result[argument.name].failure) === NUMBER) {
                                         result[argument.name].score = result[argument.name].failure;
                                     }
                                     break;
                                 default:
-                                    if(result[argument.name] && $.type(result[argument.name].omit) === NUMBER) {
+                                    if (result[argument.name] && $.type(result[argument.name].omit) === NUMBER) {
                                         result[argument.name].score = result[argument.name].omit;
                                     }
                                     break;
                             }
                             result.score += result[argument.name].score;
-                            if(result[argument.name] && result[argument.name].success) {
+                            if (result[argument.name] && result[argument.name].success) {
                                 result.max += result[argument.name].success;
                             }
-                            // if(result.max) {
+                            // if (result.max) {
                             //  result.percent = result.score/result.max;
                             // }
                         });
@@ -976,8 +987,8 @@
         PageCollectionDataSource.create = function (options) {
             options = options && options.push ? { data: options } : options;
 
-            var dataSource = options || {},
-                data = dataSource.data;
+            var dataSource = options || {};
+            var data = dataSource.data;
 
             dataSource.data = data;
 
@@ -1008,7 +1019,7 @@
                     // and have kidoju.data.Model._parseData initialize the instance data source from [].
                     // defaultValue: new kidoju.data.PageCollectionDataSource({ data: [] }),
                     defaultValue: [],
-                    parse: function(value) {
+                    parse: function (value) {
                         if (value instanceof PageCollectionDataSource) {
                             return value;
                         } else if (value && value.push) {
@@ -1089,7 +1100,7 @@
                     pages._data = undefined;
                     method = 'read';
                 }
-                pages.one(CHANGE, $.proxy(function() { this.loaded(true); }, this));
+                pages.one(CHANGE, $.proxy(function () { this.loaded(true); }, this));
                 return pages[method](options);
             },
 

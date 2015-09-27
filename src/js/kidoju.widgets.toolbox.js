@@ -6,7 +6,7 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function (f, define){
+(function (f, define) {
     'use strict';
     define([
         './vendor/kendo/kendo.binder',
@@ -21,30 +21,30 @@
 
     (function ($, undefined) {
 
-        var kendo = window.kendo,
-            Widget = kendo.ui.Widget,
-            kidoju = window.kidoju,
-            tools = kidoju.tools,
-            Tool = kidoju.Tool,
-            // assert = window.assert,
-            logger = new window.Log('kidoju.widgets.toolbox'),
-            STRING = 'string',
-            CLICK = 'click',
-            CHANGE = 'change',
-            NS = '.kendoToolbox',
-            WIDGET_CLASS = 'k-widget k-toolbar',
-            BUTTON = '<a href="#" class="k-button" title="{1}"><img src="{0}" alt="{1}"></a>',
-            SELECTED_CLASS = 'k-state-selected',
-            DISABLED_CLASS = 'k-state-disabled',
-            ROLE = 'role',
-            MENU = 'menu',
-            MENUITEM = 'menuitem',
-            TOOL = 'tool',
-            ACTIVE_TOOL = 'active',
-            POINTER = 'pointer',
-            DEFAULT_EXTENSION = '.svg',
-            DEFAULT_PATH = './styles/images/',
-            DEFAULT_SIZE = 32;
+        var kendo = window.kendo;
+        var Widget = kendo.ui.Widget;
+        var kidoju = window.kidoju;
+        var tools = kidoju.tools;
+        var Tool = kidoju.Tool;
+        // var assert = window.assert;
+        var logger = new window.Log('kidoju.widgets.toolbox');
+        var STRING = 'string';
+        var CLICK = 'click';
+        var CHANGE = 'change';
+        var NS = '.kendoToolbox';
+        var WIDGET_CLASS = 'k-widget k-toolbar';
+        var BUTTON = '<a href="#" class="k-button" title="{1}"><img src="{0}" alt="{1}"></a>';
+        var SELECTED_CLASS = 'k-state-selected';
+        var DISABLED_CLASS = 'k-state-disabled';
+        var ROLE = 'role';
+        var MENU = 'menu';
+        var MENUITEM = 'menuitem';
+        var TOOL = 'tool';
+        var ACTIVE_TOOL = 'active';
+        var POINTER = 'pointer';
+        var DEFAULT_EXTENSION = '.svg';
+        var DEFAULT_PATH = './styles/images/';
+        var DEFAULT_SIZE = 32;
 
         /*********************************************************************************
          * Widget
@@ -108,7 +108,7 @@
                     if (id !== that.options.tools.get(ACTIVE_TOOL)) {
                         that.options.tools.set(ACTIVE_TOOL, id);// the change handler refreshes the widget
                         logger.debug('tool changed for ' + id);
-                        that.trigger(CHANGE, {value: id});
+                        that.trigger(CHANGE, { value: id });
                     }
                 } else {
                     return that.element.find('.' + SELECTED_CLASS).attr(kendo.attr(TOOL));
@@ -137,7 +137,7 @@
                         var button = $(kendo.format(BUTTON, that.options.iconPath + tool.icon + that.options.extension, tool.id))
                             .attr(kendo.attr(TOOL), tool.id)
                             .attr(ROLE, MENUITEM)
-                            .css({ lineHeight: 'normal', margin: Math.round(that.options.size/16) + 'px' });
+                            .css({ lineHeight: 'normal', margin: Math.round(that.options.size / 16) + 'px' });
                         button.find('img')
                             .height(that.options.size)
                             .width(that.options.size);
@@ -166,7 +166,7 @@
              * Enables/disables the widget
              * @param enable
              */
-            enable: function(enable) {
+            enable: function (enable) {
                 var that = this;
                 this.options.enable = enable = !!enable;
                 if (enable) {
@@ -228,4 +228,4 @@
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function (_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

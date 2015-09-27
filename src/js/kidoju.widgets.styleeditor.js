@@ -6,7 +6,7 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function (f, define){
+(function (f, define) {
     'use strict';
     define([
         './vendor/kendo/kendo.binder',
@@ -21,16 +21,16 @@
 
     (function ($, undefined) {
 
-        var kendo = window.kendo,
-            ui = kendo.ui,
-            Widget = ui.Widget,
-            // assert = window.assert,
-            logger = new window.Log('kidoju.widgets.styleeditor'),
-            STRING = 'string',
-            CHANGE = 'change',
-            KEYPRESS = 'keypress',
-            NS = ".kendoStyleEditor",
-            WIDGET_CLASS = 'kj-styleeditor'; // k-widget is added when initializing this.element as a grid
+        var kendo = window.kendo;
+        var ui = kendo.ui;
+        var Widget = ui.Widget;
+        // var assert = window.assert;
+        var logger = new window.Log('kidoju.widgets.styleeditor');
+        var STRING = 'string';
+        var CHANGE = 'change';
+        var KEYPRESS = 'keypress';
+        // var NS = '.kendoStyleEditor';
+        var WIDGET_CLASS = 'kj-styleeditor'; // k-widget is added when initializing this.element as a grid
 
         /*********************************************************************************
          * Widget
@@ -91,6 +91,9 @@
                 CHANGE
             ],
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Gets or sets the style value
              * @param value
@@ -113,7 +116,9 @@
                 }
                 */
 
-                var that = this, i, data;
+                var that = this;
+                var i;
+                var data;
                 if ($.type(value) === STRING) {
                     // Break the various style names/values  and fill the data source
                     var styles = value.split(';'); data = [];
@@ -129,7 +134,8 @@
                     value = '';
                     data = that._dataSource.data(); // .sort(sort);
                     for (i = 0; i < data.length; i++) {
-                        var name = data[i].name, val = data[i].value;
+                        var name = data[i].name;
+                        var val = data[i].value;
                         if ($.type(name) === STRING && $.type(val) === STRING) {
                             name = name.trim(); val = val.trim();
                             if (name.length && val.length) {
@@ -143,16 +149,18 @@
                 }
             },
 
+            /* jshint +W074 */
+
             /**
              * Sets the data source
              * @private
              */
-            _setDataSource: function() {
+            _setDataSource: function () {
                 var that = this;
                 // This dataSource is private to the widget
                 that._dataSource = new kendo.data.DataSource({
                     autoSync: true,
-                    change: function(e) {
+                    change: function (e) {
                         // triggers the change event for MVVM
                         // that.trigger(CHANGE, { value: that.value() }); // otherwise that.value is executed twice (also by MVVM)
                         that.trigger(CHANGE);
@@ -196,13 +204,13 @@
                         .appendTo(container)
                         .kendoComboBox({
                             autoBind: false,
-                            change: function(e) {
+                            change: function (e) {
                                 // The change event handler assigns a default value depending on the style name
                                 if (e /*instanceof $.Event*/ && e.sender instanceof kendo.ui.ComboBox) {
-                                    var dataItem = e.sender.dataItem(),
-                                        // grid = container.closest('.k-grid').data('kendoGrid'),
-                                        grid = that.element.data('kendoGrid'),
-                                        uid = container.parent().attr(kendo.attr('uid'));
+                                    var dataItem = e.sender.dataItem();
+                                    // var grid = container.closest('.k-grid').data('kendoGrid');
+                                    var grid = that.element.data('kendoGrid');
+                                    var uid = container.parent().attr(kendo.attr('uid'));
                                     if (grid instanceof kendo.ui.Grid && $.type(uid) === 'string' && $.type(dataItem) !== 'undefined') {
                                         var style = grid.dataSource.getByUid(uid);
                                         style.set('value', dataItem.get('value'));
@@ -247,30 +255,35 @@
                             // Find the combobox and update dataSource
                             var comboBox = e.container.find('input:not(.k-input)').data('kendoComboBox');
                             if (comboBox instanceof kendo.ui.ComboBox) {
-                                var styles = e.sender.dataSource.data(), css = [], all = [
+                                var styles = e.sender.dataSource.data();
+                                var css = [];
+                                var all = [
                                     // This is where we define all style names displayed in the combo box and their respective default values
-                                    {name: 'background-color', value: '#FFFFFF'},
-                                    {name: 'border-color', value: '#000000'},
-                                    {name: 'border-radius', value: '5px'},
-                                    {name: 'border-style', value: 'solid'},
-                                    {name: 'border-width', value: '1px'},
-                                    {name: 'color', value: '#000000'},
-                                    {name: 'font-family', value: 'Arial, Helvetica Neue, Helvetica, sans-serif'},
-                                    {name: 'font-size', value: '20px'},
-                                    {name: 'font-style', value: 'italic'},
-                                    {name: 'font-weight', value: 'bold'},
-                                    {name: 'padding', value: '10px'},
-                                    {name: 'margin', value: '10px'},
-                                    {name: 'text-align', value: 'center'},
-                                    {name: 'text-decoration', value: 'underline'}
+                                    { name: 'background-color', value: '#FFFFFF' },
+                                    { name: 'border-color', value: '#000000' },
+                                    { name: 'border-radius', value: '5px' },
+                                    { name: 'border-style', value: 'solid' },
+                                    { name: 'border-width', value: '1px' },
+                                    { name: 'color', value: '#000000' },
+                                    { name: 'font-family', value: 'Arial, Helvetica Neue, Helvetica, sans-serif' },
+                                    { name: 'font-size', value: '20px' },
+                                    { name: 'font-style', value: 'italic' },
+                                    { name: 'font-weight', value: 'bold' },
+                                    { name: 'padding', value: '10px' },
+                                    { name: 'margin', value: '10px' },
+                                    { name: 'text-align', value: 'center' },
+                                    { name: 'text-decoration', value: 'underline' }
                                 ];
                                 for (var i = 0; i < all.length; i++) {
                                     var found = false;
                                     for (var j = 0; j < styles.length; j++) {
+                                        /* Blocks are nested too deeply. */
+                                        /* jshint -W073 */
                                         if (all[i].name === styles[j].name && all[i].name !== comboBox.value()) {
                                             found = true;
                                             break;
                                         }
+                                        /* jshint +W073 */
                                     }
                                     if (!found) {
                                         css.push(all[i]);
@@ -296,30 +309,33 @@
              * Add a click event handler for the destroy button
              * @private
              */
-            _setDestroyHandler: function() {
+            _setDestroyHandler: function () {
                 var element = this.element;
-                element.find('.k-grid-toolbar>.k-grid-delete').click(function(e){
+                element.find('.k-grid-toolbar>.k-grid-delete').click(function (e) {
                     var grid = element.data('kendoGrid');
                     if (grid instanceof kendo.ui.Grid) {
                         var selected = grid.select();
                         if (selected instanceof $ && selected.length) {
                             // allthough shorter, the following displays an alert to confirm deletion
                             // grid.removeRow(selected);
-                            var uid = selected.attr(kendo.attr('uid')),
-                                style = grid.dataSource.getByUid(uid);
+                            var uid = selected.attr(kendo.attr('uid'));
+                            var style = grid.dataSource.getByUid(uid);
                             grid.dataSource.remove(style);
                         }
                     }
                 });
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Set a keypress event handler to prevent some unhealthy characters to be used for style names and values
              * @private
              */
-            _setKeyPressHandler: function() {
+            _setKeyPressHandler: function () {
                 var element = this.element;
-                element.find('table').on(KEYPRESS, function(e) {
+                element.find('table').on(KEYPRESS, function (e) {
                     if (e /*instanceof $.Event*/ && e.target instanceof window.HTMLElement) {
                         var input = $(e.target);
                         if (input.hasClass('k-input') && input.parent().hasClass('k-dropdown-wrap')) {
@@ -338,6 +354,8 @@
                     }
                 });
             },
+
+            /* jshint +W074 */
 
             /**
              * Clears the widget
@@ -378,4 +396,4 @@
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function (_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

@@ -130,7 +130,7 @@
                     return 'image/gif';
                 case 'jpg':
                 case 'jpeg':
-                    //case 'jpeg':
+                    // case 'jpeg':
                     return 'image/jpeg';
                 case 'mp3':
                     // @see http://tools.ietf.org/html/rfc3003
@@ -226,7 +226,7 @@
                     filters: [
                         { 'field': 'url', operator: 'endswith', value: '.gif' },
                         { 'field': 'url', operator: 'endswith', value: '.jpg' },
-                        //{ 'field': 'url', operator: 'endswith', value: '.jpeg' },
+                        // { 'field': 'url', operator: 'endswith', value: '.jpeg' },
                         { 'field': 'url', operator: 'endswith', value: '.png' },
                         { 'field': 'url', operator: 'endswith', value: '.svg' }
                     ]
@@ -437,7 +437,7 @@
                 this.listView = $('<ul class="k-reset k-floats k-tiles"/>')
                     .appendTo(this.fileBrowser)
                     .kendoListView({
-                        //autoBind: false,
+                        // autoBind: false,
                         change: $.proxy(this._onListViewChange, this),
                         dataBinding: $.proxy(this._onListViewDataBinding, this),
                         dataSource: this.dataSource,

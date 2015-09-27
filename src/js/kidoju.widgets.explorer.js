@@ -22,8 +22,8 @@
     (function ($, undefined) {
 
         // shorten references to variables for uglification
-        //var fn = Function,
-        //    global = fn('return this')(),
+        // var fn = Function,
+        //     global = fn('return this')(),
         var kendo = window.kendo,
             data = kendo.data,
             ObservableArray = kendo.data.ObservableArray,
@@ -47,7 +47,7 @@
             BLUR = 'blur',
             SELECT = 'select',
             NS = '.kendoExplorer',
-            WIDGET_CLASS = 'k-widget k-group kj-explorer', //k-list-container k-reset
+            WIDGET_CLASS = 'k-widget k-group kj-explorer', // k-list-container k-reset
             HOVER_CLASS = 'k-state-hover',
             FOCUSED_CLASS = 'k-state-focused',
             SELECTED_CLASS = 'k-state-selected',
@@ -61,7 +61,7 @@
          *********************************************************************************/
 
         function isGuid(value) {
-            //http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
+            // http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
             return ($.type(value) === STRING) && (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value));
         }
 
@@ -84,7 +84,7 @@
                 that._templates();
                 that._layout();
                 that._dataSource();
-                //that.refresh();
+                // that.refresh();
             },
 
             /**
@@ -108,7 +108,7 @@
              */
             setOptions: function (options) {
                 Widget.fn.setOptions.call(this, options);
-                //TODO initialize properly from that.options.index and that.options.id
+                // TODO initialize properly from that.options.index and that.options.id
             },
 
             /**
@@ -213,7 +213,7 @@
                     if (that._selectedUid === NULL) {
                         return NULL;
                     } else {
-                        return that.dataSource.getByUid(that._selectedUid); //Returns undefined if not found
+                        return that.dataSource.getByUid(that._selectedUid); // Returns undefined if not found
                     }
                 }
             },
@@ -268,13 +268,13 @@
                 // if the DataSource is defined and the _refreshHandler is wired up, unbind because
                 // we need to rebuild the DataSource
 
-                //There is no reason why, in its current state, it would not work with any dataSource
-                //if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
+                // There is no reason why, in its current state, it would not work with any dataSource
+                // if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
                 if (that.dataSource instanceof PageComponentCollectionDataSource && that._refreshHandler) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
 
-                if (that.options.dataSource !== NULL) {  //use null to explicitely destroy the dataSource bindings
+                if (that.options.dataSource !== NULL) {  // use null to explicitely destroy the dataSource bindings
 
                     // returns the datasource OR creates one if using array or configuration object
                     that.dataSource = PageComponentCollectionDataSource.create(that.options.dataSource);
@@ -296,15 +296,15 @@
              */
             _layout: function () {
                 var that = this;
-                //Add wrapper property for visible bindings
+                // Add wrapper property for visible bindings
                 that.wrapper = that.element;
-                //Add ul property
+                // Add ul property
                 that.ul = that.element.find('ul.k-list');
                 if (!that.ul.length) {
                     that.ul = $('<ul tabindex="-1" unselectable="on" role="listbox" class="k-list k-reset" />')
                         .appendTo(that.element);
                 }
-                //Define element
+                // Define element
                 that.element
                     .addClass(WIDGET_CLASS)
                     .attr('role', 'listbox')
@@ -314,32 +314,32 @@
                 kendo.notify(that);
             },
 
-            //TODO add sorting
+            // TODO add sorting
 
             /**
              * Add an explorer item (li) corresponding to a component
              * @param component
-             * @param index //TODO: with sorting
+             * @param index // TODO: with sorting
              * @private
              */
             _addItem: function (component, index) {
                 var that = this;
 
-                //Check that we get a component that is not already in explorer
+                // Check that we get a component that is not already in explorer
                 if (that.ul instanceof $ && that.ul.length &&
                     component instanceof PageComponent &&
                     that.ul.find(kendo.format(ITEM_BYUID_SELECTOR, component.uid)).length === 0) {
 
                     var tool = kidoju.tools[component.tool];
                     if (tool instanceof kidoju.Tool) {
-                        //Create explorer item
+                        // Create explorer item
                         var item = that.itemTemplate({
                             uid: component.uid,
-                            tool: component.tool, //also tool.id
+                            tool: component.tool, // also tool.id
                             icon: that.options.iconPath + tool.icon + '.svg'
                         });
-                        //Add to explorer list
-                        that.ul.append(item); //TODO <----------------------------------------------------- index??????
+                        // Add to explorer list
+                        that.ul.append(item); // TODO <----------------------------------------------------- index??????
                     }
                 }
             },
@@ -351,7 +351,7 @@
              */
             _removeItemByUid: function (uid) {
                 if (this.ul instanceof $ && this.ul.length) {
-                    //Find and remove an explorer item
+                    // Find and remove an explorer item
                     var item = this.ul.find(kendo.format(ITEM_BYUID_SELECTOR, uid));
                     item.off().remove();
                 }
@@ -385,24 +385,24 @@
                 } else if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
                     $.each(e.items, function (index, component) {
                         that._addItem(component);
-                        that.trigger(CHANGE, {action: e.action, value: component}); //TODO <--------------------------------------------
+                        that.trigger(CHANGE, {action: e.action, value: component}); // TODO <--------------------------------------------
                     });
-                    //that.select(e.items[e.items.length -1]); //TODO <---------------------------------------------
+                    // that.select(e.items[e.items.length -1]); // TODO <---------------------------------------------
                 } else if (e.action === 'remove' && $.isArray(e.items) && e.items.length) {
                     $.each(e.items, function (index, page) {
                         that._removeItemByUid(page.uid);
                         that.trigger(CHANGE, {action: e.action, value: page});
-                        //that._selectByUid(null); //TODO
+                        // that._selectByUid(null); // TODO
                     });
 
                 } else if (e.action === 'itemchange') {
-                    $.noop(); //TODO
+                    $.noop(); // TODO
                 }
 
-                //Display a message when there is nothing to display
-                //if (html.length === 0) {
-                //    html = that.options.messages.empty; //TODO: improve
-                //}
+                // Display a message when there is nothing to display
+                // if (html.length === 0) {
+                //     html = that.options.messages.empty; // TODO: improve
+                // }
 
                 that._toggleSelection();
 
@@ -475,9 +475,9 @@
             _clear: function () {
                 var that = this,
                     explorer = that.element;
-                //unbind kendo
+                // unbind kendo
                 kendo.unbind(explorer);
-                //unbind all other events
+                // unbind all other events
                 explorer.find('*').off();
                 explorer
                     .off(NS)

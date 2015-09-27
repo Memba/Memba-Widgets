@@ -72,7 +72,7 @@
             options: {
                 name: 'CodeEditor',
                 autoBind: true,
-                //dataSource
+                // dataSource
                 custom: 'custom',
                 default: 'Equal',
                 solution: ''
@@ -116,7 +116,7 @@
                 var that = this;
                 if ($.type(value) === STRING && that.dropDownList instanceof kendo.ui.DropDownList && that.input instanceof $ && that.codeMirror instanceof CodeMirror) {
                     var libraryMatches = value.match(/^\/\/ ([^\n]+)$/),
-                        //customMatches = value.match(/^function validate\(value, solution\) {[\s\S]+}$/);
+                        // customMatches = value.match(/^function validate\(value, solution\) {[\s\S]+}$/);
                         customMatches = value.match(/^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/);
                     if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
                         // Find in the code library
@@ -203,7 +203,7 @@
                     // Prevent from modifying first lines and last line
                     that.codeMirror.on(BEFORECHANGE, function (cm, change) {
                         if (change.origin === 'setValue') {
-                            return; //updated using this.value(value)
+                            return; // updated using this.value(value)
                         }
                         // if updated by typing into the code editor
                         if ((change.from.line === 0) || // prevent changing the first line

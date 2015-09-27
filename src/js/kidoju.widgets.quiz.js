@@ -32,7 +32,7 @@
             CLICK = 'click',
             ACTIVE = 'k-state-active',
             DISABLE = 'k-state-disabled',
-            WIDGET_CLASS = 'kj-quiz', //'k-widget kj-quiz',
+            WIDGET_CLASS = 'kj-quiz', // 'k-widget kj-quiz',
             GROUP_CLASS = 'kj-quiz-group',
             BUTTON = '<input type="button" class="k-button" value="{0}">',
             RADIO = '<div><input id="{1}_{2}" name="{1}" type="radio" value="{0}"><label for="{1}_{2}">{0}</label></div>',
@@ -212,7 +212,7 @@
                         dataSource: that.options.dataSource,
                         optionLabel: that.options.optionLabel,
                         value: that.options.value
-                        //valuePrimitive: true
+                        // valuePrimitive: true
                     })
                     .data('kendoDropDownList');
             },

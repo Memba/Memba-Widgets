@@ -10,7 +10,7 @@
     'use strict';
     define([
         './vendor/kendo/kendo.binder',
-        //'./kidoju.tools'
+        // './kidoju.tools'
         './window.assert',
         './window.log'
     ], f);
@@ -810,7 +810,7 @@
                     dfd.reject({filename: undefined, lineno: undefined, message: 'A valid name has not been provided' });
                     return dfd;
                 }
-                if ($.type(code) !== STRING) { //TODO review
+                if ($.type(code) !== STRING) { // TODO review
                     dfd.reject({filename: undefined, lineno: undefined, message: 'Code has not been provided' });
                     return dfd;
                 }

@@ -106,7 +106,7 @@
                         throw new RangeError(kendo.format('{0} is not the id of a known tool', id));
                     }
                     if (id !== that.options.tools.get(ACTIVE_TOOL)) {
-                        that.options.tools.set(ACTIVE_TOOL, id);//the change handler refreshes the widget
+                        that.options.tools.set(ACTIVE_TOOL, id);// the change handler refreshes the widget
                         logger.debug('tool changed for ' + id);
                         that.trigger(CHANGE, {value: id});
                     }

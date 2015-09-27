@@ -25,7 +25,7 @@
             Model = kidoju.data.Model,
             PageComponent = kidoju.data.PageComponent,
             // assert = window.assert,
-            // logger = new window.Log('kidoju.tools'), //TODO
+            // logger = new window.Log('kidoju.tools'), // TODO
 
         // Types
             OBJECT = 'object',
@@ -237,8 +237,8 @@
                 throw new Error('Please implement in subclassed tool.');
             }
 
-            //addEvents(mode)
-            //removeEvents(mode)
+            // addEvents(mode)
+            // removeEvents(mode)
 
             // onMove(e.component)
             // onResize(e.component)
@@ -650,9 +650,9 @@
                     '</div>';
                 dialog.content(content);
                 dialog.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager({
-                    //change: function(e) {
-                    //    dialog.viewModel.set('url', e.sender.value());
-                    //},
+                    // change: function(e) {
+                    //     dialog.viewModel.set('url', e.sender.value());
+                    // },
                     transport: {
                         read: function(options) {
                             options.success({
@@ -1133,7 +1133,7 @@
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) { // TODO: same id, same tool?
                     var content = stageElement.find('>div');
-                    //TODO
+                    // TODO
                     // prevent any side effect
                     e.preventDefault();
                     // prevent event to bubble on stage
@@ -1206,9 +1206,9 @@
                         data = component.attributes.data,
                         length = data.trim().split('\n').length || 1,
                         height = $.type(component.height) === NUMBER ? component.height : 0;
-                        //width = $.type(component.width) === NUMBER ? component.width : 0;
-                    //content.width(width);
-                    //content.height(height);
+                        // width = $.type(component.width) === NUMBER ? component.width : 0;
+                    // content.width(width);
+                    // content.height(height);
                     switch(component.attributes.mode) {
                         case 'button':
                             content.css('font-size', Math.floor(0.57 * height));

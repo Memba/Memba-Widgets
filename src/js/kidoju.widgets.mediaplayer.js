@@ -41,7 +41,7 @@
             COMMANDS = {
                 PLAY: 'play',
                 MUTE: 'mute',
-                FULL: 'full' //full screen
+                FULL: 'full' // full screen
             };
 
         /**

@@ -30,7 +30,7 @@
             ui = kendo.ui,
             Widget = ui.Widget,
             ObservableArray = kendo.data.ObservableArray,
-            //assert = window.assert,
+            // assert = window.assert,
             logger = new window.Log('kidoju.widgets.multiinput'),
             // NUMBER = 'number',
             STRING = 'string',

@@ -42,7 +42,7 @@
             NS = '.kendoStage',
             MOUSEDOWN = 'mousedown',
             MOUSEMOVE = 'mousemove',
-            MOUSEUP = 'mouseup',//TODO: mouseout
+            MOUSEUP = 'mouseup',// TODO: mouseout
             TOUCHSTART = 'touchstart',
             TOUCHMOVE = 'touchmove',
             TOUCHEND = 'touchend',
@@ -469,7 +469,7 @@
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
 
-                if (that.options.dataSource !== NULL) {  //use null to explicitely destroy the dataSource bindings
+                if (that.options.dataSource !== NULL) {  // use null to explicitely destroy the dataSource bindings
 
                     // returns the datasource OR creates one if using array or configuration object
                     that.dataSource = PageComponentCollectionDataSource.create(that.options.dataSource);
@@ -730,8 +730,8 @@
                 var that = this;
                 // See http://docs.telerik.com/kendo-ui/api/javascript/ui/contextmenu
                 that.menu = $('<ul class="kj-stage-menu"></ul>')
-                    //.append('<li ' + DATA_COMMAND + '="lock">Lock</li>') // TODO Use constants + localize in messages
-                    .append('<li ' + DATA_COMMAND + '="delete">Delete</li>')//TODO: Bring forward, Push backward, Edit, etc.....
+                    // .append('<li ' + DATA_COMMAND + '="lock">Lock</li>') // TODO Use constants + localize in messages
+                    .append('<li ' + DATA_COMMAND + '="delete">Delete</li>')// TODO: Bring forward, Push backward, Edit, etc.....
                     .appendTo(that.wrapper)
                     .kendoContextMenu({
                         target: '.kj-handle[' + DATA_COMMAND + '="menu"]',

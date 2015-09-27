@@ -127,7 +127,7 @@
                 } else if ($.type(value) === 'undefined') {
                     // Convert the data source into an HTML style attribute
                     value = '';
-                    data = that._dataSource.data(); //.sort(sort);
+                    data = that._dataSource.data(); // .sort(sort);
                     for (i = 0; i < data.length; i++) {
                         var name = data[i].name, val = data[i].value;
                         if ($.type(name) === STRING && $.type(val) === STRING) {
@@ -191,7 +191,7 @@
                 function cssDropDownEditor(container, options) {
                     // We cannot set the combobox name for validation before initializing the kendo ui widget
                     // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
-                    //$('<input name="style_name" data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.name + '">')
+                    // $('<input name="style_name" data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.name + '">')
                     var combobox = $('<input data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.name + '">')
                         .appendTo(container)
                         .kendoComboBox({
@@ -209,7 +209,7 @@
                                     }
                                 }
                             },
-                            //dataSource: viewModel.css,
+                            // dataSource: viewModel.css,
                             dataTextField: 'name',
                             dataValueField: 'name'
                         })

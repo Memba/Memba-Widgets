@@ -476,7 +476,7 @@
                 } else {
                     that.value(null);
                 }
-                //that._toggleSelection();
+                // that._toggleSelection();
                 that.resize();
                 if (e && e.action === undefined) {
                     that.trigger(DATABOUND);

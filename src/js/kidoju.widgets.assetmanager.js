@@ -21,6 +21,9 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -116,6 +119,9 @@
             return Math.round(size * 100) / 100 + suffix;
         }
 
+        /* This function's cyclomatic complexity is too high. */
+        /* jshint -W074 */
+
         /**
          * Convert file extension to mime type
          * @see http://hul.harvard.edu/ois/systems/wax/wax-public-help/mimetypes.htm
@@ -123,8 +129,6 @@
          * @returns {*}
          */
         function typeFormatter(url) {
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
             assert.type(STRING, url, kendo.format(assert.messages.type.default, 'url', STRING));
             var ext = url.split('.').pop();
             switch (ext) {
@@ -156,8 +160,9 @@
                 default:
                     return 'application/octet-stream';
             }
-            /* jshint +W074 */
         }
+
+        /* jshint +W074 */
 
         /*********************************************************************************
          * Widget
@@ -679,6 +684,8 @@
         kendo.ui.plugin(AssetManager);
 
     }(window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kendo;
 

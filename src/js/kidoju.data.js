@@ -207,13 +207,14 @@
                 return json;
             },
 
+            /* This function's cyclomatic complexity is too high */
+            /* jshint -W074 */
+
             /**
              * Execute validation of the model data considering the rules defined on fields
              * @returns {boolean}
              */
             validate: function () {
-                /* This function's cyclomatic complexity is too high */
-                /* jshint -W074 */
                 var that = this;
                 var validated = true;
                 for (var field in that.fields) {
@@ -237,8 +238,9 @@
                     }
                 }
                 return validated; // Should we return an array of errors instead
-                /* jshint +W074 */
             }
+
+            /* jshint +W074 */
 
             // Consider a function that populates validation rules on forms
             // See http://docs.telerik.com/kendo-ui/framework/validator/overview

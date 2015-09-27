@@ -18,6 +18,9 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -300,14 +303,15 @@
                 return dialog;
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Get a kendo.data.Model field
              * See http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
              * @returns {{}}
              */
             getField: function () {
-                /* This function's cyclomatic complexity is too high. */
-                /* jshint -W074 */
                 var field = {};
                 if ([STRING, NUMBER, BOOLEAN, DATE].indexOf(this.type) > -1) {
                     field.type = this.type;
@@ -332,8 +336,12 @@
                     field.validation = this.validation;
                 }
                 return field;
-                /* jshint +W074 */
             },
+
+            /* jshint +W074 */
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Get a property grid row
@@ -342,8 +350,6 @@
              * @returns {{}}
              */
             getRow: function (field) {
-                /* This function's cyclomatic complexity is too high. */
-                /* jshint -W074 */
                 if ($.type(field) !== STRING || field.length === 0) {
                     throw new TypeError();
                 }
@@ -367,10 +373,11 @@
                     row.attributes = this.attributes;
                 }
                 return row;
-                /* jshint +W074 */
             }
 
         });
+
+        /* jshint +W074 */
 
         /**
          * String adapter
@@ -1189,6 +1196,9 @@
                 }
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * onResize Event Handler
              * @method onResize
@@ -1196,8 +1206,6 @@
              * @param component
              */
             onResize: function (e, component) {
-                /* This function's cyclomatic complexity is too high. */
-                /* jshint -W074 */
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
                     var content = stageElement.find('>div');
@@ -1223,8 +1231,10 @@
                     // prevent event to bubble on stage
                     e.stopPropagation();
                 }
-                /* jshint +W074 */
             }
+
+            /* jshint +W074 */
+
         });
         tools.register(Quiz);
 
@@ -1286,6 +1296,8 @@
          ******************************************************************************/
 
     }(window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kidoju;
 

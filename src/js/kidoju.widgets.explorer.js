@@ -19,6 +19,7 @@
 
     'use strict';
 
+    /* This function has too many statements. */
     /* jshint -W071 */
 
     (function ($, undefined) {
@@ -173,6 +174,9 @@
                 }
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Gets/Sets the value of the selected component in the explorer
              * @method value
@@ -180,8 +184,6 @@
              * @returns {*}
              */
             value: function (component) {
-                /* This function's cyclomatic complexity is too high. */
-                /* jshint -W074 */
                 var that = this;
                 if (component === NULL) {
                     if (that._selectedUid !== NULL) {
@@ -222,8 +224,9 @@
                         return that.dataSource.getByUid(that._selectedUid); // Returns undefined if not found
                     }
                 }
-                /* jshint +W074 */
             },
+
+            /* jshint +W074 */
 
             /**
              * @method total()

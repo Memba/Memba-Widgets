@@ -1,5 +1,5 @@
 /**
- * Sinon.JS 1.16.1, 2015/08/20
+ * Sinon.JS 1.17.1, 2015/09/26
  *
  * @author Christian Johansen (christian@cjohansen.no)
  * @author Contributors: https://github.com/cjohansen/Sinon.JS/blob/master/AUTHORS
@@ -688,11 +688,16 @@
 
     global.setTimeout = glbl.setTimeout;
     global.clearTimeout = glbl.clearTimeout;
-    global.setImmediate = glbl.setImmediate;
-    global.clearImmediate = glbl.clearImmediate;
     global.setInterval = glbl.setInterval;
     global.clearInterval = glbl.clearInterval;
     global.Date = glbl.Date;
+
+    // setImmediate is not a standard function
+    // avoid adding the prop to the window object if not present
+    if('setImmediate' in global) {
+        global.setImmediate = glbl.setImmediate;
+        global.clearImmediate = glbl.clearImmediate;
+    }
 
     // node expects setTimeout/setInterval to return a fn object w/ .ref()/.unref()
     // browsers, a number.
@@ -930,6 +935,44 @@
         }
     }
 
+    function timerType(timer) {
+        if (timer.immediate) {
+            return "Immediate";
+        } else if (typeof timer.interval !== "undefined") {
+            return "Interval";
+        } else {
+            return "Timeout";
+        }
+    }
+
+    function clearTimer(clock, timerId, ttype) {
+        if (!timerId) {
+            // null appears to be allowed in most browsers, and appears to be
+            // relied upon by some libraries, like Bootstrap carousel
+            return;
+        }
+
+        if (!clock.timers) {
+            clock.timers = [];
+        }
+
+        // in Node, timerId is an object with .ref()/.unref(), and
+        // its .id field is the actual timer id.
+        if (typeof timerId === "object") {
+            timerId = timerId.id;
+        }
+
+        if (clock.timers.hasOwnProperty(timerId)) {
+            // check that the ID matches a timer of the correct type
+            var timer = clock.timers[timerId];
+            if (timerType(timer) === ttype) {
+                delete clock.timers[timerId];
+            } else {
+				throw new Error("Cannot clear timer: timer created with set" + ttype + "() but cleared with clear" + timerType(timer) + "()");
+			}
+        }
+    }
+
     function uninstall(clock, target) {
         var method,
             i,
@@ -1018,25 +1061,7 @@
         };
 
         clock.clearTimeout = function clearTimeout(timerId) {
-            if (!timerId) {
-                // null appears to be allowed in most browsers, and appears to be
-                // relied upon by some libraries, like Bootstrap carousel
-                return;
-            }
-
-            if (!clock.timers) {
-                clock.timers = [];
-            }
-
-            // in Node, timerId is an object with .ref()/.unref(), and
-            // its .id field is the actual timer id.
-            if (typeof timerId === "object") {
-                timerId = timerId.id;
-            }
-
-            if (clock.timers.hasOwnProperty(timerId)) {
-                delete clock.timers[timerId];
-            }
+            return clearTimer(clock, timerId, "Timeout");
         };
 
         clock.setInterval = function setInterval(func, timeout) {
@@ -1049,7 +1074,7 @@
         };
 
         clock.clearInterval = function clearInterval(timerId) {
-            clock.clearTimeout(timerId);
+            return clearTimer(clock, timerId, "Interval");
         };
 
         clock.setImmediate = function setImmediate(func) {
@@ -1061,13 +1086,14 @@
         };
 
         clock.clearImmediate = function clearImmediate(timerId) {
-            clock.clearTimeout(timerId);
+            return clearTimer(clock, timerId, "Immediate");
         };
 
         clock.tick = function tick(ms) {
             ms = typeof ms === "number" ? ms : parseTime(ms);
             var tickFrom = clock.now, tickTo = clock.now + ms, previous = clock.now;
             var timer = firstTimerInRange(clock, tickFrom, tickTo);
+            var oldNow;
 
             clock.duringTick = true;
 
@@ -1076,7 +1102,14 @@
                 if (clock.timers[timer.id]) {
                     tickFrom = clock.now = timer.callAt;
                     try {
+                        oldNow = clock.now;
                         callTimer(clock, timer);
+                        // compensate for any setSystemTime() call during timer callback
+                        if (oldNow !== clock.now) {
+                            tickFrom += clock.now - oldNow;
+                            tickTo += clock.now - oldNow;
+                            previous += clock.now - oldNow;
+                        }
                     } catch (e) {
                         firstException = firstException || e;
                     }
@@ -1100,21 +1133,27 @@
             clock.timers = {};
         };
 
+        clock.setSystemTime = function setSystemTime(now) {
+            // determine time difference
+            var newNow = getEpoch(now);
+            var difference = newNow - clock.now;
+
+            // update 'system clock'
+            clock.now = newNow;
+
+            // update timers and intervals to keep them stable
+            for (var id in clock.timers) {
+                if (clock.timers.hasOwnProperty(id)) {
+                    var timer = clock.timers[id];
+                    timer.createdAt += difference;
+                    timer.callAt += difference;
+                }
+            }
+        };
+
         return clock;
     }
     exports.createClock = createClock;
-
-    function detectKnownFailSituation(methods) {
-        if (methods.indexOf("Date") < 0) { return; }
-
-        if (methods.indexOf("setTimeout") < 0) {
-            throw new Error("Native setTimeout will not work when Date is faked");
-        }
-
-        if (methods.indexOf("setImmediate") < 0) {
-            throw new Error("Native setImmediate will not work when Date is faked");
-        }
-    }
 
     exports.install = function install(target, now, toFake) {
         var i,
@@ -1141,8 +1180,6 @@
         if (clock.methods.length === 0) {
             clock.methods = keys(timers);
         }
-
-        detectKnownFailSituation(clock.methods);
 
         for (i = 0, l = clock.methods.length; i < l; i++) {
             hijackMethod(target, clock.methods[i], clock);
@@ -1177,6 +1214,7 @@ var sinon = (function () {
     function loadDependencies(require, exports, module) {
         sinonModule = module.exports = require("./sinon/util/core");
         require("./sinon/extend");
+        require("./sinon/walk");
         require("./sinon/typeOf");
         require("./sinon/times_in_words");
         require("./sinon/spy");
@@ -3246,9 +3284,86 @@ var sinon = (function () {
 
 /**
  * @depend util/core.js
+ */
+(function (sinonGlobal) {
+    
+    function makeApi(sinon) {
+        function walkInternal(obj, iterator, context, originalObj) {
+            var proto, prop;
+
+            if (typeof Object.getOwnPropertyNames !== "function") {
+                // We explicitly want to enumerate through all of the prototype's properties
+                // in this case, therefore we deliberately leave out an own property check.
+                /* eslint-disable guard-for-in */
+                for (prop in obj) {
+                    iterator.call(context, obj[prop], prop, obj);
+                }
+                /* eslint-enable guard-for-in */
+
+                return;
+            }
+
+            Object.getOwnPropertyNames(obj).forEach(function (k) {
+                var target = typeof Object.getOwnPropertyDescriptor(obj, k).get === "function" ?
+                    originalObj : obj;
+                iterator.call(context, target[k], k, target);
+            });
+
+            proto = Object.getPrototypeOf(obj);
+            if (proto) {
+                walkInternal(proto, iterator, context, originalObj);
+            }
+        }
+
+        /* Public: walks the prototype chain of an object and iterates over every own property
+         * name encountered. The iterator is called in the same fashion that Array.prototype.forEach
+         * works, where it is passed the value, key, and own object as the 1st, 2nd, and 3rd positional
+         * argument, respectively. In cases where Object.getOwnPropertyNames is not available, walk will
+         * default to using a simple for..in loop.
+         *
+         * obj - The object to walk the prototype chain for.
+         * iterator - The function to be called on each pass of the walk.
+         * context - (Optional) When given, the iterator will be called with this object as the receiver.
+         */
+        function walk(obj, iterator, context) {
+            return walkInternal(obj, iterator, context, obj);
+        }
+
+        sinon.walk = walk;
+        return sinon.walk;
+    }
+
+    function loadDependencies(require, exports, module) {
+        var sinon = require("./util/core");
+        module.exports = makeApi(sinon);
+    }
+
+    var isNode = typeof module !== "undefined" && module.exports && typeof require === "function";
+    var isAMD = typeof define === "function" && typeof define.amd === "object" && define.amd;
+
+    if (isAMD) {
+        define(loadDependencies);
+        return;
+    }
+
+    if (isNode) {
+        loadDependencies(require, module.exports, module);
+        return;
+    }
+
+    if (sinonGlobal) {
+        makeApi(sinonGlobal);
+    }
+}(
+    typeof sinon === "object" && sinon // eslint-disable-line no-undef
+));
+
+/**
+ * @depend util/core.js
  * @depend extend.js
  * @depend spy.js
  * @depend behavior.js
+ * @depend walk.js
  */
 /**
  * Stub functions
@@ -3266,8 +3381,7 @@ var sinon = (function () {
                 throw new TypeError("Custom stub should be a function or a property descriptor");
             }
 
-            var wrapper,
-                prop;
+            var wrapper;
 
             if (func) {
                 if (typeof func === "function") {
@@ -3294,11 +3408,17 @@ var sinon = (function () {
             }
 
             if (typeof property === "undefined" && typeof object === "object") {
-                for (prop in object) {
-                    if (typeof sinon.getPropertyDescriptor(object, prop).value === "function") {
+                sinon.walk(object || {}, function (value, prop, propOwner) {
+                    // we don't want to stub things like toString(), valueOf(), etc. so we only stub if the object
+                    // is not Object.prototype
+                    if (
+                        propOwner !== Object.prototype &&
+                        prop !== "constructor" &&
+                        typeof sinon.getPropertyDescriptor(propOwner, prop).value === "function"
+                    ) {
                         stub(object, prop);
                     }
-                }
+                });
 
                 return object;
             }
@@ -4311,17 +4431,27 @@ if (typeof sinon === "undefined") {
         function logError(label, err) {
             var msg = label + " threw exception: ";
 
+            function throwLoggedError() {
+                err.message = msg + err.message;
+                throw err;
+            }
+
             sinon.log(msg + "[" + err.name + "] " + err.message);
 
             if (err.stack) {
                 sinon.log(err.stack);
             }
 
-            logError.setTimeout(function () {
-                err.message = msg + err.message;
-                throw err;
-            }, 0);
+            if (logError.useImmediateExceptions) {
+                throwLoggedError();
+            } else {
+                logError.setTimeout(throwLoggedError, 0);
+            }
         }
+
+        // When set to true, any errors logged will be thrown immediately;
+        // If set to false, the errors will be thrown in separate execution frame.
+        logError.useImmediateExceptions = false;
 
         // wrap realSetTimeout with something we can stub in tests
         logError.setTimeout = function (func, timeout) {
@@ -4618,6 +4748,8 @@ if (typeof sinon === "undefined") {
     var supportsProgress = typeof ProgressEvent !== "undefined";
     var supportsCustomEvent = typeof CustomEvent !== "undefined";
     var supportsFormData = typeof FormData !== "undefined";
+    var supportsArrayBuffer = typeof ArrayBuffer !== "undefined";
+    var supportsBlob = typeof Blob === "function";
     var sinonXhr = { XMLHttpRequest: global.XMLHttpRequest };
     sinonXhr.GlobalXMLHttpRequest = global.XMLHttpRequest;
     sinonXhr.GlobalActiveXObject = global.ActiveXObject;
@@ -4872,19 +5004,78 @@ if (typeof sinon === "undefined") {
         }
     }
 
-    FakeXMLHttpRequest.parseXML = function parseXML(text) {
-        var xmlDoc;
+    function convertToArrayBuffer(body) {
+        var buffer = new ArrayBuffer(body.length);
+        var view = new Uint8Array(buffer);
+        for (var i = 0; i < body.length; i++) {
+            var charCode = body.charCodeAt(i);
+            if (charCode >= 256) {
+                throw new TypeError("arraybuffer or blob responseTypes require binary string, " +
+                                    "invalid character " + body[i] + " found.");
+            }
+            view[i] = charCode;
+        }
+        return buffer;
+    }
 
-        if (typeof DOMParser !== "undefined") {
-            var parser = new DOMParser();
-            xmlDoc = parser.parseFromString(text, "text/xml");
+    function isXmlContentType(contentType) {
+        return !contentType || /(text\/xml)|(application\/xml)|(\+xml)/.test(contentType);
+    }
+
+    function convertResponseBody(responseType, contentType, body) {
+        if (responseType === "" || responseType === "text") {
+            return body;
+        } else if (supportsArrayBuffer && responseType === "arraybuffer") {
+            return convertToArrayBuffer(body);
+        } else if (responseType === "json") {
+            try {
+                return JSON.parse(body);
+            } catch (e) {
+                // Return parsing failure as null
+                return null;
+            }
+        } else if (supportsBlob && responseType === "blob") {
+            var blobOptions = {};
+            if (contentType) {
+                blobOptions.type = contentType;
+            }
+            return new Blob([convertToArrayBuffer(body)], blobOptions);
+        } else if (responseType === "document") {
+            if (isXmlContentType(contentType)) {
+                return FakeXMLHttpRequest.parseXML(body);
+            }
+            return null;
+        }
+        throw new Error("Invalid responseType " + responseType);
+    }
+
+    function clearResponse(xhr) {
+        if (xhr.responseType === "" || xhr.responseType === "text") {
+            xhr.response = xhr.responseText = "";
         } else {
-            xmlDoc = new window.ActiveXObject("Microsoft.XMLDOM");
-            xmlDoc.async = "false";
-            xmlDoc.loadXML(text);
+            xhr.response = xhr.responseText = null;
+        }
+        xhr.responseXML = null;
+    }
+
+    FakeXMLHttpRequest.parseXML = function parseXML(text) {
+        // Treat empty string as parsing failure
+        if (text !== "") {
+            try {
+                if (typeof DOMParser !== "undefined") {
+                    var parser = new DOMParser();
+                    return parser.parseFromString(text, "text/xml");
+                }
+                var xmlDoc = new window.ActiveXObject("Microsoft.XMLDOM");
+                xmlDoc.async = "false";
+                xmlDoc.loadXML(text);
+                return xmlDoc;
+            } catch (e) {
+                // Unable to parse XML - no biggie
+            }
         }
 
-        return xmlDoc;
+        return null;
     };
 
     FakeXMLHttpRequest.statusCodes = {
@@ -4944,9 +5135,7 @@ if (typeof sinon === "undefined") {
                 this.async = typeof async === "boolean" ? async : true;
                 this.username = username;
                 this.password = password;
-                this.responseText = null;
-                this.response = this.responseType === "json" ? null : "";
-                this.responseXML = null;
+                clearResponse(this);
                 this.requestHeaders = {};
                 this.sendFlag = false;
 
@@ -5040,7 +5229,7 @@ if (typeof sinon === "undefined") {
 
                 this.errorFlag = false;
                 this.sendFlag = this.async;
-                this.response = this.responseType === "json" ? null : "";
+                clearResponse(this);
                 this.readyStateChange(FakeXMLHttpRequest.OPENED);
 
                 if (typeof this.onSend === "function") {
@@ -5052,8 +5241,7 @@ if (typeof sinon === "undefined") {
 
             abort: function abort() {
                 this.aborted = true;
-                this.responseText = null;
-                this.response = this.responseType === "json" ? null : "";
+                clearResponse(this);
                 this.errorFlag = true;
                 this.requestHeaders = {};
                 this.responseHeaders = {};
@@ -5109,32 +5297,34 @@ if (typeof sinon === "undefined") {
                 verifyRequestSent(this);
                 verifyHeadersReceived(this);
                 verifyResponseBodyType(body);
+                var contentType = this.getResponseHeader("Content-Type");
 
-                var chunkSize = this.chunkSize || 10;
-                var index = 0;
-                this.responseText = "";
+                var isTextResponse = this.responseType === "" || this.responseType === "text";
+                clearResponse(this);
+                if (this.async) {
+                    var chunkSize = this.chunkSize || 10;
+                    var index = 0;
 
-                do {
-                    if (this.async) {
+                    do {
                         this.readyStateChange(FakeXMLHttpRequest.LOADING);
-                    }
 
-                    this.responseText += body.substring(index, index + chunkSize);
-                    index += chunkSize;
-                } while (index < body.length);
-
-                var type = this.getResponseHeader("Content-Type");
-
-                if (this.responseText &&
-                    (!type || /(text\/xml)|(application\/xml)|(\+xml)/.test(type))) {
-                    try {
-                        this.responseXML = FakeXMLHttpRequest.parseXML(this.responseText);
-                    } catch (e) {
-                        // Unable to parse XML - no biggie
-                    }
+                        if (isTextResponse) {
+                            this.responseText = this.response += body.substring(index, index + chunkSize);
+                        }
+                        index += chunkSize;
+                    } while (index < body.length);
                 }
 
-                this.response = this.responseType === "json" ? JSON.parse(this.responseText) : this.responseText;
+                this.response = convertResponseBody(this.responseType, contentType, body);
+                if (isTextResponse) {
+                    this.responseText = this.response;
+                }
+
+                if (this.responseType === "document") {
+                    this.responseXML = this.response;
+                } else if (this.responseType === "" && isXmlContentType(contentType)) {
+                    this.responseXML = FakeXMLHttpRequest.parseXML(this.responseText);
+                }
                 this.readyStateChange(FakeXMLHttpRequest.DONE);
             },
 
@@ -5793,7 +5983,6 @@ if (typeof sinon === "undefined") {
                     args[args.length - 1] = function sinonDone(res) {
                         if (res) {
                             sandbox.restore();
-                            throw exception;
                         } else {
                             sandbox.verifyAndRestore();
                         }

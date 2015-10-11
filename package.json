@@ -38,7 +38,7 @@
     "grunt-contrib-uglify": "^0.9.2",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-jscs": "^2.1.0",
-    "grunt-jsdoc": "^0.6.8",
+    "grunt-jsdoc": "^0.6.10",
     "grunt-kendo-lint": "0.0.3",
     "grunt-mocha": "^0.4.13",
     "grunt-mocha-test": "^0.12.7",
@@ -55,7 +55,7 @@
     "mocha": "^2.3.2",
     "phantomjs": "^1.9.18",
     "sinon": "^1.16.1",
-    "zombie": "^3.1.1"
+    "zombie": "^4.1.0"
   },
   "dependencies": {
     "mocha": "^2.3.3",

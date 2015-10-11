@@ -41,7 +41,7 @@
 
             it('it should discard a tool that is not a class', function () {
                 var keys = Object.keys(tools),
-                    obj = {id:'dummy'};
+                    obj = {id:'dummy' };
                 tools.register(obj);
                 expect(Object.keys(tools)).to.eql(keys);
             });
@@ -65,7 +65,7 @@
 
             it('it should raise an error when registering a tool named `active`', function () {
                 var fn = function () {
-                    var Active = Tool.extend({id: 'active'});
+                    var Active = Tool.extend({id: 'active' });
                     tools.register(Active);
                 };
                 expect(fn).to.throw(Error);
@@ -73,7 +73,7 @@
 
             it('it should raise an error when registering a tool named `register`', function () {
                 var fn = function () {
-                    var Register = Tool.extend({id: 'register'});
+                    var Register = Tool.extend({id: 'register' });
                     tools.register(Register);
                 };
                 expect(fn).to.throw(Error);
@@ -174,7 +174,7 @@
 
             it('Check getHtml', function () {
                 var label = tools.label,
-                    component = new PageComponent({tool: 'label'}),
+                    component = new PageComponent({tool: 'label' }),
                     html;
 
                 // If we do not submit a page component
@@ -206,7 +206,7 @@
 
             it('Check getHtml', function () {
                 var image = tools.image,
-                    component = new PageComponent({tool: 'image'}),
+                    component = new PageComponent({tool: 'image' }),
                     html;
 
                 // If we do not submit a page component
@@ -236,7 +236,7 @@
 
             it('Check getHtml', function () {
                 var textbox = tools.textbox;
-                var component = new PageComponent({tool: 'textbox'});
+                var component = new PageComponent({tool: 'textbox' });
                 var html;
 
                 // If we do not submit a page component
@@ -266,7 +266,7 @@
 
             it('Check getHtml', function () {
                 var button = tools.button,
-                    component = new PageComponent({tool: 'button'}),
+                    component = new PageComponent({tool: 'button' }),
                     html;
 
                 // If we do not submit a page component

@@ -9,26 +9,26 @@
 
     'use strict';
 
-    var expect = window.chai.expect,
-        sinon = window.sinon,
-        localStorage = window.localStorage,
-        kendo = window.kendo,
-        kidoju = window.kidoju,
-        Model = kidoju.data.Model,
-        PageComponent = kidoju.data.PageComponent,
-        Page = kidoju.data.Page,
-        Stream = kidoju.data.Stream,
-        DataSource = kidoju.data.DataSource,
-        PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource,
-        PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+    var expect = window.chai.expect;
+    var sinon = window.sinon;
+    var localStorage = window.localStorage;
+    var kendo = window.kendo;
+    var kidoju = window.kidoju;
+    var Model = kidoju.data.Model;
+    var PageComponent = kidoju.data.PageComponent;
+    var Page = kidoju.data.Page;
+    var Stream = kidoju.data.Stream;
+    var DataSource = kidoju.data.DataSource;
+    var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
+    var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
 
     /**
      * MongoDB-like id generator
      */
     function ObjectId() {
-        return 'xxxxxxxxxxxxxxxxxxxxxxxx'.replace(/x/g, function() {
+        return 'xxxxxxxxxxxxxxxxxxxxxxxx'.replace(/x/g, function () {
             /* jshint -W016 */
-            return (Math.random()*16|0).toString(16);
+            return (Math.random() * 16|0).toString(16);
             /* jshint +W016 */
         });
     }
@@ -80,9 +80,9 @@
      * Base Model and DataSource
      *********************************************************************************/
 
-    describe('Problems we had to solve with kendo.data.Model which lead to creating kidoju.data.Model', function() {
+    describe('Problems we had to solve with kendo.data.Model which lead to creating kidoju.data.Model', function () {
 
-        describe('When instantiating a kidoju.data.Model: init and accept', function() {
+        describe('When instantiating a kidoju.data.Model: init and accept', function () {
 
             var BadModel = kendo.data.Model.define({
                 id: 'id',
@@ -116,7 +116,7 @@
                 }
             });
 
-            it('it should assign default values any time fields are not initialized', function() {
+            it('it should assign default values any time fields are not initialized', function () {
 
                 // TODO: we should update the following unit tests
                 // to apply the same def to kendo.data.Model and kidoju.data.Model
@@ -124,8 +124,11 @@
                 // This should allow us to detect fixes in future versions of Kendo UI
                 // in view to remove our custom code.....
 
-                var Test, t1, t2, t3,
-                    def = {
+                var Test;
+                var t1;
+                var t2;
+                var t3;
+                var def = {
                         id: 'id',
                         fields: {
                             id: { type: 'string', nullable: true, editable: false },
@@ -156,7 +159,7 @@
                 expect(t3.dob).to.be.undefined;
                 expect(t3.age).to.be.undefined;
 
-                //---------------------------------------------
+                // ---------------------------------------------
 
                 Test = Model.define(def);
                 t1 = new Test();
@@ -181,19 +184,19 @@
 
             });
 
-            it('We expect to parse values on init and accept', function() {
+            it('We expect to parse values on init and accept', function () {
 
-                var past = new Date(1966, 14, 2),
-                    pastId = ObjectId(),
-                    now = new Date(),
-                    nowId = ObjectId(),
-                    badChange = false,
-                    fixedChange = false,
-                    badObject = new BadModel({
+                var past = new Date(1966, 14, 2);
+                var pastId = ObjectId();
+                var now = new Date();
+                var nowId = ObjectId();
+                var badChange = false;
+                var fixedChange = false;
+                var badObject = new BadModel({
                         id: pastId,
                         date: past.toISOString()
-                    }),
-                    fixedObject = new FixedModel({
+                    });
+                var fixedObject = new FixedModel({
                         id: pastId,
                         date: past.toISOString()
                     });
@@ -208,7 +211,7 @@
                 expect(fixedObject).to.have.property('date').that.is.an.instanceof(Date);
                 expect(fixedObject.date.getTime()).to.equal(past.getTime());
 
-                badObject.bind('change', function(e) {
+                badObject.bind('change', function (e) {
                     badChange = true;
                 });
 
@@ -224,11 +227,11 @@
                 // accordingly the change event has not been raised
                 expect(badChange).to.be.false;
 
-                //There lies the problem: the date property is supposed to be a Date and the string value has not been parsed/converted
+                // There lies the problem: the date property is supposed to be a Date and the string value has not been parsed/converted
                 expect(badObject).to.have.property('date').that.is.a('string');
                 expect(badObject.date).to.equal(now.toISOString());
 
-                fixedObject.bind('change', function(e) {
+                fixedObject.bind('change', function (e) {
                     fixedChange = true;
                 });
 
@@ -246,29 +249,29 @@
                 expect(fixedObject.date.getTime()).to.equal(now.getTime());
             });
 
-            it('We expect to parse nested models', function() {
-                var change = false,
-                    Author = Model.define({
+            it('We expect to parse nested models', function () {
+                var change = false;
+                var Author = Model.define({
                         id: 'userId',
                         fields: {
                             userId: { type: 'string', nullable: true },
                             name: { type: 'string' }
                         }
-                    }),
-                    Book = Model.define({
+                    });
+                var Book = Model.define({
                         id: 'id',
                         fields: {
                             id: { type: 'string', nullable: true },
                             title: { type: 'string' },
                             author: {
                                 defaultValue: null,
-                                parse: function(value) {
+                                parse: function (value) {
                                     return value instanceof Author ? value : new Author(value);
                                 }
                             }
                         }
-                    }),
-                    book = new Book({
+                    });
+                var book = new Book({
                         id: '1',
                         title: 'Les Misérables',
                         author: {
@@ -277,7 +280,7 @@
                         }
                     });
 
-                book.bind('change', function(e) {
+                book.bind('change', function (e) {
                     change = !change;
                 });
 
@@ -296,26 +299,26 @@
                 expect(change).to.be.false;
                 expect(book.author).to.be.an.instanceof(Author);
 
-                book.set('author', { id: 'c', name: 'Alexandre Dumas'});
+                book.set('author', { id: 'c', name: 'Alexandre Dumas' });
                 expect(change).to.be.true;
                 expect(book.author).to.be.an.instanceof(Author);
 
             });
 
-            xit('We expect to parse arrays of nested model', function() {
+            xit('We expect to parse arrays of nested model', function () {
 
                 // TODO
 
             });
 
-            it('We expect to raise a change event on the parent ObservableObject on accept', function() {
+            it('We expect to raise a change event on the parent ObservableObject on accept', function () {
 
-                var past = new Date(1966, 14, 2),
-                    pastId = ObjectId(),
-                    now = new Date(),
-                    nowId = ObjectId(),
-                    change = false,
-                    viewModel = kendo.observable({
+                var past = new Date(1966, 14, 2);
+                var pastId = ObjectId();
+                var now = new Date();
+                var nowId = ObjectId();
+                var change = false;
+                var viewModel = kendo.observable({
                         badObject: new BadModel({
                             id: pastId,
                             date: past
@@ -326,7 +329,7 @@
                         })
                     });
 
-                viewModel.bind('change', function(e) {
+                viewModel.bind('change', function (e) {
                     change = true;
                 });
 
@@ -335,8 +338,8 @@
                     date: now
                 });
 
-                //BadModel inherited from kendo.data.Model does not trigger a change event
-                //on the parent observable when changing values via accept method
+                // BadModel inherited from kendo.data.Model does not trigger a change event
+                // on the parent observable when changing values via accept method
                 expect(change).to.be.false;
 
                 viewModel.fixedObject.accept({
@@ -344,13 +347,13 @@
                     date: now
                 });
 
-                //FixedModel inherited from our kidoju.data.Model does trigger a change event
-                //on the parent observable when changing values via accept method
+                // FixedModel inherited from our kidoju.data.Model does trigger a change event
+                // on the parent observable when changing values via accept method
                 expect(change).to.be.true;
 
             });
 
-            xit('We expect to raise a change event on the parent ObservableArray on accept', function() {
+            xit('We expect to raise a change event on the parent ObservableArray on accept', function () {
 
                 // TODO + check if good idea.....
 
@@ -358,9 +361,9 @@
 
         });
 
-        describe('toJSON', function() {
+        describe('toJSON', function () {
 
-            it('it should serialize a basic object derived from a model and apply new serializable attribute', function() {
+            it('it should serialize a basic object derived from a model and apply new serializable attribute', function () {
 
                 var People = Model.define({
                     id: 'id',
@@ -390,9 +393,9 @@
                     }
                 });
 
-                var p = { name: 'jack', dob: new Date(), male: true, children: 3, check: '1234', dummy: 'dummy' },
-                    people = new People(p),
-                    json = $.extend({}, p);
+                var p = { name: 'jack', dob: new Date(), male: true, children: 3, check: '1234', dummy: 'dummy' };
+                var people = new People(p);
+                var json = $.extend({}, p);
 
                 // remove check which is not serializable
                 delete json.check;
@@ -406,33 +409,33 @@
 
             });
 
-            it('it should serialize a complex object derived from a model aggregating a submodel', function() {
+            it('it should serialize a complex object derived from a model aggregating a submodel', function () {
 
                 var Author = Model.define({
-                        id: 'userId',
-                        fields: {
-                            userId: { type: 'string', nullable: true },
-                            name: { type: 'string', serializable: false }
-                        }
-                    }),
-                    Book = Model.define({
-                        id: 'id',
-                        fields: {
-                            id: { type: 'string', nullable: true, editable: false },
-                            title: { type: 'string' },
-                            author: {
-                                defaultValue: null,
-                                parse: function(value) {
-                                    return value instanceof Author ? value : new Author(value);
-                                }
+                    id: 'userId',
+                    fields: {
+                        userId: { type: 'string', nullable: true },
+                        name: { type: 'string', serializable: false }
+                    }
+                });
+                var Book = Model.define({
+                    id: 'id',
+                    fields: {
+                        id: { type: 'string', nullable: true, editable: false },
+                        title: { type: 'string' },
+                        author: {
+                            defaultValue: null,
+                            parse: function (value) {
+                                return value instanceof Author ? value : new Author(value);
                             }
                         }
-                    }),
-                    b = { id: '1', title: 'Les Misérables', author: { userId: 'a', name: 'Victor Hugo' }};
+                    }
+                });
+                var b = { id: '1', title: 'Les Misérables', author: { userId: 'a', name: 'Victor Hugo' }};
 
 
-                var book = new Book(b),
-                    json = $.extend({}, b);
+                var book = new Book(b);
+                var json = $.extend({}, b);
 
                 // remove author.name which is not serializable
                 delete json.author.name;
@@ -441,7 +444,7 @@
 
             });
 
-            it('it should serialize a complex object derived from a model aggregating a dataSource of submodels', function() {
+            it('it should serialize a complex object derived from a model aggregating a dataSource of submodels', function () {
 
                 var Book = Model.define({
                         id: 'id',
@@ -449,36 +452,36 @@
                             id: { type: 'string', nullable: true, editable: false },
                             title: { type: 'string' }
                         }
-                    }),
-                    Author = Model.define({
+                    });
+                var Author = Model.define({
                         id: 'id',
                         fields: {
                             id: { type: 'string', nullable: true, editable: false },
                             name: { type: 'string' },
                             books: {
                                 defaultValue: new DataSource({ data: [], schema: { model: Book } }),
-                                parse: function(value) {
+                                parse: function (value) {
                                     return value instanceof DataSource ? value : new DataSource({ data: value, schema: { model: Book } });
                                 }
                             }
                         }
                     });
 
-                var a1 = { id: '1', name: 'Victo Hugo'},
-                    b1 = { id: 'a', title: 'Les Misérables' },
-                    b2 = { id: 'b', title: 'Le Comte de Monte-Cristo' },
-                    author1 = new Author(a1),
-                    author2 = new Author($.extend({}, a1, { books: [b1, b2] })),
-                    book1 = new Book(b1),
-                    book2 = new Book(b2);
+                var a1 = { id: '1', name: 'Victo Hugo' };
+                var b1 = { id: 'a', title: 'Les Misérables' };
+                var b2 = { id: 'b', title: 'Le Comte de Monte-Cristo' };
+                var author1 = new Author(a1);
+                var author2 = new Author($.extend({}, a1, { books: [b1, b2] }));
+                var book1 = new Book(b1);
+                var book2 = new Book(b2);
 
                 expect(author1).to.be.an.instanceof(Author);
                 expect(author1.books).to.be.an.instanceof(DataSource);
-                author1.books.read(); //IMPORTANT
+                author1.books.read(); // IMPORTANT
 
                 expect(author2).to.be.an.instanceof(Author);
                 expect(author2.books).to.be.an.instanceof(DataSource);
-                author2.books.read(); //IMPORTANT
+                author2.books.read(); // IMPORTANT
 
                 expect(author2.books.at(0)).to.be.an.instanceof(Book);
                 expect(author2.books.at(1)).to.be.an.instanceof(Book);
@@ -509,21 +512,21 @@
                             userId: { type: 'string', nullable: true },
                             name: { type: 'string' }
                         }
-                    }),
-                    Book = Model.define({
+                    });
+                var Book = Model.define({
                         id: 'id',
                         fields: {
                             id: { type: 'string', nullable: true },
                             title: { type: 'string' },
                             author: {
                                 defaultValue: null,
-                                parse: function(value) {
+                                parse: function (value) {
                                     return value instanceof Author ? value : new Author(value);
                                 }
                             }
                         }
-                    }),
-                    viewModel = kendo.observable({
+                    });
+                var viewModel = kendo.observable({
                         book: new Book({
                             id: '1',
                             title: 'Les Misérables',
@@ -533,53 +536,53 @@
                             }
                         })
                     });
-                    viewModel.bind('change', function(e) {
-                        expect(e).to.have.property('field', 'book.author.name');
-                        done();
-                    });
+                viewModel.bind('change', function (e) {
+                    expect(e).to.have.property('field', 'book.author.name');
+                    done();
+                });
                 // viewModel.book.set('title', 'Germinal');
                 viewModel.book.author.set('name', 'Emile Zola');
             });
 
             it('change event with subdatasource', function (done) {
                 var Book = Model.define({
-                        id: 'id',
-                        fields: {
-                            id: { type: 'string', nullable: true },
-                            title: { type: 'string' }
-                        }
-                    }),
-                    BookDataSource = DataSource.extend({
-                        init: function(options) {
-                            // Enforce the use of PageWithOptions items in the page collection data source
-                            DataSource.fn.init.call(this, $.extend(true, {}, options, { schema: { modelBase: Book, model: Book } }));
-                            // Let's use a slightly modified reader to leave data conversions to kidoju.data.Model._parseData
-                            this.reader = new kidoju.data.ModelCollectionDataReader(this.reader);
-                        }
-                    }),
-                    Author = Model.define({
-                        id: 'id',
-                        fields: {
-                            id: { type: 'string', nullable: true },
-                            name: { type: 'string' },
-                            books: {
-                                defaultValue: [],
-                                parse: function(value) {
-                                    return value instanceof BookDataSource ? value : new BookDataSource(value);
-                                }
+                    id: 'id',
+                    fields: {
+                        id: { type: 'string', nullable: true },
+                        title: { type: 'string' }
+                    }
+                });
+                var BookDataSource = DataSource.extend({
+                    init: function (options) {
+                        // Enforce the use of PageWithOptions items in the page collection data source
+                        DataSource.fn.init.call(this, $.extend(true, {}, options, { schema: { modelBase: Book, model: Book } }));
+                        // Let's use a slightly modified reader to leave data conversions to kidoju.data.Model._parseData
+                        this.reader = new kidoju.data.ModelCollectionDataReader(this.reader);
+                    }
+                });
+                var Author = Model.define({
+                    id: 'id',
+                    fields: {
+                        id: { type: 'string', nullable: true },
+                        name: { type: 'string' },
+                        books: {
+                            defaultValue: [],
+                            parse: function (value) {
+                                return value instanceof BookDataSource ? value : new BookDataSource(value);
                             }
                         }
-                    }),
-                    b = { title: 'Le Compte de Monte-Cristo'},
-                    viewModel = kendo.observable({
-                        author: new Author({
-                            id: ObjectId(),
-                            name: 'Victor Hugo',
-                            books: [ { id: ObjectId(), title: 'Les Misérables'} ]
-                        })
-                    });
-                viewModel.bind('change', function(e) {
-                    expect(e).to.have.property('action', 'add')
+                    }
+                });
+                var b = { title: 'Le Compte de Monte-Cristo' };
+                var viewModel = kendo.observable({
+                    author: new Author({
+                        id: ObjectId(),
+                        name: 'Victor Hugo',
+                        books: [{ id: ObjectId(), title: 'Les Misérables' }]
+                    })
+                });
+                viewModel.bind('change', function (e) {
+                    expect(e).to.have.property('action', 'add');
                     expect(e).to.have.property('field', 'author.books');
                     expect(e).to.have.property('items').that.is.an.instanceof(Array).with.property('length', 1);
                     expect(e.items[0]).to.have.property('title', b.title);
@@ -594,7 +597,7 @@
 
         });
 
-        describe('Data validation', function() {
+        describe('Data validation', function () {
 
             xit('validate', function (done) {
                 done();
@@ -631,20 +634,20 @@
 
             it('if initialized from an object without tool, it should throw', function () {
                 function testFn() {
-                    var component = new PageComponent({dummy: true});
+                    var component = new PageComponent({ dummy: true });
                 }
                 expect(testFn).to.throw(Error);
             });
 
             it('if initialized from an object with an invalid tool, it should throw', function () {
                 function testFn() {
-                    var component = new PageComponent({tool: 'dummy'});
+                    var component = new PageComponent({ tool: 'dummy' });
                 }
                 expect(testFn).to.throw(Error);
             });
 
             it('if initialized from a valid object, it should pass', function () {
-                var component = new PageComponent({tool: 'label'});
+                var component = new PageComponent({ tool: 'label' });
                 expect(component).to.be.an.instanceof(PageComponent);
             });
 
@@ -691,8 +694,8 @@
                             src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png',
                             alt: 'Google Logo'
                         }
-                    },
-                    component = new PageComponent(obj);
+                    };
+                var component = new PageComponent(obj);
 
             });
 
@@ -743,7 +746,7 @@
 
             it('if initialized from a stupid array (components have no valid tool), it should throw', function () {
                 function testFn() {
-                    var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({data: books});
+                    var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: books });
                     pageComponentCollectionDataSource.read();
                 }
                 expect(testFn).to.throw(Error);
@@ -761,12 +764,11 @@
                         }
                     }
                 });
-
                 var books = [
-                    {id: ObjectId(), title: 'Gone with the wind'},
-                    {id: ObjectId(), title: 'OK Coral'},
-                    {id: ObjectId(), title: 'The third man'},
-                    {id: ObjectId(), title: 'The guns of Navarone'}
+                    { id: ObjectId(), title: 'Gone with the wind' },
+                    { id: ObjectId(), title: 'OK Coral' },
+                    { id: ObjectId(), title: 'The third man' },
+                    { id: ObjectId(), title: 'The guns of Navarone' }
                 ];
                 function testFn() {
                     var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
@@ -899,9 +901,9 @@
             });
 
             it('If dataSource initialized from transport, it should only call create', function (done) {
-                var create = sinon.spy(),
-                    update = sinon.spy(),
-                    destroy = sinon.spy();
+                var create = sinon.spy();
+                var update = sinon.spy();
+                var destroy = sinon.spy();
                 var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
                     transport: {
                         read: function (options) {
@@ -925,7 +927,7 @@
                 expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length);
-                    pageComponentCollectionDataSource.add(new PageComponent({tool: 'label'}));
+                    pageComponentCollectionDataSource.add(new PageComponent({ tool: 'label' }));
                     expect(pageComponentCollectionDataSource.at(pageComponentCollectionArray.length).isNew()).to.be.true;
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length + 1);
                     pageComponentCollectionDataSource.sync()
@@ -955,9 +957,9 @@
             });
 
             it('If dataSource initialized from transport, it should only call update', function (done) {
-                var create = sinon.spy(),
-                    update = sinon.spy(),
-                    destroy = sinon.spy();
+                var create = sinon.spy();
+                var update = sinon.spy();
+                var destroy = sinon.spy();
                 var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
                     transport: {
                         read: function (options) {
@@ -1010,9 +1012,9 @@
             });
 
             it('If dataSource initialized from transport, it should only call destroy', function (done) {
-                var create = sinon.spy(),
-                    update = sinon.spy(),
-                    destroy = sinon.spy();
+                var create = sinon.spy();
+                var update = sinon.spy();
+                var destroy = sinon.spy();
                 var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
                     transport: {
                         read: function (options) {
@@ -1048,9 +1050,9 @@
 
         });
 
-        describe('toJSON', function() {
+        describe('toJSON', function () {
 
-            it('it should implement toJSON', function(done) {
+            it('it should implement toJSON', function (done) {
                 var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
                 expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
@@ -1104,7 +1106,7 @@
             });
 
             it('if initialized from an object without components, it should pass', function (done) {
-                var page = new Page({dummy: true});
+                var page = new Page({ dummy: true });
                 expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
                 expect(page).to.have.property('id').that.is.null;
                 expect(page).to.have.property('style', '');
@@ -1117,7 +1119,7 @@
             });
 
             it('if initialized from an object with components, it should pass', function (done) {
-                var page = new Page({components: [{tool: 'label'}, {tool: 'image'}]});
+                var page = new Page({ components: [{ tool: 'label' }, { tool: 'image' }] });
                 expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
                 expect(page).to.have.property('id').that.is.null;
                 expect(page).to.have.property('style', '');
@@ -1153,7 +1155,7 @@
 
             it('if initialized from an empty array, the count of pages should match', function (done) {
                 var pageCollectionDataSource1 = new PageCollectionDataSource();
-                var pageCollectionDataSource2 = new PageCollectionDataSource({data: []});
+                var pageCollectionDataSource2 = new PageCollectionDataSource({ data: [] });
                 expect(pageCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(pageCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource1.options.schema.model()).to.be.an.instanceof(Page);
@@ -1171,12 +1173,12 @@
 
             xit('if initialized from a stupid array, ...', function (done) {
                 var books = [
-                    {title: 'Gone with the wind'},
-                    {title: 'OK Coral'},
-                    {title: 'The third man'},
-                    {title: 'The guns of Navarone'}
+                    { title: 'Gone with the wind' },
+                    { title: 'OK Coral' },
+                    { title: 'The third man' },
+                    { title: 'The guns of Navarone' }
                 ];
-                var pageCollectionDataSource = new PageCollectionDataSource({data: books});
+                var pageCollectionDataSource = new PageCollectionDataSource({ data: books });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {                                     // TODO: any way to throw??????
@@ -1199,10 +1201,10 @@
                 });
 
                 var books = [
-                    {id: ObjectId(), title: 'Gone with the wind'},
-                    {id: ObjectId(), title: 'OK Coral'},
-                    {id: ObjectId(), title: 'The third man'},
-                    {id: ObjectId(), title: 'The guns of Navarone'}
+                    { id: ObjectId(), title: 'Gone with the wind' },
+                    { id: ObjectId(), title: 'OK Coral' },
+                    { id: ObjectId(), title: 'The third man' },
+                    { id: ObjectId(), title: 'The guns of Navarone' }
                 ];
                 function testFn() {
                     var pageCollectionDataSource = new PageCollectionDataSource({
@@ -1217,7 +1219,7 @@
             });
 
             it('if initialized from a proper array, the count of pages should match and dirty === false', function (done) {
-                var pageCollectionDataSource = new PageCollectionDataSource({data: pageCollectionArray});
+                var pageCollectionDataSource = new PageCollectionDataSource({ data: pageCollectionArray });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
@@ -1242,7 +1244,7 @@
                     });
                     return dfd.promise();
                 }
-                var pageCollectionDataSource = new PageCollectionDataSource({data: pageCollectionArray});
+                var pageCollectionDataSource = new PageCollectionDataSource({ data: pageCollectionArray });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
@@ -1257,7 +1259,7 @@
 
             it('if initialized from a kendo.data.DataSource, an exception should be raised', function () {
                 var fn = function () {
-                    var dataSource = PageCollectionDataSource.create(new kendo.data.DataSource({data: []}));
+                    var dataSource = PageCollectionDataSource.create(new kendo.data.DataSource({ data: [] }));
                 };
                 expect(fn).to.throw(Error);
             });
@@ -1358,9 +1360,9 @@
             });
 
             it('If dataSource initialized from transport, it should only call create', function (done) {
-                var create = sinon.spy(),
-                    update = sinon.spy(),
-                    destroy = sinon.spy();
+                var create = sinon.spy();
+                var update = sinon.spy();
+                var destroy = sinon.spy();
                 var pageCollectionDataSource = new PageCollectionDataSource({
                     transport: {
                         read: function (options) {
@@ -1414,9 +1416,9 @@
             });
 
             it('If dataSource initialized from transport, it should only call update', function (done) {
-                var create = sinon.spy(),
-                    update = sinon.spy(),
-                    destroy = sinon.spy();
+                var create = sinon.spy();
+                var update = sinon.spy();
+                var destroy = sinon.spy();
                 var pageCollectionDataSource = new PageCollectionDataSource({
                     transport: {
                         read: function (options) {
@@ -1457,7 +1459,7 @@
         describe('When removing a page', function () {
 
             it('If dataSource initialized from in-memory array, there should be one page less', function (done) {
-                var pageCollectionDataSource = new PageCollectionDataSource({data: pageCollectionArray});
+                var pageCollectionDataSource = new PageCollectionDataSource({ data: pageCollectionArray });
                 expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
@@ -1469,9 +1471,9 @@
             });
 
             it('If dataSource initialized from transport, it should only call destroy', function (done) {
-                var create = sinon.spy(),
-                    update = sinon.spy(),
-                    destroy = sinon.spy();
+                var create = sinon.spy();
+                var update = sinon.spy();
+                var destroy = sinon.spy();
                 var pageCollectionDataSource = new PageCollectionDataSource({
                     transport: {
                         read: function (options) {
@@ -1524,7 +1526,7 @@
             it('if initialized from an undefined, it should pass', function (done) {
                 // Unfortunately, this is a Kendo UI requirement
                 stream = new Stream();
-                //expect(stream).to.have.property('id');
+                // expect(stream).to.have.property('id');
                 expect(stream.pages.fetch).to.respond;
                 stream.pages.fetch().then(function () {
                     expect(stream.pages.total()).to.equal(0);
@@ -1533,8 +1535,8 @@
             });
 
             it('if initialized from an object without pages, it should pass', function (done) {
-                stream = new Stream({dummy: true});
-                //expect(stream).to.have.property('id');
+                stream = new Stream({ dummy: true });
+                // expect(stream).to.have.property('id');
                 expect(stream.pages).to.be.an.instanceof(PageCollectionDataSource);
                 expect(stream.dummay).to.be.undefined;
                 expect(stream.pages.fetch).to.respond;
@@ -1545,11 +1547,11 @@
             });
 
             it('if initialized from an object with pages and components, it should pass', function (done) {
-                stream = new Stream({pages: [
-                    { components : [{tool: 'label'}, {tool: 'image'}] },
-                    { components : [{tool: 'textbox'}, {tool: 'button'}] }
-                ]});
-                //expect(stream).to.have.property('id');
+                stream = new Stream({ pages: [
+                    { components: [{ tool: 'label' }, { tool: 'image' }] },
+                    { components: [{ tool: 'textbox' }, { tool: 'button' }] }
+                ] });
+                // expect(stream).to.have.property('id');
                 expect(stream.pages).to.be.an.instanceof(PageCollectionDataSource);
                 expect(stream.pages.fetch).to.respond;
                 stream.pages.fetch().then(function () {
@@ -1572,33 +1574,33 @@
 
             var stream;
 
-            it('stream.toJSON should return all pages and components', function(done) {
+            it('stream.toJSON should return all pages and components', function (done) {
                 var s = {
-                        pages: [
-                            {
-                                style: 'background-colour: lightblue;',
-                                components: [
-                                    { tool: 'label', attributes: { style: 'color: red;', text: 'Label1'} },
-                                    { tool: 'image', attributes: { alt: 'Label1', src: 'photo1.jpg' } }
-                                ]
-                            },
-                            {
-                                style: 'background-colour: lightgreen;',
-                                components: [
-                                    { tool: 'label', attributes: { style: 'color: blue;', text: 'Label2'} },
-                                    { tool: 'image', attributes: { alt: 'Label2', src: 'photo2.jpg' } }
-                                ]
-                            }
-                        ]
-                    },
-                    defaults = new PageComponent().defaults,
-                    d = {
-                        pages: [
-                            { id: null, components: [$.extend({}, defaults), $.extend({}, defaults)] },
-                            { id: null, components: [$.extend({}, defaults), $.extend({}, defaults)] }
-                        ]
-                    },
-                    stream = new Stream(s);
+                    pages: [
+                        {
+                            style: 'background-colour: lightblue;',
+                            components: [
+                                { tool: 'label', attributes: { style: 'color: red;', text: 'Label1' } },
+                                { tool: 'image', attributes: { alt: 'Label1', src: 'photo1.jpg' } }
+                            ]
+                        },
+                        {
+                            style: 'background-colour: lightgreen;',
+                            components: [
+                                { tool: 'label', attributes: { style: 'color: blue;', text: 'Label2' } },
+                                { tool: 'image', attributes: { alt: 'Label2', src: 'photo2.jpg' } }
+                            ]
+                        }
+                    ]
+                };
+                var defaults = new PageComponent().defaults;
+                var d = {
+                    pages: [
+                        { id: null, components: [$.extend({}, defaults), $.extend({}, defaults)] },
+                        { id: null, components: [$.extend({}, defaults), $.extend({}, defaults)] }
+                    ]
+                };
+                var stream = new Stream(s);
 
                 stream.pages.read();
                 for (var i = 0; i < stream.pages.total(); i++) {
@@ -1633,7 +1635,9 @@
 
         // See http://docs.telerik.com/kendo-ui/framework/hierarchicaldatasource/overview#binding-a-hierarchicaldatasource-to-remote-data-with-multiple-service-end-points
 
-        var stream, pages, components;
+        var stream;
+        var pages;
+        var components;
 
         describe('Syncing at various levels of the hierarchy', function () {
 
@@ -1645,7 +1649,7 @@
                                 read: function (options) {
                                     pages.read(options);
                                     // window.console.log('reading pages...');
-                                    options.success([{id: ObjectId()}]);
+                                    options.success([{ id: ObjectId() }]);
                                 },
                                 create: function (options) {
                                     pages.create(options);
@@ -1671,7 +1675,7 @@
                                             read: function (options) {
                                                 components.read(options);
                                                 // window.console.log('reading components...');
-                                                options.success([{id: ObjectId(), tool: 'label'}]);
+                                                options.success([{ id: ObjectId(), tool: 'label' }]);
                                             },
                                             create: function (options) {
                                                 components.create(options);
@@ -1734,16 +1738,16 @@
                 expect(stream.pages.at(0).components.total()).to.equal(1);
                 stream.pages.add({});
                 expect(stream.pages.total()).to.equal(2);
-                stream.pages.at(1).components.add({tool: 'label'});
-                stream.pages.at(1).components.add({tool: 'textbox'});
+                stream.pages.at(1).components.add({ tool: 'label' });
+                stream.pages.at(1).components.add({ tool: 'textbox' });
                 expect(stream.pages.at(1).components.total()).to.equal(2);
                 stream.pages.add({});
                 expect(stream.pages.total()).to.equal(3);
-                stream.pages.at(2).components.add({tool: 'label'});
-                stream.pages.at(2).components.add({tool: 'textbox'});
+                stream.pages.at(2).components.add({ tool: 'label' });
+                stream.pages.at(2).components.add({ tool: 'textbox' });
                 expect(stream.pages.at(2).components.total()).to.equal(2);
                 stream.pages.sync()
-                    .done(function() {
+                    .done(function () {
                         expect(pages.create).to.have.callCount(2);
                         expect(stream.pages.total()).to.equal(3);
                         expect(stream.pages.at(0).components.total()).to.equal(1);
@@ -1782,7 +1786,7 @@
                 expect(stream.pages.at(1).components.total()).to.equal(2);
                 expect(stream.pages.at(2).components.total()).to.equal(2);
                 stream.pages.sync()
-                    .done(function() {
+                    .done(function () {
                         expect(pages.update).to.have.callCount(2);
                         expect(stream.pages.total()).to.equal(3);
                         expect(stream.pages.at(0).components.total()).to.equal(1);
@@ -1818,7 +1822,7 @@
                 expect(stream.pages.at(0).components.total()).to.equal(1);
                 expect(stream.pages.at(1).components.total()).to.equal(2);
                 stream.pages.sync()
-                    .done(function() {
+                    .done(function () {
                         expect(pages.destroy).to.have.been.calledOnce;
                         expect(stream.pages.total()).to.equal(2);
                         expect(stream.pages.at(0).components.total()).to.equal(1);
@@ -1850,7 +1854,7 @@
                                 read: function (options) {
                                     pages.read(options);
                                     // window.console.log('reading pages...');
-                                    options.success([{id: ObjectId()}]);
+                                    options.success([{ id: ObjectId() }]);
                                 },
                                 create: function (options) {
                                     pages.create(options);
@@ -1881,7 +1885,7 @@
                                             read: function (options) {
                                                 components.read(options);
                                                 // window.console.log('reading components...');
-                                                options.success([{id: ObjectId(), tool: 'label'}]);
+                                                options.success([{ id: ObjectId(), tool: 'label' }]);
                                             },
                                             create: function (options) {
                                                 components.create(options);
@@ -1949,16 +1953,16 @@
                 expect(stream.pages.at(0).components.total()).to.equal(1);
                 stream.pages.add({});
                 expect(stream.pages.total()).to.equal(2);
-                stream.pages.at(1).components.add({tool: 'label'});
-                stream.pages.at(1).components.add({tool: 'textbox'});
+                stream.pages.at(1).components.add({ tool: 'label' });
+                stream.pages.at(1).components.add({ tool: 'textbox' });
                 expect(stream.pages.at(1).components.total()).to.equal(2);
                 stream.pages.add({});
                 expect(stream.pages.total()).to.equal(3);
-                stream.pages.at(2).components.add({tool: 'label'});
-                stream.pages.at(2).components.add({tool: 'textbox'});
+                stream.pages.at(2).components.add({ tool: 'label' });
+                stream.pages.at(2).components.add({ tool: 'textbox' });
                 expect(stream.pages.at(2).components.total()).to.equal(2);
                 stream.pages.sync()
-                    .done(function() {
+                    .done(function () {
                         expect(pages.create).to.have.been.calledOnce;
                         expect(stream.pages.total()).to.equal(3);
                         expect(stream.pages.at(0).components.total()).to.equal(1);
@@ -2035,7 +2039,7 @@
                 // page 0
                 stream.pages.at(0).set('style', 'border 1px #0000FF;');
                 stream.pages.at(0).components.at(0).set('rotate', 45);
-                stream.pages.at(0).components.add({tool: 'button'});
+                stream.pages.at(0).components.add({ tool: 'button' });
                 stream.pages.at(0).components.at(1).set('top', 120);
                 stream.pages.at(0).components.at(1).set('left', 120);
                 // page 1
@@ -2043,7 +2047,7 @@
                 // page 2
                 stream.pages.at(1).set('style', 'padding: 10px');
                 stream.pages.at(1).components.remove(stream.pages.at(1).components.at(0));
-                stream.pages.at(1).components.add({tool: 'textbox'});
+                stream.pages.at(1).components.add({ tool: 'textbox' });
                 stream.pages.at(0).components.at(0).set('rotate', 45);
                 // TODO
             });
@@ -2058,38 +2062,38 @@
 
     describe('Test synchronization with localStorage', function () {
 
-        var storageKey = 'stream',
-            stream,
-            original = {
-                pages: [
-                    {
-                        id: ObjectId(),
-                        style: 'background-color: #' + Math.random().toString(16).substr(2,6) + ';',
-                        components: [
-                            { id: ObjectId(), tool: 'label', attributes: { text: 'What is this logo?', style: 'font-family: Georgia, serif;' }, properties: {} },
-                            { id: ObjectId(), tool: 'image', attributes: { src: 'http://www.google.com/logo.png', alt: 'Google' }, properties: {} },
-                            { id: ObjectId(), tool: 'textbox', attributes: { style: 'border: solid 1px #AAAAAA;' }, properties: { name: 'text1', validation: 'return true;', success: 1, failure: 0, omit: 0 } }
-                        ]
-                    },
-                    {
-                        id: ObjectId(),
-                        style: 'background-color: #' + Math.random().toString(16).substr(2,6) + ';',
-                        components: [
-                            { id: ObjectId(), tool: 'label', attributes: { text: 'What is this logo?', style: 'font-family: Georgia, serif;' }, properties: {} },
-                            { id: ObjectId(), tool: 'image', attributes: { src: 'http://www.apple.com/logo.png', alt: 'Apple' }, properties: {} },
-                            { id: ObjectId(), tool: 'textbox', attributes: { style: 'border: solid 1px #AAAAAA;' }, properties: { name: 'text2', validation: 'return true;', success: 1, failure: 0, omit: 0 } }
-                        ]
-                    }
-                ]
-            };
+        var storageKey = 'stream';
+        var stream;
+        var original = {
+            pages: [
+                {
+                    id: ObjectId(),
+                    style: 'background-color: #' + Math.random().toString(16).substr(2, 6) + ';',
+                    components: [
+                        { id: ObjectId(), tool: 'label', attributes: { text: 'What is this logo?', style: 'font-family: Georgia, serif;' }, properties: {} },
+                        { id: ObjectId(), tool: 'image', attributes: { src: 'http://www.google.com/logo.png', alt: 'Google' }, properties: {} },
+                        { id: ObjectId(), tool: 'textbox', attributes: { style: 'border: solid 1px #AAAAAA;' }, properties: { name: 'text1', validation: 'return true;', success: 1, failure: 0, omit: 0 } }
+                    ]
+                },
+                {
+                    id: ObjectId(),
+                    style: 'background-color: #' + Math.random().toString(16).substr(2, 6) + ';',
+                    components: [
+                        { id: ObjectId(), tool: 'label', attributes: { text: 'What is this logo?', style: 'font-family: Georgia, serif;' }, properties: {} },
+                        { id: ObjectId(), tool: 'image', attributes: { src: 'http://www.apple.com/logo.png', alt: 'Apple' }, properties: {} },
+                        { id: ObjectId(), tool: 'textbox', attributes: { style: 'border: solid 1px #AAAAAA;' }, properties: { name: 'text2', validation: 'return true;', success: 1, failure: 0, omit: 0 } }
+                    ]
+                }
+            ]
+        };
 
         describe('Load and save hierarchy as a whole', function () {
 
             before(function () {
                 var SuperStream = Stream.define({
-                    _fetchAll: function() {
-                        var that = this,
-                            dfd = $.Deferred();
+                    _fetchAll: function () {
+                        var that = this;
+                        var dfd = $.Deferred();
                         that.pages.fetch()
                             .done(function () {
                                 var promises = [];
@@ -2104,14 +2108,14 @@
                         return dfd.promise();
                     },
                     load: function () {
-                        var that = this,
-                            stream = $.parseJSON(localStorage.getItem(storageKey)) || {};
+                        var that = this;
+                        var stream = $.parseJSON(localStorage.getItem(storageKey)) || {};
                         that.accept(stream);
                         return that._fetchAll();
                     },
                     save: function () {
-                        var that = this,
-                            data = that.toJSON(true);
+                        var that = this;
+                        var data = that.toJSON(true);
                         $.each(data.pages, function (pageIdx, page) {
                             page.id = page.id || ObjectId();
                             $.each(page.components, function (componentIdx, component) {
@@ -2130,9 +2134,9 @@
 
             it('Reading', function (done) {
                 stream.load().always(function () {
-                    //expect(stream.isNew()).to.be.false;
+                    // expect(stream.isNew()).to.be.false;
                     expect(stream.dirty).to.be.false;
-                    //expect(stream).to.have.property('id', original.id);
+                    // expect(stream).to.have.property('id', original.id);
                     expect(stream).to.have.property('pages').that.is.an.instanceof(PageCollectionDataSource);
                     expect(stream.pages.total()).to.equal(2);
                     for (var i = 0; i < stream.pages.total(); i++) {
@@ -2165,10 +2169,10 @@
             it('Creating', function (done) {
                 var index = stream.pages.total();
                 stream.pages.add({});
-                stream.pages.at(index).components.add({tool: 'label'});
+                stream.pages.at(index).components.add({ tool: 'label' });
                 stream.save().always(function () {
                     var update = $.parseJSON(localStorage.getItem(storageKey));
-                    //expect(update).to.have.property('id', stream.id);
+                    // expect(update).to.have.property('id', stream.id);
                     expect(update).to.have.property('pages').that.is.an.instanceof(Array).with.property('length', index + 1);
                     expect(update.pages[index]).to.have.property('id', stream.pages.at(index).id);
                     expect(update.pages[index]).to.have.property('components').that.is.an.instanceof(Array).with.property('length', stream.pages.at(index).components.total());
@@ -2179,13 +2183,13 @@
 
             it('Updating', function (done) {
                 var index = stream.pages.total() - 1;
-                stream.pages.at(index).set('style', 'background-color: #' +  Math.random().toString(16).substr(2,6) + ';');
+                stream.pages.at(index).set('style', 'background-color: #' +  Math.random().toString(16).substr(2, 6) + ';');
                 stream.pages.at(index).components.at(0).set('top', 100);
                 stream.pages.at(index).components.at(0).set('left', 100);
                 stream.pages.at(index).components.at(0).set('rotate', 45);
                 stream.save().always(function () {
                     var update = $.parseJSON(localStorage.getItem(storageKey));
-                    //expect(update).to.have.property('id', stream.id);
+                    // expect(update).to.have.property('id', stream.id);
                     expect(update).to.have.property('pages').that.is.an.instanceof(Array).with.property('length', index + 1);
                     expect(update.pages[index]).to.have.property('id', stream.pages.at(index).id);
                     expect(update.pages[index]).to.have.property('style', stream.pages.at(index).style);
@@ -2201,7 +2205,7 @@
                 stream.pages.remove(stream.pages.at(index));
                 stream.save().always(function () {
                     var update = $.parseJSON(localStorage.getItem(storageKey));
-                    //expect(update).to.have.property('id', stream.id);
+                    // expect(update).to.have.property('id', stream.id);
                     expect(update).to.have.property('pages').that.is.an.instanceof(Array).with.property('length', index);
                     done();
                 });
@@ -2230,7 +2234,7 @@
             expect(stream.pages.total()).to.equal(0);
             stream.append({});
             expect(stream.pages.total()).to.equal(1);
-            stream.pages.at(0).append({tool: 'label'});
+            stream.pages.at(0).append({ tool: 'label' });
             expect(stream.pages.at(0).components.total()).to.equal(1);
         });
 
@@ -2244,7 +2248,7 @@
             expect(stream.pages.at(0).components.total()).to.equal(0);
             stream.pages.at(0).components.insert(0);
             expect(stream.pages.at(0).components.total()).to.equal(0);
-            stream.pages.at(0).components.insert(0, {tool: 'label'});
+            stream.pages.at(0).components.insert(0, { tool: 'label' });
             expect(stream.pages.at(0).components.total()).to.equal(1);
         });
 
@@ -2252,23 +2256,23 @@
         it('page.stream, component.page, pages.parent & components.parent', function (done) {
 
             var s = {
-                    pages: [
-                        {
-                            id: ObjectId(),
-                            style: 'background-color: #' + Math.random().toString(16).substr(2, 6) + ';',
-                            components: [
-                                {
-                                    id: ObjectId(),
-                                    tool: 'label',
-                                    attributes: { text: 'What is this logo?', style: 'font-family: Georgia, serif;' },
-                                    properties: {}
-                                }
-                            ]
-                        }
-                    ]
-                },
-                stream = new Stream(s);
-            //expect(stream).to.have.property('id', s.id);
+                pages: [
+                    {
+                        id: ObjectId(),
+                        style: 'background-color: #' + Math.random().toString(16).substr(2, 6) + ';',
+                        components: [
+                            {
+                                id: ObjectId(),
+                                tool: 'label',
+                                attributes: { text: 'What is this logo?', style: 'font-family: Georgia, serif;' },
+                                properties: {}
+                            }
+                        ]
+                    }
+                ]
+            };
+            var stream = new Stream(s);
+            // expect(stream).to.have.property('id', s.id);
             expect(stream).to.have.property('pages').that.is.an.instanceof(PageCollectionDataSource);
             stream.pages.fetch().always(function () {
                 expect(stream.pages.total()).to.equal(1);

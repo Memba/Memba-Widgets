@@ -18,14 +18,14 @@ module.exports = function (grunt) {
         },
         jscs: {
             // files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
-            files: ['gruntfile.js'],
+            files: ['test/browsers/kidoju.data.test.js'],
             options: {
                 config: '.jscsrc'
             }
         },
         jshint: {
             // files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
-            files: ['gruntfile.js'],
+            files: ['test/browsers/kidoju.data.test.js'],
             options: {
                 // options here to override JSHint defaults
                 jshintrc: '.jshintrc'

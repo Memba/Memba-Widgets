@@ -20,15 +20,14 @@
      */
 
 
-    var expect = window.chai.expect,
-        sinon = window.sinon,
-        kendo = window.kendo,
-        ui = kendo.ui,
-        StyleEditor = ui.StyleEditor,
-        FIXTURES = '#fixtures',
-        STYLEEDITOR1 = '<div id="styleeditor1"></div>',
-        STYLEEDITOR2 = '<div id="styleeditor2" data-role="styleeditor"></div>';
-
+    var expect = window.chai.expect;
+    var sinon = window.sinon;
+    var kendo = window.kendo;
+    var ui = kendo.ui;
+    var StyleEditor = ui.StyleEditor;
+    var FIXTURES = '#fixtures';
+    var STYLEEDITOR1 = '<div id="styleeditor1"></div>';
+    var STYLEEDITOR2 = '<div id="styleeditor2" data-role="styleeditor"></div>';
 
     describe('kidoju.widgets.styleeditor', function () {
 
@@ -52,8 +51,8 @@
         describe('Initialization', function () {
 
             it('from code', function () {
-                var element = $(STYLEEDITOR1).appendTo(FIXTURES),
-                    styleEditor = element.kendoStyleEditor({}).data('kendoStyleEditor');
+                var element = $(STYLEEDITOR1).appendTo(FIXTURES);
+                var styleEditor = element.kendoStyleEditor({}).data('kendoStyleEditor');
                 expect(styleEditor).to.be.an.instanceof(StyleEditor);
                 expect(element.hasClass('k-widget')).to.be.true;
                 expect(element.hasClass('kj-styleeditor')).to.be.true;
@@ -63,8 +62,8 @@
             });
 
             it('from code with options', function () {
-                var element = $(STYLEEDITOR1).appendTo(FIXTURES),
-                    styleEditor = element.kendoStyleEditor({}).data('kendoStyleEditor');
+                var element = $(STYLEEDITOR1).appendTo(FIXTURES);
+                var styleEditor = element.kendoStyleEditor({}).data('kendoStyleEditor');
                 expect(styleEditor).to.be.an.instanceof(StyleEditor);
                 expect(element.hasClass('k-widget')).to.be.true;
                 expect(element.hasClass('kj-styleeditor')).to.be.true;
@@ -89,7 +88,8 @@
 
         describe('Methods', function () {
 
-            var element, styleEditor;
+            var element;
+            var styleEditor;
 
             beforeEach(function () {
                 element = $(STYLEEDITOR1).appendTo(FIXTURES);
@@ -122,7 +122,8 @@
 
         describe('MVVM', function () {
 
-            var element, styleEditor;
+            var element;
+            var styleEditor;
 
             beforeEach(function () {
                 element = $(STYLEEDITOR1).appendTo(FIXTURES);
@@ -137,13 +138,14 @@
 
         describe('UI Interactions', function () {
 
-            //TODO
+            // TODO
 
         });
 
         describe('Events', function () {
 
-            var element, styleEditor;
+            var element;
+            var styleEditor;
 
             beforeEach(function () {
                 element = $(STYLEEDITOR1).appendTo(FIXTURES);

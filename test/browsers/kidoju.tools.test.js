@@ -9,13 +9,13 @@
 
     'use strict';
 
-    var expect = window.chai.expect,
-        kendo = window.kendo,
-        kidoju = window.kidoju,
-        PageComponent = kidoju.data.PageComponent,
-        Tool = kidoju.Tool,
-        tools = kidoju.tools,
-        adapters = kidoju.adapters;
+    var expect = window.chai.expect;
+    var kendo = window.kendo;
+    var kidoju = window.kidoju;
+    var PageComponent = kidoju.data.PageComponent;
+    var Tool = kidoju.Tool;
+    var tools = kidoju.tools;
+    var adapters = kidoju.adapters;
 
 
     describe('tools', function () {
@@ -40,8 +40,8 @@
         describe('Registering a new tool', function () {
 
             it('it should discard a tool that is not a class', function () {
-                var keys = Object.keys(tools),
-                    obj = {id:'dummy' };
+                var keys = Object.keys(tools);
+                var obj = { id:'dummy' };
                 tools.register(obj);
                 expect(Object.keys(tools)).to.eql(keys);
             });
@@ -57,15 +57,15 @@
             });
 
             it('it should discard a tool without id', function () {
-                var ToolWithoutId = Tool.extend({}),
-                    keys = Object.keys(tools);
+                var ToolWithoutId = Tool.extend({});
+                var keys = Object.keys(tools);
                 tools.register(ToolWithoutId);
                 expect(Object.keys(tools)).to.eql(keys);
             });
 
             it('it should raise an error when registering a tool named `active`', function () {
                 var fn = function () {
-                    var Active = Tool.extend({id: 'active' });
+                    var Active = Tool.extend({ id: 'active' });
                     tools.register(Active);
                 };
                 expect(fn).to.throw(Error);
@@ -73,15 +73,15 @@
 
             it('it should raise an error when registering a tool named `register`', function () {
                 var fn = function () {
-                    var Register = Tool.extend({id: 'register' });
+                    var Register = Tool.extend({ id: 'register' });
                     tools.register(Register);
                 };
                 expect(fn).to.throw(Error);
             });
 
             it('it should discard a tool with an existing id', function () {
-                var ExistingTool = Tool.extend({id: 'image', add: function (a, b) { return a + b; }}),
-                    keys = Object.keys(tools);
+                var ExistingTool = Tool.extend({ id: 'image', add: function (a, b) { return a + b; }});
+                var keys = Object.keys(tools);
                 tools.register(ExistingTool);
                 expect(Object.keys(tools)).to.eql(keys);
                 expect(tools).to.have.property('image').that.is.an.instanceof(Tool);
@@ -89,8 +89,8 @@
             });
 
             it('it should accept a tool with a new id', function () {
-                var CalculatorTool = Tool.extend({id: 'calculator', add: function (a, b) { return a + b; }}),
-                    keys = Object.keys(tools);
+                var CalculatorTool = Tool.extend({ id: 'calculator', add: function (a, b) { return a + b; }});
+                var keys = Object.keys(tools);
                 tools.register(CalculatorTool);
                 expect(Object.keys(tools)).to.not.eql(keys);
                 expect(tools).to.have.property('calculator').that.is.an.instanceof(CalculatorTool);
@@ -104,37 +104,37 @@
         describe('Attribute Adapters', function () {
 
             it('Validate StringAdapter', function () {
-                var adapter = new adapters.StringAdapter(),
-                    field = adapter.getField(),
-                    row = adapter.getRow('test');
+                var adapter = new adapters.StringAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
             });
 
             it('Validate NumberAdapter', function () {
-                var adapter = new adapters.NumberAdapter(),
-                    field = adapter.getField(),
-                    row = adapter.getRow('test');
+                var adapter = new adapters.NumberAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
             });
 
             it('Validate BooleanAdapter', function () {
-                var adapter = new adapters.BooleanAdapter(),
-                    field = adapter.getField(),
-                    row = adapter.getRow('test');
+                var adapter = new adapters.BooleanAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
             });
 
             it('Validate DateAdapter', function () {
-                var adapter = new adapters.DateAdapter(),
-                    field = adapter.getField(),
-                    row = adapter.getRow('test');
+                var adapter = new adapters.DateAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
             });
 
             it('Validate StyleAdapter', function () {
-                var adapter = new adapters.StyleAdapter(),
-                    field = adapter.getField(),
-                    row = adapter.getRow('test');
+                var adapter = new adapters.StyleAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
             });
 
@@ -173,9 +173,9 @@
             });
 
             it('Check getHtml', function () {
-                var label = tools.label,
-                    component = new PageComponent({tool: 'label' }),
-                    html;
+                var label = tools.label;
+                var component = new PageComponent({ tool: 'label' });
+                var html;
 
                 // If we do not submit a page component
                 html = label.getHtml({});
@@ -183,7 +183,7 @@
 
                 // If we submit a valid page component
                 html = label.getHtml(component);
-                expect(html).to.match(/^<span/);
+                expect(html).to.match(/^<div/);
 
             });
 
@@ -205,9 +205,9 @@
             });
 
             it('Check getHtml', function () {
-                var image = tools.image,
-                    component = new PageComponent({tool: 'image' }),
-                    html;
+                var image = tools.image;
+                var component = new PageComponent({ tool: 'image' });
+                var html;
 
                 // If we do not submit a page component
                 html = image.getHtml({});
@@ -217,6 +217,7 @@
                 html = image.getHtml(component);
                 expect(html).to.match(/^<img/);
             });
+
         });
 
         describe('Textbox', function () {
@@ -236,7 +237,7 @@
 
             it('Check getHtml', function () {
                 var textbox = tools.textbox;
-                var component = new PageComponent({tool: 'textbox' });
+                var component = new PageComponent({ tool: 'textbox' });
                 var html;
 
                 // If we do not submit a page component
@@ -247,9 +248,10 @@
                 html = textbox.getHtml(component);
                 expect(html).to.match(/^<input/);
             });
+
         });
 
-        describe('Button', function () {
+        xdescribe('Button', function () {
 
             it('Validate button properties', function () {
                 var button = tools.button;
@@ -265,9 +267,9 @@
             });
 
             it('Check getHtml', function () {
-                var button = tools.button,
-                    component = new PageComponent({tool: 'button' }),
-                    html;
+                var button = tools.button;
+                var component = new PageComponent({ tool: 'button' });
+                var html;
 
                 // If we do not submit a page component
                 html = button.getHtml({});
@@ -277,6 +279,73 @@
                 html = button.getHtml(component);
                 expect(html).to.match(/^<a/);
             });
+
+        });
+
+        describe('Checkbox', function () {
+
+            it('Validate checkbox properties', function () {
+                var checkbox = tools.checkbox;
+                expect(checkbox.id).to.equal('checkbox');
+                expect(checkbox.icon).to.equal('checkbox');
+                expect(checkbox.cursor).to.equal('crosshair');
+                expect(checkbox.height).to.equal(60);
+                expect(checkbox.width).to.equal(500);
+                expect(checkbox.getHtml).to.respond;
+                expect(checkbox.onMove).to.be.undefined;
+                expect(checkbox.onResize).to.respond;
+                expect(checkbox.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtml', function () {
+                var checkbox = tools.checkbox;
+                var component = new PageComponent({ tool: 'checkbox' });
+                var html;
+
+                // If we do not submit a page component
+                html = checkbox.getHtml({});
+                expect(html).to.be.undefined;
+
+                // If we submit a valid page component
+                html = checkbox.getHtml(component);
+                expect(html).to.match(/^<div><input/);
+
+                // TODO: use jQuery for refined tests
+            });
+
+        });
+
+        describe('Quiz', function () {
+
+            it('Validate quiz properties', function () {
+                var quiz = tools.quiz;
+                expect(quiz.id).to.equal('quiz');
+                expect(quiz.icon).to.equal('radio_button_group');
+                expect(quiz.cursor).to.equal('crosshair');
+                expect(quiz.height).to.equal(300);
+                expect(quiz.width).to.equal(500);
+                expect(quiz.getHtml).to.respond;
+                expect(quiz.onMove).to.be.undefined;
+                expect(quiz.onResize).to.respond;
+                expect(quiz.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtml', function () {
+                var quiz = tools.quiz;
+                var component = new PageComponent({ tool: 'quiz' });
+                var html;
+
+                // If we do not submit a page component
+                html = quiz.getHtml({});
+                expect(html).to.be.undefined;
+
+                // If we submit a valid page component
+                html = quiz.getHtml(component);
+                expect(html).to.match(/^<div/);
+
+                // TODO: use jQuery for refined tests
+            });
+
         });
 
     });

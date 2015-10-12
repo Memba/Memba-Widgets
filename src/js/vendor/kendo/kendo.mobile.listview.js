@@ -2,7 +2,7 @@
     define([ "./kendo.data", "./kendo.userevents", "./kendo.mobile.button" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "mobile.listview",
     name: "ListView",
     category: "mobile",
@@ -715,10 +715,13 @@ var __meta__ = {
                 groupedMode = groups && groups[0],
                 item;
 
-            if (action === "itemchange" && !listView._hasBindingTarget()) {
-                item = listView.findByDataItem(dataItems)[0];
-                if (item) {
-                    listView.setDataItem(item, dataItems[0]);
+
+            if (action === "itemchange") {
+                if(!listView._hasBindingTarget()) {
+                    item = listView.findByDataItem(dataItems)[0];
+                    if (item) {
+                        listView.setDataItem(item, dataItems[0]);
+                    }
                 }
                 return;
             }
@@ -1087,6 +1090,7 @@ var __meta__ = {
             this.options.type = "flat";
             this._angularItems("cleanup");
             this.element.empty();
+            this._userEvents.cancel();
             this._style();
             return this.insertAt(dataItems, 0);
         },
@@ -1129,6 +1133,7 @@ var __meta__ = {
                 replaceItem = function(items) {
                     var newItem = $(items[0]);
                     kendo.destroy(item);
+                    listView.angular("cleanup", function(){ return { elements: [ $(item) ] }; });
                     $(item).replaceWith(newItem);
                     listView.trigger(ITEM_CHANGE, { item: newItem, data: dataItem, ns: ui });
                 };
@@ -1143,7 +1148,9 @@ var __meta__ = {
         _renderItems: function(dataItems, callback) {
             var items = $(kendo.render(this.template, dataItems));
 
-            this.angular("compile", function(){
+            callback(items);
+
+            this.angular("compile", function() {
                 return {
                     elements: items,
                     data: dataItems.map(function(data){
@@ -1152,7 +1159,6 @@ var __meta__ = {
                 };
             });
 
-            callback(items);
             mobile.init(items);
             this._enhanceItems(items);
 

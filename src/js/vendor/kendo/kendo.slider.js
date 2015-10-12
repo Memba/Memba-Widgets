@@ -2,7 +2,7 @@
     define([ "./kendo.draganddrop" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "slider",
     name: "Slider",
     category: "web",
@@ -66,6 +66,10 @@ var __meta__ = {
 
             options.tooltip.format = options.tooltip.enabled ? options.tooltip.format || "{0}" : "{0}";
 
+            if (options.smallStep <= 0) {
+                throw new Error('Kendo UI Slider smallStep must be a positive number.');
+            }
+
             that._createHtml();
             that.wrapper = that.element.closest(".k-slider");
             that._trackDiv = that.wrapper.find(TRACK_SELECTOR);
@@ -120,6 +124,10 @@ var __meta__ = {
             this._maxSelection = this._trackDiv[this._sizeFn]();
             this._sliderItemsInit();
             this._refresh();
+
+            if (this.options.enabled) {
+                this.enable(true);
+            }
         },
 
         _sliderItemsInit: function() {
@@ -657,7 +665,7 @@ var __meta__ = {
 
             dragHandle = that.wrapper.find(DRAG_HANDLE);
 
-            new Slider.Selection(dragHandle, that, options);
+            this._selection = new Slider.Selection(dragHandle, that, options);
             that._drag = new Slider.Drag(dragHandle, "", that, options);
         },
 
@@ -1337,7 +1345,7 @@ var __meta__ = {
 
             var dragHandles = that.wrapper.find(DRAG_HANDLE);
 
-            new RangeSlider.Selection(dragHandles, that, options);
+            this._selection = new RangeSlider.Selection(dragHandles, that, options);
             that._firstHandleDrag = new Slider.Drag(dragHandles.eq(0), "firstHandle", that, options);
             that._lastHandleDrag = new Slider.Drag(dragHandles.eq(1), "lastHandle" , that, options);
         },

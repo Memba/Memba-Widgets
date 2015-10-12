@@ -2,7 +2,7 @@
     define([ "./kendo.core" ], f);
 })(function() {
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "angular",
     name: "AngularJS Directives",
     category: "framework",
@@ -14,7 +14,8 @@ var __meta__ = {
 (function ($, angular, undefined) {
     "use strict";
 
-    if (!angular) {
+    // Angular2 exposes a global angular object, but it does not have an injector...
+    if (!angular || !angular.injector) {
         return;
     }
 
@@ -87,17 +88,12 @@ var __meta__ = {
         style   : true
     };
 
-    function addOption(scope, options, name, value) {
-        options[name] = angular.copy(scope.$eval(value));
-        if (options[name] === undefined && value.match(/^\w*$/)) {
-            $log.warn(name + ' attribute resolved to undefined. Maybe you meant to use a string literal like: \'' + value + '\'?');
-        }
-    }
-
     function createWidget(scope, element, attrs, widget, origAttr, controllers) {
+        /* jshint latedef: false */
         if (!(element instanceof jQuery)) {
             throw new Error("The Kendo UI directives require jQuery to be available before AngularJS. Please include jquery before angular in the document.");
         }
+
         var kNgDelay = attrs.kNgDelay,
             delayValue = scope.$eval(kNgDelay);
 
@@ -106,12 +102,47 @@ var __meta__ = {
         var ngModel = controllers[0],
             ngForm = controllers[1];
 
+        var ctor = $(element)[widget];
+
+        if (!ctor) {
+            window.console.error("Could not find: " + widget);
+            return null;
+        }
+
+        var parsed = parseOptions(scope, element, attrs, widget, ctor);
+
+        var options = parsed.options;
+
+        if (parsed.unresolved.length) {
+            var promises = [];
+
+            for (var i = 0, len = parsed.unresolved.length; i < len; i++) {
+
+                var unresolved = parsed.unresolved[i];
+
+                var promise = $.Deferred(function(d) {
+                    var unwatch = scope.$watch(unresolved.path, function(newValue) {
+                        if (newValue !== undefined) {
+                            unwatch();
+                            d.resolve();
+                        }
+                    });
+                }).promise();
+
+                promises.push(promise);
+            }
+
+            $.when.apply(null, promises).then(createIt);
+
+            return;
+        }
+
         if (kNgDelay && !delayValue) {
             var root = scope.$root || scope;
 
             var register = function() {
-                var unregister = scope.$watch(kNgDelay, function(newValue, oldValue) {
-                        if (newValue !== oldValue) {
+                var unregister = scope.$watch(kNgDelay, function(newValue) {
+                        if (newValue !== undefined) {
                         unregister();
                         // remove subsequent delays, to make ng-rebind work
                         element.removeAttr(attrs.$attr.kNgDelay);
@@ -141,67 +172,8 @@ var __meta__ = {
                 originalElement = $($(element)[0].cloneNode(true));
             }
 
-
-            var role = widget.replace(/^kendo/, '');
-            var options = angular.extend({}, attrs.defaultOptions, scope.$eval(attrs.kOptions || attrs.options));
-            var ctor = $(element)[widget];
-
-            if (!ctor) {
-                window.console.error("Could not find: " + widget);
-                return null;
-            }
-
-            var widgetOptions = ctor.widget.prototype.options;
-            var widgetEvents = ctor.widget.prototype.events;
-
-            $.each(attrs, function(name, value) {
-                if (name === "source" || name === "kDataSource" || name === "kScopeField") {
-                    return;
-                }
-
-                var dataName = "data" + name.charAt(0).toUpperCase() + name.slice(1);
-
-                if (name.indexOf("on") === 0) { // let's search for such event.
-                    var eventKey = name.replace(/^on./, function(prefix) {
-                        return prefix.charAt(2).toLowerCase();
-                    });
-
-                    if (widgetEvents.indexOf(eventKey) > -1) {
-                        options[eventKey] = value;
-                    }
-                } // don't elsif here - there are on* options
-
-                if (widgetOptions.hasOwnProperty(dataName)) {
-                    addOption(scope, options, dataName, value);
-                } else if (widgetOptions.hasOwnProperty(name) && !ignoredOwnProperties[name]) {
-                    addOption(scope, options, name, value);
-                } else if (!ignoredAttributes[name]) {
-                    var match = name.match(/^k(On)?([A-Z].*)/);
-                    if (match) {
-                        var optionName = match[2].charAt(0).toLowerCase() + match[2].slice(1);
-                        if (match[1] && name != "kOnLabel" // XXX: k-on-label can be used on MobileSwitch :-\
-                        ) {
-                            options[optionName] = value;
-                        } else {
-                            if (name == "kOnLabel") {
-                                optionName = "onLabel"; // XXX: that's awful.
-                            }
-                            addOption(scope, options, optionName, value);
-                        }
-                    }
-                }
-            });
-
-            // parse the datasource attribute
-            var dataSource = attrs.kDataSource || attrs.source;
-
-            if (dataSource) {
-                options.dataSource = createDataSource(scope, element, role, dataSource);
-            }
-
-            // deepExtend in kendo.core (used in Editor) will fail with stack
-            // overflow if we don't put it in an array :-\
-                options.$angular = [ scope ];
+            // re-parse the options here.
+            options = parseOptions(scope, element, attrs, widget, ctor).options;
 
             if (element.is("select")) {
                 (function(options){
@@ -262,17 +234,97 @@ var __meta__ = {
         }
     }
 
+
+    function parseOptions(scope, element, attrs, widget, ctor) {
+        var role = widget.replace(/^kendo/, '');
+        var unresolved = [];
+        var optionsPath = attrs.kOptions || attrs.options;
+        var optionsValue = scope.$eval(optionsPath);
+
+        if (optionsPath && optionsValue === undefined) {
+            unresolved.push({ option: "options", path: optionsPath });
+        }
+
+        var options = angular.extend({}, attrs.defaultOptions, optionsValue);
+
+        function addOption(name, value) {
+            var scopeValue = angular.copy(scope.$eval(value));
+            if (scopeValue === undefined) {
+                unresolved.push({ option: name, path: value });
+            } else {
+                options[name] = scopeValue;
+            }
+        }
+
+
+        var widgetOptions = ctor.widget.prototype.options;
+        var widgetEvents = ctor.widget.prototype.events;
+
+
+        $.each(attrs, function(name, value) {
+            if (name === "source" || name === "kDataSource" || name === "kScopeField") {
+                return;
+            }
+
+            var dataName = "data" + name.charAt(0).toUpperCase() + name.slice(1);
+
+            if (name.indexOf("on") === 0) { // let's search for such event.
+                var eventKey = name.replace(/^on./, function(prefix) {
+                    return prefix.charAt(2).toLowerCase();
+                });
+
+                if (widgetEvents.indexOf(eventKey) > -1) {
+                    options[eventKey] = value;
+                }
+            } // don't elsif here - there are on* options
+
+            if (widgetOptions.hasOwnProperty(dataName)) {
+                addOption(dataName, value);
+            } else if (widgetOptions.hasOwnProperty(name) && !ignoredOwnProperties[name]) {
+                addOption(name, value);
+            } else if (!ignoredAttributes[name]) {
+                var match = name.match(/^k(On)?([A-Z].*)/);
+                if (match) {
+                    var optionName = match[2].charAt(0).toLowerCase() + match[2].slice(1);
+                    if (match[1] && name != "kOnLabel" // XXX: k-on-label can be used on MobileSwitch :-\
+                    ) {
+                        options[optionName] = value;
+                    } else {
+                        if (name == "kOnLabel") {
+                            optionName = "onLabel"; // XXX: that's awful.
+                        }
+                        addOption(optionName, value);
+                    }
+                }
+            }
+        });
+
+        // parse the datasource attribute
+        var dataSource = attrs.kDataSource || attrs.source;
+
+        if (dataSource) {
+            options.dataSource = createDataSource(scope, element, role, dataSource);
+        }
+
+        // deepExtend in kendo.core (used in Editor) will fail with stack
+        // overflow if we don't put it in an array :-\
+        options.$angular = [ scope ];
+
+        return {
+            options: options,
+            unresolved: unresolved
+        };
+    }
+
     function bindToKNgDisabled(widget, scope, element, kNgDisabled) {
         if ((kendo.ui.PanelBar && widget instanceof kendo.ui.PanelBar) || (kendo.ui.Menu && widget instanceof kendo.ui.Menu)) {
             $log.warn("k-ng-disabled specified on a widget that does not have the enable() method: " + (widget.options.name));
             return;
         }
-        scope.$apply(function() {
-            scope.$watch(kNgDisabled, function(newValue, oldValue) {
-                if (newValue != oldValue) {
-                    widget.enable(!newValue);
-                }
-            });
+        scope.$watch(kNgDisabled, function(newValue, oldValue) {
+            if (newValue != oldValue) {
+                widget.enable(!newValue);
+            }
         });
     }
 
@@ -281,14 +333,11 @@ var __meta__ = {
             $log.warn("k-ng-readonly specified on a widget that does not have the readonly() method: " + (widget.options.name));
             return;
         }
-        scope.$apply(function() {
-            scope.$watch(kNgReadonly, function(newValue, oldValue) {
-                if (newValue != oldValue) {
-                    widget.readonly(newValue);
-                }
-            });
+        scope.$watch(kNgReadonly, function(newValue, oldValue) {
+            if (newValue != oldValue) {
+                widget.readonly(newValue);
+            }
         });
-
     }
 
     function exposeWidget(widget, scope, attrs, kendoWidget, origAttr) {
@@ -387,14 +436,16 @@ var __meta__ = {
         };
 
         widget.first("change", onChange(false));
-		if (!(kendo.ui.AutoComplete && widget instanceof kendo.ui.AutoComplete)) {
-			widget.first("dataBound", onChange(true));
-		}
+        if (!(kendo.ui.AutoComplete && widget instanceof kendo.ui.AutoComplete)) {
+            widget.first("dataBound", onChange(true));
+        }
 
         var currentVal = value();
 
         // if the model value is undefined, then we set the widget value to match ( == null/undefined )
-        if (currentVal != ngModel.$viewValue) {
+        // In telerik/kendo-ui-core#1027 we discovered that after the timeout the $viewValue arives as NaN in some weird, default form.
+        // Hence the check below.
+        if (!isNaN(ngModel.$viewValue) && currentVal != ngModel.$viewValue) {
             if (!ngModel.$isEmpty(ngModel.$viewValue)) {
                 widget.value(ngModel.$viewValue);
             } else if (currentVal != null && currentVal !== "" && currentVal != ngModel.$viewValue) {
@@ -514,13 +565,13 @@ var __meta__ = {
                         break;
 
                     case "disabled":
-                        if (typeof widget.enable == "function") {
+                        if (typeof widget.enable == "function" && !widget.element.attr("readonly")) {
                             widget.enable(!$(chg.target).attr("disabled"));
                         }
                         break;
 
                     case "readonly":
-                        if (typeof widget.readonly == "function") {
+                        if (typeof widget.readonly == "function" && !widget.element.attr("disabled")) {
                             widget.readonly(!!$(chg.target).attr("readonly"));
                         }
                         break;
@@ -545,17 +596,8 @@ var __meta__ = {
     function setupRebind(widget, scope, element, originalElement, rebindAttr, destroyRegister, attrs) {
         // watch for changes on the expression passed in the k-rebind attribute
         var unregister = scope.$watch(rebindAttr, function(newValue, oldValue) {
-            if (newValue !== oldValue) {
+            if (!widget._muteRebind && newValue !== oldValue) {
                 unregister(); // this watcher will be re-added if we compile again!
-
-                /****************************************************************
-                // XXX: this is a gross hack that might not even work with all
-                // widgets.  we need to destroy the current widget and get its
-                // wrapper element out of the DOM, then make the original element
-                // visible so we can initialize a new widget on it.
-                //
-                // kRebind is probably impossible to get right at the moment.
-                ****************************************************************/
 
                 var templateOptions = WIDGET_TEMPLATE_OPTIONS[widget.options.name];
 
@@ -572,7 +614,7 @@ var __meta__ = {
                 var _wrapper = $(widget.wrapper)[0];
                 var _element = $(widget.element)[0];
                 var compile = element.injector().get("$compile");
-                widget.destroy();
+                widget._destroy();
 
                 if (destroyRegister) {
                     destroyRegister();
@@ -605,7 +647,7 @@ var __meta__ = {
                 require: [ "?ngModel", "^?form" ],
                 scope: false,
 
-                controller: [ '$scope', '$attrs', '$element', function($scope, $attrs, $element) {
+                controller: [ '$scope', '$attrs', '$element', function($scope, $attrs) {
                     var that = this;
                     that.template = function(key, value) {
                         $attrs[key] = kendo.stringify(value);
@@ -715,7 +757,7 @@ var __meta__ = {
         module.directive(widget, function() {
             return {
                 restrict: "A",
-                link: function(scope, element, attrs, controllers) {
+                link: function(scope, element, attrs) {
                     createWidget(scope, element, attrs, widget, widget);
                 }
             };
@@ -773,20 +815,6 @@ var __meta__ = {
         }
 
     }
-
-    (function(){
-        function doAll(isMobile) {
-            return function(namespace) {
-                angular.forEach(namespace, function(value) {
-                    if (value.fn && value.fn.options && value.fn.options.name && (/^[A-Z]/).test(value.fn.options.name)) {
-                        createDirectives(value, isMobile);
-                    }
-                });
-            };
-        }
-        angular.forEach([ kendo.ui, kendo.dataviz && kendo.dataviz.ui ], doAll(false));
-        angular.forEach([ kendo.mobile && kendo.mobile.ui ], doAll(true));
-    })();
 
     /* -----[ utils ]----- */
 
@@ -861,12 +889,11 @@ var __meta__ = {
         return true;
     }
 
-    defadvice(kendo.ui, "plugin", function(klass, register, prefix){
-        this.next();
+    kendo.onWidgetRegistered(function(entry){
         pendingPatches = $.grep(pendingPatches, function(args){
             return !defadvice.apply(null, args);
         });
-        createDirectives(klass, prefix == "Mobile");
+        createDirectives(entry.widget, entry.prefix == "Mobile");
     });
 
     /* -----[ Customize widgets for Angular ]----- */
@@ -908,8 +935,6 @@ var __meta__ = {
 
                       case "compile":
                         var injector = self.element.injector();
-                        // gross gross gross hack :(. Works for popups that may be out of the ng-app directive.
-                        // they don't have injectors. Same thing happens in our tests, too.
                         var compile = injector ? injector.get("$compile") : $defaultCompile;
 
                         angular.forEach(elements, function(el, i){
@@ -1182,7 +1207,7 @@ var __meta__ = {
     .directive('kendoMobileApplication', function() {
         return {
             terminal: true,
-            link: function(scope, element, attrs, controllers) {
+            link: function(scope, element, attrs) {
                 createWidget(scope, element, attrs, 'kendoMobileApplication', 'kendoMobileApplication');
             }
         };
@@ -1190,7 +1215,7 @@ var __meta__ = {
         return {
             scope: true,
             link: {
-                pre: function(scope, element, attrs, controllers) {
+                pre: function(scope, element, attrs) {
                     attrs.defaultOptions = scope.viewOptions;
                     attrs._instance = createWidget(scope, element, attrs, 'kendoMobileView', 'kendoMobileView');
                 },
@@ -1205,7 +1230,7 @@ var __meta__ = {
         return {
             scope: true,
             link: {
-                pre: function(scope, element, attrs, controllers) {
+                pre: function(scope, element, attrs) {
                     attrs.defaultOptions = scope.viewOptions;
                     attrs._instance = createWidget(scope, element, attrs, 'kendoMobileDrawer', 'kendoMobileDrawer');
                 },
@@ -1220,7 +1245,7 @@ var __meta__ = {
         return {
             scope: true,
             link: {
-                pre: function(scope, element, attrs, controllers) {
+                pre: function(scope, element, attrs) {
                     attrs.defaultOptions = scope.viewOptions;
                     attrs._instance = createWidget(scope, element, attrs, 'kendoMobileModalView', 'kendoMobileModalView');
                 },
@@ -1235,7 +1260,7 @@ var __meta__ = {
         return {
             terminal: true,
             link: {
-                pre: function(scope, element, attrs, controllers) {
+                pre: function(scope, element, attrs) {
                     attrs.defaultOptions = scope.viewOptions;
                     attrs._instance = createWidget(scope, element, attrs, 'kendoMobileSplitView', 'kendoMobileSplitView');
                 },
@@ -1249,7 +1274,7 @@ var __meta__ = {
         return {
             terminal: true,
             link: {
-                pre: function(scope, element, attrs, controllers) {
+                pre: function(scope, element, attrs) {
                     attrs.defaultOptions = scope.viewOptions;
                     createWidget(scope, element, attrs, 'kendoMobilePane', 'kendoMobilePane');
                 }
@@ -1258,7 +1283,7 @@ var __meta__ = {
     }).directive('kendoMobileLayout', function() {
         return {
             link: {
-                pre: function (scope, element, attrs, controllers) {
+                pre: function (scope, element, attrs) {
                     createWidget(scope, element, attrs, 'kendoMobileLayout', 'kendoMobileLayout');
                 }
             }
@@ -1266,7 +1291,7 @@ var __meta__ = {
     }).directive('kendoMobileActionSheet', function() {
         return {
             restrict: "A",
-            link: function(scope, element, attrs, controllers) {
+            link: function(scope, element, attrs) {
                 element.find("a[k-action]").each(function() {
                     $(this).attr("data-" + kendo.ns + "action", $(this).attr("k-action"));
                 });
@@ -1278,7 +1303,7 @@ var __meta__ = {
         return {
             terminal: true,
             link: {
-                pre: function(scope, element, attrs, controllers) {
+                pre: function(scope, element, attrs) {
                     attrs.defaultOptions = scope.viewOptions;
                     createWidget(scope, element, attrs, 'kendoMobilePopOver', 'kendoMobilePopOver');
                 }
@@ -1288,21 +1313,21 @@ var __meta__ = {
         return {
             restrict : "E",
             replace  : true,
-            template : function(element, attributes) {
+            template : function(element) {
                 return "<span data-" + kendo.ns + "role='view-title'>" + element.html() + "</span>";
             }
         };
     }).directive('kendoMobileHeader', function() {
             return {
                 restrict: "E",
-                link: function(scope, element, attrs, controllers) {
+                link: function(scope, element) {
                     element.addClass("km-header").attr("data-role", "header");
                 }
             };
     }).directive('kendoMobileFooter', function() {
             return {
                 restrict: 'E',
-                link: function(scope, element, attrs, controllers) {
+                link: function(scope, element) {
                     element.addClass("km-footer").attr("data-role", "footer");
                 }
             };
@@ -1310,7 +1335,7 @@ var __meta__ = {
         return {
             restrict : "E",
             replace  : true,
-            template : function(element, attributes) {
+            template : function(element) {
                 return "<div data-" + kendo.ns + "role='page'>" + element.html() + "</div>";
             }
         };

@@ -2,7 +2,7 @@
     define([ "./kendo.data", "./kendo.popup" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "list",
     name: "List",
     category: "framework",
@@ -21,9 +21,7 @@ var __meta__ = {
         activeElement = kendo._activeElement,
         ObservableArray = kendo.data.ObservableArray,
         ID = "id",
-        LI = "li",
         CHANGE = "change",
-        CHARACTER = "character",
         FOCUSED = "k-state-focused",
         HOVER = "k-state-hover",
         LOADING = "k-loading",
@@ -183,6 +181,7 @@ var __meta__ = {
 
                             that._accessor(value);
                             that.input.val(text);
+                            that._placeholder();
                         } else if (that._oldIndex === -1) {
                             that._oldIndex = that.selectedIndex;
                         }
@@ -210,18 +209,21 @@ var __meta__ = {
             }
 
             if (filter) {
-                expression = expression.filters || [];
-                expression.push(filter);
+                expression = {
+                    filters: expression.filters || [],
+                    logic: "and"
+                };
+
+                expression.filters.push(filter);
             }
 
             if (!force) {
                 dataSource.filter(expression);
             } else {
-                dataSource.read(expression);
+                dataSource.read({ filter: expression });
             }
         },
 
-        //TODO: refactor
         _header: function() {
             var that = this;
             var template = that.options.headerTemplate;
@@ -676,7 +678,7 @@ var __meta__ = {
             parent = that._parentWidget();
 
             if (parent) {
-                parent.trigger("cascade");
+                that._cascadeSelect(parent);
             }
         },
 
@@ -867,25 +869,24 @@ var __meta__ = {
         },
 
         _firstItem: function() {
-            this.listView.first();
+            this.listView.focusFirst();
         },
 
         _lastItem: function() {
-            this.listView.last();
+            this.listView.focusLast();
         },
 
         _nextItem: function() {
-            this.listView.next();
+            this.listView.focusNext();
         },
 
         _prevItem: function() {
-            this.listView.prev();
+            this.listView.focusPrev();
         },
 
         _move: function(e) {
             var that = this;
             var key = e.keyCode;
-            var ul = that.ul[0];
             var down = key === keys.DOWN;
             var dataItem;
             var pressed;
@@ -1052,6 +1053,9 @@ var __meta__ = {
 
             if (value !== undefined) {
                 element[0].value = value;
+                if (element[0].value && !value) {
+                    element[0].selectedIndex = -1;
+                }
             }
         },
 
@@ -1088,8 +1092,7 @@ var __meta__ = {
             var that = this,
                 options = that.options,
                 cascade = options.cascadeFrom,
-                select, valueField,
-                parent, change;
+                parent;
 
             if (cascade) {
                 parent = that._parentWidget();
@@ -1099,75 +1102,81 @@ var __meta__ = {
                 }
 
                 options.autoBind = false;
-                valueField = options.cascadeFromField || parent.options.dataValueField;
-
-                change = function() {
-                    that.dataSource.unbind(CHANGE, change);
-
-                    var value = that._accessor();
-
-                    if (that._userTriggered) {
-                        that._clearSelection(parent, true);
-                    } else if (value) {
-                        if (value !== that.listView.value()[0]) {
-                            that.value(value);
-                        }
-
-                        if (!that.dataSource.view()[0] || that.selectedIndex === -1) {
-                            that._clearSelection(parent, true);
-                        }
-                    } else if (that.dataSource.flatView().length) {
-                        that.select(options.index);
-                    }
-
-                    that.enable();
-                    that._triggerCascade();
-                    that._userTriggered = false;
-                };
-                select = function() {
-                    var dataItem = parent.dataItem(),
-                        filterValue = dataItem ? parent._value(dataItem) : null,
-                        expressions, filters;
-
-                    if (filterValue || filterValue === 0) {
-                        expressions = that.dataSource.filter() || {};
-                        removeFiltersForField(expressions, valueField);
-                        filters = expressions.filters || [];
-
-                        filters.push({
-                            field: valueField,
-                            operator: "eq",
-                            value: filterValue
-                        });
-
-                        var handler = function() {
-                            that.unbind("dataBound", handler);
-                            change.apply(that, arguments);
-                        };
-
-                        that.first("dataBound", handler);
-
-                        that.dataSource.filter(filters);
-
-                    } else {
-                        that.enable(false);
-                        that._clearSelection(parent);
-                        that._triggerCascade();
-                        that._userTriggered = false;
-                    }
-                };
 
                 parent.first("cascade", function(e) {
                     that._userTriggered = e.userTriggered;
-                    select();
+
+                    if (that.listView.isBound()) {
+                        that._clearSelection(parent, true);
+                    }
+
+                    that._cascadeSelect(parent);
                 });
 
                 //refresh was called
                 if (parent.listView.isBound()) {
-                    select();
+                    that._cascadeSelect(parent);
                 } else if (!parent.value()) {
                     that.enable(false);
                 }
+            }
+        },
+
+        _cascadeChange: function(parent) {
+            var that = this;
+            var value = that._accessor();
+
+            if (that._userTriggered) {
+                that._clearSelection(parent, true);
+            } else if (value) {
+                if (value !== that.listView.value()[0]) {
+                    that.value(value);
+                }
+
+                if (!that.dataSource.view()[0] || that.selectedIndex === -1) {
+                    that._clearSelection(parent, true);
+                }
+            } else if (that.dataSource.flatView().length) {
+                that.select(that.options.index);
+            }
+
+            that.enable();
+            that._triggerCascade();
+            that._userTriggered = false;
+        },
+
+        _cascadeSelect: function(parent) {
+            var that = this;
+            var dataItem = parent.dataItem();
+            var filterValue = dataItem ? parent._value(dataItem) : null;
+            var valueField = that.options.cascadeFromField || parent.options.dataValueField;
+            var expressions, filters;
+
+            if (filterValue || filterValue === 0) {
+                expressions = that.dataSource.filter() || {};
+                removeFiltersForField(expressions, valueField);
+                filters = expressions.filters || [];
+
+                filters.push({
+                    field: valueField,
+                    operator: "eq",
+                    value: filterValue
+                });
+
+                var handler = function() {
+                    that.unbind("dataBound", handler);
+                    that._cascadeChange(parent);
+                };
+
+                that.first("dataBound", handler);
+
+                that.dataSource.filter(filters);
+
+            } else {
+                that.enable(false);
+                that._clearSelection(parent);
+                that._triggerCascade();
+                that._userTriggered = false;
             }
         }
     });
@@ -1226,6 +1235,7 @@ var __meta__ = {
         options: {
             name: "StaticList",
             dataValueField: null,
+            valuePrimitive: false,
             selectable: true,
             template: null,
             groupTemplate: null,
@@ -1307,8 +1317,7 @@ var __meta__ = {
                 itemOffsetHeight = item.offsetHeight,
                 contentScrollTop = content.scrollTop,
                 contentOffsetHeight = content.clientHeight,
-                bottomDistance = itemOffsetTop + itemOffsetHeight,
-                yDimension, offsetHeight;
+                bottomDistance = itemOffsetTop + itemOffsetHeight;
 
                 if (contentScrollTop > itemOffsetTop) {
                     contentScrollTop = itemOffsetTop;
@@ -1333,7 +1342,7 @@ var __meta__ = {
             });
         },
 
-        next: function() {
+        focusNext: function() {
             var current = this.focus();
 
             if (!current) {
@@ -1345,7 +1354,7 @@ var __meta__ = {
             this.focus(current);
         },
 
-        prev: function() {
+        focusPrev: function() {
             var current = this.focus();
 
             if (!current) {
@@ -1357,11 +1366,11 @@ var __meta__ = {
             this.focus(current);
         },
 
-        first: function() {
+        focusFirst: function() {
             this.focus(this.element[0].children[0]);
         },
 
-        last: function() {
+        focusLast: function() {
             this.focus(this.element[0].children[this.element[0].children.length - 1]);
         },
 
@@ -1404,7 +1413,7 @@ var __meta__ = {
             return this.focus() ? this.focus().index() : undefined;
         },
 
-        filter: function(filter, skipValueUpdate) {
+        filter: function(filter) {
             if (filter === undefined) {
                 return this._filtered;
             }
@@ -1473,6 +1482,7 @@ var __meta__ = {
         removeAt: function(position) {
             this._selectedIndices.splice(position, 1);
             this._values.splice(position, 1);
+            this._valueComparer = null;
 
             return {
                 position: position,
@@ -1520,9 +1530,15 @@ var __meta__ = {
             return deferred;
         },
 
+        items: function() {
+            return this.element.children(".k-item");
+        },
+
         _click: function(e) {
             if (!e.isDefaultPrevented()) {
-                this.trigger("click", { item: $(e.currentTarget) });
+                if (!this.trigger("click", { item: $(e.currentTarget) })) {
+                    this.select(e.currentTarget);
+                }
             }
         },
 

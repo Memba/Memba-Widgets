@@ -2,7 +2,7 @@
     define([], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "core",
     name: "Core",
     category: "framework",
@@ -485,6 +485,8 @@ function pad(number, digits, end) {
                 symbol: "%"
             },
             currency: {
+                name: "US Dollar",
+                abbr: "USD",
                 pattern: ["($n)", "$n"],
                 decimals: 2,
                 ",": ",",
@@ -1185,6 +1187,8 @@ function pad(number, digits, end) {
                 var i = 0,
                     length = names.length,
                     name, nameLength,
+                    matchLength = 0,
+                    matchIdx = 0,
                     subValue;
 
                 for (; i < length; i++) {
@@ -1196,11 +1200,17 @@ function pad(number, digits, end) {
                         subValue = subValue.toLowerCase();
                     }
 
-                    if (subValue == name) {
-                        valueIdx += nameLength;
-                        return i + 1;
+                    if (subValue == name && nameLength > matchLength) {
+                        matchLength = nameLength;
+                        matchIdx = i;
                     }
                 }
+
+                if (matchLength) {
+                    valueIdx += matchLength;
+                    return matchIdx + 1;
+                }
+
                 return null;
             },
             checkLiteral = function() {
@@ -1473,7 +1483,6 @@ function pad(number, digits, end) {
         var date = null;
         var length, patterns;
         var tzoffset;
-        var sign;
 
         if (value && value.indexOf("/D") === 0) {
             date = dateRegExp.exec(value);
@@ -1837,7 +1846,35 @@ function pad(number, digits, end) {
     }
 
     function isScrollable(element) {
-        return getComputedStyles(element, ["overflow"]).overflow != "visible";
+        if (element.className.indexOf("k-auto-scrollable") > -1) {
+            return true;
+        }
+
+        var overflow = getComputedStyles(element, ["overflow"]).overflow;
+        return overflow == "auto" || overflow == "scroll";
+    }
+
+    function scrollLeft(element, value) {
+        var el = element instanceof $ ? element[0] : element;
+        var isRtl = support.isRtl(element);
+        var webkit = support.browser.webkit;
+        var mozila = support.browser.mozilla;
+
+        if (value !== undefined) {
+            if (isRtl && webkit) {
+                el.scrollLeft = el.scrollWidth - el.clientWidth - value;
+            } else if (isRtl && mozila) {
+                el.scrollLeft = -value;
+            } else {
+                el.scrollLeft = value;
+            }
+        } else {
+            if (isRtl && webkit) {
+                return el.scrollWidth - el.clientWidth - el.scrollLeft;
+            } else {
+                return Math.abs(el.scrollLeft);
+            }
+        }
     }
 
     (function () {
@@ -2011,6 +2048,7 @@ function pad(number, digits, end) {
         support.detectBrowser = function(ua) {
             var browser = false, match = [],
                 browserRxs = {
+                    edge: /(edge)[ \/]([\w.]+)/i,
                     webkit: /(chrome)[ \/]([\w.]+)/i,
                     safari: /(webkit)[ \/]([\w.]+)/i,
                     opera: /(opera)(?:.*version|)[ \/]([\w.]+)/i,
@@ -2072,6 +2110,8 @@ function pad(number, digits, end) {
                 cssClass = "webkit";
             } else if (browser.opera) {
                 cssClass = "opera";
+            } else if (browser.edge) {
+                cssClass = "edge";
             }
 
             if (cssClass) {
@@ -2161,6 +2201,8 @@ function pad(number, digits, end) {
         var documentMode = document.documentMode;
 
         support.hashChange = ("onhashchange" in window) && !(support.browser.msie && (!documentMode || documentMode <= 8)); // old IE detection
+
+        support.customElements = ("registerElement" in window.document);
     })();
 
 
@@ -2180,8 +2222,7 @@ function pad(number, digits, end) {
             type = "offset";
         }
 
-        var result = element[type](),
-            mobileOS = support.mobileOS;
+        var result = element[type]();
 
         // IE10 touch zoom is living in a separate viewport
         if (support.browser.msie && (support.pointers || support.msPointers) && !positioned) {
@@ -2447,12 +2488,16 @@ function pad(number, digits, end) {
     localUrlRe = /^([a-z]+:)?\/\//i;
 
     extend(kendo, {
+        widgets: [],
+        _widgetRegisteredCallbacks: [],
         ui: kendo.ui || {},
         fx: kendo.fx || fx,
         effects: kendo.effects || effects,
         mobile: kendo.mobile || { },
         data: kendo.data || {},
         dataviz: kendo.dataviz || {},
+        drawing: kendo.drawing || {},
+        spreadsheet: {},
         keys: {
             INSERT: 45,
             DELETE: 46,
@@ -2486,7 +2531,9 @@ function pad(number, digits, end) {
         wrap: wrap,
         deepExtend: deepExtend,
         getComputedStyles: getComputedStyles,
+        webComponents: [],
         isScrollable: isScrollable,
+        scrollLeft: scrollLeft,
         size: size,
         toCamelCase: toCamelCase,
         toHyphens: toHyphens,
@@ -2583,6 +2630,14 @@ function pad(number, digits, end) {
 
         triggeredByInput: function(e) {
             return (/^(label|input|textarea|select)$/i).test(e.target.tagName);
+        },
+
+        onWidgetRegistered: function(callback) {
+            for (var i = 0, len = kendo.widgets.length; i < len; i++) {
+                callback(kendo.widgets[i]);
+            }
+
+            kendo._widgetRegisteredCallbacks.push(callback);
         },
 
         logToConsole: function(message) {
@@ -2702,8 +2757,18 @@ function pad(number, digits, end) {
             that.element.removeData("handler");
             that.unbind();
         },
+        _destroy: function() {
+            this.destroy();
+        },
+        angular: function(){},
 
-        angular: function(){}
+        _muteAngularRebind: function(callback) {
+            this._muteRebind = true;
+
+            callback.call(this);
+
+            this._muteRebind = false;
+        }
     });
 
     var DataBoundWidget = Widget.extend({
@@ -2993,6 +3058,13 @@ function pad(number, digits, end) {
             getter = "getKendo" + prefix + name;
             name = "kendo" + prefix + name;
 
+            var widgetEntry = { name: name, widget: widget, prefix: prefix || "" };
+            kendo.widgets.push(widgetEntry);
+
+            for (var i = 0, len = kendo._widgetRegisteredCallbacks.length; i < len; i++) {
+                kendo._widgetRegisteredCallbacks[i](widgetEntry);
+            }
+
             $.fn[name] = function(options) {
                 var value = this,
                     args;
@@ -3024,7 +3096,7 @@ function pad(number, digits, end) {
                     });
                 } else {
                     this.each(function() {
-                        new widget(this, options);
+                        return new widget(this, options);
                     });
                 }
 
@@ -3114,6 +3186,10 @@ function pad(number, digits, end) {
 
     kendo.touchScroller = function(elements, options) {
         // return the first touch scroller
+        if (!options){ options = {}; }
+
+        options.useNative = true;
+
         return $(elements).map(function(idx, element) {
             element = $(element);
             if (support.kineticScrollNeeded && kendo.mobile.ui.Scroller && !element.data("kendoMobileScroller")) {
@@ -3209,9 +3285,10 @@ function pad(number, digits, end) {
     }
 
     function visible(element) {
-        return !$(element).parents().addBack().filter(function() {
-            return $.css(this,"visibility") === "hidden" || $.expr.filters.hidden(this);
-        }).length;
+        return $.expr.filters.visible(element) &&
+            !$(element).parents().addBack().filter(function() {
+                return $.css(this,"visibility") === "hidden";
+            }).length;
     }
 
     $.extend($.expr[ ":" ], {

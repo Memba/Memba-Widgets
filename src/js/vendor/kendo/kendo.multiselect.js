@@ -2,7 +2,7 @@
     define([ "./kendo.list", "./kendo.mobile.scroller" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "multiselect",
     name: "MultiSelect",
     category: "web",
@@ -39,9 +39,6 @@ var __meta__ = {
         CHANGE = "change",
         PROGRESS = "progress",
         SELECT = "select",
-        NEXT = "nextSibling",
-        PREV = "previousSibling",
-        HIDE = ' style="display:none"',
         ARIA_DISABLED = "aria-disabled",
         ARIA_READONLY = "aria-readonly",
         FOCUSEDCLASS = "k-state-focused",
@@ -136,9 +133,9 @@ var __meta__ = {
             }
 
             if ($.isPlainObject(data[0]) || data[0] instanceof kendo.data.ObservableObject || !that.options.dataValueField) {
-                that._retrieveData = true;
                 that.dataSource.data(data);
                 that.value(value || that._initialValues);
+                that._retrieveData = true;
             }
         },
 
@@ -294,6 +291,8 @@ var __meta__ = {
             } else {
                 that.listView = new kendo.ui.VirtualList(that.ul, listOptions);
             }
+
+            that.listView.bind("click", function(e) { e.preventDefault(); });
 
             that.listView.value(that._initialValues || that.options.value);
         },
@@ -492,7 +491,7 @@ var __meta__ = {
             this.listView.refresh();
         },
 
-        _listBound: function(e) {
+        _listBound: function() {
             var that = this;
             var data = that.dataSource.flatView();
             var page = that.dataSource.page();
@@ -512,7 +511,7 @@ var __meta__ = {
             that.popup.position();
 
             if (that.options.highlightFirst && (page === undefined || page === 1)) {
-                that.listView.first();
+                that.listView.focusFirst();
             }
 
             if (that._touchScroller) {
@@ -566,7 +565,6 @@ var __meta__ = {
             var that = this;
             var oldValue = that.listView.value().slice();
             var maxSelectedItems = that.options.maxSelectedItems;
-            var idx;
 
             if (value === undefined) {
                 return oldValue;
@@ -608,9 +606,10 @@ var __meta__ = {
                 return;
             }
 
-            if (!that._fetch && !hasItems) {
+            if (that._retrieveData || (!that._fetch && !hasItems)) {
                 that._fetch = true;
-                that.dataSource.fetch().done(function() {
+                that._retrieveData = false;
+                that.dataSource.read().done(function() {
                     that._fetch = false;
                 });
             }
@@ -721,23 +720,23 @@ var __meta__ = {
                     that.open();
 
                     if (!current) {
-                        this.listView.first();
+                        this.listView.focusFirst();
                     }
                     return;
                 }
 
                 if (current) {
-                    this.listView.next();
+                    this.listView.focusNext();
                     if (!this.listView.focus()) {
-                        this.listView.last();
+                        this.listView.focusLast();
                     }
                 } else {
-                    this.listView.first();
+                    this.listView.focusFirst();
                 }
             } else if (key === keys.UP) {
                 if (visible) {
                     if (current) {
-                        this.listView.prev();
+                        this.listView.focusPrev();
                     }
 
                     if (!this.listView.focus()) {
@@ -780,7 +779,7 @@ var __meta__ = {
                 that.close();
             } else if (key === keys.HOME) {
                 if (visible) {
-                    this.listView.first();
+                    this.listView.focusFirst();
                 } else if (!hasValue) {
                     tag = that.tagList[0].firstChild;
 
@@ -790,7 +789,7 @@ var __meta__ = {
                 }
             } else if (key === keys.END) {
                 if (visible) {
-                    this.listView.last();
+                    this.listView.focusLast();
                 } else if (!hasValue) {
                     tag = that.tagList[0].lastChild;
 
@@ -1058,6 +1057,14 @@ var __meta__ = {
                         currentTotal: total
                     }));
                 }
+
+                for (idx = removed.length - 1; idx > -1; idx--) {
+                    that._setOption(getter(removed[idx].dataItem), false);
+                }
+
+                for (idx = 0; idx < added.length; idx++) {
+                    that._setOption(getter(added[idx].dataItem), true);
+                }
             }
 
             that._angularTagItems("compile");
@@ -1066,7 +1073,6 @@ var __meta__ = {
 
         _select: function(candidate) {
             var that = this;
-            var idx;
 
             if (that._state === REBIND) {
                 that._state = "";

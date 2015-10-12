@@ -111,8 +111,6 @@
     cursor: default;
 }
 
-.k-ie7 .k-button { line-height: normal; }
-
 a.k-button
 {
     .prohibit-selection;
@@ -124,11 +122,6 @@ a.k-button
     padding-bottom: 0.37em;
     padding-top: 0.37em;
 }
-
-.k-ie7 .k-button { overflow: visible; margin-right: 4px; }
-.k-ie7 a.k-button { line-height: 1.6; padding-left: 7px; padding-right: 7px;/*+1*/ }
-.k-ie7 .k-slider a.k-button { height: 22px; line-height: 22px; padding: 0; }
-.k-ie7 .k-button-expand { margin-left: 0; margin-right: 0; }
 
 button.k-button::-moz-focus-inner,
 input.k-button::-moz-focus-inner
@@ -156,7 +149,6 @@ body .k-split-button-arrow
     padding-left: .4em;
     padding-right: .4em;
 }
-.k-ie7 a.k-button-icon { padding-left: 5px; padding-right: 5px;/*+1*/ }
 
 .k-button-icontext
 {
@@ -377,7 +369,6 @@ html body .k-button-bare.k-upload-button:hover
 {
     background-color: transparent;
 }
-.k-ie7 .k-icon, .k-ie7 .k-sprite { text-indent: 0; }
 
 .k-numerictextbox .k-select .k-link span.k-i-arrow-n  { background-position: 0 -3px; }
 .k-numerictextbox .k-select .k-link span.k-i-arrow-s { background-position: 0 -35px; }
@@ -495,6 +486,8 @@ html body .k-button-bare.k-upload-button:hover
 
 .k-i-more { .sprite-hoverable(4, 2); }
 
+.k-i-gantt-toggle { .sprite-hoverable(4, 15); }
+
 .k-file > .k-icon
 {
     background-position:-115px -91px;
@@ -518,7 +511,8 @@ html body .k-button-bare.k-upload-button:hover
 /* Dropdown icon in k-scheduler-views */
 
 .k-pager-numbers .k-current-page .k-link:after,
-.k-scheduler-toolbar > ul.k-scheduler-views > li.k-current-view .k-link:after {
+.k-scheduler-toolbar > ul.k-scheduler-views > li.k-current-view .k-link:after,
+.k-gantt-views > .k-current-view > .k-link:after {
     .sprite-hoverable(0, 2);
 }
 
@@ -747,8 +741,8 @@ a.k-button:hover
 
 /* override iOS styles in mobile Kendo */
 
-.k-widget,
-.k-widget *
+.km-widget,
+.km-widget *
 {
     -moz-background-clip: border-box;
     -webkit-background-clip: border-box;
@@ -880,9 +874,8 @@ input.k-checkbox,
 }
 
 // Avoid double-click bug with checkbox + label combination in Google Chrome
-input.k-checkbox + label{
-    -webkit-user-select:none;
-    user-select:none;
+input.k-checkbox + label {
+    -webkit-user-select: none;
 }
 
 /* Off-screen container used during export */
@@ -891,4 +884,13 @@ input.k-checkbox + label{
     overflow: hidden;
     left: -15000px;
     width: 14400px;
+}
+
+.km-native-scroller
+{
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    -ms-touch-action: pan-x pan-y;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    -ms-scroll-snap-type: proximity;
 }

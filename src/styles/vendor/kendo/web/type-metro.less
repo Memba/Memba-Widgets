@@ -13,7 +13,7 @@
 @disabled-text-color: #cccccc;
 @validation-background-color: @warning;
 @validation-border-color: @warning;
-@validation-text-color: darken(@base, 29%);
+@validation-text-color: contrast(@validation-background-color, lighten(@warning, 80%), darken(@warning, 60%), 0.5);
 @notification-info-background-color: @info;
 @notification-info-text-color: contrast(@base, lighten(@normal-text-color, 1%), darken(@normal-text-color, 7%), 0.5);
 @notification-info-border-color: contrast(@base, lighten(@info, 1%), darken(@info, 11%), 0.5);
@@ -42,12 +42,12 @@
 @resize-background-color: @normal-text-color;
 @input-background-color: @base;
 @shadow-color: fadeout(contrast(@base), 80%);
-@upload-progress-background-color: contrast(@base, lighten(@info, 2%), darken(@info, 2%), 0.5);
-@upload-progress-text-color: contrast(@base, lighten(@normal-text-color, 1%), darken(@normal-text-color, 14%), 0.5);
-@upload-success-background-color: contrast(@base, lighten(@success, 4%), darken(@success, 1%), 0.5);
-@upload-success-text-color: contrast(@base, lighten(@normal-text-color, 1%), darken(@normal-text-color, 15%), 0.5);
-@upload-error-background-color: contrast(@base, lighten(@base, 26%), darken(@base, 10%), 0.5);
-@upload-error-text-color: contrast(@base, lighten(@normal-text-color, 1%), darken(@normal-text-color, 23%), 0.5);
+@upload-progress-background-color: @info;
+@upload-progress-text-color: contrast(@upload-progress-background-color, lighten(@info, 70%), darken(@info, 60%), 0.5);
+@upload-success-background-color: @success;
+@upload-success-text-color: contrast(@upload-success-background-color, lighten(@success, 70%), darken(@success, 60%), 0.5);
+@upload-error-background-color: @error;
+@upload-error-text-color: contrast(@upload-error-background-color, lighten(@error, 70%), darken(@error, 60%), 0.5);
 @task-summary-color: contrast(@base, lighten(@widget-text-color, 25%), darken(@widget-text-color, 25%), 0.5);
 @task-summary-selected-color: contrast(@base, lighten(@selected-background-color, 15%), darken(@selected-background-color, 25%), 0.5);
 @loading-panel-color: @base;
@@ -490,7 +490,8 @@ html .km-pane-wrapper .k-header
 .k-grid-mobile .k-resize-handle-inner:before,
 .k-grid-mobile .k-resize-handle-inner:after,
 .k-pager-numbers .k-current-page .k-link:after,
-.k-scheduler-toolbar > ul.k-scheduler-views > li.k-current-view > .k-link:after
+.k-scheduler-toolbar > ul.k-scheduler-views > li.k-current-view > .k-link:after,
+.k-gantt-views > .k-current-view > .k-link:after
 {
     background-image: @sprite-image;
     border-color: transparent;
@@ -614,6 +615,7 @@ html .km-pane-wrapper .k-header
 .k-event.k-state-selected
 {
     background-position: 0 0;
+    .box-shadow(0 0 0 2px @normal-text-color);
 }
 
 .k-ie7 .k-event .k-resize-handle,
@@ -682,6 +684,10 @@ html .km-pane-wrapper .k-header
     color: @button-hover-text-color;
     border-color: @button-hover-border-color;
     background-color: @button-hover-background-color;
+}
+
+.k-tabstrip-scrollable .k-button-bare:hover {
+    background: @button-hover-background-color !important;
 }
 
 .k-button:active,
@@ -835,7 +841,7 @@ html .km-pane-wrapper .k-header
     color: @selected-text-color;
 }
 
-.k-popup .k-item > .k-group
+.k-popup .k-list .k-item > .k-group
 {
     background: @hover-border-color;
     color: @selected-text-color;
@@ -948,7 +954,8 @@ td.k-state-focused.k-state-selected
 .k-pager-wrap .k-link:hover,
 .k-other-month.k-state-hover .k-link,
 div.k-filebrowser-dropzone em,
-.k-draghandle:hover
+.k-draghandle:hover,
+.k-split-button:focus
 {
     .composite-background(@hover-gradient);
 }
@@ -1039,7 +1046,6 @@ div.k-filebrowser-dropzone em
     opacity:.7;
 }
 
-.k-ie7 .k-state-disabled,
 .k-ie8 .k-state-disabled
 {
     filter:alpha(opacity=70);
@@ -1058,11 +1064,15 @@ div.k-filebrowser-dropzone em
 .k-other-month,
 .k-other-month .k-link,
 .k-dropzone em,
-.k-dropzone .k-upload-status,
 .k-tile-empty strong,
 .k-slider .k-draghandle
 {
     color: @disabled-text-color;
+}
+
+.k-dropzone .k-upload-status
+{
+    color: @normal-text-color;
 }
 
 /* Progressbar */
@@ -1290,6 +1300,7 @@ div.k-filebrowser-dropzone em
     .box-shadow(@hover-shadow);
 }
 
+.k-textbox:focus,
 .k-autocomplete.k-state-focused,
 .k-dropdown-wrap.k-state-focused,
 .k-picker-wrap.k-state-focused,
@@ -1893,11 +1904,7 @@ html .km-pane-wrapper .km-widget,
     color: #fff;
     border-color: @error-border-color;
     background-color: red;
-    background-image: ~"-webkit-gradient(linear, 50% 0, 50% 100%, from(rgba(255,255,255,.3)), to(rgba(255,255,255,.15)))";
-    background-image: ~"-webkit-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,.15))";
-    background-image: ~"-moz-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,.15))";
-    background-image: ~"-ms-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,.15))";
-    background-image: ~"linear-gradient(to bottom, rgba(255,255,255,.3), rgba(255,255,255,.15))";
+    background-image: linear-gradient(to bottom, rgba(255,255,255,.3), rgba(255,255,255,.15));
 }
 
 .km-actionsheet .k-grid-delete:active,
@@ -2191,9 +2198,18 @@ html .km-pane-wrapper .km-widget,
     background-color: transparent;
 }
 
-.k-button:focus
-{
+.k-button:focus,
+.k-split-button:focus {
     outline:none;
+}
+
+.k-split-button:focus {
+    .box-shadow(@button-focused-shadow);
+}
+
+.k-split-button:focus > .k-button {
+    background: transparent;
+    border-color: transparent;
 }
 
 .k-editor .k-tool:focus
@@ -2558,25 +2574,17 @@ html .km-pane-wrapper .km-widget,
 .k-chart .k-mask {
     background-color: @normal-background;
     filter: alpha(opacity=70);
-    -moz-opacity: 0.70;
     opacity: 0.70;
 }
 
 .k-chart .k-selection {
     border-color: #c7c7c7;
-    -moz-box-shadow: inset 0 1px 12px rgba(0,0,0,.05);
-    -webkit-box-shadow: inset 0 1px 12px rgba(0,0,0,.05);
     box-shadow: inset 0 1px 12px rgba(0,0,0,.05);
     transition: box-shadow .2s linear, border-color .2s linear;
-    -moz-transition: box-shadow .2s linear, border-color .2s linear;
-    -webkit-transition: box-shadow .2s linear, border-color .2s linear;
-    -o-transition: box-shadow .2s linear, border-color .2s linear;
 }
 
 .k-chart .k-selection:hover {
     border-color: @hover-background;
-    -moz-box-shadow: inset 0 0 20px fadeout(@hover-background, 50%);
-    -webkit-box-shadow: inset 0 0 20px fadeout(@hover-background, 50%);
     box-shadow: inset 0 0 20px fadeout(@hover-background, 50%);
 }
 
@@ -2593,8 +2601,6 @@ html .km-pane-wrapper .km-widget,
 
 .k-chart .k-navigator-hint .k-tooltip {
     border: 0;
-    -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.3);
-    -moz-box-shadow: 0 1px 3px rgba(0,0,0,.3);
     box-shadow: 0 1px 3px rgba(0,0,0,.3);
     background: @hover-background;
     color: #ffffff;
@@ -2625,3 +2631,12 @@ html .km-pane-wrapper .km-widget,
     }
 }
 
+.k-calendar .k-link:not(.k-state-disabled):hover > .k-i-arrow-w {
+    background-position: 0 -48px;
+}
+
+.k-calendar .k-link:not(.k-state-disabled):hover > .k-i-arrow-e {
+    background-position: 0 -16px;
+}
+
+@import "themes/spreadsheet.less";

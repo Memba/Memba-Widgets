@@ -2,7 +2,7 @@
     define([ "./kendo.list", "./kendo.mobile.scroller" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "autocomplete",
     name: "AutoComplete",
     category: "web",
@@ -97,6 +97,7 @@ var __meta__ = {
                 .on("keydown" + ns, proxy(that._keydown, that))
                 .on("paste" + ns, proxy(that._search, that))
                 .on("focus" + ns, function () {
+                    that._active = true;
                     that._prev = that._accessor();
                     that._placeholder(false);
                     wrapper.addClass(FOCUSED);
@@ -104,6 +105,7 @@ var __meta__ = {
                 .on("focusout" + ns, function () {
                     that._change();
                     that._placeholder();
+                    that._active = false;
                     wrapper.removeClass(FOCUSED);
                 })
                 .attr({
@@ -131,6 +133,8 @@ var __meta__ = {
             if (disabled) {
                 that.enable(false);
             }
+
+            that.listView.bind("click", function(e) { e.preventDefault(); });
 
             kendo.notify(that);
         },
@@ -360,6 +364,8 @@ var __meta__ = {
             var item = e.item;
             var element = this.element;
 
+            this._active = true;
+
             if (this.trigger("select", { item: item })) {
                 this.close();
                 return;
@@ -418,9 +424,10 @@ var __meta__ = {
 
             that._angularItems("compile");
 
-            //reset list value
-            that.listView.value([]);
-            that.listView.focus(-1);
+            if (that._open) {
+                that.listView.value([]);
+                that.listView.focus(-1);
+            }
 
             that.listView.filter(false);
 
@@ -432,7 +439,7 @@ var __meta__ = {
                 var current = this.listView.focus();
 
                 if (options.highlightFirst && !current) {
-                    that.listView.first();
+                    that.listView.focusFirst();
                 }
 
                 if (options.suggest && isActive) {
@@ -463,7 +470,7 @@ var __meta__ = {
         },
 
         _listChange: function() {
-            if (!this.listView.filter()) {
+            if (!this.listView.filter() && this._active) {
                 this._selectValue(this.listView.selectedDataItems()[0]);
             }
         },
@@ -521,12 +528,12 @@ var __meta__ = {
 
             if (key === keys.DOWN) {
                 if (visible) {
-                    this._move(current ? "next" : "first");
+                    this._move(current ? "focusNext" : "focusFirst");
                 }
                 e.preventDefault();
             } else if (key === keys.UP) {
                 if (visible) {
-                    this._move(current ? "prev" : "last");
+                    this._move(current ? "focusPrev" : "focusLast");
                 }
                 e.preventDefault();
             } else if (key === keys.ENTER || key === keys.TAB) {

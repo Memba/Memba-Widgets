@@ -2,7 +2,7 @@
     define([ "./kendo.data" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "pager",
     name: "Pager",
     category: "framework",
@@ -178,7 +178,7 @@ var __meta__ = {
 
             that.element
                 .on(CLICK + NS , "a", proxy(that._click, that))
-                .addClass("k-pager-wrap k-widget");
+                .addClass("k-pager-wrap k-widget k-floatwrap");
 
             that.element.on(CLICK + NS , ".k-current-page", proxy(that._toggleActive, that));
 
@@ -378,12 +378,12 @@ var __meta__ = {
 
             if (!isNaN(pageSize)){
                 dataSource.pageSize(pageSize);
-            } else if (value == "all") {
+            } else if ((value + "").toLowerCase() == "all") {
                 dataSource.pageSize(dataSource.total());
             }
         },
 
-        _toggleActive: function(e) {
+        _toggleActive: function() {
             this.list.toggleClass("k-state-expanded");
         },
 
@@ -398,7 +398,7 @@ var __meta__ = {
         },
 
         totalPages: function() {
-            return Math.ceil((this.dataSource.total() || 0) / this.pageSize());
+            return Math.ceil((this.dataSource.total() || 0) / (this.pageSize() || 1));
         },
 
         pageSize: function() {

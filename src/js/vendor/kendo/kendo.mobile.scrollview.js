@@ -2,7 +2,7 @@
     define([ "./kendo.fx", "./kendo.data", "./kendo.draganddrop" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "mobile.scrollview",
     name: "ScrollView",
     category: "mobile",
@@ -697,6 +697,7 @@ var __meta__ = {
             content.page = that.page;
 
             content.bind("reset", function() {
+                this._pendingPageRefresh = false;
                 that._syncWithContent();
                 that.trigger(REFRESH, { pageCount: content.pageCount, page: content.page });
             });

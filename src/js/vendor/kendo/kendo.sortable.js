@@ -3,7 +3,7 @@
     define([ "./kendo.draganddrop" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "sortable",
     name: "Sortable",
     category: "framework",
@@ -58,7 +58,7 @@ var __meta__ = {
                 that.options.hint = defaultHint;
             }
 
-            that._draggable = that._createDraggable();
+            that.draggable = that._createDraggable();
         },
 
         events: [
@@ -84,11 +84,12 @@ var __meta__ = {
             axis: null,
             ignore: null,
             autoScroll: false,
-            cursor: "auto"
+            cursor: "auto",
+            moveOnDragEnter: false
         },
 
         destroy: function() {
-            this._draggable.destroy();
+            this.draggable.destroy();
             Widget.fn.destroy.call(this);
         },
 
@@ -115,7 +116,6 @@ var __meta__ = {
 
         _dragstart: function(e) {
             var draggedElement = this.draggedElement = e.currentTarget,
-                target = e.target || kendo.elementUnderCursor(e),
                 disabled = this.options.disabled,
                 handler = this.options.handler,
                 _placeholder = this.options.placeholder,
@@ -139,7 +139,7 @@ var __meta__ = {
             }
         },
 
-        _dragcancel: function(e) {
+        _dragcancel: function() {
             this._cancel();
             this.trigger(CANCEL, { item: this.draggedElement });
 
@@ -157,6 +157,7 @@ var __meta__ = {
                 sibling,
                 getSibling,
                 axis = this.options.axis,
+                moveOnDragEnter= this.options.moveOnDragEnter,
                 eventData = { item: draggedElement, list: this, draggableEvent: e };
 
             if(axis === "x" || axis === "y") {
@@ -184,15 +185,15 @@ var __meta__ = {
                 }
 
                 if(this._isFloating(target.element)) { //horizontal
-                    if(axisDelta.x < 0 && offsetDelta.left < 0) {
+                    if(axisDelta.x < 0 && (moveOnDragEnter || offsetDelta.left < 0)) {
                         direction = "prev";
-                    } else if(axisDelta.x > 0 && offsetDelta.left > 0) {
+                    } else if(axisDelta.x > 0 && (moveOnDragEnter || offsetDelta.left > 0)) {
                         direction = "next";
                     }
                 } else { //vertical
-                    if(axisDelta.y < 0 && offsetDelta.top < 0) {
+                    if(axisDelta.y < 0 && (moveOnDragEnter || offsetDelta.top < 0)) {
                         direction = "prev";
-                    } else if(axisDelta.y > 0 && offsetDelta.top > 0) {
+                    } else if(axisDelta.y > 0 && (moveOnDragEnter || offsetDelta.top > 0)) {
                         direction = "next";
                     }
                 }
@@ -258,7 +259,7 @@ var __meta__ = {
             placeholder.replaceWith(draggedElement);
 
             draggedElement.show();
-            this._draggable.dropped = true;
+            this.draggable.dropped = true;
 
             eventData = {
                 action: this.indexOf(draggedElement) != MISSING_INDEX ? ACTION_SORT : ACTION_REMOVE,
@@ -305,10 +306,7 @@ var __meta__ = {
 
         _findElementUnderCursor: function(e) {
             var elementUnderCursor = kendo.elementUnderCursor(e),
-                draggable = e.sender,
-                disabled = this.options.disabled,
-                filter = this.options.filter,
-                items = this.items();
+                draggable = e.sender;
 
             if(containsOrEqualTo(draggable.hint[0], elementUnderCursor)) {
                 draggable.hint.hide();

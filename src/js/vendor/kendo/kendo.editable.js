@@ -2,7 +2,7 @@
     define([ "./kendo.datepicker", "./kendo.numerictextbox", "./kendo.validator", "./kendo.binder" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "editable",
     name: "Editable",
     category: "framework",
@@ -131,8 +131,9 @@ var __meta__ = {
         },
         "values": function(container, options) {
             var attr = createAttributes(options);
+            var items = kendo.stringify(convertItems(options.values));
             $('<select ' + kendo.attr("text-field") + '="text"' + kendo.attr("value-field") + '="value"' +
-                kendo.attr("source") + "=\'" + kendo.stringify(convertItems(options.values)).replace(/\'/g,"&apos;") +
+                kendo.attr("source") + "=\'" + (items ? items.replace(/\'/g,"&apos;") : items) +
                 "\'" + kendo.attr("role") + '="dropdownlist"/>') .attr(attr).appendTo(container);
             $('<span ' + kendo.attr("for") + '="' + options.field + '" class="k-invalid-msg"/>').hide().appendTo(container);
         }
@@ -214,7 +215,7 @@ var __meta__ = {
             values[e.field] = e.value;
 
             input = $(':input[' + bindAttribute + '*="' + fieldName + '"]', that.element)
-                .filter("[" + kendo.attr("validate") + "!='false']").filter(function(element) {
+                .filter("[" + kendo.attr("validate") + "!='false']").filter(function() {
                    return bindingRegex.test($(this).attr(bindAttribute));
                 });
             if (input.length > 1) {
@@ -294,7 +295,7 @@ var __meta__ = {
                 that.angular("compile", function(){
                     return {
                         elements: container,
-                        data: [ { dataItem: model } ]
+                        data: container.map(function() { return { dataItem: model }; })
                     };
                 });
             }

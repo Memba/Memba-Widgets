@@ -2,7 +2,7 @@
     define([ "./kendo.core", "./kendo.data.odata", "./kendo.data.xml" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "data",
     name: "Data source",
     category: "framework",
@@ -14,11 +14,16 @@ var __meta__ = {
         description: "Support for accessing Open Data Protocol (OData) services.",
         depends: [ "data.odata" ]
     }, {
+        id: "data-signalr",
+        name: "SignalR",
+        description: "Support for binding to SignalR hubs.",
+        depends: [ "data.signalr" ]
+    }, {
         id: "data-XML",
         name: "XML",
         description: "Support for binding to XML.",
         depends: [ "data.xml" ]
-    } ]
+    }]
 };
 
 /*jshint eqnull: true, loopfunc: true, evil: true */
@@ -277,7 +282,7 @@ var __meta__ = {
             return result;
         },
 
-        reduce: function(callback, initialValue) {
+        reduce: function(callback) {
             var idx = 0,
                 result,
                 length = this.length;
@@ -295,7 +300,7 @@ var __meta__ = {
             return result;
         },
 
-        reduceRight: function(callback, initialValue) {
+        reduceRight: function(callback) {
             var idx = this.length - 1,
                 result;
 
@@ -444,6 +449,8 @@ var __meta__ = {
 
             Observable.fn.init.call(this);
 
+            this._handlers = {};
+
             for (field in value) {
                 member = value[field];
 
@@ -458,7 +465,7 @@ var __meta__ = {
         },
 
         shouldSerialize: function(field) {
-            return this.hasOwnProperty(field) && field !== "_events" && typeof this[field] !== FUNCTION && field !== "uid";
+            return this.hasOwnProperty(field) && field !== "_handlers" && field !== "_events" && typeof this[field] !== FUNCTION && field !== "uid";
         },
 
         forEach: function(f) {
@@ -531,6 +538,12 @@ var __meta__ = {
                 current = kendo.getter(field, true)(that);
 
             if (current !== value) {
+                if (current instanceof Observable && this._handlers[field]) {
+                    if (this._handlers[field].get) {
+                       current.unbind(GET, this._handlers[field].get);
+                    }
+                    current.unbind(CHANGE, this._handlers[field].change);
+                }
 
                 if (!that.trigger("set", { field: field, value: value })) {
                     if (!composite) {
@@ -546,8 +559,10 @@ var __meta__ = {
         parent: noop,
 
         wrap: function(object, field, parent) {
-            var that = this,
-                type = toString.call(object);
+            var that = this;
+            var get;
+            var change;
+            var type = toString.call(object);
 
             if (object != null && (type === "[object Object]" || type === "[object Array]")) {
                 var isObservableArray = object instanceof ObservableArray;
@@ -558,18 +573,22 @@ var __meta__ = {
                         object = new ObservableObject(object);
                     }
 
-                    if (object.parent() != parent()) {
-                        object.bind(GET, eventHandler(that, GET, field, true));
-                        object.bind(CHANGE, eventHandler(that, CHANGE, field, true));
-                    }
+                    get = eventHandler(that, GET, field, true);
+                    object.bind(GET, get);
+                    change = eventHandler(that, CHANGE, field, true);
+                    object.bind(CHANGE, change);
+
+                    that._handlers[field] = { get: get, change: change };
                 } else if (type === "[object Array]" || isObservableArray || isDataSource) {
                     if (!isObservableArray && !isDataSource) {
                         object = new ObservableArray(object);
                     }
 
-                    if (object.parent() != parent()) {
-                        object.bind(CHANGE, eventHandler(that, CHANGE, field, false));
-                    }
+                    change = eventHandler(that, CHANGE, field, false);
+
+                    object.bind(CHANGE, change);
+
+                    that._handlers[field] = { change: change };
                 }
 
                 object.parent = parent;
@@ -1057,6 +1076,20 @@ var __meta__ = {
 
                 return a + ".lastIndexOf('" + b + "', 0) == 0";
             },
+            doesnotstartwith: function(a, b, ignore) {
+                if (ignore) {
+                    a = "(" + a + " || '').toLowerCase()";
+                    if (b) {
+                        b = b.toLowerCase();
+                    }
+                }
+
+                if (b) {
+                    b = quote(b);
+                }
+
+                return a + ".lastIndexOf('" + b + "', 0) == -1";
+            },
             endswith: function(a, b, ignore) {
                 if (ignore) {
                     a = "(" + a + " || '').toLowerCase()";
@@ -1070,6 +1103,20 @@ var __meta__ = {
                 }
 
                 return a + ".indexOf('" + b + "', " + a + ".length - " + (b || "").length + ") >= 0";
+            },
+            doesnotendwith: function(a, b, ignore) {
+                if (ignore) {
+                    a = "(" + a + " || '').toLowerCase()";
+                    if (b) {
+                        b = b.toLowerCase();
+                    }
+                }
+
+                if (b) {
+                    b = quote(b);
+                }
+
+                return a + ".indexOf('" + b + "', " + a + ".length - " + (b || "").length + ") < 0";
             },
             contains: function(a, b, ignore) {
                 if (ignore) {
@@ -1995,7 +2042,7 @@ var __meta__ = {
     }
 
     function wrapGroupItems(data, model) {
-        var idx, length, group, items;
+        var idx, length, group;
         if (model) {
             for (idx = 0, length = data.length; idx < length; idx++) {
                 group = data.at(idx);
@@ -2080,11 +2127,7 @@ var __meta__ = {
     function indexOfPristineModel(data, model) {
         if (model) {
             return indexOf(data, function(item) {
-                if (item.uid) {
-                    return item.uid == model.uid;
-                }
-
-                return item[model.idField] === model.id;
+                return (item.uid && item.uid == model.uid) || (item[model.idField] === model.id && model.id !== model._defaultId);
             });
         }
         return -1;
@@ -2261,6 +2304,10 @@ var __meta__ = {
             batch: false
         },
 
+        clone: function() {
+            return this;
+        },
+
         online: function(value) {
             if (value !== undefined) {
                 if (this._online != value) {
@@ -2286,7 +2333,7 @@ var __meta__ = {
                 return this._storage.setItem(state);
             }
 
-            return this._storage.getItem() || {};
+            return this._storage.getItem() || [];
         },
 
         _isServerGrouped: function() {
@@ -2634,12 +2681,9 @@ var __meta__ = {
 
         sync: function() {
             var that = this,
-                idx,
-                length,
                 created = [],
                 updated = [],
-                destroyed = that._destroyed,
-                data = that._flatData(that._data);
+                destroyed = that._destroyed;
 
             var promise = $.Deferred().resolve().promise();
 
@@ -3122,13 +3166,15 @@ var __meta__ = {
             if (this.options.offlineStorage != null) {
                 var state = items(this._data);
 
+                var destroyed = [];
+
                 for (var idx = 0; idx < this._destroyed.length; idx++) {
                     var item = this._destroyed[idx].toJSON();
                     item.__state__ = "destroy";
-                    state.push(item);
+                    destroyed.push(item);
                 }
 
-                this.offlineData(state);
+                this.offlineData(state.concat(destroyed));
 
                 if (updatePristine) {
                     this._pristineData = state;
@@ -3240,8 +3286,7 @@ var __meta__ = {
 
         _observe: function(data) {
             var that = this,
-                model = that.reader.model,
-                wrap = false;
+                model = that.reader.model;
 
             that._shouldDetachObservableParents = true;
 
@@ -3270,6 +3315,27 @@ var __meta__ = {
             return data.bind(CHANGE, that._changeHandler);
         },
 
+        _updateTotalForAction: function(action, items) {
+            var that = this;
+
+            var total = parseInt(that._total, 10);
+
+            if (!isNumber(that._total)) {
+                total = parseInt(that._pristineTotal, 10);
+            }
+            if (action === "add") {
+                total += items.length;
+            } else if (action === "remove") {
+                total -= items.length;
+            } else if (action !== "itemchange" && action !== "sync" && !that.options.serverPaging) {
+                total = that._pristineTotal;
+            } else if (action === "sync") {
+                total = that._pristineTotal = parseInt(that._total, 10);
+            }
+
+            that._total = total;
+        },
+
         _change: function(e) {
             var that = this, idx, length, action = e ? e.action : "";
 
@@ -3282,23 +3348,20 @@ var __meta__ = {
             }
 
             if (that.options.autoSync && (action === "add" || action === "remove" || action === "itemchange")) {
-                that.sync();
-            } else {
-                var total = parseInt(that._total, 10);
-                if (!isNumber(that._total)) {
-                    total = parseInt(that._pristineTotal, 10);
-                }
-                if (action === "add") {
-                    total += e.items.length;
-                } else if (action === "remove") {
-                    total -= e.items.length;
-                } else if (action !== "itemchange" && action !== "sync" && !that.options.serverPaging) {
-                    total = that._pristineTotal;
-                } else if (action === "sync") {
-                    total = that._pristineTotal = parseInt(that._total, 10);
-                }
 
-                that._total = total;
+                var handler = function(args) {
+                    if (args.action === "sync") {
+                        that.unbind("change", handler);
+                        that._updateTotalForAction(action, e.items);
+                    }
+                };
+
+                that.first("change", handler);
+
+                that.sync();
+
+            } else {
+                that._updateTotalForAction(action, e ? e.items : []);
 
                 that._process(that._data, e);
             }
@@ -3548,8 +3611,8 @@ var __meta__ = {
                 return that._filter;
             }
 
-            that._query({ filter: val, page: 1 });
             that.trigger("reset");
+            that._query({ filter: val, page: 1 });
         },
 
         group: function(val) {
@@ -3991,12 +4054,12 @@ var __meta__ = {
 
     Transport.create = function(options, data, dataSource) {
         var transport,
-            transportOptions = options.transport;
+            transportOptions = options.transport ? $.extend({}, options.transport) : null;
 
         if (transportOptions) {
             transportOptions.read = typeof transportOptions.read === STRING ? { url: transportOptions.read } : transportOptions.read;
 
-            if (dataSource) {
+            if (options.type === "jsdo") {
                 transportOptions.dataSource = dataSource;
             }
 
@@ -4396,7 +4459,12 @@ var __meta__ = {
         },
 
         _find: function(method, value) {
-            var idx, length, node, data, children;
+            var idx, length, node, children;
+            var data = this._data;
+
+            if (!data) {
+                return;
+            }
 
             node = DataSource.fn[method].call(this, value);
 
@@ -4405,10 +4473,6 @@ var __meta__ = {
             }
 
             data = this._flatData(this._data);
-
-            if (!data) {
-                return;
-            }
 
             for (idx = 0, length = data.length; idx < length; idx++) {
                 children = data[idx].children;
@@ -4553,9 +4617,7 @@ var __meta__ = {
 
         at: function(index)  {
             var pageSize = this.pageSize,
-                item,
-                itemPresent = true,
-                changeTo;
+                itemPresent = true;
 
             if (index >= this.total()) {
                 this.trigger("endreached", {index: index });

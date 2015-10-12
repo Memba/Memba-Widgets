@@ -2,7 +2,7 @@
     define([ "./kendo.draganddrop" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "window",
     name: "Window",
     category: "web",
@@ -385,6 +385,8 @@ var __meta__ = {
 
         setOptions: function(options) {
             Widget.fn.setOptions.call(this, options);
+            var scrollable = this.options.scrollable !== false;
+
             this.restore();
             this._animations();
             this._dimensions();
@@ -392,6 +394,11 @@ var __meta__ = {
             this._resizable();
             this._draggable();
             this._actions();
+            if (typeof options.modal !== "undefined") {
+                this._overlay(options.modal);
+            }
+
+            this.element.css(OVERFLOW, scrollable ? "" : "hidden");
         },
 
         events:[
@@ -431,6 +438,7 @@ var __meta__ = {
             maxWidth: Infinity,
             maxHeight: Infinity,
             pinned: false,
+            scrollable: true,
             position: {},
             content: null,
             visible: null,
@@ -566,7 +574,7 @@ var __meta__ = {
                 var object = that._object(dom);
                 var options = object && object.options;
 
-                return options && options.modal && options.visible && dom.is(VISIBLE);
+                return options && options.modal && options.visible && options.appendTo === that.options.appendTo && dom.is(VISIBLE);
             }).sort(function(a, b){
                 return +$(a).css("zIndex") - +$(b).css("zIndex");
             });
@@ -578,8 +586,13 @@ var __meta__ = {
 
         _object: function(element) {
             var content = element.children(KWINDOWCONTENT);
+            var widget = kendo.widgetInstance(content);
 
-            return content.data("kendoWindow") || content.data("kendo" + this.options.name);
+            if (widget instanceof Window) {
+                return widget;
+            }
+
+            return undefined;
         },
 
         center: function () {
@@ -742,11 +755,14 @@ var __meta__ = {
         },
 
         _activate: function() {
+            var scrollable = this.options.scrollable !== false;
+
             if (this.options.autoFocus) {
                 this.element.focus();
             }
+
+            this.element.css(OVERFLOW, scrollable ? "" : "hidden");
             this.trigger(ACTIVATE);
-            this.wrapper.children(KWINDOWCONTENT).css(OVERFLOW, "");
         },
 
         _removeOverlay: function(suppressAnimation) {
@@ -816,12 +832,15 @@ var __meta__ = {
             }
         },
 
-        _deactivate: function() {
-            this.wrapper.hide().css("opacity","");
-            this.trigger(DEACTIVATE);
-            var lastModal = this._object(this._modals().last());
-            if (lastModal) {
-                lastModal.toFront();
+        _deactivate: function () {
+            var that = this;
+            that.wrapper.hide().css("opacity", "");
+            that.trigger(DEACTIVATE);
+            if (that.options.modal) {
+                var lastModal = that._object(that._modals().last());
+                if (lastModal) {
+                    lastModal.toFront();
+                }
             }
         },
 
@@ -1141,36 +1160,38 @@ var __meta__ = {
             }, options));
         },
 
-        destroy: function () {
-            var that = this;
-
-            if (that.resizing) {
-                that.resizing.destroy();
+        _destroy: function() {
+            if (this.resizing) {
+                this.resizing.destroy();
             }
 
-            if (that.dragging) {
-                that.dragging.destroy();
+            if (this.dragging) {
+                this.dragging.destroy();
             }
 
-            that.wrapper.off(NS)
+            this.wrapper.off(NS)
                 .children(KWINDOWCONTENT).off(NS).end()
                 .find(".k-resize-handle,.k-window-titlebar").off(NS);
 
-            $(window).off("resize" + NS + that._marker);
+            $(window).off("resize" + NS + this._marker);
 
-            clearTimeout(that._loadingIconTimeout);
+            clearTimeout(this._loadingIconTimeout);
 
-            Widget.fn.destroy.call(that);
+            Widget.fn.destroy.call(this);
 
-            that.unbind(undefined);
+            this.unbind(undefined);
 
-            kendo.destroy(that.wrapper);
+            kendo.destroy(this.wrapper);
 
-            that._removeOverlay(true);
+            this._removeOverlay(true);
+        },
 
-            that.wrapper.empty().remove();
+        destroy: function() {
+            this._destroy();
 
-            that.wrapper = that.appendTo = that.element = $();
+            this.wrapper.empty().remove();
+
+            this.wrapper = this.appendTo = this.element = $();
         },
 
         _createWindow: function() {

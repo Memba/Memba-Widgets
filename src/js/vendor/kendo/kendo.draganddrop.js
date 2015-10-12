@@ -2,7 +2,7 @@
     define([ "./kendo.core", "./kendo.userevents" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "draganddrop",
     name: "Drag & drop",
     category: "framework",
@@ -769,14 +769,14 @@ var __meta__ = {
                 that.boundaries = containerBoundaries(container, that.hint);
             }
 
+            $(document).on(KEYUP, that._captureEscape);
+
             if (that._trigger(DRAGSTART, e)) {
                 that.userEvents.cancel();
                 that._afterEnd();
             }
 
             that.userEvents.capture();
-
-            $(document).on(KEYUP, that._captureEscape);
         },
 
         _hold: function(e) {
@@ -901,11 +901,10 @@ var __meta__ = {
                 }
             });
 
-            this._trigger(DRAGEND, e);
-            this._cancel(e.event);
+            this._cancel(this._trigger(DRAGEND, e));
         },
 
-        _cancel: function() {
+        _cancel: function(isDefaultPrevented) {
             var that = this;
 
             that._scrollableParent = null;
@@ -914,7 +913,13 @@ var __meta__ = {
 
             if (that.hint && !that.dropped) {
                 setTimeout(function() {
-                    that.hint.stop(true, true).animate(that.currentTargetOffset, "fast", that._afterEndHandler);
+                    that.hint.stop(true, true);
+
+                    if (isDefaultPrevented) {
+                        that._afterEndHandler();
+                    } else {
+                        that.hint.animate(that.currentTargetOffset, "fast", that._afterEndHandler);
+                    }
                 }, 0);
 
             } else {

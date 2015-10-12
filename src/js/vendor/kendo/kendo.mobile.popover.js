@@ -2,7 +2,7 @@
     define([ "./kendo.popup", "./kendo.mobile.pane" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "mobile.popover",
     name: "PopOver",
     category: "mobile",
@@ -14,7 +14,6 @@ var __meta__ = {
     var kendo = window.kendo,
         mobile = kendo.mobile,
         ui = mobile.ui,
-        SHOW = "show",
         HIDE = "hide",
         OPEN = "open",
         CLOSE = "close",
@@ -201,8 +200,7 @@ var __meta__ = {
     var PopOver = Widget.extend({
         init: function(element, options) {
             var that = this,
-                popupOptions,
-                paneOptions;
+                popupOptions;
 
             that.initialOpen = false;
 
@@ -221,7 +219,6 @@ var __meta__ = {
             });
 
             that.pane = new ui.Pane(that.element, $.extend(this.options.pane, { $angular: this.options.$angular }));
-            that.pane.navigateToInitial();
 
             kendo.notify(that, ui);
         },
@@ -241,7 +238,10 @@ var __meta__ = {
             this.popup.show(target);
 
             if (!this.initialOpen) {
-                this.pane.navigate("");
+                if (!this.pane.navigateToInitial()) {
+                    this.pane.navigate("");
+                }
+
                 this.popup.popup._position();
                 this.initialOpen = true;
             } else {

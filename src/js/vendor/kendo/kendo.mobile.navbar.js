@@ -2,7 +2,7 @@
     define([ "./kendo.core" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "mobile.navbar",
     name: "NavBar",
     category: "mobile",
@@ -64,11 +64,7 @@ var __meta__ = {
 
         refresh: function(e) {
             var view = e.view;
-            if (view.options.title) {
-                this.title(view.options.title);
-            } else {
-                toggleTitle(this.centerElement);
-            }
+            this.title(view.options.title);
         },
 
         destroy: function() {

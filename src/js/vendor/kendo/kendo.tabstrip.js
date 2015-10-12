@@ -2,7 +2,7 @@
     define([ "./kendo.data" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "tabstrip",
     name: "TabStrip",
     category: "web",
@@ -609,7 +609,13 @@ var __meta__ = {
             each(inserted.tabs, function (idx) {
                 var contents = inserted.contents[idx];
                 that.tabGroup.append(this);
-                that.wrapper.append(contents);
+                if (that.options.tabPosition == "bottom") {
+                    that.tabGroup.before(contents);
+                } else if (that._scrollableModeActive) {
+                    that._scrollPrevButton.before(contents);
+                } else {
+                    that.wrapper.append(contents);
+                }
                 that.angular("compile", function(){ return { elements: [ contents ] }; });
             });
 
@@ -859,8 +865,7 @@ var __meta__ = {
 
         _tabPosition: function() {
             var that = this,
-                tabPosition = that.options.tabPosition,
-                tabGroup = that.tabGroup;
+                tabPosition = that.options.tabPosition;
 
             that.wrapper.addClass("k-floatwrap k-tabstrip-" + tabPosition);
 
@@ -954,7 +959,7 @@ var __meta__ = {
 
             return prevent;
         },
-        
+
         _scrollable: function() {
             var that = this,
                 options = that.options,
@@ -1001,9 +1006,15 @@ var __meta__ = {
                 } else if (that._scrollableModeActive && tabGroupScrollWidth <= wrapperOffsetWidth) {
                     that._scrollableModeActive = false;
 
+                    that.wrapper.removeClass("k-tabstrip-scrollable");
+
                     that._scrollPrevButton.off().remove();
                     that._scrollNextButton.off().remove();
                     that.tabGroup.css({ marginLeft: "", marginRight: "" });
+                } else if (!that._scrollableModeActive) {
+                    that.wrapper.removeClass("k-tabstrip-scrollable");
+                } else {
+                    that._toggleScrollButtons();
                 }
             }
         },

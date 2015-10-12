@@ -2,7 +2,7 @@
     define([ "./kendo.core", "./kendo.popup" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "notification",
     name: "Notification",
     category: "web",
@@ -53,7 +53,7 @@ var __meta__ = {
             that._compileTemplates(options.templates);
             that._guid = "_" + kendo.guid();
             that._isRtl = kendo.support.isRtl(element);
-            that._compileStacking(options.stacking, options.position.top);
+            that._compileStacking(options.stacking, options.position.top, options.position.left);
 
             kendo.notify(that);
         },
@@ -114,15 +114,16 @@ var __meta__ = {
             return type ? that._compiled[type] || defaultCompiled : defaultCompiled;
         },
 
-        _compileStacking: function(stacking, top) {
+        _compileStacking: function(stacking, top, left) {
             var that = this,
                 paddings = { paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0 },
+                horizontalAlignment = left !== null ? LEFT : RIGHT,
                 origin, position;
 
             switch (stacking) {
                 case "down":
-                    origin = BOTTOM + " " + LEFT;
-                    position = TOP + " " + LEFT;
+                    origin = BOTTOM + " " + horizontalAlignment;
+                    position = TOP + " " + horizontalAlignment;
                     delete paddings.paddingBottom;
                 break;
                 case RIGHT:
@@ -136,18 +137,18 @@ var __meta__ = {
                     delete paddings.paddingLeft;
                 break;
                 case UP:
-                    origin = TOP + " " + LEFT;
-                    position = BOTTOM + " " + LEFT;
+                    origin = TOP + " " + horizontalAlignment;
+                    position = BOTTOM + " " + horizontalAlignment;
                     delete paddings.paddingTop;
                 break;
                 default:
                     if (top !== null) {
-                        origin = BOTTOM + " " + LEFT;
-                        position = TOP + " " + LEFT;
+                        origin = BOTTOM + " " + horizontalAlignment;
+                        position = TOP + " " + horizontalAlignment;
                         delete paddings.paddingBottom;
                     } else {
-                        origin = TOP + " " + LEFT;
-                        position = BOTTOM + " " + LEFT;
+                        origin = TOP + " " + horizontalAlignment;
+                        position = BOTTOM + " " + horizontalAlignment;
                         delete paddings.paddingTop;
                     }
                 break;
@@ -165,13 +166,22 @@ var __meta__ = {
                 closeIcon;
 
             function attachClick(target) {
-                target.on(CLICK + NS, function() {
-                    popup.close();
+                target.on(CLICK + NS, function () {
+                    that._hidePopup(popup);
+                });
+            }
+
+            if (popup.options.anchor !== document.body && popup.options.origin.indexOf(RIGHT) > 0) {
+                popup.bind("open", function () {
+                    var shadows = kendo.getShadows(popup.element);
+                    setTimeout(function () {
+                        popup.wrapper.css("left", parseFloat(popup.wrapper.css("left")) + shadows.left + shadows.right);
+                    });
                 });
             }
 
             if (options.hideOnClick) {
-                popup.bind("activate", function(e) {
+                popup.bind("activate", function() {
                     if (attachDelay) {
                         setTimeout(function(){
                             attachClick(popup.element);
@@ -197,10 +207,9 @@ var __meta__ = {
                 autoHideAfter = options.autoHideAfter,
                 x = options.position.left,
                 y = options.position.top,
-                allowHideAfter = options.allowHideAfter,
-                popup, openPopup, attachClick, closeIcon;
+                popup, openPopup;
 
-            openPopup = $("." + that._guid).last();
+            openPopup = $("." + that._guid + ":not(.k-hiding)").last();
 
             popup = new kendo.ui.Popup(wrapper, {
                 anchor: openPopup[0] ? openPopup : document.body,
@@ -210,7 +219,7 @@ var __meta__ = {
                 modal: true,
                 collision: "",
                 isRtl: that._isRtl,
-                close: function(e) {
+                close: function() {
                     that._triggerHide(this.element);
                 },
                 deactivate: function(e) {
@@ -248,10 +257,15 @@ var __meta__ = {
             }
 
             if (autoHideAfter > 0) {
-                setTimeout(function(){
-                    popup.close();
+                setTimeout(function () {
+                    that._hidePopup(popup);
                 }, autoHideAfter);
             }
+        },
+
+        _hidePopup: function (popup) {
+            popup.wrapper.addClass("k-hiding");
+            popup.close();
         },
 
         _togglePin: function(wrapper, pin) {
@@ -296,8 +310,7 @@ var __meta__ = {
             var that = this,
                 autoHideAfter = options.autoHideAfter,
                 animation = options.animation,
-                insertionMethod = options.stacking == UP || options.stacking == LEFT ? "prependTo" : "appendTo",
-                attachClick;
+                insertionMethod = options.stacking == UP || options.stacking == LEFT ? "prependTo" : "appendTo";
 
             wrapper
                 .addClass(that._guid)
@@ -333,7 +346,7 @@ var __meta__ = {
             var that = this,
                 options = that.options,
                 wrapper = $(WRAPPER),
-                args, defaultArgs, popup;
+                args, defaultArgs;
 
             if (!type) {
                 type = INFO;
@@ -407,7 +420,7 @@ var __meta__ = {
                 openedNotifications.each(function(idx, element){
                     var popup = $(element).data("kendoPopup");
                     if (popup) {
-                        popup.close();
+                        that._hidePopup(popup);
                     }
                 });
             }
@@ -439,7 +452,7 @@ var __meta__ = {
             }
 
             if (newOptions.stacking !== undefined || newOptions.position !== undefined) {
-                that._compileStacking(options.stacking, options.position.top);
+                that._compileStacking(options.stacking, options.position.top, options.position.left);
             }
         },
 

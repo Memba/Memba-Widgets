@@ -2,7 +2,7 @@
     define([ "./kendo.list", "./kendo.mobile.scroller" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "dropdownlist",
     name: "DropDownList",
     category: "web",
@@ -38,7 +38,6 @@ var __meta__ = {
         STATEDISABLED = "k-state-disabled",
         ARIA_DISABLED = "aria-disabled",
         ARIA_READONLY = "aria-readonly",
-        SELECTED = "k-state-selected",
         HOVEREVENTS = "mouseenter" + ns + " mouseleave" + ns,
         TABINDEX = "tabindex",
         STATE_FILTER = "filter",
@@ -123,6 +122,8 @@ var __meta__ = {
             if (disabled) {
                 that.enable(false);
             }
+
+            that.listView.bind("click", function(e) { e.preventDefault(); });
 
             kendo.notify(that);
         },
@@ -224,7 +225,7 @@ var __meta__ = {
             this._focusElement(this.filterInput);
         },
 
-        _allowOpening: function(length) {
+        _allowOpening: function() {
             return this.optionLabel[0] || this.filterInput || this.dataSource.view().length;
         },
 
@@ -406,7 +407,6 @@ var __meta__ = {
             var initialIndex = that._initialIndex;
             var optionLabel = that.options.optionLabel;
             var filtered = that._state === STATE_FILTER;
-            var element = that.element[0];
 
             var data = that.dataSource.flatView();
             var length = data.length;
@@ -587,7 +587,6 @@ var __meta__ = {
             var that = this;
             var key = e.keyCode;
             var altKey = e.altKey;
-            var ul = that.ul[0];
             var isInputActive;
             var handled;
 
@@ -854,7 +853,8 @@ var __meta__ = {
 
         _get: function(candidate) {
             var data, found, idx;
-            var jQueryCandidate = $(candidate);
+            var isFunction = typeof candidate === "function";
+            var jQueryCandidate = !isFunction ? $(candidate) : $();
 
             if (this.optionLabel[0]) {
                 if (typeof candidate === "number") {
@@ -866,7 +866,7 @@ var __meta__ = {
                 }
             }
 
-            if (typeof candidate === "function") {
+            if (isFunction) {
                 data = this.dataSource.flatView();
 
                 for (idx = 0; idx < data.length; idx++) {
@@ -889,21 +889,21 @@ var __meta__ = {
             if (this.optionLabel[0]) {
                 this._focus(this.optionLabel);
             } else {
-                this.listView.first();
+                this.listView.focusFirst();
             }
         },
 
         _lastItem: function() {
             this.optionLabel.removeClass("k-state-focused");
-            this.listView.last();
+            this.listView.focusLast();
         },
 
         _nextItem: function() {
             if (this.optionLabel.hasClass("k-state-focused")) {
                 this.optionLabel.removeClass("k-state-focused");
-                this.listView.first();
+                this.listView.focusFirst();
             } else {
-                this.listView.next();
+                this.listView.focusNext();
             }
         },
 
@@ -912,7 +912,7 @@ var __meta__ = {
                 return;
             }
 
-            this.listView.prev();
+            this.listView.focusPrev();
             if (!this.listView.focus()) {
                 this.optionLabel.addClass("k-state-focused");
             }
@@ -969,7 +969,6 @@ var __meta__ = {
 
         _select: function(candidate, keepState) {
             var that = this;
-            var optionLabel = that.optionLabel;
 
             candidate = that._get(candidate);
 

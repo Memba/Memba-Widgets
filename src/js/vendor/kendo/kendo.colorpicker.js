@@ -2,7 +2,7 @@
     define([ "./kendo.core", "./kendo.color", "./kendo.popup", "./kendo.slider", "./kendo.userevents" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "colorpicker",
     name: "Color tools",
     category: "web",
@@ -708,7 +708,7 @@ var __meta__ = {
                     .on("focus" + NS, function () { innerWrapper.addClass("k-state-focused"); })
                     .on("blur" + NS, function () { innerWrapper.removeClass("k-state-focused"); })
                     .on(KEYDOWN_NS, bind(that._keydown, that))
-                    .on(CLICK_NS, ".k-icon", bind(that.toggle, that))
+                    .on(CLICK_NS, ".k-select", bind(that.toggle, that))
                     .on(CLICK_NS, that.options.toolIcon ? ".k-tool-icon" : ".k-selected-color", function(){
                         that.trigger("activate");
                     });

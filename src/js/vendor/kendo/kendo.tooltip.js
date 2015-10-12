@@ -2,7 +2,7 @@
     define([ "./kendo.core", "./kendo.popup" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "tooltip",
     name: "Tooltip",
     category: "web",
@@ -424,6 +424,8 @@ var __meta__ = {
                 popup.element.off(NS);
                 popup.destroy();
             }
+
+            clearTimeout(this.timeout);
 
             this.element.off(NS);
 

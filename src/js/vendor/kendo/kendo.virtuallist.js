@@ -2,7 +2,7 @@
     define([ "./kendo.data" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "virtuallist",
     name: "VirtualList",
     category: "framework",
@@ -403,7 +403,6 @@ var __meta__ = {
 
         value: function(value, _forcePrefetch) {
             var that = this;
-            var dataSource = that.dataSource;
 
             if (value === undefined) {
                 return that._values.slice();
@@ -524,7 +523,6 @@ var __meta__ = {
         prefetch: function(indexes) {
             var that = this,
                 take = this.itemCount,
-                dataSource = this.dataSource,
                 isEmptyList = !that._promisesList.length;
 
             if (!that._activeDeferred) {
@@ -584,7 +582,6 @@ var __meta__ = {
             var element,
                 index,
                 data,
-                dataSource = this.dataSource,
                 current,
                 itemHeight = this.options.itemHeight,
                 id = this._optionID,
@@ -668,18 +665,18 @@ var __meta__ = {
             return this._focusedIndex;
         },
 
-        first: function() {
+        focusFirst: function() {
             this.scrollTo(0);
             this.focus(0);
         },
 
-        last: function() {
+        focusLast: function() {
             var lastIndex = this.dataSource.total();
             this.scrollTo(this.heightContainer.offsetHeight);
             this.focus(lastIndex);
         },
 
-        prev: function() {
+        focusPrev: function() {
             var index = this._focusedIndex;
             var current;
 
@@ -697,7 +694,7 @@ var __meta__ = {
             }
         },
 
-        next: function() {
+        focusNext: function() {
             var index = this._focusedIndex;
             var lastIndex = this.dataSource.total() - 1;
             var current;
@@ -722,7 +719,6 @@ var __meta__ = {
                 singleSelection = that.options.selectable !== "multiple",
                 prefetchStarted = !!that._activeDeferred,
                 deferred,
-                added = [],
                 removed = [];
 
             if (candidate === undefined) {
@@ -830,7 +826,6 @@ var __meta__ = {
 
         _screenHeight: function() {
             var height = this._height(),
-                element = this.element,
                 content = this.content;
 
             content.height(height);
@@ -911,8 +906,7 @@ var __meta__ = {
             var that = this,
                 content = that.content.get(0),
                 options = that.options,
-                dataSource = that.dataSource,
-                total = dataSource.total();
+                dataSource = that.dataSource;
 
             if (that._listCreated) {
                 that._clean();
@@ -1077,7 +1071,6 @@ var __meta__ = {
                 current = false,
                 newGroup = false,
                 group = null,
-                nullIndex = -1,
                 match = false,
                 valueGetter = this._valueGetter;
 
@@ -1145,9 +1138,8 @@ var __meta__ = {
             };
         },
 
-        _listItems: function(getter) {
+        _listItems: function() {
             var screenHeight = this.screenHeight,
-                itemCount = this.itemCount,
                 options = this.options;
 
             var theValidator = listValidator(options, screenHeight);
@@ -1329,7 +1321,7 @@ var __meta__ = {
                         item.removeClass(SELECTED);
                         this._values.splice(position, 1);
                         this._selectedIndexes.splice(position, 1);
-                        dataItem = this._selectedDataItems.splice(position, 1);
+                        dataItem = this._selectedDataItems.splice(position, 1)[0];
 
                         indexes.splice(i, 1);
 
@@ -1390,8 +1382,7 @@ var __meta__ = {
             var that = this,
                 singleSelection = this.options.selectable !== "multiple",
                 dataSource = this.dataSource,
-                index, dataItem, selectedValue, element,
-                page, skip, oldSkip,
+                dataItem, oldSkip,
                 take = this.itemCount,
                 valueGetter = this._valueGetter,
                 added = [];

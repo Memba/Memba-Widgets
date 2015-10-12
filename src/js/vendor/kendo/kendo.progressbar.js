@@ -2,7 +2,7 @@
     define([ "./kendo.core" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "progressbar",
     name: "ProgressBar",
     category: "web",
@@ -74,7 +74,7 @@ var __meta__ = {
 
         setOptions: function(options) {
             var that = this;
-            
+
             Widget.fn.setOptions.call(that, options);
 
             if (options.hasOwnProperty("reverse")) {
@@ -169,7 +169,7 @@ var __meta__ = {
                     if (options.type === PROGRESSTYPE.VALUE) {
                         that.progressStatus.text(initialStatusValue);
                     } else {
-                        that.progressStatus.text(that._calculatePercentage(initialStatusValue) + "%");
+                        that.progressStatus.text(that._calculatePercentage(initialStatusValue).toFixed() + "%");
                     }
                 }
             }
@@ -322,6 +322,7 @@ var __meta__ = {
             var that = this;
             var options = that.options;
             var progressWrapperSize = parseFloat(that.progressWrapper[0].style[that._progressProperty]);
+            var progressValue;
 
             if (options.type !== PROGRESSTYPE.CHUNK && progressWrapperSize > 98) {
                 that.progressWrapper.addClass(KPROGRESSBARCOMPLETE);
@@ -329,10 +330,13 @@ var __meta__ = {
 
             if (options.showStatus) {
                 if (options.type === PROGRESSTYPE.VALUE) {
-                    that.progressStatus.text(currentValue);
+                    progressValue = currentValue;
+                } else if (options.type == PROGRESSTYPE.PERCENT) {
+                    progressValue = that._calculatePercentage(currentValue).toFixed() + "%";
                 } else {
-                    that.progressStatus.text(math.floor(that._calculatePercentage(currentValue)) + "%");
+                    progressValue = math.floor(that._calculatePercentage(currentValue)) + "%";
                 }
+                that.progressStatus.text(progressValue);
             }
 
             if (currentValue === options.min) {
@@ -375,7 +379,7 @@ var __meta__ = {
             var html = "";
 
             if (options.chunkCount <= 1) {
-                options.chunkCount = DEFAULTCHUNKCOUNT;
+                options.chunkCount = 1;
             }
 
             html += "<ul class='k-reset'>";

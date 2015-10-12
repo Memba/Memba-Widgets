@@ -2,7 +2,7 @@
     define([ "./kendo.core" ], f);
 })(function(){
 
-var __meta__ = {
+var __meta__ = { // jshint ignore:line
     id: "mobile.tabstrip",
     name: "TabStrip",
     category: "mobile",
@@ -157,7 +157,8 @@ var __meta__ = {
         },
 
         refresh: function(e) {
-            var url = e.view.element.attr(kendo.attr("url"));
+            var url = e.view.id;
+
             if (url && !this.switchTo(e.view.id)) {
                 this.switchTo(url);
             }

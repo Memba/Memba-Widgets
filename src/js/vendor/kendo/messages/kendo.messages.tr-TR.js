@@ -214,7 +214,7 @@ kendo.ui.FilterCell.prototype.options.messages =
 $.extend(true, kendo.ui.FilterCell.prototype.options.messages,{
   "clear": "Temizle",
   "filter": "Filtre",
-  "isFalse": "FALSE",
+  "isFalse": "Yanlış",
   "isTrue": "Doğru ",
   "operator": "Operatör(işletmen)"
 });
@@ -230,11 +230,11 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "clear": "Temizle",
   "filter": "Filtre",
   "info": "bu ile bu arasındaki değerleri göster",
-  "isFalse": "FALSE",
+  "isFalse": "Yanlış",
   "isTrue": "Doğru ",
   "operator": "Operatör(işletmen)",
   "or": "ya da",
-  "selectValue": "Değer Seçiniziniz",
+  "selectValue": "Değer Seçiniz",
   "value": "Değer"
 });
 }
@@ -258,7 +258,7 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
   },
   "editable": {
     "cancelDelete": "İptal",
-    "confirmation": "Kayıtları Silmek istediğinizden emin misiniz ?",
+    "confirmation": "Kayıtları silmek istediğinizden emin misiniz ?",
     "confirmDelete": "Sil"
   }
 });
@@ -278,6 +278,7 @@ $.extend(true, kendo.ui.Groupable.prototype.options.messages,{
 if (kendo.ui.Pager) {
 kendo.ui.Pager.prototype.options.messages =
 $.extend(true, kendo.ui.Pager.prototype.options.messages,{
+  "allPages": "All",
   "display": "{0} - {1} aralığı gösteriliyor. Toplam {2} öğe var",
   "empty": "Görüntülenecek öğe yok",
   "first": "İlk sayfaya git",

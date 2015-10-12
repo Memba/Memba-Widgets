@@ -29,23 +29,23 @@
 @error-border-color: lighten(@base, 4%);
 @error-text-color: lighten(@base, 4%);
 @disabled-text-color: darken(@background, 24%);
-@validation-background-color: darken(@warning, 20%);
-@validation-border-color: darken(@warning, 20%);
-@validation-text-color: @normal-text-color;
+@validation-background-color: @warning;
+@validation-border-color: @warning;
+@validation-text-color: contrast(@validation-background-color, lighten(@warning, 80%), darken(@warning, 60%), 0.5);
 @tooltip-background-color: @base;
 @tooltip-border-color: @base;
 @tooltip-text-color: @background;
 @notification-info-background-color: @info;
-@notification-info-text-color: darken(@accent, 11%);
-@notification-info-border-color: darken(@info, 11%);
+@notification-info-text-color: darken(@info, 50%);
+@notification-info-border-color: darken(@info, 10%);
 @notification-success-background-color: @success;
-@notification-success-text-color: darken(@hover-background, 8%);
-@notification-success-border-color: darken(@success, 11%);
+@notification-success-text-color: darken(@success, 50%);
+@notification-success-border-color: darken(@success, 10%);
 @notification-warning-background-color: @warning;
-@notification-warning-text-color: darken(@error, 27%);
-@notification-warning-border-color: darken(@warning, 3%);
+@notification-warning-text-color: darken(@warning, 50%);
+@notification-warning-border-color: darken(@warning, 10%);
 @notification-error-background-color: @error;
-@notification-error-text-color: lighten(@normal-text-color, 13%);
+@notification-error-text-color: darken(@error, 30%);
 @notification-error-border-color: darken(@error, 10%);
 @draghandle-border-radius: 13px;
 @draghandle-border-color: @accent;
@@ -74,12 +74,12 @@
 @event-inverse-text-color: @normal-text-color;
 @scheduler-nonwork-background-color: darken(@background, 4%);
 @resize-background-color: @background;
-@upload-progress-background-color: darken(@info, 2%);
-@upload-progress-text-color: darken(@accent, 17%);
-@upload-success-background-color: darken(@success, 1%);
-@upload-success-text-color: darken(@hover-background, 18%);
+@upload-progress-background-color: @info;
+@upload-progress-text-color: contrast(@upload-progress-background-color, lighten(@info, 70%), darken(@info, 60%), 0.5);
+@upload-success-background-color: @success;
+@upload-success-text-color: contrast(@upload-success-background-color, lighten(@success, 70%), darken(@success, 60%), 0.5);
 @upload-error-background-color: @error;
-@upload-error-text-color: darken(@normal-text-color, 8%);
+@upload-error-text-color: contrast(@upload-error-background-color, lighten(@error, 70%), darken(@error, 60%), 0.5);
 @task-summary-color: lighten(@widget-text-color, 25%);
 @task-summary-selected-color: lighten(@selected-background-color, 25%);
 @main-border-radius: @border-radius;
@@ -376,7 +376,8 @@ textarea.k-textbox:hover,
     color: @widget-text-color;
 }
 
-.k-inverse
+.k-inverse,
+.k-toolbar label
 {
     color: @inverse-text-color;
 }
@@ -490,7 +491,8 @@ html .km-pane-wrapper .k-header
 .k-grid-mobile .k-resize-handle-inner:before,
 .k-grid-mobile .k-resize-handle-inner:after,
 .k-pager-numbers .k-current-page .k-link:after,
-.k-scheduler-toolbar > ul.k-scheduler-views > li.k-current-view > .k-link:after
+.k-scheduler-toolbar > ul.k-scheduler-views > li.k-current-view > .k-link:after,
+.k-gantt-views > .k-current-view > .k-link:after
 {
     background-image: @sprite-image;
     border-color: transparent;
@@ -614,6 +616,7 @@ html .km-pane-wrapper .k-header
 .k-event.k-state-selected
 {
     background-position: 0 0;
+    .box-shadow(0 0 0 2px @normal-text-color);
 }
 
 .k-ie7 .k-event .k-resize-handle,
@@ -628,6 +631,11 @@ html .km-pane-wrapper .k-header
 .k-scheduler-marquee:after
 {
     border-color: @selected-background-color;
+}
+
+.k-scheduler-toolbar > ul > li,
+.k-scheduler-footer .k-scheduler-fullday {
+    border-color: @secondary-border-color;
 }
 
 .k-panelbar .k-content,
@@ -1039,7 +1047,6 @@ div.k-filebrowser-dropzone em
     opacity:.7;
 }
 
-.k-ie7 .k-state-disabled,
 .k-ie8 .k-state-disabled
 {
     filter:alpha(opacity=70);
@@ -1058,11 +1065,15 @@ div.k-filebrowser-dropzone em
 .k-other-month,
 .k-other-month .k-link,
 .k-dropzone em,
-.k-dropzone .k-upload-status,
 .k-tile-empty strong,
 .k-slider .k-draghandle
 {
     color: @disabled-text-color;
+}
+
+.k-dropzone .k-upload-status
+{
+    color: @header-text-color;
 }
 
 /* Progressbar */
@@ -1271,6 +1282,7 @@ div.k-filebrowser-dropzone em
     .box-shadow(@hover-shadow);
 }
 
+.k-textbox:focus,
 .k-autocomplete.k-state-focused,
 .k-dropdown-wrap.k-state-focused,
 .k-picker-wrap.k-state-focused,
@@ -1509,7 +1521,8 @@ div.k-filebrowser-dropzone em
 .k-tile,
 .k-slider-track,
 .k-slider-selection,
-.k-upload
+.k-upload,
+.k-split-button
 {
     border-radius: @main-border-radius;
 }
@@ -1874,11 +1887,7 @@ html .km-pane-wrapper .km-widget,
     color: #fff;
     border-color: @error-border-color;
     background-color: red;
-    background-image: ~"-webkit-gradient(linear, 50% 0, 50% 100%, from(rgba(255,255,255,.3)), to(rgba(255,255,255,.15)))";
-    background-image: ~"-webkit-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,.15))";
-    background-image: ~"-moz-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,.15))";
-    background-image: ~"-ms-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,.15))";
-    background-image: ~"linear-gradient(to bottom, rgba(255,255,255,.3), rgba(255,255,255,.15))";
+    background-image: linear-gradient(to bottom, rgba(255,255,255,.3), rgba(255,255,255,.15));
 }
 
 .km-actionsheet .k-grid-delete:active,
@@ -2075,7 +2084,6 @@ html .km-pane-wrapper .km-widget,
 
 .k-grid td.k-state-focused
 {
-    -webkit-box-shadow: inset 0 0 0 1px @focused-item-shadow;
     box-shadow: inset 0 0 0 1px @focused-item-shadow;
 }
 
@@ -2172,9 +2180,19 @@ html .km-pane-wrapper .km-widget,
     background-color: transparent;
 }
 
-.k-button:focus
+.k-button:focus,
+.k-split-button:focus
 {
     outline:none;
+}
+
+.k-split-button:focus {
+    box-shadow: 0 0 0px 1px @button-focused-border-color;
+}
+
+.k-split-button:focus > .k-button {
+    background: transparent;
+    border-color: transparent;
 }
 
 .k-editor .k-tool:focus
@@ -2634,22 +2652,16 @@ html .km-pane-wrapper .km-widget,
 .k-chart .k-mask {
     background-color: #fff;
     filter: alpha(opacity=70);
-    -moz-opacity: 0.70;
     opacity: 0.70;
 }
 
 .k-chart .k-selection {
     border-color: #c7c7c7;
     transition: box-shadow .2s linear, border-color .2s linear;
-    -moz-transition: box-shadow .2s linear, border-color .2s linear;
-    -webkit-transition: box-shadow .2s linear, border-color .2s linear;
-    -o-transition: box-shadow .2s linear, border-color .2s linear;
 }
 
 .k-chart .k-selection:hover {
     border-color: @hover-background;
-    -moz-box-shadow: inset 0 0 0 30px fadeout(@hover-background, 50%);
-    -webkit-box-shadow: inset 0 0 0 30px fadeout(@hover-background, 50%);
     box-shadow: inset 0 0 0 30px fadeout(@hover-background, 50%);
 }
 
@@ -2684,7 +2696,6 @@ html .km-pane-wrapper .km-widget,
 }
 
 .k-chart .k-tooltip{
-    -webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
     box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 }
 
@@ -2700,5 +2711,21 @@ html .km-pane-wrapper .km-widget,
 @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
     .k-map .k-marker {
         background-image: url("@{image-folder}/markers_2x.png");
+    }
+}
+
+@import "themes/spreadsheet.less";
+
+@spreadsheet-cell-border: darken(@background, 10%);
+@spreadsheet-header-border: lighten(@base, 18%);
+
+.k-spreadsheet-pane {
+    .k-spreadsheet-column-header td,
+    .k-spreadsheet-row-header td {
+        &.k-selection-partial,
+        &.k-selection-full {
+            background-color: @selected-background;
+            border-color: darken(@selected-background, 9%);
+        }
     }
 }

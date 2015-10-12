@@ -32,8 +32,8 @@
         var CLICK = 'click';
         var CHANGE = 'change';
         var NS = '.kendoToolbox';
-        var WIDGET_CLASS = 'k-widget k-toolbar';
-        var BUTTON = '<a href="#" class="k-button" title="{1}"><img src="{0}" alt="{1}"></a>';
+        var WIDGET_CLASS = 'k-widget k-toolbar kj-toolbox';
+        var BUTTON = '<a href="#" class="k-button kj-tool" title="{1}"><img src="{0}" alt="{1}"></a>';
         var SELECTED_CLASS = 'k-state-selected';
         var DISABLED_CLASS = 'k-state-disabled';
         var ROLE = 'role';

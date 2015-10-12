@@ -9,21 +9,21 @@
 
     'use strict';
 
-    var expect = window.chai.expect,
-        sinon = window.sinon,
-        kendo = window.kendo,
-        ui = kendo.ui,
-        Explorer = ui.Explorer,
-        kidoju = window.kidoju,
-        tools = kidoju.tools,
-        Page = kidoju.data.Page,
-        PageComponent = kidoju.data.PageComponent,
-        PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource,
-        FIXTURES = '#fixtures',
-        ICON_PATH = '../../src/styles/images/',
-        EXPLORER1 = '<div id="explorer1"></div>',
-        EXPLORER2 = '<div id="explorer2"></div>',
-        EXPLORER3 = '<div data-role="explorer" data-bind="source: components, value: current" data-icon-path="' + ICON_PATH + '"></div>';
+    var expect = window.chai.expect;
+    var sinon = window.sinon;
+    var kendo = window.kendo;
+    var ui = kendo.ui;
+    var Explorer = ui.Explorer;
+    var kidoju = window.kidoju;
+    var tools = kidoju.tools;
+    var Page = kidoju.data.Page;
+    var PageComponent = kidoju.data.PageComponent;
+    var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
+    var FIXTURES = '#fixtures';
+    var ICON_PATH = '../../src/styles/images/';
+    var EXPLORER1 = '<div id="explorer1"></div>';
+    var EXPLORER2 = '<div id="explorer2"></div>';
+    var EXPLORER3 = '<div data-role="explorer" data-bind="source: components, value: current" data-icon-path="' + ICON_PATH + '"></div>';
 
     var pageComponentCollectionArray = [
         { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
@@ -58,8 +58,8 @@
         describe('Initialization', function () {
 
             it('from code without datasource', function () {
-                var element = $(EXPLORER1).appendTo(FIXTURES),
-                    explorer = element.kendoExplorer().data('kendoExplorer');
+                var element = $(EXPLORER1).appendTo(FIXTURES);
+                var explorer = element.kendoExplorer().data('kendoExplorer');
                 expect(explorer).to.be.an.instanceof(Explorer);
                 expect(explorer.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(explorer.dataSource.total()).to.equal(0);
@@ -70,8 +70,8 @@
             });
 
             it('from code with datasource', function () {
-                var element = $(EXPLORER2).appendTo(FIXTURES),
-                    explorer = element.kendoExplorer({
+                var element = $(EXPLORER2).appendTo(FIXTURES);
+                var explorer = element.kendoExplorer({
                         dataSource: pageComponentCollectionArray,
                         iconPath: ICON_PATH
                     }).data('kendoExplorer');
@@ -88,8 +88,8 @@
                 var viewModel = kendo.observable({
                         components: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
                         current: undefined
-                    }),
-                    element = $(EXPLORER3).appendTo(FIXTURES);
+                    });
+                var element = $(EXPLORER3).appendTo(FIXTURES);
                 kendo.bind(FIXTURES, viewModel);
                 var explorer = element.data('kendoExplorer');
                 expect(explorer).to.be.an.instanceof(Explorer);
@@ -105,7 +105,8 @@
 
         describe('Methods', function () {
 
-            var element, explorer;
+            var element;
+            var explorer;
 
             beforeEach(function () {
                 element = $(EXPLORER1).appendTo(FIXTURES);
@@ -189,7 +190,9 @@
 
         describe('MVVM', function () {
 
-            var element, explorer, viewModel;
+            var element;
+            var explorer;
+            var viewModel;
 
             /*
              // For obscure reasons, setting the viewModel here does not work
@@ -270,15 +273,16 @@
 
         describe('Events', function () {
 
-            var element, explorer;
+            var element;
+            var explorer;
 
             beforeEach(function () {
                 element = $(EXPLORER1).appendTo(FIXTURES);
             });
 
             it('dataBinding & dataBound', function () {
-                var dataBinding = sinon.spy(),
-                    dataBound = sinon.spy();
+                var dataBinding = sinon.spy();
+                var dataBound = sinon.spy();
                 explorer = element.kendoExplorer({
                     dataSource: pageComponentCollectionArray,
                     iconPath: ICON_PATH,

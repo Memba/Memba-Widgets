@@ -9,22 +9,22 @@
 
     'use strict';
 
-    var expect = window.chai.expect,
-        sinon = window.sinon,
-        kendo = window.kendo,
-        ui = kendo.ui,
-        Stage = ui.Stage,
-        ObservableArray = kendo.data.ObservableArray,
-        kidoju = window.kidoju,
-        tools = kidoju.tools,
-        Tool = kidoju.Tool,
-        Page = kidoju.data.Page,
-        PageComponent = kidoju.data.PageComponent,
-        PageCollectionDataSource = kidoju.data.PageCollectionDataSource,
-        PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource,
-        FIXTURES = '#fixtures',
-        STAGE1 = '<div></div>',
-        STAGE2 = '<div data-role="stage" data-bind="source: components, value: current" data-mode="design"></div>';
+    var expect = window.chai.expect;
+    var sinon = window.sinon;
+    var kendo = window.kendo;
+    var ui = kendo.ui;
+    var Stage = ui.Stage;
+    var ObservableArray = kendo.data.ObservableArray;
+    var kidoju = window.kidoju;
+    var tools = kidoju.tools;
+    var Tool = kidoju.Tool;
+    var Page = kidoju.data.Page;
+    var PageComponent = kidoju.data.PageComponent;
+    var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+    var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
+    var FIXTURES = '#fixtures';
+    var STAGE1 = '<div></div>';
+    var STAGE2 = '<div data-role="stage" data-bind="source: components, value: current" data-mode="design"></div>';
 
     var pageComponentCollectionArray = [
         { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
@@ -33,12 +33,11 @@
         { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
     ];
 
-    function findCenter( elem ) {
-        var offset,
-            document = $( elem.ownerDocument );
-        elem = $( elem );
+    function findCenter(elem) {
+        var offset;
+        var document = $(elem.ownerDocument);
+        elem = $(elem);
         offset = elem.offset();
-
         return {
             x: offset.left + elem.outerWidth() / 2 - document.scrollLeft(),
             y: offset.top + elem.outerHeight() / 2 - document.scrollTop()
@@ -71,8 +70,8 @@
         describe('Initialization', function () {
 
             it('from code', function () {
-                var element = $(STAGE1).appendTo(FIXTURES),
-                    stage = element.kendoStage().data('kendoStage');
+                var element = $(STAGE1).appendTo(FIXTURES);
+                var stage = element.kendoStage().data('kendoStage');
                 expect(stage).to.be.an.instanceof(Stage);
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(0);
@@ -82,12 +81,12 @@
                 // expect(stage.wrapper).to.equal(element.parent());
                 expect(stage.wrapper[0]).to.equal(element.parent()[0]);
                 expect(stage.wrapper).to.have.descendants('div[data-role="stage"]');
-                expect(stage.wrapper).to.have.descendants('div.kj-overlay');
+                expect(stage.wrapper).to.have.descendants('div.kj-nodata');
             });
 
             it('from code with dataSource in thumbnail mode', function () {
-                var element = $(STAGE1).appendTo(FIXTURES),
-                    stage = element.kendoStage({
+                var element = $(STAGE1).appendTo(FIXTURES);
+                var stage = element.kendoStage({
                         mode: Stage.fn.modes.thumbnail,
                         dataSource: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray })
                     }).data('kendoStage');
@@ -121,8 +120,8 @@
             });
 
             it('from code with dataSource in design mode', function () {
-                var element = $(STAGE1).appendTo(FIXTURES),
-                    stage = element.kendoStage({
+                var element = $(STAGE1).appendTo(FIXTURES);
+                var stage = element.kendoStage({
                         mode: Stage.fn.modes.design,
                         dataSource: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray })
                     }).data('kendoStage');
@@ -159,8 +158,8 @@
             });
 
             it('from code with dataSource in play mode', function () {
-                var element = $(STAGE1).appendTo(FIXTURES),
-                    stage = element.kendoStage({
+                var element = $(STAGE1).appendTo(FIXTURES);
+                var stage = element.kendoStage({
                         mode: Stage.fn.modes.play,
                         dataSource: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray })
                     }).data('kendoStage');
@@ -197,8 +196,8 @@
                 var viewModel = kendo.observable({
                         components: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray }),
                         current: undefined
-                    }),
-                    element = $(STAGE2).appendTo(FIXTURES);
+                    });
+                var element = $(STAGE2).appendTo(FIXTURES);
                 kendo.bind(FIXTURES, viewModel);
                 var stage = element.data('kendoStage');
                 expect(stage).to.be.an.instanceof(Stage);
@@ -231,7 +230,8 @@
 
         describe('Methods', function () {
 
-            var element, stage;
+            var element;
+            var stage;
 
             beforeEach(function () {
                 element = $(STAGE1).appendTo(FIXTURES);
@@ -377,7 +377,9 @@
 
         describe('MVVM', function () {
 
-            var element, stage, viewModel;
+            var element;
+            var stage;
+            var viewModel;
 
             /*
              // For obscure reasons, setting the viewModel here does not work
@@ -453,7 +455,7 @@
                 var check = sinon.spy();
                 $.each(stage.items(), function (index, item) {
                     check();
-                    $(item).simulate('mousedown', {bubbles: true});
+                    $(item).simulate('mousedown', { bubbles: true });
                     var component = viewModel.get('current');
                     expect(component).to.have.property('uid', $(item).attr(kendo.attr('uid')));
                     var handleBox = stage.wrapper.find('div.kj-handle-box');
@@ -473,9 +475,9 @@
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
                 expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
-                var total = pageComponentCollectionArray.length,
-                    offset = element.offset(),
-                    count = 0;
+                var total = pageComponentCollectionArray.length;
+                var offset = element.offset();
+                var count = 0;
                 var check = sinon.spy();
                 $.each(Object.keys(tools), function (index, key) {
                     var tool = tools[key];
@@ -489,8 +491,8 @@
                         });
                         expect(stage.dataSource.total()).to.equal(total + count);
                         expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', total + count);
-                        var component = stage.dataSource.at(total + count - 1),
-                            item = stage.items()[total + count - 1];
+                        var component = stage.dataSource.at(total + count - 1);
+                        var item = stage.items()[total + count - 1];
                         expect(component).to.have.property('id', null);
                         expect(component).to.have.property('tool', tool.id);
                         expect(component).to.have.property('top', 60 * count);
@@ -517,45 +519,59 @@
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
                 expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
-                var check = sinon.spy();
+                var counter = sinon.spy();
                 $.each(stage.items(), function (index, item) {
-                    check();
-                    $(item).simulate('mousedown', {bubbles: true}); // display handles
+                    counter();
+                    $(item).simulate('mousedown', { bubbles: true }); // display handles
                     expect(viewModel.get('current')).to.have.property('uid', $(item).attr(kendo.attr('uid'))); // check selected item
                     // record coordinates before dragging
-                    var top = viewModel.get('current.top'),
-                        left = viewModel.get('current.left'),
-                        height = viewModel.get('current.height'),
-                        width = viewModel.get('current.width'),
-                        rotate = viewModel.get('current.rotate'),
-                        handle = stage.wrapper.find('span.kj-handle[data-command="move"]');
+                    var top = viewModel.get('current.top');
+                    var left = viewModel.get('current.left');
+                    var height = viewModel.get('current.height');
+                    var width = viewModel.get('current.width');
+                    var rotate = viewModel.get('current.rotate');
+                    var handle = stage.wrapper.find('span.kj-handle[data-command="move"]');
                     // check move handle and calculate center
                     expect(handle).to.be.an.instanceof($).with.property('length', 1);
-                    var center = findCenter(handle), moves = 10, dx = 100, dy = 50,
-                        x = center.x, y = center.y;
-                    // initiate drag with mousedown event
-                    handle.simulate('mousedown', { bubbles: true, clientX: x, clientY: y }); // initiate drag on move handle
-                    // move item
-                    for (var i = 0; i < moves; i++) {
-                        x += dx / moves;
-                        y += dy / moves;
-                        $(item).simulate('mousemove', { bubbles: true, clientX: x, clientY: y });
+                    var center = findCenter(handle);
+                    var moves = 10;
+                    var dx = 100;
+                    var dy = 50;
+                    var x = center.x;
+                    var y = center.y;
+
+                    function drag() {
+                        // initiate drag with mousedown event
+                        handle.simulate('mousedown', { bubbles: true, clientX: x, clientY: y }); // initiate drag on move handle
+                        // move item
+                        for (var i = 0; i < moves; i++) {
+                            x += dx / moves;
+                            y += dy / moves;
+                            $(item).simulate('mousemove', { bubbles: true, clientX: x, clientY: y });
+                        }
+                        // end drag with mouseup event
+                        $(item).simulate('mouseup', { bubbles: true, clientX: x, clientY: y });
                     }
-                    // end drag with mouseup event
-                    $(item).simulate('mouseup', { bubbles: true, clientX: x, clientY: y });
-                    // check new coordinates
-                    if (kendo.support.browser.msie) {
-                        // for whatever reason, on IE you get 99.999997 instead of 100
-                        expect(viewModel.get('current.top')).to.be.closeTo(top + dy, 0.001);
-                    } else {
-                        expect(viewModel.get('current.top')).to.equal(top + dy);
+
+                    function check() {
+                        if (kendo.support.browser.msie) {
+                            // for whatever reason, on IE you get 99.999997 instead of 100
+                            expect(viewModel.get('current.top')).to.be.closeTo(top + dy, 0.001);
+                        } else {
+                            expect(viewModel.get('current.top')).to.equal(top + dy);
+                        }
+                        expect(viewModel.get('current.left')).to.equal(left + dx);
+                        expect(viewModel.get('current.height')).to.equal(height);
+                        expect(viewModel.get('current.width')).to.equal(width);
+                        expect(viewModel.get('current.rotate')).to.equal(rotate);
                     }
-                    expect(viewModel.get('current.left')).to.equal(left + dx);
-                    expect(viewModel.get('current.height')).to.equal(height);
-                    expect(viewModel.get('current.width')).to.equal(width);
-                    expect(viewModel.get('current.rotate')).to.equal(rotate);
+
+                    // Drag and check new coordinates
+                    // Note: making drag and check separate functions fixes jshint message `This function has too many statements.`
+                    drag();
+                    check();
                 });
-                expect(check).to.have.callCount(pageComponentCollectionArray.length);
+                expect(counter).to.have.callCount(pageComponentCollectionArray.length);
             });
 
             it('Rotating an element on stage, updates the rotate property of the corresponding component in the viewModel', function () {
@@ -563,44 +579,63 @@
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
                 expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
-                var check = sinon.spy();
+                var counter = sinon.spy();
                 $.each(stage.items(), function (index, item) {
-                    check();
-                    $(item).simulate('mousedown', {bubbles: true}); // display handles
+                    counter();
+                    $(item).simulate('mousedown', { bubbles: true }); // display handles
                     expect(viewModel.get('current')).to.have.property('uid', $(item).attr(kendo.attr('uid'))); // check selected item
+
                     // record coordinates before dragging
-                    var top = viewModel.get('current.top'),
-                        left = viewModel.get('current.left'),
-                        height = viewModel.get('current.height'),
-                        width = viewModel.get('current.width'),
-                        rotate = viewModel.get('current.rotate'),
-                        handle = stage.wrapper.find('span.kj-handle[data-command="rotate"]');
+                    var top = viewModel.get('current.top');
+                    var left = viewModel.get('current.left');
+                    var height = viewModel.get('current.height');
+                    var width = viewModel.get('current.width');
+                    var rotate = viewModel.get('current.rotate');
+                    var handle = stage.wrapper.find('span.kj-handle[data-command="rotate"]');
                     // check move handle and calculate center
                     expect(handle).to.be.an.instanceof($).with.property('length', 1);
-                    var center = findCenter(handle), moves = 10, dx = 50, dy = 100,
-                        x = center.x, y = center.y;
-                    // initiate drag with mousedown event
-                    handle.simulate('mousedown', {bubbles: true, clientX: x, clientY: y}); // initiate drag on move handle
-                    // move item
-                    for (var i = 0; i < moves; i++) {
-                        x += dx / moves;
-                        y += dy / moves;
-                        $(item).simulate('mousemove', {bubbles: true, clientX: x, clientY: y});
+                    var center = findCenter(handle);
+                    var moves = 10;
+                    var dx = 50;
+                    var dy = 100;
+                    var x = center.x;
+                    var y = center.y;
+
+                    // Making Drag a separate function fixes jshint message `This function has too many statements.`
+                    function drag() {
+                        // initiate drag with mousedown event
+                        handle.simulate('mousedown', { bubbles: true, clientX: x, clientY: y }); // initiate drag on move handle
+                        // move item
+                        for (var i = 0; i < moves; i++) {
+                            x += dx / moves;
+                            y += dy / moves;
+                            $(item).simulate('mousemove', { bubbles: true, clientX: x, clientY: y });
+                        }
+                        // end drag with mouseup event
+                        $(item).simulate('mouseup', { bubbles: true, clientX: x, clientY: y });
                     }
-                    // end drag with mouseup event
-                    $(item).simulate('mouseup', {bubbles: true, clientX: x, clientY: y});
-                    // check new coordinates
-                    var c = findCenter($(item)), p1 = center, p2 = { x: x, y: y},
-                        dr = (Math.atan2(p2.y - c.y, p2.x - c.x) - Math.atan2(p1.y - c.y, p1.x - c.x)) * 180 / Math.PI;
-                    expect(viewModel.get('current.top')).to.equal(top);
-                    expect(viewModel.get('current.left')).to.equal(left);
-                    expect(viewModel.get('current.height')).to.equal(height);
-                    expect(viewModel.get('current.width')).to.equal(width);
-                    expect(viewModel.get('current.rotate')).not.to.equal(rotate);
-                    // TODO: Better to recalculate the correct value instead of simply assessing change
-                    // expect(viewModel.get('current.rotate')).to.equal((360 + rotate + dr) % 360);
+
+                    function check() {
+                        var c = findCenter($(item));
+                        var p1 = center;
+                        var p2 = { x: x, y: y };
+                        var dr = (Math.atan2(p2.y - c.y, p2.x - c.x) - Math.atan2(p1.y - c.y, p1.x - c.x)) * 180 / Math.PI;
+                        expect(viewModel.get('current.top')).to.equal(top);
+                        expect(viewModel.get('current.left')).to.equal(left);
+                        expect(viewModel.get('current.height')).to.equal(height);
+                        expect(viewModel.get('current.width')).to.equal(width);
+                        expect(viewModel.get('current.rotate')).not.to.equal(rotate);
+                        // TODO: Better to recalculate the correct value instead of simply assessing change
+                        // expect(viewModel.get('current.rotate')).to.equal((360 + rotate + dr) % 360);
+                    }
+
+                    // Drag and check new coordinates
+                    // Note: making drag and check separate functions fixes jshint message `This function has too many statements.`
+                    drag();
+                    check();
+
                 });
-                expect(check).to.have.callCount(pageComponentCollectionArray.length);
+                expect(counter).to.have.callCount(pageComponentCollectionArray.length);
             });
 
             it('Resizing an element on stage, updates the top, left, height & width properties of the corresponding component in the viewModel', function () {
@@ -608,60 +643,77 @@
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
                 expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
-                var check = sinon.spy();
+                var counter = sinon.spy();
                 $.each(stage.items(), function (index, item) {
-                    check();
-                    $(item).simulate('mousedown', {bubbles: true}); // display handles
+                    counter();
+                    $(item).simulate('mousedown', { bubbles: true }); // display handles
                     expect(viewModel.get('current')).to.have.property('uid', $(item).attr(kendo.attr('uid'))); // check selected item
                     // record coordinates before dragging
-                    var top = viewModel.get('current.top'),
-                        left = viewModel.get('current.left'),
-                        height = viewModel.get('current.height'),
-                        width = viewModel.get('current.width'),
-                        rotate = viewModel.get('current.rotate'),
-                        handle = stage.wrapper.find('span.kj-handle[data-command="resize"]');
+                    var top = viewModel.get('current.top');
+                    var left = viewModel.get('current.left');
+                    var height = viewModel.get('current.height');
+                    var width = viewModel.get('current.width');
+                    var rotate = viewModel.get('current.rotate');
+                    var handle = stage.wrapper.find('span.kj-handle[data-command="resize"]');
                     // check move handle and calculate center
                     expect(handle).to.be.an.instanceof($).with.property('length', 1);
-                    var center = findCenter(handle), moves = 10, dx = 80, dy = 120,
-                        x = center.x, y = center.y;
-                    // initiate drag with mousedown event
-                    handle.simulate('mousedown', {bubbles: true, clientX: x, clientY: y}); // initiate drag on resize handle
-                    // resize item
-                    for (var i = 0; i < moves; i++) {
-                        x += dx / moves;
-                        y += dy / moves;
-                        $(item).simulate('mousemove', {bubbles: true, clientX: x, clientY: y});
+                    var center = findCenter(handle);
+                    var moves = 10;
+                    var dx = 80;
+                    var dy = 120;
+                    var x = center.x;
+                    var y = center.y;
+
+                    // Making Drag a separate function fixes jshint message `This function has too many statements.`
+                    function drag() {
+                        // initiate drag with mousedown event
+                        handle.simulate('mousedown', { bubbles: true, clientX: x, clientY: y }); // initiate drag on resize handle
+                        // resize item
+                        for (var i = 0; i < moves; i++) {
+                            x += dx / moves;
+                            y += dy / moves;
+                            $(item).simulate('mousemove', { bubbles: true, clientX: x, clientY: y });
+                        }
+                        // end drag with mouseup event
+                        $(item).simulate('mouseup', { bubbles: true, clientX: x, clientY: y });
                     }
-                    // end drag with mouseup event
-                    $(item).simulate('mouseup', {bubbles: true, clientX: x, clientY: y});
-                    // check new coordinates
-                    if (rotate) {
-                        expect(viewModel.get('current.top')).not.to.equal(top);
-                        expect(viewModel.get('current.left')).not.to.equal(left);
-                    } else {
-                        expect(viewModel.get('current.top')).to.equal(top);
-                        expect(viewModel.get('current.left')).to.equal(left);
+
+                    function check() {
+                        if (rotate) {
+                            expect(viewModel.get('current.top')).not.to.equal(top);
+                            expect(viewModel.get('current.left')).not.to.equal(left);
+                        } else {
+                            expect(viewModel.get('current.top')).to.equal(top);
+                            expect(viewModel.get('current.left')).to.equal(left);
+                        }
+                        expect(viewModel.get('current.height')).not.to.equal(height);
+                        expect(viewModel.get('current.width')).not.to.equal(width);
+                        expect(viewModel.get('current.rotate')).to.equal(rotate);
                     }
-                    expect(viewModel.get('current.height')).not.to.equal(height);
-                    expect(viewModel.get('current.width')).not.to.equal(width);
-                    expect(viewModel.get('current.rotate')).to.equal(rotate);
+
+                    // Drag and check new coordinates
+                    // Note: making drag and check separate functions fixes jshint message `This function has too many statements.`
+                    drag();
+                    check();
+
                 });
-                expect(check).to.have.callCount(pageComponentCollectionArray.length);
+                expect(counter).to.have.callCount(pageComponentCollectionArray.length);
             });
 
         });
 
         describe('Events', function () {
 
-            var element, stage;
+            var element;
+            var stage;
 
             beforeEach(function () {
                 element = $(STAGE1).appendTo(FIXTURES);
             });
 
             it('dataBinding & dataBound', function () {
-                var dataBinding = sinon.spy(),
-                    dataBound = sinon.spy();
+                var dataBinding = sinon.spy();
+                var dataBound = sinon.spy();
                 stage = element.kendoStage({
                     dataSource: pageComponentCollectionArray,
                     dataBinding: function (e) {
@@ -681,8 +733,8 @@
             });
 
             it('propertyBinding & propertyBound', function () {
-                var propertyBinding = sinon.spy(),
-                    propertyBound = sinon.spy();
+                var propertyBinding = sinon.spy();
+                var propertyBound = sinon.spy();
                 stage = element.kendoStage({
                     mode: Stage.fn.modes.play,   // TODO only in play mode
                     dataSource: pageComponentCollectionArray,

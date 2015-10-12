@@ -221,19 +221,23 @@
                     if (that.fields.hasOwnProperty(field)) {
                         var validation = that.fields[field].validation;
                         if (!$.isPlainObject(validation)) {
+                            continue;
+                        }
+                        if (validation.required === true && !that[field]) {
                             validated = false;
-                        } else if (validation.required === true && !that[field]) {
+                            break;
+                        }
+                        if ($.type(validation.pattern) === STRING && !(new RegExp(validation.pattern)).test(that[field])) {
                             validated = false;
-                        } else if (that[field]) {
-                            if ($.type(validation.pattern) === STRING && !(new RegExp(validation.pattern)).test(that[field])) {
-                                validated = false;
-                            }
-                            if ($.type(validation.min) === NUMBER && !isNaN(parseFloat(that[field])) && parseFloat(that[field]) < validation.min) {
-                                validated = false;
-                            }
-                            if ($.type(validation.max) === NUMBER && !isNaN(parseFloat(that[field])) && parseFloat(that[field]) > validation.max) {
-                                validated = false;
-                            }
+                            break;
+                        }
+                        if ($.type(validation.min) === NUMBER && !isNaN(parseFloat(that[field])) && parseFloat(that[field]) < validation.min) {
+                            validated = false;
+                            break;
+                        }
+                        if ($.type(validation.max) === NUMBER && !isNaN(parseFloat(that[field])) && parseFloat(that[field]) > validation.max) {
+                            validated = false;
+                            break;
                         }
                     }
                 }

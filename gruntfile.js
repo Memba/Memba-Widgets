@@ -17,15 +17,13 @@ module.exports = function (grunt) {
             tasks: ['lint', 'test']
         },
         jscs: {
-            // files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
-            files: ['test/browsers/kidoju.data.test.js'],
+            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
             options: {
                 config: '.jscsrc'
             }
         },
         jshint: {
-            // files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
-            files: ['test/browsers/kidoju.data.test.js'],
+            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
             options: {
                 // options here to override JSHint defaults
                 jshintrc: '.jshintrc'
@@ -39,7 +37,7 @@ module.exports = function (grunt) {
                 */
             }
         },
-        'kendo_lint': {
+        kendo_lint: {
             files: ['src/js/kidoju.*.js']
         },
         csslint: {

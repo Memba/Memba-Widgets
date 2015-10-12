@@ -9,18 +9,18 @@
 
     'use strict';
 
-    var expect = window.chai.expect,
-        sinon = window.sinon,
-        kendo = window.kendo,
-        ui = kendo.ui,
-        Quiz = ui.Quiz,
-        FIXTURES = '#fixtures',
-        TOOLBOX1 = '<div id="quiz1"></div>',
-        TOOLBOX2 = '<div id="quiz2" data-role="quiz"></div>';
+    var expect = window.chai.expect;
+    var sinon = window.sinon;
+    var kendo = window.kendo;
+    var ui = kendo.ui;
+    var Quiz = ui.Quiz;
+    var FIXTURES = '#fixtures';
+    var QUIZ1 = '<div id="quiz1"></div>';
+    var QUIZ2 = '<div id="quiz2" data-role="quiz"></div>';
 
     // TODO ALL: nothing is completed (still show as TOOLBOX)
 
-    xdescribe('kidoju.widgets.quiz', function () {
+    describe('kidoju.widgets.quiz', function () {
 
         before(function () {
             if (window.__karma__ && $(FIXTURES).length === 0) {
@@ -42,60 +42,44 @@
         describe('Initialization', function () {
 
             it('from code', function () {
-                var element = $(TOOLBOX1).appendTo(FIXTURES),
-                    quiz = element.kendoQuiz({ iconPath: ICON_PATH }).data('kendoQuiz');
+                var element = $(QUIZ1).appendTo(FIXTURES);
+                var quiz = element.kendoQuiz().data('kendoQuiz');
                 expect(quiz).to.be.an.instanceof(Quiz);
-                expect(element.hasClass('k-widget')).to.be.true;
+                expect(element.hasClass('k-widget')).to.be.false;
                 expect(element.hasClass('kj-quiz')).to.be.true;
-                expect(element.find('img.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
-                expect(element.find('img.kj-tool').width()).to.equal(32);
-                expect(element.find('img.kj-tool').height()).to.equal(32);
             });
 
             it('from code with options', function () {
-                var element = $(TOOLBOX1).appendTo(FIXTURES),
-                    quiz = element.kendoQuiz({ iconPath: ICON_PATH, size: 64 }).data('kendoQuiz');
+                var element = $(QUIZ1).appendTo(FIXTURES);
+                var quiz = element.kendoQuiz().data('kendoQuiz');
                 expect(quiz).to.be.an.instanceof(Quiz);
-                expect(element.hasClass('k-widget')).to.be.true;
+                expect(element.hasClass('k-widget')).to.be.false;
                 expect(element.hasClass('kj-quiz')).to.be.true;
-                expect(element.find('img.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
-                expect(element.find('img.kj-tool').width()).to.equal(64);
-                expect(element.find('img.kj-tool').height()).to.equal(64);
             });
 
             it('from markup', function () {
-                var element = $(TOOLBOX2).appendTo(FIXTURES);
+                var element = $(QUIZ2).appendTo(FIXTURES);
                 kendo.init(FIXTURES);
                 var quiz = element.data('kendoQuiz');
                 expect(quiz).to.be.an.instanceof(Quiz);
-                expect(element.hasClass('k-widget')).to.be.true;
+                expect(element.hasClass('k-widget')).to.be.false;
                 expect(element.hasClass('kj-quiz')).to.be.true;
-                expect(element.find('img.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
-                expect(element.find('img.kj-tool').width()).to.equal(48);
-                expect(element.find('img.kj-tool').height()).to.equal(48);
             });
 
         });
 
-        describe('Methods', function () {
+        xdescribe('Methods', function () {
 
-            var element, quiz;
+            var element;
+            var quiz;
 
             beforeEach(function () {
-                element = $(TOOLBOX1).appendTo(FIXTURES);
-                quiz = element.kendoQuiz({ iconPath: ICON_PATH }).data('kendoQuiz');
+                element = $(QUIZ1).appendTo(FIXTURES);
+                quiz = element.kendoQuiz({ /* TODO */ }).data('kendoQuiz');
             });
 
             it('Set/Get the current tool with valid values', function () {
                 expect(quiz).to.be.an.instanceof(Quiz);
-                expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
-                expect(quiz.tool()).to.equal('pointer');
-                quiz.tool('label');
-                expect(quiz.tool()).to.equal('label');
-                expect(kidoju.tools).to.have.property('active', 'label');
-                quiz.tool('button');
-                expect(quiz.tool()).to.equal('button');
-                expect(kidoju.tools).to.have.property('active', 'button');
             });
 
             it('Set/Get the current tool with invalid values', function () {
@@ -110,72 +94,41 @@
                 expect(fn2).to.throw(RangeError);
             });
 
-            it('Reset', function () {
-                expect(quiz).to.be.an.instanceof(Quiz);
-                quiz.tool('label');
-                expect(kidoju.tools).to.have.property('active', 'label');
-                quiz.reset();
-                expect(kidoju.tools).to.have.property('active', 'pointer');
-                quiz.tool('button');
-                expect(kidoju.tools).to.have.property('active', 'button');
-                quiz.reset();
-                expect(kidoju.tools).to.have.property('active', 'pointer');
-            });
-
         });
 
-        describe('MVVM', function () {
+        xdescribe('MVVM', function () {
 
-            var element, quiz;
+            var element;
+            var quiz;
 
             beforeEach(function () {
-                element = $(TOOLBOX1).appendTo(FIXTURES);
-                quiz = element.kendoQuiz({ iconPath: ICON_PATH }).data('kendoQuiz');
+                element = $(QUIZ1).appendTo(FIXTURES);
+                quiz = element.kendoQuiz({ /* TODO */ }).data('kendoQuiz');
             });
 
             it('A change of tool raises a change in the quiz', function () {
                 expect(quiz).to.be.an.instanceof(Quiz);
-                quiz.reset();
-                expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
-                expect(quiz.tool()).to.equal('pointer');
-                kidoju.tools.set('active', 'label');
-                expect(quiz.tool()).to.equal('label');
-                expect(element.find('img[data-selected]').attr('data-tool')).to.equal('label');
             });
 
         });
 
-        describe('Events', function () {
+        xdescribe('Events', function () {
 
-            var element, quiz;
+            var element;
+            var quiz;
 
             beforeEach(function () {
-                element = $(TOOLBOX1).appendTo(FIXTURES);
-                quiz = element.kendoQuiz({ iconPath: ICON_PATH }).data('kendoQuiz');
+                element = $(QUIZ1).appendTo(FIXTURES);
+                quiz = element.kendoQuiz({ /* TODO */ }).data('kendoQuiz');
             });
 
             it('Change event', function () {
                 var change = sinon.spy();
                 expect(quiz).to.be.an.instanceof(Quiz);
-                quiz.reset();
-                expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
                 quiz.bind('change', function (e) {
                     change(e.value);
                 });
-                quiz.tool('label');
                 expect(change).to.have.been.calledWith('label');
-            });
-
-            it('Click event', function () {
-                var click = sinon.spy();
-                expect(quiz).to.be.an.instanceof(Quiz);
-                quiz.reset();
-                expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
-                quiz.bind('click', function (e) {
-                    click(e.value);
-                });
-                element.find('img[data-tool=button]').simulate('click');
-                expect(click).to.have.been.calledWith('button');
             });
 
         });

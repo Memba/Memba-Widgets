@@ -170,12 +170,12 @@
                 var id = element.attr(ID);
                 that._clear();
                 element.attr({
-                    'class': 'k-input',
-                    'accesskey': '',
-                    'autocomplete': 'off',
-                    'tabindex' : 0,
-                    'role': 'listbox',
-                    'aria-owns': id ? id + '_taglist' : ''
+                    class: 'k-input',
+                    accesskey: '',
+                    autocomplete: 'off',
+                    tabindex : 0,
+                    role: 'listbox',
+                    ariaOwns: id ? id + '_taglist' : ''
                 });
                 element.wrap('<div class="k-multiselect-wrap k-floatwrap" unselectable="on"/>');
                 that._innerWrapper = element.parent();

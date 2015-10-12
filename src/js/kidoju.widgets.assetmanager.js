@@ -232,15 +232,15 @@
                 images: {
                     logic: 'or',
                     filters: [
-                        { 'field': 'url', operator: 'endswith', value: '.gif' },
-                        { 'field': 'url', operator: 'endswith', value: '.jpg' },
-                        // { 'field': 'url', operator: 'endswith', value: '.jpeg' },
-                        { 'field': 'url', operator: 'endswith', value: '.png' },
-                        { 'field': 'url', operator: 'endswith', value: '.svg' }
+                        { field: 'url', operator: 'endswith', value: '.gif' },
+                        { field: 'url', operator: 'endswith', value: '.jpg' },
+                        // { field: 'url', operator: 'endswith', value: '.jpeg' },
+                        { field: 'url', operator: 'endswith', value: '.png' },
+                        { field: 'url', operator: 'endswith', value: '.svg' }
                     ]
                 },
-                audio: { 'field': 'url', operator: 'endswith', value: '.mp3' },
-                video: { 'field': 'url', operator: 'endswith', value: '.mp4' }
+                audio: { field: 'url', operator: 'endswith', value: '.mp3' },
+                video: { field: 'url', operator: 'endswith', value: '.mp4' }
             },
 
             /**

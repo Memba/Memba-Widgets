@@ -36,6 +36,7 @@
         var NULL = null;
         var NUMBER = 'number';
         var STRING = 'string';
+        var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
         var DATABINDING = 'dataBinding';
@@ -86,6 +87,8 @@
                 // base call to widget initialization
                 Widget.fn.init.call(this, element, options);
                 logger.debug('widget initialized');
+                // By default, no page is selected
+                that._selectedUid = NULL;
                 that._templates();
                 that._layout();
                 that._addSorting();
@@ -136,22 +139,25 @@
             index: function (index) {
                 var that = this;
                 var page;
-                if (index !== undefined) {
-                    if ($.type(index) !== NUMBER || index % 1 !== 0) {
-                        throw new TypeError();
-                    } else if (index < 0 || (index > 0 && index >= that.length())) {
+                if ($.type(index) === NUMBER) {
+                    if ((index % 1 !== 0) || (index < 0) || (index > 0 && index >= that.length())) {
                         throw new RangeError();
-                    } else {
-                        page = that.dataSource.at(index);
-                        that.value(page);
                     }
-                } else {
+                    page = that.dataSource.at(index);
+                    if (page instanceof Page) {
+                        that.value(page);
+                    } else {
+                        that.value(NULL);
+                    }
+                } else if ($.type(index) === UNDEFINED) {
                     page = that.dataSource.getByUid(that._selectedUid);
                     if (page instanceof Page) {
                         return that.dataSource.indexOf(page);
                     } else {
                         return -1;
                     }
+                } else {
+                    throw new TypeError();
                 }
             },
 
@@ -164,17 +170,20 @@
             id: function (id) {
                 var that = this;
                 var page;
-                if (id !== undefined) {
-                    if ($.type(id) !== STRING && $.type(id) !== NUMBER) {
-                        throw new TypeError();
-                    }
+                if ($.type(id) === STRING || $.type(id) === NUMBER) {
                     page = that.dataSource.get(id);
-                    that.value(page);
-                } else {
+                    if (page instanceof Page) {
+                        that.value(page);
+                    } else {
+                        that.value(NULL);
+                    }
+                } else if ($.type(id) === UNDEFINED) {
                     page = that.dataSource.getByUid(that._selectedUid);
                     if (page instanceof Page) {
                         return page[page.idField];
                     }
+                } else {
+                    throw new TypeError();
                 }
             },
 
@@ -183,51 +192,36 @@
 
             /**
              * Gets/Sets the value of the selected page in the navigation
-             * Set to NULL to unselect a page
+             * Set to NULL to unselect a page (state where no page is selected)
+             *
              * @method value
              * @param page
              * @returns {*}
              */
             value: function (page) {
                 var that = this;
-                if (page === NULL) {
-                    if (that._selectedUid !== NULL) {
+                if (page === NULL || page instanceof Page) {
+                    var hasChanged = false;
+                    if (page === NULL && that._selectedUid !== NULL) {
+                        hasChanged = true;
                         that._selectedUid = NULL;
-                        logger.debug('selected page uid set to null');
+                    } else if (page instanceof Page && that._selectedUid !== page.uid && that.dataSource.indexOf(page) > -1) {
+                        hasChanged = true;
+                        that._selectedUid = page.uid;
+                    }
+                    if (hasChanged) {
+                        logger.debug('selected page uid set to ' + that._selectedUid);
                         that._toggleSelection();
-                        that.trigger(CHANGE, {
-                            index: undefined,
-                            value: page
-                        });
+                        that.trigger(CHANGE, { value: page });
                     }
-                } else if (page !== undefined) {
-                    if (!(page instanceof Page)) {
-                        throw new TypeError();
-                    }
-                    // Note: when that.value() was previously named that.selection() with a custom binding
-                    // the selection binding was executed before the source binding so we had to record the selected page
-                    // in a temp variable (that._tmp) and assign it to the _selectedUid in the refresh method,
-                    // that is after the source was bound.
-                    // The corresponding code has now been removed after renaming that.selection() into that.value()
-                    // because the value binding is executed after the source binding.
-                    if (page.uid !== that._selectedUid && isGuid(page.uid)) {
-                        var index = that.dataSource.indexOf(page);
-                        if (index > -1) {
-                            that._selectedUid = page.uid;
-                            logger.debug('selected page uid set to ' + page.uid);
-                            that._toggleSelection();
-                            that.trigger(CHANGE, {
-                                index: index,
-                                value: page
-                            });
-                        }
-                    }
-                } else {
+                } else if ($.type(page) === UNDEFINED) {
                     if (that._selectedUid === NULL) {
                         return NULL;
                     } else {
-                        return that.dataSource.getByUid(that._selectedUid); // This returns undefined if not found
+                        return that.dataSource.getByUid(that._selectedUid) || NULL; // getByUid returns undefined if not found
                     }
+                } else {
+                    throw new TypeError();
                 }
             },
 

@@ -9,20 +9,20 @@
 
     'use strict';
 
-    var expect = window.chai.expect,
-        sinon = window.sinon,
-        kendo = window.kendo,
-        ObservableArray = kendo.data.ObservableArray,
-        ui = kendo.ui,
-        Navigation = ui.Navigation,
-        kidoju = window.kidoju,
-        tools = kidoju.tools,
-        Page = kidoju.data.Page,
-        PageComponent = kidoju.data.PageComponent,
-        PageCollectionDataSource = kidoju.data.PageCollectionDataSource,
-        FIXTURES = '#fixtures',
-        NAVIGATION1 = '<div></div>',
-        NAVIGATION2 = '<div data-role="navigation" data-bind="source: pages, value: current"></div>';
+    var expect = window.chai.expect;
+    var sinon = window.sinon;
+    var kendo = window.kendo;
+    var ObservableArray = kendo.data.ObservableArray;
+    var ui = kendo.ui;
+    var Navigation = ui.Navigation;
+    var kidoju = window.kidoju;
+    var tools = kidoju.tools;
+    var Page = kidoju.data.Page;
+    var PageComponent = kidoju.data.PageComponent;
+    var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+    var FIXTURES = '#fixtures';
+    var NAVIGATION1 = '<div></div>';
+    var NAVIGATION2 = '<div data-role="navigation" data-bind="source: pages, value: current"></div>';
 
     var pageCollectionArray = [
         {
@@ -103,8 +103,8 @@
                 var viewModel = kendo.observable({
                         pages: new PageCollectionDataSource({ data: pageCollectionArray }),
                         current: undefined
-                    }),
-                    element = $(NAVIGATION2).appendTo(FIXTURES);
+                    });
+                var element = $(NAVIGATION2).appendTo(FIXTURES);
                 kendo.bind(FIXTURES, viewModel);
                 var navigation = element.data('kendoNavigation');
                 expect(navigation).to.be.an.instanceof(Navigation);
@@ -119,7 +119,8 @@
 
         describe('Methods', function () {
 
-            var element, navigation;
+            var element;
+            var navigation;
 
             beforeEach(function () {
                 element = $(NAVIGATION1).appendTo(FIXTURES);
@@ -206,7 +207,9 @@
 
         describe('MVVM', function () {
 
-            var element, navigation, viewModel;
+            var element;
+            var navigation;
+            var viewModel;
 
             /*
             // For obscure reasons, setting the viewModel here does not work
@@ -278,15 +281,16 @@
 
         describe('Events', function () {
 
-            var element, navigation;
+            var element;
+            var navigation;
 
             beforeEach(function () {
                 element = $(NAVIGATION1).appendTo(FIXTURES);
             });
 
             it('dataBinding & dataBound', function () {
-                var dataBinding = sinon.spy(),
-                    dataBound = sinon.spy();
+                var dataBinding = sinon.spy();
+                var dataBound = sinon.spy();
                 navigation = element.kendoNavigation({
                     dataSource: pageCollectionArray,
                     dataBinding: function (e) {
@@ -313,13 +317,14 @@
                         change(e.value);
                     }
                 }).data('kendoNavigation');
+                expect(change).to.have.been.calledOnce;
                 expect(navigation).to.be.an.instanceof(Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(navigation.dataSource.data()).to.be.an.instanceof(ObservableArray).with.property('length', pageCollectionArray.length);
                 var page = navigation.dataSource.at(1);
                 expect(page).to.be.an.instanceof(Page);
                 navigation.value(page);
-                expect(change).to.have.been.calledOnce;
+                expect(change).to.have.been.calledTwice;
                 expect(change).to.have.been.calledWith(page);
             });
 

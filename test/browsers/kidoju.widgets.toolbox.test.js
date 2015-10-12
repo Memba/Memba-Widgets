@@ -9,17 +9,16 @@
 
     'use strict';
 
-    var expect = window.chai.expect,
-        sinon = window.sinon,
-        kendo = window.kendo,
-        ui = kendo.ui,
-        ToolBox = ui.ToolBox,
-        kidoju = window.kidoju,
-        FIXTURES = '#fixtures',
-        ICON_PATH = '../../src/styles/images/',
-        TOOLBOX1 = '<div id="toolbox1"></div>',
-        TOOLBOX2 = '<div id="toolbox2" data-role="toolbox" data-size="48" data-icon-path="' + ICON_PATH + '"></div>';
-
+    var expect = window.chai.expect;
+    var sinon = window.sinon;
+    var kendo = window.kendo;
+    var ui = kendo.ui;
+    var ToolBox = ui.ToolBox;
+    var kidoju = window.kidoju;
+    var FIXTURES = '#fixtures';
+    var ICON_PATH = '../../src/styles/images/';
+    var TOOLBOX1 = '<div id="toolbox1"></div>';
+    var TOOLBOX2 = '<div id="toolbox2" data-role="toolbox" data-size="48" data-icon-path="' + ICON_PATH + '"></div>';
 
     describe('kidoju.widgets.toolbox', function () {
 
@@ -45,25 +44,25 @@
         describe('Initialization', function () {
 
             it('from code', function () {
-                var element = $(TOOLBOX1).appendTo(FIXTURES),
-                    toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
+                var element = $(TOOLBOX1).appendTo(FIXTURES);
+                var toolbox = element.kendoToolBox({ iconPath: ICON_PATH }).data('kendoToolBox');
                 expect(toolbox).to.be.an.instanceof(ToolBox);
                 expect(element.hasClass('k-widget')).to.be.true;
                 expect(element.hasClass('kj-toolbox')).to.be.true;
-                expect(element.find('img.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
-                expect(element.find('img.kj-tool').width()).to.equal(32);
-                expect(element.find('img.kj-tool').height()).to.equal(32);
+                expect(element.find('a.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
+                expect(element.find('a.kj-tool').width()).to.equal(32);
+                expect(element.find('a.kj-tool').height()).to.equal(32);
             });
 
             it('from code with options', function () {
-                var element = $(TOOLBOX1).appendTo(FIXTURES),
-                    toolbox = element.kendoToolBox({ iconPath: ICON_PATH, size: 64 }).data('kendoToolBox');
+                var element = $(TOOLBOX1).appendTo(FIXTURES);
+                var toolbox = element.kendoToolBox({ iconPath: ICON_PATH, size: 64 }).data('kendoToolBox');
                 expect(toolbox).to.be.an.instanceof(ToolBox);
                 expect(element.hasClass('k-widget')).to.be.true;
                 expect(element.hasClass('kj-toolbox')).to.be.true;
-                expect(element.find('img.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
-                expect(element.find('img.kj-tool').width()).to.equal(64);
-                expect(element.find('img.kj-tool').height()).to.equal(64);
+                expect(element.find('a.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
+                expect(element.find('a.kj-tool').width()).to.equal(64);
+                expect(element.find('a.kj-tool').height()).to.equal(64);
             });
 
             it('from markup', function () {
@@ -73,16 +72,17 @@
                 expect(toolbox).to.be.an.instanceof(ToolBox);
                 expect(element.hasClass('k-widget')).to.be.true;
                 expect(element.hasClass('kj-toolbox')).to.be.true;
-                expect(element.find('img.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
-                expect(element.find('img.kj-tool').width()).to.equal(48);
-                expect(element.find('img.kj-tool').height()).to.equal(48);
+                expect(element.find('a.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
+                expect(element.find('a.kj-tool').width()).to.equal(48);
+                expect(element.find('a.kj-tool').height()).to.equal(48);
             });
 
         });
 
         describe('Methods', function () {
 
-            var element, toolbox;
+            var element;
+            var toolbox;
 
             beforeEach(function () {
                 element = $(TOOLBOX1).appendTo(FIXTURES);
@@ -96,9 +96,9 @@
                 toolbox.tool('label');
                 expect(toolbox.tool()).to.equal('label');
                 expect(kidoju.tools).to.have.property('active', 'label');
-                toolbox.tool('button');
-                expect(toolbox.tool()).to.equal('button');
-                expect(kidoju.tools).to.have.property('active', 'button');
+                toolbox.tool('textbox');
+                expect(toolbox.tool()).to.equal('textbox');
+                expect(kidoju.tools).to.have.property('active', 'textbox');
             });
 
             it('Set/Get the current tool with invalid values', function () {
@@ -119,8 +119,8 @@
                 expect(kidoju.tools).to.have.property('active', 'label');
                 toolbox.reset();
                 expect(kidoju.tools).to.have.property('active', 'pointer');
-                toolbox.tool('button');
-                expect(kidoju.tools).to.have.property('active', 'button');
+                toolbox.tool('textbox');
+                expect(kidoju.tools).to.have.property('active', 'textbox');
                 toolbox.reset();
                 expect(kidoju.tools).to.have.property('active', 'pointer');
             });
@@ -129,7 +129,8 @@
 
         describe('MVVM', function () {
 
-            var element, toolbox;
+            var element;
+            var toolbox;
 
             beforeEach(function () {
                 element = $(TOOLBOX1).appendTo(FIXTURES);
@@ -143,14 +144,15 @@
                 expect(toolbox.tool()).to.equal('pointer');
                 kidoju.tools.set('active', 'label');
                 expect(toolbox.tool()).to.equal('label');
-                expect(element.find('img[data-selected]').attr('data-tool')).to.equal('label');
+                expect(element.find('a.k-state-selected').attr(kendo.attr('tool'))).to.equal('label');
             });
 
         });
 
         describe('Events', function () {
 
-            var element, toolbox;
+            var element;
+            var toolbox;
 
             beforeEach(function () {
                 element = $(TOOLBOX1).appendTo(FIXTURES);
@@ -177,8 +179,8 @@
                 toolbox.bind('click', function (e) {
                     click(e.value);
                 });
-                element.find('img[data-tool=button]').simulate('click');
-                expect(click).to.have.been.calledWith('button');
+                element.find('a[data-tool=textbox]').simulate('click');
+                expect(click).to.have.been.calledWith('textbox');
             });
 
         });

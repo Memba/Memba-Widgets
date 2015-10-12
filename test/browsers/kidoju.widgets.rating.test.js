@@ -9,14 +9,14 @@
 
     'use strict';
 
-    var expect = window.chai.expect,
-        sinon = window.sinon,
-        kendo = window.kendo,
-        ui = kendo.ui,
-        Rating = ui.Rating,
-        FIXTURES = '#fixtures',
-        RATING1 = '<input>',
-        RATING2 = '<input data-role="rating" data-bind="value: current" data-max="10">';
+    var expect = window.chai.expect;
+    var sinon = window.sinon;
+    var kendo = window.kendo;
+    var ui = kendo.ui;
+    var Rating = ui.Rating;
+    var FIXTURES = '#fixtures';
+    var RATING1 = '<input>';
+    var RATING2 = '<input data-role="rating" data-bind="value: current" data-max="10">';
 
     describe('kidoju.widgets.rating', function () {
 
@@ -40,7 +40,10 @@
         describe('Initialization', function () {
 
             it('from code with all options', function () {
-                var value = 4, min = 0, max = 10, step = 2;
+                var value = 4;
+                var min = 0;
+                var max = 10;
+                var step = 2;
                 var element = $(RATING1).appendTo(FIXTURES);
                 expect(element).to.match('input');
                 var rating = element.kendoRating({
@@ -55,8 +58,8 @@
                 expect(wrapper).to.have.class('k-widget');
                 expect(wrapper).to.have.class('k-rating');
                 expect(wrapper.find('input')).to.be.an.instanceof($).with.property('length', 1);
-                expect(wrapper.find('span.k-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min)/step));
-                expect(wrapper.find('span.k-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value/step));
+                expect(wrapper.find('span.k-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
+                expect(wrapper.find('span.k-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
             });
 
             it('from code with minimal options', function () {
@@ -66,7 +69,9 @@
                 var rating = element.kendoRating({
                     value: value
                 }).data('kendoRating');
-                var min = rating.options.min, max = rating.options.max, step = rating.options.step;
+                var min = rating.options.min;
+                var max = rating.options.max;
+                var step = rating.options.step;
                 expect(min).to.equal(0);
                 expect(max).to.equal(5);
                 expect(step).to.equal(1);
@@ -75,8 +80,8 @@
                 expect(wrapper).to.have.class('k-widget');
                 expect(wrapper).to.have.class('k-rating');
                 expect(wrapper.find('input')).to.be.an.instanceof($).with.property('length', 1);
-                expect(wrapper.find('span.k-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min)/step));
-                expect(wrapper.find('span.k-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value/step));
+                expect(wrapper.find('span.k-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
+                expect(wrapper.find('span.k-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
             });
 
             it('from markup', function () {
@@ -88,7 +93,10 @@
                 kendo.bind(FIXTURES, viewModel);
                 var rating = element.data('kendoRating');
                 expect(rating).to.be.an.instanceof(Rating);
-                var min = rating.options.min, max = rating.options.max, step = rating.options.step, value=rating.value();
+                var min = rating.options.min;
+                var max = rating.options.max;
+                var step = rating.options.step;
+                var value = rating.value();
                 expect(min).to.equal(0);
                 expect(max).to.equal(10);
                 expect(step).to.equal(1);
@@ -97,14 +105,17 @@
                 expect(wrapper).to.have.class('k-widget');
                 expect(wrapper).to.have.class('k-rating');
                 expect(wrapper.find('input')).to.be.an.instanceof($).with.property('length', 1);
-                expect(wrapper.find('span.k-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min)/step));
-                expect(wrapper.find('span.k-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value/step));
+                expect(wrapper.find('span.k-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
+                expect(wrapper.find('span.k-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
             });
         });
 
         describe('Methods', function () {
 
-            var element, rating, value1 = 1, value2 = 2;
+            var element;
+            var rating;
+            var value1 = 1;
+            var value2 = 2;
 
             beforeEach(function () {
                 element = $(RATING1).appendTo(FIXTURES);
@@ -143,21 +154,23 @@
                 expect(rating.wrapper).not.to.have.class('k-state-disabled');
             });
 
-            //it('visible', function () {
-                //expect(rating).to.be.an.instanceof(Rating);
-                //expect(rating.wrapper).to.be.an.instanceof($).with.property('length', 1);
-                //TODO
-            //});
+            // it('visible', function () {
+            // expect(rating).to.be.an.instanceof(Rating);
+            // expect(rating.wrapper).to.be.an.instanceof($).with.property('length', 1);
+            // TODO
+            // });
 
-            //it('destroy', function () {
-                // TODO
-            //});
+            // it('destroy', function () {
+            // TODO
+            // });
 
         });
 
         describe('MVVM', function () {
 
-            var element, rating, viewModel;
+            var element;
+            var rating;
+            var viewModel;
 
             /*
              // For obscure reasons, setting the viewModel here does not work
@@ -177,16 +190,18 @@
 
             it('Changing the value in the viewModel changes the number of plain/selected stars', function () {
                 expect(rating).to.be.an.instanceof(Rating);
-                var min = rating.options.min, max = rating.options.max, step = rating.options.step;
-                var count = Math.round((max-min)/step);
+                var min = rating.options.min;
+                var max = rating.options.max;
+                var step = rating.options.step;
+                var count = Math.round((max - min) / step);
                 var input = rating.wrapper.find('input');
                 expect(input).to.be.an.instanceof($).with.property('length', 1);
                 var stars = rating.wrapper.find('span.k-rating-star');
                 expect(stars).to.be.an.instanceof($).with.property('length', count);
-                for (var value = min; value <= max; value+= step) {
+                for (var value = min; value <= max; value += step) {
                     viewModel.set('current', value);
                     expect(parseFloat(input.val())).to.equal(value);
-                    var pos = Math.round((value-min)/step)-1;
+                    var pos = Math.round((value - min) / step) - 1;
                     for (var i = 0; i < count; i++) {
                         if (i <= pos) {
                             expect($(stars.get(i))).to.have.class('k-state-selected');
@@ -199,16 +214,18 @@
 
             it('Clicking a star updates the value in the viewModel', function () {
                 expect(rating).to.be.an.instanceof(Rating);
-                var min = rating.options.min, max = rating.options.max, step = rating.options.step;
-                var count = Math.round((max-min)/step);
+                var min = rating.options.min;
+                var max = rating.options.max;
+                var step = rating.options.step;
+                var count = Math.round((max - min) / step);
                 var input = rating.wrapper.find('input');
                 expect(input).to.be.an.instanceof($).with.property('length', 1);
                 var stars = rating.wrapper.find('span.k-rating-star');
                 expect(stars).to.be.an.instanceof($).with.property('length', count);
                 for (var pos = 0; pos < count; pos++) {
                     $(stars.get(pos)).simulate('click');
-                    expect(parseFloat(input.val())).to.equal(min+(pos+1)*step);
-                    for(var i = 0; i < count; i++) {
+                    expect(parseFloat(input.val())).to.equal(min + (pos + 1) * step);
+                    for (var i = 0; i < count; i++) {
                         if (i <= pos) {
                             expect($(stars.get(i))).to.have.class('k-state-selected');
                         } else {
@@ -222,7 +239,8 @@
 
         describe('UI Interactions', function () {
 
-            var element, rating;
+            var element;
+            var rating;
 
             beforeEach(function () {
                 element = $(RATING1).appendTo(FIXTURES);
@@ -231,13 +249,15 @@
 
             it('mouseover', function () {
                 expect(rating).to.be.an.instanceof(Rating);
-                var min = rating.options.min, max = rating.options.max, step = rating.options.step;
-                var count = Math.round((max-min)/step);
+                var min = rating.options.min;
+                var max = rating.options.max;
+                var step = rating.options.step;
+                var count = Math.round((max - min) / step);
                 var stars = rating.wrapper.find('span.k-rating-star');
                 expect(stars).to.be.an.instanceof($).with.property('length', count);
                 for (var pos = 0; pos < count; pos++) {
                     $(stars.get(pos)).simulate('mouseover');
-                    for(var i = 0; i < count; i++) {
+                    for (var i = 0; i < count; i++) {
                         if (i <= pos) {
                             expect($(stars.get(i))).to.have.class('k-state-hover');
                         } else {
@@ -251,7 +271,8 @@
 
         describe('Events', function () {
 
-            var element, rating;
+            var element;
+            var rating;
 
             beforeEach(function () {
                 element = $(RATING1).appendTo(FIXTURES);
@@ -265,13 +286,16 @@
                     }
                 }).data('kendoRating');
                 expect(rating).to.be.an.instanceof(Rating);
-                var min = rating.options.min, max = rating.options.max, step = rating.options.step, value = rating.value();
+                var min = rating.options.min;
+                var max = rating.options.max;
+                var step = rating.options.step;
+                var value = rating.value();
                 expect(min).to.equal(0);
                 expect(max).to.equal(5);
                 expect(step).to.equal(1);
                 for (var i = min; i <= max; i += step) {
                     rating.value(i);
-                    expect(change).to.have.callCount(i+1);
+                    expect(change).to.have.callCount(i + 1);
                     expect(change).to.have.been.calledWith(i);
                 }
             });

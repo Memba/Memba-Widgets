@@ -9,20 +9,20 @@
 
     'use strict';
 
-    var expect = window.chai.expect,
-        sinon = window.sinon,
-        kendo = window.kendo,
-        ui = kendo.ui,
-        PlayBar = ui.PlayBar,
-        ObservableArray = kendo.data.ObservableArray,
-        kidoju = window.kidoju,
-        tools = kidoju.tools,
-        Page = kidoju.data.Page,
-        PageComponent = kidoju.data.PageComponent,
-        PageCollectionDataSource = kidoju.data.PageCollectionDataSource,
-        FIXTURES = '#fixtures',
-        PLAYBAR1 = '<div></div>',
-        PLAYBAR2 = '<div data-role="playbar" data-bind="source: pages, value: current"></div>';
+    var expect = window.chai.expect;
+    var sinon = window.sinon;
+    var kendo = window.kendo;
+    var ui = kendo.ui;
+    var PlayBar = ui.PlayBar;
+    var ObservableArray = kendo.data.ObservableArray;
+    var kidoju = window.kidoju;
+    var tools = kidoju.tools;
+    var Page = kidoju.data.Page;
+    var PageComponent = kidoju.data.PageComponent;
+    var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+    var FIXTURES = '#fixtures';
+    var PLAYBAR1 = '<div></div>';
+    var PLAYBAR2 = '<div data-role="playbar" data-bind="source: pages, value: current"></div>';
 
     var pageCollectionData1 = [
         {
@@ -157,8 +157,8 @@
                 var viewModel = kendo.observable({
                         pages: new PageCollectionDataSource({ data: pageCollectionData1 }),
                         current: undefined
-                    }),
-                    element =  $(PLAYBAR2).appendTo(FIXTURES);
+                    });
+                var element =  $(PLAYBAR2).appendTo(FIXTURES);
                 kendo.bind(FIXTURES, viewModel);
                 var playbar = element.data('kendoPlayBar');
                 expect(playbar).to.be.an.instanceof(PlayBar);
@@ -176,7 +176,8 @@
 
         describe('Methods', function () {
 
-            var element, playbar;
+            var element;
+            var playbar;
 
             beforeEach(function () {
                 element = $(PLAYBAR1).appendTo(FIXTURES);
@@ -263,7 +264,9 @@
 
         describe('MVVM', function () {
 
-            var element, playbar, viewModel;
+            var element;
+            var playbar;
+            var viewModel;
 
             /*
              // For obscure reasons, setting the viewModel here does not work
@@ -350,15 +353,16 @@
 
         describe('Events', function () {
 
-            var element, playbar;
+            var element;
+            var playbar;
 
             beforeEach(function () {
                 element = $(PLAYBAR1).appendTo(FIXTURES);
             });
 
             it('dataBinding & dataBound', function () {
-                var dataBinding = sinon.spy(),
-                    dataBound = sinon.spy();
+                var dataBinding = sinon.spy();
+                var dataBound = sinon.spy();
                 playbar = element.kendoPlayBar({
                     dataSource: pageCollectionData2,
                     dataBinding: function (e) {

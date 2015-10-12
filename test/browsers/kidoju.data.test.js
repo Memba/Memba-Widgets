@@ -84,7 +84,7 @@
 
         describe('When instantiating a kidoju.data.Model: init and accept', function () {
 
-            var BadModel = kendo.data.Model.define({
+            var definition = {
                 id: 'id',
                 fields: {
                     id: {
@@ -98,36 +98,15 @@
                         editable: false
                     }
                 }
-            });
-
-            var FixedModel = Model.define({
-                id: 'id',
-                fields: {
-                    id: {
-                        type: 'string',
-                        nullable: true,
-                        editable: false
-                    },
-                    date: {
-                        type: 'date',
-                        nullable: true,
-                        editable: false
-                    }
-                }
-            });
+            };
+            var BadModel = kendo.data.Model.define(definition);
+            var FixedModel = Model.define(definition);
 
             it('it should assign default values any time fields are not initialized', function () {
 
-                // TODO: we should update the following unit tests
-                // to apply the same def to kendo.data.Model and kidoju.data.Model
-                // insisting on the defect fixed
-                // This should allow us to detect fixes in future versions of Kendo UI
-                // in view to remove our custom code.....
+                // This test should allow us to detect fixes in future versions of Kendo UI
+                // in view to remove our custom code to fix kendo.data.Model...
 
-                var Test;
-                var t1;
-                var t2;
-                var t3;
                 var def = {
                         id: 'id',
                         fields: {
@@ -138,49 +117,55 @@
                         }
                     };
 
-                Test = kendo.data.Model.define(def);
-                t1 = new Test();
-                t2 = new Test({});
-                t3 = new Test({ id: '1' });
+                function TestBad() {
+                    var Test = kendo.data.Model.define(def);
+                    var t1 = new Test();
+                    var t2 = new Test({});
+                    var t3 = new Test({ id: '1' });
 
-                expect(t1.id).to.be.null;
-                expect(t1).to.have.property('title', 'hey');
-                expect(t1).to.have.property('dob').that.is.a('date');
-                expect(t1).to.have.property('age', 10);
+                    expect(t1.id).to.be.null;
+                    expect(t1).to.have.property('title', 'hey');
+                    expect(t1).to.have.property('dob').that.is.a('date');
+                    expect(t1).to.have.property('age', 10);
 
-                expect(t2.id).to.be.null;
-                expect(t2).to.have.property('title', 'hey');
-                expect(t2).to.have.property('dob').that.is.a('date');
-                expect(t2).to.have.property('age', 10);
+                    expect(t2.id).to.be.null;
+                    expect(t2).to.have.property('title', 'hey');
+                    expect(t2).to.have.property('dob').that.is.a('date');
+                    expect(t2).to.have.property('age', 10);
 
-                // undefined fields is the problem to fix
-                expect(t3).to.have.property('id', '1');
-                expect(t3.title).to.be.undefined;
-                expect(t3.dob).to.be.undefined;
-                expect(t3.age).to.be.undefined;
+                    // undefined fields is the problem to fix
+                    expect(t3).to.have.property('id', '1');
+                    expect(t3.title).to.be.undefined;
+                    expect(t3.dob).to.be.undefined;
+                    expect(t3.age).to.be.undefined;
+                }
 
-                // ---------------------------------------------
+                function TestFixed() {
+                    var Test = Model.define(def);
+                    var t1 = new Test();
+                    var t2 = new Test({});
+                    var t3 = new Test({ id: '1' });
 
-                Test = Model.define(def);
-                t1 = new Test();
-                t2 = new Test({});
-                t3 = new Test({ id: '1' });
+                    expect(t1.id).to.be.null;
+                    expect(t1).to.have.property('title', 'hey');
+                    expect(t1).to.have.property('dob').that.is.a('date');
+                    expect(t1).to.have.property('age', 10);
 
-                expect(t1.id).to.be.null;
-                expect(t1).to.have.property('title', 'hey');
-                expect(t1).to.have.property('dob').that.is.a('date');
-                expect(t1).to.have.property('age', 10);
+                    expect(t2.id).to.be.null;
+                    expect(t2).to.have.property('title', 'hey');
+                    expect(t2).to.have.property('dob').that.is.a('date');
+                    expect(t2).to.have.property('age', 10);
 
-                expect(t2.id).to.be.null;
-                expect(t2).to.have.property('title', 'hey');
-                expect(t2).to.have.property('dob').that.is.a('date');
-                expect(t2).to.have.property('age', 10);
+                    // undefined fields have been fixed in kidoju.data.Model
+                    expect(t3).to.have.property('id', '1');
+                    expect(t3).to.have.property('title', 'hey');
+                    expect(t3).to.have.property('dob').that.is.a('date');
+                    expect(t3).to.have.property('age', 10);
+                }
 
-                // undefined fields have been fixed in kidoju.data.Model
-                expect(t3).to.have.property('id', '1');
-                expect(t3).to.have.property('title', 'hey');
-                expect(t3).to.have.property('dob').that.is.a('date');
-                expect(t3).to.have.property('age', 10);
+                // Division into TestBad & TestFixed fixes jshint error: `This function has too many statements.`
+                TestBad();
+                TestFixed();
 
             });
 
@@ -190,63 +175,72 @@
                 var pastId = ObjectId();
                 var now = new Date();
                 var nowId = ObjectId();
-                var badChange = false;
-                var fixedChange = false;
-                var badObject = new BadModel({
-                        id: pastId,
-                        date: past.toISOString()
+                var initObj = {
+                    id: pastId,
+                    date: past.toISOString()
+                };
+
+                function TestBad() {
+                    var badObject = new BadModel(initObj);
+                    var badChange = false;
+
+                    expect(badObject).to.have.property('id').that.is.equal(pastId);
+                    // There lies the problem: the date property is supposed to be a Date and the string value has not been parsed/converted
+                    expect(badObject).to.have.property('date').that.is.a('string');
+                    expect(badObject.date).to.equal(past.toISOString());
+
+                    badObject.bind('change', function (e) {
+                        badChange = true;
                     });
-                var fixedObject = new FixedModel({
-                        id: pastId,
-                        date: past.toISOString()
+
+                    badObject.accept({
+                        id: nowId,
+                        date: now.toISOString()
                     });
 
-                expect(badObject).to.have.property('id').that.is.equal(pastId);
-                // There lies the problem: the date property is supposed to be a Date and the string value has not been parsed/converted
-                expect(badObject).to.have.property('date').that.is.a('string');
-                expect(badObject.date).to.equal(past.toISOString());
+                    // Although fields are non-editable, they have been updated which is expected with accept
+                    expect(badObject).to.have.property('id').that.is.equal(nowId);
+                    // badObject is not dirty, which is expected since we have not called set
+                    expect(badObject).to.have.property('dirty').that.is.false;
+                    // accordingly the change event has not been raised
+                    expect(badChange).to.be.false;
 
-                expect(fixedObject).to.have.property('id').that.is.equal(pastId);
-                // The fix in kidoju.data.Model is discussed and explained at http://www.telerik.com/forums/parsing-on-initialization-of-kendo-data-model
-                expect(fixedObject).to.have.property('date').that.is.an.instanceof(Date);
-                expect(fixedObject.date.getTime()).to.equal(past.getTime());
+                    // There lies the problem: the date property is supposed to be a Date and the string value has not been parsed/converted
+                    expect(badObject).to.have.property('date').that.is.a('string');
+                    expect(badObject.date).to.equal(now.toISOString());
+                }
 
-                badObject.bind('change', function (e) {
-                    badChange = true;
-                });
+                function TestFixed() {
+                    var fixedObject = new FixedModel(initObj);
+                    var fixedChange = false;
 
-                badObject.accept({
-                    id: nowId,
-                    date: now.toISOString()
-                });
+                    expect(fixedObject).to.have.property('id').that.is.equal(pastId);
+                    // The fix in kidoju.data.Model is discussed and explained at http://www.telerik.com/forums/parsing-on-initialization-of-kendo-data-model
+                    expect(fixedObject).to.have.property('date').that.is.an.instanceof(Date);
+                    expect(fixedObject.date.getTime()).to.equal(past.getTime());
 
-                // Although fields are non-editable, they have been updated which is expected with accept
-                expect(badObject).to.have.property('id').that.is.equal(nowId);
-                // badObject is not dirty, which is expected since we have not called set
-                expect(badObject).to.have.property('dirty').that.is.false;
-                // accordingly the change event has not been raised
-                expect(badChange).to.be.false;
+                    fixedObject.bind('change', function (e) {
+                        fixedChange = true;
+                    });
 
-                // There lies the problem: the date property is supposed to be a Date and the string value has not been parsed/converted
-                expect(badObject).to.have.property('date').that.is.a('string');
-                expect(badObject.date).to.equal(now.toISOString());
+                    fixedObject.accept({
+                        id: nowId,
+                        date: now.toISOString()
+                    });
 
-                fixedObject.bind('change', function (e) {
-                    fixedChange = true;
-                });
+                    expect(fixedObject).to.have.property('id').that.is.equal(nowId);
+                    expect(fixedObject).to.have.property('dirty').that.is.false;
+                    expect(fixedChange).to.be.false;
 
-                fixedObject.accept({
-                    id: nowId,
-                    date: now.toISOString()
-                });
+                    // We have fixed our date parsing issue
+                    expect(fixedObject).to.have.property('date').that.is.an.instanceof(Date);
+                    expect(fixedObject.date.getTime()).to.equal(now.getTime());
+                }
 
-                expect(fixedObject).to.have.property('id').that.is.equal(nowId);
-                expect(fixedObject).to.have.property('dirty').that.is.false;
-                expect(fixedChange).to.be.false;
+                // Division into TestBad & TestFixed fixes jshint error: `This function has too many statements.`
+                TestBad();
+                TestFixed();
 
-                // We have fixed our date parsing issue
-                expect(fixedObject).to.have.property('date').that.is.an.instanceof(Date);
-                expect(fixedObject.date.getTime()).to.equal(now.getTime());
             });
 
             it('We expect to parse nested models', function () {
@@ -470,34 +464,42 @@
                 var a1 = { id: '1', name: 'Victo Hugo' };
                 var b1 = { id: 'a', title: 'Les Misérables' };
                 var b2 = { id: 'b', title: 'Le Comte de Monte-Cristo' };
-                var author1 = new Author(a1);
-                var author2 = new Author($.extend({}, a1, { books: [b1, b2] }));
-                var book1 = new Book(b1);
-                var book2 = new Book(b2);
 
-                expect(author1).to.be.an.instanceof(Author);
-                expect(author1.books).to.be.an.instanceof(DataSource);
-                author1.books.read(); // IMPORTANT
+                function TestAuthor1() {
+                    var author1 = new Author(a1);
 
-                expect(author2).to.be.an.instanceof(Author);
-                expect(author2.books).to.be.an.instanceof(DataSource);
-                author2.books.read(); // IMPORTANT
+                    expect(author1).to.be.an.instanceof(Author);
+                    expect(author1.books).to.be.an.instanceof(DataSource);
+                    author1.books.read(); // IMPORTANT
 
-                expect(author2.books.at(0)).to.be.an.instanceof(Book);
-                expect(author2.books.at(1)).to.be.an.instanceof(Book);
-                expect(book1).to.be.an.instanceof(Book);
-                expect(book2).to.be.an.instanceof(Book);
+                    expect(author1.toJSON()).to.deep.equal(a1);
 
-                expect(author1.toJSON()).to.deep.equal(a1);
-                expect(author2.toJSON()).to.deep.equal(a1);
-                expect(author2.toJSON(true)).to.deep.equal($.extend({}, a1, { books: [b1, b2] }));
+                    author1.books.add(b1);
+                    author1.books.add(new Book(b2));
+                    expect(author1.books.at(0)).to.be.an.instanceof(Book);
+                    expect(author1.books.at(1)).to.be.an.instanceof(Book);
+                    expect(author1.toJSON()).to.deep.equal(a1);
+                    expect(author1.toJSON(true)).to.deep.equal($.extend({}, a1, { books: [b1, b2] }));
 
-                author1.books.add(b1);
-                author1.books.add(book2);
-                expect(author1.books.at(0)).to.be.an.instanceof(Book);
-                expect(author1.books.at(1)).to.be.an.instanceof(Book);
-                expect(author1.toJSON()).to.deep.equal(a1);
-                expect(author1.toJSON(true)).to.deep.equal($.extend({}, a1, { books: [b1, b2] }));
+                }
+
+                function TestAuthor2() {
+                    var author2 = new Author($.extend({}, a1, { books: [b1, b2] }));
+
+                    expect(author2).to.be.an.instanceof(Author);
+                    expect(author2.books).to.be.an.instanceof(DataSource);
+                    author2.books.read(); // IMPORTANT
+
+                    expect(author2.books.at(0)).to.be.an.instanceof(Book);
+                    expect(author2.books.at(1)).to.be.an.instanceof(Book);
+
+                    expect(author2.toJSON()).to.deep.equal(a1);
+                    expect(author2.toJSON(true)).to.deep.equal($.extend({}, a1, { books: [b1, b2] }));
+                }
+
+                // Division into TestAuthor1 & TestAuthor2 fixes jshint error: `This function has too many statements.`
+                TestAuthor1();
+                TestAuthor2();
 
             });
 
@@ -665,20 +667,27 @@
                             text: 'World'
                         }
                     };
-                var component = new PageComponent(obj);
-                for (var prop in obj) {
-                    if (obj.hasOwnProperty(prop)) {
-                        if (prop === 'attributes' || prop === 'properties') {
-                            for (var subprop in obj[prop]) {
-                                if (obj[prop].hasOwnProperty(subprop)) {
-                                    expect(component[prop][subprop]).to.equal(obj[prop][subprop]);
-                                }
+
+                function TestObjectProperty(obj, prop) {
+                    var component = new PageComponent(obj);
+                    if (prop === 'attributes' || prop === 'properties') {
+                        for (var subprop in obj[prop]) {
+                            if (obj[prop].hasOwnProperty(subprop)) {
+                                expect(component[prop][subprop]).to.equal(obj[prop][subprop]);
                             }
-                        } else {
-                            expect(component[prop]).to.equal(obj[prop]);
                         }
+                    } else {
+                        expect(component[prop]).to.equal(obj[prop]);
                     }
                 }
+
+                for (var prop in obj) {
+                    if (obj.hasOwnProperty(prop)) {
+                        // Extraction of TestObjectProperty fixes jshint error: `Blocks are nested too deeply`
+                        TestObjectProperty(obj, prop);
+                    }
+                }
+
             });
 
             it('if initialized from a complete image, it shoud pass', function () {
@@ -746,7 +755,7 @@
 
             it('if initialized from a stupid array (components have no valid tool), it should throw', function () {
                 function testFn() {
-                    var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: books });
+                    var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: [{ a: 1, b: 2 }, { a: '1', b: '2' }] });
                     pageComponentCollectionDataSource.read();
                 }
                 expect(testFn).to.throw(Error);
@@ -1593,11 +1602,12 @@
                         }
                     ]
                 };
-                var defaults = new PageComponent().defaults;
-                var d = {
+                var pageDefaults = new Page().defaults;
+                var componentDefaults = new PageComponent().defaults;
+                var defaults = {
                     pages: [
-                        { id: null, components: [$.extend({}, defaults), $.extend({}, defaults)] },
-                        { id: null, components: [$.extend({}, defaults), $.extend({}, defaults)] }
+                        $.extend(true, {}, pageDefaults, { id: null, components: [$.extend(true, {}, componentDefaults), $.extend({}, componentDefaults)] }),
+                        $.extend(true, {}, pageDefaults, { id: null, components: [$.extend(true, {}, componentDefaults), $.extend({}, componentDefaults)] })
                     ]
                 };
                 var stream = new Stream(s);
@@ -1607,7 +1617,7 @@
                     stream.pages.at(i).components.read();
                 }
 
-                var json = $.extend(true, {}, d, s);
+                var json = $.extend(true, {}, defaults, s);
                 for (var j = 0; j < json.pages.length; j++) {
                     for (var k = 0; k < json.pages[j].components.length; k++) {
                         // By default properties === {}, which is discarded by toJSON

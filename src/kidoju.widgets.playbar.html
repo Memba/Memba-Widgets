@@ -15,8 +15,10 @@
     <script src="./js/vendor/kendo/kendo.binder.js"></script>
     <script src="./js/vendor/kendo/kendo.popup.js"></script>
     <script src="./js/vendor/kendo/kendo.list.js"></script>
-    <script src="./js/vendor/kendo/kendo.dropdownlist.js"></script-->
+    <script src="./js/vendor/kendo/kendo.dropdownlist.js"></script>
+    <script src="./js/vendor/kendo/kendo.toolbar.js"></script-->
     <!-- Playbar requirements -->
+    <link href="./styles/kidoju.widgets.playbar.css" rel="stylesheet">
     <script src="./js/window.assert.js"></script>
     <script src="./js/window.log.js"></script>
     <script src="./js/kidoju.data.js"></script>
@@ -35,7 +37,7 @@
 <div data-bind="text: current.id"></div>
 <button data-bind="click: reset">Clear Selection</button><br/>
 <div><input type="checkbox" data-bind="checked: isVisible" />Visible</div>
-<div id="playbar" data-role="playbar" data-bind="source: pages, value: page, visible: isVisible, click: alert" data-button-count="5"></div>
+<div id="toolbar" style="overflow: visible"></div>
 <input data-role="dropdownlist" data-bind="source: pages, value: page" data-text-field="id" data-value-field="id" style="width: 400px"></select>
 </body>
 <script>
@@ -68,6 +70,14 @@
         });
 
         $(document).ready(function() {
+            $('#toolbar').kendoToolBar({
+                items: [
+                    { template: '<div id="playbar" data-role="playbar" data-bind="source: pages, value: page, visible: isVisible, click: alert" data-button-count="5" class="kj-top" style="border:none;background:none;" ></div>' },
+                    { type: "button", text: "Hello" },
+                    { type: "separator" },
+                    { type: "button", text: "World" }
+                ]
+            });
             kendo.bind('body', viewModel);
         });
 

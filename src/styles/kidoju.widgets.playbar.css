@@ -1,0 +1,23 @@
+.kj-playbar {
+    z-index: 1000;
+}
+.kj-playbar .k-pager-info {
+    margin-top: 0.175em;
+}
+/**
+ * The following styles are aimed at expanding the drop down list of numeric values downward
+ * when the kj-top style is added to the playbar
+ */
+.kj-playbar.kj-top .k-pager-numbers {
+    flex-direction: column;
+}
+.kj-playbar.kj-top .k-pager-numbers.k-state-expanded {
+    transform: translateY(1.72em);
+    border-radius: 0 0 4px 4px;
+}
+.kj-playbar.kj-top .k-pager-numbers.k-state-expanded .k-current-page {
+    transform: translateY(0);
+}
+.kj-playbar.kj-top .k-pager-numbers.k-state-expanded .k-current-page .k-link {
+    border-radius: 1.0833em 1.0833em 0 0;
+}

@@ -19,7 +19,7 @@
     <script src="./js/vendor/kendo/kendo.listview.js"></script>
     <script src="./js/vendor/kendo/kendo.menu.js"></script-->
     <!-- Play mode requirements -->
-    <!--link rel="stylesheet" href="./styles/kidoju.widgets.playbar.css"-->
+    <link rel="stylesheet" href="./styles/kidoju.widgets.playbar.css">
     <link rel="stylesheet" href="./styles/kidoju.widgets.stage.css">
     <script src="./js/window.assert.js"></script>
     <script src="./js/window.log.js"></script>
@@ -74,7 +74,7 @@
     <img src="./styles/images/KdjLogoBB.png" alt="Kidoju Logo">
 </header>
 <main>
-    <div data-role="playbar" data-bind="source: stream.pages, value: currentPage, events: {click: calculate}"></div>
+    <div id="toolbar"></div>
     <div id="wrapper" class="k-content">
         <div class="centered">
             <div data-role="stage" data-bind="source: currentPage.components, properties: test" data-mode="play"></div>
@@ -413,14 +413,12 @@
             test: undefined,
             result: undefined,
             calculate: function() {
-                viewModel.stream.pages.validateTestFromProperties(window.viewModel.get('test')).then(function(result) {
-                    window.viewModel.set('result', result);
-                    var grid = $('div[data-role="grid"]').data('kendoGrid');
-                    grid.setDataSource(new kendo.data.DataSource({ data: result.getScoreArray() }));
-                    var sections = $('div.centered>div');
-                    sections.first().css('display', 'none');
-                    sections.last().css('display', 'block');
-                });
+                return viewModel.stream.pages.validateTestFromProperties(window.viewModel.get('test'))
+                    .done(function(result) {
+                        window.viewModel.set('result', result);
+                        var grid = $('div[data-role="grid"]').data('kendoGrid');
+                        grid.setDataSource(new kendo.data.DataSource({ data: result.getScoreArray() }));
+                    });
             }
         });
 
@@ -448,6 +446,43 @@
         $(window).on('resize', onResize);
 
         $(document).ready(function() {
+
+
+            $('#toolbar').kendoToolBar({
+                items: [
+                    { template: '<div data-role="playbar" data-bind="source: stream.pages, value: currentPage" data-refresh="false" data-button-count="5" class="kj-top" style="width:450px;border:none;background:none;" ></div>' },
+                    { type: 'separator' },
+                    { type: 'button', id: 'submit', text: 'Submit' },
+                    { type: 'button', id: 'score', text: 'Score', hidden: true },
+                    { type: 'button', id: 'review', text: 'Review', enable: false }
+                ],
+                click: function (e) {
+                    var sections = $('div.centered>div');
+                    if (e.id === 'submit') {
+                        viewModel.calculate()
+                            .done(function() {
+                                sections.first().css('display', 'none');
+                                sections.last().css('display', 'block');
+                            });
+                            // TODO: fail ???
+                        this.enable('#submit', false);
+                        this.enable('#review', true);
+                    } else if (e.id === 'score') {
+                        this.enable('#score', false);
+                        this.enable('#review', true);
+                        sections.first().css('display', 'none');
+                        sections.last().css('display', 'block');
+                    } else if (e.id === 'review') {
+                        this.hide('#submit');
+                        this.show('#score');
+                        this.enable('#score', true);
+                        this.enable('#review', false);
+                        sections.first().css('display', 'block');
+                        sections.last().css('display', 'none');
+                    }
+                }
+            });
+
             viewModel.stream.load().then(function() {
                 viewModel.set('currentPage', viewModel.stream.pages.at(0));
                 viewModel.set('test', viewModel.stream.pages.getTestFromProperties());

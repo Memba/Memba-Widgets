@@ -63,20 +63,20 @@
             isVisible: true,
             reset: function() {
                 this.set('current', null);
-            },
-            alert: function() {
-                window.alert('tick!');
             }
         });
 
         $(document).ready(function() {
             $('#toolbar').kendoToolBar({
                 items: [
-                    { template: '<div id="playbar" data-role="playbar" data-bind="source: pages, value: page, visible: isVisible, click: alert" data-button-count="5" class="kj-top" style="border:none;background:none;" ></div>' },
-                    { type: "button", text: "Hello" },
+                    { template: '<div id="playbar" data-role="playbar" data-bind="source: pages, value: page, visible: isVisible" data-button-count="5" class="kj-top" style="border:none;background:none;" ></div>' },
                     { type: "separator" },
-                    { type: "button", text: "World" }
-                ]
+                    { type: "button", text: "Submit" },
+                    { type: "button", text: "Review" }
+                ],
+                click: function (e) {
+                    window.alert($(e.target).text());
+                }
             });
             kendo.bind('body', viewModel);
         });

@@ -89,8 +89,8 @@
                 expect(playbar.dataSource.total()).to.equal(0);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-playbar');
-                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 5);
-                expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', 1);
+                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 4);
+                expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', 2);
                 expect(element.find('span.k-pager-input>input')).to.be.an.instanceof($).with.property('length', 1);
                 expect(element.find('a.k-pager-refresh')).to.be.an.instanceof($).with.property('length', 1);
                 expect(element.find('span.k-pager-info')).to.be.an.instanceof($).with.property('length', 1);
@@ -129,8 +129,8 @@
                 expect(playbar.dataSource.total()).to.equal(pageCollectionData1.length);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-playbar');
-                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 5);
-                expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', pageCollectionData1.length);
+                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 4);
+                expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', pageCollectionData1.length + 1);
                 expect(element.find('span.k-pager-input>input')).to.be.an.instanceof($).with.property('length', 0);
                 expect(element.find('a.k-pager-refresh')).to.be.an.instanceof($).with.property('length', 1);
                 expect(element.find('span.k-pager-info')).to.be.an.instanceof($).with.property('length', 1);
@@ -146,8 +146,8 @@
                 expect(playbar.dataSource.total()).to.equal(pageCollectionData2.length);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-playbar');
-                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 5);
-                expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', playbar.options.buttonCount + 1);
+                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 4);
+                expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', playbar.options.buttonCount + 2);
                 expect(element.find('span.k-pager-input>input')).to.be.an.instanceof($).with.property('length', 0);
                 expect(element.find('a.k-pager-refresh')).to.be.an.instanceof($).with.property('length', 1);
                 expect(element.find('span.k-pager-info')).to.be.an.instanceof($).with.property('length', 1);
@@ -166,8 +166,8 @@
                 expect(playbar.dataSource.total()).to.equal(pageCollectionData1.length);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-playbar');
-                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 5);
-                expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', pageCollectionData1.length);
+                expect(element.find('a.k-pager-nav')).to.be.an.instanceof($).with.property('length', 4);
+                expect(element.find('ul>li')).to.be.an.instanceof($).with.property('length', pageCollectionData1.length + 1);
                 expect(element.find('span.k-pager-input>input')).to.be.an.instanceof($).with.property('length', 0);
                 expect(element.find('a.k-pager-refresh')).to.be.an.instanceof($).with.property('length', 1);
                 expect(element.find('span.k-pager-info')).to.be.an.instanceof($).with.property('length', 1);
@@ -289,20 +289,20 @@
             it('Adding a page to the viewModel adds the corresponding item to the playbar', function () {
                 expect(playbar).to.be.an.instanceof(PlayBar);
                 expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-                expect(playbar.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length);
+                expect(playbar.items()).to.be.an.instanceof(Array).with.property('length', pageCollectionData1.length);
                 viewModel.pages.add(new Page({
                     id: kendo.guid(),
                     style: 'font-family: Georgia, serif; color: #FF0000;'
                 }));
-                expect(playbar.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length + 1);
+                expect(playbar.items()).to.be.an.instanceof(Array).with.property('length', pageCollectionData1.length + 1);
             });
 
             it('Removing a page from the viewModel removes the corresponding item from the playbar', function () {
                 expect(playbar).to.be.an.instanceof(PlayBar);
                 expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-                expect(playbar.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length);
+                expect(playbar.items()).to.be.an.instanceof(Array).with.property('length', pageCollectionData1.length);
                 viewModel.pages.remove(viewModel.pages.at(0));
-                expect(playbar.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length - 1);
+                expect(playbar.items()).to.be.an.instanceof(Array).with.property('length', pageCollectionData1.length - 1);
             });
 
             // Note: Since PlayBar is a collection of kendo.ui.Stage, we are assuming that
@@ -312,7 +312,7 @@
                 // TODO: also test binding on id and index?
                 expect(playbar).to.be.an.instanceof(PlayBar);
                 expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-                expect(playbar.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageCollectionData1.length);
+                expect(playbar.items()).to.be.an.instanceof(Array).with.property('length', pageCollectionData1.length);
                 var check = sinon.spy();
                 $.each(viewModel.pages.data(), function (index, page) {
                     check();
@@ -397,20 +397,6 @@
                 playbar.value(page);
                 expect(change).to.have.been.calledOnce;
                 expect(change).to.have.been.calledWith(page);
-            });
-
-            it('click', function () {
-                var click = sinon.spy();
-                playbar = element.kendoPlayBar({
-                    dataSource: pageCollectionData1,
-                    click: function (e) {
-                        click();
-                    }
-                }).data('kendoPlayBar');
-                expect(playbar).to.be.an.instanceof(PlayBar);
-                expect(playbar.dataSource).to.be.an.instanceof(PageCollectionDataSource);
-                element.find('a.k-pager-tick').simulate('click');
-                expect(click).to.have.been.calledOnce;
             });
 
         });

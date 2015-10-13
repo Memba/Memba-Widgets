@@ -427,7 +427,7 @@
                 playbar
                     .addClass(WIDGET_CLASS)
                     .on(CLICK + NS, 'a', $.proxy(that._navClick, that))
-                    .on(CLICK + NS , '.k-current-page', $.proxy(that._toggleDropDown, that));
+                    .on(CLICK + NS, '.k-current-page', $.proxy(that._toggleDropDown, that));
 
 
                 // if (options.autoBind) {
@@ -570,7 +570,7 @@
              * Toggle the drop down list of numeric buttons
              * @private
              */
-            _toggleDropDown: function() {
+            _toggleDropDown: function () {
                 this.list.toggleClass('k-state-expanded');
             },
 

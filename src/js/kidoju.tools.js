@@ -805,17 +805,22 @@
                         // Note: _library is added to the data bound PageComponent in its init method
                         .attr($.extend({}, options.attributes, { 'data-bind': 'value: ' + options.field + ', source: _library' }))
                         .appendTo(cell);
+                    // We need a temporary textbox to calculate the height and align the button
+                    var temp = $('<input type="text" class="k-textbox">')
+                        .css({ visibility: 'hidden' })
+                        .appendTo(cell);
                     $('<button/>')
                         .text('...')
                         .addClass('k-button')
                         .css({
                             display: 'table-cell',
                             minWidth: '40px',
-                            height: $('input.k-textbox').first().css('height'), // hopefully there is one available before CodeInput widget is initialized
+                            height: temp.css('height'), // $('input.k-textbox').last().css('height'),
                             margin: 0
                         })
                         .appendTo(table)
                         .on(CLICK, $.proxy(that.showDialog, that, options));
+                    temp.remove();
                 };
             },
             showDialog: function (options/*,evt*/) {

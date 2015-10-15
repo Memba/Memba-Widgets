@@ -38,7 +38,6 @@
         var UNDEFINED = 'undefined';
         var BEFORECHANGE = 'beforeChange';
         var CHANGE = 'change';
-        var DATABOUND = 'dataBound';
         var JS_COMMENT = '// ';
         // var NS = '.kendoCodeEditor',
         var WIDGET_CLASS = 'k-widget kj-codeeditor';
@@ -74,6 +73,7 @@
                 } else if (that.dataSource.total()) {  // TODO
                     that.value(JS_COMMENT + options.default);
                 }
+                // kendo.notify(that);
             },
 
             /**
@@ -95,8 +95,7 @@
              * @property events
              */
             events: [
-                CHANGE,
-                DATABOUND
+                CHANGE
             ],
 
             /**

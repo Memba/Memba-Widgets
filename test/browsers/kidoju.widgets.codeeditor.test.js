@@ -232,6 +232,8 @@
                 expect(codeEditor.dataSource.total()).to.equal(2);
             });
 
+            /* This function has too many statements. */
+            /* jshint -W071 */
             it('value', function () {
                 function fn1() {
                     codeEditor.value(100);
@@ -275,6 +277,7 @@
                 expect(codeEditor.dropDownList.text()).to.equal(codeEditor.options.custom);
                 expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(FORMULA3);
             });
+            /* jshint +W071 */
 
             afterEach(function () {
                 var fixtures = $(FIXTURES);
@@ -337,7 +340,7 @@
 
             afterEach(function () {
                 viewModel.unbind(CHANGE);
-                viewModel.set('code', ''); //undefined would not work
+                viewModel.set('code', ''); // undefined would not work
                 var fixtures = $(FIXTURES);
                 kendo.destroy(fixtures);
                 fixtures.find('*').off();
@@ -415,20 +418,20 @@
                 var lines = scroll.find('pre.CodeMirror-line');
                 expect(lines).to.exist;
                 expect(lines).to.have.property('length', 3);
-                var line = $(lines.get(1)); //second line
+                var line = $(lines.get(1)); // second line
                 expect(line).to.exist;
-                var x = 304; //line.offset().left + line.width() / 2; // 304
-                var y = 617; //line.offset().top + line.height() / 2; // 617
-                $(document).simulate(CLICK, { clientX: x, clientY: y, pageX: x, pageY: y });
-                $('textarea').simulate('keypress', { charCode: 97, keyCode: 97 }); // a
-                $('textarea').simulate('keypress', { charCode: 98, keyCode: 98 }); // b
-                $('textarea').simulate('keypress', { charCode: 99, keyCode: 99 }); // c
-                // TODO: This does not work: complex
+                var x = 304; // line.offset().left + line.width() / 2; // 300
+                var y = 617; // line.offset().top + line.height() / 2; // 620
+                scroll.simulate(CLICK, { clientX: x, clientY: y, pageX: x, pageY: y });
+                // $('textarea').simulate('keypress', { charCode: 97, keyCode: 97 }); // a
+                // $('textarea').simulate('keypress', { charCode: 98, keyCode: 98 }); // b
+                // $('textarea').simulate('keypress', { charCode: 99, keyCode: 99 }); // c
+                // TODO: This does not work: quite complex
             });
 
             afterEach(function () {
                 viewModel.unbind(CHANGE);
-                viewModel.set('code', ''); //undefined would not work
+                viewModel.set('code', ''); // undefined would not work
                 var fixtures = $(FIXTURES);
                 kendo.destroy(fixtures);
                 fixtures.find('*').off();

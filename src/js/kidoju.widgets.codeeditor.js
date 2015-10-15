@@ -70,7 +70,7 @@
                 that._dataSource();
                 if ($.type(options.value) === STRING) {
                     that.value(options.value);
-                } else if (that.dataSource.total()) {  // TODO
+                } else if (that.dataSource.total()) {
                     that.value(JS_COMMENT + options.default);
                 }
                 // kendo.notify(that);

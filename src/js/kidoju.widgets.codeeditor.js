@@ -38,9 +38,12 @@
         var UNDEFINED = 'undefined';
         var BEFORECHANGE = 'beforeChange';
         var CHANGE = 'change';
+        var DATABOUND = 'dataBound';
         var JS_COMMENT = '// ';
         // var NS = '.kendoCodeEditor',
         var WIDGET_CLASS = 'k-widget kj-codeeditor';
+        var RX_LIBRARY = /^\/\/ ([^\n]+)$/;
+        var RX_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
 
         /*********************************************************************************
          * Widget
@@ -50,6 +53,9 @@
          * @class CodeEditor Widget (kendoCodeEditor)
          */
         var CodeEditor = Widget.extend({
+
+            // TODO: Add testing of user value against solution
+            // Quite complex, because we need to bring in kidoju.library.js + web workers execution (currently in kidoju.tools)
 
             /**
              * Initializes the widget
@@ -63,6 +69,11 @@
                 logger.debug('widget initialized');
                 that._layout();
                 that._dataSource();
+                if ($.type(options.value) === STRING) {
+                    that.value(options.value);
+                } else if (that.dataSource.total()) {  // TODO
+                    that.value(JS_COMMENT + options.default);
+                }
             },
 
             /**
@@ -72,10 +83,11 @@
             options: {
                 name: 'CodeEditor',
                 autoBind: true,
-                // dataSource
+                // dataSource: [],
                 custom: 'custom',
-                default: 'Equal',
-                solution: ''
+                default: 'equal',
+                solution: '',
+                value: null
             },
 
             /**
@@ -83,12 +95,13 @@
              * @property events
              */
             events: [
-                CHANGE
+                CHANGE,
+                DATABOUND
             ],
 
             /**
              * Value for MVVM binding
-             * Returns either a JS function as a string or a library formula name
+             * Takes/returns either a JS function as a string or a library formula name prefixed by '// '
              * @param value
              */
             value: function (value) {
@@ -97,7 +110,9 @@
                     that._toggle(value);
                 } else if ($.type(value) === UNDEFINED) {
                     var formula = that.dropDownList.text();
-                    if (formula === that.options.custom) {
+                    if ($.type(formula) !== STRING || !formula.length) {
+                        return undefined;
+                    } else if (formula === that.options.custom) {
                         return that.codeMirror.getDoc().getValue();
                     } else {
                         return JS_COMMENT + that.dropDownList.text();
@@ -108,30 +123,66 @@
             },
 
             /**
+             * Check that value refers to a custom function not in the code library
+             *
+             * @param value
+             * @returns {*}
+             * @private
+             */
+            _isCustom: function (value) {
+                assert.type(STRING, value, kendo.format(assert.messages.type.default, value, STRING));
+                var customMatches = value.match(RX_CUSTOM);
+                if ($.isArray(customMatches) && customMatches.length === 2) {
+                    return value;
+                }
+            },
+
+            /**
+             * Check that value refers to a piece of code from the library (dataSource)
+             * Returns the name of the library item (without `// `) if found, otherwise undefined
+             * @param value
+             * @returns {*}
+             * @private
+             */
+            _isInLibrary: function (value) {
+                assert.type(STRING, value, kendo.format(assert.messages.type.default, value, STRING));
+                assert.instanceof(kendo.ui.DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(kendo.data.DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+                assert.equal(this.dropDownList.dataSource, this.dataSource, 'this.dropDownList.dataSource and this.dataSource are expected to be the same');
+                var libraryMatches = value.match(RX_LIBRARY);
+                if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
+                    var found = this.dataSource.data().filter(function (item) {
+                        return item.name === libraryMatches[1];
+                    });
+                    if ($.isArray(found) && found.length) {
+                        return libraryMatches[1];
+                    }
+                }
+            },
+
+            /**
              * toggle UI for custom vs library code
              * @param value
              * @private
              */
             _toggle: function (value) {
+                assert.type(STRING, value, kendo.format(assert.messages.type.default, value, STRING));
+                assert.instanceof(kendo.ui.DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(CodeMirror, this.codeMirror, kendo.format(assert.messages.instanceof.default, 'this.codeMirror', 'CodeMirror'));
                 var that = this;
-                if ($.type(value) === STRING && that.dropDownList instanceof kendo.ui.DropDownList && that.input instanceof $ && that.codeMirror instanceof CodeMirror) {
-                    var libraryMatches = value.match(/^\/\/ ([^\n]+)$/);
-                    // var customMatches = value.match(/^function validate\(value, solution\) {[\s\S]+}$/);
-                    var customMatches = value.match(/^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/);
-                    if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
-                        // Find in the code library
-                        var found = that.dropDownList.dataSource.data().filter(function (item) {
-                            return item.name === libraryMatches[1];
-                        });
-                        found = $.isArray(found) && found.length ? libraryMatches[1] : that.options.default;
-                        that.dropDownList.text(found);
-                        that._onDropDownListChange();
-                    } else if ($.isArray(customMatches) && customMatches.length === 2) {
-                        that.codeMirror.getDoc().setValue(value);
-                    } else {
-                        that.dropDownList.text(that.options.default);
-                        that._onDropDownListChange();
+                if (that._isCustom(value)) {
+                    // If value is in the form `function validate(value, solution[, all]) { ... }`, it is custom
+                    that.codeMirror.getDoc().setValue(value);
+                } else {
+                    // Otherwise, search the library
+                    var name = that._isInLibrary(value);
+                    if ($.type(name) === UNDEFINED) {
+                        // and use default if not found
+                        name = that._isInLibrary(JS_COMMENT + that.options.default);
+                        assert.type(STRING, name, '`this.options.default` is expected to exist in the library');
                     }
+                    that.dropDownList.text(name);
+                    that._onDropDownListChange();
                 }
             },
 
@@ -156,6 +207,7 @@
                 var header = $('<div class="k-header"><div></div><div></div></div>').appendTo(that.element);
                 var left = header.find('div').first();
                 var right = header.find('div').last();
+
                 // Create the dropDownList
                 that.dropDownList = $('<select/>')
                     .appendTo(left)
@@ -167,6 +219,7 @@
                         dataSource: that.options.dataSource
                     })
                     .data('kendoDropDownList');
+
                 // create the input field to display solution
                 that.input = $('<input class="k-textbox k-state-disabled" disabled>')
                     .appendTo(right)
@@ -178,9 +231,9 @@
              * @private
              */
             _onDropDownListChange: function () {
-                if (this.dropDownList instanceof kendo.ui.DropDownList && this.input instanceof $ && this.codeMirror instanceof CodeMirror) {
-                    this.codeMirror.getDoc().setValue(this.dropDownList.value());
-                }
+                assert.instanceof(kendo.ui.DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(CodeMirror, this.codeMirror, kendo.format(assert.messages.instanceof.default, 'this.codeMirror', 'CodeMirror'));
+                this.codeMirror.getDoc().setValue(this.dropDownList.value());
             },
 
             /**
@@ -192,37 +245,40 @@
                 var div = $('<div class="kj-codemirror"></div>')
                         .appendTo(that.element)
                         .get(0);
-                if (div instanceof window.HTMLElement) {
-                    that.codeMirror = CodeMirror(div, {
-                        gutters: ['CodeMirror-lint-markers'],
-                        lineNumbers: true,
-                        lint: true,
-                        mode: 'javascript',
-                        value: ''
-                    });
-                    // Prevent from modifying first lines and last line
-                    that.codeMirror.on(BEFORECHANGE, function (cm, change) {
-                        if (change.origin === 'setValue') {
-                            return; // updated using this.value(value)
+                assert.instanceof(window.HTMLElement, div, kendo.format(assert.messages.instanceof.default, 'div', 'HTMLElement'));
+                that.codeMirror = CodeMirror(div, {
+                    gutters: ['CodeMirror-lint-markers'],
+                    lineNumbers: true,
+                    lint: true,
+                    mode: 'javascript',
+                    value: ''
+                });
+
+                // Prevent from modifying first lines and last line
+                that.codeMirror.on(BEFORECHANGE, function (cm, change) {
+                    if (change.origin === 'setValue') {
+                        return; // updated using this.value(value)
+                    }
+                    // if updated by typing into the code editor
+                    if ((change.from.line === 0) || // prevent changing the first line
+                        (change.from.line === cm.display.renderedView.length - 1) || // prevent changing the last line
+                        (change.origin === '+delete' && change.to.line === cm.display.renderedView.length - 1)) { // prevent backspace on the last line or suppr on the previous line
+                        // cancel change
+                        change.cancel();
+                    }
+                });
+
+                // Synchronize drop down list with code editor to display `custom` upon any change
+                that.codeMirror.on(CHANGE, function (cm, change) {
+                    if (that.dropDownList.text() !== that.options.custom) {
+                        if (that.codeMirror.getDoc().getValue() !== that.dropDownList.value()) {
+                            that.dropDownList.text(that.options.custom);
                         }
-                        // if updated by typing into the code editor
-                        if ((change.from.line === 0) || // prevent changing the first line
-                            (change.from.line === cm.display.renderedView.length - 1) || // prevent changing the last line
-                            (change.origin === '+delete' && change.to.line === cm.display.renderedView.length - 1)) { // prevent backspace on the last line or suppr on the previous line
-                            // cancel change
-                            change.cancel();
-                        }
-                    });
-                    that.codeMirror.on(CHANGE, function (cm, change) {
-                        if (that.dropDownList.text() !== that.options.custom) {
-                            if (that.codeMirror.getDoc().getValue() !== that.dropDownList.value()) {
-                                that.dropDownList.text(that.options.custom);
-                            }
-                        }
-                        // trigger a change event for MVVM value binding
-                        that.trigger(CHANGE);
-                    });
-                }
+                    }
+                    // trigger a change event for MVVM value binding
+                    that.trigger(CHANGE, { value: that.value() });
+                });
+
             },
 
             /**
@@ -230,17 +286,17 @@
              * @private
              */
             _dataSource: function () {
+                assert.instanceof(kendo.ui.DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(kendo.data.DataSource, this.dropDownList.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dropDownList.dataSource', 'kendo.data.DataSource'));
                 var that = this;
                 var dropDownList = that.dropDownList;
-                if (dropDownList instanceof kendo.ui.DropDownList && dropDownList.dataSource instanceof kendo.data.DataSource) {
-                    // MVVM bindings require that.dataSource
-                    that.dataSource = that.dropDownList.dataSource;
-                    if (that._refreshHandler) {
-                        that.dataSource.unbind(CHANGE, that._refreshHandler);
-                    }
-                    that._refreshHandler = $.proxy(that.refresh, that);
-                    that.dataSource.bind(CHANGE, that._refreshHandler);
+                // MVVM bindings require that.dataSource
+                that.dataSource = that.dropDownList.dataSource;
+                if (that._refreshHandler) {
+                    that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
+                that._refreshHandler = $.proxy(that.refresh, that);
+                that.dataSource.bind(CHANGE, that._refreshHandler);
             },
 
             /**
@@ -248,9 +304,10 @@
              * @param dataSource
              */
             setDataSource: function (dataSource) {
+                assert.instanceof(kendo.ui.DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                 var that = this;
                 var dropDownList = that.dropDownList;
-                if (dropDownList instanceof kendo.ui.DropDownList && dropDownList.dataSource !== dataSource) {
+                if (dropDownList.dataSource !== dataSource) {
                     dropDownList.setDataSource(dataSource);
                     that._dataSource();
                 }
@@ -261,6 +318,7 @@
              * @param e
              */
             refresh: function (e) {
+                assert.instanceof(kendo.ui.DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                 this.dropDownList.refresh(e);
             },
 
@@ -272,14 +330,14 @@
             _clear: function () {
                 var that = this;
                 // unbind kendo
-                // kendo.unbind($(that.element));
+                kendo.unbind(that.element);
                 // unbind all other events
-                $(that.element).find('*').off();
-                $(that.element).off();
+                that.element.find('*').off();
+                that.element.off();
                 // remove descendants
-                $(that.element).empty();
+                that.element.empty();
                 // remove element classes
-                $(that.element).removeClass(WIDGET_CLASS);
+                that.element.removeClass(WIDGET_CLASS);
             },
 
             /**

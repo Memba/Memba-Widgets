@@ -68,11 +68,7 @@
                 logger.debug('widget initialized');
                 that._layout();
                 that._dataSource();
-                if ($.type(options.value) === STRING) {
-                    that.value(options.value);
-                } else if (that.dataSource.total()) {
-                    that.value(JS_COMMENT + options.default);
-                }
+                that._initValue();
                 // kendo.notify(that);
             },
 
@@ -97,6 +93,21 @@
             events: [
                 CHANGE
             ],
+
+            /**
+             * Init value
+             * @private
+             */
+            _initValue: function () { // Consider setOptions
+                var options = this.options;
+                if ($.type(options.value) === STRING && RX_CUSTOM.test(options.value)) {
+                    this.value(options.value);
+                } else if ($.type(options.value) === STRING && RX_LIBRARY.test(/*JS_COMMENT +*/options.value)) {
+                    this.value(/*JS_COMMENT +*/options.value);
+                } else if (this.dataSource && this.dataSource.total()) {
+                    this.value(JS_COMMENT + options.default);
+                }
+            },
 
             /**
              * Value for MVVM binding
@@ -309,6 +320,7 @@
                 if (dropDownList.dataSource !== dataSource) {
                     dropDownList.setDataSource(dataSource);
                     that._dataSource();
+                    that._initValue();
                 }
             },
 

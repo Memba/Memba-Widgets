@@ -81,7 +81,7 @@
 
         describe('Initialization', function () {
 
-            it('from code without options', function () {
+            it('from code', function () {
                 var element = $(CODEEDITOR1).appendTo(FIXTURES);
                 var codeEditor = element.kendoCodeEditor().data('kendoCodeEditor');
                 expect(codeEditor).to.be.an.instanceof(CodeEditor);
@@ -114,7 +114,7 @@
                 expect(codeEditor.input.val()).to.equal(SOLUTION);
             });
 
-            it('from markup without options', function () {
+            it('from markup', function () {
                 var element = $(CODEEDITOR2).appendTo(FIXTURES);
                 kendo.init(FIXTURES);
                 var codeEditor = element.data('kendoCodeEditor');
@@ -131,7 +131,7 @@
                 expect(codeEditor.input.val()).to.equal('');
             });
 
-            it('from markup with options', function () {
+            it('from markup with attributes', function () {
                 var attr = {
                     'data-source': JSON.stringify(LIBRARY),
                     'data-default': 'floatEqual',
@@ -179,9 +179,9 @@
                 element = $(CODEEDITOR1).appendTo(FIXTURES);
                 codeEditor = element.kendoCodeEditor({
                     dataSource: LIBRARY,
-                    value: NAME,
                     default: NAME,
-                    solution: SOLUTION
+                    solution: SOLUTION,
+                    value: NAME
                 }).data('kendoCodeEditor');
             });
 
@@ -223,13 +223,13 @@
                 expect(codeEditor.dataSource).to.equal(codeEditor.dropDownList.dataSource);
                 expect(codeEditor.dataSource.total()).to.equal(LIBRARY.length);
                 expect(codeEditor.value()).to.equal(JS_COMMENT + NAME);
-                codeEditor.setDataSource([LIBRARY[0], LIBRARY[1]]);
-                expect(codeEditor.value()).to.equal(undefined);
+                codeEditor.setDataSource([LIBRARY[0], LIBRARY[1], LIBRARY[4]]);
+                expect(codeEditor.value()).to.equal(JS_COMMENT + NAME);
                 expect(codeEditor).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
                 expect(codeEditor).to.have.property('dropDownList').that.is.an.instanceof(kendo.ui.DropDownList);
                 expect(codeEditor.dropDownList).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
                 expect(codeEditor.dataSource).to.equal(codeEditor.dropDownList.dataSource);
-                expect(codeEditor.dataSource.total()).to.equal(2);
+                expect(codeEditor.dataSource.total()).to.equal(3);
             });
 
             /* This function has too many statements. */
@@ -288,7 +288,7 @@
 
         });
 
-        describe('MVVM', function () {
+        describe('MVVM (and UI interactions)', function () {
 
             var element;
             var codeEditor;
@@ -301,9 +301,8 @@
             });
 
             beforeEach(function () {
-                element = $(CODEEDITOR1)
+                element = $(CODEEDITOR2)
                     .attr({
-                        'data-role': 'codeeditor',
                         'data-bind': 'source: library, value: code',
                         'data-default': NAME
                     })
@@ -338,43 +337,6 @@
                 expect(viewModel.get('code')).to.equal(codeEditor.value());
             });
 
-            afterEach(function () {
-                viewModel.unbind(CHANGE);
-                viewModel.set('code', ''); // undefined would not work
-                var fixtures = $(FIXTURES);
-                kendo.destroy(fixtures);
-                fixtures.find('*').off();
-                fixtures.empty();
-            });
-
-        });
-
-        describe('UI Interactions', function () {
-
-            var element;
-            var codeEditor;
-            var change;
-            var EQ_NAME = LIBRARY[1].name;
-            // var EQ_FORMULA = LIBRARY[1].formula;
-            var viewModel = kendo.observable({
-                library: LIBRARY,
-                code: ''
-            });
-
-            beforeEach(function () {
-                element = $(CODEEDITOR1)
-                    .attr({
-                        'data-role': 'codeeditor',
-                        'data-bind': 'source: library, value: code',
-                        'data-default': NAME
-                    })
-                    .appendTo(FIXTURES);
-                kendo.bind(FIXTURES, viewModel);
-                codeEditor = element.data('kendoCodeEditor');
-                change = sinon.spy();
-                viewModel.bind(CHANGE, change);
-            });
-
             it('A change of dropdownlist value raises a change of viewModel', function () {
                 expect(change).not.to.have.been.called;
                 expect(codeEditor).to.be.an.instanceof(CodeEditor);
@@ -395,23 +357,23 @@
 
             xit('A change of codemirror value raises a change of viewModel', function () {
                 /*
-                document.onmousemove = function(e){
-                    console.dir({
-                        clientX: e.clientX,
-                        clientY: e.clientY,
-                        pageX: e.pageX,
-                        pageY: e.pageY,
-                        screenX: e.screenX,
-                        screenY: e.screenY
-                    });
-                };
-                document.onkeypress = function(e){
-                    console.dir({
-                        keyCode: e.keyCode,
-                        charCode: e.charCode
-                    });
-                };
-                */
+                 document.onmousemove = function(e){
+                 console.dir({
+                 clientX: e.clientX,
+                 clientY: e.clientY,
+                 pageX: e.pageX,
+                 pageY: e.pageY,
+                 screenX: e.screenX,
+                 screenY: e.screenY
+                 });
+                 };
+                 document.onkeypress = function(e){
+                 console.dir({
+                 keyCode: e.keyCode,
+                 charCode: e.charCode
+                 });
+                 };
+                 */
                 expect(codeEditor).to.be.an.instanceof(CodeEditor);
                 var scroll = $('div.CodeMirror div.CodeMirror-scroll');
                 expect(scroll).to.exist;

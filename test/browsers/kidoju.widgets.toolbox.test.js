@@ -15,6 +15,7 @@
     var ui = kendo.ui;
     var ToolBox = ui.ToolBox;
     var kidoju = window.kidoju;
+    var CLICK = 'click';
     var FIXTURES = '#fixtures';
     var ICON_PATH = '../../src/styles/images/';
     var TOOLBOX1 = '<div id="toolbox1"></div>';
@@ -127,7 +128,7 @@
 
         });
 
-        describe('MVVM', function () {
+        describe('MVVM (and UI interactions)', function () {
 
             var element;
             var toolbox;
@@ -143,6 +144,17 @@
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
                 expect(toolbox.tool()).to.equal('pointer');
                 kidoju.tools.set('active', 'label');
+                expect(toolbox.tool()).to.equal('label');
+                expect(element.find('a.k-state-selected').attr(kendo.attr('tool'))).to.equal('label');
+            });
+
+            it('A selection in the toolbox raises a change of tool', function() {
+                expect(toolbox).to.be.an.instanceof(ToolBox);
+                toolbox.reset();
+                expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');
+                expect(toolbox.tool()).to.equal('pointer');
+                element.find('[data-tool="label"]').simulate(CLICK);
+                expect(kidoju.tools.get('active')).to.equal('label');
                 expect(toolbox.tool()).to.equal('label');
                 expect(element.find('a.k-state-selected').attr(kendo.attr('tool'))).to.equal('label');
             });

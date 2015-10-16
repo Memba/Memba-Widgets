@@ -188,7 +188,7 @@
 
         });
 
-        describe('MVVM', function () {
+        describe('MVVM (and UI interactions)', function () {
 
             var element;
             var explorer;

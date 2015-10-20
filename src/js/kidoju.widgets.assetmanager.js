@@ -182,7 +182,7 @@
                 ret = { field: 'url', operator: 'endswith', value: extensions[0] };
             } else if (extensions.length > 1) {
                 ret = { logic: 'or', filters: [] };
-                for (var i = 0; i < extensions.length; i++ ) {
+                for (var i = 0; i < extensions.length; i++) {
                     ret.filters.push({ field: 'url', operator: 'endswith', value: extensions[i] });
                 }
             }
@@ -238,8 +238,8 @@
                 }
             },
 
-            setOptions: function(options) {
-                $.noop(); //TODO
+            setOptions: function (options) {
+                $.noop(); // TODO
             },
 
             /**

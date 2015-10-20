@@ -666,10 +666,10 @@
                             });
                         },
                         create: function (options) {
-                            $.noop(); //TODO
+                            $.noop(); // TODO
                         },
                         destroy: function (options) {
-                            $.noop(); //TODO
+                            $.noop(); // TODO
                         }
                         // update is same as create
                     },
@@ -986,20 +986,20 @@
              * @returns {*}
              */
             getHtml: function (component) {
-                function src$() {
-                    var url = this.get('src');
-                    var schemes = kidoju.schemes || {};
-                    for (var scheme in schemes) {
-                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(url)) {
-                            url = url.replace(scheme + '://', schemes[scheme]);
-                            break;
-                        }
-                    }
-                    return url;
-                }
                 if (component instanceof PageComponent) {
                     var template = kendo.template(this.templates.default);
-                    component.attributes.src$ = $.proxy(src$, component.attributes);
+                    // The src$ function resolves urls with kidoju schemes like cdn://sample.jpg
+                    component.attributes.src$ = function() {
+                        var url = component.attributes.get('src');
+                        var schemes = kidoju.schemes || {};
+                        for (var scheme in schemes) {
+                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(url)) {
+                                url = url.replace(scheme + '://', schemes[scheme]);
+                                break;
+                            }
+                        }
+                        return url;
+                    };
                     return template(component);
                 }
             },

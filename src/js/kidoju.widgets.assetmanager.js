@@ -266,6 +266,14 @@
             },
 
             /**
+             * Select an item in the list view
+             * @param index
+             */
+            select: function(index) {
+                return this.listView.select(index);
+            },
+
+            /**
              * Builds the widget layout
              * @private
              */

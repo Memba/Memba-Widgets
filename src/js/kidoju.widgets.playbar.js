@@ -283,7 +283,7 @@
              * @returns {*}
              */
             items: function () {
-                return this.element.find('ul.k-pager-numbers')[0].children;
+                return this.element.find('ul.k-pager-numbers').children('li:not(.k-current-page)').get();
             },
 
 

@@ -223,7 +223,7 @@
                         if (!$.isPlainObject(validation)) {
                             continue;
                         }
-                        if (validation.required === true && !that[field]) {
+                        if (validation.required === true && !that[field]) { // nullable fields?
                             validated = false;
                             break;
                         }

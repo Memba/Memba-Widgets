@@ -148,7 +148,7 @@
                 expect(element.find('a.k-state-selected').attr(kendo.attr('tool'))).to.equal('label');
             });
 
-            it('A selection in the toolbox raises a change of tool', function() {
+            it('A selection in the toolbox raises a change of tool', function () {
                 expect(toolbox).to.be.an.instanceof(ToolBox);
                 toolbox.reset();
                 expect(kidoju.tools).to.be.an.instanceof(kendo.data.ObservableObject).with.property('active', 'pointer');

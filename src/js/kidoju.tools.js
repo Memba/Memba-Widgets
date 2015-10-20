@@ -666,10 +666,10 @@
                             });
                         },
                         create: function (options) {
-
+                            $.noop(); //TODO
                         },
                         destroy: function (options) {
-
+                            $.noop(); //TODO
                         }
                         // update is same as create
                     },
@@ -749,7 +749,10 @@
                                 }
                             ]
                         }
-                    ]
+                    ],
+                    schemes: {
+                        cdn: 'https://d2rvsmwqptocm.cloudfront.net/'
+                    }
                 });
                 kendo.bind(dialog.element, dialog.viewModel);
                 dialog.element.addClass('kj-no-padding');
@@ -968,12 +971,12 @@
             icon: 'painting_landscape',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<img src="#: attributes.src #" alt="#: attributes.alt #">'
+                default: '<img src="#: attributes.src$() #" alt="#: attributes.alt #">'
             },
             height: 250,
             width: 250,
             attributes: {
-                src: new adapters.AssetAdapter({ title: 'Image', defaultValue: 'https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/painting_landscape.svg' }),
+                src: new adapters.AssetAdapter({ title: 'Image', defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' }),
                 alt: new adapters.StringAdapter({ title: 'Text', defaultValue: 'Painting Landscape' })
             },
             /**
@@ -983,8 +986,20 @@
              * @returns {*}
              */
             getHtml: function (component) {
+                function src$() {
+                    var url = this.get('src');
+                    var schemes = kidoju.schemes || {};
+                    for (var scheme in schemes) {
+                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(url)) {
+                            url = url.replace(scheme + '://', schemes[scheme]);
+                            break;
+                        }
+                    }
+                    return url;
+                }
                 if (component instanceof PageComponent) {
                     var template = kendo.template(this.templates.default);
+                    component.attributes.src$ = $.proxy(src$, component.attributes);
                     return template(component);
                 }
             },
@@ -1023,6 +1038,10 @@
             cursor: CURSOR_CROSSHAIR,
             templates: {
                 default: '<input type="text" class="k-textbox" style="#: attributes.style #" data-#= ns #bind="value: #: properties.name #">'
+                /*
+                x: '<input type="text" class="k-textbox" style="#: attributes.style #" data-#= ns #bind="value: #: properties.name #">' +
+                    '<div style="position:  absolute; bottom: -20px; right: -20px; background-image: url(https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/check.svg); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>'
+                */
             },
             height: 100,
             width: 300,

@@ -477,6 +477,12 @@
                         this.show('#score');
                         this.enable('#score', true);
                         this.enable('#review', false);
+                        var stage = $(kendo.roleSelector('stage'));
+                        var stageWidget = stage.data('kendoStage');
+                        if (stageWidget instanceof kendo.ui.Stage) {
+                            stageWidget.mode('review');
+                            stageWidget.enable(false);
+                        }
                         sections.first().css('display', 'block');
                         sections.last().css('display', 'none');
                     }

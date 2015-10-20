@@ -30,6 +30,11 @@
                 url: undefined
             });
 
+        kidoju.schemes = {
+            cdn: 'https://d2rvsmwqptocm.cloudfront.net/',
+            data: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/'
+        };
+
         $(document).ready(function(){
             $('#assets').kendoAssetManager({
                 change: function(e) {
@@ -53,10 +58,10 @@
                         });
                     },
                     create: function(options) {
-
+                        $.noop(); //TODO
                     },
                     destroy: function(options) {
-
+                        $.noop(); //TODO
                     }
                     // update is same as create
                 },
@@ -86,24 +91,25 @@
                             {
                                 name: 'Dark Grey',
                                 transport: {
-                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/o_collection_dark_grey.json'
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/dark_grey/index.json'
                                 }
                             },
                             {
                                 name: 'Office',
                                 transport: {
-                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/o_collection_office.json'
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/office/index.json'
                                 }
                             },
                             {
                                 name: 'White',
                                 transport: {
-                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/o_collection_white.json'
+                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/white/index.json'
                                 }
                             }
                         ]
                     }
-                ]
+                ],
+                schemes: kidoju.schemes
             });
             kendo.bind('body', viewModel);
         });

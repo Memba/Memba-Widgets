@@ -38,16 +38,15 @@
         var logger = new window.Log('kidoju.widgets.assetmanager');
         var NUMBER = 'number';
         var STRING = 'string';
+        var OBJECT = 'object';
         var ARRAY = 'array';
         var CHANGE = 'change';
         var CLICK = 'click';
         var DELETE = 'delete';
         var ERROR = 'error';
         var UPLOAD = 'upload';
-        var MODULE = 'kidoju.widgets.assetmanager';
         var NS = '.kendoAssetManager';
         var WIDGET_CLASS = 'k-widget kj-assetmanager';
-        var DEFAULT_FILTER = {};
         var TOOLBAR_TMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
                 '<div class="k-toolbar-wrap">' +
                     '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button"><span class="k-icon k-add"></span>#=messages.toolbar.upload#<input type="file" name="file" /></div></div>' +
@@ -58,30 +57,15 @@
                     '<div class="k-widget k-search-wrap k-textbox"><input placeholder="#=messages.toolbar.search#" class="k-input"><a href="\\#" class="k-icon k-i-close k-search"></a></div>' +
                 '</div>' +
             '</div>';
-        var ITEM_TMPL = '<li class="k-tile" ' + kendo.attr('uid') + '="#=uid#" ' + kendo.attr('type') + '="#=type$()#">' +
+        var ITEM_TMPL = '<li class="k-tile" ' + kendo.attr('uid') + '="#=uid#">' + // ' + kendo.attr('type') + '="#=type$()#">' +
                 '#if (/^image\\//.test(type$())){#' +
-                    '<div class="k-thumb"><img alt="#=name$()#" src="#=url#" class="k-image"></span></div>' +
+                    '<div class="k-thumb"><img alt="#=name$()#" src="#=url$()#" class="k-image"></span></div>' +
                 '#}else{#' +
                     '<div class="k-thumb"><span class="k-icon k-file"></span></div>' +
                 '#}#' +
                 '<strong>#=name$()#</strong>' +
                 '<span class="k-filesize">#=size$()#</span>' +
             '</li>';
-        var SCHEMA = {
-                data: 'data',
-                model: {
-                    id: 'url',
-                    fields: {
-                        size: { type: NUMBER, editable: false },
-                        url:  { type: STRING, editable: false, nullable: true }
-                    },
-                    name$: function () { return nameFormatter(this.get('url')); },
-                    size$: function () { return sizeFormatter(this.get('size')); },
-                    type$: function () { return typeFormatter(this.get('url')); }
-                },
-                total: 'total',
-                type: 'json'
-            };
 
         /*********************************************************************************
          * Helpers
@@ -164,6 +148,48 @@
 
         /* jshint +W074 */
 
+        /**
+         * Formats a url for display
+         * Assuming this.options.schemes = { cdn: 'https://s3.amazonaws.com/account/bucket/' }
+         * Then this function return ret = https://s3.amazonaws.com/account/bucket/photo.jpg from url = cdn://photo.jpg
+         * This allows us to switch between sources especially for our web and mobile applications
+         * @param url
+         * @param schemes
+         */
+        function urlFormatter(url, schemes) {
+            assert.type(STRING, url, kendo.format(assert.messages.type.default, 'url', STRING));
+            assert.type(OBJECT, schemes, kendo.format(assert.messages.type.default, 'schemes', OBJECT));
+            var ret = url;
+            for (var scheme in schemes) {
+                if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(url)) {
+                    ret = url.replace(scheme + '://', schemes[scheme]);
+                    break;
+                }
+            }
+            return ret;
+        }
+
+        /**
+         * Gets a datasource filter from an array of extensions
+         * @param extensions
+         * @returns {*}
+         */
+        function getDataSourceFilter(extensions) {
+            extensions = extensions || [];
+            assert.type(ARRAY, extensions, kendo.format(assert.messages.type.default, 'extensions', ARRAY));
+            var ret = null;
+            if (extensions.length === 1) {
+                ret = { field: 'url', operator: 'endswith', value: extensions[0] };
+            } else if (extensions.length > 1) {
+                ret = { logic: 'or', filters: [] };
+                for (var i = 0; i < extensions.length; i++ ) {
+                    ret.filters.push({ field: 'url', operator: 'endswith', value: extensions[i] });
+                }
+            }
+            return ret;
+        }
+
+
         /*********************************************************************************
          * Widget
          *********************************************************************************/
@@ -195,10 +221,10 @@
                 name: 'AssetManager',
                 toolbarTemplate: TOOLBAR_TMPL,
                 itemTemplate: ITEM_TMPL,
-                schema: SCHEMA,
-                transport: {},
+                transport: { read: function (options) { options.success({ total: 0, data: [] }); } },
                 collections: [],
-                filter: DEFAULT_FILTER,
+                schemes: {},
+                extensions: [],
                 messages: {
                     toolbar: {
                         upload: 'Upload',
@@ -212,6 +238,10 @@
                 }
             },
 
+            setOptions: function(options) {
+                $.noop(); //TODO
+            },
+
             /**
              * Widget events
              * @property events
@@ -222,26 +252,6 @@
                 ERROR,
                 UPLOAD
             ],
-
-
-            /**
-             * Predefined filtes
-             */
-            filters: {
-                default: DEFAULT_FILTER,
-                images: {
-                    logic: 'or',
-                    filters: [
-                        { field: 'url', operator: 'endswith', value: '.gif' },
-                        { field: 'url', operator: 'endswith', value: '.jpg' },
-                        // { field: 'url', operator: 'endswith', value: '.jpeg' },
-                        { field: 'url', operator: 'endswith', value: '.png' },
-                        { field: 'url', operator: 'endswith', value: '.svg' }
-                    ]
-                },
-                audio: { field: 'url', operator: 'endswith', value: '.mp3' },
-                video: { field: 'url', operator: 'endswith', value: '.mp4' }
-            },
 
             /**
              * Gets the url of the selected item
@@ -394,14 +404,14 @@
             },
 
             /**
-             * Event handler trigger when changing search input
+             * Event handler triggered when changing search input
              * @param e
              * @private
              */
             _onSearchInputChange: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
                 assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
-                var filter = this.options.filter;
+                var filter = getDataSourceFilter(this.options.extensions);
                 var value =  $(e.target).val();
                 var search = { field: 'url', operator: 'contains', value: value };
                 if ($.type(value) === STRING && value.length) {
@@ -565,7 +575,7 @@
 
                 // Clear search
                 this.searchInput.val('');
-                this.dataSource.filter(this.options.filter);
+                this.dataSource.filter(getDataSourceFilter(this.options.extensions));
 
                 if (colIndex >= 0 && colIndex < this.options.collections.length) {
                     var collection = this.options.collections[colIndex];
@@ -599,23 +609,40 @@
              */
             _dataSource: function (transport) {
 
-                if (this.dataSource instanceof DataSource && this._errorHandler) {
-                    this.dataSource.unbind(ERROR, this._errorHandler);
+                var that = this;
+
+                if (that.dataSource instanceof DataSource && that._errorHandler) {
+                    that.dataSource.unbind(ERROR, that._errorHandler);
                 } else {
-                    this._errorHandler = $.proxy(this._dataError, this);
+                    that._errorHandler = $.proxy(that._dataError, that);
                 }
 
-                this.dataSource = DataSource
+                that.dataSource = DataSource
                     .create({
-                        filter: this.options.filter,
-                        schema: this.options.schema,
+                        filter: getDataSourceFilter(that.options.extensions),
+                        schema: {
+                            data: 'data',
+                            model: {
+                                id: 'url',
+                                fields: {
+                                    size: { type: NUMBER, editable: false },
+                                    url:  { type: STRING, editable: false, nullable: true }
+                                },
+                                name$: function () { return nameFormatter(this.get('url')); },
+                                size$: function () { return sizeFormatter(this.get('size')); },
+                                type$: function () { return typeFormatter(this.get('url')); },
+                                url$: function () { return urlFormatter(this.get('url'), that.options.schemes); }
+                            },
+                            total: 'total',
+                            type: 'json'
+                        },
                         // keep default sort order
-                        transport: $.isPlainObject(transport) ? transport : this.options.transport,
+                        transport: $.isPlainObject(transport) ? transport : that.options.transport,
                         pageSize: 12
                     })
-                    .bind(ERROR, this._errorHandler);
+                    .bind(ERROR, that._errorHandler);
 
-                this.dataSource.filter(this.options.filter);
+                // that.dataSource.filter(getDataSourceFilter(that.options.extensions));
 
             },
 

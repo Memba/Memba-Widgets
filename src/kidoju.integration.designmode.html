@@ -168,8 +168,8 @@
                 PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
 
             //LocalStream with localStorage methods
-            var storageKey = 'kidoju.integration',
-                LocalStream = Stream.define({
+            var storageKey = 'kidoju.integration';
+            var LocalStream = Stream.define({
                     _fetchAll: function() {
                         var that = this,
                             dfd = $.Deferred();
@@ -205,8 +205,8 @@
                         that.accept(data);
                         return that._fetchAll();
                     }
-                }),
-                streamData = {
+                });
+            var streamData = {
                     "pages": [{
                         "id": "40365503-413a-49e2-990b-bde37541892b",
                         "style": "",
@@ -258,7 +258,7 @@
                             "rotate": 0,
                             "tag": null,
                             "attributes": {
-                                "src": "http://uploads2.wikiart.org/images/pablo-picasso/self-portrait-1907.jpg",
+                                "src": "data://self-portrait-1907.jpg",
                                 "alt": "Painting Landscape"
                             }
                         }]
@@ -307,7 +307,7 @@
                             "rotate": 0,
                             "tag": null,
                             "attributes": {
-                                "src": "http://www.billcopelandmusicnews.com/wp-content/uploads/2015/08/Elvis.jpg",
+                                "src": "data://Elvis.jpg",
                                 "alt": "Painting Landscape"
                             }
                         }]
@@ -324,7 +324,7 @@
                             "rotate": 0,
                             "tag": null,
                             "attributes": {
-                                "src": "http://st.hist-geo.co.uk/img/france/France-Fleuves-1.png",
+                                "src": "data://France-Fleuves-1.png",
                                 "alt": "Painting Landscape"
                             }
                         }, {
@@ -461,6 +461,11 @@
                         }]
                     }]
                 };
+
+            kidoju.schemes = {
+                cdn: 'https://d2rvsmwqptocm.cloudfront.net/',
+                data: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/'
+            };
 
             //Create some dummy data
             if (!window.localStorage.getItem(storageKey)) {

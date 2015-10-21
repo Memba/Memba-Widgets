@@ -269,7 +269,12 @@
              * Select an item in the list view
              * @param index
              */
-            select: function(index) {
+            select: function (index) {
+                if ($.type(index) === NUMBER) {
+                    index = this.listView.items().get(index);
+                } else if ($.type(index) === STRING) {
+                    index = $(index);
+                }
                 return this.listView.select(index);
             },
 

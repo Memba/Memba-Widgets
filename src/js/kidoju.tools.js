@@ -989,7 +989,7 @@
                 if (component instanceof PageComponent) {
                     var template = kendo.template(this.templates.default);
                     // The src$ function resolves urls with kidoju schemes like cdn://sample.jpg
-                    component.attributes.src$ = function() {
+                    component.attributes.src$ = function () {
                         var url = component.attributes.get('src');
                         var schemes = kidoju.schemes || {};
                         for (var scheme in schemes) {

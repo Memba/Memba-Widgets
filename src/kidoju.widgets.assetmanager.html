@@ -29,8 +29,7 @@
             viewModel = kendo.observable({
                 url: undefined
             });
-
-        kidoju.schemes = {
+        var SCHEMES = {
             cdn: 'https://d2rvsmwqptocm.cloudfront.net/',
             data: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/'
         };
@@ -109,7 +108,7 @@
                         ]
                     }
                 ],
-                schemes: kidoju.schemes
+                schemes: SCHEMES
             });
             kendo.bind('body', viewModel);
         });

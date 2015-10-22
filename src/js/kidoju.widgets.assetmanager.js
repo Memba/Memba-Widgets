@@ -11,9 +11,9 @@
     define([
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.dropdownlist',
-        './vendor/kendo/kendo.tabstrip',
-        './vendor/kendo/kendo.listview',
         './vendor/kendo/kendo.pager',
+        './vendor/kendo/kendo.listview',
+        './vendor/kendo/kendo.tabstrip',
         './window.assert',
         './window.log'
     ], f);
@@ -40,6 +40,7 @@
         var STRING = 'string';
         var OBJECT = 'object';
         var ARRAY = 'array';
+        var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
         var DELETE = 'delete';
@@ -49,7 +50,7 @@
         var WIDGET_CLASS = 'k-widget kj-assetmanager';
         var TOOLBAR_TMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
                 '<div class="k-toolbar-wrap">' +
-                    '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button"><span class="k-icon k-add"></span>#=messages.toolbar.upload#<input type="file" name="file" /></div></div>' +
+                    '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button"><span class="k-icon k-add"></span>#=messages.toolbar.upload#<input type="file" name="file" accept="#=accept#" /></div></div>' +
                     '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-delete" /></button>&nbsp;' +
                     '<label style="display:none">#=messages.toolbar.filter#<select /></label>' +
                 '</div>' +
@@ -239,7 +240,7 @@
             },
 
             setOptions: function (options) {
-                $.noop(); // TODO
+                $.noop(); // TODO especially to change filters when extensions change
             },
 
             /**
@@ -248,9 +249,9 @@
              */
             events: [
                 CHANGE,
-                DELETE,
-                ERROR,
-                UPLOAD
+                // DELETE,
+                ERROR
+                // UPLOAD
             ],
 
             /**
@@ -348,11 +349,11 @@
             _toolbar: function () {
                 var that = this;
                 var template = kendo.template(that.options.toolbarTemplate);
-                var messages = that.options.messages;
 
                 // Add template
                 that.toolbar = $(template({
-                    messages: messages
+                    accept: (that.options.extensions || []).join(','), // @see http://www.w3schools.com/tags/att_input_accept.asp
+                    messages: that.options.messages
                 })).appendTo(that.fileBrowser);
                 assert.instanceof($, that.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'window.jQuery'));
 
@@ -381,7 +382,7 @@
             },
 
             /**
-             * Event handler triggered when clicking the upload button and selecting a file (which changes teh file input)
+             * Event handler triggered when clicking the upload button and selecting a file (which changes the file input)
              * @param e
              * @private
              */
@@ -391,7 +392,18 @@
                 assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
                 var files = e.target.files;
                 if (files instanceof window.FileList && files.length) {
-                    that.trigger(UPLOAD, { files: files });
+                    // that.trigger(UPLOAD, { files: files });
+                    for (var i = 0; i < files.length; i++) {
+                        // TODO: Assert we are on the right tab !!!!!
+                        that.dataSource.add({
+                            size: files[i].size,
+                            file: files[i]
+                        });
+                        // Note: syncing to the dataSource calls the create transport where you should actually upload your file,
+                        // update the url and push to the dataSource using the options.success callback
+                        // if there is an error, call options.error and cancel changes in the error event raised by the widget
+                        that.dataSource.sync();
+                    }
                     that.toolbar.find('.k-upload input[type=file]').val('');
                 }
             },
@@ -402,7 +414,13 @@
              */
             _onDeleteButtonClick: function () {
                 var that = this;
-                that.trigger(DELETE, { value: that.value() });
+                // that.trigger(DELETE, { value: that.value() });
+                var file = that.dataSource.get(that.value());
+                if (file instanceof kendo.data.Model) {
+                    that.dataSource.remove(file);
+                    // dataSource.sync calls transport.destroy if available
+                    that.dataSource.sync();
+                }
             },
 
             /**
@@ -609,7 +627,7 @@
                     }
                 } else {
                     this.dataSource.transport = getTransport(this.options.transport);
-                    this.dropDownList.setDataSource([]);
+                    this.dropDownList.setDataSource(null); // []
                     this.dropDownList.wrapper.parent().hide();
                 }
 
@@ -639,12 +657,33 @@
                                 id: 'url',
                                 fields: {
                                     size: { type: NUMBER, editable: false },
-                                    url:  { type: STRING, editable: false, nullable: true }
+                                    url:  { type: STRING, editable: false, nullable: true },
+                                    file: { defaultValue: null } // Note: we need this for uploading files
                                 },
-                                name$: function () { return nameFormatter(this.get('url')); },
-                                size$: function () { return sizeFormatter(this.get('size')); },
-                                type$: function () { return typeFormatter(this.get('url')); },
-                                url$: function () { return urlFormatter(this.get('url'), that.options.schemes); }
+                                name$: function () {
+                                    var url = this.get('url');
+                                    if ($.type(url) === UNDEFINED) {
+                                        return 'Uploading...'; // TODO
+                                    }
+                                    return nameFormatter(url);
+                                },
+                                size$: function () {
+                                    return sizeFormatter(this.get('size'));
+                                },
+                                type$: function () {
+                                    var url = this.get('url');
+                                    if ($.type(url) === UNDEFINED) {
+                                        return 'application/octet-stream';
+                                    }
+                                    return typeFormatter(url);
+                                },
+                                url$: function () {
+                                    var url = this.get('url');
+                                    if ($.type(url) === UNDEFINED) {
+                                        return 'a file image by default'; // TODO
+                                    }
+                                    return urlFormatter(this.get('url'), that.options.schemes);
+                                }
                             },
                             total: 'total',
                             type: 'json'
@@ -665,15 +704,11 @@
              * @private
              */
             _dataError: function (e) {
-                // TODO ----------------------------------------------------------------------------------------------------------------------------------
-
-                /*
-                var that = this,
-                    status;
-
+                var that = this;
                 if (!that.trigger(ERROR, e)) {
-                    status = e.xhr.status;
-
+                    /*
+                    // The following is code from kendo.ui.filebrowser
+                    var status = e.xhr.status;
                     if (e.status == 'error') {
                         if (status == '404') {
                             that._showMessage(that.options.messages.directoryNotFound);
@@ -683,8 +718,9 @@
                     } else if (status == 'timeout') {
                         that._showMessage('Error! Server timeout.');
                     }
+                    */
+                    that.dataSource.cancelChanges();
                 }
-                */
             },
 
             /**

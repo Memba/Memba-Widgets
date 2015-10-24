@@ -28,8 +28,12 @@
         var STRING = 'string';
         var NUMBER = 'number';
         var UNDEFINED = 'undefined';
-        var WIDGET_CLASS = 'k-mediaplayer';
-        var CONTROLS_CLASS = 'k-mediaplayer-control';
+        var WIDGET_CLASS = 'kj-mediaplayer';
+        var TOOLBAR_CLASS = 'k-widget k-toolbar kj-mediaplayer-toolbar';
+        var BUTTON_CLASS = 'k-button kj-mediaplayer-button';
+        var SEEKER_CLASS = 'kj-mediaplayer-seeker';
+        var TIME_CLASS = 'kj-mediaplayer-time';
+        var VOLUME_CLASS = 'kj-mediaplayer-volume';
         var ACTIVE = 'k-state-active';
         var DISABLE = 'k-state-disabled';
         var SELECT = 'select';
@@ -118,12 +122,14 @@
                 name: 'MediaPLayer',
                 mode: MODES.VIDEO,
                 // TODO Consider options like loop. mute, ...
+                // TODO autoplay
                 files: [],
                 enable: true,
                 messages: {
                     play: 'Play/Pause',
                     mute: 'Mute/Unmute',
-                    full: 'Full Screen'
+                    full: 'Full Screen',
+                    notSupported: 'Media not supported'
                 }
             },
 
@@ -134,28 +140,35 @@
             modes: {
                 audio: MODES.AUDIO,
                 video: MODES.VIDEO
-                // TODO youtube, vimeo, dailymotion and others modes.
+                // TODO: youtube, vimeo, dailymotion and others modes.
             },
 
+            /**
+             * Layout the widget
+             * @private
+             */
             _layout: function () {
                 var that = this;
                 that.wrapper = that.element;
                 that.element.addClass(WIDGET_CLASS);
-                that._native();
-                that._controls();
+                that._media();
+                that._toolbar();
             },
 
             /**
-             * Add native audio or video tag
+             * Add HTML 5 audio/video tag
              * @private
              */
-            _native: function () {
+            _media: function () {
                 var that = this;
+                // Create audio or video tag
                 if (that.options.mode === MODES.AUDIO) {
                     that.media = $('<audio></audio>');
                 } else {
                     that.media = $('<video></video>');
                 }
+                // TODO consider adding height and width
+                // Add source files
                 var files = $.type(that.options.files) === STRING ? [that.options.files] : that.options.files;
                 assert.type(ARRAY, files, kendo.format(assert.messages.type.default, 'options.files', ARRAY));
                 $.each(files, function (index, url) {
@@ -163,64 +176,173 @@
                         .attr({ src: url, type: typeFormatter(url) })
                         .appendTo(that.media);
                 });
+                // Initialize media element
+                that.media
+                    .append(that.options.messages.notSupported)
+                    .on('loadedmetadata', $.proxy(that._onLoadedMetadata, that))
+                    .on('timeupdate', $.proxy(that._onTimeUpdate, that));
+                // Append media element to widget
                 that.element.append(that.media);
             },
 
             /**
-             * Add controls (play/pause, sound, full screen)
+             * Event handler called when media metadata is loaded
+             * @param e
              * @private
              */
-            _controls: function () {
+            _onLoadedMetadata: function(e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                // TODO set seeker, time and volume
                 var that = this;
-                that.controls = $('<div/>')
-                    .addClass('k-pager-wrap')
-                    .on('click', 'a.k-link', $.proxy(that._buttonClick, that))
+                if (that.toolbar instanceof $ && that.seekerSlider instanceof kendo.ui.Slider && that.volumeSlider instanceof kendo.ui.Slider) {
+                    var mediaElement = e.target;
+                    assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
+                    that._setSeekerSlider(mediaElement.duration);
+                    that.seekerSlider.value(0);
+                    that.toolbar.find('span.kj-mediaplayer-time').text(kendo.toString(mediaElement.duration, 'n'));
+                    that.volumeSlider.value(mediaElement.volume);
+                }
+            },
+
+            /**
+             * Event hander raised to update seeker and time
+             * @param e
+             * @private
+             */
+            _onTimeUpdate: function(e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                var that = this;
+                if (that.toolbar instanceof $) {
+                    var mediaElement = e.target;
+                    assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
+                    that.toolbar.find('span.kj-mediaplayer-time').text(kendo.toString(mediaElement.duration - mediaElement.currentTime, 'n'));
+                    that.seekerSlider.value(mediaElement.currentTime);
+                }
+            },
+
+            /**
+             * Add toolbar (play/pause, progress, volume, full screen)
+             * @private
+             */
+            _toolbar: function () {
+                var that = this;
+                that.toolbar = $('<div/>')
+                    .addClass(TOOLBAR_CLASS)
+                    .on('click', 'a.k-button', $.proxy(that._buttonClick, that))
                     .appendTo(that.element);
+
                 // Play button
                 $('<a/>')
                     .attr({ href: '#', title: that.options.messages.play })
-                    .addClass('k-link k-pager-nav')
+                    .addClass(BUTTON_CLASS)
                     .attr(kendo.attr(COMMAND), COMMANDS.PLAY)
-                    .append('<span class="k-icon k-i-arrow-e">' + that.options.messages.play + '</span>')
-                    .appendTo(that.controls);
-                // seeker slider
-                $('<input>')
-                    .appendTo(that.controls)
-                    .kendoSlider({
-                        max: 10,
-                        min: 0,
-                        smallStep: 1,
-                        showButtons: false,
-                        tickPlacement: 'none'
-                        // todo value??
-                    });
-                // TODO: display time
-                // mute button
+                    .append('<span class="k-sprite k-tool-icon k-justifyLeft"></span>')
+                    .appendTo(that.toolbar);
+
+                // Seeker slider
+                var seekerDiv = $('<div/>')
+                    .addClass(SEEKER_CLASS)
+                    .appendTo(that.toolbar);
+                that._setSeekerSlider(1);
+
+                // Remaining time span
+                $('<span/>')
+                    .addClass(TIME_CLASS)
+                    .appendTo(that.toolbar);
+
+                // Mute/Unmute button
                 $('<a/>')
                     .attr({ href: '#', title: that.options.messages.mute })
-                    .addClass('k-link k-pager-nav')
+                    .addClass(BUTTON_CLASS)
                     .attr(kendo.attr(COMMAND), COMMANDS.MUTE)
                     .append('<span class="k-icon k-i-arrow-e">' + that.options.messages.mute + '</span>')
-                    .appendTo(that.controls);
-                // volume
-                $('<input>')
-                    .appendTo(that.controls)
-                    .kendoSlider({
-                        max: 10,
-                        min: 0,
-                        smallStep: 1,
-                        showButtons: false,
-                        tickPlacement: 'none'
-                        // todo value??
-                    });
+                    .appendTo(that.toolbar);
+
+                // Volume slider
+                var volumeDiv = $('<div/>')
+                    .addClass(VOLUME_CLASS)
+                    .appendTo(that.toolbar);
+                that._setVolumeSlider();
+
                 // Full screen button (video only)
                 if (that.options.mode === MODES.VIDEO) {
                     $('<a/>')
-                        .attr({ href: '#', title: that.options.messages.mute })
-                        .addClass('k-link k-pager-nav')
+                        .attr({ href: '#', title: that.options.messages.full })
+                        .addClass(BUTTON_CLASS)
                         .attr(kendo.attr(COMMAND), COMMANDS.FULL)
                         .append('<span class="k-icon k-i-arrow-e">' + that.options.messages.full + '</span>')
-                        .appendTo(that.controls);
+                        .appendTo(that.toolbar);
+                }
+            },
+
+            /**
+             * Set the sleeker slider with new max
+             * @see http://www.telerik.com/forums/how-do-i-update-the-slider-max-option-after-creation
+             * @param max
+             * @private
+             */
+            _setSeekerSlider: function(max) {
+                var that = this;
+                var seekerDiv = that.element.find('div.' + SEEKER_CLASS);
+                var seekerSlider = seekerDiv.find('input').data('kendoSlider');
+                if (seekerSlider instanceof kendo.ui.Slider) {
+                    seekerSlider.destroy();
+                    seekerDiv.empty();
+                }
+                that.seekerSlider = $('<input>')
+                    .appendTo(seekerDiv)
+                    .kendoSlider({
+                        max: max,
+                        min: 0,
+                        smallStep: 0.1,
+                        showButtons: false,
+                        tickPlacement: 'none',
+                        change: $.proxy(that._onSeekerChange, that)
+                    }).data('kendoSlider');
+            },
+
+            /**
+             * Set the volume slider
+             * Note: the max is always 1
+             * @private
+             */
+            _setVolumeSlider: function(max) {
+                var that = this;
+                var volumeDiv = that.element.find('div.' + VOLUME_CLASS);
+                var volumeSlider = volumeDiv.find('input').data('kendoSlider');
+                if (volumeSlider instanceof kendo.ui.Slider) {
+                    volumeSlider.destroy();
+                    volumeDiv.empty();
+                }
+                that.volumeSlider = $('<input>')
+                    .appendTo(volumeDiv)
+                    .kendoSlider({
+                        max: 1,
+                        min: 0,
+                        smallStep: 0.1,
+                        showButtons: false,
+                        tickPlacement: 'none',
+                        change: $.proxy(that._onVolumeChange, that)
+                    }).data('kendoSlider');
+            },
+
+            /**
+             * Event handler triggered when clicking a media player toolbar button
+             * @param e
+             * @private
+             */
+            _buttonClick: function (e) {
+                var command = $(e.currentTarget).attr(kendo.attr(COMMAND));
+                switch (command) {
+                    case COMMANDS.PLAY:
+                        this.togglePlayPause();
+                        break;
+                    case COMMANDS.MUTE:
+                        this.toggleMute();
+                        break;
+                    case COMMANDS.FULL:
+                        this.toggleFullScreen();
+                        break;
                 }
             },
 
@@ -232,7 +354,7 @@
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
                 if (mediaElement.paused && mediaElement.readyState === 4) {
                     mediaElement.play();
-                    // todo chamge icon/tooltip
+                    // TODO chamge icon/tooltip
                 } else {
                     mediaElement.pause();
                 }
@@ -242,10 +364,12 @@
              * Toggle muted sound
              */
             toggleMute: function () {
+                var that = this;
                 var mediaElement = this.media.get(0);
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
                 mediaElement.muted = !mediaElement.muted;
-                // todo change icon/tooltip
+                that.volumeSlider.value(mediaElement.muted ? 0 : mediaElement.volume);
+                // TODO change icon/tooltip
             },
 
             /**
@@ -266,6 +390,20 @@
                 }
             },
 
+            /**
+             * Event handler for changing the value of the volume slider
+             * @param e
+             * @private
+             */
+            _onVolumeChange: function (e) {
+                this.volume(e.value);
+            },
+
+            /**
+             * API to get/set the volume
+             * @param value
+             * @returns {*|number}
+             */
             volume: function (value) {
                 var mediaElement = this.media.get(0);
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
@@ -282,30 +420,51 @@
                 }
             },
 
-            _onVolumeSlide: function (e) {
-                $.noop();
-            },
-
             /**
-             * Event handler triggered when clicking a media player controls button
+             * Event handler for changing the value of teh seeker slider
              * @param e
              * @private
              */
-            _buttonClick: function (e) {
-                var command = $(e.currentTarget).attr(kendo.attr(COMMAND));
-                switch (command) {
-                    case COMMAND.PLAY:
-                        this.togglePlayPause();
-                        break;
-                    case COMMAND.MUTE:
-                        this.toggleMute();
-                        break;
-                    case COMMAND.FULL:
-                        this.toggleFullScreen();
-                        break;
+            _onSeekerChange: function(e) {
+                this.seek(e.value);
+            },
+
+            /**
+             * API to get/set the seeked currentTime
+             * @param value
+             */
+            seek: function(value) {
+                var mediaElement = this.media.get(0);
+                assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
+                if ($.type(value) === UNDEFINED) {
+                    return mediaElement.currentTime;
+                } else {
+                    assert.type(NUMBER, value, kendo.format(assert.messages.type.default, 'value', NUMBER));
+                    if (value < 0) {
+                        value = 0;
+                    } else if (value > mediaElement.duration) {
+                        value = mediaElement.duration;
+                    }
+                    // mediaElement.pause();
+                    mediaElement.currentTime = value;
+                    // mediaElement.play();
                 }
             },
 
+            /**
+             * Resizes the widget
+             * @see especially http://docs.telerik.com/kendo-ui/api/javascript/ui/slider#methods-resize
+             */
+            resize: function() {
+                var that = this;
+                // TODO
+                that.seekerSlider.resize();
+            },
+
+            /**
+             * Enabled/disables the widget
+             * @param enable
+             */
             enable: function (enable) {
                 var wrapper = this.wrapper;
 

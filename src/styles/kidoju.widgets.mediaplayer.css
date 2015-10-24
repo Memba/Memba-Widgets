@@ -1,27 +1,22 @@
-.k-mediaplayer {
+.kj-mediaplayer {
     position: relative;
 }
-.k-i-play:after,
-.k-i-play:before
-{
-    content: "\E000";
+.kj-mediaplayer .kj-mediaplayer-toolbar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 99;
 }
-.km-pause:before
-{
-    content: "\e0e3";
+.kj-mediaplayer .kj-mediaplayer-toolbar .kj-mediaplayer-button {
+    border-radius: 60%;
 }
-.km-sound-0:after,
-.km-sound-0:before
-{
-    content: "\e040";
+.kj-mediaplayer .kj-mediaplayer-toolbar .kj-mediaplayer-seeker,
+.kj-mediaplayer .kj-mediaplayer-toolbar .kj-mediaplayer-volume {
+    margin: 0 0.5em;
+    display: inline-block;
 }
-.km-sound-1:after,
-.km-sound-1:before
-{
-    content: "\e041";
+.kj-mediaplayer .kj-mediaplayer-toolbar .kj-mediaplayer-seeker {
 }
-.km-sound-2:after,
-.km-sound-2:before
-{
-    content: "\e042";
+.kj-mediaplayer .kj-mediaplayer-toolbar .kj-mediaplayer-volume {
 }

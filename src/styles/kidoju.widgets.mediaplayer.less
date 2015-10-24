@@ -1,10 +1,23 @@
-.k-mediaplayer {
+.kj-mediaplayer {
     position: relative;
-    .k-mediaplayer-controls {
+    .kj-mediaplayer-toolbar {
         position: absolute;
         bottom: 0;
         left: 0;
         width: 100%;
         z-index: 99;
+        .kj-mediaplayer-button {
+            border-radius: 60%;
+        }
+        .kj-mediaplayer-seeker, .kj-mediaplayer-volume {
+            margin: 0 0.5em;
+            display: inline-block;
+        }
+        .kj-mediaplayer-seeker {
+            // width: 80%;
+        }
+        .kj-mediaplayer-volume {
+            // width: 60px;
+        }
     }
 }

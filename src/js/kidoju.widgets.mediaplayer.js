@@ -22,8 +22,10 @@
         var kendo = window.kendo;
         var ui = kendo.ui;
         var Widget = ui.Widget;
+        var Slider = ui.Slider;
         var assert = window.assert;
         var logger = new window.Log('kidoju.widgets.mediaplayer');
+        var NS = '.kendoMediaPlayer';
         var ARRAY = 'array';
         var STRING = 'string';
         var NUMBER = 'number';
@@ -31,22 +33,63 @@
         var WIDGET_CLASS = 'kj-mediaplayer';
         var TOOLBAR_CLASS = 'k-widget k-toolbar kj-mediaplayer-toolbar';
         var BUTTON_CLASS = 'k-button kj-mediaplayer-button';
+        var COMMAND = 'command';
+        var BUTTON_SELECTOR = 'a.kj-mediaplayer-button[' + kendo.attr(COMMAND) + '="{0}"]';
         var SEEKER_CLASS = 'kj-mediaplayer-seeker';
+        var SEEKER_SELECTOR = 'div.' + SEEKER_CLASS;
         var TIME_CLASS = 'kj-mediaplayer-time';
+        var TIME_SELECTOR = 'span.' + TIME_CLASS;
         var VOLUME_CLASS = 'kj-mediaplayer-volume';
+        var VOLUME_SELECTOR = 'div.' + VOLUME_CLASS;
         var ACTIVE = 'k-state-active';
         var DISABLE = 'k-state-disabled';
         var SELECT = 'select';
+        var LOADEDMETADATA = 'loadedmetadata';
+        var PLAY = 'play';
+        var TIMEUPDATE = 'timeupdate';
+        var VOLUMECHANGE = 'volumechange';
+        var PAUSE = 'pause';
+        var ENDED = 'ended';
+        var ENTEREVENTS = 'mouseenter' + NS + ' touchstart' + NS;
+        var LEAVEEVENTS = 'mouseleave' + NS + ' focusout' + NS;
+        var EVENTDURATION = 300;
+        var RESIZE = 'resize';
         var MODES = {
-                AUDIO: 'audio',
-                VIDEO: 'video'
-            };
-        var COMMAND = 'command';
+            AUDIO: 'audio',
+            VIDEO: 'video'
+        };
         var COMMANDS = {
-                PLAY: 'play',
-                MUTE: 'mute',
-                FULL: 'full' // full screen
-            };
+            PLAY: 'play',
+            MUTE: 'mute',
+            FULL: 'full' // full screen
+        };
+        var SVG = {
+            FULL: '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24px" height="24px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">' +
+            '<path id="curve3" fill="#000000" d="M6530 5627c460,457 923,911 1381,1369l0 -971c0,-66 38,-123 99,-148 61,-25 128,-12 174,35l589 598c123,125 187,276 187,452l0 1678c0,176 -144,320 -320,320l-1678 0c-176,0 -329,-62 -452,-187l-588 -598c-47,-47 -60,-114 -35,-175 25,-61 82,-98 148,-99l971 0c-457,-457 -917,-913 -1376,-1368l900 -906z"/>' +
+            '<path id="curve2" fill="#000000" d="M4613 6530c-457,460 -911,923 -1369,1381l971 0c66,0 123,38 148,99 25,61 12,128 -35,174l-598 589c-125,123 -276,187 -452,187l-1678 0c-176,0 -320,-144 -320,-320l0 -1678c0,-176 62,-329 187,-452l598 -588c47,-47 114,-60 175,-35 61,25 98,82 99,148l0 971c457,-457 913,-917 1368,-1376l906 900z"/>' +
+            '<path id="curve1" fill="#000000" d="M5627 3710c457,-460 911,-923 1369,-1381l-971 0c-66,0 -123,-38 -148,-99 -25,-61 -12,-128 35,-174l598 -589c125,-123 276,-187 452,-187l1678 0c176,0 320,144 320,320l0 1678c0,176 -62,329 -187,452l-598 588c-47,47 -114,60 -175,35 -61,-25 -98,-82 -99,-148l0 -971c-457,457 -913,917 -1368,1376l-906 -900z"/>' +
+            '<path id="curve0" fill="#000000" d="M3710 4613c-460,-457 -923,-911 -1381,-1369l0 971c0,66 -38,123 -99,148 -61,25 -128,12 -174,-35l-589 -598c-123,-125 -187,-276 -187,-452l0 -1678c0,-176 144,-320 320,-320l1678 0c176,0 329,62 452,187l588 598c47,47 60,114 35,175 -25,61 -82,98 -148,99l-971 0c457,457 917,913 1376,1368l-900 906z"/>' +
+            '</svg>',
+            MUTE: '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24px" height="24px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">' +
+            '<path id="curve3" fill="#000000" d="M6080 7660c1263,-157 2240,-1235 2240,-2540 0,-1305 -977,-2383 -2240,-2540l0 647c908,152 1600,942 1600,1893 0,951 -692,1741 -1600,1893l0 647z"/>' +
+            '<path id="curve2" fill="#000000" d="M6080 6360c552,-142 960,-644 960,-1240 0,-596 -408,-1098 -960,-1240l0 686c191,110 320,317 320,554 0,237 -129,444 -320,554l0 686z"/>' +
+            '<path id="curve1" fill="#000000" d="M960 3520l320 0 0 -320 1280 0 0 3840 -1280 0 0 -320 -320 0c-220,0 -320,-144 -320,-320l0 -2560c0,-176 100,-320 320,-320z"/>' +
+            '<path id="curve0" fill="#000000" d="M5440 640l0 0c176,0 320,144 320,320l0 8320c0,176 -144,320 -320,320l0 0c-176,0 -320,-144 -320,-320l-2240 -2240 0 -3840 2240 -2240c0,-176 144,-320 320,-320z"/>' +
+            '</svg>',
+            PAUSE: '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24px" height="24px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">' +
+            '<path id="curve1" fill="#000000" d="M6400 1280l1280 0c353,0 640,288 640,640l0 6400c0,352 -288,640 -640,640l-1280 0c-352,0 -640,-288 -640,-640l0 -6400c0,-353 287,-640 640,-640z"/>' +
+            '<path id="curve0" fill="#000000" d="M2560 1280l1280 0c353,0 640,288 640,640l0 6400c0,352 -288,640 -640,640l-1280 0c-352,0 -640,-287 -640,-640l0 -6400c0,-353 287,-640 640,-640z"/>' +
+            '</svg>',
+            PLAY: '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24px" height="24px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">' +
+            '<path id="curve0" fill="#000000" d="M2878 1364l5757 3209c207,115 325,314 325,547 0,233 -118,432 -325,547l-5757 3209c-204,113 -436,112 -639,-4 -203,-116 -319,-313 -319,-544l0 -6416c0,-231 116,-428 319,-544 203,-116 435,-117 639,-4z"/>' +
+            '</svg>',
+            SOUND: '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24px" height="24px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">' +
+            '<path id="curve2" fill="#000000" d="M960 3520l320 0 0 -320 1280 0 0 3840 -1280 0 0 -320 -320 0c-220,0 -320,-144 -320,-320l0 -2560c0,-176 100,-320 320,-320z"/>' +
+            '<path id="curve1" fill="#000000" d="M5440 640c176,0 320,144 320,320l0 8320c0,176 -144,320 -320,320 -176,0 -320,-144 -320,-320l-2240 -2240 0 -3840 2240 -2240c0,-176 144,-320 320,-320z"/>' +
+            '<path id="curve0" fill="#000000" d="M8921 7266l-921 -921 -921 921c-125,125 -328,125 -453,0l-452 -452c-125,-125 -125,-328 0,-453l921 -921 -921 -921c-125,-125 -125,-328 0,-453l452 -452c125,-125 328,-125 453,0l921 921 921 -921c125,-125 328,-125 453,0l452 452c125,125 125,328 0,453l-921 921 921 921c125,125 125,328 0,453l-452 452c-125,125 -328,125 -453,0z"/>' +
+            '</svg>'
+        };
+        var PX = 'px';
 
         /**
          * Docs about media playing
@@ -108,6 +151,7 @@
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
                 that._layout();
+                that.resize();
 
                 /*
                 that._enable = true;
@@ -121,10 +165,10 @@
             options: {
                 name: 'MediaPLayer',
                 mode: MODES.VIDEO,
-                // TODO Consider options like loop. mute, ...
-                // TODO autoplay
+                autoPlay: false, // loop?
                 files: [],
                 enable: true,
+                toolbarHeight: 48,
                 messages: {
                     play: 'Play/Pause',
                     mute: 'Mute/Unmute',
@@ -167,7 +211,12 @@
                 } else {
                     that.media = $('<video></video>');
                 }
-                // TODO consider adding height and width
+                that.media
+                    .prop('autoplay', that.options.autoPlay)
+                    .css({
+                        height: '100%',
+                        width: '100%'
+                    });
                 // Add source files
                 var files = $.type(that.options.files) === STRING ? [that.options.files] : that.options.files;
                 assert.type(ARRAY, files, kendo.format(assert.messages.type.default, 'options.files', ARRAY));
@@ -176,11 +225,19 @@
                         .attr({ src: url, type: typeFormatter(url) })
                         .appendTo(that.media);
                 });
+
                 // Initialize media element
+                // Note: These event handlers are required because the toolbar needs to be updated
+                // when commands are executed in full screen mode, e.g. a PAUSE in full screen should update the toolbar icon
                 that.media
                     .append(that.options.messages.notSupported)
-                    .on('loadedmetadata', $.proxy(that._onLoadedMetadata, that))
-                    .on('timeupdate', $.proxy(that._onTimeUpdate, that));
+                    .on(LOADEDMETADATA, $.proxy(that._onLoadedMetadata, that))
+                    .on(PLAY, $.proxy(that._onPlay, that))
+                    .on(TIMEUPDATE, $.proxy(that._onTimeUpdate, that))
+                    .on(PAUSE, $.proxy(that._onPause, that))
+                    .on(ENDED, $.proxy(that._onEnded, that))
+                    .on(VOLUMECHANGE, $.proxy(that._onVolumeChange, that));
+
                 // Append media element to widget
                 that.element.append(that.media);
             },
@@ -190,33 +247,101 @@
              * @param e
              * @private
              */
-            _onLoadedMetadata: function(e) {
+            _onLoadedMetadata: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 // TODO set seeker, time and volume
-                var that = this;
-                if (that.toolbar instanceof $ && that.seekerSlider instanceof kendo.ui.Slider && that.volumeSlider instanceof kendo.ui.Slider) {
+                if (this.toolbar instanceof $ && this.seekerSlider instanceof Slider && this.volumeSlider instanceof Slider) {
                     var mediaElement = e.target;
                     assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
-                    that._setSeekerSlider(mediaElement.duration);
-                    that.seekerSlider.value(0);
-                    that.toolbar.find('span.kj-mediaplayer-time').text(kendo.toString(mediaElement.duration, 'n'));
-                    that.volumeSlider.value(mediaElement.volume);
+                    this._setSeekerSlider(mediaElement.duration);
+                    this.seekerSlider.value(0);
+                    this.toolbar.find('span.kj-mediaplayer-time').text(kendo.toString(mediaElement.duration, 'n'));
+                    this.volumeSlider.value(mediaElement.volume);
                 }
             },
 
             /**
-             * Event hander raised to update seeker and time
+             * Event handler triggered when media is played
              * @param e
              * @private
              */
-            _onTimeUpdate: function(e) {
+            _onPlay: function(e) {
+                var mediaElement = this.media.get(0);
+                assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
+                if (this.toolbar instanceof $) {
+                    var oldSVG = this.toolbar.find(kendo.format(BUTTON_SELECTOR, COMMANDS.PLAY)).children('svg');
+                    var newSVG = $(SVG.PAUSE).width(oldSVG.width()).height(oldSVG.height());
+                    oldSVG.replaceWith(newSVG);
+                }
+            },
+
+            /**
+             * Event hander periodically triggered as playback progresses
+             * @param e
+             * @private
+             */
+            _onTimeUpdate: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                var that = this;
-                if (that.toolbar instanceof $) {
+                if (this.toolbar instanceof $) {
                     var mediaElement = e.target;
                     assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
-                    that.toolbar.find('span.kj-mediaplayer-time').text(kendo.toString(mediaElement.duration - mediaElement.currentTime, 'n'));
-                    that.seekerSlider.value(mediaElement.currentTime);
+                    this.toolbar.find(TIME_SELECTOR).text(kendo.toString(mediaElement.duration - mediaElement.currentTime, 'n'));
+                    this.seekerSlider.value(mediaElement.currentTime);
+                }
+            },
+
+            /**
+             * Event handler triggered when playback is paused
+             * @param e
+             * @private
+             */
+            _onPause: function (e) {
+                var mediaElement = this.media.get(0);
+                assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
+                if (this.toolbar instanceof $) {
+                    var oldSVG = this.toolbar.find(kendo.format(BUTTON_SELECTOR, COMMANDS.PLAY)).children('svg');
+                    var newSVG = $(SVG.PLAY).width(oldSVG.width()).height(oldSVG.height());
+                    oldSVG.replaceWith(newSVG);
+                }
+            },
+
+            /**
+             * Event handler triggered when playback ends
+             * @param e
+             * @private
+             */
+            _onEnded: function (e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                if (this.toolbar instanceof $ && this.seekerSlider instanceof Slider) {
+                    var mediaElement = e.target;
+                    assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
+                    mediaElement.currentTime = 0;
+                    this.seekerSlider.value(mediaElement.currentTime);
+                    var oldSVG = this.toolbar.find(kendo.format(BUTTON_SELECTOR, COMMANDS.PLAY)).children('svg');
+                    var newSVG = $(SVG.PLAY).width(oldSVG.width()).height(oldSVG.height());
+                    oldSVG.replaceWith(newSVG);
+                }
+            },
+
+            /**
+             * Event handler trigger when volume changes (including muting)
+             * @param e
+             * @private
+             */
+            _onVolumeChange: function (e) {
+                var mediaElement = this.media.get(0);
+                assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
+                if (this.toolbar instanceof $ && this.volumeSlider instanceof Slider) {
+                    var oldSVG = this.toolbar.find(kendo.format(BUTTON_SELECTOR, COMMANDS.MUTE)).children('svg');
+                    var newSVG;
+                    if (mediaElement.muted) {
+                        this.volumeSlider.value(0);
+                        newSVG = $(SVG.SOUND).width(oldSVG.width());
+                    } else {
+                        this.volumeSlider.value(mediaElement.volume);
+                        newSVG = $(SVG.MUTE).width(oldSVG.width());
+                    }
+                    oldSVG.replaceWith(newSVG);
                 }
             },
 
@@ -228,6 +353,7 @@
                 var that = this;
                 that.toolbar = $('<div/>')
                     .addClass(TOOLBAR_CLASS)
+                    .toggle(that.options.mode !== MODES.VIDEO)
                     .on('click', 'a.k-button', $.proxy(that._buttonClick, that))
                     .appendTo(that.element);
 
@@ -236,7 +362,7 @@
                     .attr({ href: '#', title: that.options.messages.play })
                     .addClass(BUTTON_CLASS)
                     .attr(kendo.attr(COMMAND), COMMANDS.PLAY)
-                    .append('<span class="k-sprite k-tool-icon k-justifyLeft"></span>')
+                    .append(SVG.PLAY)
                     .appendTo(that.toolbar);
 
                 // Seeker slider
@@ -255,7 +381,7 @@
                     .attr({ href: '#', title: that.options.messages.mute })
                     .addClass(BUTTON_CLASS)
                     .attr(kendo.attr(COMMAND), COMMANDS.MUTE)
-                    .append('<span class="k-icon k-i-arrow-e">' + that.options.messages.mute + '</span>')
+                    .append(SVG.MUTE)
                     .appendTo(that.toolbar);
 
                 // Volume slider
@@ -270,8 +396,16 @@
                         .attr({ href: '#', title: that.options.messages.full })
                         .addClass(BUTTON_CLASS)
                         .attr(kendo.attr(COMMAND), COMMANDS.FULL)
-                        .append('<span class="k-icon k-i-arrow-e">' + that.options.messages.full + '</span>')
+                        .append(SVG.FULL)
                         .appendTo(that.toolbar);
+                }
+
+                // Add events
+                if (that.options.mode === MODES.VIDEO) {
+                    that.element
+                        .on(ENTEREVENTS, function () { that.toolbar.show(EVENTDURATION); })
+                        .on(LEAVEEVENTS, function () { that.toolbar.hide(EVENTDURATION); });
+                        // .on(RESIZE, that.resize);
                 }
             },
 
@@ -283,9 +417,9 @@
              */
             _setSeekerSlider: function(max) {
                 var that = this;
-                var seekerDiv = that.element.find('div.' + SEEKER_CLASS);
+                var seekerDiv = that.element.find(SEEKER_SELECTOR);
                 var seekerSlider = seekerDiv.find('input').data('kendoSlider');
-                if (seekerSlider instanceof kendo.ui.Slider) {
+                if (seekerSlider instanceof Slider) {
                     seekerSlider.destroy();
                     seekerDiv.empty();
                 }
@@ -295,9 +429,11 @@
                         max: max,
                         min: 0,
                         smallStep: 0.1,
+                        largeStep: 1,
                         showButtons: false,
                         tickPlacement: 'none',
-                        change: $.proxy(that._onSeekerChange, that)
+                        tooltip: { format: '{0} s.' },
+                        change: $.proxy(that._onSeekerSliderChange, that)
                     }).data('kendoSlider');
             },
 
@@ -306,23 +442,25 @@
              * Note: the max is always 1
              * @private
              */
-            _setVolumeSlider: function(max) {
+            _setVolumeSlider: function() {
                 var that = this;
-                var volumeDiv = that.element.find('div.' + VOLUME_CLASS);
+                var volumeDiv = that.element.find(VOLUME_SELECTOR);
                 var volumeSlider = volumeDiv.find('input').data('kendoSlider');
-                if (volumeSlider instanceof kendo.ui.Slider) {
+                if (volumeSlider instanceof Slider) {
                     volumeSlider.destroy();
                     volumeDiv.empty();
                 }
                 that.volumeSlider = $('<input>')
                     .appendTo(volumeDiv)
                     .kendoSlider({
-                        max: 1,
+                        max: 1, // max volume is always 1
                         min: 0,
-                        smallStep: 0.1,
+                        smallStep: 0.05,
+                        largeStep: 0.25,
                         showButtons: false,
                         tickPlacement: 'none',
-                        change: $.proxy(that._onVolumeChange, that)
+                        tooltip: { format: '{0:p0}'},
+                        change: $.proxy(that._onVolumeSliderChange, that)
                     }).data('kendoSlider');
             },
 
@@ -354,7 +492,6 @@
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
                 if (mediaElement.paused && mediaElement.readyState === 4) {
                     mediaElement.play();
-                    // TODO chamge icon/tooltip
                 } else {
                     mediaElement.pause();
                 }
@@ -364,12 +501,9 @@
              * Toggle muted sound
              */
             toggleMute: function () {
-                var that = this;
                 var mediaElement = this.media.get(0);
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
                 mediaElement.muted = !mediaElement.muted;
-                that.volumeSlider.value(mediaElement.muted ? 0 : mediaElement.volume);
-                // TODO change icon/tooltip
             },
 
             /**
@@ -395,7 +529,7 @@
              * @param e
              * @private
              */
-            _onVolumeChange: function (e) {
+            _onVolumeSliderChange: function (e) {
                 this.volume(e.value);
             },
 
@@ -422,10 +556,12 @@
 
             /**
              * Event handler for changing the value of teh seeker slider
+             * ATTENTION: videos are not seekable (or loopable) in Chrome if the server is not configured to allow partial content requests (incl. range)
+             * @see http://stackoverflow.com/questions/8088364/html5-video-will-not-loop
              * @param e
              * @private
              */
-            _onSeekerChange: function(e) {
+            _onSeekerSliderChange: function(e) {
                 this.seek(e.value);
             },
 
@@ -445,9 +581,16 @@
                     } else if (value > mediaElement.duration) {
                         value = mediaElement.duration;
                     }
-                    // mediaElement.pause();
-                    mediaElement.currentTime = value;
-                    // mediaElement.play();
+                    var paused = mediaElement.paused;
+                    mediaElement.pause();
+                    if (value >= mediaElement.seekable.start(0) && value <= mediaElement.seekable.end(0)) {
+                        mediaElement.currentTime = value;
+                    } else {
+                        mediaElement.currentTime = 0;
+                    }
+                    if (!paused) {
+                        mediaElement.play();
+                    }
                 }
             },
 
@@ -457,8 +600,28 @@
              */
             resize: function() {
                 var that = this;
-                // TODO
-                that.seekerSlider.resize();
+                if (that.media instanceof $ && that.toolbar instanceof $ && that.seekerSlider instanceof Slider && that.volumeSlider instanceof Slider) {
+                    // Note: height and width calculations do not work if display: none
+                    that.toolbar.css({'visibility': 'hidden'}).show();
+                    var height = that.options.mode === MODES.VIDEO ? that.options.toolbarHeight: that.element.height();
+                    var width = that.element.width();
+                    // Resize buttons
+                    var radius = height - 12;
+                    that.element.find('a.k-button')
+                        .height(radius)
+                        .width(radius);
+                    that.element.find('a.k-button > svg')
+                        .attr('height', (radius - 4) + PX)
+                        .attr('width', (radius - 4) + PX);
+                    // Resize volume slider
+                    that.volumeSlider.wrapper.width(60);
+                    that.volumeSlider.resize();
+                    // Resize seeker slider
+                    var left = width - that.element.find('a.k-button').length * radius - 100;
+                    that.seekerSlider.wrapper.width(20);
+                    that.seekerSlider.resize();
+                    that.toolbar.toggle(that.options.mode !== MODES.VIDEO).css({'visibility': 'visible'});
+                }
             },
 
             /**
@@ -479,6 +642,21 @@
                 }
 
                 this._enable = this.options.enable = enable;
+            },
+
+            /**
+             * Clear widget and restore DOM
+             * @private
+             */
+            _clear: function () {
+                // TODO
+            },
+
+            /**
+             * Destroy widget
+             */
+            destroy: function () {
+                // TODO
             }
 
         });

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>arrow_spread2 icon</title>
+	<desc>arrow_spread2 icon from the IconExperience.com O-Collection. Copyright by INCORS GmbH (www.incors.com).</desc>
+	<path id="curve3" fill="#252525" d="M6530 5627c460,457 923,911 1381,1369l0 -971c0,-66 38,-123 99,-148 61,-25 128,-12 174,35l589 598c123,125 187,276 187,452l0 1678c0,176 -144,320 -320,320l-1678 0c-176,0 -329,-62 -452,-187l-588 -598c-47,-47 -60,-114 -35,-175 25,-61 82,-98 148,-99l971 0c-457,-457 -917,-913 -1376,-1368l900 -906z"/>
+	<path id="curve2" fill="#252525" d="M4613 6530c-457,460 -911,923 -1369,1381l971 0c66,0 123,38 148,99 25,61 12,128 -35,174l-598 589c-125,123 -276,187 -452,187l-1678 0c-176,0 -320,-144 -320,-320l0 -1678c0,-176 62,-329 187,-452l598 -588c47,-47 114,-60 175,-35 61,25 98,82 99,148l0 971c457,-457 913,-917 1368,-1376l906 900z"/>
+	<path id="curve1" fill="#252525" d="M5627 3710c457,-460 911,-923 1369,-1381l-971 0c-66,0 -123,-38 -148,-99 -25,-61 -12,-128 35,-174l598 -589c125,-123 276,-187 452,-187l1678 0c176,0 320,144 320,320l0 1678c0,176 -62,329 -187,452l-598 588c-47,47 -114,60 -175,35 -61,-25 -98,-82 -99,-148l0 -971c-457,457 -913,917 -1368,1376l-906 -900z"/>
+	<path id="curve0" fill="#252525" d="M3710 4613c-460,-457 -923,-911 -1381,-1369l0 971c0,66 -38,123 -99,148 -61,25 -128,12 -174,-35l-589 -598c-123,-125 -187,-276 -187,-452l0 -1678c0,-176 144,-320 320,-320l1678 0c176,0 329,62 452,187l588 598c47,47 60,114 35,175 -25,61 -82,98 -148,99l-971 0c457,457 917,913 1376,1368l-900 906z"/>
+</svg>

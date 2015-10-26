@@ -89,6 +89,7 @@
             '<path id="curve0" fill="#000000" d="M8921 7266l-921 -921 -921 921c-125,125 -328,125 -453,0l-452 -452c-125,-125 -125,-328 0,-453l921 -921 -921 -921c-125,-125 -125,-328 0,-453l452 -452c125,-125 328,-125 453,0l921 921 921 -921c125,-125 328,-125 453,0l452 452c125,125 125,328 0,453l-921 921 921 921c125,125 125,328 0,453l-452 452c-125,125 -328,125 -453,0z"/>' +
             '</svg>'
         };
+        var SVG_MARGIN = '2px 0 0 -2px';
         var PX = 'px';
 
         /**
@@ -151,7 +152,6 @@
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
                 that._layout();
-                that.resize();
 
                 /*
                 that._enable = true;
@@ -213,10 +213,7 @@
                 }
                 that.media
                     .prop('autoplay', that.options.autoPlay)
-                    .css({
-                        height: '100%',
-                        width: '100%'
-                    });
+                    .css({ height: '100%', width: '100%' });
                 // Add source files
                 var files = $.type(that.options.files) === STRING ? [that.options.files] : that.options.files;
                 assert.type(ARRAY, files, kendo.format(assert.messages.type.default, 'options.files', ARRAY));
@@ -248,15 +245,17 @@
              * @private
              */
             _onLoadedMetadata: function (e) {
+                // This is where we initially set our toolbar values
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                // TODO set seeker, time and volume
                 if (this.toolbar instanceof $ && this.seekerSlider instanceof Slider && this.volumeSlider instanceof Slider) {
                     var mediaElement = e.target;
                     assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
                     this._setSeekerSlider(mediaElement.duration);
                     this.seekerSlider.value(0);
-                    this.toolbar.find('span.kj-mediaplayer-time').text(kendo.toString(mediaElement.duration, 'n'));
+                    this.toolbar.find(TIME_SELECTOR).text(kendo.toString(mediaElement.duration, 'n'));
                     this.volumeSlider.value(mediaElement.volume);
+                    // we now need to resize our toolbar properly
+                    this.resize();
                 }
             },
 
@@ -270,7 +269,10 @@
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
                 if (this.toolbar instanceof $) {
                     var oldSVG = this.toolbar.find(kendo.format(BUTTON_SELECTOR, COMMANDS.PLAY)).children('svg');
-                    var newSVG = $(SVG.PAUSE).width(oldSVG.width()).height(oldSVG.height());
+                    // Note: we need the actual HEIGHT and WIDTH attributes because the $.height and $.width methods update the STYLE attribute
+                    var newSVG = $(SVG.PAUSE)
+                        .attr({ height: oldSVG.attr('height'), width: oldSVG.attr('width') })
+                        .css({ margin: SVG_MARGIN });
                     oldSVG.replaceWith(newSVG);
                 }
             },
@@ -300,7 +302,10 @@
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
                 if (this.toolbar instanceof $) {
                     var oldSVG = this.toolbar.find(kendo.format(BUTTON_SELECTOR, COMMANDS.PLAY)).children('svg');
-                    var newSVG = $(SVG.PLAY).width(oldSVG.width()).height(oldSVG.height());
+                    // Note: we need the actual HEIGHT and WIDTH attributes because the $.height and $.width methods update the STYLE attribute
+                    var newSVG = $(SVG.PLAY)
+                        .attr({ height: oldSVG.attr('height'), width: oldSVG.attr('width') })
+                        .css({ margin: SVG_MARGIN });
                     oldSVG.replaceWith(newSVG);
                 }
             },
@@ -318,7 +323,10 @@
                     mediaElement.currentTime = 0;
                     this.seekerSlider.value(mediaElement.currentTime);
                     var oldSVG = this.toolbar.find(kendo.format(BUTTON_SELECTOR, COMMANDS.PLAY)).children('svg');
-                    var newSVG = $(SVG.PLAY).width(oldSVG.width()).height(oldSVG.height());
+                    // Note: we need the actual HEIGHT and WIDTH attributes because the $.height and $.width methods update the STYLE attribute
+                    var newSVG = $(SVG.PLAY)
+                        .attr({ height: oldSVG.attr('height'), width: oldSVG.attr('width') })
+                        .css({ margin: SVG_MARGIN });
                     oldSVG.replaceWith(newSVG);
                 }
             },
@@ -336,10 +344,16 @@
                     var newSVG;
                     if (mediaElement.muted) {
                         this.volumeSlider.value(0);
-                        newSVG = $(SVG.SOUND).width(oldSVG.width());
+                        // Note: we need the actual HEIGHT and WIDTH attributes because the $.height and $.width methods update the STYLE attribute
+                        newSVG = $(SVG.SOUND)
+                            .attr({ height: oldSVG.attr('height'), width: oldSVG.attr('width') })
+                            .css({ margin: SVG_MARGIN });
                     } else {
                         this.volumeSlider.value(mediaElement.volume);
-                        newSVG = $(SVG.MUTE).width(oldSVG.width());
+                        // Note: we need the actual HEIGHT and WIDTH attributes because the $.height and $.width methods update the STYLE attributebute
+                        newSVG = $(SVG.MUTE)
+                            .attr({ height: oldSVG.attr('height'), width: oldSVG.attr('width') })
+                            .css({ margin: SVG_MARGIN });
                     }
                     oldSVG.replaceWith(newSVG);
                 }
@@ -353,15 +367,19 @@
                 var that = this;
                 that.toolbar = $('<div/>')
                     .addClass(TOOLBAR_CLASS)
-                    .toggle(that.options.mode !== MODES.VIDEO)
+                    // We hide the toolbar until we get loadedmetadata to resize it properly.
+                    // We cannot use display:none which yields incorrect measurements
+                    .css({ visibility: 'hidden' })
+                    .height(this.options.mode === MODES.VIDEO ? this.options.toolbarHeight : that.element.height())
                     .on('click', 'a.k-button', $.proxy(that._buttonClick, that))
                     .appendTo(that.element);
 
                 // Play button
                 $('<a/>')
                     .attr({ href: '#', title: that.options.messages.play })
-                    .addClass(BUTTON_CLASS)
                     .attr(kendo.attr(COMMAND), COMMANDS.PLAY)
+                    .addClass(BUTTON_CLASS)
+                    .css({ overflow: 'hidden' })
                     .append(SVG.PLAY)
                     .appendTo(that.toolbar);
 
@@ -379,8 +397,9 @@
                 // Mute/Unmute button
                 $('<a/>')
                     .attr({ href: '#', title: that.options.messages.mute })
-                    .addClass(BUTTON_CLASS)
                     .attr(kendo.attr(COMMAND), COMMANDS.MUTE)
+                    .addClass(BUTTON_CLASS)
+                    .css({ overflow: 'hidden' })
                     .append(SVG.MUTE)
                     .appendTo(that.toolbar);
 
@@ -394,8 +413,9 @@
                 if (that.options.mode === MODES.VIDEO) {
                     $('<a/>')
                         .attr({ href: '#', title: that.options.messages.full })
-                        .addClass(BUTTON_CLASS)
                         .attr(kendo.attr(COMMAND), COMMANDS.FULL)
+                        .css({ overflow: 'hidden' })
+                        .addClass(BUTTON_CLASS)
                         .append(SVG.FULL)
                         .appendTo(that.toolbar);
                 }
@@ -603,23 +623,62 @@
                 if (that.media instanceof $ && that.toolbar instanceof $ && that.seekerSlider instanceof Slider && that.volumeSlider instanceof Slider) {
                     // Note: height and width calculations do not work if display: none
                     that.toolbar.css({'visibility': 'hidden'}).show();
-                    var height = that.options.mode === MODES.VIDEO ? that.options.toolbarHeight: that.element.height();
+                    var buttons = that.toolbar.find('a.k-button').show();
+                    var seekerDiv = that.toolbar.find(SEEKER_SELECTOR).show();
+                    var timeDiv = that.toolbar.find(TIME_SELECTOR).show();
+                    var volumeDiv = that.toolbar.find(VOLUME_SELECTOR).show();
+                    var isVideo = that.options.mode === MODES.VIDEO;
+                    var height = isVideo ? that.options.toolbarHeight: that.element.height();
                     var width = that.element.width();
+                    var ratio = height / 100;
+                    var fontRatio = 0.8;
+                    var margin = 4 * ratio;
+                    var radius = height - 2 * margin;
+                    var minSeekerSize = 1.5 * radius;
                     // Resize buttons
-                    var radius = height - 12;
-                    that.element.find('a.k-button')
-                        .height(radius)
-                        .width(radius);
-                    that.element.find('a.k-button > svg')
-                        .attr('height', (radius - 4) + PX)
-                        .attr('width', (radius - 4) + PX);
+                    buttons.css({ height: radius + PX, width: radius + PX, margin: margin + PX });
+                    buttons.children('svg')
+                        .attr({ height: (radius - 10) + PX, width: (radius - 10) + PX })
+                        .css({ margin: SVG_MARGIN });
+                    var buttonSize = radius + 2 * margin;
+                    // Resize timer
+                    timeDiv.css({ fontSize: (fontRatio * radius) + PX, margin: '0 ' + margin + PX, lineHeight: '1em' });
+                    timeDiv.width(timeDiv.width()); // we do not want the width to change when the number of digits drops
+                    var timeSize = timeDiv.width() + 2 * margin;
                     // Resize volume slider
-                    that.volumeSlider.wrapper.width(60);
+                    volumeDiv.css({ margin: 3 * margin + PX });
+                    that.volumeSlider.wrapper.width(radius);
                     that.volumeSlider.resize();
+                    var volumeSize = volumeDiv.width() + 6 * margin;
                     // Resize seeker slider
-                    var left = width - that.element.find('a.k-button').length * radius - 100;
-                    that.seekerSlider.wrapper.width(20);
+                    var seekerSize = that.toolbar.width() - (buttons.length * buttonSize + timeSize + volumeSize);
+                    seekerDiv.css({ margin: 3 * margin + PX });
+                    that.seekerSlider.wrapper.width(seekerSize - 6 * margin - 24 * ratio); // 24 * ratio is empirical
                     that.seekerSlider.resize();
+                    // Update slider dimensions
+                    if (ratio > 0.5) {
+                        var tracks = that.toolbar.find('.k-slider-track');
+                        var hT =  8; // parseInt(tracks.css('height'), 10);
+                        var mT = -4; // parseInt(tracks.css('margin-top'), 10);
+                        tracks.css({ height: 2 * ratio * hT + PX, marginTop: 2 * ratio * mT + PX });
+                        var selections = that.toolbar.find('.k-slider-selection');
+                        selections.css({ height: 2 * ratio * hT + PX, marginTop: 2 * ratio * mT + PX });
+                        var handles = that.toolbar.find('.k-draghandle');
+                        // var tH = -4; // parseInt(handles.css('top'), 10);
+                        // var hH = 14; // parseInt(handles.css('height'), 10);
+                        // var wH = 13; // parseInt(handles.css('width'), 10);
+                        // var rH = 7;  // parseInt(handles.css('borderRadius'), 10);
+                        handles.css({ top: 2 * ratio * mT + PX, height: 4 * ratio * hT + PX, width: 4 * ratio * hT + PX, borderRadius: 2 * ratio * hT + PX });
+                        // Reset the position of the seeker handle
+                        handles.first().css({ left: -2 * ratio * hT + PX });
+                    }
+                    // Display/hide elements
+                    // Play button is always visible
+                    buttons.find(kendo.format(BUTTON_SELECTOR, COMMANDS.MUTE)).toggle(width >= buttons.length * buttonSize);
+                    buttons.find(kendo.format(BUTTON_SELECTOR, COMMANDS.FULL)).toggle(width >= (buttons.length - 1) * buttonSize);
+                    timeDiv.toggle(width >= buttons.length * buttonSize + timeSize);
+                    volumeDiv.toggle(width >= buttons.length * buttonSize + timeSize + volumeSize);
+                    seekerDiv.toggle(seekerDiv.width() >= minSeekerSize);
                     that.toolbar.toggle(that.options.mode !== MODES.VIDEO).css({'visibility': 'visible'});
                 }
             },

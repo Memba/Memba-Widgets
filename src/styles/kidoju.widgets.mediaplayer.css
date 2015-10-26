@@ -13,6 +13,5 @@
 }
 .kj-mediaplayer .kj-mediaplayer-toolbar .kj-mediaplayer-seeker,
 .kj-mediaplayer .kj-mediaplayer-toolbar .kj-mediaplayer-volume {
-    margin: 0 0.5em;
     display: inline-block;
 }

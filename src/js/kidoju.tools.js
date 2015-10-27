@@ -943,7 +943,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    var content = stageElement.find('>div');
+                    var content = stageElement.children('div');
                     if ($.type(component.width) === NUMBER) {
                         content.width(component.width);
                     }
@@ -1012,7 +1012,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    var content = stageElement.find('>img');
+                    var content = stageElement.children('img');
                     if ($.type(component.width) === NUMBER) {
                         content.width(component.width);
                     }
@@ -1084,7 +1084,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    var content = stageElement.find('>input');
+                    var content = stageElement.children('input');
                     if ($.type(component.width) === NUMBER) {
                         content.width(component.width);
                     }
@@ -1159,7 +1159,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) { // TODO: same id, same tool?
-                    var content = stageElement.find('>div');
+                    var content = stageElement.children('div');
                     // TODO
                     // prevent any side effect
                     e.preventDefault();
@@ -1232,7 +1232,7 @@
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    var content = stageElement.find('>div');
+                    var content = stageElement.children('div' + kendo.roleSelector('quiz'));
                     var data = component.attributes.data;
                     var length = data.trim().split('\n').length || 1;
                     var height = $.type(component.height) === NUMBER ? component.height : 0;
@@ -1271,18 +1271,14 @@
             icon: 'loudspeaker3',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                // TODO Make a Kendo UI media Player - See http://blog.falafel.com/new-kendo-ui-media-player-widget-mvvm/
-                default: '<audio controls>' +
-                    // TODO test attributes.ogg and attributes.mpeg
-                    '<source src="#= attributes.ogg #" type="audio/ogg" />' +
-                    '<source src="#= attributes.mpeg #" type="audio/mpeg" />' +
-                '</audio>'
+                default: '<div data-role="mediaplayer" data-mode="audio" data-autoplay="#: attributes.autoplay #" data-files="#: JSON.stringify([attributes.mp3, attributes.ogg]) #"></div>'
             },
-            height: 50,
-            width: 500,
+            height: 100,
+            width: 400,
             attributes: {
-                ogg: new adapters.AssetAdapter({ title: 'Ogg File' }),
-                mpeg: new adapters.AssetAdapter({ title: 'Mpeg File' })
+                autoplay: new adapters.BooleanAdapter({ title: 'Autoplay', defaultValue: false }),
+                mp3: new adapters.AssetAdapter({ title: 'MP3 File' }),
+                ogg: new adapters.AssetAdapter({ title: 'OGG File' })
             },
 
             /**
@@ -1296,9 +1292,95 @@
                     var template = kendo.template(this.templates.default);
                     return template($.extend(component, { ns: kendo.ns }));
                 }
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
+                    var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
+                    var widget = content.data('kendoMediaPlayer');
+                    if ($.type(component.width) === NUMBER) {
+                        content.width(component.width);
+                    }
+                    if ($.type(component.height) === NUMBER) {
+                        content.height(component.height);
+                    }
+                    widget.resize();
+                    // prevent any side effect
+                    e.preventDefault();
+                    // prevent event to bubble on stage
+                    e.stopPropagation();
+                }
             }
         });
         tools.register(Audio);
+
+        /**
+         * Video tool
+         * @class Video
+         */
+        var Video = kidoju.Tool.extend({
+            id: 'video',
+            icon: 'movie',
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                default: '<div data-role="mediaplayer" data-mode="video" data-autoplay="#: attributes.autoplay #" data-files="#: JSON.stringify([attributes.mp4, attributes.ogv, attributes.webm]) #" data-toolbar-height="#: attributes.toolbarHeight #" style="background-color:\\#000000;background-image:url(./styles/images/movie.svg);background-size:contain;background-repeat:no-repeat;background-position:center;"></div>'
+            },
+            height: 300,
+            width: 600,
+            attributes: {
+                autoplay: new adapters.BooleanAdapter({ title: 'Autoplay', defaultValue: false }),
+                toolbarHeight: new adapters.NumberAdapter({ title: 'Toolbar Height', defaultValue: 48 }),
+                mp4: new adapters.AssetAdapter({ title: 'MP4 File' }),
+                ogv: new adapters.AssetAdapter({ title: 'OGV File' }),
+                wbem: new adapters.AssetAdapter({ title: 'WBEM File' })
+            },
+
+            /**
+             * Get Html content
+             * @method getHtml
+             * @param component
+             * @returns {*}
+             */
+            getHtml: function (component) {
+                if (component instanceof PageComponent) {
+                    var template = kendo.template(this.templates.default);
+                    return template($.extend(component, { ns: kendo.ns }));
+                }
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
+                    var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
+                    var widget = content.data('kendoMediaPlayer');
+                    if ($.type(component.width) === NUMBER) {
+                        content.width(component.width);
+                    }
+                    if ($.type(component.height) === NUMBER) {
+                        content.height(component.height);
+                    }
+                    widget.resize();
+                    // prevent any side effect
+                    e.preventDefault();
+                    // prevent event to bubble on stage
+                    e.stopPropagation();
+                }
+            }
+        });
+        tools.register(Video);
 
         /**
          * We could also consider
@@ -1309,7 +1391,6 @@
          * Drop Target
          * Connector
          * Clock
-         * Video
          * Text-to-Speech
          * MathJax
          * Grid

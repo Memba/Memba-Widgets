@@ -17,6 +17,9 @@
 
     'use strict';
 
+    /* This function has too many statements */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -41,9 +44,8 @@
         var TIME_SELECTOR = 'span.' + TIME_CLASS;
         var VOLUME_CLASS = 'kj-mediaplayer-volume';
         var VOLUME_SELECTOR = 'div.' + VOLUME_CLASS;
-        var ACTIVE = 'k-state-active';
         var DISABLE = 'k-state-disabled';
-        var SELECT = 'select';
+        var CLICK = 'click';
         var LOADEDMETADATA = 'loadedmetadata';
         var PLAY = 'play';
         var TIMEUPDATE = 'timeupdate';
@@ -53,7 +55,6 @@
         var ENTEREVENTS = 'mouseenter' + NS + ' touchstart' + NS;
         var LEAVEEVENTS = 'mouseleave' + NS + ' focusout' + NS;
         var EVENTDURATION = 300;
-        var RESIZE = 'resize';
         var MODES = {
             AUDIO: 'audio',
             VIDEO: 'video'
@@ -140,7 +141,7 @@
         /**
          * MediaPlayer widget
          */
-        var MediaPLayer = Widget.extend({
+        var MediaPlayer = Widget.extend({
 
             /**
              * Constructor
@@ -152,18 +153,10 @@
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
                 that._layout();
-
-                /*
-                that._enable = true;
-                if (!that.options.enable) {
-                    that._enable = false;
-                    that.wrapper.addClass(DISABLE);
-                }
-                */
             },
 
             options: {
-                name: 'MediaPLayer',
+                name: 'MediaPlayer',
                 mode: MODES.VIDEO,
                 autoPlay: false, // loop?
                 files: [],
@@ -177,9 +170,10 @@
                 }
             },
 
+            /*
             events: [
-                SELECT
             ],
+            */
 
             modes: {
                 audio: MODES.AUDIO,
@@ -194,9 +188,12 @@
             _layout: function () {
                 var that = this;
                 that.wrapper = that.element;
-                that.element.addClass(WIDGET_CLASS);
+                that.element
+                    .addClass(WIDGET_CLASS)
+                    .css({ position: 'relative' });
                 that._media();
                 that._toolbar();
+                that.enable(that.options.enable);
             },
 
             /**
@@ -213,7 +210,8 @@
                 }
                 that.media
                     .prop('autoplay', that.options.autoPlay)
-                    .css({ height: '100%', width: '100%' });
+                    .css({ width: '100%' });
+                // .css({ height: '100%', width: '100%' });
                 // Add source files
                 var files = $.type(that.options.files) === STRING ? [that.options.files] : that.options.files;
                 assert.type(ARRAY, files, kendo.format(assert.messages.type.default, 'options.files', ARRAY));
@@ -264,7 +262,7 @@
              * @param e
              * @private
              */
-            _onPlay: function(e) {
+            _onPlay: function (e) {
                 var mediaElement = this.media.get(0);
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
                 if (this.toolbar instanceof $) {
@@ -359,24 +357,34 @@
                 }
             },
 
+            /* Script URL */
+            /* jshint -W107 */
+
             /**
-             * Add toolbar (play/pause, progress, volume, full screen)
+             * Add toolbar (play/pause, seeker, time, mute/unmute, volume, full screen)
              * @private
              */
             _toolbar: function () {
                 var that = this;
                 that.toolbar = $('<div/>')
                     .addClass(TOOLBAR_CLASS)
-                    // We hide the toolbar until we get loadedmetadata to resize it properly.
-                    // We cannot use display:none which yields incorrect measurements
-                    .css({ visibility: 'hidden' })
+                    .css({
+                        position: 'absolute',
+                        boxSizing: 'border-box',
+                        bottom: 0,
+                        left: 0,
+                        width: '100%',
+                        zIndex: 99,
+                        // We hide the toolbar until we get loadedmetadata to resize it properly.
+                        // We cannot use display:none which yields incorrect measurements
+                        visibility: 'hidden'
+                    })
                     .height(this.options.mode === MODES.VIDEO ? this.options.toolbarHeight : that.element.height())
-                    .on('click', 'a.k-button', $.proxy(that._buttonClick, that))
                     .appendTo(that.element);
 
                 // Play button
                 $('<a/>')
-                    .attr({ href: '#', title: that.options.messages.play })
+                    .attr({ href: 'javascript:void(0);', title: that.options.messages.play })
                     .attr(kendo.attr(COMMAND), COMMANDS.PLAY)
                     .addClass(BUTTON_CLASS)
                     .css({ overflow: 'hidden' })
@@ -386,6 +394,7 @@
                 // Seeker slider
                 var seekerDiv = $('<div/>')
                     .addClass(SEEKER_CLASS)
+                    .css({ display: 'inline-block' })
                     .appendTo(that.toolbar);
                 that._setSeekerSlider(1);
 
@@ -396,7 +405,7 @@
 
                 // Mute/Unmute button
                 $('<a/>')
-                    .attr({ href: '#', title: that.options.messages.mute })
+                    .attr({ href: 'javascript:void(0);', title: that.options.messages.mute })
                     .attr(kendo.attr(COMMAND), COMMANDS.MUTE)
                     .addClass(BUTTON_CLASS)
                     .css({ overflow: 'hidden' })
@@ -406,28 +415,23 @@
                 // Volume slider
                 var volumeDiv = $('<div/>')
                     .addClass(VOLUME_CLASS)
+                    .css({ display: 'inline-block' })
                     .appendTo(that.toolbar);
                 that._setVolumeSlider();
 
                 // Full screen button (video only)
                 if (that.options.mode === MODES.VIDEO) {
                     $('<a/>')
-                        .attr({ href: '#', title: that.options.messages.full })
+                        .attr({ href: 'javascript:void(0);', title: that.options.messages.full })
                         .attr(kendo.attr(COMMAND), COMMANDS.FULL)
                         .css({ overflow: 'hidden' })
                         .addClass(BUTTON_CLASS)
                         .append(SVG.FULL)
                         .appendTo(that.toolbar);
                 }
-
-                // Add events
-                if (that.options.mode === MODES.VIDEO) {
-                    that.element
-                        .on(ENTEREVENTS, function () { that.toolbar.show(EVENTDURATION); })
-                        .on(LEAVEEVENTS, function () { that.toolbar.hide(EVENTDURATION); });
-                        // .on(RESIZE, that.resize);
-                }
             },
+
+            /* jshint +W107 */
 
             /**
              * Set the sleeker slider with new max
@@ -435,7 +439,7 @@
              * @param max
              * @private
              */
-            _setSeekerSlider: function(max) {
+            _setSeekerSlider: function (max) {
                 var that = this;
                 var seekerDiv = that.element.find(SEEKER_SELECTOR);
                 var seekerSlider = seekerDiv.find('input').data('kendoSlider');
@@ -462,7 +466,7 @@
              * Note: the max is always 1
              * @private
              */
-            _setVolumeSlider: function() {
+            _setVolumeSlider: function () {
                 var that = this;
                 var volumeDiv = that.element.find(VOLUME_SELECTOR);
                 var volumeSlider = volumeDiv.find('input').data('kendoSlider');
@@ -479,7 +483,7 @@
                         largeStep: 0.25,
                         showButtons: false,
                         tickPlacement: 'none',
-                        tooltip: { format: '{0:p0}'},
+                        tooltip: { format: '{0:p0}' },
                         change: $.proxy(that._onVolumeSliderChange, that)
                     }).data('kendoSlider');
             },
@@ -489,7 +493,7 @@
              * @param e
              * @private
              */
-            _buttonClick: function (e) {
+            _onButtonClick: function (e) {
                 var command = $(e.currentTarget).attr(kendo.attr(COMMAND));
                 switch (command) {
                     case COMMANDS.PLAY:
@@ -510,7 +514,7 @@
             togglePlayPause: function () {
                 var mediaElement = this.media.get(0);
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
-                if (mediaElement.paused && mediaElement.readyState === 4) {
+                if (mediaElement.paused && mediaElement.readyState >= 3) { // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState
                     mediaElement.play();
                 } else {
                     mediaElement.pause();
@@ -526,23 +530,44 @@
                 mediaElement.muted = !mediaElement.muted;
             },
 
+            /* This function's cyclomatic complexity is too high */
+            /* jshint -W074 */
+
             /**
-             * Toggle full screen mode
+             * set full screen mode
              * @see https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
+             * @see http://www.sitepoint.com/use-html5-full-screen-api/
              */
             toggleFullScreen: function () {
                 var mediaElement = this.media.get(0);
                 assert.instanceof(window.HTMLVideoElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLVideoElement'));
-                if (mediaElement.requestFullscreen) {
-                    mediaElement.requestFullscreen();
-                } else if (mediaElement.msRequestFullscreen) {
-                    mediaElement.msRequestFullscreen();
-                } else if (mediaElement.mozRequestFullScreen) {
-                    mediaElement.mozRequestFullScreen();
-                } else if (mediaElement.webkitRequestFullscreen) {
-                    mediaElement.webkitRequestFullscreen();
+                if (document.fullscreenElement === mediaElement ||
+                    document.webkitFullscreenElement === mediaElement ||
+                    document.msFullscreenElement === mediaElement ||
+                    document.mozFullScreenElement === mediaElement) {
+                    if ($.isfunction (document.exitFullscreen)) {
+                        document.exitFullscreen();
+                    } else if ($.isfunction (document.webkitExitFullscreen)) {
+                        document.webkitExitFullscreen();
+                    } else if ($.isfunction (document.msExitFullscreen)) {
+                        document.msExitFullscreen();
+                    } else if ($.isfunction (document.mozCancelFullScreen)) {
+                        document.mozCancelFullScreen();
+                    }
+                } else {
+                    if (document.fullscreenEnabled && $.isfunction (mediaElement.requestFullscreen)) {
+                        mediaElement.requestFullscreen();
+                    } else if (document.webkitFullscreenEnabled && $.isfunction (mediaElement.webkitRequestFullscreen)) {
+                        mediaElement.webkitRequestFullscreen(window.Element.ALLOW_KEYBOARD_INPUT);
+                    } else if (document.msFullscreenEnabled && $.isfunction (mediaElement.msRequestFullscreen)) {
+                        mediaElement.msRequestFullscreen();
+                    } else if (document.mozFullScreenEnabled && $.isfunction (mediaElement.mozRequestFullScreen)) {
+                        mediaElement.mozRequestFullScreen();
+                    }
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * Event handler for changing the value of the volume slider
@@ -581,7 +606,7 @@
              * @param e
              * @private
              */
-            _onSeekerSliderChange: function(e) {
+            _onSeekerSliderChange: function (e) {
                 this.seek(e.value);
             },
 
@@ -589,7 +614,7 @@
              * API to get/set the seeked currentTime
              * @param value
              */
-            seek: function(value) {
+            seek: function (value) {
                 var mediaElement = this.media.get(0);
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
                 if ($.type(value) === UNDEFINED) {
@@ -618,23 +643,27 @@
              * Resizes the widget
              * @see especially http://docs.telerik.com/kendo-ui/api/javascript/ui/slider#methods-resize
              */
-            resize: function() {
+            resize: function () {
                 var that = this;
                 if (that.media instanceof $ && that.toolbar instanceof $ && that.seekerSlider instanceof Slider && that.volumeSlider instanceof Slider) {
                     // Note: height and width calculations do not work if display: none
-                    that.toolbar.css({'visibility': 'hidden'}).show();
+                    that.toolbar.css({ visibility: 'hidden' }).show();
                     var buttons = that.toolbar.find('a.k-button').show();
                     var seekerDiv = that.toolbar.find(SEEKER_SELECTOR).show();
                     var timeDiv = that.toolbar.find(TIME_SELECTOR).show();
                     var volumeDiv = that.toolbar.find(VOLUME_SELECTOR).show();
                     var isVideo = that.options.mode === MODES.VIDEO;
-                    var height = isVideo ? that.options.toolbarHeight: that.element.height();
+                    var height = isVideo ? that.options.toolbarHeight : that.element.height();
                     var width = that.element.width();
                     var ratio = height / 100;
                     var fontRatio = 0.8;
                     var margin = 4 * ratio;
                     var radius = height - 2 * margin;
                     var minSeekerSize = 1.5 * radius;
+                    // Resize element
+                    if (isVideo) {
+                        that.element.height(that.media.height());
+                    }
                     // Resize buttons
                     buttons.css({ height: radius + PX, width: radius + PX, margin: margin + PX });
                     buttons.children('svg')
@@ -679,7 +708,7 @@
                     timeDiv.toggle(width >= buttons.length * buttonSize + timeSize);
                     volumeDiv.toggle(width >= buttons.length * buttonSize + timeSize + volumeSize);
                     seekerDiv.toggle(seekerDiv.width() >= minSeekerSize);
-                    that.toolbar.toggle(that.options.mode !== MODES.VIDEO).css({'visibility': 'visible'});
+                    that.toolbar.toggle(!isVideo || !that._enable).css({ visibility: 'visible' });
                 }
             },
 
@@ -688,19 +717,31 @@
              * @param enable
              */
             enable: function (enable) {
-                var wrapper = this.wrapper;
-
-                if (typeof enable === UNDEFINED) {
-                    enable = true;
+                var that = this;
+                if (that.toolbar instanceof $ && that.seekerSlider instanceof Slider && that.volumeSlider instanceof Slider) {
+                    if (typeof enable === UNDEFINED) {
+                        enable = true;
+                    }
+                    that.element.off(NS);
+                    that.toolbar.off(NS);
+                    if (enable) {
+                        if (that.options.mode === MODES.VIDEO) {
+                            that.element
+                                .on(ENTEREVENTS, function () { that.toolbar.show(EVENTDURATION); })
+                                .on(LEAVEEVENTS, function () { that.toolbar.hide(EVENTDURATION); });
+                        }
+                        that.toolbar
+                            .removeClass(DISABLE)
+                            .on(CLICK + NS, 'a.k-button', $.proxy(that._onButtonClick, that));
+                    } else {
+                        that.toolbar
+                            .addClass(DISABLE)
+                            .show();
+                    }
+                    that.seekerSlider.enable(enable);
+                    that.volumeSlider.enable(enable);
+                    that._enable = enable;
                 }
-
-                if (enable) {
-                    wrapper.removeClass(DISABLE);
-                } else {
-                    wrapper.addClass(DISABLE);
-                }
-
-                this._enable = this.options.enable = enable;
             },
 
             /**
@@ -708,21 +749,35 @@
              * @private
              */
             _clear: function () {
-                // TODO
+                var that = this;
+                // unbind kendo
+                kendo.unbind(that.element);
+                // unbind all other events
+                that.element.find('*').off();
+                that.element.off();
+                // remove descendants
+                that.element.empty();
+                // remove element classes
+                that.element.removeClass(WIDGET_CLASS);
             },
 
             /**
              * Destroy widget
              */
             destroy: function () {
-                // TODO
+                var that = this;
+                Widget.fn.destroy.call(that);
+                that._clear();
+                kendo.destroy(that.element);
             }
 
         });
 
-        ui.plugin(MediaPLayer);
+        ui.plugin(MediaPlayer);
 
     })(window.jQuery);
+
+    /* jshint +W071 */
 
     return window.kendo;
 

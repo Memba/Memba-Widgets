@@ -143,6 +143,8 @@
          */
         var MediaPlayer = Widget.extend({
 
+            // TODO: Check http://blog.falafel.com/new-kendo-ui-media-player-widget-mvvm/ and consider improbements
+
             /**
              * Constructor
              * @param element
@@ -157,7 +159,7 @@
 
             options: {
                 name: 'MediaPlayer',
-                mode: MODES.VIDEO,
+                mode: MODES.AUDIO,
                 autoPlay: false, // loop?
                 files: [],
                 enable: true,
@@ -216,9 +218,11 @@
                 var files = $.type(that.options.files) === STRING ? [that.options.files] : that.options.files;
                 assert.type(ARRAY, files, kendo.format(assert.messages.type.default, 'options.files', ARRAY));
                 $.each(files, function (index, url) {
-                    $('<source>')
-                        .attr({ src: url, type: typeFormatter(url) })
-                        .appendTo(that.media);
+                    if ($.type(url) === STRING && url.length) {
+                        $('<source>')
+                            .attr({src: url, type: typeFormatter(url)})
+                            .appendTo(that.media);
+                    }
                 });
 
                 // Initialize media element
@@ -379,7 +383,6 @@
                         // We cannot use display:none which yields incorrect measurements
                         visibility: 'hidden'
                     })
-                    .height(this.options.mode === MODES.VIDEO ? this.options.toolbarHeight : that.element.height())
                     .appendTo(that.element);
 
                 // Play button
@@ -664,10 +667,12 @@
                     if (isVideo) {
                         that.element.height(that.media.height());
                     }
+                    // Resize toolbar
+                    that.toolbar.height(height);
                     // Resize buttons
                     buttons.css({ height: radius + PX, width: radius + PX, margin: margin + PX });
                     buttons.children('svg')
-                        .attr({ height: (radius - 10) + PX, width: (radius - 10) + PX })
+                        .attr({ height: Math.max(radius - 10, 0) + PX, width: Math.max(radius - 10, 0) + PX })
                         .css({ margin: SVG_MARGIN });
                     var buttonSize = radius + 2 * margin;
                     // Resize timer
@@ -682,7 +687,7 @@
                     // Resize seeker slider
                     var seekerSize = that.toolbar.width() - (buttons.length * buttonSize + timeSize + volumeSize);
                     seekerDiv.css({ margin: 3 * margin + PX });
-                    that.seekerSlider.wrapper.width(seekerSize - 6 * margin - 24 * ratio); // 24 * ratio is empirical
+                    that.seekerSlider.wrapper.width(Math.max(seekerSize - 6 * margin - 24 * ratio, 0)); // 24 * ratio is empirical
                     that.seekerSlider.resize();
                     // Update slider dimensions
                     if (ratio > 0.5) {

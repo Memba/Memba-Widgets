@@ -17,10 +17,6 @@
 
     'use strict';
 
-    // TODO: copy certain styles (width?, ...) from input to wrapper
-    // TODO implement regex match
-    // TODO: implement _clear() properly
-
     (function ($, undefined) {
 
         // shorten references to variables for uglification
@@ -30,17 +26,16 @@
         var ui = kendo.ui;
         var Widget = ui.Widget;
         var ObservableArray = kendo.data.ObservableArray;
-        // var assert = window.assert;
+        var assert = window.assert;
         var logger = new window.Log('kidoju.widgets.multiinput');
-        // var NUMBER = 'number';
         var STRING = 'string';
-        var ns = '.kendoMultiInput';
+        var NS = '.kendoMultiInput';
         var CHANGE = 'change';
-        var CLICK = 'click' + ns;
-        var KEYPRESS = 'keypress' + ns;
-        var FOCUSOUT = 'focusout' + ns;
-        var MOUSEENTER = 'mouseenter' + ns;
-        var MOUSELEAVE = 'mouseleave' + ns;
+        var CLICK = 'click' + NS;
+        var KEYPRESS = 'keypress' + NS;
+        var FOCUSOUT = 'focusout' + NS;
+        var MOUSEENTER = 'mouseenter' + NS;
+        var MOUSELEAVE = 'mouseleave' + NS;
         var HOVEREVENTS = MOUSEENTER + ' ' + MOUSELEAVE;
         var ID = 'id';
         var LI = 'li';
@@ -53,10 +48,39 @@
         var READONLY = 'readonly';
 
         /*******************************************************************************************
-         * Widget
+         * Helpers
          *******************************************************************************************/
 
-        // TODO: hide k-delete when readonly
+        /**
+         * Compare two arrays of values
+         * @param a
+         * @param b
+         * @returns {boolean}
+         */
+        function compare(a, b) {
+            var length;
+
+            if ((a === null && b !== null) || (a !== null && b === null)) {
+                return false;
+            }
+
+            length = a.length;
+            if (length !== b.length) {
+                return false;
+            }
+
+            while (length--) {
+                if (a[length] !== b[length]) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /*******************************************************************************************
+         * Widget
+         *******************************************************************************************/
 
         /**
          * MultiInput (kendoMultiInput)
@@ -73,7 +97,7 @@
              */
             init: function (element, options) {
                 var that = this;
-                that.ns = ns;
+                that.ns = NS;
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
                 options = $.extend(options, that.options);
@@ -90,10 +114,14 @@
              */
             options: {
                 name: 'MultiInput',
-                value: null,
-                match: null, // RegExp match like email address, cancels separator
-                readonly: true,
-                separators: ',;' // string of separators
+                value: '',
+                enabled: true,
+                readonly: false,
+                match: null, // RegExp match, e.g. for email addresses: separator does not trigger a new tag element unless there is a match
+                separators: ',;', // string of separators
+                messages: {
+                    delete: 'Delete'
+                }
             },
 
             /**
@@ -109,28 +137,20 @@
              */
             _initValue: function () {
                 var that = this;
-                var initialValue = that.element.val();
-                var value = that.options.value || initialValue;
-
-                if ($.type(initialValue) === STRING && initialValue.trim().length) {
-                    that._initialValue = initialValue;
-                    that.element.val(null);
-                }
-
-                if ($.type(value) === STRING && initialValue.trim().length) {
+                var value = that.options.value || that.element.val();
+                if ($.type(value) === STRING && value.trim().length) {
                     try {
                         value = $.parseJSON(value);
                     } catch (ex) {
                         value = [value];
                     }
                 }
-
-                that._oldValues = [];
-                that._values = [];
-
-                if (Array.isArray(value)) {
+                if ($.isArray(value)) {
                     that._oldValues = value;
                     that._values = value;
+                } else {
+                    that._oldValues = [];
+                    that._values = [];
                 }
             },
 
@@ -142,17 +162,18 @@
              */
             value: function (value) {
                 var that = this;
-                if (value) {
+                if ($.type(value) !== 'undefined') {
+                    if (value === null) {
+                        value = [];
+                    }
                     if (!$.isArray(value) && !(value instanceof ObservableArray)) {
                         throw new TypeError();
                     }
+                    // TODO: what in case of a match option ????
                     if (!compare(value, that._values)) {
-                        that._values = value;
+                        that._values = value.slice();
                         that.refresh();
                     }
-                }
-                else if (value === null) {
-                    that._values = [];
                 } else {
                     return that._values;
                 }
@@ -179,7 +200,7 @@
                 });
                 element.wrap('<div class="k-multiselect-wrap k-floatwrap" unselectable="on"/>');
                 that._innerWrapper = element.parent();
-                that._innerWrapper.wrap('<div class="k-widget k-multiselect k-header" unselectable="on">');
+                that._innerWrapper.wrap('<div class="k-widget k-multiselect k-header kj-multiinput" unselectable="on">');
                 that.wrapper = that._innerWrapper.parent();
                 that.tagList = $('<ul role="listbox" unselectable="on" class="k-reset"/>');
                 if (id) {
@@ -194,12 +215,13 @@
              * @private
              */
             _editable: function (options) {
+                // TODO: hide delete icon (k-i-close) when readonly
                 var that = this;
                 var disable = options.disable;
                 var readonly = options.readonly;
-                var wrapper = that.wrapper.off(ns);
-                var tagList = that.tagList.off(ns);
-                var input = that.element.off(ns);
+                var wrapper = that.wrapper.off(NS);
+                var tagList = that.tagList.off(NS);
+                var input = that.element.off(NS);
 
                 if (!readonly && !disable) {
                     wrapper
@@ -218,7 +240,7 @@
                     tagList
                         .on(MOUSEENTER, LI, function () { $(this).addClass(HOVERCLASS); })
                         .on(MOUSELEAVE, LI, function () { $(this).removeClass(HOVERCLASS); })
-                        .on(CLICK, '.k-delete', $.proxy(that._onTagClick, that));
+                        .on(CLICK, '.k-i-close', $.proxy(that._onTagClick, that));
 
                 } else {
                     if (disable) {
@@ -234,10 +256,17 @@
                 }
             },
 
+            /**
+             * Give the widget focus
+             */
             focus: function () {
                 this.element.focus();
             },
 
+            /**
+             * Make teh widget readonly
+             * @param readonly
+             */
             readonly: function (readonly) {
                 this._editable({
                     readonly: readonly === undefined ? true : readonly,
@@ -245,6 +274,10 @@
                 });
             },
 
+            /**
+             * Enable/disable the widget
+             * @param enable
+             */
             enable: function (enable) {
                 this._editable({
                     readonly: false,
@@ -253,43 +286,45 @@
             },
 
             /**
-             * Refreshes the widget
+             * Refresh the widget
              * @method refresh
              */
             refresh: function () {
                 var that = this;
                 that.tagList.empty();
-                that._addTags(that._values);
+                that._addTagElements(that._values);
                 that._change();
             },
 
             /**
-             * Add a tag(s) to display
+             * Add tag elements from a string or an array of string values
              */
-            _addTags: function (values) {
-                var that = this;
-                if (!Array.isArray(values) && !(values instanceof ObservableArray)) {
+            _addTagElements: function (values) {
+                if ($.type(values) === STRING) {
                     values = [values];
                 }
+                assert.ok($.isArray(values) || values instanceof ObservableArray, '`values` is expected to be an instanceof `Array` or `kendo.data.ObservableArray`');
+                var that = this;
                 $.each(values, function (index, value) {
-                    var tagItem = $(kendo.format(
-                        '<li class="k-button" unselectable="on"><span unselectable="on">{0}</span><span unselectable="on" class="k-icon k-delete">{1}</span></li>',
+                    var tagElement = $(kendo.format(
+                        '<li class="k-button" unselectable="on"><span unselectable="on">{0}</span><span unselectable="on" class="k-select"><span unselectable="on" class="k-icon k-i-close">{1}</span></span></li>',
                         kendo.htmlEncode(value),
-                        'delete'                         // TODO: translate delete!
+                        that.options.messages.delete
                     ));
-                    that.tagList.append(tagItem);
+                    that.tagList.append(tagElement);
                 });
             },
 
             /**
-             * Remove a tag from display
-             * @param tag
+             * Remove a tag element
+             * @param tagElement
              * @private
              */
-            _removeTag: function (tag) {
+            _removeTagElement: function (tagElement) {
+                assert.instanceof($, tagElement, kendo.format(assert.messages.instanceof.default, 'tagElement', 'jQuery'));
                 var that = this;
-                var index = tag.index();
-                tag.remove();
+                var index = tagElement.index();
+                tagElement.remove();
                 return index;
             },
 
@@ -308,56 +343,71 @@
             },
 
             /**
-             * Event handler for clicking a tag delete icon
+             * Event handler for clicking a tag element delete icon
              * @param e
              * @private
              */
             _onTagClick: function (e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
-                var tag = $(e.target).closest(LI);
-                var index = that._removeTag(tag);
+                var tagElement = $(e.target).closest(LI);
+                var index = that._removeTagElement(tagElement);
                 that._values.splice(index, 1);
                 that._change();
                 // that._placeholder();
             },
 
             /**
-             *
+             * Event handler triggered when pressing a key when the input has the focus
              * @param e
              * @private
              */
             _onInputKeyPress: function (e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
                 var separators = that.options.separators || '';
                 var code = e.keyCode || e.which;
                 if (separators.indexOf(String.fromCharCode(code)) > -1) {
                     that._fromInputToTag();
-                    return false;
+                    return false; // cancel the key
                 }
             },
 
             /**
-             *
-             * @param e
+             * Event handler triggered when the input loses the focus
              * @private
              */
             _onInputFocusOut: function () {
                 this._fromInputToTag();
             },
 
+            /**
+             * Convert an input entry into a tag element assuming a match
+             * @private
+             */
             _fromInputToTag: function () {
                 var that = this;
                 var input = that.element;
                 var value = input.val().trim();
                 if (value.length) {
-                    that._values.push(value);
-                    that._addTags(value);
-                    that._change();
+                    var match = this.options.match;
+                    var isMatch = ($.type(match) === STRING && match.length) ? (new RegExp(match)).test(value) : true;
+                    if (isMatch) {
+                        that._values.push(value);
+                        that._addTagElements(value);
+                        input.val('');
+                        that._change();
+                    }
                 }
-                input.val(null);
             },
 
+            /**
+             * Event handler triggered when mousing over
+             * @param e
+             * @private
+             */
             _toggleHover: function (e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 $(e.currentTarget).toggleClass(HOVERCLASS, e.type === 'mouseenter');
             },
 
@@ -406,33 +456,6 @@
         });
 
         ui.plugin(MultiInput);
-
-        /**
-         * Compare two arrays of values
-         * @param a
-         * @param b
-         * @returns {boolean}
-         */
-        function compare(a, b) {
-            var length;
-
-            if ((a === null && b !== null) || (a !== null && b === null)) {
-                return false;
-            }
-
-            length = a.length;
-            if (length !== b.length) {
-                return false;
-            }
-
-            while (length--) {
-                if (a[length] !== b[length]) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
 
     } (window.jQuery));
 

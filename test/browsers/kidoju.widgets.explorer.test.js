@@ -186,6 +186,10 @@
                 }
             });
 
+            xit('destroy', function () {
+                // TODO
+            });
+
         });
 
         describe('MVVM (and UI interactions)', function () {

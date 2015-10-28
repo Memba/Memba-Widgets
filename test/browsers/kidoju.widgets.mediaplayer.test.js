@@ -388,11 +388,11 @@
                 }, TTL);
             });
 
-            xit('volume', function (done) {
+            xit('volume', function () {
                 // TODO
             });
 
-            xit('seek', function (done) {
+            xit('seek', function () {
                 // TODO
             });
 

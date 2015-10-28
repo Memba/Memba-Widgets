@@ -279,6 +279,10 @@
             });
             /* jshint +W071 */
 
+            xit('destroy', function () {
+                // TODO
+            });
+
             afterEach(function () {
                 var fixtures = $(FIXTURES);
                 kendo.destroy(fixtures);

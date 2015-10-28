@@ -239,11 +239,15 @@
                 setTimeout(function () { assetManager.tabStrip.select(1); }, 500);
             });
 
-            xit('setOptions', function (done) {
+            xit('setOptions', function () {
                 // TODO especially regarding filters (to be enforced)
             });
 
             // We could also consider a search method
+
+            xit('destroy', function () {
+                // TODO
+            });
 
             afterEach(function () {
                 var fixtures = $(FIXTURES);

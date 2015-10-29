@@ -1330,7 +1330,7 @@
             icon: 'movie',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-role="mediaplayer" data-mode="video" data-autoplay="#: attributes.autoplay #" data-files="#: JSON.stringify([attributes.mp4, attributes.ogv, attributes.webm]) #" data-toolbar-height="#: attributes.toolbarHeight #" style="background-color:\\#000000;background-image:url(./styles/images/movie.svg);background-size:contain;background-repeat:no-repeat;background-position:center;"></div>'
+                default: '<div data-role="mediaplayer" data-mode="video" data-autoplay="#: attributes.autoplay #" data-files="#: JSON.stringify([attributes.mp4, attributes.ogv, attributes.webm]) #" data-toolbar-height="#: attributes.toolbarHeight #"></div>'
             },
             height: 300,
             width: 600,

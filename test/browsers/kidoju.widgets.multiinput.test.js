@@ -235,11 +235,11 @@
                 viewModel = kendo.observable({
                     value: ['alpha', 'beta', 'gamma']
                 });
+                kendo.bind(FIXTURES, viewModel);
+                multiInput = element.data('kendoMultiInput');
                 viewModel.bind('change', function (e) {
                     change();
                 });
-                kendo.bind(FIXTURES, viewModel);
-                multiInput = element.data('kendoMultiInput');
             });
 
             it('change of viewModel changes widget value', function () {
@@ -248,10 +248,10 @@
                 expect(multiInput.tagList).to.exist;
                 expect(multiInput.tagList.children('li').length).to.equal(length);
                 viewModel.value.pop(); // TODO: This triggers 2 changes
-                expect(change).to.have.callCount(3);
+                expect(change).to.have.callCount(2);
                 expect(multiInput.tagList.children('li').length).to.equal(length - 1);
                 viewModel.value.push('omega'); // TODO: This triggers 2 changes
-                expect(change).to.have.callCount(5);
+                expect(change).to.have.callCount(4);
                 expect(multiInput.tagList.children('li').length).to.equal(length);
             });
 
@@ -263,12 +263,12 @@
                 var value = multiInput.value().slice();
                 value.pop();
                 multiInput.value(value);
-                expect(change).to.have.callCount(2);
+                expect(change).to.have.callCount(1);
                 expect(viewModel.value.length).to.equal(length - 1);
                 value = multiInput.value().slice();
                 value.push('omega');
                 multiInput.value(value);
-                expect(change).to.have.callCount(3);
+                expect(change).to.have.callCount(2);
                 expect(viewModel.value.length).to.equal(length);
             });
 

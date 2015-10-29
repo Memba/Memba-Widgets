@@ -277,6 +277,8 @@
             it('destroy', function () {
                 expect(mediaPlayer).to.be.an.instanceof(MediaPlayer);
                 mediaPlayer.destroy();
+                expect(element.parent()).to.match(FIXTURES);
+                expect(element.data('kendoMediaPlayer')).to.be.undefined;
                 expect(element).to.be.empty;
                 expect(element).not.to.have.class('k-widget');
                 expect(element).not.to.have.class('kj-mediaplayer');

@@ -22,6 +22,14 @@
     var VIDEO_FILES = ['../data/video/video.mp4', '../data/video/video.webm'];
     var TTL = 250;
 
+    /**
+     * HTMLMediaElement is not supported in PhantomJS
+     * @see https://github.com/ariya/phantomjs/issues/10839
+     */
+    if (window.PHANTOMJS) {
+        return;
+    }
+
     describe('kidoju.widgets.mediaplayer', function () {
 
         before(function () {

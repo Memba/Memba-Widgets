@@ -17,6 +17,9 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         // shorten references to variables for uglification
@@ -196,7 +199,7 @@
                     autocomplete: 'off',
                     tabindex : 0,
                     role: 'listbox',
-                    ariaOwns: id ? id + '_taglist' : ''
+                    'aria-owns': id ? id + '_taglist' : ''
                 });
                 element.wrap('<div class="k-multiselect-wrap k-floatwrap" unselectable="on"/>');
                 that._innerWrapper = element.parent();
@@ -418,29 +421,20 @@
              */
             _clear: function () {
                 var that = this;
-                var ns = that.ns;
-                // unbind descendant events
-                // $(that.element).find('*').off();
-                // clear element
-                // $(that.element)
-                //    .empty()
-                //    .off()
-                //    .removeClass('k-widget k-multiinput');
-
-                /*
-                 element = $(that.element),
-                 wrapper = element.parent();
-                 that.unbind(CHANGE);
-                 // remove wrapper and stars
-                 if (wrapper.length > 0 && wrapper[0].tagName.toLowerCase() === SPAN && wrapper.hasClass('k-rating')) {
-                 wrapper.find('span.k-rating-star').off().remove();
-                 wrapper.off();
-                 element.unwrap();
-                 element.show();
-                 }
-                 */
-
-
+                if (that.wrapper instanceof $ && that.tagList instanceof $) {
+                    // Unbind kendo
+                    kendo.unbind(that.element);
+                    // Unbind all other events
+                    that.element.find('*').off(NS);
+                    that.element.off(NS);
+                    // Remove tag list
+                    that.tagList.remove();
+                    // Unwrap and remove class
+                    that.element
+                        .unwrap()
+                        .unwrap()
+                        .removeClass('k-widget k-multiinput');
+                }
             },
 
             /**
@@ -449,8 +443,9 @@
              */
             destroy: function () {
                 var that = this;
+                Widget.fn.destroy.call(that);
                 that._clear();
-                Widget.fn.destroy.call(this);
+                kendo.destroy(that.element);
             }
 
         });
@@ -458,6 +453,8 @@
         ui.plugin(MultiInput);
 
     } (window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kendo;
 

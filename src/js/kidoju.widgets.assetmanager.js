@@ -732,7 +732,11 @@
             _clear: function () {
                 var that = this;
                 // unbind kendo
-                // kendo.unbind($(that.element));
+                kendo.unbind(that.element);
+                // remove drop down list popup
+                if (that.dropDownList) {
+                    that.dropDownList.destroy();
+                }
                 // unbind all other events
                 $(that.element).find('*').off();
                 $(that.element).off();

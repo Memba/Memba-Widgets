@@ -185,11 +185,6 @@
                 kendo.destroy(fixtures);
                 fixtures.find('*').off();
                 fixtures.empty();
-
-                // If the drop down list is expanded, the list container which is added outside fixtures is not removed
-                var list = $('div.k-list-container');
-                list.find('*').off();
-                list.remove();
             });
 
         });
@@ -254,11 +249,6 @@
                 kendo.destroy(fixtures);
                 fixtures.find('*').off();
                 fixtures.empty();
-
-                // If the drop down list is expanded, the list container which is added outside fixtures is not removed
-                var list = $('div.k-list-container');
-                list.find('*').off();
-                list.remove();
             });
 
         });
@@ -500,11 +490,6 @@
                 kendo.destroy(fixtures);
                 fixtures.find('*').off();
                 fixtures.empty();
-
-                // If the drop down list is expanded, the list container which is added outside fixtures is not removed
-                var list = $('div.k-list-container');
-                list.find('*').off();
-                list.remove();
             });
 
         });
@@ -598,11 +583,6 @@
                 kendo.destroy(fixtures);
                 fixtures.find('*').off();
                 fixtures.empty();
-
-                // If the drop down list is expanded, the list container which is added outside fixtures is not removed
-                var list = $('div.k-list-container');
-                list.find('*').off();
-                list.remove();
             });
 
         });

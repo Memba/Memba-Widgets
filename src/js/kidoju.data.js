@@ -215,6 +215,7 @@
              * @returns {boolean}
              */
             validate: function () {
+                /* jshint maxcomplexity: 8 */
                 var that = this;
                 var validated = true;
                 for (var field in that.fields) {

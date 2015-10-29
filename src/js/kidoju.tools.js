@@ -1230,6 +1230,7 @@
              * @param component
              */
             onResize: function (e, component) {
+                /* jshint maxcomplexity: 8 */
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
                     var content = stageElement.children('div' + kendo.roleSelector('quiz'));

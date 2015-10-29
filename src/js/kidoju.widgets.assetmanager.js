@@ -114,6 +114,7 @@
          * @returns {*}
          */
         function typeFormatter(url) {
+            /* jshint maxcomplexity: 12 */
             assert.type(STRING, url, kendo.format(assert.messages.type.default, 'url', STRING));
             var ext = url.split('.').pop();
             switch (ext) {

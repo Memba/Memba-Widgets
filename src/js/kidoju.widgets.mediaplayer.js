@@ -220,7 +220,7 @@
                 $.each(files, function (index, url) {
                     if ($.type(url) === STRING && url.length) {
                         $('<source>')
-                            .attr({src: url, type: typeFormatter(url)})
+                            .attr({ src: url, type: typeFormatter(url) })
                             .appendTo(that.media);
                     }
                 });

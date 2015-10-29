@@ -129,6 +129,9 @@
             //    TODO: we need to read height and width both from styles and options and decide which wins
             // },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Gets/Sets the index of the selected page in the navigation
              * Note: index is 0 based, whereas playbar page numbers are 1 based
@@ -160,6 +163,8 @@
                     throw new TypeError();
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * Gets/Sets the id of the selected page in the navigation

@@ -234,7 +234,7 @@
                 });
                 kendo.bind(FIXTURES, viewModel);
                 quiz = element.data('kendoQuiz');
-                viewModel.bind('change', function() {
+                viewModel.bind('change', function () {
                     change();
                 });
             });
@@ -316,7 +316,7 @@
                 });
                 kendo.bind(FIXTURES, viewModel);
                 quiz = element.data('kendoQuiz');
-                viewModel.bind('change', function() {
+                viewModel.bind('change', function () {
                     change();
                 });
             });
@@ -402,7 +402,7 @@
                 });
                 kendo.bind(FIXTURES, viewModel);
                 quiz = element.data('kendoQuiz');
-                viewModel.bind('change', function() {
+                viewModel.bind('change', function () {
                     change();
                 });
             });
@@ -481,7 +481,7 @@
                 change = sinon.spy();
                 element = $(QUIZ1).appendTo(FIXTURES);
                 quiz = element.kendoQuiz(options).data('kendoQuiz');
-                quiz.bind('change', function() {
+                quiz.bind('change', function () {
                     change();
                 });
             });

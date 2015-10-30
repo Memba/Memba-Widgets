@@ -340,7 +340,6 @@
                 }, 600);
             });
 
-            // TODO: This one has a global leak detected by mocha
             xit('Change collection in drop down list', function (done) {
                 expect(assetManager).to.be.an.instanceof(AssetManager);
                 expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
@@ -349,6 +348,7 @@
                 expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
                 expect(assetManager.value()).to.be.undefined;
                 assetManager.dropDownList.bind('dataBound', function (e) {
+                    // 2) Second, select `White` in the subcollection drop down list
                     if (e.sender.dataSource.total() > 0 && e.sender.text() !== 'White') {
                         setTimeout(function () {
                             $(e.sender.element).simulate(CLICK);
@@ -361,7 +361,7 @@
                     }
                 });
                 assetManager.listView.bind('dataBound', function (e) {
-                    // Only execute when the collection is loaded
+                    // 3) Third, check list view once loaded
                     if (assetManager.dropDownList.text() === 'White') {
                         expect(assetManager.dataSource.at(0).id).to.equal('cdn://images/o_collection/svg/white/3d_glasses.svg');
                         expect(assetManager.dataSource.at(1).id).to.equal('cdn://images/o_collection/svg/white/about.svg');
@@ -371,6 +371,7 @@
                 });
                 // Clicking a collection tab needs to be delayed until collections are loaded
                 setTimeout(function () {
+                    // 1) First, click teh O-Collection tab
                     var tab = assetManager.element.find('ul.k-tabstrip-items > li.k-item:nth-child(2)');
                     tab.simulate(CLICK);
                 }, 600);

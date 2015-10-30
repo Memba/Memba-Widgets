@@ -59,7 +59,7 @@ module.exports = function (grunt) {
                     run: true,
                     timeout: 10000
                 },
-                src: ['test/browsers/kidoju.*.test.html']
+                src: ['test/browsers/*.test.html']
             }
         },
         mochaTest: { // Test running in nodeJS (supertest, zombie, ...)

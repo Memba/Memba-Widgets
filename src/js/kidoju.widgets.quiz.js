@@ -172,9 +172,19 @@
              */
             value: function (value) {
                 var that = this;
-                if ($.type(value) === STRING || value === null) {
-                    that._value = value;
-                    that._toggleUI();
+                if ($.type(value) === STRING) {
+                    // Note: Giving a value to the dropDownList that does not exist in dataSource is discarded without raising an error
+                    if (that._value !== value && that.dataSource instanceof kendo.data.DataSource && that.dataSource.data().indexOf(value) > -1) {
+                        that._value = value;
+                        that._toggleUI();
+                        that.trigger(CHANGE);
+                    }
+                } else if (value === null) {
+                    if (that._value !== value) {
+                        that._value = null;
+                        that._toggleUI();
+                        that.trigger(CHANGE);
+                    }
                 } else if ($.type(value) === 'undefined') {
                     return that._value;
                 } else {
@@ -396,19 +406,17 @@
              * @param enable
              */
             enable: function (enable) {
-                var wrapper = this.wrapper;
-
                 if (typeof enable === UNDEFINED) {
                     enable = true;
                 }
-
-                if (enable) {
-                    wrapper.removeClass(DISABLE);
-                } else {
-                    wrapper.addClass(DISABLE);
+                if (this.dropDownList) {
+                    this.dropDownList.enable(enable);
                 }
-
-                this._enable = this.options.enable = enable;
+                if (this.groupList) {
+                    this.groupList.find('input')
+                        .toggleClass(DISABLE, !enable)
+                        .prop('disabled', !enable);
+                }
             },
 
             /**
@@ -418,7 +426,11 @@
             _clear: function () {
                 var that = this;
                 // unbind kendo
-                kendo.unbind($(that.element));
+                kendo.unbind(that.element);
+                // Destroy drop down list (especially the popup)
+                if (that.dropDownList) {
+                    that.dropDownList.destroy();
+                }
                 // unbind all other events
                 that.element.find('*').off(NS);
                 // remove descendants

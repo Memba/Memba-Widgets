@@ -69,7 +69,7 @@
         cdn: 'https://d2rvsmwqptocm.cloudfront.net/',
         data: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/'
     };
-    var TTL = 500;
+    var TTL = 750;
 
     describe('kidoju.widgets.assetmanager', function () {
 

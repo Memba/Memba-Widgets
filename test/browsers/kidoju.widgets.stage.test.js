@@ -375,7 +375,7 @@
 
         });
 
-        describe('MVVM', function () {
+        xdescribe('MVVM', function () {
 
             var element;
             var stage;
@@ -702,7 +702,7 @@
 
         });
 
-        describe('Events', function () {
+        xdescribe('Events', function () {
 
             var element;
             var stage;

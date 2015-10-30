@@ -171,7 +171,8 @@
             modes: {
                 thumbnail: 'thumbnail',
                 design: 'design',
-                play: 'play'
+                play: 'play',
+                review: 'review'
             },
 
             /**

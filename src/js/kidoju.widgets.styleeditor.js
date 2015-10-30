@@ -24,13 +24,31 @@
         var kendo = window.kendo;
         var ui = kendo.ui;
         var Widget = ui.Widget;
-        // var assert = window.assert;
+        var assert = window.assert;
         var logger = new window.Log('kidoju.widgets.styleeditor');
         var STRING = 'string';
+        var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var KEYPRESS = 'keypress';
         // var NS = '.kendoStyleEditor';
-        var WIDGET_CLASS = 'kj-styleeditor'; // k-widget is added when initializing this.element as a grid
+        var WIDGET_CLASS = 'k-grid k-widget kj-styleeditor';
+        var COLON = ':';
+        var SEMICOLON = ';';
+
+        /*********************************************************************************
+         * Helpers
+         *********************************************************************************/
+
+        /**
+         * Normalize value
+         * Removes spaces around colons and semi-colons and end with semi-colon
+         * @param value
+         */
+        function normalizeValue(value) {
+            assert.type(STRING, value, kendo.format(assert.messages.type.default), 'value', STRING);
+            return value.replace(/[\s]*(\:|\;)[\s]*/g, '$1') + ((value.length && value.charAt(value.length - 1) === SEMICOLON) ? '' : SEMICOLON);
+        }
+
 
         /*********************************************************************************
          * Widget
@@ -51,13 +69,14 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
-                if ($.isFunction(ui.Grid)) {
-                    that._setDataSource();
-                    that._layout();
-                    that._setDestroyHandler();
-                    that._setKeyPressHandler();
-                }
-                // TODO a simple textarea would do when running kendo-core
+                // if ($.isFunction($.fn.kendoGrid)) {
+                that._setDataSource();
+                that.value(that.options.value);
+                that._layout();
+                that._setDestroyHandler();
+                that._setKeyPressHandler();
+                // }
+                // TODO a simple textarea would do when running kendo-core without grid
             },
 
             /**
@@ -67,6 +86,7 @@
             options: {
                 name: 'StyleEditor',
                 height: 400,
+                value: '',
                 messages: {
                     columns: {
                         name: 'Name',
@@ -94,6 +114,9 @@
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
+            /* This function has too many statements. */
+            /* jshint -W071 */
+
             /**
              * Gets or sets the style value
              * @param value
@@ -120,26 +143,33 @@
                 var i;
                 var data;
                 if ($.type(value) === STRING) {
-                    // Break the various style names/values  and fill the data source
-                    var styles = value.split(';'); data = [];
-                    for (i = 0; i < styles.length; i++) {
-                        var style = styles[i].split(':');
-                        if ($.isArray(style) && style.length === 2) {
-                            data.push({ name: style[0].trim(), value: style[1].trim() });
+                    var _value = that.value();
+                    value = normalizeValue(value);
+                    if (value !== _value) {
+                        // Break the various style names/values and fill the data source
+                        var styles = value.split(SEMICOLON);
+                        data = [];
+                        for (i = 0; i < styles.length; i++) {
+                            var style = styles[i].split(COLON);
+                            if ($.isArray(style) && style.length === 2) {
+                                data.push({ name: style[0].trim(), value: style[1].trim() });
+                            }
                         }
+                        that._dataSource.data(data); // (data.sort(sort));
+                        // that.trigger(CHANGE);
                     }
-                    that._dataSource.data(data); // (data.sort(sort));
-                } else if ($.type(value) === 'undefined') {
+                } else if ($.type(value) === UNDEFINED) {
                     // Convert the data source into an HTML style attribute
                     value = '';
-                    data = that._dataSource.data(); // .sort(sort);
+                    data = that._dataSource.data();
                     for (i = 0; i < data.length; i++) {
                         var name = data[i].name;
                         var val = data[i].value;
                         if ($.type(name) === STRING && $.type(val) === STRING) {
-                            name = name.trim(); val = val.trim();
+                            name = name.trim();
+                            val = val.trim();
                             if (name.length && val.length) {
-                                value += name + ':' + val + ';';
+                                value += name + COLON + val + SEMICOLON;
                             }
                         }
                     }
@@ -149,6 +179,7 @@
                 }
             },
 
+            /* jshint +W071 */
             /* jshint +W074 */
 
             /**
@@ -211,7 +242,7 @@
                                     // var grid = container.closest('.k-grid').data('kendoGrid');
                                     var grid = that.element.data('kendoGrid');
                                     var uid = container.parent().attr(kendo.attr('uid'));
-                                    if (grid instanceof kendo.ui.Grid && $.type(uid) === 'string' && $.type(dataItem) !== 'undefined') {
+                                    if (grid instanceof kendo.ui.Grid && $.type(uid) === 'string' && $.type(dataItem) !== UNDEFINED) {
                                         var style = grid.dataSource.getByUid(uid);
                                         style.set('value', dataItem.get('value'));
                                     }
@@ -231,7 +262,8 @@
                 var that = this;
                 that.wrapper = that.element;
                 that.element.addClass(WIDGET_CLASS);
-                that.element.kendoGrid({
+                that.grid = that.element
+                    .kendoGrid({
                     columns: [
                         { field: 'name', title: that.options.messages.columns.name, editor: cssDropDownEditor, template: '#=name#' },
                         { field: 'value', title: that.options.messages.columns.value }
@@ -302,7 +334,9 @@
                         { name: 'create', text: that.options.messages.toolbar.create },
                         { name: 'destroy', text: that.options.messages.toolbar.destroy }
                     ]
-                });
+                })
+                    .data('kendoGrid');
+
             },
 
             /**

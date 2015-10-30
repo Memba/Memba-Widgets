@@ -69,6 +69,7 @@
         cdn: 'https://d2rvsmwqptocm.cloudfront.net/',
         data: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/'
     };
+    var TTL = 500;
 
     describe('kidoju.widgets.assetmanager', function () {
 
@@ -231,7 +232,7 @@
                     }
                 });
                 // Yield some time for collections to load
-                setTimeout(function () { assetManager.tabStrip.select(1); }, 500);
+                setTimeout(function () { assetManager.tabStrip.select(1); }, TTL);
             });
 
             xit('setOptions', function () {
@@ -299,7 +300,7 @@
                                 options.data.url = 'https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/add.svg';
                                 // VERY IMPORTANT: it won't work without total + data which are both expected
                                 options.success({ total: 1, data: [options.data] });
-                            }, 1000);
+                            }, 2 * TTL);
                         }
                     },
                     destroy: function (options) {
@@ -337,7 +338,7 @@
                 setTimeout(function () {
                     var tab = assetManager.element.find('ul.k-tabstrip-items > li.k-item:nth-child(2)');
                     tab.simulate(CLICK);
-                }, 600);
+                }, TTL);
             });
 
             xit('Change collection in drop down list', function (done) {
@@ -357,7 +358,7 @@
                             expect(item).to.be.an.instanceof($).with.property('length', 1);
                             expect(item).to.have.text('White');
                             item.simulate(CLICK);
-                        }, 600);
+                        }, TTL);
                     }
                 });
                 assetManager.listView.bind('dataBound', function (e) {
@@ -374,7 +375,7 @@
                     // 1) First, click teh O-Collection tab
                     var tab = assetManager.element.find('ul.k-tabstrip-items > li.k-item:nth-child(2)');
                     tab.simulate(CLICK);
-                }, 600);
+                }, TTL);
             });
 
             it('Search input', function (done) {
@@ -406,7 +407,7 @@
                 setTimeout(function () {
                     var tab = assetManager.element.find('ul.k-tabstrip-items > li.k-item:nth-child(2)');
                     tab.simulate(CLICK);
-                }, 600);
+                }, TTL);
             });
 
             xit('Paging', function () {
@@ -533,7 +534,7 @@
                                 options.data.url = 'https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/add.svg';
                                 // VERY IMPORTANT: it won't work without total + data which are both expected
                                 options.success({ total: 1, data: [options.data] });
-                            }, 1000);
+                            }, 2 * TTL);
                         }
                     },
                     destroy: function (options) {

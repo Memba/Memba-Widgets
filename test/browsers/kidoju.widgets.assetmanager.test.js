@@ -69,7 +69,7 @@
         cdn: 'https://d2rvsmwqptocm.cloudfront.net/',
         data: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/'
     };
-    var TTL = 750;
+    var TTL = 500;
 
     describe('kidoju.widgets.assetmanager', function () {
 
@@ -222,19 +222,19 @@
                 expect(assetManager.value()).to.be.undefined;
                 assetManager.listView.bind('dataBound', function (e) {
                     if (assetManager.dropDownList.text() === 'Dark Grey') {
-                        setTimeout(function () { // TRAVIS
-                            assetManager.select(0);
-                            expect(assetManager.value()).to.equal('cdn://images/o_collection/svg/dark_grey/3d_glasses.svg');
-                            assetManager.select(1);
-                            expect(assetManager.value()).to.equal('cdn://images/o_collection/svg/dark_grey/about.svg');
-                            assetManager.select(2);
-                            expect(assetManager.value()).to.equal('cdn://images/o_collection/svg/dark_grey/add.svg');
-                            done();
-                        }, TTL);
+                        assetManager.select(0);
+                        expect(assetManager.value()).to.equal('cdn://images/o_collection/svg/dark_grey/3d_glasses.svg');
+                        assetManager.select(1);
+                        expect(assetManager.value()).to.equal('cdn://images/o_collection/svg/dark_grey/about.svg');
+                        assetManager.select(2);
+                        expect(assetManager.value()).to.equal('cdn://images/o_collection/svg/dark_grey/add.svg');
+                        done();
                     }
                 });
                 // Yield some time for collections to load
-                setTimeout(function () { assetManager.tabStrip.select(1); }, TTL);
+                setTimeout(function () {
+                    assetManager.tabStrip.select(1);
+                }, TTL);
             });
 
             xit('setOptions', function () {
@@ -243,8 +243,10 @@
 
             // We could also consider a search method
 
-            xit('destroy', function () {
-                // TODO
+            it('destroy', function () {
+                expect(assetManager).to.be.an.instanceof(AssetManager);
+                assetManager.destroy();
+                expect(assetManager.element).to.be.empty;
             });
 
             afterEach(function () {
@@ -314,7 +316,6 @@
             };
 
             beforeEach(function () {
-                console.log('beforeEach');
                 element = $(ASSETMANAGER1).appendTo(FIXTURES);
                 assetManager = element.kendoAssetManager(options).data('kendoAssetManager');
                 viewModel = kendo.observable({ url: undefined });
@@ -323,7 +324,6 @@
             });
 
             it('Click tabs', function (done) {
-                console.log('-----> Click tabs');
                 expect(assetManager).to.be.an.instanceof(AssetManager);
                 expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
                 expect(assetManager.dropDownList).to.be.an.instanceof(kendo.ui.DropDownList);
@@ -331,14 +331,14 @@
                 expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
                 expect(assetManager.value()).to.be.undefined;
                 assetManager.listView.bind('dataBound', function (e) {
-                    if (assetManager.dropDownList.text() === 'Dark Grey') {
-                        setTimeout(function () { // TRAVIS
+                    setTimeout(function() {
+                        if (assetManager.dropDownList.text() === 'Dark Grey') {
                             expect(assetManager.dataSource.at(0).id).to.equal('cdn://images/o_collection/svg/dark_grey/3d_glasses.svg');
                             expect(assetManager.dataSource.at(1).id).to.equal('cdn://images/o_collection/svg/dark_grey/about.svg');
                             expect(assetManager.dataSource.at(2).id).to.equal('cdn://images/o_collection/svg/dark_grey/add.svg');
                             done();
-                        }, TTL);
-                    }
+                        }
+                    }, 0);
                 });
                 // Clicking a collection tab needs to be delayed until collections are loaded
                 setTimeout(function () {
@@ -347,7 +347,7 @@
                 }, TTL);
             });
 
-            xit('Change collection in drop down list', function (done) {
+            it('Change collection in drop down list', function (done) {
                 console.log('-----> Change collection in drop down list');
                 expect(assetManager).to.be.an.instanceof(AssetManager);
                 expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
@@ -358,25 +358,23 @@
                 assetManager.dropDownList.bind('dataBound', function (e) {
                     // 2) Second, select `White` in the subcollection drop down list
                     if (e.sender.dataSource.total() > 0 && e.sender.text() !== 'White') {
-                        setTimeout(function () { // TRAVIS
+                        setTimeout(function() {
                             $(e.sender.element).simulate(CLICK);
                             var list = $('.k-list-container ul.k-list');
                             var item = list.find('li:contains("White")');
                             expect(item).to.be.an.instanceof($).with.property('length', 1);
                             expect(item).to.have.text('White');
                             item.simulate(CLICK);
-                        }, TTL);
+                        }, 0);
                     }
                 });
                 assetManager.listView.bind('dataBound', function (e) {
                     // 3) Third, check list view once loaded
                     if (assetManager.dropDownList.text() === 'White') {
-                        setTimeout(function () { // TRAVIS
-                            console.log('!!!!!!! Change collection in drop down list: dataBound');
+                        setTimeout(function() {
                             expect(assetManager.dataSource.at(0).id).to.equal('cdn://images/o_collection/svg/white/3d_glasses.svg');
                             expect(assetManager.dataSource.at(1).id).to.equal('cdn://images/o_collection/svg/white/about.svg');
                             expect(assetManager.dataSource.at(2).id).to.equal('cdn://images/o_collection/svg/white/add.svg');
-                            // assetManager.listView.unbind('dataBound');
                             done();
                         }, TTL);
                     }
@@ -390,7 +388,6 @@
             });
 
             it('Search input', function (done) {
-                console.log('-----> Search input');
                 expect(assetManager).to.be.an.instanceof(AssetManager);
                 expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
                 expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
@@ -399,12 +396,12 @@
                 expect(assetManager.value()).to.be.undefined;
                 assetManager.listView.bind('dataBound', function (e) {
                     if (assetManager.dropDownList.text() === 'Dark Grey') {
-                        setTimeout(function () { // TRAVIS
-                            if (assetManager.searchInput.val() === '') {
-                                assetManager.searchInput.val('apple');
-                                // assetManager.searchInput.simulate('keydown', { keyCode: 13 });
-                                assetManager.searchInput.trigger('change');
-                            } else {
+                        if (assetManager.searchInput.val() === '') {
+                            assetManager.searchInput.val('apple');
+                            // assetManager.searchInput.simulate('keydown', { keyCode: 13 });
+                            assetManager.searchInput.trigger('change');
+                        } else {
+                            setTimeout(function() {
                                 expect(assetManager.searchInput.val()).to.equal('apple');
                                 // We need to check the view() because we have applied a filter to data
                                 expect(assetManager.dataSource.view()).to.be.an.instanceof(kendo.data.ObservableArray).with.property('length', 3);
@@ -413,8 +410,8 @@
                                 expect(assetManager.dataSource.view()[2].id).to.equal('cdn://images/o_collection/svg/dark_grey/pineapple.svg');
                                 // TODO: Search clear (X button within input)
                                 done();
-                            }
-                        }, TTL);
+                            }, 0);
+                        }
                     }
                 });
                 // Clicking a collection tab needs to be delayed until collections are loaded
@@ -429,7 +426,6 @@
             });
 
             it('Select items', function (done) {
-                console.log('-----> Select items');
                 expect(assetManager).to.be.an.instanceof(AssetManager);
                 expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
                 expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
@@ -437,23 +433,23 @@
                 expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
                 expect(assetManager.value()).to.be.undefined;
                 assetManager.listView.bind('dataBound', function (e) {
-                    setTimeout(function() { // TRAVIS
-                        var list = $('div.k-filebrowser ul.k-tiles');
-                        for (var i = 0; i < assetManager.listView.dataSource.total(); i++) {
-                            var item = list.children('li.k-tile:nth-child(' + (i + 1) + ')');
-                            expect(item).to.be.an.instanceof($).with.property('length', 1);
-                            if (kendo.support.mousedown === 'mousedown') {
-                                // item.simulate('click'); // click does not work because kendo.ui.UserEvents needs mousedown + mouseup to match touch events
-                                // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
-                                item.simulate('mousedown');
-                                item.simulate('mouseup');
-                                expect(assetManager.value()).to.equal(assetManager.listView.dataSource.at(i).id);
-                                expect(change).to.have.been.calledWith(assetManager.value());
-                                expect(viewModel.get('url')).to.equal(assetManager.value());
-                            }
+                    // setTimeout(function() {
+                    var list = $('div.k-filebrowser ul.k-tiles');
+                    for (var i = 0; i < assetManager.listView.dataSource.total(); i++) {
+                        var item = list.children('li.k-tile:nth-child(' + (i + 1) + ')');
+                        expect(item).to.be.an.instanceof($).with.property('length', 1);
+                        if (kendo.support.mousedown === 'mousedown') {
+                            // item.simulate('click'); // click does not work because kendo.ui.UserEvents needs mousedown + mouseup to match touch events
+                            // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
+                            item.simulate('mousedown');
+                            item.simulate('mouseup');
+                            expect(assetManager.value()).to.equal(assetManager.listView.dataSource.at(i).id);
+                            expect(change).to.have.been.calledWith(assetManager.value());
+                            expect(viewModel.get('url')).to.equal(assetManager.value());
                         }
-                        done();
-                    }, TTL);
+                    }
+                    done();
+                    // }, 0);
                 });
                 // Make sure we hit the dataBound handler
                 assetManager.listView.refresh();
@@ -505,7 +501,6 @@
             });
 
             afterEach(function () {
-                console.log('afterEach');
                 var fixtures = $(FIXTURES);
                 kendo.destroy(fixtures);
                 fixtures.find('*').off();

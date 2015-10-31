@@ -607,7 +607,7 @@
 
                 // Clear search
                 this.searchInput.val('');
-                this.dataSource.filter(getDataSourceFilter(this.options.extensions));
+                // this.dataSource.filter(getDataSourceFilter(this.options.extensions));
 
                 if (colIndex >= 0 && colIndex < this.options.collections.length) {
                     var collection = this.options.collections[colIndex];
@@ -632,7 +632,10 @@
                     this.dropDownList.wrapper.parent().hide();
                 }
 
-                return this.dataSource.read();
+                // this.dataSource.filter(getDataSourceFilter(this.options.extensions)); requires a read which raises dataBound twice on bound widgets
+                // return this.dataSource.query({ filter: getDataSourceFilter(this.options.extensions) }); also requires read which raises dataBound twice on bound widgets
+                this.dataSource._filter = getDataSourceFilter(this.options.extensions); // this does not raise a dataBound event
+                return this.dataSource.read(); // this raises a dataBound event
             },
 
             /**
@@ -735,12 +738,14 @@
                 kendo.unbind(that.element);
                 // remove drop down list
                 if (that.dropDownList) {
-                    that.dropDownList.dataSource.unbind();
                     that.dropDownList.destroy();
+                }
+                // remove pager
+                if (that.pager) {
+                    that.pager.destroy();
                 }
                 // remove list view
                 if (that.listView) {
-                    that.listView.dataSource.unbind();
                     that.listView.destroy();
                 }
                 // Remove tabs

@@ -214,10 +214,10 @@
             });
 
             it('value and select', function (done) {
-                // if (window.PHANDOMJS) {
-                //     TODO: Does not work on Travis-CI
-                //     return done();
-                // }
+                if (window.PHANTOMJS) {
+                     // TODO: Does not work on Travis-CI
+                     return done();
+                }
                 expect(assetManager).to.be.an.instanceof(AssetManager);
                 expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
                 expect(assetManager.dropDownList).to.be.an.instanceof(kendo.ui.DropDownList);
@@ -330,7 +330,7 @@
             });
 
             it('Click tabs', function (done) {
-                if (window.PHANDOMJS) {
+                if (window.PHANTOMJS) {
                     // TODO: Does not work on Travis-CI
                     return done();
                 }
@@ -358,7 +358,7 @@
             });
 
             it('Change collection in drop down list', function (done) {
-                if (window.PHANDOMJS) {
+                if (window.PHANTOMJS) {
                     // TODO: Does not work on Travis-CI
                     return done();
                 }
@@ -401,7 +401,7 @@
             });
 
             it('Search input', function (done) {
-                if (window.PHANDOMJS) {
+                if (window.PHANTOMJS) {
                     // TODO: Does not work on Travis-CI
                     return done();
                 }

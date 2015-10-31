@@ -733,9 +733,19 @@
                 var that = this;
                 // unbind kendo
                 kendo.unbind(that.element);
-                // remove drop down list popup
+                // remove drop down list
                 if (that.dropDownList) {
+                    that.dropDownList.dataSource.unbind();
                     that.dropDownList.destroy();
+                }
+                // remove list view
+                if (that.listView) {
+                    that.listView.dataSource.unbind();
+                    that.listView.destroy();
+                }
+                // Remove tabs
+                if (that.tabStrip) {
+                    that.tabStrip.destroy();
                 }
                 // unbind all other events
                 $(that.element).find('*').off();

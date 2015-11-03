@@ -1165,6 +1165,10 @@
     describe('Test WorkerPool', function () {
 
         it('large number of tasks', function (done) {
+            if (window.PHANTOMJS) {
+                // PhantomJS does not support web workers
+                return done();
+            }
             var workerPool = new WorkerPool(8);
             var length = 1000;
             for (var i = 0; i < length; i++) {
@@ -1187,12 +1191,20 @@
         });
 
         xit('same with blob', function (done) {
+            if (window.PHANTOMJS) {
+                // PhantomJS does not support web workers
+                return done();
+            }
             // var blob = new Blob(['onmessage = function (e) { postMessage("msg from worker"); }']);
             // var blobURL = window.URL.createObjectURL(blob);
             done();
         });
 
         it('error', function (done) {
+            if (window.PHANTOMJS) {
+                // PhantomJS does not support web workers
+                return done();
+            }
             var workerPool = new WorkerPool(2);
             var length = 5;
             var i = 0;
@@ -1220,6 +1232,10 @@
         });
 
         it('timeout', function (done) {
+            if (window.PHANTOMJS) {
+                // PhantomJS does not support web workers
+                return done();
+            }
             // var blob = new Blob(['onmessage = function (e) { postMessage("msg from worker"); }']);
             // var blobURL = window.URL.createObjectURL(blob);
             var workerPool = new WorkerPool(2, 1);

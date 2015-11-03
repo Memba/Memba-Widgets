@@ -1,4 +1,5 @@
 /* globals self: false */
+
 self.onmessage = function (event) {
     'use strict';
     if (typeof event.data === 'number') {

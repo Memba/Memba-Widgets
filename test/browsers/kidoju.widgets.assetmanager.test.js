@@ -215,8 +215,8 @@
 
             it('value and select', function (done) {
                 if (window.PHANTOMJS) {
-                     // TODO: Does not work on Travis-CI
-                     return done();
+                    // TODO: Does not work on Travis-CI
+                    return done();
                 }
                 expect(assetManager).to.be.an.instanceof(AssetManager);
                 expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);

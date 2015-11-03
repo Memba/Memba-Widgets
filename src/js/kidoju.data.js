@@ -62,7 +62,7 @@
                 // We need a clone to avoid modifications to original data
                 for (var field in that.fields) {
                     if (that.fields.hasOwnProperty(field)) {
-                        if (data && $.isFunction(data.hasOwnProperty) && data.hasOwnProperty(field) && $.type(data[field]) !== UNDEFINED) {
+                        if (data && $.isfunction (data.hasOwnProperty) && data.hasOwnProperty(field) && $.type(data[field]) !== UNDEFINED) {
                             parsed[field] = that._parse(field, data[field]);
                         } else if (that.defaults && that.defaults.hasOwnProperty(field)) {
                             if (that[field] instanceof kendo.data.DataSource) {
@@ -123,7 +123,7 @@
                 // Trigger a change event on the parent observable (possibly a viewModel)
                 // Without it, any UI wodget data bound to the parent is not updated
                 // TODO Review this event thing.......
-                if ($.isFunction(this.parent)) {
+                if ($.isfunction (this.parent)) {
                     var parent = this.parent();
                     if (parent instanceof kendo.data.ObservableObject) {
                         for (var key in parent) {
@@ -273,7 +273,7 @@
                 return this.reader.errors(data);
             },
             parse: function (data) {
-                if ($.isArray(data) && $.isFunction(this.model)) {
+                if ($.isArray(data) && $.isfunction (this.model)) {
                     var defaults = (new this.model()).defaults;
                     for (var i = 0; i < data.length; i++) {
                         // We assume data[i] is an object
@@ -508,9 +508,9 @@
              * @returns {*}
              */
             page: function () {
-                if ($.isFunction(this.parent)) {
+                if ($.isfunction (this.parent)) {
                     var componentCollectionArray = this.parent();
-                    if ($.isFunction(componentCollectionArray.parent)) {
+                    if ($.isfunction (componentCollectionArray.parent)) {
                         return componentCollectionArray.parent();
                     }
                 }
@@ -710,9 +710,9 @@
              * @returns {*}
              */
             stream: function () {
-                if ($.isFunction(this.parent)) {
+                if ($.isfunction (this.parent)) {
                     var pageCollectionArray = this.parent();
-                    if ($.isFunction(pageCollectionArray.parent)) {
+                    if ($.isfunction (pageCollectionArray.parent)) {
                         return pageCollectionArray.parent();
                     }
                 }
@@ -731,6 +731,101 @@
                 }
             }
         });
+
+        /**
+         * WorkerPool
+         * @class WorkerPool
+         * @param concurrency
+         * @param timeOut
+         */
+        var WorkerPool = models.WorkerPool = function (concurrency, timeOut) {
+            // concurrency = concurrency || navigator.hardwareConcurrency || 4;
+            // Array of concurrent working threads
+            var workers = new Array(concurrency);
+            // Queue of tasks
+            var tasks = [];
+            // Array of deferreds
+            var deferreds = [];
+            // State of worker pool
+            var running = false;
+
+            /**
+             * Helper function to chain tasks on a thread
+             * Note: thread is a number between 0 and concurrency - 1 which designates an entry in the workers array
+             * @param thread
+             */
+            function runNextTask(thread) {
+                // console.log('run next task');
+                if (tasks.length > 0) {
+                    var task = tasks.shift();
+                    workers[thread] = new Worker(task.script);
+                    workers[thread].onmessage = function (e) {
+                        workers[thread].terminate();
+                        deferreds[task.id].resolve({ name: task.name, value: e.data });
+                        runNextTask(thread);
+                    };
+                    workers[thread].onerror = function (e) {
+                        workers[thread].terminate();
+                        // e is an ErrorEvent and e.error is null
+                        var error = new Error(e.message || 'Unknown error');
+                        error.taskname = task.name;
+                        error.filename = e.filename;
+                        error.colno = e.colno;
+                        error.lineno = e.lineno;
+                        deferreds[task.id].reject(error);
+                        // No need to run next task because $.when fails on the first failing deferred
+                        // runNextTask(thread);
+                    };
+                    workers[thread].postMessage(task.message);
+                    if ($.type(timeOut) === 'number') {
+                        setTimeout(function () {
+                            if (deferreds[task.id].state() === 'pending') {
+                                workers[thread].terminate();
+                                var error = new Error('The execution of a web worker has timed out');
+                                error.taskname = task.name;
+                                error.filename = task.script;
+                                error.timeout = true;
+                                deferreds[task.id].reject(error);
+                                // No need to run next task because $.when fails on the first failing deferred
+                                // runNextTask(thread);
+                            }
+                        }, timeOut);
+                    }
+                }
+            }
+
+            /***
+             * Add a task to the queue
+             * @param name
+             * @param script
+             * @param message
+             */
+            this.add = function (name, script, message) {
+                if (running) {
+                    throw new Error('Cannot add to running pool');
+                }
+                tasks.push({ name: name, script: script, message: message, id: tasks.length });
+                deferreds.push($.Deferred());
+            };
+
+            /**
+             * Run the work pool
+             * Note: Add all tasks first
+             * @returns {*}
+             */
+            this.run = function () {
+                if (running) {
+                    throw new Error('A worker pool cannot be executed twice');
+                }
+                running = true;
+                // Start each pool
+                for (var poolId = 0; poolId < workers.length; poolId++) {
+                    runNextTask(poolId);
+                }
+                // Return an array of deferreds
+                return $.when.apply($, deferreds);
+            };
+        };
 
         /**
          * @class PageCollectionDataSource
@@ -817,6 +912,7 @@
              * @returns {*}
              */
             validateNamedValue: function (name, code, value, solution, all) {
+
                 var dfd = $.Deferred();
                 if (!window.Worker) {
                     dfd.reject({ filename: undefined, lineno: undefined, message: 'Web workers are not supported' });
@@ -830,29 +926,38 @@
                     dfd.reject({ filename: undefined, lineno: undefined, message: 'Code has not been provided' });
                     return dfd;
                 }
-                // TODO: Add prerequisites (some custom helpers)
-                // Note: we need postMessage(undefined) instead of postMessage() otherwise we get the following error:
-                // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.
-                var blob = new Blob(['onmessage=function (e) {' + code + 'if (typeof(e.data.value)==="undefined") {postMessage(undefined);}else{postMessage(validate(e.data.value,e.data.solution,e.data.all));}self.close();}']);
-                var blobURL = window.URL.createObjectURL(blob);
 
-                logger.debug(blobURL);
-
-                var worker = new Worker(blobURL);
-                worker.onmessage = function (e) {
-                    dfd.resolve({ name: name, result: e.data });
-                };
-                worker.onerror = function (err) {
-                    dfd.reject(err);
-                };
-                worker.postMessage({ value: value, solution: solution, all: all });
-                // terminate long workers (>50ms)
+                //
                 setTimeout(function () {
-                    worker.terminate();
-                    if (dfd.state() === 'pending') {
-                        dfd.reject({ filename: undefined, lineno: undefined, message: 'Timeout error' });
-                    }
-                }, 50);
+                    // TODO: Add prerequisites (some custom helpers)
+                    // Note: we need postMessage(undefined) instead of postMessage() otherwise we get the following error:
+                    // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.
+                    var blob = new Blob(['onmessage=function (e) {' + code + 'if (typeof(e.data.value)==="undefined") {postMessage(undefined);}else{postMessage(validate(e.data.value,e.data.solution,e.data.all));}self.close();}']);
+                    var blobURL = window.URL.createObjectURL(blob);
+                    logger.debug(blobURL);
+                    var worker = new Worker(blobURL);
+                    window.count = $.type(window.count) === NUMBER ? window.count + 1 : 1;
+                    worker.onmessage = function (e) {
+                        window.count--;
+                        // console.log('yep!' + window.count + '*' + window.navigator.hardwareConcurrency);
+                        dfd.resolve({ name: name, result: e.data });
+                    };
+                    worker.onerror = function (err) {
+                        window.count--;
+                        // console.log('oops!' + window.count);
+                        dfd.reject(err);
+                    };
+                    worker.postMessage({ value: value, solution: solution, all: all });
+                    // terminate long workers (> 200ms)
+                    setTimeout(function () {
+                        if (dfd.state() === 'pending') {
+                            worker.terminate();
+                            window.count--;
+                            // console.log('terminated!');
+                            dfd.reject({ filename: undefined, lineno: undefined, message: 'Timeout error' });
+                        }
+                    }, 200);
+                }, 0);
                 return dfd.promise();
             },
 

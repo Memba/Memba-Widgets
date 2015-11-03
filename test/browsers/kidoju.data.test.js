@@ -5,6 +5,9 @@
 
 /* jshint browser: true, jquery: true, mocha: true, expr: true */
 
+/* This function has too many statements. */
+/* jshint -W071 */
+
 ;(function (window, $, undefined) {
 
     'use strict';
@@ -15,6 +18,7 @@
     var kendo = window.kendo;
     var kidoju = window.kidoju;
     var Model = kidoju.data.Model;
+    var WorkerPool = kidoju.data.WorkerPool;
     var PageComponent = kidoju.data.PageComponent;
     var Page = kidoju.data.Page;
     var Stream = kidoju.data.Stream;
@@ -1152,6 +1156,95 @@
                 });
             });
         });
+    });
+
+    /*********************************************************************************************************
+     * WorkerPool
+     *********************************************************************************************************/
+
+    describe('Test WorkerPool', function () {
+
+        it('large number of tasks', function (done) {
+            var workerPool = new WorkerPool(8);
+            var length = 1000;
+            for (var i = 0; i < length; i++) {
+                workerPool.add('name' + i, 'kidoju.data.workertask.js', i);
+            }
+            workerPool.run()
+                .done(function () {
+                    expect(arguments).to.have.property('length', length);
+                    expect(arguments[0]).to.have.property('name', 'name' + 0);
+                    expect(arguments[0]).to.have.property('value', 0);
+                    expect(arguments[1]).to.have.property('name', 'name' + 1);
+                    expect(arguments[1]).to.have.property('value', 1);
+                })
+                .fail(function (err) {
+                    expect(err).to.be.null; // This is not supposed to fail
+                })
+                .always(function () {
+                    done();
+                });
+        });
+
+        xit('same with blob', function (done) {
+            // var blob = new Blob(['onmessage = function (e) { postMessage("msg from worker"); }']);
+            // var blobURL = window.URL.createObjectURL(blob);
+            done();
+        });
+
+        it('error', function (done) {
+            var workerPool = new WorkerPool(2);
+            var length = 5;
+            var i = 0;
+            for (i = 0; i < length; i++) {
+                workerPool.add('name' + i, 'kidoju.data.workertask.js', i);
+            }
+            for (i = length; i < 2 * length; i++) {
+                workerPool.add('name' + i, 'kidoju.data.workertask.js', String(i));
+            }
+            workerPool.run()
+                .done(function () {
+                    expect(arguments).to.be.null; // This is not supposed to succeed
+                })
+                .fail(function (err) {
+                    expect(err).to.be.an.instanceof(window.Error);
+                    expect(err).to.have.property('taskname');
+                    expect(err).to.have.property('filename');
+                    expect(err).to.have.property('colno');
+                    expect(err).to.have.property('lineno');
+                    expect(err.timeout).to.be.undefined;
+                })
+                .always(function () {
+                    done();
+                });
+        });
+
+        it('timeout', function (done) {
+            // var blob = new Blob(['onmessage = function (e) { postMessage("msg from worker"); }']);
+            // var blobURL = window.URL.createObjectURL(blob);
+            var workerPool = new WorkerPool(2, 1);
+            var length = 100;
+            var i = 0;
+            for (i = 0; i < length; i++) {
+                workerPool.add('name' + i, 'kidoju.data.workertask.js', i);
+            }
+            workerPool.run()
+                .done(function () {
+                    expect(arguments).to.be.null; // This is not supposed to succeed
+                })
+                .fail(function (err) {
+                    expect(err).to.be.an.instanceof(window.Error);
+                    expect(err).to.have.property('taskname');
+                    expect(err).to.have.property('filename');
+                    expect(err.colno).to.be.undefined;
+                    expect(err.lineno).to.be.undefined;
+                    expect(err).to.have.property('timeout', true);
+                })
+                .always(function () {
+                    done();
+                });
+        });
+
     });
 
     /*********************************************************************************************************
@@ -2324,5 +2417,6 @@
 
     });
 
-
 }(this, jQuery));
+
+/* jshint +W071 */

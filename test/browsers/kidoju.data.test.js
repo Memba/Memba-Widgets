@@ -1164,11 +1164,12 @@
 
     describe('Test WorkerPool', function () {
 
+        if (window.PHANTOMJS) {
+            // PhantomJS does not support web workers
+            return;
+        }
+
         it('large number of tasks', function (done) {
-            if (window.PHANTOMJS) {
-                // PhantomJS does not support web workers
-                return done();
-            }
             var workerPool = new WorkerPool(8);
             var length = 1000;
             for (var i = 0; i < length; i++) {
@@ -1190,21 +1191,177 @@
                 });
         });
 
-        xit('same with blob', function (done) {
-            if (window.PHANTOMJS) {
-                // PhantomJS does not support web workers
-                return done();
+        it('blacklisted unsafe functions', function(done) {
+            var unsafe = [
+                // deactivated
+                'ActiveXObject',
+                'clearInterval',
+                'clearTimeout',
+                'eval',
+                'fetch',
+                'Function',
+                'importScripts',
+                'indexedDB', 'mozIndexedDB', 'webkitIndexedDB', 'msIndexedDB',
+                'requestFileSystem', 'webkitRequestFileSystem',
+                'setInterval',
+                'setTimeout',
+                'XMLHttpRequest',
+                'webkitRequestFileSystemSync',
+                'webkitResolveLocalFileSystemURL',
+                'webkitResolveLocalFileSystemSyncURL',
+                'Worker',
+
+                // not deactivated (because it should not exist)
+                'localStorage',
+                'openDatabase',
+                'sessionStorage',
+                'SharedWorker'
+            ];
+            var workerPool = new WorkerPool(2, 100);
+            // var blob = new Blob(['onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
+            // All paths except a full URL raise error: Uncaught [object DOMException]
+            // var blob = new Blob(['importScripts("kidoju.data.workerlib.js"); onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
+            // var blob = new Blob(['importScripts("../../src/js/kidoju.data.workerlib.js"); onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
+            // var blob = new Blob(['importScripts("/Kidoju.Widgets/src/js/kidoju.data.workerlib.js"); onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
+            var blob = new Blob(['importScripts("' + location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js"); onmessage = function (e) { var msg; if ((/indexedDB/i).test(e.data)) { msg = (self[e.data] === undefined) || (self[e.data].open === undefined); } else { msg = (self[e.data] === undefined); console.log(e.data + ": " + typeof self[e.data]); } postMessage(msg); close(); };']);
+            var blobURL = window.URL.createObjectURL(blob);
+            var i = 0;
+            for (i = 0; i < unsafe.length; i++) {
+                workerPool.add(unsafe[i], blobURL, unsafe[i]);
             }
-            // var blob = new Blob(['onmessage = function (e) { postMessage("msg from worker"); }']);
-            // var blobURL = window.URL.createObjectURL(blob);
-            done();
+            workerPool.run()
+                .done(function () {
+                    expect(arguments.length).to.equal(unsafe.length);
+                    for (i = 0; i < arguments.length; i++) {
+                        expect(arguments[i]).to.have.property('name', unsafe[i]);
+                        expect(arguments[i]).to.have.property('value', true);
+                    }
+                })
+                .fail(function (err) {
+                    expect(err).to.be.null; // This is not supposed to fail
+                })
+                .always(function () {
+                    done();
+                });
+
         });
 
-        it('error', function (done) {
-            if (window.PHANTOMJS) {
-                // PhantomJS does not support web workers
-                return done();
+        it('soundex', function(done) {
+            var soundex = [
+                { name: 'Soundex', value: 'S532' },
+                { name: 'Example', value: 'E251' },
+                { name: 'Sownteks', value: 'S532' },
+                { name: 'Ekzampul', value: 'E251' },
+                { name: 'Euler', value: 'E460' },
+                { name: 'Gauss', value: 'G200' },
+                { name: 'Hilbert', value: 'H416' },
+                { name: 'Knuth', value: 'K530' },
+                { name: 'Lloyd', value: 'L300' },
+                { name: 'Lukasiewicz', value: 'L222' },
+                { name: 'Ellery', value: 'E460' },
+                { name: 'Ghosh', value: 'G200' },
+                { name: 'Heilbronn', value: 'H416' },
+                { name: 'Kant', value: 'K530' },
+                { name: 'Ladd', value: 'L300' },
+                { name: 'Lissajous', value: 'L222' },
+                { name: 'Wheaton', value: 'W350' },
+                { name: 'Ashcraft', value: 'A226' },
+                { name: 'Burroughs', value: 'B622' },
+                { name: 'Burrows', value: 'B620' },
+                { name: 'O\'Hara', value: 'O600' }
+            ];
+            var workerPool = new WorkerPool(2, 100);
+            var blob = new Blob(['importScripts("' + location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js"); onmessage = function (e) { postMessage(soundex(e.data)); close(); };']);
+            var blobURL = window.URL.createObjectURL(blob);
+            var i = 0;
+            for (i = 0; i < soundex.length; i++) {
+                workerPool.add(soundex[i].name, blobURL, soundex[i].name);
             }
+            workerPool.run()
+                .done(function () {
+                    debugger;
+                    expect(arguments.length).to.equal(soundex.length);
+                    for (i = 0; i < arguments.length; i++) {
+                        expect(arguments[i]).to.have.property('name', soundex[i].name);
+                        expect(arguments[i]).to.have.property('value', soundex[i].value);
+                    }
+                })
+                .fail(function (err) {
+                    expect(err).to.be.null; // This is not supposed to fail
+                })
+                .always(function () {
+                    done();
+                });
+
+        });
+
+        it('metaphone', function(done) {
+            var metaphone = [
+                { name: 'Gnu', value: 'N' },
+                { name: 'bigger', value: 'BKR' },
+                { name: 'accuracy', value: 'AKKRS' },
+                { name: 'batch batcher', value: 'BXBXR' }
+                // TODO we need more...
+            ];
+            var workerPool = new WorkerPool(2, 100);
+            var blob = new Blob(['importScripts("' + location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js"); onmessage = function (e) { postMessage(metaphone(e.data)); close(); };']);
+            var blobURL = window.URL.createObjectURL(blob);
+            var i = 0;
+            for (i = 0; i < metaphone.length; i++) {
+                workerPool.add(metaphone[i].name, blobURL, metaphone[i].name);
+            }
+            workerPool.run()
+                .done(function () {
+                    expect(arguments.length).to.equal(metaphone.length);
+                    for (i = 0; i < arguments.length; i++) {
+                        expect(arguments[i]).to.have.property('name', metaphone[i].name);
+                        expect(arguments[i]).to.have.property('value', metaphone[i].value);
+                    }
+                })
+                .fail(function (err) {
+                    expect(err).to.be.null; // This is not supposed to fail
+                })
+                .always(function () {
+                    done();
+                });
+
+        });
+
+        it('removeDiacritics', function(done) {
+            var diacritics = [
+                { name: 'La leçon est terminée', value: 'La lecon est terminee' },
+                { name: 'Cómo está usted', value: 'Como esta usted' },
+                { name: 'można zapoznać się', value: 'mozna zapoznac sie' },
+                { name: 'Z przyjemnością prezentuje Państwu', value: 'Z przyjemnoscia prezentuje Panstwu' },
+                // TODO we need more...
+            ];
+            var workerPool = new WorkerPool(2, 100);
+            var blob = new Blob(['importScripts("' + location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js"); onmessage = function (e) { postMessage(removeDiacritics(e.data)); close(); };']);
+            var blobURL = window.URL.createObjectURL(blob);
+            var i = 0;
+            for (i = 0; i < diacritics.length; i++) {
+                workerPool.add(diacritics[i].name, blobURL, diacritics[i].name);
+            }
+            workerPool.run()
+                .done(function () {
+                    expect(arguments.length).to.equal(diacritics.length);
+                    for (i = 0; i < arguments.length; i++) {
+                        expect(arguments[i]).to.have.property('name', diacritics[i].name);
+                        expect(arguments[i]).to.have.property('value', diacritics[i].value);
+                    }
+                })
+                .fail(function (err) {
+                    expect(err).to.be.null; // This is not supposed to fail
+                })
+                .always(function () {
+                    done();
+                });
+
+        });
+
+        // Note: we need error and timeout at the end otherwise FF fails, especially when executed before `blacklisted unsafe functions`
+
+        it('error', function (done) {
             var workerPool = new WorkerPool(2);
             var length = 5;
             var i = 0;
@@ -1232,10 +1389,6 @@
         });
 
         it('timeout', function (done) {
-            if (window.PHANTOMJS) {
-                // PhantomJS does not support web workers
-                return done();
-            }
             // var blob = new Blob(['onmessage = function (e) { postMessage("msg from worker"); }']);
             // var blobURL = window.URL.createObjectURL(blob);
             var workerPool = new WorkerPool(2, 1);

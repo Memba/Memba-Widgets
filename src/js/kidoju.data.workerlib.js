@@ -46,20 +46,96 @@
      *
      */
 
+    // List global properties
+    /*
+    for(var prop in global) {
+        global.console.log(prop);
+    }
+    for(var prop in global.indexedDB) {
+        global.console.log('indexedDB.' + prop);
+    }
+    */
+
     // Blacklist unsafe functions
     // Alternatively, use a white list as in http://stackoverflow.com/questions/10653809/making-webworkers-a-safe-environment
-    global.ActiveXObject = undefined;
+    if (global.hasOwnProperty('ActiveXObject')) {
+        // true in IE where typeof global.ActiveXObject === 'undefined'
+        global.ActiveXObject = undefined;
+    }
     global.clearInterval = undefined;
     global.clearTimeout = undefined;
     global.eval = undefined;
-    global.importScripts = undefined;
+    if (global.fetch) {
+        // true in Chrome & FF
+        global.fetch = undefined;
+    }
     global.Function = undefined;
+    global.importScripts = undefined;
+    if (global.indexedDB) {
+        try {
+            global.indexedDB = undefined; // This fails in latest versions of chrome and FF because there is no setter
+        } catch (ex) {
+            global.indexedDB.open = undefined;
+            global.indexedDB.deleteDatabase = undefined;
+            global.indexedDB.cmp = undefined;
+            global.indexedDB.webkitGetDatabaseNames = undefined;
+        }
+    }
+    if (global.mozIndexedDB) {
+        try {
+            global.mozIndexedDB = undefined;
+        } catch (ex) {
+            global.mozIndexedDB.open = undefined;
+            global.mozIndexedDB.deleteDatabase = undefined;
+            global.mozIndexedDB.cmp = undefined;
+        }
+    }
+    if (global.msIndexedDB) {
+        try {
+            global.msIndexedDB = undefined;
+        } catch (ex) {
+            global.msIndexedDB.open = undefined;
+            global.msIndexedDB.deleteDatabase = undefined;
+            global.msIndexedDB.cmp = undefined;
+        }
+    }
+    if (global.requestFileSystem) {
+        // true in chrome
+        global.requestFileSystem = undefined;
+    }
     global.setInterval = undefined;
     global.setTimeout = undefined;
     global.XMLHttpRequest = undefined;
-    global.Worker = undefined;
-
-    // TODO: indexedDB, localStorage, seesionStorage
+    if (global.webkitIndexedDB) {
+        try {
+            global.webkitIndexedDB = undefined;
+        } catch (ex) {
+            global.webkitIndexedDB.open = undefined;
+            global.webkitIndexedDB.deleteDatabase = undefined;
+            global.webkitIndexedDB.cmp = undefined;
+            global.webkitIndexedDB.webkitGetDatabaseNames = undefined;
+        }
+    }
+    if (global.webkitRequestFileSystem) {
+        // true in chrome
+        global.webkitRequestFileSystem = undefined;
+    }
+    if (global.webkitRequestFileSystemSync) {
+        // true in chrome
+        global.webkitRequestFileSystemSync = undefined;
+    }
+    if (global.webkitResolveLocalFileSystemURL) {
+        // true in chrome
+        global.webkitResolveLocalFileSystemURL = undefined;
+    }
+    if (global.webkitResolveLocalFileSystemSyncURL) {
+        // true in chrome
+        global.webkitResolveLocalFileSystemSyncURL = undefined;
+    }
+    if (global.Worker) {
+        // true in IE
+        global.Worker = undefined;
+    }
 
     /**
      * Soundex function

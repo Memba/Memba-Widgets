@@ -62,7 +62,7 @@
                 // We need a clone to avoid modifications to original data
                 for (var field in that.fields) {
                     if (that.fields.hasOwnProperty(field)) {
-                        if (data && $.isfunction (data.hasOwnProperty) && data.hasOwnProperty(field) && $.type(data[field]) !== UNDEFINED) {
+                        if (data && $.isFunction(data.hasOwnProperty) && data.hasOwnProperty(field) && $.type(data[field]) !== UNDEFINED) {
                             parsed[field] = that._parse(field, data[field]);
                         } else if (that.defaults && that.defaults.hasOwnProperty(field)) {
                             if (that[field] instanceof kendo.data.DataSource) {
@@ -123,7 +123,7 @@
                 // Trigger a change event on the parent observable (possibly a viewModel)
                 // Without it, any UI wodget data bound to the parent is not updated
                 // TODO Review this event thing.......
-                if ($.isfunction (this.parent)) {
+                if ($.isFunction(this.parent)) {
                     var parent = this.parent();
                     if (parent instanceof kendo.data.ObservableObject) {
                         for (var key in parent) {
@@ -273,7 +273,7 @@
                 return this.reader.errors(data);
             },
             parse: function (data) {
-                if ($.isArray(data) && $.isfunction (this.model)) {
+                if ($.isArray(data) && $.isFunction(this.model)) {
                     var defaults = (new this.model()).defaults;
                     for (var i = 0; i < data.length; i++) {
                         // We assume data[i] is an object
@@ -508,9 +508,9 @@
              * @returns {*}
              */
             page: function () {
-                if ($.isfunction (this.parent)) {
+                if ($.isFunction(this.parent)) {
                     var componentCollectionArray = this.parent();
-                    if ($.isfunction (componentCollectionArray.parent)) {
+                    if ($.isFunction(componentCollectionArray.parent)) {
                         return componentCollectionArray.parent();
                     }
                 }
@@ -710,9 +710,9 @@
              * @returns {*}
              */
             stream: function () {
-                if ($.isfunction (this.parent)) {
+                if ($.isFunction(this.parent)) {
                     var pageCollectionArray = this.parent();
-                    if ($.isfunction (pageCollectionArray.parent)) {
+                    if ($.isFunction(pageCollectionArray.parent)) {
                         return pageCollectionArray.parent();
                     }
                 }

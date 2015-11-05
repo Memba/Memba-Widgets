@@ -5,46 +5,41 @@
 
 /* jshint browser: true, jquery: false */
 
-
 /**
  * Note: this is not using the AMD pattern because it is loaded in a web worker without dependencies
+ *
+ * Possible algorithms to consider
+ * @see http://yomguithereal.github.io/clj-fuzzy/
+ * ======================================
+ *
+ * Distance metrics for strings and other sequences.
+ * - Sorensen / Dice coefficient
+ * - Levenshtein distance
+ * - Hamming distance
+ * - Jaccard / Tanimoto distance
+ * - Jaro-Winkler distance
+ * - MRA comparison
+ * - Tversky index
+ *
+ * Stemmers trying to extract a radical from given words.
+ * - Lancaster stemmer (en)
+ * - Lovins stemmer (en)
+ * - Porter stemmer (en)
+ * - Schinke stemmer (latin)
+ *
+ * Phonetic algorithms whose goal is to return an approximative phonetic representation of the given string.
+ * - Metaphone
+ * - Double Metaphone
+ * - Soundex
+ * - NYSIIS (original & refined)
+ * - Caverphone (original & revisited)
+ * - Cologne Phonetic
+ * - MRA codex
  */
-
 
 (function (global, undefined) {
 
     'use strict';
-
-    /**
-     * Possible algorithms to consider
-     * @see http://yomguithereal.github.io/clj-fuzzy/
-     * ======================================
-     *
-     * Distance metrics for strings and other sequences.
-     * - Sorensen / Dice coefficient
-     * - Levenshtein distance
-     * - Hamming distance
-     * - Jaccard / Tanimoto distance
-     * - Jaro-Winkler distance
-     * - MRA comparison
-     * - Tversky index
-     *
-     * Stemmers trying to extract a radical from given words.
-     * - Lancaster stemmer (en)
-     * - Lovins stemmer (en)
-     * - Porter stemmer (en)
-     * - Schinke stemmer (latin)
-     *
-     * Phonetic algorithms whose goal is to return an approximative phonetic representation of the given string.
-     * - Metaphone
-     * - Double Metaphone
-     * - Soundex
-     * - NYSIIS (original & refined)
-     * - Caverphone (original & revisited)
-     * - Cologne Phonetic
-     * - MRA codex
-     *
-     */
 
     // List global properties
     /*
@@ -56,8 +51,10 @@
     }
     */
 
-    // Blacklist unsafe functions
-    // Alternatively, use a white list as in http://stackoverflow.com/questions/10653809/making-webworkers-a-safe-environment
+    /**
+     * Blacklist unsafe functions
+     * Alternatively, use a white list as in http://stackoverflow.com/questions/10653809/making-webworkers-a-safe-environment
+     */
     if (global.hasOwnProperty('ActiveXObject')) {
         // true in IE where typeof global.ActiveXObject === 'undefined'
         global.ActiveXObject = undefined;
@@ -497,6 +494,4 @@
         return word;
     };
 
-// WorkerGlobalScope
-// @see https://msdn.microsoft.com/en-us/library/windows/apps/hh453270.aspx
-}(this));
+}(this)); // this is WorkerGlobalScope

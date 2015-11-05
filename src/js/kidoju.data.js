@@ -903,65 +903,6 @@
             },
 
             /**
-             * Validate a named value
-             * @param name
-             * @param code
-             * @param value
-             * @param solution
-             * @param all
-             * @returns {*}
-             */
-            validateNamedValue: function (name, code, value, solution, all) {
-
-                var dfd = $.Deferred();
-                if (!window.Worker) {
-                    dfd.reject({ filename: undefined, lineno: undefined, message: 'Web workers are not supported' });
-                    return dfd;
-                }
-                if ($.type(name) !== STRING || !RX_VALID_NAME.test(name)) {
-                    dfd.reject({ filename: undefined, lineno: undefined, message: 'A valid name has not been provided' });
-                    return dfd;
-                }
-                if ($.type(code) !== STRING) { // TODO review
-                    dfd.reject({ filename: undefined, lineno: undefined, message: 'Code has not been provided' });
-                    return dfd;
-                }
-
-                //
-                setTimeout(function () {
-                    // TODO: Add prerequisites (some custom helpers)
-                    // Note: we need postMessage(undefined) instead of postMessage() otherwise we get the following error:
-                    // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.
-                    var blob = new Blob(['onmessage=function (e) {' + code + 'if (typeof(e.data.value)==="undefined") {postMessage(undefined);}else{postMessage(validate(e.data.value,e.data.solution,e.data.all));}self.close();}']);
-                    var blobURL = window.URL.createObjectURL(blob);
-                    logger.debug(blobURL);
-                    var worker = new Worker(blobURL);
-                    window.count = $.type(window.count) === NUMBER ? window.count + 1 : 1;
-                    worker.onmessage = function (e) {
-                        window.count--;
-                        // console.log('yep!' + window.count + '*' + window.navigator.hardwareConcurrency);
-                        dfd.resolve({ name: name, result: e.data });
-                    };
-                    worker.onerror = function (err) {
-                        window.count--;
-                        // console.log('oops!' + window.count);
-                        dfd.reject(err);
-                    };
-                    worker.postMessage({ value: value, solution: solution, all: all });
-                    // terminate long workers (> 200ms)
-                    setTimeout(function () {
-                        if (dfd.state() === 'pending') {
-                            worker.terminate();
-                            window.count--;
-                            // console.log('terminated!');
-                            dfd.reject({ filename: undefined, lineno: undefined, message: 'Timeout error' });
-                        }
-                    }, 200);
-                }, 0);
-                return dfd.promise();
-            },
-
-            /**
              * Validate user test data
              * IMPORTANT: Make sure all pages are loaded first
              * @method getTestFromProperties
@@ -969,12 +910,12 @@
              */
             validateTestFromProperties: function (test) {
 
-                // Note: the model being created on the fly, we only have an ObservableObject
+                // Note: the model being created on the fly (no kendo.data.Model)), we only have an ObservableObject to test
                 assert.instanceof(kendo.data.ObservableObject, test, kendo.format(assert.messages.instanceof.default, 'test', 'kendo.data.ObservableObject'));
 
                 var that = this;
                 var deferred = $.Deferred();
-                var promises = [];
+                var workerPool = new WorkerPool(navigator.hardwareConcurrency || 4, 200); // TODO timeout
                 var result = {
                         score: 0,
                         max: 0,
@@ -1032,14 +973,27 @@
                                 assert.ok($.isArray(found) && found.length, 'properties.validation cannot be found in code library');
                             }
 
-                            promises.push(that.validateNamedValue(
-                                properties.name,       // name
-                                $.isArray(found) ? found[0].formula : properties.validation,  // code
-                                all[properties.name],  // value
-                                properties.solution,   // solution
-                                all                    // all (hash object of values - that is test with null values turned into undefined)
-                            ));
+                            var code = $.isArray(found) ? found[0].formula : properties.validation;
+                            // Note: when value is undefined, we need to return postMessage(undefined) instead of postMessage() otherwise we get the following error:
+                            // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.
+                            var blob = new Blob([
+                                // TODO: importScripts
+                                'self.onmessage = function (e) {\n' + code + '\nif (typeof e.data.value === "undefined") { self.postMessage(undefined); } else { postMessage(validate(e.data.value, e.data.solution, e.data.all)); } self.close(); };'
+                            ]);
+                            var blobURL = window.URL.createObjectURL(blob);
 
+                            // Queue task into worker pool with name, script, and value to be posted to script
+                            workerPool.add(
+                                properties.name,
+                                blobURL,
+                                {
+                                    value: all[properties.name],
+                                    solution: properties.solution,
+                                    all: all // all properties
+                                }
+                            );
+
+                            // Update result
                             result[properties.name] = {
                                 page: pageIdx,
                                 name: properties.name,
@@ -1051,15 +1005,17 @@
                                 failure: properties.failure,
                                 success: properties.success
                             };
+
+                            logger.debug({ message: properties.name + ' added to the worker pool', data: blobURL });
                         }
                     });
                 });
 
-                $.when.apply($, promises)
+                workerPool.run()
                     .done(function () {
                         $.each(arguments, function (index, argument) {
-                            result[argument.name].result = argument.result;
-                            switch (argument.result) {
+                            result[argument.name].result = argument.value;
+                            switch (argument.value) {
                                 case true:
                                     if (result[argument.name] && $.type(result[argument.name].success) === NUMBER) {
                                         result[argument.name].score = result[argument.name].success;

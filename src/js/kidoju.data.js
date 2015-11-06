@@ -34,9 +34,11 @@
         // var ERROR = 'error';
         var ZERO_NUMBER = 0;
         var NEGATIVE_NUMBER = -1;
-        var RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i;
+        // var RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i; // TODO instead of val_
         var location = window.location;
         var workerLibPath = location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js'; // TODO move to config files including minification
+        // var workerLibPath = location.protocol + '//' + location.host + '/src/js/kidoju.data.workerlib.js'; // for WEINRE
+        var workerTimeout = 250; // TODO: move to config
 
 
         /*********************************************************************************
@@ -609,12 +611,6 @@
                     nullable: true,
                     editable:false
                 },
-                instructions: {
-                    type: STRING
-                },
-                style: {
-                    type: STRING
-                },
                 components: {
                     // We cannot assign a data source as default value of a model
                     // because otherwise it might be reused amongst instances.
@@ -631,6 +627,15 @@
                             return new PageComponentCollectionDataSource(value);
                         }
                     }
+                },
+                explanations: { // displayed in review mode
+                    type: STRING
+                },
+                instructions: { // displayed in explanation mode
+                    type: STRING
+                },
+                style: {
+                    type: STRING
                 }
             },
 
@@ -775,6 +780,7 @@
                         error.colno = e.colno;
                         error.lineno = e.lineno;
                         deferreds[task.id].reject(error);
+                        logger.crit(error);
                         // No need to run next task because $.when fails on the first failing deferred
                         // runNextTask(thread);
                     };
@@ -788,6 +794,7 @@
                                 error.filename = task.script;
                                 error.timeout = true;
                                 deferreds[task.id].reject(error);
+                                logger.crit(error);
                                 // No need to run next task because $.when fails on the first failing deferred
                                 // runNextTask(thread);
                             }
@@ -917,7 +924,7 @@
 
                 var that = this;
                 var deferred = $.Deferred();
-                var workerPool = new WorkerPool(navigator.hardwareConcurrency || 4, 200); // TODO timeout
+                var workerPool = new WorkerPool(window.navigator.hardwareConcurrency || 4, workerTimeout);
                 var result = {
                         score: 0,
                         max: 0,

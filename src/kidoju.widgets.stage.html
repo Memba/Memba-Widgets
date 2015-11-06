@@ -159,7 +159,7 @@
 
             $('#toolbox').kendoToolBox();
 
-            $('input[name=mode]').on('change', function(e) {
+            $('input[type="radio"][name="mode"]').on('change', function(e) {
                 switch(e.currentTarget.value) {
                     case "design":
                         stage.mode(kendo.ui.Stage.fn.modes.design);
@@ -167,8 +167,19 @@
                     case "play":
                         stage.mode(kendo.ui.Stage.fn.modes.play);
                         break;
-                    case "thumbnail":
-                        stage.mode(kendo.ui.Stage.fn.modes.thumbnail);
+                    case "review":
+                        stage.mode(kendo.ui.Stage.fn.modes.review);
+                        break;
+                }
+            });
+
+            $('input[type="checkbox"]').on('change', function(e) {
+                switch(e.currentTarget.id) {
+                    case "enabled":
+                        stage.enable(e.currentTarget.checked);
+                        break;
+                    case "readonly":
+                        stage.readonly(e.currentTarget.checked);
                         break;
                 }
             });

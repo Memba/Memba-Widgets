@@ -391,9 +391,6 @@
                 this.attributes = $.extend({}, this.attributes, { type: 'text', class: 'k-textbox' });
             },
             library: [
-                // TODO: provide a Soundex and doubleMetaphone function to web worker
-                // See https://github.com/hgoebl/doublemetaphone
-                // See https://github.com/NaturalNode/natural
                 {
                     name: 'equal',
                     formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
@@ -404,11 +401,23 @@
                 },
                 {
                     name: 'ignoreCaseMatch',
-                    formula: kendo.format(FORMULA, 'return (new RegExp(\'^\' + String(solution) + \'$\', \'i\')).test(String(value));')
+                    formula: kendo.format(FORMULA, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\', \'i\')).test(String(value).trim());')
+                },
+                {
+                    name: 'ignoreDiacriticsEqual',
+                    formula: kendo.format(FORMULA, 'return removeDiacritics(String(value).trim().toUpperCase()) === removeDiacritics(String(solution).trim().toUpperCase());')
                 },
                 {
                     name: 'match',
-                    formula: kendo.format(FORMULA, 'return (new RegExp(\'^\' + String(solution) + \'$\')).test(String(value));')
+                    formula: kendo.format(FORMULA, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\')).test(String(value).trim());')
+                },
+                {
+                    name: 'metaphone',
+                    formula: kendo.format(FORMULA, 'return metaphone(removeDiacritics(String(value).trim().toUpperCase())) === metaphone(removeDiacritics(String(solution).trim().toUpperCase()));')
+                },
+                {
+                    name: 'soundex',
+                    formula: kendo.format(FORMULA, 'return soundex(removeDiacritics(String(value).trim().toUpperCase())) === soundex(removeDiacritics(String(solution).trim().toUpperCase()));')
                 }
             ],
             libraryDefault: 'equal'

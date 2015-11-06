@@ -16,6 +16,7 @@
     (function ($, undefined) {
 
         var STRING = 'string';
+        var app = window.app;
 
         /**
          * Log class
@@ -33,26 +34,38 @@
              */
             this._print = function (message, level) {
 
-                message = $.type(message) === STRING ? { message: message } : message;
-                level = (/^(debug|info|warn|error|crit)$/i).test(level) ? level.toLowerCase() : 'info';
-
-                var app = window.app;
-                var logEntry = $.extend({}, message, { module: this._module });
+                var error;
+                var logEntry;
+                if ($.type(message) === STRING) {
+                    logEntry = { message: message };
+                } else if (message instanceof Error) {
+                    error = message;
+                    logEntry = {
+                        message: error.message,
+                        data: $.extend({}, error)
+                    }
+                } else {
+                    logEntry = $.extend({}, message);
+                }
+                logEntry.level = (/^(debug|info|warn|error|crit)$/i).test(level) ? level.toUpperCase() : 'INFO';
+                logEntry.module = this._module;
 
                 // If we have an app.logger, delegate to app logger
                 if (app && app.logger) {
-                    // TODO ------------------------------------------------------------------------------------
-                    $.noop();
-
+                    $.noop(); // TODO <----------------------------------------------------------------
                 // Otherwise use plain old window.console.log
                 } else if (window.console && $.isFunction(window.console.log)) {
                     window.console.log(
+                        '[' + logEntry.level + '] ' + (logEntry.level.length === 4 ? ' ' : '') +
                         logEntry.module + ': ' +
                         logEntry.message +
-                        (logEntry.data ? ' - ' + JSON.stringify(logEntry.data) : ''));
+                        (logEntry.data ? ' - ' + JSON.stringify(logEntry.data) : '')
+                    );
+                    if (error instanceof Error && $.isFunction(window.console.error)) {
+                        window.console.error(error);
+                    }
                 }
             };
-
         };
 
         /**

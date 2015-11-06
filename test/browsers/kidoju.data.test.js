@@ -1191,7 +1191,7 @@
                 });
         });
 
-        it('blacklisted unsafe functions', function(done) {
+        it('blacklisted unsafe functions', function (done) {
             var unsafe = [
                 // deactivated
                 'ActiveXObject',
@@ -1246,7 +1246,7 @@
 
         });
 
-        it('soundex', function(done) {
+        it('soundex', function (done) {
             var soundex = [
                 { name: 'Soundex', value: 'S532' },
                 { name: 'Example', value: 'E251' },
@@ -1279,7 +1279,6 @@
             }
             workerPool.run()
                 .done(function () {
-                    debugger;
                     expect(arguments.length).to.equal(soundex.length);
                     for (i = 0; i < arguments.length; i++) {
                         expect(arguments[i]).to.have.property('name', soundex[i].name);
@@ -1295,7 +1294,7 @@
 
         });
 
-        it('metaphone', function(done) {
+        it('metaphone', function (done) {
             var metaphone = [
                 { name: 'Gnu', value: 'N' },
                 { name: 'bigger', value: 'BKR' },
@@ -1327,12 +1326,12 @@
 
         });
 
-        it('removeDiacritics', function(done) {
+        it('removeDiacritics', function (done) {
             var diacritics = [
                 { name: 'La leçon est terminée', value: 'La lecon est terminee' },
                 { name: 'Cómo está usted', value: 'Como esta usted' },
                 { name: 'można zapoznać się', value: 'mozna zapoznac sie' },
-                { name: 'Z przyjemnością prezentuje Państwu', value: 'Z przyjemnoscia prezentuje Panstwu' },
+                { name: 'Z przyjemnością prezentuje Państwu', value: 'Z przyjemnoscia prezentuje Panstwu' }
                 // TODO we need more...
             ];
             var workerPool = new WorkerPool(2, 100);

@@ -26,6 +26,9 @@
 
             this._module = module;
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Generic print function
              * @param message
@@ -33,7 +36,6 @@
              * @private
              */
             this._print = function (message, level) {
-
                 var error;
                 var logEntry;
                 if ($.type(message) === STRING) {
@@ -43,7 +45,7 @@
                     logEntry = {
                         message: error.message,
                         data: $.extend({}, error)
-                    }
+                    };
                 } else {
                     logEntry = $.extend({}, message);
                 }
@@ -66,6 +68,9 @@
                     }
                 }
             };
+
+            /* jshint +W074 */
+
         };
 
         /**

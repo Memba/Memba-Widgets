@@ -18,6 +18,9 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -1207,6 +1210,8 @@
 
 
     }(window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kidoju;
 

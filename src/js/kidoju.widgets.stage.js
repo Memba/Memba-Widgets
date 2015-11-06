@@ -966,7 +966,7 @@
                             tool: tool.id,
                             // e.offsetX and e.offsetY do not work in Firefox
                             left: mouse.x / scale,
-                            top: mouse.y /scale,
+                            top: mouse.y / scale,
                             width: tool.width,
                             height: tool.height
                             // rotate: tool.rotate?

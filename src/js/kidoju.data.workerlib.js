@@ -37,6 +37,12 @@
  * - MRA codex
  */
 
+/* This function has too many statements. */
+/* jshint -W071 */
+
+/* This function's cyclomatic complexity is too high. */
+/* jshint -W074 */
+
 (function (global, undefined) {
 
     'use strict';
@@ -180,9 +186,9 @@
      * @see https://en.wikipedia.org/wiki/Metaphone
      * @see http://phpjs.org/functions/metaphone/
      * @param word
-     * @param max_phonemes
+     * @param maxPhonemes
      */
-    global.metaphone = function (word, max_phonemes) {
+    global.metaphone = function (word, maxPhonemes) {
         var type = typeof word;
 
         if (type === 'undefined' || type === 'object' && word !== null) {
@@ -199,19 +205,19 @@
             }
         }
 
-        if (max_phonemes < 0) {
+        if (maxPhonemes < 0) {
             return false;
         }
 
-        max_phonemes = Math.floor(+max_phonemes) || 0;
+        maxPhonemes = Math.floor(+maxPhonemes) || 0;
 
         // alpha depends on locale, so this var might need an update
         // or should be turned into a regex
         // for now assuming pure a-z
-        var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-            vowel = 'AEIOU',
-            soft = 'EIY',
-            leadingNonAlpha = new RegExp('^[^' + alpha + ']+');
+        var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var vowel = 'AEIOU';
+        var soft = 'EIY';
+        var leadingNonAlpha = new RegExp('^[^' + alpha + ']+');
 
         word = typeof word === 'string' ? word : '';
         word = word.toUpperCase()
@@ -221,20 +227,20 @@
             return '';
         }
 
-        var is = function(p, c) {
+        var is = function (p, c) {
             return c !== '' && p.indexOf(c) !== -1;
         };
 
-        var i = 0,
-            cc = word.charAt(0), // current char. Short name, because it's used all over the function
-            nc = word.charAt(1), // next char
-            nnc, // after next char
-            pc, // previous char
-            l = word.length,
-            meta = '',
+        var i = 0;
+        var cc = word.charAt(0); // current char. Short name, because it's used all over the function
+        var nc = word.charAt(1); // next char
+        var nnc; // after next char
+        var pc; // previous char
+        var l = word.length;
+        var meta = '';
         // traditional is an internal param that could be exposed
         // for now let it be a local var
-            traditional = true;
+        var traditional = true;
 
         switch (cc) {
             case 'A':
@@ -271,7 +277,7 @@
                 break;
         }
 
-        for (; i < l && (max_phonemes === 0 || meta.length < max_phonemes); i += 1) {
+        for (; i < l && (maxPhonemes === 0 || meta.length < maxPhonemes); i += 1) {
             cc = word.charAt(i);
             nc = word.charAt(i + 1);
             pc = word.charAt(i - 1);
@@ -399,7 +405,7 @@
      * @param word
      * @returns {*}
      */
-     global.removeDiacritics = function(word) {
+    global.removeDiacritics = function (word) {
         var diacriticsMap = {
             A: /[\u0041\u24B6\uFF21\u00C0\u00C1\u00C2\u1EA6\u1EA4\u1EAA\u1EA8\u00C3\u0100\u0102\u1EB0\u1EAE\u1EB4\u1EB2\u0226\u01E0\u00C4\u01DE\u1EA2\u00C5\u01FA\u01CD\u0200\u0202\u1EA0\u1EAC\u1EB6\u1E00\u0104\u023A\u2C6F]/g,
             AA: /[\uA732]/g,
@@ -495,3 +501,6 @@
     };
 
 }(this)); // this is WorkerGlobalScope
+
+/* jshint +W074 */
+/* jshint +W071 */

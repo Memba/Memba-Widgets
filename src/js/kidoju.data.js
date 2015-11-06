@@ -35,6 +35,8 @@
         var ZERO_NUMBER = 0;
         var NEGATIVE_NUMBER = -1;
         var RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i;
+        var location = window.location;
+        var workerLibPath = location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js'; // TODO move to config files including minification
 
 
         /*********************************************************************************
@@ -950,19 +952,24 @@
                     }
                 }
 
+                // Add tasks to the worker pool
+                // Iterate through pages
                 $.each(that.data(), function (pageIdx, page) {
+                    // Iterate through page components
                     $.each(page.components.data(), function (componentIdx, component) {
 
+                        // List component properties
                         var properties = component.properties;
-                        var found;
-
                         assert.instanceof(kendo.data.Model, properties, kendo.format(assert.messages.instanceof.default, 'properties', 'kendo.data.Model'));
                         assert.type(OBJECT, properties.fields, kendo.format(assert.messages.type.default, 'properties.fields', OBJECT));
 
+                        // If our component has a name property to record the result of a test interaction
                         // Note: some components like textboxes have properties, others likes labels and images don't
                         // assert.type(STRING, properties.name, kendo.format(assert.messages.type.default, 'properties.name', STRING));
                         if ($.type(properties.name) === STRING) {
 
+
+                            var found;
                             var libraryMatches = properties.validation.match(/^\/\/ ([^\n]+)$/);
                             // var customMatches = value.match(/^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/);
                             if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
@@ -972,13 +979,13 @@
                                 });
                                 assert.ok($.isArray(found) && found.length, 'properties.validation cannot be found in code library');
                             }
-
                             var code = $.isArray(found) ? found[0].formula : properties.validation;
-                            // Note: when value is undefined, we need to return postMessage(undefined) instead of postMessage() otherwise we get the following error:
+
+                            // Note: when e.data.value is undefined, we need to specifically call postMessage(undefined) instead of postMessage() otherwise we get the following error:
                             // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.
                             var blob = new Blob([
-                                // TODO: importScripts
-                                'self.onmessage = function (e) {\n' + code + '\nif (typeof e.data.value === "undefined") { self.postMessage(undefined); } else { postMessage(validate(e.data.value, e.data.solution, e.data.all)); } self.close(); };'
+                                'self.importScripts("' + workerLibPath + '");\n' +
+                                'self.onmessage = function (e) {\n' + code + '\nif (typeof e.data.value === "undefined") { self.postMessage(undefined); } else { self.postMessage(validate(e.data.value, e.data.solution, e.data.all)); } self.close(); };'
                             ]);
                             var blobURL = window.URL.createObjectURL(blob);
 
@@ -1011,39 +1018,44 @@
                     });
                 });
 
+                // Run the worker pool
                 workerPool.run()
                     .done(function () {
+                        // iterate through recorded answer validations (arguments)
+                        // for each named value
                         $.each(arguments, function (index, argument) {
+                            // store the result which is success, failure or omitted (undefined)
                             result[argument.name].result = argument.value;
+                            // store the score depending on the result
                             switch (argument.value) {
-                                case true:
+                                case true: // success
                                     if (result[argument.name] && $.type(result[argument.name].success) === NUMBER) {
                                         result[argument.name].score = result[argument.name].success;
                                     }
                                     break;
-                                case false:
+                                case false: // failure
                                     if (result[argument.name] && $.type(result[argument.name].failure) === NUMBER) {
                                         result[argument.name].score = result[argument.name].failure;
                                     }
                                     break;
-                                default:
+                                default: // undefined (omitted)
                                     if (result[argument.name] && $.type(result[argument.name].omit) === NUMBER) {
                                         result[argument.name].score = result[argument.name].omit;
                                     }
                                     break;
                             }
+                            // calculate the total test score
                             result.score += result[argument.name].score;
+                            // calculate the max possible score in order to calculate a percentage
                             if (result[argument.name] && result[argument.name].success) {
                                 result.max += result[argument.name].success;
                             }
-                            // if (result.max) {
-                            //  result.percent = result.score/result.max;
-                            // }
                         });
                         deferred.resolve(result);
                     })
                     .fail(deferred.reject);
 
+                // return the test result
                 return deferred.promise();
             }
         });

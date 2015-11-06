@@ -8,7 +8,7 @@ var http = require('http'),
     path = require('path'),
     url = require('url'),
     fs = require('fs'),
-    port = process.argv[2] || 8080,
+    port = parseInt(process.argv[3], 10) || parseInt(process.argv[2], 10) || 8080,
     types = {
         'html'  : 'text/html',
         'txt'   : 'text/plain',

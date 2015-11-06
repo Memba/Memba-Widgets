@@ -185,7 +185,7 @@
             },
 
             /**
-             * Toggle between editing modes
+             * Toggles between enabled and readonly modes
              * @private
              */
             _editable: function (options) {
@@ -214,6 +214,19 @@
                     disabled: !(enable = enable === undefined ? true : enable)
                 });
             },
+
+            /**
+             * Make the widget readonly
+             * @param readonly
+             */
+            /*
+            readonly: function (readonly) {
+                this._editable({
+                    readonly: readonly === undefined ? true : readonly,
+                    disable: false
+                });
+            },
+            */
 
             /**
              * Refreshes the widget

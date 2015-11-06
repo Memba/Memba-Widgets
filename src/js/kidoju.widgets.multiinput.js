@@ -213,7 +213,14 @@
             },
 
             /**
-             * Toggles between editing modes
+             * Give the widget focus
+             */
+            focus: function () {
+                this.element.focus();
+            },
+
+            /**
+             * Toggles between enabled and readonly modes
              * @param options
              * @private
              */
@@ -260,24 +267,6 @@
             },
 
             /**
-             * Give the widget focus
-             */
-            focus: function () {
-                this.element.focus();
-            },
-
-            /**
-             * Make teh widget readonly
-             * @param readonly
-             */
-            readonly: function (readonly) {
-                this._editable({
-                    readonly: readonly === undefined ? true : readonly,
-                    disable: false
-                });
-            },
-
-            /**
              * Enable/disable the widget
              * @param enable
              */
@@ -285,6 +274,17 @@
                 this._editable({
                     readonly: false,
                     disable: !(enable = enable === undefined ? true : enable)
+                });
+            },
+
+            /**
+             * Make the widget readonly
+             * @param readonly
+             */
+            readonly: function (readonly) {
+                this._editable({
+                    readonly: readonly === undefined ? true : readonly,
+                    disable: false
                 });
             },
 

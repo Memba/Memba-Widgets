@@ -918,7 +918,9 @@
                 // Find and remove stage element
                 var stageElement = this.stage.children(kendo.format(ELEMENT_SELECTOR, uid));
                 kendo.unbind(stageElement);
-                stageElement.off(NS).remove();
+                stageElement
+                    .off(NS)
+                    .remove();
             },
 
             /**
@@ -991,27 +993,32 @@
                 }
 
                 if (activeToolId !== POINTER) {
+
                     // When clicking the stage with an active tool, add a new element
                     var tool = tools[activeToolId];
+                    assert.instanceof(Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
                     var scale = util.getTransformScale(that.wrapper);
-                    if (tool instanceof Tool) {
+                    var left = mouse.x / scale;
+                    var top = mouse.y / scale;
 
-                        // TODO check that top/left are withing boundaries of stage
+                    // Check that the mousedown occured within the boundaries of the stage
+                    if (left >= 0 && left <= this.stage.width() && top >= 0 && top <= this.stage.height()) {
 
                         var item = new PageComponent({
                             // id: kendo.guid(),
                             tool: tool.id,
-                            // e.offsetX and e.offsetY do not work in Firefox
-                            left: mouse.x / scale,
-                            top: mouse.y / scale,
+                            left: left,
+                            top: top,
                             width: tool.width,
                             height: tool.height
                             // rotate: tool.rotate?
                         });
                         that.dataSource.add(item);
                         // Add triggers the change event on the dataSource which calls the refresh method
+
+                        tools.set(ACTIVE_TOOL, POINTER);
+
                     }
-                    tools.set(ACTIVE_TOOL, POINTER);
 
                     e.preventDefault(); // otherwise both touchstart and mousedown are triggered and code is executed twice
                     e.stopPropagation();

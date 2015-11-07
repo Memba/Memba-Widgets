@@ -1117,7 +1117,8 @@
         tools.register(Textbox);
 
         /**
-         * @class Quiz tool
+         * Checkbox tool
+         * @class CheckBox
          * @type {void|*}
          */
         var CheckBox = kidoju.Tool.extend({
@@ -1197,14 +1198,14 @@
             templates: {
                 default: '<div data-role="quiz" data-mode="#: attributes.mode #" data-#= ns #bind="value: #: properties.name #" data-source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" data-group-style="#: attributes.groupStyle #" data-item-style="#: attributes.itemStyle #" data-active-style="#: attributes.activeStyle #"></div>'
             },
-            height: 300,
-            width: 500,
+            height: 100,
+            width: 300,
             attributes: {
                 mode: new adapters.EnumAdapter({ title: 'Mode', defaultValue: 'button', enum: ['button', 'dropdown', 'radio'] }),
                 groupStyle: new adapters.StyleAdapter({ title: 'Group Style' }),
                 itemStyle: new adapters.StyleAdapter({ title: 'Item Style' }),
                 activeStyle: new adapters.StyleAdapter({ title: 'Active Style' }),
-                data: new adapters.TextAdapter({ title: 'Data', defaultValue: 'Text 1\nText 2' })
+                data: new adapters.TextAdapter({ title: 'Data', defaultValue: 'True\nFalse' })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: 'Name' }),

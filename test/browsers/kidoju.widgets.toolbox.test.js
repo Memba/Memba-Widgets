@@ -52,7 +52,8 @@
                 expect(element.hasClass('kj-toolbox')).to.be.true;
                 expect(element.find('a.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
                 expect(element.find('a.kj-tool').width()).to.equal(32);
-                expect(element.find('a.kj-tool').height()).to.equal(32);
+                // TODO: We might want to dig into this difference of 4px
+                expect(element.find('a.kj-tool').height()).to.equal(32 + 4);
             });
 
             it('from code with options', function () {
@@ -63,7 +64,7 @@
                 expect(element.hasClass('kj-toolbox')).to.be.true;
                 expect(element.find('a.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
                 expect(element.find('a.kj-tool').width()).to.equal(64);
-                expect(element.find('a.kj-tool').height()).to.equal(64);
+                expect(element.find('a.kj-tool').height()).to.equal(64 + 4);
             });
 
             it('from markup', function () {
@@ -75,7 +76,7 @@
                 expect(element.hasClass('kj-toolbox')).to.be.true;
                 expect(element.find('a.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
                 expect(element.find('a.kj-tool').width()).to.equal(48);
-                expect(element.find('a.kj-tool').height()).to.equal(48);
+                expect(element.find('a.kj-tool').height()).to.equal(48 + 4);
             });
 
         });

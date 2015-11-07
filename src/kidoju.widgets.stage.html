@@ -13,16 +13,20 @@
     <!--script src="./js/vendor/kendo/kendo.core.js"></script>
     <script src="./js/vendor/kendo/kendo.data.js"></script>
     <script src="./js/vendor/kendo/kendo.binder.js"></script-->
-    <!-- Stage requirements -->
-    <link href="./styles/kidoju.widgets.stage.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.toolbox.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.mediaplayer.css" rel="stylesheet">
+    <!-- Common requirements -->
     <script src="./js/window.assert.js"></script>
     <script src="./js/window.log.js"></script>
     <script src="./js/kidoju.data.js"></script>
     <script src="./js/kidoju.tools.js"></script>
+    <!-- Quiz requirement -->
+    <script src="./js/kidoju.widgets.quiz.js"></script>
+    <!-- Media player requirements -->
+    <link href="./styles/kidoju.widgets.mediaplayer.css" rel="stylesheet">
     <script src="./js/kidoju.widgets.mediaplayer.js"></script>
+    <!-- Toolbox requirements -->
     <script src="./js/kidoju.widgets.toolbox.js"></script>
+    <!-- Stage requirements -->
+    <link href="./styles/kidoju.widgets.stage.css" rel="stylesheet">
     <script src="./js/kidoju.widgets.stage.js"></script>
     <style>
         body {background-color:darkgrey;}
@@ -48,7 +52,76 @@
 
         var kendo = window.kendo,
             kidoju = window.kidoju,
+            tools = kidoju.tools,
+            PageComponent = kidoju.data.PageComponent,
             PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
+
+        /**
+         * Add square tool for testing
+         */
+        var Square = kidoju.Tool.extend({
+            id: 'square',
+            icon: 'shapes',
+            cursor: 'progress',
+            templates: {
+                play: '<div style="background-color:#00FF00;">PLAY</div>',
+                design: '<div style="background-color:#0000FF;">DESIGN</div>',
+                review: '<div style="background-color:#FF0000;">REVIEW</div>'
+            },
+            height: 300,
+            width: 300,
+            attributes: {
+                // src: new adapters.AssetAdapter({ title: 'Image', defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' }),
+                // alt: new adapters.StringAdapter({ title: 'Text', defaultValue: 'Painting Landscape' })
+            },
+
+            /**
+             * Get Html content
+             * @method getHtml
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                return $(this.templates[mode]);
+            },
+
+            readonly: function(component, readonly) {
+
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                if (stageElement.is('.kj-element') && component instanceof PageComponent) {
+                    var content = stageElement.children('div');
+                    if ($.type(component.width) === 'number') {
+                        content.width(component.width);
+                    }
+                    if ($.type(component.height) === 'number') {
+                        content.height(component.height);
+                    }
+                    // prevent any side effect
+                    e.preventDefault();
+                    // prevent event to bubble on stage
+                    e.stopPropagation();
+                }
+            }
+
+        });
+        tools.register(Square);
+
+
+        /**
+         * Page code
+         */
 
         var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
             data: [
@@ -138,9 +211,9 @@
                 ],
                 change: function(e) {
                     var rows = this.select(),
-                        item = this.dataItem(rows[0]);
-                    if(item && item.id) {
-                        stage._selectByUid(item.uid);
+                        component = this.dataItem(rows[0]);
+                    if(component) {
+                        stage.value(component);
                     }
                 }
             });

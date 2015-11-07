@@ -76,7 +76,7 @@
         }
 
         /*********************************************************************************
-         * Tools
+         * Generic tools
          *********************************************************************************/
 
         /**
@@ -193,7 +193,7 @@
                             model.fields[prop] = properties[prop].getField();
                             if (prop === 'name') {
                                 // This cannot be set as a default value on the  adapter because each instance should have a different name
-                                model.fields.name.defaultValue = 'val_' + randomString(4);
+                                model.fields.name.defaultValue = 'val_' + randomString(6);
                             } else if (prop === 'validation') {
                                 // We need the code library otherwise we won't have code to execute when validation === '// equal' or any other library value
                                 model._library = properties.validation.library;

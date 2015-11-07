@@ -223,11 +223,11 @@
             },
 
             /**
-             * Get Html content
+             * Get Html or jQuery content
              * @param component
              * @param mode
              */
-            getHtml: function (component, mode) {
+            getHtmlContent: function (component, mode) {
                 throw new Error('Please implement in subclassed tool.');
             }
 
@@ -909,7 +909,7 @@
             cursor: CURSOR_DEFAULT,
             height: 0,
             width: 0,
-            getHtml: undefined
+            getHtmlContent: undefined
         });
         tools.register(Pointer);
 
@@ -932,13 +932,13 @@
             },
 
             /**
-             * Get Html content
-             * @method getHtml
+             * Get Html or jQuery content
+             * @method getHtmlContent
              * @param component
              * @param mode
              * @returns {*}
              */
-            getHtml: function (component, mode) {
+            getHtmlContent: function (component, mode) {
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(this.templates.default);
@@ -991,13 +991,13 @@
                 alt: new adapters.StringAdapter({ title: 'Text', defaultValue: 'Painting Landscape' })
             },
             /**
-             * Get Html content
-             * @method getHtml
+             * Get Html or jQuery content
+             * @method getHtmlContent
              * @param component
              * @param mode
              * @returns {*}
              */
-            getHtml: function (component, mode) {
+            getHtmlContent: function (component, mode) {
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(this.templates.default);
@@ -1075,13 +1075,13 @@
                 omit: new adapters.ScoreAdapter({ title: 'Omit', defaultValue: 0 })
             },
             /**
-             * Get Html content
-             * @method getHtml
+             * Get Html or jQuery content
+             * @method getHtmlContent
              * @param component
              * @param mode
              * @returns {*}
              */
-            getHtml: function (component, mode) {
+            getHtmlContent: function (component, mode) {
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(this.templates.default);
@@ -1151,13 +1151,13 @@
             },
 
             /**
-             * Get Html content
-             * @method getHtml
+             * Get Html or jQuery content
+             * @method getHtmlContent
              * @param component
              * @param mode
              * @returns {*}
              */
-            getHtml: function (component, mode) {
+            getHtmlContent: function (component, mode) {
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(this.templates.default);
@@ -1222,13 +1222,13 @@
             },
 
             /**
-             * Get Html content
-             * @method getHtml
+             * Get Html or jQuery content
+             * @method getHtmlContent
              * @param component
              * @param mode
              * @returns {*}
              */
-            getHtml: function (component, mode) {
+            getHtmlContent: function (component, mode) {
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(this.templates.default);
@@ -1298,13 +1298,13 @@
             },
 
             /**
-             * Get Html content
-             * @method getHtml
+             * Get Html or jQuery content
+             * @method getHtmlContent
              * @param component
              * @param mode
              * @returns {*}
              */
-            getHtml: function (component, mode) {
+            getHtmlContent: function (component, mode) {
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(this.templates.default);
@@ -1360,13 +1360,13 @@
             },
 
             /**
-             * Get Html content
-             * @method getHtml
+             * Get Html or jQuery content
+             * @method getHtmlContent
              * @param component
              * @param mode
              * @returns {*}
              */
-            getHtml: function (component, mode) {
+            getHtmlContent: function (component, mode) {
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(this.templates.default);

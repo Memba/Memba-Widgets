@@ -107,7 +107,7 @@
                     }
                     if (id !== that.options.tools.get(ACTIVE_TOOL)) {
                         that.options.tools.set(ACTIVE_TOOL, id);// the change handler refreshes the widget
-                        logger.debug('tool changed for ' + id);
+                        logger.debug('tool changed for `' + id + '`');
                         that.trigger(CHANGE, { value: id });
                     }
                 } else {

@@ -225,8 +225,9 @@
             /**
              * Get Html content
              * @param component
+             * @param mode
              */
-            getHtml: function (component) {
+            getHtml: function (component, mode) {
                 throw new Error('Please implement in subclassed tool.');
             }
 
@@ -934,13 +935,14 @@
              * Get Html content
              * @method getHtml
              * @param component
+             * @param mode
              * @returns {*}
              */
-            getHtml: function (component) {
-                if (component instanceof PageComponent) {
-                    var template = kendo.template(this.templates.default);
-                    return template(component);
-                }
+            getHtml: function (component, mode) {
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                var template = kendo.template(this.templates.default);
+                return template(component);
             },
 
             /**
@@ -992,25 +994,26 @@
              * Get Html content
              * @method getHtml
              * @param component
+             * @param mode
              * @returns {*}
              */
-            getHtml: function (component) {
-                if (component instanceof PageComponent) {
-                    var template = kendo.template(this.templates.default);
-                    // The src$ function resolves urls with kidoju schemes like cdn://sample.jpg
-                    component.attributes.src$ = function () {
-                        var url = component.attributes.get('src');
-                        var schemes = kidoju.schemes || {};
-                        for (var scheme in schemes) {
-                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(url)) {
-                                url = url.replace(scheme + '://', schemes[scheme]);
-                                break;
-                            }
+            getHtml: function (component, mode) {
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                var template = kendo.template(this.templates.default);
+                // The src$ function resolves urls with kidoju schemes like cdn://sample.jpg
+                component.attributes.src$ = function () {
+                    var url = component.attributes.get('src');
+                    var schemes = kidoju.schemes || {};
+                    for (var scheme in schemes) {
+                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(url)) {
+                            url = url.replace(scheme + '://', schemes[scheme]);
+                            break;
                         }
-                        return url;
-                    };
-                    return template(component);
-                }
+                    }
+                    return url;
+                };
+                return template(component);
             },
             /**
              * onResize Event Handler
@@ -1075,13 +1078,14 @@
              * Get Html content
              * @method getHtml
              * @param component
+             * @param mode
              * @returns {*}
              */
-            getHtml: function (component) {
-                if (component instanceof PageComponent) {
-                    var template = kendo.template(this.templates.default);
-                    return template($.extend(component, { ns: kendo.ns }));
-                }
+            getHtml: function (component, mode) {
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                var template = kendo.template(this.templates.default);
+                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /**
@@ -1150,13 +1154,14 @@
              * Get Html content
              * @method getHtml
              * @param component
+             * @param mode
              * @returns {*}
              */
-            getHtml: function (component) {
-                if (component instanceof PageComponent) {
-                    var template = kendo.template(this.templates.default);
-                    return template($.extend(component, { ns: kendo.ns }));
-                }
+            getHtml: function (component, mode) {
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                var template = kendo.template(this.templates.default);
+                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /**
@@ -1220,13 +1225,14 @@
              * Get Html content
              * @method getHtml
              * @param component
+             * @param mode
              * @returns {*}
              */
-            getHtml: function (component) {
-                if (component instanceof PageComponent) {
-                    var template = kendo.template(this.templates.default);
-                    return template($.extend(component, { ns: kendo.ns }));
-                }
+            getHtml: function (component, mode) {
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                var template = kendo.template(this.templates.default);
+                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /* This function's cyclomatic complexity is too high. */
@@ -1295,13 +1301,14 @@
              * Get Html content
              * @method getHtml
              * @param component
+             * @param mode
              * @returns {*}
              */
-            getHtml: function (component) {
-                if (component instanceof PageComponent) {
-                    var template = kendo.template(this.templates.default);
-                    return template($.extend(component, { ns: kendo.ns }));
-                }
+            getHtml: function (component, mode) {
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                var template = kendo.template(this.templates.default);
+                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /**
@@ -1356,13 +1363,14 @@
              * Get Html content
              * @method getHtml
              * @param component
+             * @param mode
              * @returns {*}
              */
-            getHtml: function (component) {
-                if (component instanceof PageComponent) {
-                    var template = kendo.template(this.templates.default);
-                    return template($.extend(component, { ns: kendo.ns }));
-                }
+            getHtml: function (component, mode) {
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                var template = kendo.template(this.templates.default);
+                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /**

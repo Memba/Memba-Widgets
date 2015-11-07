@@ -548,23 +548,23 @@
                     document.webkitFullscreenElement === mediaElement ||
                     document.msFullscreenElement === mediaElement ||
                     document.mozFullScreenElement === mediaElement) {
-                    if ($.isfunction (document.exitFullscreen)) {
+                    if ($.isFunction (document.exitFullscreen)) {
                         document.exitFullscreen();
-                    } else if ($.isfunction (document.webkitExitFullscreen)) {
+                    } else if ($.isFunction (document.webkitExitFullscreen)) {
                         document.webkitExitFullscreen();
-                    } else if ($.isfunction (document.msExitFullscreen)) {
+                    } else if ($.isFunction (document.msExitFullscreen)) {
                         document.msExitFullscreen();
-                    } else if ($.isfunction (document.mozCancelFullScreen)) {
+                    } else if ($.isFunction (document.mozCancelFullScreen)) {
                         document.mozCancelFullScreen();
                     }
                 } else {
-                    if (document.fullscreenEnabled && $.isfunction (mediaElement.requestFullscreen)) {
+                    if (document.fullscreenEnabled && $.isFunction (mediaElement.requestFullscreen)) {
                         mediaElement.requestFullscreen();
-                    } else if (document.webkitFullscreenEnabled && $.isfunction (mediaElement.webkitRequestFullscreen)) {
+                    } else if (document.webkitFullscreenEnabled && $.isFunction (mediaElement.webkitRequestFullscreen)) {
                         mediaElement.webkitRequestFullscreen(window.Element.ALLOW_KEYBOARD_INPUT);
-                    } else if (document.msFullscreenEnabled && $.isfunction (mediaElement.msRequestFullscreen)) {
+                    } else if (document.msFullscreenEnabled && $.isFunction (mediaElement.msRequestFullscreen)) {
                         mediaElement.msRequestFullscreen();
-                    } else if (document.mozFullScreenEnabled && $.isfunction (mediaElement.mozRequestFullScreen)) {
+                    } else if (document.mozFullScreenEnabled && $.isFunction (mediaElement.mozRequestFullScreen)) {
                         mediaElement.mozRequestFullScreen();
                     }
                 }

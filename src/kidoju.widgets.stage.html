@@ -77,22 +77,33 @@
 
             /**
              * Get Html content
-             * @method getHtml
+             * @method getHtmlContent
              * @param component
              * @param mode
              * @returns {*}
              */
             getHtmlContent: function (component, mode) {
+                assert.instanceof(Square, this, kendo.format(assert.messages.instanceof.default, 'this', 'Square'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                return $(this.templates[mode]).on('click', function () {
-                    window.alert('Hello from ' + component.uid);
-                });
+                var modes = kendo.ui.Stage.fn.modes;
+                assert.enum(Object.keys(modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(modes)));
+                return $(this.templates[mode]);
             },
 
-            readonly: function(component, readonly) {
-
+            onEnable: function(e, component, enabled) {
+                var stageElement = $(e.currentTarget);
+                if (stageElement.is('.kj-element')) {
+                    var content = stageElement.children('div');
+                    assert.ok(content.length === 1, 'Square elements are expected to be constituted of a single div');
+                    content.off('click');
+                    if (enabled) {
+                        content.on('click', function () {
+                            window.alert('Hello from ' + component.uid);
+                        });
+                    }
+                }
             },
+
 
             /**
              * onResize Event Handler

@@ -55,6 +55,7 @@
         var PROPERTYBINDING = 'propertyBinding';
         var PROPERTYBOUND = 'propertyBound';
         var SELECT = 'select';
+        var ENABLE = 'enable';
         var MOVE = 'move';
         var RESIZE = 'resize';
         var ROTATE = 'rotate'; // This constant is not simply an event
@@ -75,22 +76,25 @@
         var DATA_UID = kendo.attr('uid');
         var DATA_TOOL = kendo.attr('tool');
         var DATA_COMMAND = kendo.attr('command');
-        var WRAPPER = '<div class="k-widget kj-stage" />';
-        var ELEMENT = '<div ' + DATA_UID + '="{0}" ' + DATA_TOOL + '="{1}" class="kj-element"></div>';
-        var ELEMENT_SELECTOR = '.kj-element[' + DATA_UID + '="{0}"]';
-        var ELEMENT_CLASS = '.kj-element';
+        var DOT = '.';
         var DIV = '<div />';
-        var READONLY_OVERLAY_CLASS = '.kj-overlay';
-        var HANDLE_BOX = '<div class="kj-handle-box"></div>';
-        var HANDLE_BOX_SELECTOR = '.kj-handle-box[' + DATA_UID + '="{0}"]';
-        var HANDLE_BOX_CLASS = '.kj-handle-box';
-        var HANDLE_MOVE = '<span class="kj-handle" ' + DATA_COMMAND + '="move"></span>';
-        var HANDLE_RESIZE = '<span class="kj-handle" ' + DATA_COMMAND + '="resize"></span>';
-        var HANDLE_ROTATE = '<span class="kj-handle" ' + DATA_COMMAND + '="rotate"></span>';
-        var HANDLE_MENU = '<span class="kj-handle" ' + DATA_COMMAND + '="menu"></span>';
+        var DIV_W_CLASS = '<div class="{0}"></div>';
+        var WIDGET_CLASS = 'k-widget kj-stage';
+        var WRAPPER = kendo.format(DIV_W_CLASS, WIDGET_CLASS);
+        var ELEMENT_CLASS = 'kj-element';
+        var ELEMENT = '<div ' + DATA_UID + '="{0}" ' + DATA_TOOL + '="{1}" class="' + ELEMENT_CLASS + '"></div>';
+        var ELEMENT_SELECTOR = DOT + ELEMENT_CLASS + '[' + DATA_UID + '="{0}"]';
+        var OVERLAY_CLASS = 'kj-overlay';
+        var HANDLE_BOX_CLASS = 'kj-handle-box';
+        var HANDLE_BOX = kendo.format(DIV_W_CLASS, HANDLE_BOX_CLASS);
+        var HANDLE_BOX_SELECTOR = DOT + HANDLE_BOX_CLASS + '[' + DATA_UID + '="{0}"]';
+        var HANDLE_CLASS = 'kj-handle';
+        var HANDLE_MOVE = '<span class="' + HANDLE_CLASS + '" ' + DATA_COMMAND + '="move"></span>';
+        var HANDLE_RESIZE = '<span class="' + HANDLE_CLASS + '" ' + DATA_COMMAND + '="resize"></span>';
+        var HANDLE_ROTATE = '<span class="' + HANDLE_CLASS + '" ' + DATA_COMMAND + '="rotate"></span>';
+        var HANDLE_MENU = '<span class="' + HANDLE_CLASS + '" ' + DATA_COMMAND + '="menu"></span>';
         // var HANDLE_SELECTOR = '.kj-handle[' + DATA_COMMAND + '="{0}"]';
-        var HANDLE_CLASS = '.kj-handle';
-        var NOPAGE_MESSAGE_CLASS = '.kj-nopage';
+        var NOPAGE_CLASS = 'kj-nopage';
         var STATE = 'state';
         var COMMANDS = {
                 MOVE: 'move',
@@ -106,12 +110,13 @@
                 WIDTH: 1024,
                 HEIGHT: 768
             };
-        var DEBUG_MOUSE = '<div class="debug-mouse"></div>';
-        var DEBUG_MOUSE_CLASS = '.debug-mouse';
-        var DEBUG_BOUNDS = '<div class="debug-bounds"></div>';
-        var DEBUG_BOUNDS_CLASS = '.debug-bounds';
+        var DEBUG_MOUSE_CLASS = 'debug-mouse';
+        var DEBUG_MOUSE_DIV = kendo.format(DIV_W_CLASS, DEBUG_MOUSE_CLASS);
+        var DEBUG_BOUNDS_CLASS = 'debug-bounds';
+        var DEBUG_BOUNDS = kendo.format(DIV_W_CLASS, DEBUG_BOUNDS_CLASS);
+        var DEBUG_CENTER_CLASS = 'debug-center';
         var DEBUG_CENTER = '<div class="debug-center"></div>';
-        var DEBUG_CENTER_CLASS = '.debug-center';
+
 
         /*********************************************************************************
          * Custom Bindings
@@ -261,7 +266,7 @@
                             transformOrigin: '0 0',
                             transform: kendo.format(CSS_SCALE, that._scale)
                         });
-                        that.wrapper.find(HANDLE_CLASS).css({
+                        that.wrapper.find(DOT + HANDLE_CLASS).css({
                             // transformOrigin: 'center center', // by default
                             transform: kendo.format(CSS_SCALE, 1 / that._scale)
                         });
@@ -456,7 +461,7 @@
              * @param dataSource
              */
             setDataSource: function (dataSource) {
-                // set the internal datasource equal to the one passed in by MVVM
+                // set the internal data source equal to the one passed in by MVVM
                 this.options.dataSource = dataSource;
                 // rebuild the datasource if necessary, or just reassign
                 this._dataSource();
@@ -479,13 +484,12 @@
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
 
-                if (that.options.dataSource !== NULL) {  // use null to explicitely destroy the dataSource bindings
+                that._initializeMode();
+
+                if (that.options.dataSource !== NULL) {  // use null to explicitly destroy the dataSource bindings
 
                     // returns the datasource OR creates one if using array or configuration object
                     that.dataSource = PageComponentCollectionDataSource.create(that.options.dataSource);
-
-                    // We need that.dataSource to initialize mode
-                    that._initializeMode();
 
                     that._refreshHandler = $.proxy(that.refresh, that);
 
@@ -534,18 +538,18 @@
 
                 var that = this;
                 var modes = that.modes;
-
-                // No page message
-                that._toggleNoPageMessage(!that.options.dataSource); // TODO Check when dataSoruce.total() === 0
+                var dataSource = that.options.dataSource;
 
                 // Set mode
-                if (that.options.dataSource) {
-                    that._toggleReadOnlyOverlay(that.mode() === modes.review || that._disabled || that._readonly);
-                    that._togglePropertyBindings(that.mode() !== modes.design);
-                    that._toggleHandleBox(that.mode() === modes.design && !that._disabled && !that._readonly);
-                    that._toggleTransformEventHandlers(that.mode() === modes.design);
-                    that._toggleContextMenu(that.mode() === modes.design && !that._disabled && !that._readonly);
-                }
+                that._toggleNoPageMessage(!dataSource);
+                var readOnlyOverlay = !dataSource || that._disabled || that._readonly;
+                that._toggleReadOnlyOverlay(readOnlyOverlay);
+                var bindUserEntries = !!dataSource && that.mode() !== modes.design;
+                that._togglePropertyBindings(bindUserEntries);
+                var activeDesignMode = !!dataSource && that.mode() === modes.design && !that._disabled && !that._readonly;
+                that._toggleHandleBox(activeDesignMode);
+                that._toggleTransformEventHandlers(activeDesignMode);
+                that._toggleContextMenu(activeDesignMode);
             },
 
             /**
@@ -557,12 +561,12 @@
                 var wrapper = this.wrapper;
 
                 // clear
-                wrapper.children(NOPAGE_MESSAGE_CLASS).remove();
+                wrapper.children('.' + NOPAGE_CLASS).remove();
 
                 // set no data message
                 if(enable) {
                     $(DIV)
-                        .addClass(NOPAGE_MESSAGE_CLASS)
+                        .addClass(NOPAGE_CLASS)
                         .text(this.options.messages.noPage)
                         .css({
                             position: 'fixed',
@@ -584,13 +588,13 @@
                 var wrapper = this.wrapper;
 
                 // clear
-                wrapper.children(READONLY_OVERLAY_CLASS).remove();
+                wrapper.children('.' + OVERLAY_CLASS).remove();
 
                 // set overlay
                 if(enable) {
                     // Add overlay to disable all controls (including audio and video controls)
                     $(DIV)
-                        .addClass(READONLY_OVERLAY_CLASS)
+                        .addClass(OVERLAY_CLASS)
                         .css({
                             position: ABSOLUTE,
                             display: BLOCK,
@@ -612,7 +616,7 @@
                 var that = this;
                 if (that.stage instanceof $) {
                     // Unbind elements
-                    $.each(that.stage.children(ELEMENT_CLASS), function (index, stageElement) {
+                    $.each(that.stage.children(DOT + ELEMENT_CLASS), function (index, stageElement) {
                         kendo.destroy(stageElement);
                     });
                     that.stage.empty();
@@ -637,7 +641,7 @@
                     that._propertyBinding = $.proxy(function () {
                         var widget = this;
                         if (widget.properties() instanceof ObservableObject) {
-                            $.each(widget.stage.children(ELEMENT_CLASS), function (index, stageElement) {
+                            $.each(widget.stage.children(DOT + ELEMENT_CLASS), function (index, stageElement) {
                                 // kendo.unbind(stageElement); // kendo.bind does unbind
                                 kendo.bind(stageElement, widget.properties());
                             });
@@ -661,7 +665,7 @@
                 // Clear
                 util.removeDebugVisualElements(wrapper);
                 $(document).off(NS);
-                wrapper.children(HANDLE_BOX_CLASS).remove();
+                wrapper.children(DOT + HANDLE_BOX_CLASS).remove();
 
                 // Setup handles
                 if (enable) {
@@ -697,16 +701,35 @@
             _toggleTransformEventHandlers: function (enable) {
                 assert.instanceof($, this.stage, kendo.format(assert.messages.instanceof.default, 'this.stage', 'jQuery'));
                 var that = this;
+                var stage = that.stage;
 
                 // Clear
-                that.stage.off(NS);
+                stage.off(NS);
 
-                // Add event handlers
+                // Enable event handlers
                 if (enable) {
-                    that.stage
-                        .on(MOVE + NS, ELEMENT_CLASS, $.proxy(that._moveStageElement, that))
-                        .on(RESIZE + NS, ELEMENT_CLASS, $.proxy(that._resizeStageElement, that))
-                        .on(ROTATE + NS, ELEMENT_CLASS, $.proxy(that._rotateStageElement, that));
+                    stage
+                        // .on(ENABLE + NS, DOT + ELEMENT_CLASS, $.proxy(that._enableStageElement, that))
+                        .on(MOVE + NS, DOT + ELEMENT_CLASS, $.proxy(that._moveStageElement, that))
+                        .on(RESIZE + NS, DOT + ELEMENT_CLASS, $.proxy(that._resizeStageElement, that))
+                        .on(ROTATE + NS, DOT + ELEMENT_CLASS, $.proxy(that._rotateStageElement, that));
+                }
+            },
+
+            /**
+             * Event handler called when adding or triggered when enabling an element
+             * @param e
+             * @param component
+             * @param enabled
+             * @private
+             */
+            _enableStageElement: function (e, component, enabled) {
+                var tools = this.options.tools;
+                assert.instanceof(ObservableObject, tools, kendo.format(assert.messages.instanceof.default, 'this.options.tools', 'kendo.data.ObservableObject'));
+                var tool = tools[component.tool];
+                assert.instanceof(Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                if ($.isFunction(tool.onEnable)) {
+                    tool.onEnable(e, component, enabled);
                 }
             },
 
@@ -802,7 +825,7 @@
                     case 'lock':
                         break;
                     case 'delete':
-                        var uid = that.wrapper.children(HANDLE_BOX_CLASS).attr(DATA_UID);
+                        var uid = that.wrapper.children(DOT + HANDLE_BOX_CLASS).attr(DATA_UID);
                         var item = that.dataSource.getByUid(uid);
                         that.dataSource.remove(item);
                         // This should raise teh change event on the dataSource and call the refresh method of the widget
@@ -884,11 +907,21 @@
                 // In case stageElement is made from kendo UI controls
                 kendo.init(stageElement);
 
-                // Transform the stageElement (most often resize), without triggering events
-                // Therefore, we only need the event handlers in design mode
-                // stageElement.trigger(MOVE + NS, component);
-                // stageElement.trigger(RESIZE + NS, component);
-                // stageElement.trigger(ROTATE + NS, component);
+                // We cannot trigger transform event handlers on stage elements
+                // because they are not yet added to the stage to which events are delegated
+                // Calling event handlers without raising events here as another benefit:
+                // We only need the event handlers in design mode - see _toggleTransformEventHandlers
+                /*
+                stageElement.trigger(ENABLE + NS, component);
+                stageElement.trigger(MOVE + NS, component);
+                stageElement.trigger(RESIZE + NS, component);
+                stageElement.trigger(ROTATE + NS, component);
+                */
+                this._enableStageElement({
+                    currentTarget: stageElement,
+                    preventDefault: $.noop,
+                    stopPropagation: $.noop
+                }, component, this.mode() === this.modes.play);
                 this._moveStageElement({
                     currentTarget: stageElement,
                     preventDefault: $.noop,
@@ -931,7 +964,7 @@
              */
             _showHandles: function (uid) {
                 var that = this;
-                var handleBox = that.wrapper.children(HANDLE_BOX_CLASS);
+                var handleBox = that.wrapper.children(DOT + HANDLE_BOX_CLASS);
                 if (handleBox.length) {
 
                     // Position handleBox on top of stageElement (same location, same size, same rotation)
@@ -949,7 +982,7 @@
                         .attr(DATA_UID, uid); // This is how we know which stageElement to transform when dragging handles
 
                     // Scale and rotate handles
-                    handleBox.children(HANDLE_CLASS)
+                    handleBox.children(DOT + HANDLE_CLASS)
                         .css({
                             // transformOrigin: 'center center', // by default
                             transform: kendo.format(CSS_ROTATE, -util.getTransformRotation(stageElement)) + ' ' + kendo.format(CSS_SCALE, 1 / that.scale())
@@ -963,7 +996,7 @@
              * @private
              */
             _hideHandles: function () {
-                this.wrapper.children(HANDLE_BOX_CLASS)
+                this.wrapper.children(DOT + HANDLE_BOX_CLASS)
                     .css({ display: NONE })
                     .removeAttr(DATA_UID);
             },
@@ -984,8 +1017,8 @@
                 var activeToolId = tools.get(ACTIVE_TOOL);
                 var target = $(e.target);
                 var mouse = util.getMousePosition(e, that.stage);
-                var stageElement = target.closest(ELEMENT_CLASS);
-                var handle = target.closest(HANDLE_CLASS);
+                var stageElement = target.closest(DOT + ELEMENT_CLASS);
+                var handle = target.closest(DOT + HANDLE_CLASS);
                 var uid;
 
                 if (that.menu instanceof kendo.ui.ContextMenu) {
@@ -1030,7 +1063,7 @@
                     if (command === COMMANDS.MENU) {
                         $.noop(); // TODO: contextual menu here
                     } else {
-                        var handleBox = that.wrapper.children(HANDLE_BOX_CLASS);
+                        var handleBox = that.wrapper.children(DOT + HANDLE_BOX_CLASS);
                         uid = handleBox.attr(DATA_UID); // the uid of the stageElement which is being selected before hitting the handle
                         stageElement = that.stage.children(kendo.format(ELEMENT_SELECTOR, uid));
                         handleBox.data(STATE, {
@@ -1054,7 +1087,7 @@
                     e.preventDefault(); // otherwise both touchstart and mousedown are triggered and code is executed twice
                     e.stopPropagation();
 
-                } else if (stageElement.length || target.is(HANDLE_BOX_CLASS)) {
+                } else if (stageElement.length || target.is(DOT + HANDLE_BOX_CLASS)) {
                     // When hitting a stage element or the handle box with the pointer tool
                     uid = stageElement.attr(DATA_UID);
                     if (util.isGuid(uid)) {
@@ -1086,7 +1119,7 @@
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 assert.instanceof(kendo.ui.Stage, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
                 var that = this;
-                var handleBox = that.wrapper.children(HANDLE_BOX_CLASS);
+                var handleBox = that.wrapper.children(DOT + HANDLE_BOX_CLASS);
                 var startState = handleBox.data(STATE);
 
                 // With a startState, we are dragging a handle
@@ -1168,7 +1201,7 @@
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 assert.instanceof(kendo.ui.Stage, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
                 var that = this;
-                var handleBox = that.wrapper.children(HANDLE_BOX_CLASS);
+                var handleBox = that.wrapper.children(DOT + HANDLE_BOX_CLASS);
                 var startState = handleBox.data(STATE);
 
                 if ($.isPlainObject(startState)) {
@@ -1204,11 +1237,9 @@
 
                 } else {
 
-
-
                 }
 
-                // TODO iterate through components and call readonly or enable
+                // TODO iterate through components and call onEnbale
             },
 
             /**
@@ -1250,7 +1281,7 @@
                     }
                     that._hideHandles();
                     that.trigger(DATABINDING);
-                    $.each(that.stage.children(ELEMENT_CLASS), function (index, stageElement) {
+                    $.each(that.stage.children(DOT + ELEMENT_CLASS), function (index, stageElement) {
                         that._removeStageElementByUid($(stageElement).attr(DATA_UID));
                     });
                     $.each(components, function (index, component) {
@@ -1277,7 +1308,7 @@
                     $.each(e.items, function (index, component) {
                         that._removeStageElementByUid(component.uid);
                         that.trigger(CHANGE, { action: e.action, value: component });
-                        if (that.wrapper.children(HANDLE_BOX_CLASS).attr(DATA_UID) === component.uid) {
+                        if (that.wrapper.children(DOT + HANDLE_BOX_CLASS).attr(DATA_UID) === component.uid) {
                             that.value(NULL);
                         }
                     });
@@ -1313,7 +1344,7 @@
                                         .css(TRANSFORM, kendo.format(CSS_ROTATE, component.rotate));
                                     handleBox
                                         .css(TRANSFORM, kendo.format(CSS_ROTATE, component.rotate));
-                                    handleBox.children(HANDLE_CLASS)
+                                    handleBox.children(DOT + HANDLE_CLASS)
                                         .css(TRANSFORM, kendo.format(CSS_ROTATE, -component.rotate) + ' ' + kendo.format(CSS_SCALE, 1 / that.scale()));
                                     stageElement.trigger(ROTATE + NS, component);
                                     break;
@@ -1336,7 +1367,7 @@
                 assert.instanceof(kendo.ui.Stage, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
                 var that = this;
                 var uid = that._selectedUid;
-                var handleBox = that.wrapper.children(HANDLE_BOX_CLASS);
+                var handleBox = that.wrapper.children(DOT + HANDLE_BOX_CLASS);
                 // if (that.mode() === that.modes.design) {
                 if (handleBox.length) {
                     var stageElement = that.stage.children(kendo.format(ELEMENT_SELECTOR, uid));
@@ -1557,7 +1588,7 @@
                         .appendTo(wrapper);
 
                     // Add calculated mouse position
-                    $(DEBUG_MOUSE)
+                    $(DEBUG_MOUSE_DIV)
                         .css({
                             position: ABSOLUTE,
                             height: '20px',
@@ -1580,14 +1611,14 @@
                 if (window.app && window.app.DEBUG && $.isPlainObject(options) && options.scale > 0) {
 
                     // Display center of rotation
-                    options.wrapper.children(DEBUG_CENTER_CLASS).css({
+                    options.wrapper.children(DOT + DEBUG_CENTER_CLASS).css({
                         display: 'block',
                         left: options.center.x / options.scale,
                         top: options.center.y / options.scale
                     });
 
                     // Display bounding rectangle
-                    options.wrapper.children(DEBUG_BOUNDS_CLASS).css({
+                    options.wrapper.children(DOT + DEBUG_BOUNDS_CLASS).css({
                         display: 'block',
                         left: options.bounds.left / options.scale,
                         top: options.bounds.top / options.scale,
@@ -1596,7 +1627,7 @@
                     });
 
                     // Display mouse calculated position
-                    options.wrapper.children(DEBUG_MOUSE_CLASS).css({
+                    options.wrapper.children(DOT + DEBUG_MOUSE_CLASS).css({
                         display: 'block',
                         left: options.mouse.x / options.scale,
                         top: options.mouse.y / options.scale
@@ -1610,9 +1641,9 @@
              */
             hideDebugVisualElements: function (wrapper) {
                 if (window.app && window.app.DEBUG) {
-                    wrapper.children(DEBUG_CENTER_CLASS).css({ display: NONE });
-                    wrapper.children(DEBUG_BOUNDS_CLASS).css({ display: NONE });
-                    wrapper.children(DEBUG_MOUSE_CLASS).css({ display: NONE });
+                    wrapper.children(DOT + DEBUG_CENTER_CLASS).css({ display: NONE });
+                    wrapper.children(DOT + DEBUG_BOUNDS_CLASS).css({ display: NONE });
+                    wrapper.children(DOT + DEBUG_MOUSE_CLASS).css({ display: NONE });
                 }
             },
 
@@ -1622,9 +1653,9 @@
              */
             removeDebugVisualElements: function (wrapper) {
                 if (window.app && window.app.DEBUG) {
-                    wrapper.children(DEBUG_CENTER_CLASS).remove();
-                    wrapper.children(DEBUG_BOUNDS_CLASS).remove();
-                    wrapper.children(DEBUG_MOUSE_CLASS).remove();
+                    wrapper.children(DOT + DEBUG_CENTER_CLASS).remove();
+                    wrapper.children(DOT + DEBUG_BOUNDS_CLASS).remove();
+                    wrapper.children(DOT + DEBUG_MOUSE_CLASS).remove();
                 }
             }
         };

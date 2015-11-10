@@ -246,9 +246,13 @@
              * @method getHtmlContent
              * @param component
              * @param mode
+             * @returns {*}
              */
             getHtmlContent: function (component, mode) {
-                throw new Error('Please implement in subclassed tool.');
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                var template = kendo.template(this.templates[mode] || this.templates.default);
+                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /**
@@ -256,6 +260,7 @@
              * @returns {string}
              */
             showResult: function() {
+                // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
                 return '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.success + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
                        '<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.failure + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>';
             }
@@ -960,20 +965,6 @@
             },
 
             /**
-             * Get Html or jQuery content
-             * @method getHtmlContent
-             * @param component
-             * @param mode
-             * @returns {*}
-             */
-            getHtmlContent: function (component, mode) {
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                var template = kendo.template(this.templates.default);
-                return template(component);
-            },
-
-            /**
              * onResize Event Handler
              * @method onResize
              * @param e
@@ -1018,6 +1009,7 @@
                 src: new adapters.AssetAdapter({ title: 'Image', defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' }),
                 alt: new adapters.StringAdapter({ title: 'Text', defaultValue: 'Painting Landscape' })
             },
+
             /**
              * Get Html or jQuery content
              * @method getHtmlContent
@@ -1069,6 +1061,7 @@
         });
         tools.register(Image);
 
+        var TEXTBOX = '<input type="text" id="#: properties.name #" class="k-textbox" style="#: attributes.style #" {0}>';
         /**
          * @class Textbox tool
          * @type {void|*}
@@ -1078,10 +1071,9 @@
             icon: 'text_field',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                design: '<input type="text" class="k-textbox" style="#: attributes.style #">',
-                play:   '<input type="text" id="#: properties.name #" class="k-textbox" style="#: attributes.style #" data-#= ns #bind="value: #: properties.name #.value">',
-                // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
-                review: '<input type="text" id="#: properties.name #" class="k-textbox" style="#: attributes.style #" data-#= ns #bind="value: #: properties.name #.value">' + Tool.fn.showResult()
+                design: kendo.format(TEXTBOX, ''),
+                play: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"'),
+                review: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"') + Tool.fn.showResult()
             },
             height: 100,
             width: 300,
@@ -1101,20 +1093,6 @@
                 success: new adapters.ScoreAdapter({ title: 'Success', defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: 'Failure', defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: 'Omit', defaultValue: 0 })
-            },
-            /**
-             * Get Html or jQuery content
-             * @method getHtmlContent
-             * @param component
-             * @param mode
-             * @returns {*}
-             */
-            getHtmlContent: function (component, mode) {
-                var modes = kendo.ui.Stage.fn.modes;
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(modes)));
-                var template = kendo.template(this.templates[mode]);
-                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /**
@@ -1164,6 +1142,7 @@
         });
         tools.register(Textbox);
 
+        var CHECKBOX = '<div><input id="#: properties.name #" type="checkbox" style="#: attributes.checkboxStyle #" {0}><label for="#: properties.name #" style="#: attributes.labelStyle #">#: attributes.text #</label></div>';
         /**
          * Checkbox tool
          * @class CheckBox
@@ -1174,8 +1153,10 @@
             icon: 'checkbox',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                // TODO See http://www.telerik.com/forums/font-size-of-styled-radio-buttons-and-checkboxes
-                default: '<div><input id="#: properties.name #" type="checkbox" style="#: attributes.checkboxStyle #" data-#= ns #bind="checked: #: properties.name #.value"><label for="#: properties.name #" style="#: attributes.labelStyle #">#: attributes.text #</label></div>'
+                design: kendo.format(CHECKBOX, ''),
+                play: kendo.format(CHECKBOX, 'data-#= ns #bind="checked: #: properties.name #.value"'),
+                review: kendo.format(CHECKBOX, 'data-#= ns #bind="checked: #: properties.name #.value"') + Tool.fn.showResult()
+
             },
             height: 60,
             width: 500,
@@ -1200,17 +1181,22 @@
             },
 
             /**
-             * Get Html or jQuery content
-             * @method getHtmlContent
+             * onEnable event handler
+             * @class CheckBox
+             * @method onEnable
+             * @param e
              * @param component
-             * @param mode
-             * @returns {*}
+             * @param enabled
              */
-            getHtmlContent: function (component, mode) {
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                var template = kendo.template(this.templates.default);
-                return template($.extend(component, { ns: kendo.ns }));
+            onEnable: function (e, component, enabled) {
+                var stageElement = $(e.currentTarget);
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
+                    stageElement.children('input')
+                        .prop({
+                            disabled: !enabled,
+                            readonly: !enabled
+                        });
+                }
             },
 
             /**
@@ -1234,6 +1220,7 @@
         });
         tools.register(CheckBox);
 
+        var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" data-group-style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #active-style="#: attributes.activeStyle #"></div>';
         /**
          * Quiz tool
          * @class Quiz
@@ -1244,7 +1231,9 @@
             icon: 'radio_button_group',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-role="quiz" data-mode="#: attributes.mode #" data-#= ns #bind="value: #: properties.name #.value" data-source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" data-group-style="#: attributes.groupStyle #" data-item-style="#: attributes.itemStyle #" data-active-style="#: attributes.activeStyle #"></div>'
+                design: kendo.format(QUIZ, 'data-#= ns #enable="false"'),
+                play: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value"'),
+                review: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
             height: 100,
             width: 300,
@@ -1268,20 +1257,6 @@
                 success: new adapters.ScoreAdapter({ title: 'Success', defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: 'Failure', defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: 'Omit', defaultValue: 0 })
-            },
-
-            /**
-             * Get Html or jQuery content
-             * @method getHtmlContent
-             * @param component
-             * @param mode
-             * @returns {*}
-             */
-            getHtmlContent: function (component, mode) {
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                var template = kendo.template(this.templates.default);
-                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /* This function's cyclomatic complexity is too high. */
@@ -1347,20 +1322,6 @@
             },
 
             /**
-             * Get Html or jQuery content
-             * @method getHtmlContent
-             * @param component
-             * @param mode
-             * @returns {*}
-             */
-            getHtmlContent: function (component, mode) {
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                var template = kendo.template(this.templates.default);
-                return template($.extend(component, { ns: kendo.ns }));
-            },
-
-            /**
              * onResize Event Handler
              * @method onResize
              * @param e
@@ -1406,20 +1367,6 @@
                 mp4: new adapters.AssetAdapter({ title: 'MP4 File' }),
                 ogv: new adapters.AssetAdapter({ title: 'OGV File' }),
                 wbem: new adapters.AssetAdapter({ title: 'WBEM File' })
-            },
-
-            /**
-             * Get Html or jQuery content
-             * @method getHtmlContent
-             * @param component
-             * @param mode
-             * @returns {*}
-             */
-            getHtmlContent: function (component, mode) {
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                var template = kendo.template(this.templates.default);
-                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /**

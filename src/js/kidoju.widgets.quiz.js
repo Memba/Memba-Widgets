@@ -110,11 +110,7 @@
                 that.setOptions(that.options);
                 that._layout();
                 that._dataSource();
-                that._enable = true;
-                if (!that.options.enable) {
-                    that._enable = false;
-                    that.wrapper.addClass(DISABLE);
-                }
+                that.enable(that.options.enable);
             },
 
             /**

@@ -411,7 +411,8 @@
                 if (this.groupList) {
                     this.groupList.find('input')
                         .toggleClass(DISABLE, !enable)
-                        .prop('disabled', !enable);
+                        // .prop('disabled', !enable) <--- suppresses the click event so elements are no more selectable in design mode
+                        .prop('readonly', !enable);
                 }
             },
 

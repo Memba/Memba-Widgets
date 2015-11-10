@@ -250,7 +250,7 @@
                 that.groupList = $('<div>')
                     .addClass(GROUP_CLASS)
                     .css(that.options.groupStyle)
-                    .on(CLICK + NS, 'input', $.proxy(that._onClick, that))
+                    // .on(CLICK + NS, 'input', $.proxy(that._onClick, that))
                     .appendTo(that.element);
             },
 
@@ -402,14 +402,22 @@
              * @param enable
              */
             enable: function (enable) {
+                var that = this;
                 if (typeof enable === UNDEFINED) {
                     enable = true;
                 }
-                if (this.dropDownList) {
-                    this.dropDownList.enable(enable);
+                if (that.dropDownList) {
+                    that.dropDownList.enable(enable);
                 }
-                if (this.groupList) {
-                    this.groupList.find('input')
+                if (that.groupList) {
+                    that.groupList.off(NS);
+                    if (enable) {
+                        that.groupList.on(CLICK + NS, 'input', $.proxy(that._onClick, that));
+                    } else {
+                        // Because input are readonly and not disabled, we need to prevent default (checking checkbox) and let it bubble to the stage element to display the handle box
+                        that.groupList.on(CLICK + NS, 'input', function(e) { e.preventDefault(); });
+                    }
+                    that.groupList.find('input')
                         .toggleClass(DISABLE, !enable)
                         // .prop('disabled', !enable) <--- suppresses the click event so elements are no more selectable in design mode
                         .prop('readonly', !enable);

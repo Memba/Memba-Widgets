@@ -390,7 +390,7 @@
                     .attr({ href: 'javascript:void(0);', title: that.options.messages.play })
                     .attr(kendo.attr(COMMAND), COMMANDS.PLAY)
                     .addClass(BUTTON_CLASS)
-                    .css({ overflow: 'hidden' })
+                    .css({ overflow: 'hidden', display: 'inline-block' })
                     .append(SVG.PLAY)
                     .appendTo(that.toolbar);
 
@@ -411,7 +411,7 @@
                     .attr({ href: 'javascript:void(0);', title: that.options.messages.mute })
                     .attr(kendo.attr(COMMAND), COMMANDS.MUTE)
                     .addClass(BUTTON_CLASS)
-                    .css({ overflow: 'hidden' })
+                    .css({ overflow: 'hidden', display: 'inline-block' })
                     .append(SVG.MUTE)
                     .appendTo(that.toolbar);
 
@@ -427,7 +427,7 @@
                     $('<a/>')
                         .attr({ href: 'javascript:void(0);', title: that.options.messages.full })
                         .attr(kendo.attr(COMMAND), COMMANDS.FULL)
-                        .css({ overflow: 'hidden' })
+                        .css({ overflow: 'hidden', display: 'inline-block' })
                         .addClass(BUTTON_CLASS)
                         .append(SVG.FULL)
                         .appendTo(that.toolbar);

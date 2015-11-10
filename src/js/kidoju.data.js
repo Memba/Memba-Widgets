@@ -900,17 +900,16 @@
             getTestFromProperties: function () {
                 var that = this;
                 var test = {};
-                $.each(that.data(), function (index, page) {
-                    $.each(page.components.data(), function (index, component) {
+                $.each(that.data(), function (pageIdx, page) {
+                    $.each(page.components.data(), function (componentIdx, component) {
                         var properties = component.properties;
                         if (properties instanceof kendo.data.Model &&
                             $.type(properties.fields) === OBJECT && !$.isEmptyObject(properties.fields) &&
                             $.type(properties.name) === STRING) {
-                            test[properties.name] = undefined;
+                            test[properties.name] = { value: undefined };
                         }
                     });
                 });
-                // TODO Consider returning an object cast with a model with type, default value and validation?
                 return test;
             },
 
@@ -952,13 +951,16 @@
                         }
                     };
 
-                // Sanitize test
-                // tools built upon kendo ui widgets cannot have undefined values because value(undefined) === value() so they use null
-                // requiring users to test null || undefined is too complicated so we turn null into undefined
+                // Flatten test for simpler validation formulas
                 var all = test.toJSON();
                 for (var prop in all) {
-                    if (all.hasOwnProperty(prop) && all[prop] === null) {
-                        all[prop] = undefined;
+                    if (all.hasOwnProperty(prop) && $.type(all[prop]) === OBJECT) {
+                        if (all[prop].value === null) {
+                            // tools built upon kendo ui widgets cannot have undefined values because value(undefined) === value() so they use null
+                            all[prop] = undefined; // TODO intervertir undefined and null: we should use null for unanswered tests
+                        } else {
+                            all[prop] = all[prop].value;
+                        }
                     }
                 }
 
@@ -977,8 +979,6 @@
                         // Note: some components like textboxes have properties, others likes labels and images don't
                         // assert.type(STRING, properties.name, kendo.format(assert.messages.type.default, 'properties.name', STRING));
                         if ($.type(properties.name) === STRING) {
-
-
                             var found;
                             var libraryMatches = properties.validation.match(/^\/\/ ([^\n]+)$/);
                             // var customMatches = value.match(/^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/);
@@ -1015,7 +1015,7 @@
                                 page: pageIdx,
                                 name: properties.name,
                                 description: properties.description,
-                                value: test[properties.name],
+                                value: test[properties.name].value,
                                 solution: properties.solution,
                                 result: undefined,
                                 omit: properties.omit,

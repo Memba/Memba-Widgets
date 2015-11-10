@@ -85,7 +85,7 @@
             <div style="display: none">
                 <div class="k-block k-info-colored">
                     <div class="k-header">Your Score</div>
-                    <div data-bind="text: result.percent"></div>
+                    <div data-bind="text: test.percent"></div>
                 </div>
                 <div data-role="grid"></div>
             </div>
@@ -420,13 +420,14 @@
             stream: new LocalStream(),
             currentPage: undefined,
             test: undefined,
-            result: undefined,
             calculate: function() {
-                return viewModel.stream.pages.validateTestFromProperties(window.viewModel.get('test'))
+                return viewModel.stream.pages.validateTestFromProperties(viewModel.get('test'))
                     .done(function(result) {
-                        window.viewModel.set('result', result);
+                        viewModel.set('test', result);
+                        var stageWidget =  $(kendo.roleSelector('stage')).data('kendoStage');
+                        stageWidget.mode(stageWidget.modes.review);
                         var grid = $('div[data-role="grid"]').data('kendoGrid');
-                        grid.setDataSource(new kendo.data.DataSource({ data: result.getScoreArray() }));
+                        grid.setDataSource(new kendo.data.DataSource({ data: viewModel.get('test').getScoreArray() }));
                     });
             }
         });

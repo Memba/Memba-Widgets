@@ -201,7 +201,7 @@
                 width: DEFAULTS.WIDTH,
                 tools: kidoju.tools,
                 dataSource: undefined,
-                disabled: false,
+                enable: false,
                 readonly: false,
                 messages: {
                     noPage: 'Please add or select a page'
@@ -219,7 +219,7 @@
                 this._scale = this.options.scale;
                 this._height = this.options.height;
                 this._width = this.options.width;
-                this._disabled = this.options.disabled;
+                this._disabled = this.options.enable;
                 this._readonly = this.options.readonly;
             },
 

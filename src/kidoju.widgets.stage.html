@@ -56,6 +56,11 @@
             PageComponent = kidoju.data.PageComponent,
             PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
 
+        kidoju.schemes = {
+            cdn: 'https://d2rvsmwqptocm.cloudfront.net/',
+            data: window.location.protocol + '//' + window.location.host + '/Kidoju.Widgets/test/data/images/miscellaneous/'
+        };
+
         /**
          * Add square tool for testing
          */
@@ -130,7 +135,6 @@
 
         });
         tools.register(Square);
-
 
         /**
          * Page code

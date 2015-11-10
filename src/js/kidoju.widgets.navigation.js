@@ -10,10 +10,11 @@
     'use strict';
     define([
         './vendor/kendo/kendo.binder',
+        './window.assert',
+        './window.log',
         './kidoju.data',
         './kidoju.tools',
-        './window.assert',
-        './window.log'
+        './kidoju.widgets.stage'
     ], f);
 })(function () {
 
@@ -102,6 +103,7 @@
             options: {
                 name: 'Navigation',
                 autoBind: true,
+                mode: kendo.ui.Stage.fn.modes.design,
                 itemTemplate: '<div data-#: ns #uid="#: uid #" class="kj-item" role="option" aria-selected="false"><div data-#: ns #role="stage"></div></div>',
                 pageWidth: 1024, // TODO: assuming page size here: where do we read it from?
                 pageHeight: 768,
@@ -412,7 +414,9 @@
 
                     // Make the stage and bind to components
                     navigationItem.find(kendo.roleSelector('stage')).kendoStage({
-                        mode: kendo.ui.Stage.fn.modes.thumbnail,
+                        mode: that.options.mode,
+                        enable: false,
+                        readonly: true,
                         dataSource: page.components,
                         scale: that._getStageScale()
                     });

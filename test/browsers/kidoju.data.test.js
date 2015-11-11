@@ -1170,8 +1170,8 @@
         }
 
         it('large number of tasks', function (done) {
-            var workerPool = new WorkerPool(8);
-            var length = 1000;
+            var workerPool = new WorkerPool(8, 300);
+            var length = 500;
             for (var i = 0; i < length; i++) {
                 workerPool.add('name' + i, 'kidoju.data.workertask.js', i);
             }
@@ -1217,7 +1217,7 @@
                 'sessionStorage',
                 'SharedWorker'
             ];
-            var workerPool = new WorkerPool(2, 100);
+            var workerPool = new WorkerPool(2, 250);
             // var blob = new Blob(['onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
             // All paths except a full URL raise error: Uncaught [object DOMException]
             // var blob = new Blob(['importScripts("kidoju.data.workerlib.js"); onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
@@ -1271,7 +1271,7 @@
                 { name: 'Burrows', value: 'B620' },
                 { name: 'O\'Hara', value: 'O600' }
             ];
-            var workerPool = new WorkerPool(2, 100);
+            var workerPool = new WorkerPool(2, 250);
             var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
             var blob = new Blob(['importScripts("' + scriptUrl + '"); onmessage = function (e) { postMessage(soundex(e.data)); close(); };']);
             var blobURL = window.URL.createObjectURL(blob);
@@ -1304,7 +1304,7 @@
                 { name: 'batch batcher', value: 'BXBXR' }
                 // TODO we need more...
             ];
-            var workerPool = new WorkerPool(2, 100);
+            var workerPool = new WorkerPool(2, 250);
             var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
             var blob = new Blob(['importScripts("' + scriptUrl + '"); onmessage = function (e) { postMessage(metaphone(e.data)); close(); };']);
             var blobURL = window.URL.createObjectURL(blob);
@@ -1337,7 +1337,7 @@
                 { name: 'Z przyjemnością prezentuje Państwu', value: 'Z przyjemnoscia prezentuje Panstwu' }
                 // TODO we need more...
             ];
-            var workerPool = new WorkerPool(2, 100);
+            var workerPool = new WorkerPool(2, 250);
             var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
             var blob = new Blob(['importScripts("' + scriptUrl + '"); onmessage = function (e) { postMessage(removeDiacritics(e.data)); close(); };']);
             var blobURL = window.URL.createObjectURL(blob);

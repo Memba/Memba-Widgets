@@ -564,7 +564,7 @@
                 wrapper.children('.' + NOPAGE_CLASS).remove();
 
                 // set no data message
-                if(enable) {
+                if (enable) {
                     $(DIV)
                         .addClass(NOPAGE_CLASS)
                         .text(this.options.messages.noPage)
@@ -583,7 +583,7 @@
              * @param enable
              * @private
              */
-            _toggleReadOnlyOverlay: function(enable) {
+            _toggleReadOnlyOverlay: function (enable) {
                 assert.instanceof($, this.wrapper, kendo.format(assert.messages.instanceof.default, 'this.wrapper', 'jQuery'));
                 var wrapper = this.wrapper;
 
@@ -591,7 +591,7 @@
                 wrapper.children('.' + OVERLAY_CLASS).remove();
 
                 // set overlay
-                if(enable) {
+                if (enable) {
                     // Add overlay to disable all controls (including audio and video controls)
                     $(DIV)
                         .addClass(OVERLAY_CLASS)
@@ -786,7 +786,7 @@
              * @param enable
              * @private
              */
-            _toggleContextMenu: function(enable) {
+            _toggleContextMenu: function (enable) {
                 var that = this;
 
                 // CLear
@@ -797,7 +797,7 @@
                 }
 
                 // Add context menu
-                if(enable) {
+                if (enable) {
                     // See http://docs.telerik.com/kendo-ui/api/javascript/ui/contextmenu
                     that.menu = $('<ul class="kj-stage-menu"></ul>')
                     // .append('<li ' + DATA_COMMAND + '="lock">Lock</li>') // TODO Use constants + localize in messages
@@ -891,7 +891,7 @@
                 var mode = this.mode();
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var content =  tool.getHtmlContent(component, mode);
-                if (!content instanceof $) {
+                if (!(content instanceof $)) {
                     assert.type(STRING, content, kendo.format(assert.messages.type.default, 'tool.getHtmlContent(...)', STRING));
                     content = $(content);
                 }

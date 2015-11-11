@@ -27,7 +27,7 @@
         var kidoju = window.kidoju = window.kidoju || {};
         var Model = kidoju.data.Model;
         var PageComponent = kidoju.data.PageComponent;
-        // var assert = window.assert,
+        var assert = window.assert;
         // var logger = new window.Log('kidoju.tools'); // TODO
         var OBJECT = 'object';
         var STRING = 'string';
@@ -259,7 +259,7 @@
              * Add the display of a success or failure icon to the corresponding stage element
              * @returns {string}
              */
-            showResult: function() {
+            showResult: function () {
                 // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
                 return '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.success + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
                        '<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.failure + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>';

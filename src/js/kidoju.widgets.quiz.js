@@ -415,7 +415,7 @@
                         that.groupList.on(CLICK + NS, 'input', $.proxy(that._onClick, that));
                     } else {
                         // Because input are readonly and not disabled, we need to prevent default (checking checkbox) and let it bubble to the stage element to display the handle box
-                        that.groupList.on(CLICK + NS, 'input', function(e) { e.preventDefault(); });
+                        that.groupList.on(CLICK + NS, 'input', function (e) { e.preventDefault(); });
                     }
                     that.groupList.find('input')
                         .toggleClass(DISABLE, !enable)

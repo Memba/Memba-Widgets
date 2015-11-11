@@ -36,7 +36,7 @@
         var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
         var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
         // var assert = window.assert
-        var logger = new window.Log('kidoju.widgets.explorer');
+        var logger = new window.Logger('kidoju.widgets.explorer');
         var STRING = 'string';
         var NUMBER = 'number';
         var NULL = null;

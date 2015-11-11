@@ -35,7 +35,7 @@
         var Pager = kendo.ui.Pager;
         var TabStrip = kendo.ui.TabStrip;
         var assert = window.assert;
-        var logger = new window.Log('kidoju.widgets.assetmanager');
+        var logger = new window.Logger('kidoju.widgets.assetmanager');
         var NUMBER = 'number';
         var STRING = 'string';
         var OBJECT = 'object';

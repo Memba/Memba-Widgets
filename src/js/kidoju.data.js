@@ -27,7 +27,7 @@
         var kidoju = window.kidoju = window.kidoju || {};
         var models = kidoju.data = kidoju.data || {};
         var assert = window.assert;
-        var logger = new window.Log('kidoju.data');
+        var logger = new window.Logger('kidoju.data');
         var OBJECT = 'object';
         var STRING = 'string';
         // var BOOLEAN = 'boolean';

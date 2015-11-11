@@ -28,7 +28,7 @@
         var Model = kidoju.data.Model;
         var PageComponent = kidoju.data.PageComponent;
         var assert = window.assert;
-        // var logger = new window.Log('kidoju.tools'); // TODO
+        // var logger = new window.Logger('kidoju.tools'); // TODO
         var OBJECT = 'object';
         var STRING = 'string';
         var NUMBER = 'number';

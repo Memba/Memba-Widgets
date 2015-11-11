@@ -27,7 +27,7 @@
         var tools = kidoju.tools;
         var Tool = kidoju.Tool;
         // var assert = window.assert;
-        var logger = new window.Log('kidoju.widgets.toolbox');
+        var logger = new window.Logger('kidoju.widgets.toolbox');
         var STRING = 'string';
         var CLICK = 'click';
         var CHANGE = 'change';

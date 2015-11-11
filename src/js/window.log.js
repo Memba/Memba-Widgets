@@ -19,12 +19,20 @@
         var app = window.app;
 
         /**
-         * Log class
-         * @class Log
+         * Logger class
+         * @class Logger
          */
-        var Log = window.Log = function (module) {
+        var Logger = window.Logger = function (module) {
 
             this._module = module;
+
+            /**
+             * Process a log entry
+             * @param entry
+             */
+            function process(entry) {
+
+            }
 
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
@@ -77,31 +85,31 @@
          * Print debug message
          * @param message
          */
-        Log.prototype.debug = function (message) { return this._print(message, 'debug'); };
+        Logger.prototype.debug = function (message) { return this._print(message, 'debug'); };
 
         /**
          * Print info message
          * @param message
          */
-        Log.prototype.info = function (message) { return this._print(message, 'info'); };
+        Logger.prototype.info = function (message) { return this._print(message, 'info'); };
 
         /**
          * Print warn message
          * @param message
          */
-        Log.prototype.warn = function (message) { return this._print(message, 'warn'); };
+        Logger.prototype.warn = function (message) { return this._print(message, 'warn'); };
 
         /**
          * Print error message
          * @param message
          */
-        Log.prototype.error = function (message) { return this._print(message, 'error'); };
+        Logger.prototype.error = function (message) { return this._print(message, 'error'); };
 
         /**
          * Print critical message
          * @param message
          */
-        Log.prototype.crit = function (message) { return this._print(message, 'crit'); };
+        Logger.prototype.crit = function (message) { return this._print(message, 'crit'); };
 
 
     }(window.jQuery));

@@ -24,7 +24,7 @@
         var kendo = window.kendo;
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
-        var logger = new window.Log('kidoju.widgets.codeeditor');
+        var logger = new window.Logger('kidoju.widgets.codeinput');
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';

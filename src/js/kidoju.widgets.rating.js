@@ -32,7 +32,7 @@
         var ui = kendo.ui;
         var Widget = ui.Widget;
         // var assert = window.assert,
-        var logger = new window.Log('kidoju.widgets.rating');
+        var logger = new window.Logger('kidoju.widgets.rating');
         var NUMBER = 'number';
         var STAR = 'star';
         var STAR_P = '&#x2605;';

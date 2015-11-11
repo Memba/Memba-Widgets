@@ -1169,7 +1169,7 @@
             return;
         }
 
-        xit('large number of tasks', function (done) {
+        it('large number of tasks', function (done) {
             var workerPool = new WorkerPool(8);
             var length = 1000;
             for (var i = 0; i < length; i++) {

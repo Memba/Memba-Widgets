@@ -1,5 +1,5 @@
 /**
- * Sinon.JS 1.17.1, 2015/09/26
+ * Sinon.JS 1.17.2, 2015/10/21
  *
  * @author Christian Johansen (christian@cjohansen.no)
  * @author Contributors: https://github.com/cjohansen/Sinon.JS/blob/master/AUTHORS
@@ -3288,7 +3288,7 @@ var sinon = (function () {
 (function (sinonGlobal) {
     
     function makeApi(sinon) {
-        function walkInternal(obj, iterator, context, originalObj) {
+        function walkInternal(obj, iterator, context, originalObj, seen) {
             var proto, prop;
 
             if (typeof Object.getOwnPropertyNames !== "function") {
@@ -3304,14 +3304,17 @@ var sinon = (function () {
             }
 
             Object.getOwnPropertyNames(obj).forEach(function (k) {
-                var target = typeof Object.getOwnPropertyDescriptor(obj, k).get === "function" ?
-                    originalObj : obj;
-                iterator.call(context, target[k], k, target);
+                if (!seen[k]) {
+                    seen[k] = true;
+                    var target = typeof Object.getOwnPropertyDescriptor(obj, k).get === "function" ?
+                        originalObj : obj;
+                    iterator.call(context, target[k], k, target);
+                }
             });
 
             proto = Object.getPrototypeOf(obj);
             if (proto) {
-                walkInternal(proto, iterator, context, originalObj);
+                walkInternal(proto, iterator, context, originalObj, seen);
             }
         }
 
@@ -3326,7 +3329,7 @@ var sinon = (function () {
          * context - (Optional) When given, the iterator will be called with this object as the receiver.
          */
         function walk(obj, iterator, context) {
-            return walkInternal(obj, iterator, context, obj);
+            return walkInternal(obj, iterator, context, obj, {});
         }
 
         sinon.walk = walk;

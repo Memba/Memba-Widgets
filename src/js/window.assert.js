@@ -30,12 +30,12 @@
             },
             {
                 enum: function (array, value, message) { if (array.indexOf(value) === -1) { throw new RangeError(message); } },
-                equal: function (expected, actual, message) { if (expected !== actual) { throw new Error(message); } },
+                equal: function (expected, actual, message) { if (expected !== actual) { throw new RangeError(message); } },
                 instanceof: function (Class, value, message) { if (!(value instanceof Class)) { throw new TypeError(message); } },
-                isOptionalObject: function (value, message) { if ($.type(value) !== UNDEFINED && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new Error(message); } },
-                isPlainObject: function (value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new Error(message); } },
+                isOptionalObject: function (value, message) { if ($.type(value) !== UNDEFINED && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new TypeError(message); } },
+                isPlainObject: function (value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new TypeError(message); } },
                 isUndefined: function (value, message) { if ($.type(value) !== UNDEFINED) { throw new TypeError(message); } },
-                match: function (rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new Error(message); } },
+                match: function (rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new RangeError(message); } },
                 ok: function (test, message) { return assert(test, message); },
                 type: function (type, value, message) { if ($.type(value) !== type) { throw new TypeError(message); } }
             },
@@ -50,6 +50,9 @@
                     instanceof: {
                         default: '`{0}` is expected to be an instance of `{1}`'
                     },
+                    isOptionalObject: {
+                        default: '`{0}` is expected to be undefined or a plain object'
+                    },
                     isPlainObject: {
                         default: '`{0}` is expected to be a plain object'
                     },
@@ -58,6 +61,9 @@
                     },
                     match: {
                         default: '`{0}` is expected to match `{1}`'
+                    },
+                    ok: {
+                        default: 'A statement is expected to be true'
                     },
                     type: {
                         default: '`{0}` is expected to have type `{1}`'

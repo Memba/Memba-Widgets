@@ -17,6 +17,17 @@
     var tools = kidoju.tools;
     var adapters = kidoju.adapters;
 
+    // No need to load kendo.widgets.stage.js
+    kendo.ui.Stage = {
+        fn: {
+            modes: {
+                design: 'design',
+                play: 'play',
+                review: 'review'
+            }
+        }
+    };
+
 
     describe('tools', function () {
 
@@ -143,16 +154,16 @@
         describe('Pointer', function () {
 
             it('Validate pointer properties', function () {
-                var pointer = tools.pointer;
-                expect(pointer.id).to.equal('pointer');
-                expect(pointer.icon).to.equal('mouse_pointer');
-                expect(pointer.cursor).to.equal('default');
-                expect(pointer.height).to.equal(0);
-                expect(pointer.width).to.equal(0);
-                expect(pointer.getHtml).to.be.undefined;
-                expect(pointer.onMove).to.be.undefined;
-                expect(pointer.onResize).to.be.undefined;
-                expect(pointer.onRotate).to.be.undefined;
+                var tool = tools.pointer;
+                expect(tool.id).to.equal('pointer');
+                expect(tool.icon).to.equal('mouse_pointer');
+                expect(tool.cursor).to.equal('default');
+                expect(tool.height).to.equal(0);
+                expect(tool.width).to.equal(0);
+                expect(tool.getHtmlContent).to.be.undefined;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.be.undefined;
+                expect(tool.onRotate).to.be.undefined;
             });
 
         });
@@ -160,31 +171,46 @@
         describe('Label', function () {
 
             it('Validate label properties', function () {
-                var label = tools.label;
-                expect(label.id).to.equal('label');
-                expect(label.icon).to.equal('document_orientation_landscape');
-                expect(label.cursor).to.equal('crosshair');
-                expect(label.height).to.equal(100);
-                expect(label.width).to.equal(300);
-                expect(label.getHtml).to.respond;
-                expect(label.onMove).to.be.undefined;
-                expect(label.onResize).to.respond;
-                expect(label.onRotate).to.be.undefined;
+                var tool = tools.label;
+                expect(tool.id).to.equal('label');
+                expect(tool.icon).to.equal('document_orientation_landscape');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(100);
+                expect(tool.width).to.equal(300);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
             });
 
-            it('Check getHtml', function () {
-                var label = tools.label;
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.label;
                 var component = new PageComponent({ tool: 'label' });
                 var html;
 
                 // If we do not submit a page component
-                html = label.getHtml({});
-                expect(html).to.be.undefined;
+                expect(fn1).to.throw;
 
-                // If we submit a valid page component
-                html = label.getHtml(component);
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
                 expect(html).to.match(/^<div/);
 
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<div/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<div/);
             });
 
         });
@@ -192,29 +218,45 @@
         describe('Image', function () {
 
             it('Validate image properties', function () {
-                var image = tools.image;
-                expect(image.id).to.equal('image');
-                expect(image.icon).to.equal('painting_landscape');
-                expect(image.cursor).to.equal('crosshair');
-                expect(image.height).to.equal(250);
-                expect(image.width).to.equal(250);
-                expect(image.getHtml).to.respond;
-                expect(image.onMove).to.be.undefined;
-                expect(image.onResize).to.respond;
-                expect(image.onRotate).to.be.undefined;
+                var tool = tools.image;
+                expect(tool.id).to.equal('image');
+                expect(tool.icon).to.equal('painting_landscape');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(250);
+                expect(tool.width).to.equal(250);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
             });
 
-            it('Check getHtml', function () {
-                var image = tools.image;
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.image;
                 var component = new PageComponent({ tool: 'image' });
                 var html;
 
                 // If we do not submit a page component
-                html = image.getHtml({});
-                expect(html).to.be.undefined;
+                expect(fn1).to.throw;
 
-                // If we submit a valid page component
-                html = image.getHtml(component);
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
+                expect(html).to.match(/^<img/);
+
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<img/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
                 expect(html).to.match(/^<img/);
             });
 
@@ -223,61 +265,46 @@
         describe('Textbox', function () {
 
             it('Validate textbox properties', function () {
-                var textbox = tools.textbox;
-                expect(textbox.id).to.equal('textbox');
-                expect(textbox.icon).to.equal('text_field');
-                expect(textbox.cursor).to.equal('crosshair');
-                expect(textbox.height).to.equal(100);
-                expect(textbox.width).to.equal(300);
-                expect(textbox.getHtml).to.respond;
-                expect(textbox.onMove).to.be.undefined;
-                expect(textbox.onResize).to.respond;
-                expect(textbox.onRotate).to.be.undefined;
+                var tool = tools.textbox;
+                expect(tool.id).to.equal('textbox');
+                expect(tool.icon).to.equal('text_field');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(100);
+                expect(tool.width).to.equal(300);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
             });
 
-            it('Check getHtml', function () {
-                var textbox = tools.textbox;
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.textbox;
                 var component = new PageComponent({ tool: 'textbox' });
                 var html;
 
                 // If we do not submit a page component
-                html = textbox.getHtml({});
-                expect(html).to.be.undefined;
+                expect(fn1).to.throw;
 
-                // If we submit a valid page component
-                html = textbox.getHtml(component);
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
                 expect(html).to.match(/^<input/);
-            });
 
-        });
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<input/);
 
-        xdescribe('Button', function () {
-
-            it('Validate button properties', function () {
-                var button = tools.button;
-                expect(button.id).to.equal('button');
-                expect(button.icon).to.equal('button');
-                expect(button.cursor).to.equal('crosshair');
-                expect(button.height).to.equal(100);
-                expect(button.width).to.equal(300);
-                expect(button.getHtml).to.respond;
-                expect(button.onMove).to.be.undefined;
-                expect(button.onResize).to.respond;
-                expect(button.onRotate).to.be.undefined;
-            });
-
-            it('Check getHtml', function () {
-                var button = tools.button;
-                var component = new PageComponent({ tool: 'button' });
-                var html;
-
-                // If we do not submit a page component
-                html = button.getHtml({});
-                expect(html).to.be.undefined;
-
-                // If we submit a valid page component
-                html = button.getHtml(component);
-                expect(html).to.match(/^<a/);
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<input/);
             });
 
         });
@@ -285,32 +312,46 @@
         describe('Checkbox', function () {
 
             it('Validate checkbox properties', function () {
-                var checkbox = tools.checkbox;
-                expect(checkbox.id).to.equal('checkbox');
-                expect(checkbox.icon).to.equal('checkbox');
-                expect(checkbox.cursor).to.equal('crosshair');
-                expect(checkbox.height).to.equal(60);
-                expect(checkbox.width).to.equal(500);
-                expect(checkbox.getHtml).to.respond;
-                expect(checkbox.onMove).to.be.undefined;
-                expect(checkbox.onResize).to.respond;
-                expect(checkbox.onRotate).to.be.undefined;
+                var tool = tools.checkbox;
+                expect(tool.id).to.equal('checkbox');
+                expect(tool.icon).to.equal('checkbox');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(60);
+                expect(tool.width).to.equal(500);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
             });
 
-            it('Check getHtml', function () {
-                var checkbox = tools.checkbox;
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.checkbox;
                 var component = new PageComponent({ tool: 'checkbox' });
                 var html;
 
                 // If we do not submit a page component
-                html = checkbox.getHtml({});
-                expect(html).to.be.undefined;
+                expect(fn1).to.throw;
 
-                // If we submit a valid page component
-                html = checkbox.getHtml(component);
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
                 expect(html).to.match(/^<div><input/);
 
-                // TODO: use jQuery for refined tests
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<div><input/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<div><input/);
             });
 
         });
@@ -318,32 +359,140 @@
         describe('Quiz', function () {
 
             it('Validate quiz properties', function () {
-                var quiz = tools.quiz;
-                expect(quiz.id).to.equal('quiz');
-                expect(quiz.icon).to.equal('radio_button_group');
-                expect(quiz.cursor).to.equal('crosshair');
-                expect(quiz.height).to.equal(300);
-                expect(quiz.width).to.equal(500);
-                expect(quiz.getHtml).to.respond;
-                expect(quiz.onMove).to.be.undefined;
-                expect(quiz.onResize).to.respond;
-                expect(quiz.onRotate).to.be.undefined;
+                var tool = tools.quiz;
+                expect(tool.id).to.equal('quiz');
+                expect(tool.icon).to.equal('radio_button_group');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(100);
+                expect(tool.width).to.equal(300);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
             });
 
-            it('Check getHtml', function () {
-                var quiz = tools.quiz;
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.quiz;
                 var component = new PageComponent({ tool: 'quiz' });
                 var html;
 
                 // If we do not submit a page component
-                html = quiz.getHtml({});
-                expect(html).to.be.undefined;
+                expect(fn1).to.throw;
 
-                // If we submit a valid page component
-                html = quiz.getHtml(component);
-                expect(html).to.match(/^<div/);
+                // If we do not submit a mode
+                expect(fn2).to.throw;
 
-                // TODO: use jQuery for refined tests
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
+                expect(html).to.match(/^<div data-role="quiz"/);
+
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<div data-role="quiz"/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<div data-role="quiz"/);
+            });
+
+        });
+
+        describe('Audio', function () {
+
+            it('Validate audio properties', function () {
+                var tool = tools.audio;
+                expect(tool.id).to.equal('audio');
+                expect(tool.icon).to.equal('loudspeaker3');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(100);
+                expect(tool.width).to.equal(400);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.audio;
+                var component = new PageComponent({ tool: 'audio' });
+                var html;
+
+                // If we do not submit a page component
+                expect(fn1).to.throw;
+
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
+                expect(html).to.match(/^<div data-role="mediaplayer" data-mode="audio"/);
+
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<div data-role="mediaplayer" data-mode="audio"/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<div data-role="mediaplayer" data-mode="audio"/);
+            });
+
+        });
+
+        describe('Video', function () {
+
+            it('Validate audio properties', function () {
+                var tool = tools.video;
+                expect(tool.id).to.equal('video');
+                expect(tool.icon).to.equal('movie');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(300);
+                expect(tool.width).to.equal(600);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.video;
+                var component = new PageComponent({ tool: 'video' });
+                var html;
+
+                // If we do not submit a page component
+                expect(fn1).to.throw;
+
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
+                expect(html).to.match(/^<div data-role="mediaplayer" data-mode="video"/);
+
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<div data-role="mediaplayer" data-mode="video"/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<div data-role="mediaplayer" data-mode="video"/);
             });
 
         });

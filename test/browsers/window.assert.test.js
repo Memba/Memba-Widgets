@@ -10,7 +10,7 @@
     'use strict';
 
     var expect = window.chai.expect;
-    var sinon = window.sinon;
+    // var sinon = window.sinon;
     // var kendo = window.kendo;
     // var FIXTURES = '#fixtures';
     var assert = window.assert;

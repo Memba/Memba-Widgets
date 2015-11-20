@@ -1273,6 +1273,7 @@
                 var stageElement = $(e.currentTarget);
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
                     var content = stageElement.children('div' + kendo.roleSelector('quiz'));
+                    var input = content.find('input');
                     var data = component.attributes.data;
                     var length = data.trim().split('\n').length || 1;
                     var height = $.type(component.height) === NUMBER ? component.height : 0;
@@ -1287,7 +1288,9 @@
                             content.css('font-size', Math.floor(0.5 * height));
                             break;
                         case 'radio':
-                            content.css('font-size', Math.floor(0.9 * height / (length || 1)));
+                            var h = height / (length || 1);
+                            content.css('font-size', Math.floor(0.9 * h));
+                            input.height(0.6 * h).width(0.6 * h);
                             break;
                     }
                     // prevent any side effect

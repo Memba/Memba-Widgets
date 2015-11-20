@@ -28,7 +28,7 @@
         var Model = kidoju.data.Model;
         var PageComponent = kidoju.data.PageComponent;
         var assert = window.assert;
-        // var logger = new window.Logger('kidoju.tools'); // TODO
+        var logger = new window.Logger('kidoju.tools');
         var OBJECT = 'object';
         var STRING = 'string';
         var NUMBER = 'number';
@@ -44,6 +44,7 @@
         var DIALOG_DIV = '<div class="k-popup-edit-form {0}"></div>';
         var DIALOG_CLASS = '.kj-dialog';
         var CLICK = 'click';
+        var RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
         var FORMULA = 'function validate(value, solution, all) {\n\t{0}\n}';
         var JS_COMMENT = '// ';
         var CUSTOM = {
@@ -972,22 +973,23 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    var content = stageElement.children('div');
-                    if ($.type(component.width) === NUMBER) {
-                        content.outerWidth(component.width);
-                    }
-                    if ($.type(component.height) === NUMBER) {
-                        content.outerHeight(component.height);
-                        if (component.attributes && !/font(-size)?:[^;]*[0-9]+px/.test(component.attributes.style)) {
-                            content.css('font-size', Math.floor(0.85 * content.height()));
-                        }
-                    }
-                    // prevent any side effect
-                    e.preventDefault();
-                    // prevent event to bubble on stage
-                    e.stopPropagation();
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
                 }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                    if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
+                        content.css('font-size', Math.floor(0.85 * content.height()));
+                    }
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+
             }
         });
         tools.register(Label);
@@ -1044,19 +1046,19 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    var content = stageElement.children('img');
-                    if ($.type(component.width) === NUMBER) {
-                        content.outerWidth(component.width);
-                    }
-                    if ($.type(component.height) === NUMBER) {
-                        content.outerHeight(component.height);
-                    }
-                    // prevent any side effect
-                    e.preventDefault();
-                    // prevent event to bubble on stage
-                    e.stopPropagation();
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('img');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
                 }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
             }
         });
         tools.register(Image);
@@ -1122,22 +1124,22 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    var content = stageElement.children('input');
-                    if ($.type(component.width) === NUMBER) {
-                        content.outerWidth(component.width);
-                    }
-                    if ($.type(component.height) === NUMBER) {
-                        content.outerHeight(component.height);
-                        if (component.attributes && !/font(-size)?:[^;]*[0-9]+px/.test(component.attributes.style)) {
-                            content.css('font-size', Math.floor(0.65 * content.height()));
-                        }
-                    }
-                    // prevent any side effect
-                    e.preventDefault();
-                    // prevent event to bubble on stage
-                    e.stopPropagation();
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('input');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
                 }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                    if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
+                        content.css('font-size', Math.floor(0.65 * content.height()));
+                    }
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
             }
         });
         tools.register(Textbox);
@@ -1159,7 +1161,7 @@
 
             },
             height: 60,
-            width: 500,
+            width: 300,
             attributes: {
                 checkboxStyle: new adapters.StyleAdapter({ title: 'Checkbox Style' }),
                 labelStyle: new adapters.StyleAdapter({ title: 'Label Style' }),
@@ -1207,16 +1209,28 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) { // TODO: same id, same tool?
-                    var content = stageElement.children('div');
-                    // TODO
-                    // prevent any side effect
-                    e.preventDefault();
-                    // prevent event to bubble on stage
-                    e.stopPropagation();
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div');
+                var input = content.children('input');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
                 }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                    if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
+                        content.css('font-size', Math.floor(0.85 * content.height()));
+                    }
+                }
+                var size = parseInt(content.css('font-size'), 10);
+                content.children('input')
+                    .height(0.6 * size)
+                    .width(0.6 * size);
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
             }
-
         });
         tools.register(CheckBox);
 
@@ -1271,33 +1285,34 @@
             onResize: function (e, component) {
                 /* jshint maxcomplexity: 8 */
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    var content = stageElement.children('div' + kendo.roleSelector('quiz'));
-                    var input = content.find('input');
-                    var data = component.attributes.data;
-                    var length = data.trim().split('\n').length || 1;
-                    var height = $.type(component.height) === NUMBER ? component.height : 0;
-                    // var width = $.type(component.width) === NUMBER ? component.width : 0;
-                    // content.outerWidth(width);
-                    // content.outerHeight(height);
-                    switch (component.attributes.mode) {
-                        case 'button':
-                            content.css('font-size', Math.floor(0.57 * height));
-                            break;
-                        case 'dropdown':
-                            content.css('font-size', Math.floor(0.5 * height));
-                            break;
-                        case 'radio':
-                            var h = height / (length || 1);
-                            content.css('font-size', Math.floor(0.9 * h));
-                            input.height(0.6 * h).width(0.6 * h);
-                            break;
-                    }
-                    // prevent any side effect
-                    e.preventDefault();
-                    // prevent event to bubble on stage
-                    e.stopPropagation();
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div' + kendo.roleSelector('quiz'));
+                var data = component.attributes.data;
+                var length = data.trim().split('\n').length || 1;
+                var height = $.type(component.height) === NUMBER ? component.height : 0;
+                // var width = $.type(component.width) === NUMBER ? component.width : 0;
+                // content.outerWidth(width);
+                // content.outerHeight(height);
+                switch (component.attributes.mode) {
+                    case 'button':
+                        content.css('font-size', Math.floor(0.57 * height));
+                        break;
+                    case 'dropdown':
+                        content.css('font-size', Math.floor(0.5 * height));
+                        break;
+                    case 'radio':
+                        var h = height / (length || 1);
+                        content.css('font-size', Math.floor(0.9 * h));
+                        content.find('input')
+                            .height(0.6 * h)
+                            .width(0.6 * h);
+                        break;
                 }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
             }
 
             /* jshint +W074 */
@@ -1332,21 +1347,21 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
-                    var widget = content.data('kendoMediaPlayer');
-                    if ($.type(component.width) === NUMBER) {
-                        content.outerWidth(component.width);
-                    }
-                    if ($.type(component.height) === NUMBER) {
-                        content.outerHeight(component.height);
-                    }
-                    widget.resize();
-                    // prevent any side effect
-                    e.preventDefault();
-                    // prevent event to bubble on stage
-                    e.stopPropagation();
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
+                var widget = content.data('kendoMediaPlayer');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
                 }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                }
+                widget.resize();
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
             }
         });
         tools.register(Audio);
@@ -1380,21 +1395,21 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
-                    var widget = content.data('kendoMediaPlayer');
-                    if ($.type(component.width) === NUMBER) {
-                        content.outerWidth(component.width);
-                    }
-                    if ($.type(component.height) === NUMBER) {
-                        content.outerHeight(component.height);
-                    }
-                    widget.resize();
-                    // prevent any side effect
-                    e.preventDefault();
-                    // prevent event to bubble on stage
-                    e.stopPropagation();
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
+                var widget = content.data('kendoMediaPlayer');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
                 }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                }
+                widget.resize();
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
             }
         });
         tools.register(Video);

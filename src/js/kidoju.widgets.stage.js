@@ -800,12 +800,12 @@
                 if (enable) {
                     // See http://docs.telerik.com/kendo-ui/api/javascript/ui/contextmenu
                     that.menu = $('<ul class="kj-stage-menu"></ul>')
-                    // .append('<li ' + DATA_COMMAND + '="lock">Lock</li>') // TODO Use constants + localize in messages
+                        // .append('<li ' + DATA_COMMAND + '="lock">Lock</li>') // TODO Use constants + localize in messages
                         .append('<li ' + DATA_COMMAND + '="delete">Delete</li>')// TODO: Bring forward, Push backward, Edit, etc.....
                         .appendTo(that.wrapper)
                         .kendoContextMenu({
                             target: '.kj-handle[' + DATA_COMMAND + '="menu"]',
-                            showOn: MOUSEDOWN + ' ' + TOUCHSTART,
+                            showOn: MOUSEDOWN + NS + ' ' + TOUCHSTART + NS,
                             select: $.proxy(that._contextMenuSelectHandler, that)
                         })
                         .data('kendoContextMenu');
@@ -818,6 +818,9 @@
              * @private
              */
             _contextMenuSelectHandler: function (e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof($.Event, e.event, kendo.format(assert.messages.instanceof.default, 'e.event', 'jQuery.Event'))
+
                 // TODO: Consider an event dispatcher so that the same commands can be called from toolbar
                 // Check when implementing fonts, colors, etc....
                 var that = this;
@@ -828,9 +831,18 @@
                         var uid = that.wrapper.children(DOT + HANDLE_BOX_CLASS).attr(DATA_UID);
                         var item = that.dataSource.getByUid(uid);
                         that.dataSource.remove(item);
-                        // This should raise teh change event on the dataSource and call the refresh method of the widget
+                        // This should raise the change event on the dataSource and call the refresh method of the widget
                         break;
                 }
+
+                // Close the menu
+                if (that.menu instanceof kendo.ui.ContextMenu) {
+                    that.menu.close();
+                }
+
+                // Event is handled, do not propagate
+                e.preventDefault();
+                // e.stopPropagation();
             },
 
             /**
@@ -1021,8 +1033,9 @@
                 var handle = target.closest(DOT + HANDLE_CLASS);
                 var uid;
 
-                if (that.menu instanceof kendo.ui.ContextMenu) {
-                    that.menu.close();
+                // Close any context menu left opened if not selecting a menu item
+                if (that.menu instanceof kendo.ui.ContextMenu && !target.is('.k-link')) {
+                   that.menu.close();
                 }
 
                 if (activeToolId !== POINTER) {
@@ -1239,7 +1252,7 @@
 
                 }
 
-                // TODO iterate through components and call onEnbale
+                // TODO iterate through components and call onEnable
             },
 
             /**

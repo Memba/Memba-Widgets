@@ -77,46 +77,11 @@
                 expect(stage.dataSource.total()).to.equal(0);
                 expect(element.parent()).to.have.class('k-widget');
                 expect(element.parent()).to.have.class('kj-stage');
-                expect(stage.mode()).to.equal(Stage.fn.modes.thumbnail);
+                expect(stage.mode()).to.equal(Stage.fn.modes.play);
                 // expect(stage.wrapper).to.equal(element.parent());
                 expect(stage.wrapper[0]).to.equal(element.parent()[0]);
                 expect(stage.wrapper).to.have.descendants('div[data-role="stage"]');
-                expect(stage.wrapper).to.have.descendants('div.kj-nodata');
-            });
-
-            it('from code with dataSource in thumbnail mode', function () {
-                var element = $(STAGE1).appendTo(FIXTURES);
-                var stage = element.kendoStage({
-                        mode: Stage.fn.modes.thumbnail,
-                        dataSource: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray })
-                    }).data('kendoStage');
-                expect(stage).to.be.an.instanceof(Stage);
-                expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
-                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
-                expect(stage.mode()).to.equal(Stage.fn.modes.thumbnail);
-                // expect(stage.wrapper).to.equal(element.parent());
-                expect(stage.wrapper[0]).to.equal(element.parent()[0]);
-                expect(stage.wrapper).to.have.class('k-widget');
-                expect(stage.wrapper).to.have.class('kj-stage');
-                expect(stage.wrapper).to.have.descendants('div[data-role="stage"]');
-                expect(stage.wrapper).to.have.descendants('div.kj-overlay');          // <------------------------- in thumbnail mode, there is an overlay
-                expect(stage.wrapper).not.to.have.descendants('div.kj-handle-box');   // <------------------------- in thumbnail mode, there is no handle box (with handles)
-                expect($(document.body)).not.to.have.descendants('ul.kj-stage-menu'); // <------------------------- in thumbnail mode, there is no contextual menu
-                expect(stage.menu).to.be.undefined;
-                var items = element.find('div.kj-element');
-                expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionArray.length);
-                $.each(items, function (index, item) {
-                    var data = stage.dataSource.at(index);
-                    expect($(item).attr(kendo.attr('uid'))).to.equal(data.uid);
-                    expect($(item).attr(kendo.attr('tool'))).to.equal(data.tool);
-                    expect($(item).css('position')).to.equal('absolute');
-                    expect($(item).css('top')).to.equal(data.top + 'px');
-                    expect($(item).css('left')).to.equal(data.left + 'px');
-                    expect($(item).css('height')).to.equal(data.height + 'px');
-                    expect($(item).css('width')).to.equal(data.width + 'px');
-                    // TODO we would need a function to convert a 2D transform matrix into a rotation angle
-                    // expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', data.rotate));
-                });
+                expect(stage.wrapper).to.have.descendants('div.kj-nopage');
             });
 
             it('from code with dataSource in design mode', function () {
@@ -134,12 +99,12 @@
                 expect(stage.wrapper).to.have.class('k-widget');
                 expect(stage.wrapper).to.have.class('kj-stage');
                 expect(stage.wrapper).to.have.descendants('div[data-role="stage"]');
-                expect(stage.wrapper).not.to.have.descendants('div.kj-overlay'); // <------------------------- in design mode, there is no overlay
-                expect(stage.wrapper).to.have.descendants('div.kj-handle-box');  // <------------------------- in design mode, there is a handle box (with handles)
+                expect(stage.wrapper).not.to.have.descendants('div.kj-overlay');  // <------------------------- in design mode, there is no overlay
+                expect(stage.wrapper).to.have.descendants('div.kj-handle-box');   // <------------------------- in design mode, there is a handle box (with handles)
                 // expect(stage.wrapper).to.have.descendants('div.debug-bounds');
                 // expect(stage.wrapper).to.have.descendants('div.debug.center');
                 // expect(stage.wrapper).to.have.descendants('div.debug-mouse');
-                expect($(document.body)).to.have.descendants('ul.kj-stage-menu'); // <------------------------- in thumbnail mode, there is a contextual menu
+                expect($(document.body)).to.have.descendants('ul.kj-stage-menu'); // <------------------------- in design mode, there is a contextual menu
                 expect(stage.menu).to.be.an.instanceof(kendo.ui.ContextMenu);
                 var items = element.find('div.kj-element');
                 expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionArray.length);
@@ -174,6 +139,9 @@
                 expect(stage.wrapper).to.have.descendants('div[data-role="stage"]');
                 expect(stage.wrapper).not.to.have.descendants('div.kj-overlay');      // <------------------------- in play mode, there is no overlay
                 expect(stage.wrapper).not.to.have.descendants('div.kj-handle-box');   // <------------------------- in play mode, there is no handle box (with handles)
+                // expect(stage.wrapper).not.to.have.descendants('div.debug-bounds');
+                // expect(stage.wrapper).not.to.have.descendants('div.debug.center');
+                // expect(stage.wrapper).not.to.have.descendants('div.debug-mouse');
                 expect($(document.body)).not.to.have.descendants('ul.kj-stage-menu'); // <------------------------- in play mode, there is no contextual menu
                 expect(stage.menu).to.be.undefined;
                 var items = element.find('div.kj-element');
@@ -189,6 +157,46 @@
                     expect($(item).css('width')).to.equal(data.width + 'px');
                     // TODO we would need a function to convert a 2D transform matrix into a rotation angle
                     // expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', data.rotate));
+                    // TODO check bindings
+                });
+            });
+
+            it('from code with dataSource in review mode', function () {
+                var element = $(STAGE1).appendTo(FIXTURES);
+                var stage = element.kendoStage({
+                        mode: Stage.fn.modes.review,
+                        dataSource: new PageComponentCollectionDataSource({ data: pageComponentCollectionArray })
+                    }).data('kendoStage');
+                expect(stage).to.be.an.instanceof(Stage);
+                expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
+                expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
+                expect(stage.mode()).to.equal(Stage.fn.modes.review);
+                // expect(stage.wrapper).to.equal(element.parent());
+                expect(stage.wrapper[0]).to.equal(element.parent()[0]);
+                expect(stage.wrapper).to.have.class('k-widget');
+                expect(stage.wrapper).to.have.class('kj-stage');
+                expect(stage.wrapper).to.have.descendants('div[data-role="stage"]');
+                expect(stage.wrapper).not.to.have.descendants('div.kj-overlay');      // <------------------------- in review mode, there is no overlay
+                expect(stage.wrapper).not.to.have.descendants('div.kj-handle-box');   // <------------------------- in review mode, there is no handle box (with handles)
+                // expect(stage.wrapper).not.to.have.descendants('div.debug-bounds');
+                // expect(stage.wrapper).not.to.have.descendants('div.debug.center');
+                // expect(stage.wrapper).not.to.have.descendants('div.debug-mouse');
+                expect($(document.body)).not.to.have.descendants('ul.kj-stage-menu'); // <------------------------- in review mode, there is no contextual menu
+                expect(stage.menu).to.be.undefined;
+                var items = element.find('div.kj-element');
+                expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionArray.length);
+                $.each(items, function (index, item) {
+                    var data = stage.dataSource.at(index);
+                    expect($(item).attr(kendo.attr('uid'))).to.equal(data.uid);
+                    expect($(item).attr(kendo.attr('tool'))).to.equal(data.tool);
+                    expect($(item).css('position')).to.equal('absolute');
+                    expect($(item).css('top')).to.equal(data.top + 'px');
+                    expect($(item).css('left')).to.equal(data.left + 'px');
+                    expect($(item).css('height')).to.equal(data.height + 'px');
+                    expect($(item).css('width')).to.equal(data.width + 'px');
+                    // TODO we would need a function to convert a 2D transform matrix into a rotation angle
+                    // expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', data.rotate));
+                    // TODO check bindings
                 });
             });
 
@@ -211,6 +219,11 @@
                 expect(stage.wrapper).to.have.descendants('div[data-role="stage"]');
                 expect(stage.wrapper).not.to.have.descendants('div.kj-overlay'); // <------------------------- in design mode, there is no overlay
                 expect(stage.wrapper).to.have.descendants('div.kj-handle-box');  // <------------------------- in design mode, there is a handle box (with handles)
+                // expect(stage.wrapper).not.to.have.descendants('div.debug-bounds');
+                // expect(stage.wrapper).not.to.have.descendants('div.debug.center');
+                // expect(stage.wrapper).not.to.have.descendants('div.debug-mouse');
+                expect($(document.body)).to.have.descendants('ul.kj-stage-menu'); // <------------------------ in design mode, there is a contextual menu
+                expect(stage.menu).to.be.an.instanceof(kendo.ui.ContextMenu);
                 var items = element.find('div.kj-element');
                 expect(items).to.be.an.instanceof($).with.property('length', pageComponentCollectionArray.length);
                 $.each(items, function (index, item) {
@@ -224,6 +237,7 @@
                     expect($(item).css('width')).to.equal(component.width + 'px');
                     // TODO we would need a function to convert a 2D transform matrix into a rotation angle
                     // expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', component.rotate));
+                    // TODO check bindings
                 });
             });
         });
@@ -370,12 +384,12 @@
             });
 
             xit('properties', function () {
-
+                // TODO
             });
 
         });
 
-        xdescribe('MVVM', function () {
+        describe('MVVM', function () {
 
             var element;
             var stage;
@@ -702,7 +716,7 @@
 
         });
 
-        xdescribe('Events', function () {
+        describe('Events', function () {
 
             var element;
             var stage;

@@ -117,11 +117,11 @@
                 }
             }
 
+            /* This function has too many statements. */
+            /* jshint -W071 */
+
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
-
-            /*  This function has too many statements. */
-            /* jshint -W073 */
 
             /**
              * Print a formatted log entry to the console
@@ -129,7 +129,8 @@
              * @private
              */
             function log2Console(logEntry) {
-                /* jshint maxcomplexity: 8 */
+                /* jshint maxcomplexity: 22 */
+                /* jshint maxstatements: 31 */
                 if (app.DEBUG && window.console && typeof window.console.log === FUNCTION) {
                     var message = '[' + logEntry.level + (logEntry.level.length === 4 ? ' ' : '') + ']';
                     var first = true;
@@ -180,8 +181,8 @@
                 }
             }
 
-            /* jshint +W073 */
             /* jshint +W074 */
+            /* jshint +W071 */
 
             /**
              * Log message
@@ -189,7 +190,7 @@
              * @param message
              * @param data
              */
-            this.log = function(level, message, data) {
+            this.log = function (level, message, data) {
                 level = String(level).toUpperCase();
                 if (Object.keys(LEVELS).indexOf(level) === -1) {
                     throw new TypeError('level is either `debug`, `info`, `warn`, `error` or `crit`');

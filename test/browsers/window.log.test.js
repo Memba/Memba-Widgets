@@ -37,7 +37,7 @@
             var console;
             var ret;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 app.DEBUG = true;
                 logger = new window.Logger(MODULE);
                 logger.level = 0;
@@ -127,13 +127,13 @@
 
         });
 
-        describe('logging without app.logger at level 2', function() {
+        describe('logging without app.logger at level 2', function () {
 
             var logger;
             var console;
             var ret;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 app.DEBUG = true;
                 logger = new window.Logger(MODULE);
                 logger.level = 2;
@@ -143,14 +143,14 @@
                 };
             });
 
-            it('DEBUG should not log', function() {
+            it('DEBUG should not log', function () {
                 ret = logger.debug(MESSAGE);
                 expect(ret).to.be.false;
                 expect(console.log).to.have.callCount(0);
                 expect(console.error).to.have.callCount(0);
             });
 
-            it('INFO should log', function() {
+            it('INFO should log', function () {
                 ret  = logger.info(undefined);
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
@@ -158,7 +158,7 @@
                 expect(console.log).to.have.been.calledWith('[INFO ]\tmodule = ' + MODULE);
             });
 
-            it('WARN should log', function() {
+            it('WARN should log', function () {
                 var NOW = new Date();
                 ret = logger.warn(NOW);
                 expect(ret).to.be.true;
@@ -167,7 +167,7 @@
                 expect(console.log).to.have.been.calledWith('[WARN ]\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(NOW));
             });
 
-            it('ERROR should log', function() {
+            it('ERROR should log', function () {
                 var entry = new Error('Oops');
                 entry.originalError = new TypeError('Oops with details');
                 ret = logger.error(entry);
@@ -177,7 +177,7 @@
                 // expect(console.log).to.have.been.calledWith('[ERROR]	message = Oops	original = Oops with details	module = window.log.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.log.test.js:170:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
             });
 
-            it('CRIT should log', function() {
+            it('CRIT should log', function () {
                 var entry = new Error('Oops');
                 entry.originalError = new TypeError('Oops with details');
                 ret = logger.crit(entry);
@@ -189,13 +189,13 @@
 
         });
 
-        describe('logging without app.logger at level 4', function() {
+        describe('logging without app.logger at level 4', function () {
 
             var logger;
             var console;
             var ret;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 app.DEBUG = true;
                 logger = new window.Logger(MODULE);
                 logger.level = 4;
@@ -205,21 +205,21 @@
                 };
             });
 
-            it('DEBUG should not log', function() {
+            it('DEBUG should not log', function () {
                 ret = logger.debug(MESSAGE);
                 expect(ret).to.be.false;
                 expect(console.log).to.have.callCount(0);
                 expect(console.error).to.have.callCount(0);
             });
 
-            it('INFO should not log', function() {
+            it('INFO should not log', function () {
                 ret = logger.debug(MESSAGE);
                 expect(ret).to.be.false;
                 expect(console.log).to.have.callCount(0);
                 expect(console.error).to.have.callCount(0);
             });
 
-            it('WARN should log', function() {
+            it('WARN should log', function () {
                 var entry = { module: MODULE, method: METHOD,  message: MESSAGE, data: DATA };
                 ret = logger.warn(entry);
                 expect(ret).to.be.true;
@@ -228,7 +228,7 @@
                 expect(console.log).to.have.been.calledWith('[WARN ]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tmethod = ' + METHOD + '\tdata = ' + JSON.stringify(DATA));
             });
 
-            it('ERROR should log', function() {
+            it('ERROR should log', function () {
                 var entry = new Error('Oops');
                 entry.originalError = new TypeError('Oops with details');
                 ret = logger.error(entry);
@@ -238,7 +238,7 @@
                 // expect(console.log).to.have.been.calledWith('[ERROR]	message = Oops	original = Oops with details	module = window.log.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.log.test.js:170:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
             });
 
-            it('CRIT should log', function() {
+            it('CRIT should log', function () {
                 var entry = new Error('Oops');
                 entry.originalError = new TypeError('Oops with details');
                 ret = logger.crit(entry);
@@ -250,13 +250,13 @@
 
         });
 
-        describe('logging without app.logger at level 8', function() {
+        describe('logging without app.logger at level 8', function () {
 
             var logger;
             var console;
             var ret;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 app.DEBUG = true;
                 logger = new window.Logger(MODULE);
                 logger.level = 8;
@@ -266,28 +266,28 @@
                 };
             });
 
-            it('DEBUG should not log', function() {
+            it('DEBUG should not log', function () {
                 ret = logger.debug(MESSAGE);
                 expect(ret).to.be.false;
                 expect(console.log).to.have.callCount(0);
                 expect(console.error).to.have.callCount(0);
             });
 
-            it('INFO should not log', function() {
+            it('INFO should not log', function () {
                 ret = logger.debug(MESSAGE);
                 expect(ret).to.be.false;
                 expect(console.log).to.have.callCount(0);
                 expect(console.error).to.have.callCount(0);
             });
 
-            it('WARN should not log', function() {
+            it('WARN should not log', function () {
                 ret = logger.debug(MESSAGE);
                 expect(ret).to.be.false;
                 expect(console.log).to.have.callCount(0);
                 expect(console.error).to.have.callCount(0);
             });
 
-            it('ERROR should not log', function() {
+            it('ERROR should not log', function () {
                 var entry = new Error('Oops');
                 entry.originalError = new TypeError('Oops with details');
                 ret = logger.error(entry);
@@ -296,7 +296,7 @@
                 expect(console.error).to.have.callCount(0);
             });
 
-            it('CRIT should not log', function() {
+            it('CRIT should not log', function () {
                 var entry = new Error('Oops');
                 entry.originalError = new TypeError('Oops with details');
                 ret = logger.crit(entry);
@@ -327,7 +327,7 @@
                     .val(TRACE);
             });
 
-            it('ANY should log with a trace', function() {
+            it('ANY should log with a trace', function () {
                 ret = logger.debug(MESSAGE);
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
@@ -347,7 +347,7 @@
             var console;
             var ret;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 app.DEBUG = true;
                 app.logger = {
                     debug: sinon.spy(),
@@ -361,7 +361,7 @@
                 console = window.console = {
                     log: sinon.spy(),
                     error: sinon.spy()
-                }
+                };
             });
 
             it('debug', function () {

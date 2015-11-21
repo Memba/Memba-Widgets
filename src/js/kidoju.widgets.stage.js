@@ -819,7 +819,7 @@
              */
             _contextMenuSelectHandler: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof($.Event, e.event, kendo.format(assert.messages.instanceof.default, 'e.event', 'jQuery.Event'))
+                assert.instanceof($.Event, e.event, kendo.format(assert.messages.instanceof.default, 'e.event', 'jQuery.Event'));
 
                 // TODO: Consider an event dispatcher so that the same commands can be called from toolbar
                 // Check when implementing fonts, colors, etc....
@@ -1035,7 +1035,7 @@
 
                 // Close any context menu left opened if not selecting a menu item
                 if (that.menu instanceof kendo.ui.ContextMenu && !target.is('.k-link')) {
-                   that.menu.close();
+                    that.menu.close();
                 }
 
                 if (activeToolId !== POINTER) {

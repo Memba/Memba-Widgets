@@ -9,11 +9,17 @@
 
     'use strict';
 
+    var app = window.app = window.app || {};
     var expect = window.chai.expect;
     var sinon = window.sinon;
     // var kendo = window.kendo;
     // var FIXTURES = '#fixtures';
-    var assert = window.assert;
+    var MODULE = 'window.log.test';
+    var MESSAGE = 'my message';
+    var METHOD = 'myMethod';
+    var TRACE = '1234567890';
+    var DATA = { a: 1, b: 2, c: 3 };
+    var ERROR = new SyntaxError('Bad syntax');
 
     describe('window.log.test', function () {
 
@@ -25,64 +31,397 @@
         });
         */
 
-        describe('logging without app.logger', function () {
+        describe('logging without app.logger at level 0', function () {
 
-            it('debug', function () {
+            var logger;
+            var console;
+            var ret;
+
+            beforeEach(function() {
+                app.DEBUG = true;
+                logger = new window.Logger(MODULE);
+                logger.level = 0;
+                console = window.console = {
+                    log: sinon.spy(),
+                    error: sinon.spy()
+                };
+            });
+
+            it('log messages', function () {
                 function fn() {
-                    assert(false, ERR_MSG);
+                    logger.log(MESSAGE, DATA);
                 }
-                expect(fn).to.throw(Error, ERR_MSG);
-                expect(assert(true, ERR_MSG)).to.be.undefined;
+                expect(fn).to.throw;
+                // DEBUG
+                ret = logger.log('debug', { message: MESSAGE, data: DATA });
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(0);
+                expect(console.log).to.have.been.calledWith('[DEBUG]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
+                // INFO
+                ret = logger.log('info', MESSAGE, DATA);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(2);
+                expect(console.error).to.have.callCount(0);
+                expect(console.log).to.have.been.calledWith('[INFO ]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
+                // WARN
+                ret = logger.log('warn', MESSAGE, DATA);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(3);
+                expect(console.error).to.have.callCount(0);
+                expect(console.log).to.have.been.calledWith('[WARN ]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
             });
 
-            it('info', function () {
-
+            it('log errors', function () {
+                // ERROR
+                ret = logger.log('error', { message: MESSAGE, data: DATA, error: ERROR });
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(1);
+                // expect(console.log).to.have.been.calledWith('[ERROR]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
+                // CRIT
+                ret = logger.log('crit', ERROR);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(2);
+                expect(console.error).to.have.callCount(2);
+                // expect(console.log).to.have.been.calledWith('[CRIT ]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
             });
 
-            it('warn', function () {
-
+            it('DEBUG should log', function () {
+                ret = logger.debug(MESSAGE, DATA);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(0);
+                expect(console.log).to.have.been.calledWith('[DEBUG]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
             });
 
-            it('error', function () {
-
+            it('INFO should log', function () {
+                ret = logger.info(MESSAGE, DATA);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(0);
+                expect(console.log).to.have.been.calledWith('[INFO ]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
             });
 
-            it('crit', function () {
+            it('WARN should log', function () {
+                ret = logger.warn(MESSAGE, DATA);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(0);
+                expect(console.log).to.have.been.calledWith('[WARN ]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
+            });
 
+            it('ERROR should log', function () {
+                ret = logger.error(ERROR);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(1);
+            });
+
+            it('CRIT should log', function () {
+                ret = logger.crit(ERROR);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(1);
             });
 
         });
 
-        describe('logging with app.logger', function () {
+        describe('logging without app.logger at level 2', function() {
 
-            var app = {
-                logger: {
+            var logger;
+            var console;
+            var ret;
+
+            beforeEach(function() {
+                app.DEBUG = true;
+                logger = new window.Logger(MODULE);
+                logger.level = 2;
+                console = window.console = {
+                    log: sinon.spy(),
+                    error: sinon.spy()
+                };
+            });
+
+            it('DEBUG should not log', function() {
+                ret = logger.debug(MESSAGE);
+                expect(ret).to.be.false;
+                expect(console.log).to.have.callCount(0);
+                expect(console.error).to.have.callCount(0);
+            });
+
+            it('INFO should log', function() {
+                ret  = logger.info(undefined);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(0);
+                expect(console.log).to.have.been.calledWith('[INFO ]\tmodule = ' + MODULE);
+            });
+
+            it('WARN should log', function() {
+                var NOW = new Date();
+                ret = logger.warn(NOW);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(0);
+                expect(console.log).to.have.been.calledWith('[WARN ]\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(NOW));
+            });
+
+            it('ERROR should log', function() {
+                var entry = new Error('Oops');
+                entry.originalError = new TypeError('Oops with details');
+                ret = logger.error(entry);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(1);
+                // expect(console.log).to.have.been.calledWith('[ERROR]	message = Oops	original = Oops with details	module = window.log.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.log.test.js:170:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
+            });
+
+            it('CRIT should log', function() {
+                var entry = new Error('Oops');
+                entry.originalError = new TypeError('Oops with details');
+                ret = logger.crit(entry);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(1);
+                // expect(console.log).to.have.been.calledWith('[CRIT ]	message = Oops	original = Oops with details	module = window.log.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.log.test.js:180:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
+            });
+
+        });
+
+        describe('logging without app.logger at level 4', function() {
+
+            var logger;
+            var console;
+            var ret;
+
+            beforeEach(function() {
+                app.DEBUG = true;
+                logger = new window.Logger(MODULE);
+                logger.level = 4;
+                console = window.console = {
+                    log: sinon.spy(),
+                    error: sinon.spy()
+                };
+            });
+
+            it('DEBUG should not log', function() {
+                ret = logger.debug(MESSAGE);
+                expect(ret).to.be.false;
+                expect(console.log).to.have.callCount(0);
+                expect(console.error).to.have.callCount(0);
+            });
+
+            it('INFO should not log', function() {
+                ret = logger.debug(MESSAGE);
+                expect(ret).to.be.false;
+                expect(console.log).to.have.callCount(0);
+                expect(console.error).to.have.callCount(0);
+            });
+
+            it('WARN should log', function() {
+                var entry = { module: MODULE, method: METHOD,  message: MESSAGE, data: DATA };
+                ret = logger.warn(entry);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(0);
+                expect(console.log).to.have.been.calledWith('[WARN ]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tmethod = ' + METHOD + '\tdata = ' + JSON.stringify(DATA));
+            });
+
+            it('ERROR should log', function() {
+                var entry = new Error('Oops');
+                entry.originalError = new TypeError('Oops with details');
+                ret = logger.error(entry);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(1);
+                // expect(console.log).to.have.been.calledWith('[ERROR]	message = Oops	original = Oops with details	module = window.log.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.log.test.js:170:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
+            });
+
+            it('CRIT should log', function() {
+                var entry = new Error('Oops');
+                entry.originalError = new TypeError('Oops with details');
+                ret = logger.crit(entry);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(1);
+                // expect(console.log).to.have.been.calledWith('[CRIT ]	message = Oops	original = Oops with details	module = window.log.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.log.test.js:180:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
+            });
+
+        });
+
+        describe('logging without app.logger at level 8', function() {
+
+            var logger;
+            var console;
+            var ret;
+
+            beforeEach(function() {
+                app.DEBUG = true;
+                logger = new window.Logger(MODULE);
+                logger.level = 8;
+                console = window.console = {
+                    log: sinon.spy(),
+                    error: sinon.spy()
+                };
+            });
+
+            it('DEBUG should not log', function() {
+                ret = logger.debug(MESSAGE);
+                expect(ret).to.be.false;
+                expect(console.log).to.have.callCount(0);
+                expect(console.error).to.have.callCount(0);
+            });
+
+            it('INFO should not log', function() {
+                ret = logger.debug(MESSAGE);
+                expect(ret).to.be.false;
+                expect(console.log).to.have.callCount(0);
+                expect(console.error).to.have.callCount(0);
+            });
+
+            it('WARN should not log', function() {
+                ret = logger.debug(MESSAGE);
+                expect(ret).to.be.false;
+                expect(console.log).to.have.callCount(0);
+                expect(console.error).to.have.callCount(0);
+            });
+
+            it('ERROR should not log', function() {
+                var entry = new Error('Oops');
+                entry.originalError = new TypeError('Oops with details');
+                ret = logger.error(entry);
+                expect(ret).to.be.false;
+                expect(console.log).to.have.callCount(0);
+                expect(console.error).to.have.callCount(0);
+            });
+
+            it('CRIT should not log', function() {
+                var entry = new Error('Oops');
+                entry.originalError = new TypeError('Oops with details');
+                ret = logger.crit(entry);
+                expect(ret).to.be.false;
+                expect(console.log).to.have.callCount(0);
+                expect(console.error).to.have.callCount(0);
+            });
+
+        });
+
+        describe('logging with a trace', function () {
+
+            var logger;
+            var console;
+            var ret;
+
+            beforeEach(function () {
+                app.DEBUG = true;
+                logger = new window.Logger(MODULE);
+                logger.level = 0;
+                console = window.console = {
+                    log: sinon.spy(),
+                    error: sinon.spy()
+                };
+
+                $('<input id="trace" type="hidden">')
+                    .appendTo(document.body)
+                    .val(TRACE);
+            });
+
+            it('ANY should log with a trace', function() {
+                ret = logger.debug(MESSAGE);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(0);
+                expect(console.log).to.have.been.calledWith('[DEBUG]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\ttrace = ' + TRACE);
+            });
+
+            afterEach(function () {
+                $('#trace').remove();
+            });
+
+        });
+
+        describe('logging with app.logger at level 0', function () {
+
+            var logger;
+            var console;
+            var ret;
+
+            beforeEach(function() {
+                app.DEBUG = true;
+                app.logger = {
                     debug: sinon.spy(),
                     info: sinon.spy(),
                     warn: sinon.spy(),
                     error: sinon.spy(),
                     crit: sinon.spy()
+                };
+                logger = new window.Logger(MODULE);
+                logger.level = 0;
+                console = window.console = {
+                    log: sinon.spy(),
+                    error: sinon.spy()
                 }
-            };
+            });
 
             it('debug', function () {
-
+                ret = logger.debug(MESSAGE);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(0);
+                expect(app.logger.debug).to.have.callCount(1);
+                expect(app.logger.info).to.have.callCount(0);
+                expect(app.logger.warn).to.have.callCount(0);
+                expect(app.logger.error).to.have.callCount(0);
+                expect(app.logger.crit).to.have.callCount(0);
             });
 
             it('info', function () {
-
+                ret = logger.info(MESSAGE);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(0);
+                expect(app.logger.debug).to.have.callCount(0);
+                expect(app.logger.info).to.have.callCount(1);
+                expect(app.logger.warn).to.have.callCount(0);
+                expect(app.logger.error).to.have.callCount(0);
+                expect(app.logger.crit).to.have.callCount(0);
             });
 
             it('warn', function () {
-
+                ret = logger.warn(MESSAGE);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(0);
+                expect(app.logger.debug).to.have.callCount(0);
+                expect(app.logger.info).to.have.callCount(0);
+                expect(app.logger.warn).to.have.callCount(1);
+                expect(app.logger.error).to.have.callCount(0);
+                expect(app.logger.crit).to.have.callCount(0);
             });
 
             it('error', function () {
-
+                ret = logger.error(ERROR);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(1);
+                expect(app.logger.debug).to.have.callCount(0);
+                expect(app.logger.info).to.have.callCount(0);
+                expect(app.logger.warn).to.have.callCount(0);
+                expect(app.logger.error).to.have.callCount(1);
+                expect(app.logger.crit).to.have.callCount(0);
             });
 
             it('crit', function () {
-
+                ret = logger.crit(ERROR);
+                expect(ret).to.be.true;
+                expect(console.log).to.have.callCount(1);
+                expect(console.error).to.have.callCount(1);
+                expect(app.logger.debug).to.have.callCount(0);
+                expect(app.logger.info).to.have.callCount(0);
+                expect(app.logger.warn).to.have.callCount(0);
+                expect(app.logger.error).to.have.callCount(0);
+                expect(app.logger.crit).to.have.callCount(1);
             });
 
         });

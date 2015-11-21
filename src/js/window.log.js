@@ -15,9 +15,8 @@
 
     (function (undefined) {
 
-        var app = window.app || {};
-        var appLogger = app.logger;
-
+        var console = window.console;
+        var app = window.app = window.app || {};
         var STRING = 'string';
         var FUNCTION = 'function';
         var UNDEFINED = 'undefined';
@@ -33,8 +32,8 @@
         var LINEFEEDS = /\n/g;
         var LINESEP = '; ';
         var EQUAL = ' = ';
-        var FIRST = '  ';
-        var SEPARATOR = '  |  ';
+        var FIRST = '\t';
+        var SEPARATOR = '\t'; // '  |  ';
 
         /**
          * Logger class
@@ -43,6 +42,7 @@
         var Logger = window.Logger = function (module) {
 
             this._module = module;
+            this.level = DEFAULT.VALUE;
 
             /**
              * Preprocess message + data
@@ -58,7 +58,7 @@
                     logEntry = { message: message, data: data };
                 } else if (message instanceof window.Error) {
                     logEntry = {
-                        message: error.message,
+                        message: message.message,
                         error: message
                     };
                 } else if (message instanceof window.ErrorEvent) {
@@ -110,7 +110,7 @@
                 level = String(level).toUpperCase();
                 logEntry.level = Object.keys(LEVELS).indexOf(level) > -1 ? level : DEFAULT.NAME;
 
-                // If there is a hidden input field named `trace` on the page, read it
+                // If there is a hidden input field named `trace` on the page, read it and add it
                 var input = document.getElementById('trace');
                 if (input instanceof HTMLInputElement) {
                     logEntry.trace = input.value;
@@ -120,14 +120,18 @@
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
+            /*  This function has too many statements. */
+            /* jshint -W073 */
+
             /**
              * Print a formatted log entry to the console
              * @param logEntry
              * @private
              */
-            function print(logEntry) {
+            function log2Console(logEntry) {
+                /* jshint maxcomplexity: 8 */
                 if (app.DEBUG && window.console && typeof window.console.log === FUNCTION) {
-                    var message = label;
+                    var message = '[' + logEntry.level + (logEntry.level.length === 4 ? ' ' : '') + ']';
                     var first = true;
                     if (logEntry.message) {
                         message += (first ? FIRST : SEPARATOR) + 'message' + EQUAL + logEntry.message;
@@ -166,21 +170,42 @@
                     if (logEntry.error instanceof Error) {
                         if (typeof window.console.error === FUNCTION) {
                             window.console.error(logEntry.error);
-                        } else if (typeof window.console.dir === FUNCTION) {
-                            window.console.dir(logEntry.error);
                         }
                     }
                     if (logEntry.originalError instanceof Error) {
                         if (typeof window.console.error === FUNCTION) {
                             window.console.error(logEntry.originalError);
-                        } else if (typeof window.console.dir === FUNCTION) {
-                            window.console.dir(logEntry.originalError);
                         }
                     }
                 }
             }
 
+            /* jshint +W073 */
             /* jshint +W074 */
+
+            /**
+             * Log message
+             * @param level
+             * @param message
+             * @param data
+             */
+            this.log = function(level, message, data) {
+                level = String(level).toUpperCase();
+                if (Object.keys(LEVELS).indexOf(level) === -1) {
+                    throw new TypeError('level is either `debug`, `info`, `warn`, `error` or `crit`');
+                }
+                if (this.level > LEVELS[level].VALUE) {
+                    return false;
+                }
+                var logEntry = preProcess(message, data);
+                enhance(logEntry, this._module, level);
+                log2Console(logEntry, level);
+                var logger = app.logger;
+                if (logger && typeof logger[level.toLowerCase()] === FUNCTION) {
+                    logger[level.toLowerCase()](logEntry);
+                }
+                return true;
+            };
 
             /**
              * Debug message
@@ -188,13 +213,7 @@
              * @param data
              */
             this.debug = function (message, data) {
-                var logEntry = preProcess(message, data);
-                enhance(logEntry, this._module, LEVELS.DEBUG.NAME);
-                print(logEntry, LEVELS.DEBUG.NAME);
-                if (appLogger && typeof appLogger.debug === FUNCTION) {
-                    appLogger.debug(logEntry);
-                }
-                return true;
+                return this.log(LEVELS.DEBUG.NAME, message, data);
             };
 
             /**
@@ -203,13 +222,7 @@
              * @param data
              */
             this.info = function (message, data) {
-                var logEntry = preProcess(message, data);
-                enhance(logEntry, this._module, LEVELS.INFO.NAME);
-                print(logEntry, LEVELS.INFO.NAME);
-                if (appLogger && typeof appLogger.debug === FUNCTION) {
-                    appLogger.debug(logEntry);
-                }
-                return true;
+                return this.log(LEVELS.INFO.NAME, message, data);
             };
 
             /**
@@ -218,13 +231,7 @@
              * @param data
              */
             this.warn = function (message, data) {
-                var logEntry = preProcess(message, data);
-                enhance(logEntry, this._module, LEVELS.WARN.NAME);
-                print(logEntry, LEVELS.WARN.NAME);
-                if (appLogger && typeof appLogger.debug === FUNCTION) {
-                    appLogger.debug(logEntry);
-                }
-                return true;
+                return this.log(LEVELS.WARN.NAME, message, data);
             };
 
             /**
@@ -233,14 +240,7 @@
              * @param data
              */
             this.error = function (message, data) {
-                var logEntry = preProcess(message, data);
-                enhance(logEntry, this._module, LEVELS.ERROR.NAME);
-                print(logEntry, LEVELS.ERROR.NAME);
-                if (appLogger && typeof appLogger.debug === FUNCTION) {
-                    appLogger.debug(logEntry);
-                }
-                // TODO Display error
-                return true;
+                return this.log(LEVELS.ERROR.NAME, message, data);
             };
 
             /**
@@ -248,15 +248,8 @@
              * @param message
              * @param data
              */
-            this.critical = function (message, data) {
-                var logEntry = preProcess(message, data);
-                enhance(logEntry, this._module, LEVELS.CRIT.NAME);
-                print(logEntry, LEVELS.CRIT.NAME);
-                if (appLogger && typeof appLogger.debug === FUNCTION) {
-                    appLogger.debug(logEntry);
-                }
-                // TODO Display error
-                return true;
+            this.crit = function (message, data) {
+                return this.log(LEVELS.CRIT.NAME, message, data);
             };
 
         };
@@ -267,8 +260,8 @@
          * @param e
          */
         window.onerror = function (e) {
-            var logger = new Logger('global');
-            logger.critical(e);
+            var gl = new Logger('global');
+            gl.crit(e);
         };
 
     }());

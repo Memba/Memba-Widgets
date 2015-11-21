@@ -61,6 +61,15 @@ module.exports = function(config) {
 
   config.set({
 
+      // mocha configuration
+      client: {
+          mocha: {
+              ui: 'bdd',
+              timeout: 10000
+          }
+      },
+
+      // saucelabs configuration
       sauceLabs: {
           startConnect: true,
           testName: 'Kidoju.Widgets',

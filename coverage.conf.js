@@ -29,7 +29,7 @@ module.exports = function(config) {
             { pattern: 'src/js/window.assert.js', served: true, included: true },
             { pattern: 'src/js/window.log.js', served: true, included: true },
             { pattern: 'src/js/kidoju.data.js', served: true, included: true },
-            { pattern: 'src/js/kidoju.data.workerlibjs', served: true, included: true },
+            { pattern: 'src/js/kidoju.data.workerlibjs', served: true, included: false },
             { pattern: 'src/js/kidoju.tools.js', served: true, included: true },
             { pattern: 'src/js/kidoju.widgets.assetmanager.js', served: true, included: true },
             { pattern: 'src/js/kidoju.widgets.codeeditor.js', served: true, included: true },

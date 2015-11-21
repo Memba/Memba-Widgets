@@ -15,7 +15,6 @@
 
     (function (undefined) {
 
-        var console = window.console;
         var app = window.app = window.app || {};
         var STRING = 'string';
         var FUNCTION = 'function';
@@ -61,7 +60,8 @@
                         message: message.message,
                         error: message
                     };
-                } else if (message instanceof window.ErrorEvent) {
+                } else if (typeof window.ErrorEvent === FUNCTION && message instanceof window.ErrorEvent) {
+                    // window.ErrorEvent does not exist in PhantomJS
                     logEntry = {
                         message: message.message,
                         data: { filename: message.filename, lineno: message.lineno, colno: message.colno },
@@ -97,9 +97,13 @@
                     }
                     if (logEntry.error.originalError instanceof window.Error) {
                         logEntry.original = logEntry.error.originalError.message;
-                        logEntry.stack = logEntry.error.originalError.stack.toString().replace(LINEFEEDS, LINESEP);
+                        if (typeof logEntry.error.originalError.stack === STRING) { // To care for an exception in PhantomJS
+                            logEntry.stack = logEntry.error.originalError.stack.replace(LINEFEEDS, LINESEP);
+                        }
                     } else {
-                        logEntry.stack = logEntry.error.stack.toString().replace(LINEFEEDS, LINESEP);
+                        if (typeof logEntry.error.stack === STRING) { // To care for an exception in PhantomJS
+                            logEntry.stack = logEntry.error.stack.replace(LINEFEEDS, LINESEP);
+                        }
                     }
                 }
 
@@ -131,7 +135,8 @@
             function log2Console(logEntry) {
                 /* jshint maxcomplexity: 22 */
                 /* jshint maxstatements: 31 */
-                if (app.DEBUG && window.console && typeof window.console.log === FUNCTION) {
+                var console = window.console;
+                if (app.DEBUG && console && typeof console.log === FUNCTION) {
                     var message = '[' + logEntry.level + (logEntry.level.length === 4 ? ' ' : '') + ']';
                     var first = true;
                     if (logEntry.message) {
@@ -167,7 +172,7 @@
                         message += (first ? FIRST : SEPARATOR) + 'trace' + EQUAL + logEntry.trace;
                         first = false;
                     }
-                    window.console.log(message);
+                    console.log(message);
                     if (logEntry.error instanceof Error) {
                         if (typeof window.console.error === FUNCTION) {
                             window.console.error(logEntry.error);

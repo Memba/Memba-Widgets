@@ -317,7 +317,7 @@
                 expect(tool.icon).to.equal('checkbox');
                 expect(tool.cursor).to.equal('crosshair');
                 expect(tool.height).to.equal(60);
-                expect(tool.width).to.equal(500);
+                expect(tool.width).to.equal(300);
                 expect(tool.getHtmlContent).to.respond;
                 expect(tool.onMove).to.be.undefined;
                 expect(tool.onResize).to.respond;

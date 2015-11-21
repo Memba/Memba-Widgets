@@ -36,6 +36,7 @@ describe('kidoju.integration.playmode.test.js', function () {
     });
 
     describe('When page is loaded', function () {
+
         it('It should have navigation and stages', function () {
             console.log('ok');
             browser.assert.success();
@@ -44,6 +45,7 @@ describe('kidoju.integration.playmode.test.js', function () {
             // browser.assert.element('div.uk.flag');
             // browser.assert.text('div.page-header span', 'Support');
         });
+
     });
 
     after(function () {

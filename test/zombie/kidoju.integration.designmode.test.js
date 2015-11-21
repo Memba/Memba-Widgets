@@ -19,12 +19,13 @@ describe('kidoju.integration.designmode.test.js', function () {
     before(function (done) {
         // Increase max listeners in case of timeout
         browser.setMaxListeners(30);
-        browser.visit('/src/kidoju.integration.designmode.html', function (a, b) {
+        browser.visit('/src/kidoju.integration.designmode.html', function () {
             done();
         });
     });
 
     describe('When page is loaded', function () {
+
         it('It should have navigation and stages', function () {
             console.log('ok');
             browser.assert.success();
@@ -33,6 +34,7 @@ describe('kidoju.integration.designmode.test.js', function () {
             // browser.assert.element('div.uk.flag');
             // browser.assert.text('div.page-header span', 'Support');
         });
+
     });
 
     after(function () {

@@ -65,7 +65,7 @@ module.exports = function (grunt) {
         mochaTest: { // Test running in nodeJS (supertest, zombie, ...)
             zombie: {
                 options: {
-                    // debug: true,
+                    debug: true,
                     quiet: false,
                     reporter: 'spec',
                     timeout: 10000,

@@ -39,7 +39,7 @@
 
 
     // ECMAScript 5
-
+    // ES5: true,
     // Whether the "use strict"; pragma should be required.
     "strict": true,
     // Whether global "use strict"; should be allowed (also enables strict).

@@ -9,11 +9,11 @@
 (function (f, define) {
     'use strict';
     define([
+        './window.assert',
+        './window.logger',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.dropdownlist',
-        './vendor/kendo/kendo.multiselect', // required because of a test in kendo.binder.js
-        './window.assert',
-        './window.log'
+        './vendor/kendo/kendo.multiselect' // required because of a test in kendo.binder.js
     ], f);
 })(function () {
 

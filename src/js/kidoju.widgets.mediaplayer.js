@@ -9,9 +9,10 @@
 (function (f, define) {
     'use strict';
     define([
-        './vendor/kendo/kendo.core',
         './window.assert',
-        './window.log'
+        './window.logger',
+        './vendor/kendo/kendo.binder',
+        './vendor/kendo/kendo.slider'
     ], f);
 })(function () {
 
@@ -143,7 +144,7 @@
          */
         var MediaPlayer = Widget.extend({
 
-            // TODO: Check http://blog.falafel.com/new-kendo-ui-media-player-widget-mvvm/ and consider improbements
+            // TODO: Check http://blog.falafel.com/new-kendo-ui-media-player-widget-mvvm/ and consider improvements
 
             /**
              * Constructor

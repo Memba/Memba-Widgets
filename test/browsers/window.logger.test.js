@@ -14,14 +14,14 @@
     var sinon = window.sinon;
     // var kendo = window.kendo;
     // var FIXTURES = '#fixtures';
-    var MODULE = 'window.log.test';
+    var MODULE = 'window.logger.test';
     var MESSAGE = 'my message';
     var METHOD = 'myMethod';
     var TRACE = '1234567890';
     var DATA = { a: 1, b: 2, c: 3 };
     var ERROR = new SyntaxError('Bad syntax');
 
-    describe('window.log.test', function () {
+    describe('window.logger.test', function () {
 
         /*
         before(function () {
@@ -174,7 +174,7 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(1);
-                // expect(console.log).to.have.been.calledWith('[ERROR]	message = Oops	original = Oops with details	module = window.log.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.log.test.js:170:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
+                // expect(console.log).to.have.been.calledWith('[ERROR]	message = Oops	original = Oops with details	module = window.logger.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.logger.test.js:170:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
             });
 
             it('CRIT should log', function () {
@@ -184,7 +184,7 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(1);
-                // expect(console.log).to.have.been.calledWith('[CRIT ]	message = Oops	original = Oops with details	module = window.log.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.log.test.js:180:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
+                // expect(console.log).to.have.been.calledWith('[CRIT ]	message = Oops	original = Oops with details	module = window.logger.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.logger.test.js:180:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
             });
 
         });
@@ -235,7 +235,7 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(1);
-                // expect(console.log).to.have.been.calledWith('[ERROR]	message = Oops	original = Oops with details	module = window.log.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.log.test.js:170:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
+                // expect(console.log).to.have.been.calledWith('[ERROR]	message = Oops	original = Oops with details	module = window.logger.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.logger.test.js:170:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
             });
 
             it('CRIT should log', function () {
@@ -245,7 +245,7 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(1);
-                // expect(console.log).to.have.been.calledWith('[CRIT ]	message = Oops	original = Oops with details	module = window.log.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.log.test.js:180:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
+                // expect(console.log).to.have.been.calledWith('[CRIT ]	message = Oops	original = Oops with details	module = window.logger.test	stack = TypeError: Oops with details;     at Context.<anonymous> (http://localhost:63342/Kidoju.Widgets/test/browsers/window.logger.test.js:180:39);     at callFn (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4202:21);     at Test.Runnable.run (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4195:7);     at Runner.runTest (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4661:10);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4768:12;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4581:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4591:7;     at next (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4523:14);     at http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4554:7;     at done (http://localhost:63342/Kidoju.Widgets/test/vendor/mocha.js:4163:5)');
             });
 
         });

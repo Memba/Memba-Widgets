@@ -9,13 +9,13 @@
 (function (f, define) {
     'use strict';
     define([
+        './window.assert',
+        './window.logger',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.pager',
         './vendor/kendo/kendo.listview',
-        './vendor/kendo/kendo.tabstrip',
-        './window.assert',
-        './window.log'
+        './vendor/kendo/kendo.tabstrip'
     ], f);
 })(function () {
 

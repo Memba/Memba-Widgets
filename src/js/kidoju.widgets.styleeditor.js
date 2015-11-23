@@ -9,11 +9,11 @@
 (function (f, define) {
     'use strict';
     define([
+        './window.assert',
+        './window.logger',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.grid',
-        './vendor/kendo/kendo.combobox',
-        './window.assert',
-        './window.log'
+        './vendor/kendo/kendo.combobox'
     ], f);
 })(function () {
 

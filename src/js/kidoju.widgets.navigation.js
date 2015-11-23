@@ -9,9 +9,9 @@
 (function (f, define) {
     'use strict';
     define([
-        './vendor/kendo/kendo.binder',
         './window.assert',
-        './window.log',
+        './window.logger',
+        './vendor/kendo/kendo.binder',
         './kidoju.data',
         './kidoju.tools',
         './kidoju.widgets.stage'

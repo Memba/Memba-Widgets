@@ -9,10 +9,10 @@
 (function (f, define) {
     'use strict';
     define([
-        './vendor/kendo/kendo.binder',
-        './vendor/kendo/kendo.dropdownlist',
         './window.assert',
-        './window.log'
+        './window.logger',
+        './vendor/kendo/kendo.binder',
+        './vendor/kendo/kendo.dropdownlist'
     ], f);
 })(function () {
 

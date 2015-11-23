@@ -9,11 +9,11 @@
 (function (f, define) {
     'use strict';
     define([
+        './window.assert',
+        './window.logger',
         './vendor/kendo/kendo.binder',
         './kidoju.data',
-        './kidoju.tools',
-        './window.assert',
-        './window.log'
+        './kidoju.tools'
     ], f);
 })(function () {
 

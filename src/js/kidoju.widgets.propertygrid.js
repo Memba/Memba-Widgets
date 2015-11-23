@@ -9,13 +9,13 @@
 (function (f, define) {
     'use strict';
     define([
+        './window.assert',
+        './window.logger',
         './kidoju.data',
         './kidoju.tools',
         './vendor/kendo/kendo.numerictextbox',
         './vendor/kendo/kendo.datepicker',
-        './vendor/kendo/kendo.mobile.switch',
-        './window.assert',
-        './window.log'
+        './vendor/kendo/kendo.mobile.switch'
     ], f);
 })(function () {
 

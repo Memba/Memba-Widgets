@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>window.log.test</title>
+    <title>window.logger.test</title>
     <link href="../vendor/mocha.css" rel="stylesheet" />
     <!--link href="../../src/styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../src/styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
@@ -26,12 +26,12 @@
         mocha.timeout(10000);
     </script>
     <!-- Asserts and Logs -->
-    <script src="../../src/js/window.log.js" data-cover></script>
+    <script src="../../src/js/window.logger.js" data-cover></script>
 </head>
 <body>
 <div id="mocha"></div>
 <div id="fixtures"></div>
-<script src="window.log.test.js"></script>
+<script src="window.logger.test.js"></script>
 <script>
     mocha.checkLeaks().globals(['_jb_debug_helper', 'jQuery', 'jQuery*', 'kendo', 'kidoju', 'chai', 'sinon']);
     if (!window.blanket && !window.PHANTOMJS) {

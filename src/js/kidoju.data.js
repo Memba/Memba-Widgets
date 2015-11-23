@@ -449,12 +449,13 @@
                 }
             },
 
+            /* jshint -W074 */
+            /* This function's cyclomatic complexity is too high. */
+
             /**
              * Constructor
              * @param component
              */
-            /* jshint -W074 */
-            /* This function's cyclomatic complexity is too high. */
             init: function (component) {
 
                 var that = this;
@@ -508,7 +509,7 @@
                     }
                 }
             },
-            /* jshint: +W074 */
+            /* jshint +W074 */
 
             /**
              * Get the parent page

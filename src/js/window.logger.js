@@ -38,7 +38,7 @@
          * Logger class
          * @class Logger
          */
-        var Logger = window.Logger = function (module) {
+        var Logger = window.Logger = function (module/*, appLogger*/) {
 
             this._module = module;
             this.level = DEFAULT.VALUE;
@@ -116,7 +116,7 @@
 
                 // If there is a hidden input field named `trace` on the page, read it and add it
                 var input = document.getElementById('trace');
-                if (input instanceof HTMLInputElement) {
+                if (input instanceof HTMLInputElement && input.type === 'hidden') {
                     logEntry.trace = input.value;
                 }
             }
@@ -207,8 +207,8 @@
                 enhance(logEntry, this._module, level);
                 log2Console(logEntry, level);
                 var logger = app.logger;
-                if (logger && typeof logger[level.toLowerCase()] === FUNCTION) {
-                    logger[level.toLowerCase()](logEntry);
+                if (logger && typeof logger['_' + level.toLowerCase()] === FUNCTION) {
+                    logger['_' + level.toLowerCase()](logEntry);
                 }
                 return true;
             };
@@ -266,6 +266,7 @@
          * @param e
          */
         window.onerror = function (e) {
+            // TODO window.onerror = function(msg, url, line) {
             var gl = new Logger('global');
             gl.crit(e);
         };

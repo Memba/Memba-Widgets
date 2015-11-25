@@ -13,67 +13,215 @@
 
     'use strict';
 
-    (function ($, undefined) {
+    (function (undefined) {
 
         var STRING = 'string';
+        var OBJECT = 'object';
+        var FUNCTION = 'function';
         var UNDEFINED = 'undefined';
+
+        // Populate the class2type map
+        var class2type = {};
+        'Boolean Number String Function Array Date RegExp Object Error Symbol'.split(' ').forEach(function (name) {
+            class2type[ '[object ' + name + ']' ] = name.toLowerCase();
+        });
+        var toString = class2type.toString;
+        var hasOwn = class2type.hasOwnProperty;
+
+        // jQuery core functions to remove any dependencies
+        // @see https://github.com/jquery/jquery/blob/99e8ff1baa7ae341e94bb89c3e84570c7c3ad9ea/src/core.js
+        var $ = {
+            isArray: Array.isArray,
+            isFunction: function (obj) {
+                return $.type(obj) === FUNCTION;
+            },
+            isEmptyObject: function (obj) {
+                var name;
+                for (name in obj) {
+                    return false;
+                }
+                return true;
+            },
+            isNumeric: function (obj) {
+                // parseFloat NaNs numeric-cast false positives (null|true|false|"")
+                // ...but misinterprets leading-number strings, particularly hex literals ("0x...")
+                // subtraction forces infinities to NaN
+                // adding 1 corrects loss of precision from parseFloat (#15100)
+                return !$.isArray(obj) && (obj - parseFloat(obj) + 1) >= 0;
+            },
+            isPlainObject: function (obj) {
+                // Not plain objects:
+                // - Any object or value whose internal [[Class]] property is not "[object Object]"
+                // - DOM nodes
+                // - window
+                if ($.type(obj) !== OBJECT || obj.nodeType || $.isWindow(obj)) {
+                    return false;
+                }
+                if (obj.constructor && !hasOwn.call(obj.constructor.prototype, 'isPrototypeOf')) {
+                    return false;
+                }
+                // If the function hasn't returned already, we're confident that
+                // |obj| is a plain object, created by {} or constructed with new Object
+                return true;
+            },
+            isWindow: function (obj) {
+                return obj !== null && obj === obj.window;
+            },
+            type: function (obj) {
+                if (obj === null) {
+                    return obj + '';
+                }
+                // Support: Android<4.0 (functionish RegExp)
+                return typeof obj === OBJECT || typeof obj === FUNCTION ? class2type[toString.call(obj)] || OBJECT : typeof obj;
+            }
+        };
 
         /**
          * Asserts
          * Note: Use asserts where unmet conditions are independent from user entries, and
          * developers should be warned that there is probably something unexpected in their code
          */
-        var assert = window.assert = $.extend(
-            // By extending assert, we ensure we can call both assert() and assert.ok() for the same result (like in nodeJS)
-            function (test, message) {
-                if (!test) { throw new Error(message); }
-            },
-            {
-                enum: function (array, value, message) { if (array.indexOf(value) === -1) { throw new RangeError(message); } },
-                equal: function (expected, actual, message) { if (expected !== actual) { throw new RangeError(message); } },
-                instanceof: function (Class, value, message) { if (!(value instanceof Class)) { throw new TypeError(message); } },
-                isOptionalObject: function (value, message) { if ($.type(value) !== UNDEFINED && (!$.isPlainObject(value) || $.isEmptyObject(value))) { throw new TypeError(message); } },
-                isPlainObject: function (value, message) { if (!$.isPlainObject(value) || $.isEmptyObject(value)) { throw new TypeError(message); } },
-                isUndefined: function (value, message) { if ($.type(value) !== UNDEFINED) { throw new TypeError(message); } },
-                match: function (rx, value, message) { if ($.type(value) !== STRING || !rx.test(value)) { throw new RangeError(message); } },
-                ok: function (test, message) { return assert(test, message); },
-                type: function (type, value, message) { if ($.type(value) !== type) { throw new TypeError(message); } }
-            },
-            {
-                messages: {
-                    enum: {
-                        default: '`{0}` is expected to be any of `{1}`'
-                    },
-                    equal: {
-                        default: '`{0}` is expected to equal `{1}`'
-                    },
-                    instanceof: {
-                        default: '`{0}` is expected to be an instance of `{1}`'
-                    },
-                    isOptionalObject: {
-                        default: '`{0}` is expected to be undefined or a plain object'
-                    },
-                    isPlainObject: {
-                        default: '`{0}` is expected to be a plain object'
-                    },
-                    isUndefined: {
-                        default: '`{0}` is expected to be undefined'
-                    },
-                    match: {
-                        default: '`{0}` is expected to match `{1}`'
-                    },
-                    ok: {
-                        default: 'A statement is expected to be true'
-                    },
-                    type: {
-                        default: '`{0}` is expected to have type `{1}`'
-                    }
-                }
+        var assert = window.assert = function (test, message) {
+            if (!test) { throw new Error(message); }
+        };
+
+        // By extending assert, we ensure we can call both assert() and assert.ok() for the same result (like in nodeJS)
+
+        /**
+         * Assert enumeration
+         * @param array
+         * @param value
+         * @param message
+         */
+        assert.enum = function (array, value, message) {
+            if (array.indexOf(value) === -1) {
+                throw new RangeError(message);
             }
-        );
+        };
 
-    }(window.jQuery));
+        /**
+         * Assert equal
+         * @param expected
+         * @param actual
+         * @param message
+         */
+        assert.equal = function (expected, actual, message) {
+            if (expected !== actual) {
+                throw new RangeError(message);
+            }
+        };
 
-    return window.kendo;
+        /**
+         * Assert instance of
+         * @param Class
+         * @param value
+         * @param message
+         */
+        assert.instanceof = function (Class, value, message) {
+            if (!(value instanceof Class)) {
+                throw new TypeError(message);
+            }
+        };
+
+        /**
+         * Assert optional object (can be undefined but mot an empty object, i.e. {})
+         * @param value
+         * @param message
+         */
+        assert.isOptionalObject = function (value, message) {
+            if ($.type(value) !== UNDEFINED && (!$.isPlainObject(value) || $.isEmptyObject(value))) {
+                throw new TypeError(message);
+            }
+        };
+
+        /**
+         * Assert a plain object (not empty)
+         * @param value
+         * @param message
+         */
+        assert.isPlainObject = function (value, message) {
+            if (!$.isPlainObject(value) || $.isEmptyObject(value)) {
+                throw new TypeError(message);
+            }
+        };
+
+        /**
+         * Assert undefined
+         * @param value
+         * @param message
+         */
+        assert.isUndefined = function (value, message) {
+            if ($.type(value) !== UNDEFINED) {
+                throw new TypeError(message);
+            }
+        };
+
+        /**
+         * Assert regular expression match
+         * @param rx
+         * @param value
+         * @param message
+         */
+        assert.match = function (rx, value, message) {
+            if ($.type(value) !== STRING || !rx.test(value)) {
+                throw new RangeError(message);
+            }
+        };
+
+        /**
+         * Assert true condition
+         * @param test
+         * @param message
+         * @returns {*}
+         */
+        assert.ok = function (test, message) {
+            return assert(test, message);
+        };
+
+        /**
+         * Assert type
+         * @param type
+         * @param value
+         * @param message
+         */
+        assert.type = function (type, value, message) {
+            if ($.type(value) !== type) {
+                throw new TypeError(message);
+            }
+        };
+
+        assert.messages = {
+            enum: {
+                default: '`{0}` is expected to be any of `{1}`'
+            },
+            equal: {
+                default: '`{0}` is expected to equal `{1}`'
+            },
+            instanceof: {
+                default: '`{0}` is expected to be an instance of `{1}`'
+            },
+            isOptionalObject: {
+                default: '`{0}` is expected to be undefined or a plain object'
+            },
+            isPlainObject: {
+                default: '`{0}` is expected to be a plain object'
+            },
+            isUndefined: {
+                default: '`{0}` is expected to be undefined'
+            },
+            match: {
+                default: '`{0}` is expected to match `{1}`'
+            },
+            ok: {
+                default: 'A statement is expected to be true'
+            },
+            type: {
+                default: '`{0}` is expected to have type `{1}`'
+            }
+        };
+
+    }());
+
+    return window.assert;
 
 }, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

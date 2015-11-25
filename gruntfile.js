@@ -6,6 +6,9 @@
 /* jslint node: true */
 /* jshint node: true */
 
+/* And because of kendo_lint */
+/* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
+
 'use strict';
 
 module.exports = function (grunt) {

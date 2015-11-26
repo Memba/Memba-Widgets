@@ -350,11 +350,11 @@
             beforeEach(function () {
                 app.DEBUG = true;
                 app.logger = {
-                    debug: sinon.spy(),
-                    info: sinon.spy(),
-                    warn: sinon.spy(),
-                    error: sinon.spy(),
-                    crit: sinon.spy()
+                    _debug: sinon.spy(),
+                    _info: sinon.spy(),
+                    _warn: sinon.spy(),
+                    _error: sinon.spy(),
+                    _crit: sinon.spy()
                 };
                 logger = new window.Logger(MODULE);
                 logger.level = 0;
@@ -369,11 +369,11 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(0);
-                expect(app.logger.debug).to.have.callCount(1);
-                expect(app.logger.info).to.have.callCount(0);
-                expect(app.logger.warn).to.have.callCount(0);
-                expect(app.logger.error).to.have.callCount(0);
-                expect(app.logger.crit).to.have.callCount(0);
+                expect(app.logger._debug).to.have.callCount(1);
+                expect(app.logger._info).to.have.callCount(0);
+                expect(app.logger._warn).to.have.callCount(0);
+                expect(app.logger._error).to.have.callCount(0);
+                expect(app.logger._crit).to.have.callCount(0);
             });
 
             it('info', function () {
@@ -381,11 +381,11 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(0);
-                expect(app.logger.debug).to.have.callCount(0);
-                expect(app.logger.info).to.have.callCount(1);
-                expect(app.logger.warn).to.have.callCount(0);
-                expect(app.logger.error).to.have.callCount(0);
-                expect(app.logger.crit).to.have.callCount(0);
+                expect(app.logger._debug).to.have.callCount(0);
+                expect(app.logger._info).to.have.callCount(1);
+                expect(app.logger._warn).to.have.callCount(0);
+                expect(app.logger._error).to.have.callCount(0);
+                expect(app.logger._crit).to.have.callCount(0);
             });
 
             it('warn', function () {
@@ -393,11 +393,11 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(0);
-                expect(app.logger.debug).to.have.callCount(0);
-                expect(app.logger.info).to.have.callCount(0);
-                expect(app.logger.warn).to.have.callCount(1);
-                expect(app.logger.error).to.have.callCount(0);
-                expect(app.logger.crit).to.have.callCount(0);
+                expect(app.logger._debug).to.have.callCount(0);
+                expect(app.logger._info).to.have.callCount(0);
+                expect(app.logger._warn).to.have.callCount(1);
+                expect(app.logger._error).to.have.callCount(0);
+                expect(app.logger._crit).to.have.callCount(0);
             });
 
             it('error', function () {
@@ -405,11 +405,11 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(1);
-                expect(app.logger.debug).to.have.callCount(0);
-                expect(app.logger.info).to.have.callCount(0);
-                expect(app.logger.warn).to.have.callCount(0);
-                expect(app.logger.error).to.have.callCount(1);
-                expect(app.logger.crit).to.have.callCount(0);
+                expect(app.logger._debug).to.have.callCount(0);
+                expect(app.logger._info).to.have.callCount(0);
+                expect(app.logger._warn).to.have.callCount(0);
+                expect(app.logger._error).to.have.callCount(1);
+                expect(app.logger._crit).to.have.callCount(0);
             });
 
             it('crit', function () {
@@ -417,11 +417,11 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(1);
-                expect(app.logger.debug).to.have.callCount(0);
-                expect(app.logger.info).to.have.callCount(0);
-                expect(app.logger.warn).to.have.callCount(0);
-                expect(app.logger.error).to.have.callCount(0);
-                expect(app.logger.crit).to.have.callCount(1);
+                expect(app.logger._debug).to.have.callCount(0);
+                expect(app.logger._info).to.have.callCount(0);
+                expect(app.logger._warn).to.have.callCount(0);
+                expect(app.logger._error).to.have.callCount(0);
+                expect(app.logger._crit).to.have.callCount(1);
             });
 
         });

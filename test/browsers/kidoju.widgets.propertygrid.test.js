@@ -26,6 +26,7 @@
     function validateGridHtml(element, rowCount) {
         expect(element).to.have.class('k-widget');
         expect(element).to.have.class('k-grid');
+        expect(element).to.have.class('kj-propertygrid');
         expect(element.find('div.k-grid-header>div.k-grid-header-wrap>table>colgroup>col')).to.be.an.instanceof($).with.property('length', 2);
         expect(element.find('div.k-grid-header>div.k-grid-header-wrap>table>thead>tr>th')).to.be.an.instanceof($).with.property('length', 2);
         expect(element.find('div.k-grid-content>table>colgroup>col')).to.be.an.instanceof($).with.property('length', 2);

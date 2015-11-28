@@ -385,7 +385,7 @@
                                 .css(that.options.itemStyle)
                                 .appendTo(that.groupList);
                             var size = parseInt(radio.css('fontSize'));
-                            if (!isNaN(size)){
+                            if (!isNaN(size)) {
                                 // TODO See http://www.telerik.com/forums/font-size-of-styled-radio-buttons-and-checkboxes
                                 // TODO consider as part of resize event handler
                                 radio.find('input[type=radio]')

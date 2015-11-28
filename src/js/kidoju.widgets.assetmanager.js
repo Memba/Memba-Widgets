@@ -59,7 +59,7 @@
                 '</div>' +
             '</div>';
         var ITEM_TMPL = '<li class="k-tile" ' + kendo.attr('uid') + '="#=uid#">' + // ' + kendo.attr('type') + '="#=type$()#">' +
-                '#if (/^image\\//.test(type$())){#' +
+                '#if (/^image\\//.test(type$())) {#' +
                     '<div class="k-thumb"><img alt="#=name$()#" src="#=url$()#" class="k-image"></span></div>' +
                 '#}else{#' +
                     '<div class="k-thumb"><span class="k-icon k-file"></span></div>' +

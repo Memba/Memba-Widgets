@@ -49,10 +49,10 @@
 
     // List global properties
     /*
-    for(var prop in global) {
+    for (var prop in global) {
         global.console.log(prop);
     }
-    for(var prop in global.indexedDB) {
+    for (var prop in global.indexedDB) {
         global.console.log('indexedDB.' + prop);
     }
     */

@@ -58,6 +58,8 @@
         var ALL_ITEMS_SELECTOR = 'li.kj-item[' + DATA_UID + ']';
         var ITEM_BYUID_SELECTOR = 'li.kj-item[' + DATA_UID + '="{0}"]';
         var ARIA_SELECTED = 'aria-selected';
+        var DEFAULT_EXTENSION = '.svg';
+        var DEFAULT_PATH = './styles/images/';
 
         /*********************************************************************************
          * Helpers
@@ -84,8 +86,6 @@
                 // Base call to widget initialization
                 Widget.fn.init.call(this, element, options);
                 logger.debug('widget initialized');
-                // Make sure iconPath ends with a slash
-                that.options.iconPath = that.options.iconPath + (/\/$/.test(that.options.iconPath + '') ? '' : '/');
                 that._templates();
                 that._layout();
                 that._dataSource();
@@ -101,7 +101,8 @@
                 id: NULL,
                 autoBind: true,
                 itemTemplate: '<li data-uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item kj-item"><span class="k-in"><img class="k-image kj-image" alt="#= tool #" src="#= icon #">#= tool #</span></li>',
-                iconPath: './styles/images/',
+                iconPath: DEFAULT_PATH,
+                extension: DEFAULT_EXTENSION,
                 messages: {
                     empty: 'No item to display'
                 }
@@ -254,6 +255,8 @@
              */
             _templates: function () {
                 var that = this;
+                that.iconPath = that.options.iconPath + (/\/$/.test(that.options.iconPath + '') ? '' : '/') + '{0}' +
+                    (/^\./.test(that.options.extension + '') ? '' : '.') + that.options.extension;
                 that.itemTemplate = kendo.template(that.options.itemTemplate);
             },
 
@@ -348,7 +351,7 @@
                         var item = that.itemTemplate({
                             uid: component.uid,
                             tool: component.tool, // also tool.id
-                            icon: that.options.iconPath + tool.icon + '.svg'
+                            icon: kendo.format(that.iconPath, tool.icon)
                         });
                         // Add to explorer list
                         that.ul.append(item); // TODO <----------------------------------------------------- index??????

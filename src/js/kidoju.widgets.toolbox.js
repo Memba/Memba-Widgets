@@ -65,8 +65,7 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
-                // Make sure iconPath ends with a slash
-                that.options.iconPath = that.options.iconPath + (/\/$/.test(that.options.iconPath + '') ? '' : '/');
+                that._templates();
                 that._layout();
                 that.enable(that.options.enable);
             },
@@ -125,6 +124,16 @@
             },
 
             /**
+             * Set icon path
+             * @private
+             */
+            _templates: function () { // @see kidoju.widgets.explorer
+                var that = this;
+                that.iconPath = that.options.iconPath + (/\/$/.test(that.options.iconPath + '') ? '' : '/') + '{0}' +
+                    (/^\./.test(that.options.extension + '') ? '' : '.') + that.options.extension;
+            },
+
+            /**
              * Builds the widget layout
              * @private
              */
@@ -136,7 +145,7 @@
                     .attr(ROLE, MENU);
                 $.each(that.options.tools, function (index, tool) {
                     if (tool instanceof Tool && that.options.tools.hasOwnProperty(tool.id)) {
-                        var button = $(kendo.format(BUTTON, that.options.iconPath + tool.icon + that.options.extension, tool.id))
+                        var button = $(kendo.format(BUTTON, kendo.format(that.iconPath, tool.icon), tool.id))
                             .attr(kendo.attr(TOOL), tool.id)
                             .attr(ROLE, MENUITEM)
                             .css({ lineHeight: 'normal', margin: Math.round(that.options.size / 16) + 'px' });

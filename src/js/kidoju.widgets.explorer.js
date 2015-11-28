@@ -81,9 +81,11 @@
 
             init: function (element, options) {
                 var that = this;
-                // base call to widget initialization
+                // Base call to widget initialization
                 Widget.fn.init.call(this, element, options);
                 logger.debug('widget initialized');
+                // Make sure iconPath ends with a slash
+                that.options.iconPath = that.options.iconPath + (/\/$/.test(that.options.iconPath + '') ? '' : '/');
                 that._templates();
                 that._layout();
                 that._dataSource();

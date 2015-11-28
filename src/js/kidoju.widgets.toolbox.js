@@ -65,6 +65,8 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
+                // Make sure iconPath ends with a slash
+                that.options.iconPath = that.options.iconPath + (/\/$/.test(that.options.iconPath + '') ? '' : '/');
                 that._layout();
                 that.enable(that.options.enable);
             },

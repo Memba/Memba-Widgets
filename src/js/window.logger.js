@@ -266,7 +266,7 @@
          * @param e
          */
         window.onerror = function (e) {
-            // TODO window.onerror = function(msg, url, line) {
+            // TODO window.onerror = function (msg, url, line) {
             var gl = new Logger('global');
             gl.crit(e);
         };

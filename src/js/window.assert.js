@@ -112,6 +112,17 @@
         };
 
         /**
+         * Assert the length property (for Arrays and jQuery)
+         * @param el
+         * @param message
+         */
+        assert.hasLength = function (el, message) {
+            if (!el || !el.length) {
+                throw new TypeError(message);
+            }
+        };
+
+        /**
          * Assert instance of
          * @param Class
          * @param value
@@ -196,6 +207,9 @@
             },
             equal: {
                 default: '`{0}` is expected to equal `{1}`'
+            },
+            hasLength: {
+                default: '`{0}` has neither length nor any item'
             },
             instanceof: {
                 default: '`{0}` is expected to be an instance of `{1}`'

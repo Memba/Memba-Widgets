@@ -83,6 +83,29 @@
                 expect(assert.equal('a', 'a', ERR_MSG)).to.be.undefined;
             });
 
+            it('hasLength', function () {
+                expect(assert.messages.hasLength.default).to.be.a(STRING);
+                function fn1() {
+                    assert.hasLength(undefined, ERR_MSG);
+                }
+                function fn2() {
+                    assert.hasLength(1, ERR_MSG);
+                }
+                function fn3() {
+                    assert.hasLength({}, ERR_MSG);
+                }
+                function fn4() {
+                    assert.hasLength([], ERR_MSG);
+                }
+                expect(fn1).to.throw(TypeError, ERR_MSG);
+                expect(fn2).to.throw(TypeError, ERR_MSG);
+                expect(fn3).to.throw(TypeError, ERR_MSG);
+                expect(fn4).to.throw(TypeError, ERR_MSG);
+                expect(assert.hasLength($(window), ERR_MSG)).to.be.undefined;
+                expect(assert.hasLength($(document), ERR_MSG)).to.be.undefined;
+                expect(assert.hasLength(['a','b'], ERR_MSG)).to.be.undefined;
+            });
+
             it('instanceof', function () {
                 expect(assert.messages.instanceof.default).to.be.a(STRING);
                 var p = new Person('John', 'Doe');

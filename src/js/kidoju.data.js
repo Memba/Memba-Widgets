@@ -39,10 +39,9 @@
         var NEGATIVE_NUMBER = -1;
         // var RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i; // TODO instead of val_
         var location = window.location;
-        var workerLibPath = location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js'; // TODO move to config files including minification
+        var workerLibPath = location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js';
         // var workerLibPath = location.protocol + '//' + location.host + '/src/js/kidoju.data.workerlib.js'; // for WEINRE
-        var workerTimeout = 250; // TODO: move to config
-
+        var workerTimeout = 250;
 
         /*********************************************************************************
          * Base Model
@@ -966,7 +965,8 @@
                 }
 
                 // TODO we might even consider storing workerLib in session storage
-                $.ajax({ url: workerLibPath, cache: true, dataType: 'text' })
+                var app = window.app;
+                $.ajax({ url: (app && app.uris && app.uris.webapp && app.uris.webapp.workerlib) || workerLibPath, cache: true, dataType: 'text' })
                     .done(function (workerLib) {
 
                         // Add tasks to the worker pool

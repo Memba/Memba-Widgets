@@ -840,6 +840,25 @@
         };
 
         /**
+         * ValidatedTest model
+         */
+        /*
+        var ValidatedTest = models.ValidatedTest = Model.define({
+            fields: {
+                max: {
+                    type: 'number',
+                    nullable: false
+                },
+                score: {
+                    type: 'number',
+                    nullable: false
+                }
+            }
+        });
+        */
+
+
+        /**
          * @class PageCollectionDataSource
          * @type {*|void|Object}
          */
@@ -927,27 +946,57 @@
                 var that = this;
                 var deferred = $.Deferred();
                 var workerPool = new WorkerPool(window.navigator.hardwareConcurrency || 4, workerTimeout);
+                // TODO: use an app.model and define a submodel with each field - see ValidatedTest above
                 var result = {
-                        score: 0,
-                        max: 0,
-                        percent: function () {
-                            var max;
-                            var score;
-                            if (this instanceof kendo.data.ObservableObject) {
-                                max = this.get('max'); score = this.get('score');
-                            } else {
-                                max = this.max; score = this.score;
+                        score: function () {
+                            var score = 0;
+                            assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                            for (var name in this) {
+                                if (this.hasOwnProperty(name) && /^val_/.test(name)) {
+                                    score += this.get(name + '.score');
+                                }
                             }
-                            return score === 0 || max === 0 ?  kendo.toString(0, 'p0') : kendo.toString(score / max, 'p0');
+                            return score;
+                        },
+                        max: function () {
+                            var max = 0;
+                            assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                            for (var name in this) {
+                                if (this.hasOwnProperty(name) && /^val_/.test(name)) {
+                                    max += this.get(name + '.success');
+                                }
+                            }
+                            return max;
+                        },
+                        percent: function () {
+                            assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                            var max = this.max();
+                            var score = this.score();
+                            return score === 0 || max === 0 ?  0 : 100 * score / max;
                         },
                         getScoreArray: function () {
                             var array = [];
+                            assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                             for (var name in this) {
-                                if (/^val_/.test(name) && this.hasOwnProperty(name)) {
-                                    array.push(this[name]);
+                                if (this.hasOwnProperty(name) && /^val_/.test(name)) {
+                                    array.push(this.get(name).toJSON());
                                 }
                             }
                             return array;
+                        },
+                        toJSON: function () {
+                            var json = {};
+                            assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                            for (var name in this) {
+                                if (this.hasOwnProperty(name) && /^val_/.test(name)) {
+                                    json[name] = {
+                                        result: this.get(name + '.result'),
+                                        score: this.get(name + '.score'),
+                                        value: this.get(name + '.value')
+                                    };
+                                }
+                            }
+                            return json;
                         }
                     };
 
@@ -1061,11 +1110,11 @@
                                             break;
                                     }
                                     // calculate the total test score
-                                    result.score += result[argument.name].score;
+                                    // result.score += result[argument.name].score;
                                     // calculate the max possible score in order to calculate a percentage
-                                    if (result[argument.name] && result[argument.name].success) {
-                                        result.max += result[argument.name].success;
-                                    }
+                                    // if (result[argument.name] && result[argument.name].success) {
+                                    //    result.max += result[argument.name].success;
+                                    // }
                                 });
                                 deferred.resolve(result);
                             })

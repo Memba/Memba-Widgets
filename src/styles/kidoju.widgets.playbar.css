@@ -1,6 +1,9 @@
 .kj-playbar {
     z-index: 1000;
 }
+.kj-playbar .k-pager-numbers .k-state-selected {
+    line-height: 2em;
+}
 .kj-playbar .k-pager-info {
     margin-top: 0.175em;
 }

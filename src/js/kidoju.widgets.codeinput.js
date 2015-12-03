@@ -40,7 +40,7 @@
 
         /**
          * CodeInput
-         * Displays as a drop down list when value is /// xxxxx refering to a library formula
+         * Displays as a drop down list when value is // xxxxx refering to a library formula
          * Displays as an readonly input containing the word "custom" when value is a validate custom function
          * IMPORTANT: this is not the value that is displayed: it is either `custom` or value stripped of `// `
          * @class CodeInput Widget (kendoCodeInput)

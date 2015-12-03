@@ -618,7 +618,7 @@
                     '</div>';
                 dialog.content(content);
                 kendo.bind(dialog.element, dialog.viewModel);
-                dialog.element.addClass('kj-no-padding');
+                dialog.element.addClass('no-padding');
                 // Bind click handler for edit buttons
                 dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
                 // Show dialog
@@ -634,7 +634,7 @@
                     if (command === 'ok' || command === 'cancel') {
                         dialog.close();
                         dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
-                        dialog.element.removeClass('kj-no-padding');
+                        dialog.element.removeClass('no-padding');
                         // The content method destroys widgets and unbinds data
                         dialog.content('');
                         dialog.viewModel = undefined;
@@ -799,7 +799,7 @@
                     }
                 });
                 kendo.bind(dialog.element, dialog.viewModel);
-                dialog.element.addClass('kj-no-padding');
+                dialog.element.addClass('no-padding');
                 // Bind click handler for edit buttons
                 dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
                 // Show dialog
@@ -815,7 +815,7 @@
                     if (command === 'ok' || command === 'cancel') {
                         dialog.close();
                         dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
-                        dialog.element.removeClass('kj-no-padding');
+                        dialog.element.removeClass('no-padding');
                         // The content method destroys widgets and unbinds data
                         dialog.content('');
                         dialog.viewModel = undefined;
@@ -886,7 +886,7 @@
                     '</div>';
                 dialog.content(content);
                 kendo.bind(dialog.element, dialog.viewModel);
-                dialog.element.addClass('kj-no-padding');
+                dialog.element.addClass('no-padding');
                 // Bind click handler for edit buttons
                 dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
                 // Bind window activate handler
@@ -915,7 +915,7 @@
                     if (command === 'ok' || command === 'cancel') {
                         dialog.close();
                         dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
-                        dialog.element.removeClass('kj-no-padding');
+                        dialog.element.removeClass('no-padding');
                         // The content method destroys widgets and unbinds data
                         dialog.content('');
                         dialog.viewModel = undefined;

@@ -147,9 +147,9 @@
     // Maximum number of function parameters.
     "maxparams": 5,
     // Maximum block nesting depth.
-    "maxdepth": 4, //3,
+    "maxdepth": 4, // 3,
     // Maximum number of statements per function.
     "maxstatements": 25,
     // Maximum cyclomatic complexity.
-    "maxcomplexity": 7 //6
+    "maxcomplexity": 7 // 6
 }

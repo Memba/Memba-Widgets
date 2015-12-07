@@ -3,7 +3,7 @@
 /* Rating (kendoRating)
 /*******************************************************************/
 .k-rating {
-    border: 0;
+    border: 0 !important;
     outline: 0;
 }
 .k-rating .k-rating-star {

@@ -410,10 +410,107 @@
                 }]
             };
 
-        kidoju.schemes = {
+        var schemes = {
             cdn: 'https://d2rvsmwqptocm.cloudfront.net/',
             data: window.location.protocol + '//' + window.location.host + '/Kidoju.Widgets/test/data/images/miscellaneous/'
         };
+
+        kidoju.assets.audio = new kidoju.ToolAssets({
+            collections: [],
+            extensions: ['.mp3', '.ogg'],
+            schemes: schemes,
+            transport: {}
+        });
+
+        kidoju.assets.image = new kidoju.ToolAssets({
+            collections: [
+                {
+                    name: 'G-Collection',
+                    transport: {
+                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/g_collection/svg/all/index.json'
+                    }
+                },
+                {
+                    name: 'O-Collection',
+                    collections: [
+                        {
+                            name: 'Dark Grey',
+                            transport: {
+                                read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/dark_grey/index.json'
+                            }
+                        },
+                        {
+                            name: 'Office',
+                            transport: {
+                                read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/office/index.json'
+                            }
+                        },
+                        {
+                            name: 'White',
+                            transport: {
+                                read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/white/index.json'
+                            }
+                        }
+                    ]
+                },
+                {
+                    name: 'V-Collection',
+                    collections: [
+                        {
+                            name: 'Small',
+                            transport: {
+                                read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/32x32/index.json'
+                            }
+                        },
+                        {
+                            name: 'Medium',
+                            transport: {
+                                read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/64x64/index.json'
+                            }
+                        },
+                        {
+                            name: 'Large',
+                            transport: {
+                                read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/128x128/index.json'
+                            }
+                        },
+                        {
+                            name: 'Huge',
+                            transport: {
+                                read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/256x256/index.json'
+                            }
+                        }
+                    ]
+                },
+                {
+                    name: 'X-Collection',
+                    collections: [
+                        {
+                            name: 'Small',
+                            transport: {
+                                read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/x_collection/png/32x32/index.json'
+                            }
+                        },
+                        {
+                            name: 'Large',
+                            transport: {
+                                read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/x_collection/png/128x128/index.json'
+                            }
+                        }
+                    ]
+                }
+            ],
+            extensions: ['.gif', '.jpg', '.png', '.svg'],
+            schemes: schemes,
+            transport: {}
+        });
+
+        kidoju.assets.video = new kidoju.ToolAssets({
+            collections: [],
+            extensions: ['.mp4', '.ogv', '.wbem'],
+            schemes: schemes,
+            transport: {}
+        });
 
         //Create some dummy data
         if (!window.localStorage.getItem(storageKey)) {

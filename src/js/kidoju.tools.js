@@ -30,6 +30,7 @@
         var assert = window.assert;
         var logger = new window.Logger('kidoju.tools');
         var OBJECT = 'object';
+        var ARRAY = 'array';
         var STRING = 'string';
         var NUMBER = 'number';
         var BOOLEAN = 'boolean';
@@ -40,7 +41,6 @@
         var ACTIVE = 'active';
         var POINTER = 'pointer';
         var ELEMENT_CLASS = '.kj-element';
-        var AUTO = 'auto';
         var DIALOG_DIV = '<div class="k-popup-edit-form {0}"></div>';
         var DIALOG_CLASS = '.kj-dialog';
         var CLICK = 'click';
@@ -57,12 +57,6 @@
         // Incors O-Collection delete.svg
         // var SVG_FAILURE = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#E68497" d="M1273 7156l2037 -2036 -2037 -2036c-124,-125 -124,-328 0,-453l1358 -1358c125,-124 328,-124 453,0l2036 2037 2036 -2037c125,-124 328,-124 453,0l1358 1358c124,125 124,328 0,453l-2037 2036 2037 2036c124,125 124,328 0,453l-1358 1358c-125,124 -328,124 -453,0l-2036 -2037 -2036 2037c-125,124 -328,124 -453,0l-1358 -1358c-124,-125 -124,-328 0,-453z"/></svg>';
         var SVG_FAILURE = 'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBmaWxsLXJ1bGU9Im5vbnplcm8iIGNsaXAtcnVsZT0iZXZlbm9kZCIgdmlld0JveD0iMCAwIDEwMjQwIDEwMjQwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggaWQ9ImN1cnZlMCIgZmlsbD0iI0U2ODQ5NyIgZD0iTTEyNzMgNzE1NmwyMDM3IC0yMDM2IC0yMDM3IC0yMDM2Yy0xMjQsLTEyNSAtMTI0LC0zMjggMCwtNDUzbDEzNTggLTEzNThjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMjAzNiAyMDM3IDIwMzYgLTIwMzdjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMTM1OCAxMzU4YzEyNCwxMjUgMTI0LDMyOCAwLDQ1M2wtMjAzNyAyMDM2IDIwMzcgMjAzNmMxMjQsMTI1IDEyNCwzMjggMCw0NTNsLTEzNTggMTM1OGMtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTIwMzYgLTIwMzcgLTIwMzYgMjAzN2MtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTEzNTggLTEzNThjLTEyNCwtMTI1IC0xMjQsLTMyOCAwLC00NTN6Ii8+PC9zdmc+';
-
-        /*********************************************************************************
-         * Culture
-         *********************************************************************************/
-        var culture = kidoju.culture = kidoju.culture || {};
-        culture.tools = {}; // TODO
 
         /*********************************************************************************
          * Helpers
@@ -83,6 +77,37 @@
         }
 
         /*********************************************************************************
+         * Assets
+         *********************************************************************************/
+
+        var ToolAssets = kidoju.ToolAssets = kendo.Class.extend({
+            init: function (options) {
+                options = options || {};
+                var collections = options.collections || [];
+                var extensions = options.extensions || [];
+                var schemes = options.schemes || {};
+                var transport = options.transport || {};
+                assert.type(ARRAY, collections, kendo.format(assert.messages.type.default, 'options.collections', ARRAY));
+                assert.type(ARRAY, extensions, kendo.format(assert.messages.type.default, 'options.extensions', ARRAY));
+                assert.type(OBJECT, schemes, kendo.format(assert.messages.type.default, 'options.schemes', OBJECT));
+                assert.type(OBJECT, transport, kendo.format(assert.messages.type.default, 'options.transport', OBJECT));
+                this.collections = collections;
+                this.extensions = extensions;
+                this.schemes = schemes;
+                this.transport = transport;
+            }
+        });
+
+        var assets = kidoju.assets = {
+            // Assets for the audio tool
+            audio : new ToolAssets(),
+            // Assets for the image tool
+            image: new ToolAssets(),
+            // Assets for the video tool
+            video: new ToolAssets()
+        };
+
+        /*********************************************************************************
          * Generic tools
          *********************************************************************************/
 
@@ -93,19 +118,17 @@
         var tools = kidoju.tools = kendo.observable({
             active: null,
             register: function (Class) {
-                // if (Class instanceof constructor) {
-                if ($.type(Class.fn) === OBJECT) {
-                    var obj = new Class();
-                    if (obj instanceof Tool && $.type(obj.id) === STRING) {
-                        if (obj.id === ACTIVE || obj.id === REGISTER) {
-                            throw new Error('You cannot name your tool `active` or `register`');
-                        } else if (!this[obj.id]) { // make sure (our system) tools are not being replaced
-                            this[obj.id] = obj;
-                            if (obj.id === POINTER) {
-                                this.active = POINTER;
-                            }
-                        }
-                    }
+                assert.type(OBJECT, Class.prototype, kendo.format(assert.messages.type.default, 'Class.prototype', OBJECT));
+                var obj = new Class();
+                assert.instanceof(Tool, obj, kendo.format(assert.messages.instanceof.default, 'obj', 'kidoju.Tool'));
+                assert.type(STRING, obj.id, kendo.format(assert.messages.type.default, 'obj.id', STRING));
+                obj.id = obj.id.trim();
+                assert.ok(obj.id.length > 0, 'A tool cannot have an empty id');
+                assert.ok(obj.id !== ACTIVE && obj.id !== REGISTER, 'A tool cannot have `active` or `register` for id');
+                assert.isUndefined(this[obj.id], 'Existing tools cannot be replaced');
+                this[obj.id] = obj;
+                if (obj.id === POINTER) {
+                    this.active = POINTER;
                 }
             }
         });
@@ -275,7 +298,7 @@
 
         /*******************************************************************************************
          * Adapter classes
-         * used to display values in a proprty grid
+         * Used to display values in a property grid
          *******************************************************************************************/
         var adapters = kidoju.adapters = {};
 
@@ -560,7 +583,7 @@
                 this.editor = 'input';
                 this.attributes = $.extend({}, this.attributes, { style: 'width: 100%;' });
                 this.attributes[kendo.attr('role')] = 'dropdownlist';
-                this.attributes[kendo.attr('source')] = JSON.stringify(options.enum); // kendo.htmlEncode??
+                this.attributes[kendo.attr('source')] = JSON.stringify(options && options.enum ? options.enum : []); // kendo.htmlEncode??
             }
         });
 
@@ -652,8 +675,8 @@
                 BaseAdapter.fn.init.call(that, options);
                 that.type = STRING;
                 that.defaultValue = that.defaultValue || (that.nullable ? null : '');
-                // This is the inline editor with a [...] button which triggers this.showDialog
-                that.editor = function (container, options) {
+                // that.editor is the inline editor with a [...] button which triggers this.showDialog
+                that.editor = function (container, settings) {
                     var table = $('<div/>')
                         .css({ display: 'table' })
                         .appendTo(container);
@@ -665,9 +688,9 @@
                         })
                         .appendTo(table);
                     var input = $('<input/>')
-                        .addClass('k-textbox') // or k-input
+                        .addClass('k-textbox')
                         .css({ width: '100%' })
-                        .attr($.extend({}, options.attributes, { 'data-bind': 'value: ' + options.field }))
+                        .attr($.extend({}, settings.attributes, { 'data-bind': 'value: ' + settings.field }))
                         .appendTo(cell);
                     $('<button/>')
                         .text('...')
@@ -679,129 +702,30 @@
                             margin: 0
                         })
                         .appendTo(table)
-                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                        .on(CLICK, $.proxy(that.showDialog, that, settings));
                 };
             },
-            showDialog: function (options) {
+            showDialog: function (settings) {
                 var that = this;
                 var dialog = that.getDialog();
                 // Create viewModel (Cancel shall not save changes to main model)
                 dialog.viewModel = kendo.observable({
-                    url: options.model.get(options.field)
+                    url: settings.model.get(settings.field)
                 });
                 // Prepare UI
-                dialog.title(options.title);
+                dialog.title(settings.title);
                 var content = '<div class="k-edit-form-container">' +
                     '<div data-role="assetmanager" data-bind="value: url"></div>' +
                     '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="ok" href="#">OK</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
                     '</div>';
                 dialog.content(content);
-                dialog.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager({
-                    // change: function (e) {
-                    //     dialog.viewModel.set('url', e.sender.value());
-                    // },
-                    transport: {
-                        read: function (options) {
-                            options.success({
-                                total: 1,
-                                data: [
-                                    { url: 'https://s3-eu-west-1.amazonaws.com/kidoju.test/s/en/55c9c75dcc8974a01a397472/item204.jpg', size: 3177 }
-                                ]
-                            });
-                        },
-                        create: function (options) {
-                            $.noop(); // TODO
-                        },
-                        destroy: function (options) {
-                            $.noop(); // TODO
-                        }
-                        // update is same as create
-                    },
-                    collections: [
-                        {
-                            name: 'G-Collection',
-                            transport: {
-                                read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/g_collection/svg/all/index.json'
-                            }
-                        },
-                        {
-                            name: 'O-Collection',
-                            collections: [
-                                {
-                                    name: 'Dark Grey',
-                                    transport: {
-                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/dark_grey/index.json'
-                                    }
-                                },
-                                {
-                                    name: 'Office',
-                                    transport: {
-                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/office/index.json'
-                                    }
-                                },
-                                {
-                                    name: 'White',
-                                    transport: {
-                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/white/index.json'
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            name: 'V-Collection',
-                            collections: [
-                                {
-                                    name: 'Small',
-                                    transport: {
-                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/32x32/index.json'
-                                    }
-                                },
-                                {
-                                    name: 'Medium',
-                                    transport: {
-                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/64x64/index.json'
-                                    }
-                                },
-                                {
-                                    name: 'Large',
-                                    transport: {
-                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/128x128/index.json'
-                                    }
-                                },
-                                {
-                                    name: 'Huge',
-                                    transport: {
-                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/256x256/index.json'
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            name: 'X-Collection',
-                            collections: [
-                                {
-                                    name: 'Small',
-                                    transport: {
-                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/x_collection/png/32x32/index.json'
-                                    }
-                                },
-                                {
-                                    name: 'Large',
-                                    transport: {
-                                        read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/x_collection/png/128x128/index.json'
-                                    }
-                                }
-                            ]
-                        }
-                    ],
-                    schemes: {
-                        cdn: 'https://d2rvsmwqptocm.cloudfront.net/'
-                    }
-                });
+                assert.instanceof(PageComponent, settings.model, kendo.format(assert.messages.instanceof.default, 'settings.model', 'kidoju.data.PageComponent'));
+                assert.instanceof(ToolAssets, assets[settings.model.tool], kendo.format(assert.messages.instanceof.default, 'assets[settings.model.tool]', 'kidoju.ToolAssets'));
+                dialog.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets[settings.model.tool]);
                 kendo.bind(dialog.element, dialog.viewModel);
                 dialog.element.addClass('no-padding');
                 // Bind click handler for edit buttons
-                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, settings, dialog));
                 // Show dialog
                 dialog.center().open();
             },
@@ -1020,20 +944,23 @@
              * @returns {*}
              */
             getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(Image, that, kendo.format(assert.messages.instanceof.default, 'this', 'Image'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                var template = kendo.template(this.templates.default);
-                // The src$ function resolves urls with kidoju schemes like cdn://sample.jpg
+                assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                var template = kendo.template(that.templates.default);
+                // The src$ function resolves urls with schemes like cdn://sample.jpg
                 component.attributes.src$ = function () {
-                    var url = component.attributes.get('src');
-                    var schemes = kidoju.schemes || {};
+                    var src = component.attributes.get('src');
+                    var schemes = assets.image.schemes;
                     for (var scheme in schemes) {
-                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(url)) {
-                            url = url.replace(scheme + '://', schemes[scheme]);
+                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(src)) {
+                            src = src.replace(scheme + '://', schemes[scheme]);
                             break;
                         }
                     }
-                    return url;
+                    return src;
                 };
                 return template(component);
             },
@@ -1329,7 +1256,7 @@
             icon: 'loudspeaker3',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-role="mediaplayer" data-mode="audio" data-autoplay="#: attributes.autoplay #" data-files="#: JSON.stringify([attributes.mp3, attributes.ogg]) #"></div>'
+                default: '<div data-role="mediaplayer" data-mode="audio" data-autoplay="#: attributes.autoplay #" data-files="#: JSON.stringify([attributes.mp3$(), attributes.ogg$()]) #"></div>'
             },
             height: 100,
             width: 400,
@@ -1337,6 +1264,47 @@
                 autoplay: new adapters.BooleanAdapter({ title: 'Autoplay', defaultValue: false }),
                 mp3: new adapters.AssetAdapter({ title: 'MP3 File' }),
                 ogg: new adapters.AssetAdapter({ title: 'OGG File' })
+            },
+
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(Audio, that, kendo.format(assert.messages.instanceof.default, 'this', 'Image'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.audio, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                var template = kendo.template(that.templates.default);
+                // The mp3$ function resolves urls with schemes like cdn://audio.mp3
+                component.attributes.mp3$ = function () {
+                    var mp3 = component.attributes.get('mp3');
+                    var schemes = assets.audio.schemes;
+                    for (var scheme in schemes) {
+                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(mp3)) {
+                            mp3 = mp3.replace(scheme + '://', schemes[scheme]);
+                            break;
+                        }
+                    }
+                    return mp3;
+                };
+                // The ogg$ function resolves urls with schemes like cdn://audio.ogg
+                component.attributes.ogg$ = function () {
+                    var ogg = component.attributes.get('ogg');
+                    var schemes = assets.audio.schemes;
+                    for (var scheme in schemes) {
+                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(ogg)) {
+                            ogg = ogg.replace(scheme + '://', schemes[scheme]);
+                            break;
+                        }
+                    }
+                    return ogg;
+                };
+                return template(component);
             },
 
             /**
@@ -1385,6 +1353,59 @@
                 mp4: new adapters.AssetAdapter({ title: 'MP4 File' }),
                 ogv: new adapters.AssetAdapter({ title: 'OGV File' }),
                 wbem: new adapters.AssetAdapter({ title: 'WBEM File' })
+            },
+
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(Video, that, kendo.format(assert.messages.instanceof.default, 'this', 'Image'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.video, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                var template = kendo.template(this.templates.default);
+                // The mp3$ function resolves urls with schemes like cdn://video.mp4
+                component.attributes.mp4$ = function () {
+                    var mp4 = component.attributes.get('mp4');
+                    var schemes = assets.video.schemes;
+                    for (var scheme in schemes) {
+                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(mp4)) {
+                            mp4 = mp4.replace(scheme + '://', schemes[scheme]);
+                            break;
+                        }
+                    }
+                    return mp4;
+                };
+                // The ogv$ function resolves urls with schemes like cdn://video.ogv
+                component.attributes.ogv$ = function () {
+                    var ogv = component.attributes.get('ogv');
+                    var schemes = assets.video.schemes;
+                    for (var scheme in schemes) {
+                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(ogv)) {
+                            ogv = ogv.replace(scheme + '://', schemes[scheme]);
+                            break;
+                        }
+                    }
+                    return ogv;
+                };
+                // The wbem$ function resolves urls with schemes like cdn://video.wbem
+                component.attributes.wbem$ = function () {
+                    var wbem = component.attributes.get('wbem');
+                    var schemes = assets.video.schemes;
+                    for (var scheme in schemes) {
+                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(wbem)) {
+                            wbem = wbem.replace(scheme + '://', schemes[scheme]);
+                            break;
+                        }
+                    }
+                    return wbem;
+                };
+                return template(component);
             },
 
             /**

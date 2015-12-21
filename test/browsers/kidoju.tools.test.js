@@ -50,51 +50,59 @@
 
         describe('Registering a new tool', function () {
 
-            it('it should discard a tool that is not a class', function () {
-                var keys = Object.keys(tools);
-                var obj = { id:'dummy' };
-                tools.register(obj);
-                expect(Object.keys(tools)).to.eql(keys);
+            it('it should throw when registering a tool that is not a class', function () {
+                function fn() {
+                    var obj = { id:'dummy' };
+                    tools.register(obj);
+                }
+                expect(fn).to.throw;
             });
 
-            it('it should discard a tool that is a class which is not inherited from Tool', function () {
+            it('it should throw when registering a tool that is not inherited from Tool', function () {
                 function DummyTool(options) {
                     this.id = 'dummy';
                     this.options = options;
                 }
-                var keys = Object.keys(tools);
-                tools.register(DummyTool);
-                expect(Object.keys(tools)).to.eql(keys);
+                function fn() {
+                    tools.register(DummyTool);
+                }
+                expect(fn).to.throw;
             });
 
-            it('it should discard a tool without id', function () {
-                var ToolWithoutId = Tool.extend({});
-                var keys = Object.keys(tools);
-                tools.register(ToolWithoutId);
-                expect(Object.keys(tools)).to.eql(keys);
+            it('it should throw if tool has no id', function () {
+                function fn() {
+                    var ToolWithoutId = Tool.extend({});
+                    tools.register(ToolWithoutId);
+                }
+                expect(fn).to.throw;
             });
 
-            it('it should raise an error when registering a tool named `active`', function () {
-                var fn = function () {
+            it('it should throw when registering a tool named `active`', function () {
+                function fn() {
                     var Active = Tool.extend({ id: 'active' });
                     tools.register(Active);
-                };
-                expect(fn).to.throw(Error);
+                }
+                expect(fn).to.throw;
             });
 
-            it('it should raise an error when registering a tool named `register`', function () {
-                var fn = function () {
+            it('it should throw when registering a tool named `register`', function () {
+                function fn() {
                     var Register = Tool.extend({ id: 'register' });
                     tools.register(Register);
-                };
-                expect(fn).to.throw(Error);
+                }
+                expect(fn).to.throw;
             });
 
-            it('it should discard a tool with an existing id', function () {
-                var ExistingTool = Tool.extend({ id: 'image', add: function (a, b) { return a + b; }});
-                var keys = Object.keys(tools);
-                tools.register(ExistingTool);
-                expect(Object.keys(tools)).to.eql(keys);
+            it('it should throw when registering a tool with an existing id', function () {
+                function fn () {
+                    var ExistingTool = Tool.extend({
+                        id: 'image', add: function (a, b) {
+                            return a + b;
+                        }
+                    });
+                    tools.register(ExistingTool);
+                }
+                expect(fn).to.throw;
                 expect(tools).to.have.property('image').that.is.an.instanceof(Tool);
                 expect(tools.image.add).to.be.undefined;
             });
@@ -142,8 +150,52 @@
                 expect(field).to.have.property('type', adapter.type);
             });
 
+            it('Validate TextAdapter', function () {
+                var adapter = new adapters.TextAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+            it('Validate EnumAdapter', function () {
+                var adapter = new adapters.EnumAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
             it('Validate StyleAdapter', function () {
                 var adapter = new adapters.StyleAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+            it('Validate AssetAdapter', function () {
+                var adapter = new adapters.AssetAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+            it('Validate NameAdapter', function () {
+                var adapter = new adapters.NameAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+
+            it('Validate ValidationAdapter', function () {
+                var adapter = new adapters.ValidationAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+
+            it('Validate ScoreAdapter', function () {
+                var adapter = new adapters.ScoreAdapter();
                 var field = adapter.getField();
                 var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);

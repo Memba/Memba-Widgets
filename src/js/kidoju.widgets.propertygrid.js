@@ -214,8 +214,8 @@
 
                         // Add the editor to the right cell
                         var container = tbody.find(TCELL).last();
-                        var options = $.extend({}, row, { model: properties });
-                        row.editor(container, options);
+                        var settings = $.extend({}, row, { model: properties });
+                        row.editor(container, settings);
 
                     } else {
                         discarded++;

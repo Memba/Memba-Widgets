@@ -44,6 +44,7 @@
         var DIALOG_DIV = '<div class="k-popup-edit-form {0}"></div>';
         var DIALOG_CLASS = '.kj-dialog';
         var CLICK = 'click';
+        var RX_HTTP_S = /^https?:\/\//;
         var RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
         var FORMULA = 'function validate(value, solution, all) {\n\t{0}\n}';
         var JS_COMMENT = '// ';
@@ -1256,7 +1257,7 @@
             icon: 'loudspeaker3',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-role="mediaplayer" data-mode="audio" data-autoplay="#: attributes.autoplay #" data-files="#: JSON.stringify([attributes.mp3$(), attributes.ogg$()]) #"></div>'
+                default: '<div data-role="mediaplayer" data-mode="audio" data-autoplay="#: attributes.autoplay #" data-files="#: attributes.files$() #"></div>'
             },
             height: 100,
             width: 400,
@@ -1280,29 +1281,30 @@
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 assert.instanceof(ToolAssets, assets.audio, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
                 var template = kendo.template(that.templates.default);
-                // The mp3$ function resolves urls with schemes like cdn://audio.mp3
-                component.attributes.mp3$ = function () {
+                // The files$ function resolves urls with schemes like cdn://audio.mp3 and returns a stringified array
+                component.attributes.files$ = function () {
                     var mp3 = component.attributes.get('mp3');
-                    var schemes = assets.audio.schemes;
-                    for (var scheme in schemes) {
-                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(mp3)) {
-                            mp3 = mp3.replace(scheme + '://', schemes[scheme]);
-                            break;
-                        }
-                    }
-                    return mp3;
-                };
-                // The ogg$ function resolves urls with schemes like cdn://audio.ogg
-                component.attributes.ogg$ = function () {
                     var ogg = component.attributes.get('ogg');
-                    var schemes = assets.audio.schemes;
+                    var schemes = assets.video.schemes;
                     for (var scheme in schemes) {
-                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(ogg)) {
-                            ogg = ogg.replace(scheme + '://', schemes[scheme]);
-                            break;
+                        if (schemes.hasOwnProperty(scheme)) {
+                            var schemeRx = new RegExp('^' + scheme + '://');
+                            if (schemeRx.test(mp3)) {
+                                mp3 = mp3.replace(scheme + '://', schemes[scheme]);
+                            }
+                            if (schemeRx.test(ogg)) {
+                                ogg = ogg.replace(scheme + '://', schemes[scheme]);
+                            }
                         }
                     }
-                    return ogg;
+                    var files = [];
+                    if (RX_HTTP_S.test(mp3)) {
+                        files.push(mp3);
+                    }
+                    if (RX_HTTP_S.test(ogg)) {
+                        files.push(ogg);
+                    }
+                    return JSON.stringify(files);
                 };
                 return template(component);
             },
@@ -1343,7 +1345,7 @@
             icon: 'movie',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-role="mediaplayer" data-mode="video" data-autoplay="#: attributes.autoplay #" data-files="#: JSON.stringify([attributes.mp4, attributes.ogv, attributes.webm]) #" data-toolbar-height="#: attributes.toolbarHeight #"></div>'
+                default: '<div data-role="mediaplayer" data-mode="video" data-autoplay="#: attributes.autoplay #" data-files="#: attributes.files$() #" data-toolbar-height="#: attributes.toolbarHeight #"></div>'
             },
             height: 300,
             width: 600,
@@ -1369,41 +1371,37 @@
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 assert.instanceof(ToolAssets, assets.video, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
                 var template = kendo.template(this.templates.default);
-                // The mp3$ function resolves urls with schemes like cdn://video.mp4
-                component.attributes.mp4$ = function () {
+                // The files$ function resolves urls with schemes like cdn://video.mp4 and returns a stringified array
+                component.attributes.files$ = function () {
                     var mp4 = component.attributes.get('mp4');
-                    var schemes = assets.video.schemes;
-                    for (var scheme in schemes) {
-                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(mp4)) {
-                            mp4 = mp4.replace(scheme + '://', schemes[scheme]);
-                            break;
-                        }
-                    }
-                    return mp4;
-                };
-                // The ogv$ function resolves urls with schemes like cdn://video.ogv
-                component.attributes.ogv$ = function () {
                     var ogv = component.attributes.get('ogv');
-                    var schemes = assets.video.schemes;
-                    for (var scheme in schemes) {
-                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(ogv)) {
-                            ogv = ogv.replace(scheme + '://', schemes[scheme]);
-                            break;
-                        }
-                    }
-                    return ogv;
-                };
-                // The wbem$ function resolves urls with schemes like cdn://video.wbem
-                component.attributes.wbem$ = function () {
                     var wbem = component.attributes.get('wbem');
                     var schemes = assets.video.schemes;
                     for (var scheme in schemes) {
-                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(wbem)) {
-                            wbem = wbem.replace(scheme + '://', schemes[scheme]);
-                            break;
+                        if (schemes.hasOwnProperty(scheme)) {
+                            var schemeRx = new RegExp('^' + scheme + '://');
+                            if (schemeRx.test(mp4)) {
+                                mp4 = mp4.replace(scheme + '://', schemes[scheme]);
+                            }
+                            if (schemeRx.test(ogv)) {
+                                ogv = ogv.replace(scheme + '://', schemes[scheme]);
+                            }
+                            if (schemeRx.test(wbem)) {
+                                wbem = wbem.replace(scheme + '://', schemes[scheme]);
+                            }
                         }
                     }
-                    return wbem;
+                    var files = [];
+                    if (RX_HTTP_S.test(mp4)) {
+                        files.push(mp4);
+                    }
+                    if (RX_HTTP_S.test(ogv)) {
+                        files.push(ogv);
+                    }
+                    if (RX_HTTP_S.test(wbem)) {
+                        files.push(wbem);
+                    }
+                    return JSON.stringify(files);
                 };
                 return template(component);
             },

@@ -31,13 +31,13 @@
         var NUMBER = 'number';
         var STRING = 'string';
         var CONTENT = 'content';
-        var CLICK = 'click';
+        var CLICK = 'click' + NS;
         // var MOUSEENTER = 'mouseenter';
         // var MOUSELEAVE = 'mouseleave';
         // var HOVEREVENTS = MOUSEENTER + NS + ' ' + MOUSELEAVE + NS;
         var WIDGET_CLASS = 'kj-social';
         var STATE_DISABLED = 'k-state-disabled';
-        var TEMPLATE = '<a role="button" href="#"data-command="{0}"></a>';
+        var TEMPLATE = '<a role="button" href="#" data-command="{0}"></a>';
         var BUTTON_SELECTOR = 'a[role="button"]';
         var COMMAND = {
             FACEBOOK: 'facebook',
@@ -73,17 +73,19 @@
                 that._window = null;
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
+                that.options = $.extend({
+                    language: $('html').attr('lang') || 'en',
+                    facebookAppId: $('meta[property="fb:app_id"]').attr(CONTENT),
+                    twitterAccount: $('meta[property="twitter:site"]').attr(CONTENT),
+                    url: $('meta[property="og:url"]').attr(CONTENT) || window.location.href,
+                    title: $('meta[property="og:title"]').attr(CONTENT) || $('meta[property="twitter:title"]').attr(CONTENT) || $('head>title').text(),
+                    description: $('meta[property="og:description"]').attr(CONTENT) ||$('meta[property="twitter:description"]').attr(CONTENT) || $('meta[property="description"]').attr(CONTENT),
+                    image: $('meta[property="og:image"]').attr(CONTENT) || $('meta[property="twitter:image"]').attr(CONTENT),
+                    source: $('meta[property="og:site_name"]').attr(CONTENT)
+                }, that.options);
                 that._layout();
                 // kendo.notify(that);
             },
-
-            /**
-             * Widget events
-             * @property events
-             */
-            events: [
-                CLICK
-            ],
 
             /**
              * Widget options
@@ -93,14 +95,14 @@
                 name: 'Social',
                 size: 32,
                 disabled: false,
-                language: $('html').attr('lang') || 'en',
-                facebookAppId: $('meta[property="fb:app_id"]').attr(CONTENT),
-                twitterAccount: $('meta[property="twitter:site"]').attr(CONTENT),
-                url: $('meta[property="og:url"]').attr(CONTENT) || window.location.href,
-                title: $('meta[property="og:title"]').attr(CONTENT) || $('meta[property="twitter:title"]').attr(CONTENT) || $('head>title').text(),
-                description: $('meta[property="og:description"]').attr(CONTENT) ||$('meta[property="twitter:description"]').attr(CONTENT) || $('meta[property="description"]').attr(CONTENT),
-                image: $('meta[property="og:image"]').attr(CONTENT) || $('meta[property="twitter:image"]').attr(CONTENT),
-                source: $('meta[property="og:site_name"]').attr(CONTENT)
+                language: undefined,
+                facebookAppId: undefined,
+                twitterAccount: undefined,
+                url: undefined,
+                title: undefined,
+                description: undefined,
+                image: undefined,
+                source: undefined
             },
 
             /**
@@ -140,7 +142,7 @@
                 } else {
                     wrapper.removeClass(STATE_DISABLED);
                     wrapper
-                        .on(CLICK + NS, BUTTON_SELECTOR, $.proxy(that._onButtonClick, that));
+                        .on(CLICK, BUTTON_SELECTOR, $.proxy(that._onButtonClick, that));
                     // .on(HOVEREVENTS, BUTTON_SELECTOR, $.proxy(that._toggleHover, that))
                 }
             },

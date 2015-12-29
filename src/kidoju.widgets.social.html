@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Social</title>
+    <meta property="og:title" content="Social Widget Test" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="test" />
+    <meta property="og:image" content="http://uk.boats.com/boat-content/files/image00341.jpg" />
+    <!--meta property="og:url" content="" /-->
+    <meta property="og:description" content="This is a page to test the kidoju social widget" />
+    <meta property="fb:app_id" content="9876543210" />
+    <meta property="twitter:site" content="test" />
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <script src="./js/vendor/kendo/jquery.min.js"></script>
+    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script-->
+    <!-- Social requirements -->
+    <!--link href="./styles/kidoju.widgets.social.css" rel="stylesheet" /-->
+    <script src="./js/window.assert.js"></script>
+    <script src="./js/window.logger.js"></script>
+    <script src="./js/kidoju.widgets.social.js"></script>
+</head>
+<body>
+<h1>Social</h1>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled
+</div>
+<h2>Social widget using open graph metadata</h2>
+<div id="social1" data-role="social" data-bind="visible: visible, enabled: enabled"></div>
+<h2>Social widget using custom values</h2>
+<div id="social2" data-role="social" data-bind="visible: visible, enabled: enabled" data-title="A different title" data-description="A different description" data-url="" data-image=""></div>
+
+<pre>
+    {
+        visible: <span data-bind="text: visible"></span>,
+        enabled: <span data-bind="text: enabled"></span>
+    }
+</pre>
+
+<script>
+    ;(function(window, $, undefined){
+
+        'use strict';
+
+        var kendo = window.kendo;
+
+        $(document).ready(function () {
+
+            var viewModel = kendo.observable({
+                visible: true,
+                enabled: true
+            });
+
+            kendo.bind($('body'), viewModel);
+        });
+
+    }(this, jQuery));
+</script>
+</body>
+</html>

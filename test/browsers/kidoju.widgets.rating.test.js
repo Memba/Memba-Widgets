@@ -55,11 +55,11 @@
                 expect(rating).to.be.an.instanceof(Rating);
                 var wrapper = rating.wrapper;
                 expect(wrapper).to.be.an.instanceof($);
-                expect(wrapper).to.have.class('k-widget');
-                expect(wrapper).to.have.class('k-rating');
+                expect(wrapper).not.to.have.class('k-widget');
+                expect(wrapper).to.have.class('kj-rating');
                 expect(wrapper.find('input')).to.be.an.instanceof($).with.property('length', 1);
-                expect(wrapper.find('span.k-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
-                expect(wrapper.find('span.k-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
+                expect(wrapper.find('span.kj-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
+                expect(wrapper.find('span.kj-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
             });
 
             it('from code with minimal options', function () {
@@ -77,11 +77,11 @@
                 expect(step).to.equal(1);
                 expect(rating).to.be.an.instanceof(Rating);
                 var wrapper = rating.wrapper;
-                expect(wrapper).to.have.class('k-widget');
-                expect(wrapper).to.have.class('k-rating');
+                expect(wrapper).not.to.have.class('k-widget');
+                expect(wrapper).to.have.class('kj-rating');
                 expect(wrapper.find('input')).to.be.an.instanceof($).with.property('length', 1);
-                expect(wrapper.find('span.k-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
-                expect(wrapper.find('span.k-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
+                expect(wrapper.find('span.kj-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
+                expect(wrapper.find('span.kj-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
             });
 
             it('from markup', function () {
@@ -102,11 +102,11 @@
                 expect(step).to.equal(1);
                 expect(value).to.equal(0);
                 var wrapper = rating.wrapper;
-                expect(wrapper).to.have.class('k-widget');
-                expect(wrapper).to.have.class('k-rating');
+                expect(wrapper).not.to.have.class('k-widget');
+                expect(wrapper).to.have.class('kj-rating');
                 expect(wrapper.find('input')).to.be.an.instanceof($).with.property('length', 1);
-                expect(wrapper.find('span.k-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
-                expect(wrapper.find('span.k-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
+                expect(wrapper.find('span.kj-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
+                expect(wrapper.find('span.kj-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
             });
         });
 
@@ -196,7 +196,7 @@
                 var count = Math.round((max - min) / step);
                 var input = rating.wrapper.find('input');
                 expect(input).to.be.an.instanceof($).with.property('length', 1);
-                var stars = rating.wrapper.find('span.k-rating-star');
+                var stars = rating.wrapper.find('span.kj-rating-star');
                 expect(stars).to.be.an.instanceof($).with.property('length', count);
                 for (var value = min; value <= max; value += step) {
                     viewModel.set('current', value);
@@ -220,7 +220,7 @@
                 var count = Math.round((max - min) / step);
                 var input = rating.wrapper.find('input');
                 expect(input).to.be.an.instanceof($).with.property('length', 1);
-                var stars = rating.wrapper.find('span.k-rating-star');
+                var stars = rating.wrapper.find('span.kj-rating-star');
                 expect(stars).to.be.an.instanceof($).with.property('length', count);
                 for (var pos = 0; pos < count; pos++) {
                     $(stars.get(pos)).simulate('click');
@@ -253,7 +253,7 @@
                 var max = rating.options.max;
                 var step = rating.options.step;
                 var count = Math.round((max - min) / step);
-                var stars = rating.wrapper.find('span.k-rating-star');
+                var stars = rating.wrapper.find('span.kj-rating-star');
                 expect(stars).to.be.an.instanceof($).with.property('length', count);
                 for (var pos = 0; pos < count; pos++) {
                     $(stars.get(pos)).simulate('mouseover');

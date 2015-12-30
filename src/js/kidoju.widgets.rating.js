@@ -37,7 +37,7 @@
         var STAR = 'star';
         var STAR_P = '&#x2605;';
         var STAR_O = '&#x2606;';
-        var STAR_SELECTOR = 'span.k-rating-star';
+        var STAR_SELECTOR = 'span.kj-rating-star';
         var STATE_HOVER = 'k-state-hover';
         var STATE_SELECTED = 'k-state-selected';
         var STATE_DISABLED = 'k-state-disabled';
@@ -93,7 +93,7 @@
                 var input = $(element);
                 input.type = NUMBER;
                 that.ns = NS;
-                options = $.extend({}, {
+                options = $.extend({
                     value: parseFloat(input.attr('value') || RATING_MIN),
                     min: parseFloat(input.attr('min') || RATING_MIN),
                     max: parseFloat(input.attr('max') || RATING_MAX),
@@ -165,7 +165,7 @@
                 var input = that.element;
                 var options = that.options;
                 that._clear();
-                input.wrap('<span class="k-widget k-rating"/>');
+                input.wrap('<span class="kj-rating"/>');
                 input.hide();
                 input.on(CHANGE + NS, function () {
                     // update widget
@@ -178,7 +178,7 @@
                 var n = round((options.max - options.min) / options.step);  // number of stars
                 // Add stars to the DOM
                 for (var i = 1; i <= n; i++) {
-                    that.wrapper.append(kendo.format('<span class="k-rating-star" data-star="{0}">{1}</span>', i, STAR_O));
+                    that.wrapper.append(kendo.format('<span class="kj-rating-star" data-star="{0}">{1}</span>', i, STAR_O));
                 }
                 // Make (non)editable
                 that._editable(options);

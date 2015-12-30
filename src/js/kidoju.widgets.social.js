@@ -250,7 +250,7 @@
                 if (that._window === null || that._window.closed || that._url !== openUrl) {
                     // Most social share dialogs resize themselves from a smaller window (not from a larger one)
                     // TODO: We might want to improve the (top, left) position
-                    that._window = window.open(openUrl, 'social', 'toolbar=0,status=0,menubar=0,height=450,width=600');
+                    that._window = window.open(openUrl, 'social', 'location=0,menubar=0,status=0,toolbar=0,height=450,width=600');
                 }
                 that._url = openUrl;
                 that._window.focus();

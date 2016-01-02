@@ -61,6 +61,9 @@
          */
         var Social = Widget.extend({
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Initializes the widget
              * @method init
@@ -86,6 +89,8 @@
                 that._layout();
                 // kendo.notify(that);
             },
+
+            /* jshint +W074 */
 
             /**
              * Widget options

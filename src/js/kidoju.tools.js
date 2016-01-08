@@ -1038,7 +1038,7 @@
                 if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
                     stageElement.children('input')
                         .prop({
-                            disabled: !enabled,
+                            // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
                             readonly: !enabled
                         });
                 }

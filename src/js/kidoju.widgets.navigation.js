@@ -379,7 +379,7 @@
                 var that = this;
                 that.element.kendoSortable({
                     hint: function (element) {
-                        return element.clone().addClass(HINT_CLASS);
+                        return element.clone().addClass(HINT_CLASS);  // Note: note used
                     },
                     placeholder: function (element) {
                         return element.clone().addClass(PLACEHOLDER_CLASS);

@@ -493,6 +493,7 @@
                 } else if (e.action === 'itemchange') {
                     return;
                 }
+                // TODO: Review: it does not seem to be a good idea to set the value in the refresh function (check kendo widgets like ComboBox)
                 var total = that.dataSource.total();
                 if (total > 0 && selectedIndex > -1 && selectedIndex < total) {
                     that.index(selectedIndex);
@@ -503,7 +504,6 @@
                 } else {
                     that.value(null);
                 }
-                // that._toggleSelection();
                 that.resize();
                 if (e && e.action === undefined) {
                     that.trigger(DATABOUND);

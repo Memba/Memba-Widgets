@@ -12,6 +12,7 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
+        './vendor/kendo/kendo.sortable',
         './kidoju.data',
         './kidoju.tools'
     ], f);
@@ -35,13 +36,15 @@
         var PageComponent = kidoju.data.PageComponent;
         var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
         var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
-        // var assert = window.assert
+        var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.explorer');
         var STRING = 'string';
         var NUMBER = 'number';
         var NULL = null;
+        var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
+        var UL = '<ul tabindex="-1" unselectable="on" role="listbox" class="k-list k-reset" />';
         var DATABINDING = 'dataBinding';
         var DATABOUND = 'dataBound';
         var MOUSEENTER = 'mouseenter';
@@ -54,6 +57,8 @@
         var HOVER_CLASS = 'k-state-hover';
         var FOCUSED_CLASS = 'k-state-focused';
         var SELECTED_CLASS = 'k-state-selected';
+        var PLACEHOLDER_CLASS = 'kj-placeholder';
+        var HINT_CLASS = 'kj-hint';
         var DATA_UID = kendo.attr('uid');
         var ALL_ITEMS_SELECTOR = 'li.kj-item[' + DATA_UID + ']';
         var ITEM_BYUID_SELECTOR = 'li.kj-item[' + DATA_UID + '="{0}"]';
@@ -88,6 +93,7 @@
                 logger.debug('widget initialized');
                 that._templates();
                 that._layout();
+                that._addSorting();
                 that._dataSource();
                 // that.refresh();
             },
@@ -127,6 +133,9 @@
                 SELECT
             ],
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * IMPORTANT: index is 0 based
              * @method index
@@ -134,26 +143,32 @@
              * @returns {*}
              */
             index: function (index) {
+                /* jshint: maxcomplexity: 8 */
                 var that = this;
                 var component;
-                if (index !== undefined) {
-                    if ($.type(index) !== NUMBER || index % 1 !== 0) {
-                        throw new TypeError();
-                    } else if (index < 0 || (index > 0 && index >= that.length())) {
+                if ($.type(index) === NUMBER) {
+                    if ((index % 1 !== 0) || (index < 0) || (index > 0 && index >= that.length())) {
                         throw new RangeError();
-                    } else {
-                        component = that.dataSource.at(index);
-                        that.value(component);
                     }
-                } else {
+                    component = that.dataSource.at(index);
+                    if (component instanceof PageComponent) {
+                        that.value(component);
+                    } else {
+                        that.value(NULL);
+                    }
+                } else if ($.type(index) === UNDEFINED) {
                     component = that.dataSource.getByUid(that._selectedUid);
                     if (component instanceof PageComponent) {
                         return that.dataSource.indexOf(component);
                     } else {
                         return -1;
                     }
+                } else {
+                    throw new TypeError();
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * @method id
@@ -163,17 +178,20 @@
             id: function (id) {
                 var that = this;
                 var component;
-                if (id !== undefined) {
-                    if ($.type(id) !== NUMBER && $.type(id) !== STRING) {
-                        throw new TypeError();
-                    }
+                if ($.type(id) === STRING || $.type(id) === NUMBER) {
                     component = that.dataSource.get(id);
-                    that.value(component);
-                } else {
+                    if (component instanceof PageComponent) {
+                        that.value(component);
+                    } else {
+                        that.value(NULL);
+                    }
+                } else if ($.type(id) === UNDEFINED) {
                     component = that.dataSource.getByUid(that._selectedUid);
                     if (component instanceof PageComponent) {
                         return component[component.idField];
                     }
+                } else {
+                    throw new TypeError();
                 }
             },
 
@@ -188,44 +206,28 @@
              */
             value: function (component) {
                 var that = this;
-                if (component === NULL) {
-                    if (that._selectedUid !== NULL) {
+                if (component === NULL || component instanceof PageComponent) {
+                    var hasChanged = false;
+                    if (component === NULL && that._selectedUid !== NULL) {
+                        hasChanged = true;
                         that._selectedUid = NULL;
-                        logger.debug('selected component uid set to null');
+                    } else if (component instanceof PageComponent && that._selectedUid !== component.uid && that.dataSource.indexOf(component) > -1) {
+                        hasChanged = true;
+                        that._selectedUid = component.uid;
+                    }
+                    if (hasChanged) {
+                        logger.debug('selected component uid set to ' + that._selectedUid);
                         that._toggleSelection();
-                        that.trigger(CHANGE, {
-                            index: undefined,
-                            value: NULL
-                        });
+                        that.trigger(CHANGE, { value: component });
                     }
-                } else if (component !== undefined) {
-                    if (!(component instanceof PageComponent)) {
-                        throw new TypeError();
-                    }
-                    // Note: when that.value() was previously named that.selection() with a custom binding
-                    // the selection binding was executed before the source binding so we had to record the selected component
-                    // in a temp variable (that._tmp) and assign it to the _selectedUid in the refresh method,
-                    // that is after the source was bound.
-                    // The corresponding code has now been removed after renaming that.selection() into that.value()
-                    // because the value binding is executed after the source binding.
-                    if (component.uid !== that._selectedUid && isGuid(component.uid)) {
-                        var index = that.dataSource.indexOf(component);
-                        if (index > -1) {
-                            that._selectedUid = component.uid;
-                            logger.debug('selected component uid set to ' + component.uid);
-                            that._toggleSelection();
-                            that.trigger(CHANGE, {
-                                index: index,
-                                value: component
-                            });
-                        }
-                    }
-                } else {
+                } else if ($.type(component) === UNDEFINED) {
                     if (that._selectedUid === NULL) {
                         return NULL;
                     } else {
-                        return that.dataSource.getByUid(that._selectedUid); // Returns undefined if not found
+                        return that.dataSource.getByUid(that._selectedUid) || NULL; // getByUid returns undefined if not found
                     }
+                } else {
+                    throw new TypeError();
                 }
             },
 
@@ -316,8 +318,7 @@
                 // Add ul property
                 that.ul = that.element.find('ul.k-list');
                 if (!that.ul.length) {
-                    that.ul = $('<ul tabindex="-1" unselectable="on" role="listbox" class="k-list k-reset" />')
-                        .appendTo(that.element);
+                    that.ul = $(UL).appendTo(that.element);
                 }
                 // Define element
                 that.element
@@ -329,32 +330,69 @@
                 kendo.notify(that);
             },
 
-            // TODO add sorting
+            /**
+             * Add sorting
+             * @private
+             */
+            _addSorting: function () {
+                var that = this;
+                that.ul.kendoSortable({
+                    hint: function (element) {
+                        return element.clone()
+                            .width(element.width())
+                            .height(element.height())
+                            .addClass(HINT_CLASS) // Note: note used
+                            .wrap(UL).parent();
+                    },
+                    placeholder: function (element) {
+                        return element.clone().addClass(PLACEHOLDER_CLASS);
+                    },
+                    change: function (e) {
+                        assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                        assert.instanceof(kidoju.data.PageComponentCollectionDataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'that.dataSource', 'kidoju.data.PageComponentCollectionDataSource'));
+                        if (e.action === 'sort' && e.item instanceof $ && $.type(e.oldIndex) === NUMBER && $.type(e.newIndex) === NUMBER) {
+                            var component = that.dataSource.at(e.oldIndex);
+                            assert.equal(e.item.attr(kendo.attr('uid')), component.uid, kendo.format(assert.messages.equal.default, 'component.uid', 'e.item.attr("data-uid")'));
+                            that.dataSource.remove(component);
+                            that.dataSource.insert(e.newIndex, component);
+                        }
+                    }
+                });
+            },
 
             /**
              * Add an explorer item (li) corresponding to a component
              * @param component
-             * @param index // TODO: with sorting
+             * @param index
              * @private
              */
             _addItem: function (component, index) {
                 var that = this;
+                var list = that.ul;
 
                 // Check that we get a component that is not already in explorer
-                if (that.ul instanceof $ && that.ul.length &&
+                if (list instanceof $ && list.length &&
                     component instanceof PageComponent &&
-                    that.ul.find(kendo.format(ITEM_BYUID_SELECTOR, component.uid)).length === 0) {
+                    list.find(kendo.format(ITEM_BYUID_SELECTOR, component.uid)).length === 0) {
 
                     var tool = kidoju.tools[component.tool];
                     if (tool instanceof kidoju.Tool) {
+
                         // Create explorer item
-                        var item = that.itemTemplate({
+                        var explorerItem = that.itemTemplate({
                             uid: component.uid,
                             tool: component.tool, // also tool.id
                             icon: kendo.format(that.iconPath, tool.icon)
                         });
+
                         // Add to explorer list
-                        that.ul.append(item); // TODO <----------------------------------------------------- index??????
+                        var nextIndex = $.type(index) === NUMBER ? index : list.children(ALL_ITEMS_SELECTOR).length;
+                        var nextExplorerItem = list.children(ALL_ITEMS_SELECTOR + ':eq(' + nextIndex + ')');
+                        if (nextExplorerItem.length) {
+                            nextExplorerItem.before(explorerItem);
+                        } else {
+                            list.append(explorerItem);
+                        }
                     }
                 }
             },
@@ -372,21 +410,19 @@
                 }
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * @method refresh
              * @param e
              */
             refresh: function (e) {
-                /* This function's cyclomatic complexity is too high. */
-                /* jshint +W074 */
-
                 var that = this;
-                var html = '';
-
+                var selectedIndex = that.index();
                 if (e && e.action === undefined) {
                     that.trigger(DATABINDING);
                 }
-
                 if (e === undefined || e.action === undefined) {
                     var components = [];
                     if (e === undefined && that.dataSource instanceof PageCollectionDataSource) {
@@ -402,33 +438,35 @@
                     });
                 } else if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
                     $.each(e.items, function (index, component) {
-                        that._addItem(component);
-                        that.trigger(CHANGE, { action: e.action, value: component }); // TODO <--------------------------------------------
+                        selectedIndex = that.dataSource.indexOf(component);
+                        that._addItem(component, selectedIndex);
                     });
-                    // that.select(e.items[e.items.length -1]); // TODO <---------------------------------------------
                 } else if (e.action === 'remove' && $.isArray(e.items) && e.items.length) {
                     $.each(e.items, function (index, page) {
                         that._removeItemByUid(page.uid);
-                        that.trigger(CHANGE, { action: e.action, value: page });
-                        // that._selectByUid(null); // TODO
+                        selectedIndex = e.index || -1;
                     });
-
                 } else if (e.action === 'itemchange') {
-                    $.noop(); // TODO
+                    return;
                 }
-
-                // Display a message when there is nothing to display
-                // if (html.length === 0) {
-                //     html = that.options.messages.empty; // TODO: improve
-                // }
-
-                that._toggleSelection();
-
+                // TODO: Review: it does not seem to be a good idea to set the value in the refresh function (check kendo widgets like ComboBox)
+                var total = that.dataSource.total();
+                if (total > 0 && selectedIndex > -1 && selectedIndex < total) {
+                    that.index(selectedIndex);
+                } else if (total > 0 && selectedIndex <= -1) {
+                    that.index(0);
+                } else if (total > 0 && selectedIndex >= total) {
+                    that.index(total - 1);
+                } else {
+                    that.value(null);
+                }
+                // TODO Display a message when there is no data to display?
                 if (e && e.action === undefined) {
                     that.trigger(DATABOUND);
                 }
-                /* jshint -W074 */
             },
+
+            /* jshint +W074 */
 
             /**
              * Toggles class on selected item determined by value of widget
@@ -451,9 +489,8 @@
              * @private
              */
             _toggleHover: function (e) {
-                if (e instanceof $.Event) {
-                    $(e.currentTarget).toggleClass(HOVER_CLASS, e.type === MOUSEENTER);
-                }
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                $(e.currentTarget).toggleClass(HOVER_CLASS, e.type === MOUSEENTER);
             },
 
             /**
@@ -463,9 +500,8 @@
              * @private
              */
             _toggleFocus: function (e) {
-                if (e instanceof $.Event) {
-                    $(e.currentTarget).toggleClass(FOCUSED_CLASS, e.type === FOCUS);
-                }
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                $(e.currentTarget).toggleClass(FOCUSED_CLASS, e.type === FOCUS);
             },
 
 
@@ -475,13 +511,12 @@
              * @private
              */
             _click: function (e) {
-                if (e instanceof $.Event) {
-                    e.preventDefault();
-                    var target = $(e.currentTarget);
-                    if (!target.is('.' + SELECTED_CLASS)) {
-                        var component = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
-                        this.value(component);
-                    }
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                e.preventDefault();
+                var target = $(e.currentTarget);
+                if (!target.is('.' + SELECTED_CLASS)) {
+                    var component = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
+                    this.value(component);
                 }
             },
 

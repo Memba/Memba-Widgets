@@ -504,6 +504,7 @@
                 } else {
                     that.value(null);
                 }
+                // TODO Display a message when there is no data to display?
                 that.resize();
                 if (e && e.action === undefined) {
                     that.trigger(DATABOUND);
@@ -569,9 +570,8 @@
              * @private
              */
             _toggleHover: function (e) {
-                if (e instanceof $.Event) {
-                    $(e.currentTarget).toggleClass(HOVER_CLASS, e.type === MOUSEENTER);
-                }
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                $(e.currentTarget).toggleClass(HOVER_CLASS, e.type === MOUSEENTER);
             },
 
             /**
@@ -581,9 +581,8 @@
              * @private
              */
             _toggleFocus: function (e) {
-                if (e instanceof $.Event) {
-                    $(e.currentTarget).toggleClass(FOCUSED_CLASS, e.type === FOCUS);
-                }
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                $(e.currentTarget).toggleClass(FOCUSED_CLASS, e.type === FOCUS);
             },
 
             /**
@@ -593,14 +592,12 @@
              * @private
              */
             _click: function (e) {
-                if (e instanceof $.Event) {
-                    e.preventDefault();
-                    var target = $(e.currentTarget);
-                    var navigation = target.closest(kendo.roleSelector('navigation'));
-                    if (!target.is('.' + SELECTED_CLASS)) {
-                        var page = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
-                        this.value(page);
-                    }
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                e.preventDefault();
+                var target = $(e.currentTarget);
+                if (!target.is('.' + SELECTED_CLASS)) {
+                    var page = this.dataSource.getByUid(target.attr(kendo.attr('uid')));
+                    this.value(page);
                 }
             },
 

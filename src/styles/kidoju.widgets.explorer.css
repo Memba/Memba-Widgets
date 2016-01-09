@@ -1,10 +1,19 @@
-.kj-explorer .kj-item {
-  height: 32px;
+.kj-explorer .kj-placeholder {
+    opacity: 0.2;
+    filter: alpha(opacity=20);
 }
-.kj-explorer .kj-image {
-  height: 24px;
-  width: 24px;
-  vertical-align: middle;
-  margin-left: 5px;
-  margin-right: 10px;
+.k-list .kj-item {
+    height: 32px;
+    cursor: pointer;
 }
+.k-list .kj-item .k-in {
+    line-height: 30px;
+}
+.k-list .kj-item .k-in .kj-image {
+    height: 24px;
+    width: 24px;
+    vertical-align: middle;
+    margin-left: 5px;
+    margin-right: 10px;
+}
+

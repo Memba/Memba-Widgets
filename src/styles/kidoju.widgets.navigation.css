@@ -1,17 +1,13 @@
 .kj-navigation {
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: scroll;
-  border: none;
-}
-.kj-navigation .kj-item * {
-    cursor: pointer;
-}
-.kj-navigation .kj-hint {
-  opacity: 0.8;
-  filter: alpha(opacity=80);
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    border: none;
 }
 .kj-navigation .kj-placeholder {
     opacity: 0.2;
     filter: alpha(opacity=20);
+}
+.kj-item {
+    cursor: pointer;
 }

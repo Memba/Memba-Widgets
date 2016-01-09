@@ -12,6 +12,7 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
+        './vendor/kendo/kendo.sortable',
         './kidoju.data',
         './kidoju.tools',
         './kidoju.widgets.stage'
@@ -32,7 +33,7 @@
         var kidoju = window.kidoju;
         var Page = kidoju.data.Page;
         var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
-        // var assert = window.assert;
+        var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.navigation');
         var NULL = null;
         var NUMBER = 'number';
@@ -52,6 +53,7 @@
         var HOVER_CLASS = 'k-state-hover';
         var FOCUSED_CLASS = 'k-state-focused';
         var SELECTED_CLASS = 'k-state-selected';
+        var PLACEHOLDER_CLASS = 'kj-placeholder';
         var HINT_CLASS = 'kj-hint';
         var DATA_UID = kendo.attr('uid');
         var ALL_ITEMS_SELECTOR = 'div.kj-item[' + DATA_UID + ']';
@@ -379,9 +381,18 @@
                     hint: function (element) {
                         return element.clone().addClass(HINT_CLASS);
                     },
+                    placeholder: function (element) {
+                        return element.clone().addClass(PLACEHOLDER_CLASS);
+                    },
                     change: function (e) {
+                        assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                        assert.instanceof(kidoju.data.PageCollectionDataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'that.dataSource', 'kidoju.data.PageCollectionDataSource'));
                         if (e.action === 'sort' && e.item instanceof $ && $.type(e.oldIndex) === NUMBER && $.type(e.newIndex) === NUMBER) {
-                            $.noop(); // TODO VERY VERY IMPORTANT reorder dataSOurce ................................................................................................
+                            var page = that.dataSource.at(e.oldIndex);
+                            assert.equal(e.item.attr(kendo.attr('uid')), page.uid, kendo.format(assert.messages.equal.default, 'page.uid', 'e.item.attr("data-uid")'));
+                            // console.log(page.instructions + ': ' + e.oldIndex + '-->' + e.newIndex);
+                            that.dataSource.remove(page);
+                            that.dataSource.insert(e.newIndex, page);
                         }
                     }
                 });
@@ -410,7 +421,13 @@
                         });
 
                     // Add to navigation
-                    navigation.append(navigationItem);
+                    var nextIndex = $.type(index) === NUMBER ? index : navigation.children(ALL_ITEMS_SELECTOR).length;
+                    var nextNavigationItem = navigation.children(ALL_ITEMS_SELECTOR + ':eq(' + nextIndex + ')');
+                    if (nextNavigationItem.length) {
+                        nextNavigationItem.before(navigationItem);
+                    } else {
+                        navigation.append(navigationItem);
+                    }
 
                     // Make the stage and bind to components
                     navigationItem.find(kendo.roleSelector('stage')).kendoStage({
@@ -465,10 +482,9 @@
                     });
                 } else if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
                     $.each(e.items, function (index, page) {
-                        // TODO: Consider inserting the page at index + 1
-                        that._addItem(page);
+                        selectedIndex = that.dataSource.indexOf(page);
+                        that._addItem(page, selectedIndex);
                     });
-                    selectedIndex = that.dataSource.indexOf(e.items[e.items.length - 1]);
                 } else if (e.action === 'remove' && $.isArray(e.items) && e.items.length) {
                     $.each(e.items, function (index, page) {
                         that._removeItemByUid(page.uid);

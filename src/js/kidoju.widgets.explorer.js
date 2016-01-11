@@ -338,11 +338,13 @@
                 var that = this;
                 that.ul.kendoSortable({
                     hint: function (element) {
+                        // element is LI, so it needs to be wrapped in UL
+                        // but because of styles we need to wrap the UL in a DIV
                         return element.clone()
                             .width(element.width())
                             .height(element.height())
                             .addClass(HINT_CLASS) // Note: note used
-                            .wrap(UL).parent();
+                            .wrap(UL).parent().wrap('<div/>').parent();
                     },
                     placeholder: function (element) {
                         return element.clone().addClass(PLACEHOLDER_CLASS);

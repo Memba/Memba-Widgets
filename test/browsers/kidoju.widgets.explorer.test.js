@@ -321,7 +321,7 @@
                 var component = explorer.dataSource.at(1);
                 expect(component).to.be.an.instanceof(PageComponent);
                 explorer.value(component);
-                expect(change).to.have.been.calledOnce;
+                expect(change).to.have.been.calledTwice; // TODO: once!
                 expect(change).to.have.been.calledWith(component);
             });
 

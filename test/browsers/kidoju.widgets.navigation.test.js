@@ -324,7 +324,7 @@
                 var page = navigation.dataSource.at(1);
                 expect(page).to.be.an.instanceof(Page);
                 navigation.value(page);
-                expect(change).to.have.been.calledTwice;
+                expect(change).to.have.been.calledTwice; // TODO: once!
                 expect(change).to.have.been.calledWith(page);
             });
 

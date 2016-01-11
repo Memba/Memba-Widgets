@@ -55,7 +55,7 @@
         var PROPERTYBINDING = 'propertyBinding';
         var PROPERTYBOUND = 'propertyBound';
         var SELECT = 'select';
-        var ENABLE = 'enable';
+        // var ENABLE = 'enable';
         var MOVE = 'move';
         var RESIZE = 'resize';
         var ROTATE = 'rotate'; // This constant is not simply an event
@@ -162,7 +162,13 @@
                 var that = this;
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
-                that.setOptions(options);
+                // TODO: we need to read scale, height and width both from styles and options and decide which wins
+                this._mode = this.options.mode;
+                this._scale = this.options.scale;
+                this._height = this.options.height;
+                this._width = this.options.width;
+                this._disabled = this.options.disabled;
+                this._readonly = this.options.readonly;
                 that._layout();
                 that._dataSource();
                 kendo.notify(that);
@@ -201,7 +207,7 @@
                 width: DEFAULTS.WIDTH,
                 tools: kidoju.tools,
                 dataSource: undefined,
-                enable: false,
+                disabled: false,
                 readonly: false,
                 messages: {
                     noPage: 'Please add or select a page'
@@ -212,16 +218,12 @@
              * @method setOptions
              * @param options
              */
+            /*
             setOptions: function (options) {
+                // setOptions is called by value bindings
                 Widget.fn.setOptions.call(this, options);
-                // TODO: we need to read scale, height and width both from styles and options and decide which wins
-                this._mode = this.options.mode;
-                this._scale = this.options.scale;
-                this._height = this.options.height;
-                this._width = this.options.width;
-                this._disabled = this.options.enable;
-                this._readonly = this.options.readonly;
             },
+            */
 
             /**
              * Mode defines the operating mode of the Stage Widget
@@ -270,6 +272,13 @@
                             // transformOrigin: 'center center', // by default
                             transform: kendo.format(CSS_SCALE, 1 / that._scale)
                         });
+                        /*
+                        // DOes not work very well so we have simply increased the font-size
+                        that.element.find(NOPAGE_CLASS).css({
+                            // transformOrigin: 'center center', // by default
+                            transform: kendo.format(CSS_SCALE, 1 / that._scale)
+                        });
+                        */
                     }
                 }
                 else {
@@ -720,16 +729,16 @@
              * Event handler called when adding or triggered when enabling an element
              * @param e
              * @param component
-             * @param enabled
+             * @param enable
              * @private
              */
-            _enableStageElement: function (e, component, enabled) {
+            _enableStageElement: function (e, component, enable) {
                 var tools = this.options.tools;
                 assert.instanceof(ObservableObject, tools, kendo.format(assert.messages.instanceof.default, 'this.options.tools', 'kendo.data.ObservableObject'));
                 var tool = tools[component.tool];
                 assert.instanceof(Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
                 if ($.isFunction(tool.onEnable)) {
-                    tool.onEnable(e, component, enabled);
+                    tool.onEnable(e, component, enable);
                 }
             },
 
@@ -1238,21 +1247,18 @@
              */
             _editable: function (options) {
                 var that = this;
+                var wrapper = that.wrapper;
                 var disabled = that._disabled = options.disabled;
                 var readonly = that._readonly = options.readonly;
-                var wrapper = that.wrapper;
 
                 // Clear
 
-
                 // Set
                 if (!disabled && !readonly) {
-
+                    // TODO iterate through components and call onEnable
                 } else {
 
                 }
-
-                // TODO iterate through components and call onEnable
             },
 
             /**
@@ -1262,7 +1268,7 @@
             enable: function (enable) {
                 this._editable({
                     readonly: false,
-                    disable: !(enable = enable === undefined ? true : enable)
+                    disabled: !(enable = enable === undefined ? true : enable)
                 });
             },
 
@@ -1273,7 +1279,7 @@
             readonly: function (readonly) {
                 this._editable({
                     readonly: readonly === undefined ? true : readonly,
-                    disable: false
+                    disabled: false
                 });
             },
 

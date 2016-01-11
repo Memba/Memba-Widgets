@@ -118,10 +118,12 @@
              * @method setOptions
              * @param options
              */
+            /*
             setOptions: function (options) {
                 Widget.fn.setOptions.call(this, options);
                 // TODO initialize properly from that.options.index and that.options.id
             },
+            */
 
             /**
              * @property events

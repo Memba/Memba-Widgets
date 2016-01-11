@@ -273,8 +273,8 @@
                             transform: kendo.format(CSS_SCALE, 1 / that._scale)
                         });
                         /*
-                        // DOes not work very well so we have simply increased the font-size
-                        that.element.find(NOPAGE_CLASS).css({
+                        // Scaling the message does not work very well so we have simply increased the font-size
+                        that.element.find(DOT + NOPAGE_CLASS).css({
                             // transformOrigin: 'center center', // by default
                             transform: kendo.format(CSS_SCALE, 1 / that._scale)
                         });
@@ -890,8 +890,16 @@
                 // Update stageElement with component
                 that._updateStageElement(stageElement, component);
 
-                // Append to the stage
-                stage.append(stageElement);
+                // Check index in the dataSource
+                var index = that.dataSource.indexOf(component);
+
+                // Append to the stage at index
+                var nextStageElement = stage.children(DOT + ELEMENT_CLASS + ':eq(' + index + ')');
+                if (nextStageElement.length) {
+                    nextStageElement.before(stageElement);
+                } else {
+                    stage.append(stageElement);
+                }
             },
 
             /**

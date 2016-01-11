@@ -34,7 +34,7 @@
         var NUMBER = 'number';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
-        // var ERROR = 'error';
+        var ERROR = 'error';
         var ZERO_NUMBER = 0;
         var NEGATIVE_NUMBER = -1;
         // var RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i; // TODO instead of val_
@@ -679,9 +679,22 @@
                         return that;
                     };
 
-                    // Note: this is where kendo.data.Node bind the change and error events
-                    // to propage them from the components collection to the page node or page collection
-
+                    // Bind the change and error events
+                    // to propagate them from the components collection to the page node
+                    /*
+                    components
+                        .bind(CHANGE, function (e) {
+                            e.page = e.page || that;
+                            that.trigger(CHANGE, e);
+                        })
+                        .bind(ERROR, function (e) {
+                            var pageCollection = that.parent();
+                            if (pageCollection) {
+                                e.page = e.page || that;
+                                pageCollection.trigger(ERROR, e);
+                            }
+                        });
+                        */
                 }
 
                 that._loaded = !!(value && (value.components || value._loaded));

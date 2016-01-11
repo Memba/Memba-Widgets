@@ -752,7 +752,13 @@
         /**
          * Property name adapter
          */
-        adapters.NameAdapter = adapters.StringAdapter.extend({});
+        adapters.NameAdapter = adapters.StringAdapter.extend({
+            init: function (options) {
+                adapters.StringAdapter.fn.init.call(this, options);
+                this.editor = 'input';
+                this.attributes = $.extend({}, this.attributes, { type: 'text', readonly: true, style: 'width: 100%;' });
+            }
+        });
 
         /**
          * Property validation adapter

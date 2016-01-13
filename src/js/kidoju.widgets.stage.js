@@ -555,10 +555,11 @@
                 that._toggleReadOnlyOverlay(readOnlyOverlay);
                 var bindUserEntries = !!dataSource && that.mode() !== modes.design;
                 that._togglePropertyBindings(bindUserEntries);
-                var activeDesignMode = !!dataSource && that.mode() === modes.design && !that._disabled && !that._readonly;
-                that._toggleHandleBox(activeDesignMode);
-                that._toggleTransformEventHandlers(activeDesignMode);
-                that._toggleContextMenu(activeDesignMode);
+                var designMode = !!dataSource && that.mode() === modes.design;
+                var enabledDesignMode = designMode && !that._disabled && !that._readonly;
+                that._toggleHandleBox(enabledDesignMode);
+                that._toggleTransformEventHandlers(designMode);
+                that._toggleContextMenu(enabledDesignMode);
             },
 
             /**
@@ -715,7 +716,7 @@
                 // Clear
                 stage.off(NS);
 
-                // Enable event handlers
+                // Enable event handlers (also in navigation in design mode)
                 if (enable) {
                     stage
                         // .on(ENABLE + NS, DOT + ELEMENT_CLASS, $.proxy(that._enableStageElement, that))

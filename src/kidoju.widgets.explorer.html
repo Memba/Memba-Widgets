@@ -36,9 +36,9 @@
 <h1>kidoju.widgets.explorer</h1>
 <div data-bind="text: current.uid"></div>
 <button data-bind="click: reset">Clear Selection</button><br/>
-<div id="explorer1" data-role="explorer" data-bind="source: components, value: current" style="width:200px; display:inline-block;"></div>
+<div id="explorer1" data-role="explorer" data-bind="source: components, value: current" style="width:200px; display:inline-block;" data-auto-bind="false"></div>
 <div><input type="checkbox" data-bind="checked: isVisible" />Second Explorer</div>
-<div id="explorer2" data-role="explorer" data-bind="source: components, value: current, visible: isVisible" style="width:200px; display:inline-block;"></div>
+<div id="explorer2" data-role="explorer" data-bind="source: components, value: current, visible: isVisible" style="width:200px; display:inline-block;" data-auto-bind="false"></div>
 <script>
     ;(function(window, $, undefined){
 
@@ -66,9 +66,9 @@
             });
 
         $(document).ready(function() {
+            kendo.bind('body', viewModel);
             pageComponentCollectionDataSource.fetch(function() {
-                viewModel.current = pageComponentCollectionDataSource.at(1);
-                kendo.bind('body', viewModel);
+                viewModel.set('current', pageComponentCollectionDataSource.at(1));
             });
         });
 

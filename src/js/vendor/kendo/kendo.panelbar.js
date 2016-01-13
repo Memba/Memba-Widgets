@@ -246,6 +246,10 @@ var __meta__ = { // jshint ignore:line
                 that.expand(content.parent(), false);
             }
 
+            if (options.dataSource) {
+                that._angularCompile();
+            }
+
             kendo.notify(that);
         },
 
@@ -271,10 +275,30 @@ var __meta__ = { // jshint ignore:line
             expandMode: "multiple"
         },
 
+        _angularCompile: function() {
+            var that = this;
+            that.angular("compile", function(){
+                return {
+                    elements: that.element.children("li"),
+                    data: [{ dataItem: that.options.$angular}]
+                };
+            });
+        },
+
+        _angularCleanup: function() {
+            var that = this;
+
+            that.angular("cleanup", function(){
+                return { elements: that.element.children("li") };
+            });
+        },
+
         destroy: function() {
             Widget.fn.destroy.call(this);
 
             this.element.off(NS);
+
+            this._angularCleanup();
 
             kendo.destroy(this.element);
         },
@@ -305,8 +329,20 @@ var __meta__ = { // jshint ignore:line
         expand: function (element, useAnimation) {
             var that = this,
                 animBackup = {};
-            useAnimation = useAnimation !== false;
+
             element = this.element.find(element);
+
+            if (that._animating && element.find("ul").is(":visible")) {
+                 that.one("complete", function() {
+                    setTimeout(function() {
+                        that.expand(element);
+                    });
+                 });
+                 return;
+            }
+            that._animating = true;
+
+            useAnimation = useAnimation !== false;
 
             element.each(function (index, item) {
                 item = $(item);
@@ -342,6 +378,9 @@ var __meta__ = { // jshint ignore:line
         collapse: function (element, useAnimation) {
             var that = this,
                 animBackup = {};
+
+            that._animating = true;
+
             useAnimation = useAnimation !== false;
             element = that.element.find(element);
 
@@ -367,7 +406,6 @@ var __meta__ = { // jshint ignore:line
                 }
 
             });
-
             return that;
         },
 
@@ -898,6 +936,7 @@ var __meta__ = { // jshint ignore:line
                 hasCollapseAnimation = collapse && "effects" in collapse;
 
             if (element.is(VISIBLE) != visibility) {
+                that._animating = false;
                 return;
             }
 
@@ -914,16 +953,27 @@ var __meta__ = { // jshint ignore:line
 
             if (visibility) {
                 animation = extend( hasCollapseAnimation ? collapse
-                                    : extend({ reverse: true }, animation), { hide: true });
+                    : extend({ reverse: true }, animation), { hide: true });
+
+                animation.complete = function() {
+                    that._animationCallback();
+                };
             } else {
                 animation = extend( { complete: function (element) {
                     that._triggerEvent(ACTIVATE, element.closest(ITEM));
+                    that._animationCallback();
                 } }, animation );
             }
 
             element
                 .kendoStop(true, true)
                 .kendoAnimate( animation );
+        },
+
+        _animationCallback: function() {
+            var that = this;
+            that.trigger("complete");
+            that._animating = false;
         },
 
         _collapseAllExpanded: function (item) {
@@ -1090,4 +1140,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

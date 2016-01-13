@@ -495,6 +495,318 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
 });
 }
 
+/* Spreadsheet messages */
+
+if (kendo.spreadsheet && kendo.spreadsheet.messages.borderPalette) {
+kendo.spreadsheet.messages.borderPalette =
+$.extend(true, kendo.spreadsheet.messages.borderPalette,{
+  "allBorders": "All borders",
+  "insideBorders": "Inside borders",
+  "insideHorizontalBorders": "Inside horizontal borders",
+  "insideVerticalBorders": "Inside vertical borders",
+  "outsideBorders": "Outside borders",
+  "leftBorder": "Left border",
+  "topBorder": "Top border",
+  "rightBorder": "Right border",
+  "bottomBorder": "Bottom border",
+  "noBorders": "No border",
+  "reset": "Reset color",
+  "customColor": "Custom color...",
+  "apply": "Apply",
+  "cancel": "Cancel"
+});
+}
+
+if (kendo.spreadsheet && kendo.spreadsheet.messages.dialogs) {
+kendo.spreadsheet.messages.dialogs =
+$.extend(true, kendo.spreadsheet.messages.dialogs,{
+  "apply": "Apply",
+  "save": "Save",
+  "cancel": "Cancel",
+  "remove": "Remove",
+  "okText": "OK",
+  "formatCellsDialog": {
+    "title": "Format",
+    "categories": {
+      "number": "Number",
+      "currency": "Currency",
+      "date": "Date"
+      }
+  },
+  "fontFamilyDialog": {
+    "title": "Font"
+  },
+  "fontSizeDialog": {
+    "title": "Font size"
+  },
+  "bordersDialog": {
+    "title": "Borders"
+  },
+  "alignmentDialog": {
+    "title": "Alignment",
+    "buttons": {
+     "justtifyLeft": "Align left",
+     "justifyCenter": "Center",
+     "justifyRight": "Align right",
+     "justifyFull": "Justify",
+     "alignTop": "Align top",
+     "alignMiddle": "Align middle",
+     "alignBottom": "Align bottom"
+    }
+  },
+  "mergeDialog": {
+    "title": "Merge cells",
+    "buttons": {
+      "mergeCells": "Merge all",
+      "mergeHorizontally": "Merge horizontally",
+      "mergeVertically": "Merge vertically",
+      "unmerge": "Unmerge"
+    }
+  },
+  "freezeDialog": {
+    "title": "Freeze panes",
+    "buttons": {
+      "freezePanes": "Freeze panes",
+      "freezeRows": "Freeze rows",
+      "freezeColumns": "Freeze columns",
+      "unfreeze": "Unfreeze panes"
+    }
+  },
+  "validationDialog": {
+    "title": "Data Validation",
+    "hintMessage": "Please enter a valid {0} value {1}.",
+    "hintTitle": "Validation {0}",
+    "criteria": {
+      "any": "Any value",
+      "number": "Number",
+      "text": "Text",
+      "date": "Date",
+      "custom": "Custom Formula",
+      "list": "List"
+    },
+    "comparers": {
+      "greaterThan": "greater than",
+      "lessThan": "less than",
+      "between": "between",
+      "notBetween": "not between",
+      "equalTo": "equal to",
+      "notEqualTo": "not equal to",
+      "greaterThanOrEqualTo": "greater than or equal to",
+      "lessThanOrEqualTo": "less than or equal to"
+    },
+    "comparerMessages": {
+      "greaterThan": "greater than {0}",
+      "lessThan": "less than {0}",
+      "between": "between {0} and {1}",
+      "notBetween": "not between {0} and {1}",
+      "equalTo": "equal to {0}",
+      "notEqualTo": "not equal to {0}",
+      "greaterThanOrEqualTo": "greater than or equal to {0}",
+      "lessThanOrEqualTo": "less than or equal to {0}",
+      "custom": "that satisfies the formula: {0}"
+    },
+    "labels": {
+      "criteria": "Criteria",
+      "comparer": "Comparer",
+      "min": "Min",
+      "max": "Max",
+      "value": "Value",
+      "start": "Start",
+      "end": "End",
+      "onInvalidData": "On invalid data",
+      "rejectInput": "Reject input",
+      "showWarning": "Show warning",
+      "showHint": "Show hint",
+      "hintTitle": "Hint title",
+      "hintMessage": "Hint message",
+      "ignoreBlank": "Ignore blank"
+    },
+    "placeholders": {
+      "typeTitle": "Type title",
+      "typeMessage": "Type message"
+    }
+  },
+  "saveAsDialog": {
+    "title": "Save As...",
+    "labels": {
+      "fileName": "File name",
+      "saveAsType": "Save as type"
+    }
+  },
+  "exportAsDialog": {
+    "title": "Export...",
+    "labels": {
+      "fileName": "File name",
+      "saveAsType": "Save as type",
+      "exportArea": "Export",
+      "paperSize": "Paper size",
+      "margins": "Margins",
+      "orientation": "Orientation",
+      "print": "Print",
+      "guidelines": "Guidelines",
+      "center": "Center",
+      "horizontally": "Horizontally",
+      "vertically": "Vertically"
+    }
+  },
+  "modifyMergedDialog": {
+    "errorMessage": "Cannot change part of a merged cell."
+  },
+  "useKeyboardDialog": {
+    "title": "Copying and pasting",
+    "errorMessage": "These actions cannot be invoked through the menu. Please use the keyboard shortcuts instead:",
+    "labels": {
+      "forCopy": "for copy",
+      "forCut": "for cut",
+      "forPaste": "for paste"
+    }
+  },
+  "unsupportedSelectionDialog": {
+    "errorMessage": "That action cannot be performed on multiple selection."
+  }
+});
+}
+
+if (kendo.spreadsheet && kendo.spreadsheet.messages.filterMenu) {
+kendo.spreadsheet.messages.filterMenu =
+$.extend(true, kendo.spreadsheet.messages.filterMenu,{
+  "sortAscending": "Sort range A to Z",
+  "sortDescending": "Sort range Z to A",
+  "filterByValue": "Filter by value",
+  "filterByCondition": "Filter by condition",
+  "apply": "Apply",
+  "search": "Search",
+  "addToCurrent": "Add to current selection",
+  "clear": "Clear",
+  "blanks": "(Blanks)",
+  "operatorNone": "None",
+  "and": "AND",
+  "or": "OR",
+  "operators": {
+    "string": {
+      "contains": "Text contains",
+      "doesnotcontain": "Text does not contain",
+      "startswith": "Text starts with",
+      "endswith": "Text ends with"
+    },
+    "date": {
+      "eq":  "Date is",
+      "neq": "Date is not",
+      "lt":  "Date is before",
+      "gt":  "Date is after"
+    },
+    "number": {
+      "eq": "Is equal to",
+      "neq": "Is not equal to",
+      "gte": "Is greater than or equal to",
+      "gt": "Is greater than",
+      "lte": "Is less than or equal to",
+      "lt": "Is less than"
+    }
+  }
+});
+}
+
+if (kendo.spreadsheet && kendo.spreadsheet.messages.toolbar) {
+kendo.spreadsheet.messages.toolbar =
+$.extend(true, kendo.spreadsheet.messages.toolbar,{
+  "addColumnLeft": "Add column left",
+  "addColumnRight": "Add column right",
+  "addRowAbove": "Add row above",
+  "addRowBelow": "Add row below",
+  "alignment": "Alignment",
+  "alignmentButtons": {
+    "justtifyLeft": "Align left",
+    "justifyCenter": "Center",
+    "justifyRight": "Align right",
+    "justifyFull": "Justify",
+    "alignTop": "Align top",
+    "alignMiddle": "Align middle",
+    "alignBottom": "Align bottom"
+  },
+  "backgroundColor": "Background",
+  "bold": "Bold",
+  "borders": "Borders",
+  "colorPicker": {
+    "reset": "Reset color",
+    "customColor": "Custom color..."
+  },
+  "copy": "Copy",
+  "cut": "Cut",
+  "deleteColumn": "Delete column",
+  "deleteRow": "Delete row",
+  "excelImport": "Import from Excel...",
+  "filter": "Filter",
+  "fontFamily": "Font",
+  "fontSize": "Font size",
+  "format": "Custom format...",
+  "formatTypes": {
+    "automatic": "Automatic",
+    "number": "Number",
+    "percent": "Percent",
+    "financial": "Financial",
+    "currency": "Currency",
+    "date": "Date",
+    "time": "Time",
+    "dateTime": "Date time",
+    "duration": "Duration",
+    "moreFormats": "More formats..."
+  },
+  "formatDecreaseDecimal": "Decrease decimal",
+  "formatIncreaseDecimal": "Increase decimal",
+  "freeze": "Freeze panes",
+  "freezeButtons": {
+    "freezePanes": "Freeze panes",
+    "freezeRows": "Freeze rows",
+    "freezeColumns": "Freeze columns",
+    "unfreeze": "Unfreeze panes"
+  },
+  "italic": "Italic",
+  "merge": "Merge cells",
+  "mergeButtons": {
+    "mergeCells": "Merge all",
+    "mergeHorizontally": "Merge horizontally",
+    "mergeVertically": "Merge vertically",
+    "unmerge": "Unmerge"
+  },
+  "open": "Open...",
+  "paste": "Paste",
+  "quickAccess": {
+    "redo": "Redo",
+    "undo": "Undo"
+  },
+  "saveAs": "Save As...",
+  "sortAsc": "Sort ascending",
+  "sortDesc": "Sort descending",
+  "sortButtons": {
+    "sortSheetAsc": "Sort sheet A to Z",
+    "sortSheetDesc": "Sort sheet Z to A",
+    "sortRangeAsc": "Sort range A to Z",
+    "sortRangeDesc": "Sort range Z to A"
+  },
+  "textColor": "Text Color",
+  "textWrap": "Wrap text",
+  "underline": "Underline",
+  "validation": "Data validation..."
+});
+}
+
+if (kendo.spreadsheet && kendo.spreadsheet.messages.view) {
+kendo.spreadsheet.messages.view =
+$.extend(true, kendo.spreadsheet.messages.view,{
+  "errors": {
+    "shiftingNonblankCells": "Cannot insert cells due to data loss possibility. Select another insert location or delete the data from the end of your worksheet.",
+    "filterRangeContainingMerges": "Cannot create a filter within a range containing merges",
+    "validationError": "The value that you entered violates the validation rules set on the cell."
+  },
+  "tabs": {
+    "home": "Home",
+    "insert": "Insert",
+    "data": "Data"
+  }
+});
+}
+
 /* Slider messages */
 
 if (kendo.ui.Slider) {

@@ -98,8 +98,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (text) {
-                    that.input.val(text);
-                    that._prev = text;
+                    that._setText(text);
                 }
             }
 
@@ -136,6 +135,7 @@ var __meta__ = { // jshint ignore:line
             cascadeFromField: "",
             ignoreCase: true,
             animation: {},
+            virtual: false,
             template: null,
             groupTemplate: "#:data#",
             fixedGroupTemplate: "#:data#"
@@ -168,6 +168,8 @@ var __meta__ = { // jshint ignore:line
             that.element.off(ns);
             that._inputWrapper.off(ns);
 
+            that._arrow.parent().off(CLICK + " " + MOUSEDOWN);
+
             Select.fn.destroy.call(that);
         },
 
@@ -186,13 +188,17 @@ var __meta__ = { // jshint ignore:line
 
         _inputFocusout: function() {
             var that = this;
+            var value = that.value();
 
             that._inputWrapper.removeClass(FOCUSED);
             clearTimeout(that._typingTimeout);
             that._typingTimeout = null;
 
-            if (that.options.text !== that.input.val()) {
-                that.text(that.text());
+            that.text(that.text());
+
+            if (value !== that.value() && that.trigger("select", { item: that._focus() })) {
+                that.value(value);
+                return;
             }
 
             that._placeholder();
@@ -248,10 +254,9 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            if ((!that.listView.isBound() && state !== STATE_FILTER) || state === STATE_ACCEPT) {
+            if ((!that.listView.bound() && state !== STATE_FILTER) || state === STATE_ACCEPT) {
                 that._open = true;
                 that._state = STATE_REBIND;
-                that.listView.filter(false);
                 that._filterSource();
             } else {
                 that.popup.open();
@@ -259,82 +264,126 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
+        _updateSelectionState: function() {
+            var that = this;
+            var text = that.options.text;
+            var value = that.options.value;
+
+            if (that.listView.isFiltered()) {
+                return;
+            }
+
+            if (that.selectedIndex === -1) {
+                if (text === undefined || text === null) {
+                    text = value;
+                }
+
+                that._accessor(value);
+                that.input.val(text || that.input.val());
+                that._placeholder();
+            } else if (that._oldIndex === -1) {
+                that._oldIndex = that.selectedIndex;
+            }
+        },
+
+        _buildOptions: function(data) {
+            var that = this;
+            if (!that._isSelect) {
+                return;
+            }
+
+            var custom = that._customOption;
+            var hasChild = that.element[0].children[0];
+
+            if (that._state === STATE_REBIND) {
+                that._state = "";
+            }
+
+            that._customOption = undefined;
+            that._options(data, "", that.value());
+
+            if (custom && custom[0].selected) {
+                that._custom(custom.val());
+            } else if (!hasChild) {
+                that._custom("");
+            }
+        },
+
+        _updateSelection: function() {
+            var that = this;
+            var listView = that.listView;
+            var initialIndex = that._initialIndex;
+            var hasInitialIndex = initialIndex !== null && initialIndex > -1;
+            var filtered = that._state === STATE_FILTER;
+
+            if (filtered) {
+                $(listView.focus()).removeClass("k-state-selected");
+                return;
+            }
+
+            if (that._fetch) {
+                return;
+            }
+
+            if (!listView.value().length) {
+                if (hasInitialIndex) {
+                    that.select(initialIndex);
+                } else if (that._accessor()) {
+                    listView.value(that._accessor());
+                }
+            }
+
+            that._initialIndex = null;
+
+            var dataItem = listView.selectedDataItems()[0];
+
+            if (!dataItem) {
+                return;
+            }
+
+            that._custom(that._value(dataItem) || "");
+
+            if (that.text() && that.text() !== that._text(dataItem)) {
+                that._selectValue(dataItem);
+            }
+        },
+
+        _updateItemFocus: function() {
+            var listView = this.listView;
+
+            if (!this.options.highlightFirst) {
+                listView.focus(-1);
+            } else if (!listView.focus() && !listView.focusIndex()) {
+                listView.focus(0);
+            }
+        },
+
         _listBound: function() {
             var that = this;
-            var options  = that.options;
-            var initialIndex = that._initialIndex;
-            var filtered = that._state === STATE_FILTER;
             var isActive = that.input[0] === activeElement();
 
-            var listView = that.listView;
-            var focusedItem = listView.focus();
-            var data = this.dataSource.flatView();
-            var page = this.dataSource.page();
-            var length = data.length;
-            var dataItem;
+            var data = that.dataSource.flatView();
+            var skip = that.listView.skip();
+            var isFirstPage = skip === undefined || skip === 0;
 
             that._angularItems("compile");
 
             that._presetValue = false;
 
-            if (!options.virtual) {
-                that._calculateGroupPadding(that._height(length));
-            }
+            that._resizePopup();
 
             that.popup.position();
 
-            if (that._isSelect) {
-                var hasChild = that.element[0].children[0];
-
-                if (that._state === STATE_REBIND) {
-                    that._state = "";
-                }
-
-                var keepState = true;
-                var custom = that._customOption;
-
-                that._customOption = undefined;
-                that._options(data, "", that.value());
-
-                if (custom && custom[0].selected) {
-                    that._custom(custom.val(), keepState);
-                } else if (!hasChild) {
-                    that._custom("", keepState);
-                }
-            }
+            that._buildOptions(data);
 
             that._makeUnselectable();
 
-            if (!filtered && !that._fetch) {
-                if (!listView.value().length) {
-                    if (initialIndex !== null && initialIndex > -1) {
-                        that.select(initialIndex);
-                        focusedItem = listView.focus();
-                    } else if (that._accessor()) {
-                        listView.value(that._accessor());
-                    }
-                }
+            that._updateSelection();
 
-                that._initialIndex = null;
+            if (data.length && isFirstPage) {
+                that._updateItemFocus();
 
-                dataItem = that.listView.selectedDataItems()[0];
-                if (dataItem && that.text() && that.text() !== that._text(dataItem)) {
-                    that._selectValue(dataItem);
-                }
-            } else if (filtered && focusedItem) {
-                focusedItem.removeClass("k-state-selected");
-            }
-
-            if (length && (page === undefined || page === 1)) {
-                if (options.highlightFirst) {
-                    if (!focusedItem && !listView.focusIndex()) {
-                        listView.focus(0);
-                    }
-                } else {
-                    listView.focus(-1);
-                }
-
-                if (options.suggest && isActive && that.input.val()) {
+                if (that.options.suggest && isActive && that.input.val()) {
                     that.suggest(data[0]);
                 }
             }
@@ -345,14 +394,10 @@ var __meta__ = { // jshint ignore:line
                 if (that._typingTimeout && !isActive) {
                     that.popup.close();
                 } else {
-                    that.toggle(!!length);
+                    that.toggle(!!data.length);
                 }
 
                 that._typingTimeout = null;
-            }
-
-            if (that._touchScroller) {
-                that._touchScroller.reset();
             }
 
             that._hideBusy();
@@ -400,7 +445,6 @@ var __meta__ = { // jshint ignore:line
             this.listView.select(candidate);
 
             if (!keepState && this._state === STATE_FILTER) {
-                this.listView.filter(false);
                 this._state = STATE_ACCEPT;
             }
         },
@@ -501,21 +545,17 @@ var __meta__ = { // jshint ignore:line
                 return input.value;
             }
 
-            dataItem = that.dataItem();
-
-            if (that.options.autoBind === false && !that.listView.isBound()) {
+            if (that.options.autoBind === false && !that.listView.bound()) {
+                that._setText(text);
                 return;
             }
 
+            dataItem = that.dataItem();
+
             if (dataItem && that._text(dataItem) === text) {
                 value = that._value(dataItem);
-                if (value === null) {
-                    value = "";
-                } else {
-                    value += "";
-                }
 
-                if (value === that._old) {
+                if (value === List.unifyType(that._old, typeof value)) {
                     that._triggerCascade();
                     return;
                 }
@@ -552,6 +592,7 @@ var __meta__ = { // jshint ignore:line
         value: function(value) {
             var that = this;
             var options = that.options;
+            var listView = that.listView;
 
             if (value === undefined) {
                 value = that._accessor() || that.listView.value()[0];
@@ -564,10 +605,17 @@ var __meta__ = { // jshint ignore:line
 
             that._accessor(value);
 
-            that.listView
+            if (listView.bound() && listView.isFiltered()) {
+                listView.bound(false);
+                that._filterSource();
+            } else {
+                that._fetchData();
+            }
+
+            listView
                 .value(value)
                 .done(function() {
-                    that._selectValue(that.listView.selectedDataItems()[0]);
+                    that._selectValue(listView.selectedDataItems()[0]);
 
                     if (that.selectedIndex === -1) {
                         that._accessor(value);
@@ -584,12 +632,12 @@ var __meta__ = { // jshint ignore:line
                         that._state = STATE_ACCEPT;
                     }
                 });
-
-            that._fetchData();
         },
 
         _click: function(e) {
             var item = e.item;
+
+            e.preventDefault();
 
             if (this.trigger("select", { item: item })) {
                 this.close();
@@ -773,11 +821,21 @@ var __meta__ = { // jshint ignore:line
 
                 if (that._prev !== value) {
                     that._prev = value;
+
+                    if (that.options.filter === "none") {
+                        that.listView.value("");
+                    }
+
                     that.search(value);
                 }
 
                 that._typingTimeout = null;
             }, that.options.delay);
+        },
+
+        _setText: function(text) {
+            this.input.val(text);
+            this._prev = text;
         },
 
         _wrapper: function() {
@@ -799,6 +857,10 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var hasValue = parent.value();
             var custom = hasValue && parent.selectedIndex === -1;
+
+            if (this.selectedIndex == -1 && this.value()) {
+                return;
+            }
 
             if (isFiltered || !hasValue || custom) {
                 that.options.value = "";
@@ -826,4 +888,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

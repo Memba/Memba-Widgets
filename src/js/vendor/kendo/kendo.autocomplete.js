@@ -33,6 +33,7 @@ var __meta__ = { // jshint ignore:line
         DataSource = kendo.data.DataSource,
         ARIA_DISABLED = "aria-disabled",
         ARIA_READONLY = "aria-readonly",
+        CHANGE = "change",
         DEFAULT = "k-state-default",
         DISABLED = "disabled",
         READONLY = "readonly",
@@ -95,17 +96,17 @@ var __meta__ = { // jshint ignore:line
             element
                 .addClass("k-input")
                 .on("keydown" + ns, proxy(that._keydown, that))
+                .on("keypress" + ns, proxy(that._keypress, that))
                 .on("paste" + ns, proxy(that._search, that))
                 .on("focus" + ns, function () {
-                    that._active = true;
                     that._prev = that._accessor();
+                    that._oldText = that._prev;
                     that._placeholder(false);
                     wrapper.addClass(FOCUSED);
                 })
                 .on("focusout" + ns, function () {
                     that._change();
                     that._placeholder();
-                    that._active = false;
                     wrapper.removeClass(FOCUSED);
                 })
                 .attr({
@@ -136,6 +137,8 @@ var __meta__ = { // jshint ignore:line
 
             that.listView.bind("click", function(e) { e.preventDefault(); });
 
+            that._resetFocusItemHandler = $.proxy(that._resetFocusItem, that);
+
             kendo.notify(that);
         },
 
@@ -156,6 +159,7 @@ var __meta__ = { // jshint ignore:line
             separator: null,
             placeholder: "",
             animation: {},
+            virtual: false,
             value: null
         },
 
@@ -166,10 +170,12 @@ var __meta__ = { // jshint ignore:line
                 that._unbindDataSource();
             } else {
                 that._progressHandler = proxy(that._showBusy, that);
+                that._errorHandler = proxy(that._hideBusy, that);
             }
 
             that.dataSource = DataSource.create(that.options.dataSource)
-                .bind("progress", that._progressHandler);
+                .bind("progress", that._progressHandler)
+                .bind("error", that._errorHandler);
         },
 
         setDataSource: function(dataSource) {
@@ -182,7 +188,7 @@ var __meta__ = { // jshint ignore:line
         events: [
             "open",
             "close",
-            "change",
+            CHANGE,
             "select",
             "filtering",
             "dataBinding",
@@ -194,11 +200,20 @@ var __meta__ = { // jshint ignore:line
 
             List.fn.setOptions.call(this, options);
 
-            listOptions.dataValueField = listOptions.dataTextField;
-
             this.listView.setOptions(listOptions);
             this._accessors();
             this._aria();
+        },
+
+        _listOptions: function(options) {
+            var listOptions = List.fn._listOptions.call(this, $.extend(options, {
+                skipUpdateOnBind: true
+            }));
+
+            listOptions.dataValueField = listOptions.dataTextField;
+            listOptions.selectedItemChange = null;
+
+            return listOptions;
         },
 
         _editable: function(options) {
@@ -278,7 +293,10 @@ var __meta__ = { // jshint ignore:line
             if (!length || length >= options.minLength) {
                 that._open = true;
 
-                that.listView.filter(true);
+                that._mute(function() {
+                    this.listView.value([]);
+                });
+
                 that._filterSource({
                     value: ignoreCase ? word.toLowerCase() : word,
                     operator: options.filter,
@@ -355,6 +373,7 @@ var __meta__ = { // jshint ignore:line
 
                 this._accessor(value);
                 this._old = this._accessor();
+                this._oldText = this._accessor();
             } else {
                 return this._accessor();
             }
@@ -364,53 +383,29 @@ var __meta__ = { // jshint ignore:line
             var item = e.item;
             var element = this.element;
 
+            e.preventDefault();
+
             this._active = true;
 
             if (this.trigger("select", { item: item })) {
                 this.close();
                 return;
             }
-
+            this._oldText = element.val();
             this._select(item);
             this._blur();
 
             caret(element, element.val().length);
         },
 
-        _initList: function() {
-            var that = this;
-            var virtual = that.options.virtual;
-            var hasVirtual = !!virtual;
+        _resetFocusItem: function() {
+            var index = this.options.highlightFirst ? 0 : -1;
 
-            var listBoundHandler = proxy(that._listBound, that);
-
-            var listOptions = {
-                autoBind: false,
-                selectable: true,
-                dataSource: that.dataSource,
-                click: $.proxy(that._click, this),
-                change: $.proxy(that._listChange, this),
-                activate: proxy(that._activateItem, that),
-                deactivate: proxy(that._deactivateItem, that),
-                dataBinding: function() {
-                    that.trigger("dataBinding");
-                    that._angularItems("cleanup");
-                },
-                dataBound: listBoundHandler,
-                listBound: listBoundHandler
-            };
-
-            listOptions = $.extend(that._listOptions(), listOptions, typeof virtual === "object" ? virtual : {});
-
-            listOptions.dataValueField = listOptions.dataTextField;
-
-            if (!hasVirtual) {
-                that.listView = new kendo.ui.StaticList(that.ul, listOptions);
-            } else {
-                that.listView = new kendo.ui.VirtualList(that.ul, listOptions);
+            if (this.options.virtual) {
+                this.listView.scrollTo(0);
             }
 
-            that.listView.value(that.options.value);
+            this.listView.focus(index);
         },
 
         _listBound: function() {
@@ -424,24 +419,11 @@ var __meta__ = { // jshint ignore:line
 
             that._angularItems("compile");
 
-            if (that._open) {
-                that.listView.value([]);
-                that.listView.focus(-1);
-            }
-
-            that.listView.filter(false);
-
-            that._calculateGroupPadding(that._height(length));
+            that._resizePopup();
 
             popup.position();
 
             if (length) {
-                var current = this.listView.focus();
-
-                if (options.highlightFirst && !current) {
-                    that.listView.focusFirst();
-                }
-
                 if (options.suggest && isActive) {
                     that.suggest(data[0]);
                 }
@@ -453,6 +435,16 @@ var __meta__ = { // jshint ignore:line
 
                 if (that._typingTimeout && !isActive) {
                     action = "close";
+                }
+
+                if (length) {
+                    that._resetFocusItem();
+
+                    if (options.virtual) {
+                        that.popup
+                            .unbind("activate", that._resetFocusItemHandler)
+                            .one("activate", that._resetFocusItemHandler);
+                    }
                 }
 
                 popup[action]();
@@ -469,8 +461,16 @@ var __meta__ = { // jshint ignore:line
             that.trigger("dataBound");
         },
 
+        _mute: function(callback) {
+            this._muted = true;
+            callback.call(this);
+            this._muted = false;
+        },
+
         _listChange: function() {
-            if (!this.listView.filter() && this._active) {
+            var isActive = this._active || this.element[0] === activeElement();
+
+            if (isActive && !this._muted) {
                 this._selectValue(this.listView.selectedDataItems()[0]);
             }
         },
@@ -494,6 +494,28 @@ var __meta__ = { // jshint ignore:line
             this._prev = text;
             this._accessor(text);
             this._placeholder();
+        },
+
+        _change: function() {
+            var that = this;
+            var value = that.value();
+            var trigger = value !== List.unifyType(that._old, typeof value);
+
+            var valueUpdated = trigger && !that._typing;
+            var itemSelected = that._oldText !== value;
+
+            if (valueUpdated || itemSelected) {
+                // trigger the DOM change event so any subscriber gets notified
+                that.element.trigger(CHANGE);
+            }
+
+            if (trigger) {
+                that._old = value;
+
+                that.trigger(CHANGE);
+            }
+
+            that.typing = false;
         },
 
         _accessor: function (value) {
@@ -558,8 +580,12 @@ var __meta__ = { // jshint ignore:line
                 that.close();
             } else {
                 that._search();
-                that._typing = true;
             }
+        },
+
+        _keypress: function() {
+            this._oldText = this.element.val();
+            this._typing = true;
         },
 
         _move: function (action) {
@@ -642,7 +668,9 @@ var __meta__ = { // jshint ignore:line
         },
 
         _select: function(candidate) {
+            this._active = true;
             this.listView.select(candidate);
+            this._active = false;
         },
 
         _loader: function() {
@@ -686,4 +714,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

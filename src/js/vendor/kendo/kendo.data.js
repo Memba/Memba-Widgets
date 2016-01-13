@@ -1016,7 +1016,7 @@ var __meta__ = { // jshint ignore:line
                         b = new Date(+date[1]);
                     } else if (ignore) {
                         b = "'" + b.toLowerCase() + "'";
-                        a = "(" + a + " || '').toLowerCase()";
+                        a = "((" + a + " || '')+'').toLowerCase()";
                     } else {
                         b = "'" + b + "'";
                     }
@@ -1024,7 +1024,7 @@ var __meta__ = { // jshint ignore:line
 
                 if (b.getTime) {
                     //b looks like a Date
-                    a = "(" + a + "?" + a + ".getTime():" + a + ")";
+                    a = "(" + a + "&&" + a + ".getTime?" + a + ".getTime():" + a + ")";
                     b = b.getTime();
                 }
             }
@@ -1145,6 +1145,18 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 return a + ".indexOf('" + b + "') == -1";
+            },
+            isempty: function(a) {
+                return a + " === ''";
+            },
+            isnotempty: function(a) {
+                return a + " !== ''";
+            },
+            isnull: function(a) {
+                return a + " === null || " + a + " === undefined";
+            },
+            isnotnull: function(a) {
+                return a + " !== null && " + a + " !== undefined";
             }
         };
     })();
@@ -1245,7 +1257,10 @@ var __meta__ = { // jshint ignore:line
         isgreaterthanorequalto: "gte",
         greaterthanequal: "gte",
         ge: "gte",
-        notsubstringof: "doesnotcontain"
+        notsubstringof: "doesnotcontain",
+        isnull: "isnull",
+        isempty: "isempty",
+        isnotempty: "isnotempty"
     };
 
     function normalizeOperator(expression) {
@@ -1285,6 +1300,71 @@ var __meta__ = { // jshint ignore:line
     }
 
     Query.normalizeFilter = normalizeFilter;
+
+    function compareDescriptor(f1, f2) {
+        if (f1.logic || f2.logic) {
+            return false;
+        }
+
+        return f1.field === f2.field && f1.value === f2.value && f1.operator === f2.operator;
+    }
+
+    function normalizeDescriptor(filter) {
+        filter = filter || {};
+
+        if (isEmptyObject(filter)) {
+            return { logic: "and", filters: [] };
+        }
+
+        return normalizeFilter(filter);
+    }
+
+    function fieldComparer(a, b) {
+        if (b.logic || (a.field > b.field)) {
+            return 1;
+        } else if (a.field < b.field) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+
+    function compareFilters(expr1, expr2) {
+        expr1 = normalizeDescriptor(expr1);
+        expr2 = normalizeDescriptor(expr2);
+
+        if (expr1.logic !== expr2.logic) {
+            return false;
+        }
+
+        var f1, f2;
+        var filters1 = (expr1.filters || []).slice();
+        var filters2 = (expr2.filters || []).slice();
+
+        if (filters1.length !== filters2.length) {
+            return false;
+        }
+
+        filters1 = filters1.sort(fieldComparer);
+        filters2 = filters2.sort(fieldComparer);
+
+        for (var idx = 0; idx < filters1.length; idx++) {
+            f1 = filters1[idx];
+            f2 = filters2[idx];
+
+            if (f1.logic && f2.logic) {
+                if (!compareFilters(f1, f2)) {
+                    return false;
+                }
+            } else if (!compareDescriptor(f1, f2)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    Query.compareFilters = compareFilters;
 
     function normalizeAggregate(expressions) {
         return isArray(expressions) ? expressions : [expressions];
@@ -1810,6 +1890,7 @@ var __meta__ = { // jshint ignore:line
             getter,
             originalName,
             idx,
+            setters = {},
             length;
 
         for (idx = 0, length = data.length; idx < length; idx++) {
@@ -1818,7 +1899,10 @@ var __meta__ = { // jshint ignore:line
                 originalName = fieldNames[getter];
 
                 if (originalName && originalName !== getter) {
-                    record[originalName] = getters[getter](record);
+                    if (!setters[originalName]) {
+                        setters[originalName] = kendo.setter(originalName);
+                    }
+                    setters[originalName](record, getters[getter](record));
                     delete record[getter];
                 }
             }
@@ -3441,11 +3525,11 @@ var __meta__ = { // jshint ignore:line
                 that._filter = options.filter;
                 that._group = options.group;
                 that._aggregate = options.aggregate;
-                that._skip = options.skip;
+                that._skip = that._currentRangeStart = options.skip;
                 that._take = options.take;
 
                 if(that._skip === undefined) {
-                    that._skip = that.skip();
+                    that._skip = that._currentRangeStart = that.skip();
                     options.skip = that.skip();
                 }
 
@@ -3538,7 +3622,7 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            that._skip = page * that.take();
+            that._skip = that._currentRangeStart = page * that.take();
 
             page += 1;
             options.page = page;
@@ -3558,7 +3642,7 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            that._skip = that._skip - that.take();
+            that._skip = that._currentRangeStart = that._skip - that.take();
 
             page -= 1;
             options.page = page;
@@ -3746,6 +3830,8 @@ var __meta__ = { // jshint ignore:line
 
                 that._skip = skip > that.skip() ? math.min(size, (that.totalPages() - 1) * that.take()) : pageSkip;
 
+                that._currentRangeStart = skip;
+
                 that._take = take;
 
                 var paging = that.options.serverPaging;
@@ -3881,6 +3967,10 @@ var __meta__ = { // jshint ignore:line
                 return (that._page !== undefined ? (that._page  - 1) * (that.take() || 1) : undefined);
             }
             return that._skip;
+        },
+
+        currentRangeStart: function() {
+            return this._currentRangeStart || 0;
         },
 
         take: function() {
@@ -4266,7 +4356,7 @@ var __meta__ = { // jshint ignore:line
                 that._initChildren();
             }
 
-            that._loaded = !!(value && (value[childrenField] || value._loaded));
+            that._loaded = !!(value && value._loaded);
         },
 
         _initChildren: function() {
@@ -4900,4 +4990,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

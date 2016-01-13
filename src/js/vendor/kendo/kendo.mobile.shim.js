@@ -43,7 +43,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (!options.modal) {
-                that.shim.on("up", "_hide");
+                that.shim.on("down", "_hide");
             }
 
             (app ? app.element : $(document.body)).append(shim);
@@ -129,4 +129,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

@@ -234,6 +234,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             that.userEvents = new kendo.UserEvents(that.wrapper, {
+                fastTap: true,
                 tap: function() {
                     if(that.options.enable) {
                         that._toggle(!that.element[0].checked);
@@ -251,4 +252,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

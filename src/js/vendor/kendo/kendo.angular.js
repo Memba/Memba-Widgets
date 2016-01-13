@@ -57,15 +57,17 @@ var __meta__ = { // jshint ignore:line
         };
         return function(scope, element, role, source) {
             var type = types[role] || 'DataSource';
-            var ds = toDataSource(scope.$eval(source), type);
+            var current = scope.$eval(source);
+            var ds = toDataSource(current, type);
 
-            // not recursive -- this triggers when the whole data source changed
-            scope.$watch(source, function(mew, old){
-                if (mew !== old) {
-                    var ds = toDataSource(mew, type);
-                    var widget = kendoWidgetInstance(element);
-                    if (widget && typeof widget.setDataSource == "function") {
+            scope.$watch(source, function(mew) {
+                var widget = kendoWidgetInstance(element);
+
+                if (widget && typeof widget.setDataSource == "function") {
+                    if (mew !== current) {
+                        var ds = toDataSource(mew, type);
                         widget.setDataSource(ds);
+                        current = mew;
                     }
                 }
             });
@@ -262,7 +264,7 @@ var __meta__ = { // jshint ignore:line
 
 
         $.each(attrs, function(name, value) {
-            if (name === "source" || name === "kDataSource" || name === "kScopeField") {
+            if (name === "source" || name === "kDataSource" || name === "kScopeField" || name === "scopeField") {
                 return;
             }
 
@@ -399,7 +401,19 @@ var __meta__ = { // jshint ignore:line
 
             setTimeout(function(){
                 if (widget) { // might have been destroyed in between. :-(
-                    widget.value(val);
+                    var kNgModel = scope[widget.element.attr("k-ng-model")];
+
+                    if (kNgModel) {
+                        val = kNgModel;
+                    }
+
+                    if (widget.options.autoBind === false && !widget.listView.bound()) {
+                        if (val) {
+                            widget.value(val);
+                        }
+                    } else {
+                        widget.value(val);
+                    }
                 }
             }, 0);
         };
@@ -420,7 +434,6 @@ var __meta__ = { // jshint ignore:line
                 if (haveChangeOnElement) {
                     return;
                 }
-                haveChangeOnElement = false;
                 if (pristine && ngForm) {
                     formPristine = ngForm.$pristine;
                 }
@@ -468,6 +481,15 @@ var __meta__ = { // jshint ignore:line
         var setter = getter.assign;
         var updating = false;
 
+        var valueIsCollection = kendo.ui.MultiSelect && widget instanceof kendo.ui.MultiSelect;
+
+        var length = function(value) {
+            //length is irrelevant when value is not collection
+            return valueIsCollection ? value.length : 0;
+        };
+
+        var currentValueLength = length(getter(scope));
+
         widget.$angular_setLogicValue(getter(scope));
 
         // keep in sync
@@ -478,15 +500,17 @@ var __meta__ = { // jshint ignore:line
                 // https://github.com/telerik/kendo-ui-core/issues/299
                 newValue = null;
             }
-            if (updating) {
+
+            //compare values by reference if a collection
+            if (updating || (newValue == oldValue && length(newValue) == currentValueLength)) {
                 return;
             }
-            if (newValue === oldValue) {
-                return;
-            }
+
+            currentValueLength = length(newValue);
             widget.$angular_setLogicValue(newValue);
         };
-        if (kendo.ui.MultiSelect && widget instanceof kendo.ui.MultiSelect) {
+
+        if (valueIsCollection) {
             scope.$watchCollection(kNgModel, watchHandler);
         } else {
             scope.$watch(kNgModel, watchHandler);
@@ -499,9 +523,11 @@ var __meta__ = { // jshint ignore:line
                 ngForm.$setDirty();
             }
 
-            scope.$apply(function(){
+            digest(scope, function(){
                 setter(scope, widget.$angular_getLogicValue());
+                currentValueLength = length(getter(scope));
             });
+
             updating = false;
         });
     }
@@ -613,6 +639,12 @@ var __meta__ = { // jshint ignore:line
 
                 var _wrapper = $(widget.wrapper)[0];
                 var _element = $(widget.element)[0];
+                var isUpload = widget.options.name === "Upload";
+
+                if (isUpload) {
+                    element = $(_element);
+                }
+
                 var compile = element.injector().get("$compile");
                 widget._destroy();
 
@@ -622,8 +654,10 @@ var __meta__ = { // jshint ignore:line
 
                 widget = null;
 
-                if (_wrapper && _element) {
-                    _wrapper.parentNode.replaceChild(_element, _wrapper);
+                if (_element) {
+                    if (_wrapper) {
+                        _wrapper.parentNode.replaceChild(_element, _wrapper);
+                    }
                     $(element).replaceWith(originalElement);
                 }
 
@@ -732,6 +766,7 @@ var __meta__ = { // jshint ignore:line
 
     var SKIP_SHORTCUTS = [
         'MobileView',
+        'MobileDrawer',
         'MobileLayout',
         'MobileSplitView',
         'MobilePane',
@@ -793,7 +828,7 @@ var __meta__ = { // jshint ignore:line
                         replace  : true,
                         template : function(element, attributes) {
                             var tag = TAGNAMES[className] || "div";
-                            var scopeField = attributes.kScopeField;
+                            var scopeField = attributes.kScopeField || attributes.scopeField;
 
                             return "<" + tag + " " + dashed + (scopeField ? ('="' + scopeField + '"') : "") + ">" + element.html() + "</" + tag + ">";
                         }
@@ -1004,7 +1039,7 @@ var __meta__ = { // jshint ignore:line
             val = val[valueField || options.dataTextField];
         }
 
-        if (self.options.autoBind === false && !self.listView.isBound()) {
+        if (self.options.autoBind === false && !self.listView.bound()) {
             if (!text && val && options.valuePrimitive) {
                 self.value(val);
             } else {
@@ -1044,7 +1079,7 @@ var __meta__ = { // jshint ignore:line
             });
         }
 
-        if (options.autoBind === false && !options.valuePrimitive && !self.listView.isBound()) {
+        if (options.autoBind === false && !options.valuePrimitive && !self.listView.bound()) {
             self._preselect(data, val);
         } else {
             self.value(val);
@@ -1086,9 +1121,13 @@ var __meta__ = { // jshint ignore:line
             dataTextField = self.options.dataTextField;
 
         if (dataTextField && !self.options.valuePrimitive) {
-            value = $.map(value, function(item){
-                return item[dataTextField];
-            });
+            if (value.length !== undefined) {
+                value = $.map(value, function(item){
+                    return item[dataTextField];
+                });
+            } else {
+                value = value[dataTextField];
+            }
         }
 
         self.value(value);
@@ -1156,6 +1195,7 @@ var __meta__ = { // jshint ignore:line
 
             if (!multiple) {
                 locals.dataItem = locals.data = items[0];
+                locals.angularDataItem = kendo.proxyModelSetters(locals.dataItem);
                 locals.selected = elems[0];
             }
 
@@ -1422,4 +1462,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

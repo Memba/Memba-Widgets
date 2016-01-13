@@ -45,6 +45,7 @@ var __meta__ = { // jshint ignore:line
             that.content = container.children().not(that.header).wrapAll(CONTENT_WRAPPER).parent();
 
             that._userEvents = new kendo.UserEvents(that.header, {
+                fastTap: true,
                 tap: function() { that.toggle(); }
             });
 
@@ -185,4 +186,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

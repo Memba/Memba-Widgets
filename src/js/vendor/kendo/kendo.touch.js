@@ -45,6 +45,7 @@ var __meta__ = { // jshint ignore:line
                 minHold: options.minHold,
                 multiTouch: options.multiTouch,
                 allowSelection: true,
+                fastTap: options.fastTap,
                 press: eventProxy("touchstart"),
                 hold: eventProxy("hold"),
                 tap: proxy(that, "_tap"),
@@ -83,6 +84,7 @@ var __meta__ = { // jshint ignore:line
             name: "Touch",
             surface: null,
             global: false,
+            fastTap: false,
             multiTouch: false,
             enableSwipe: false,
             minXDelta: 30,
@@ -158,4 +160,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

@@ -129,9 +129,6 @@ var __meta__ = { // jshint ignore:line
                 callback(arr1[i], arr2[i], templates);
                 if (arr2[i].item) {
                     this.trigger(ITEMCHANGE, { item: $(arr1[i]), data: arr2[i].item, ns: kendo.ui });
-                    if (arr2[i].index === this._selectedIndex) {
-                        this.select(this._selectedIndex);
-                    }
                 }
             }
         };
@@ -177,7 +174,7 @@ var __meta__ = { // jshint ignore:line
         if (data.index !== 0 && data.newGroup) {
             $("<div class=" + GROUPITEM + "></div>")
                 .appendTo(element)
-                .html(templates.groupTemplate({ group: data.group }));
+                .html(templates.groupTemplate(data.group));
         }
 
         if (data.top !== undefined) {
@@ -189,34 +186,47 @@ var __meta__ = { // jshint ignore:line
         });
     }
 
-    function findChangedItems(selected, changed) {
-        var changedLength = changed.length;
-        var result = [];
+    function mapChangedItems(selected, itemsToMatch) {
+        var itemsLength = itemsToMatch.length;
+        var selectedLength = selected.length;
         var dataItem;
+        var found;
         var i, j;
 
-        for (i = 0; i < selected.length; i++) {
-            dataItem = selected[i];
+        var changed = [];
+        var unchanged = [];
 
-            for (j = 0; j < changedLength; j++) {
-                if (dataItem === changed[j]) {
-                    result.push({
-                        index: i,
-                        item: dataItem
-                    });
+        if (selectedLength) {
+            for (i = 0; i < selectedLength; i++) {
+                dataItem = selected[i];
+                found = false;
+
+                for (j = 0; j < itemsLength; j++) {
+                    if (dataItem === itemsToMatch[j]) {
+                        found = true;
+                        changed.push({ index: i, item: dataItem });
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    unchanged.push(dataItem);
                 }
             }
         }
 
-        return result;
+        return {
+            changed: changed,
+            unchanged: unchanged
+        };
     }
 
     var VirtualList = DataBoundWidget.extend({
         init: function(element, options) {
             var that = this;
-            that._listCreated = false;
+
+            that.bound(false);
             that._fetching = false;
-            that._filter = false;
 
             Widget.fn.init.call(that, element, options);
 
@@ -246,6 +256,7 @@ var __meta__ = { // jshint ignore:line
 
             that.content.on("scroll" + VIRTUAL_LIST_NS, kendo.throttle(function() {
                 that._renderItems();
+                that._triggerListBound();
             }, options.delay));
 
             that._selectable();
@@ -266,7 +277,7 @@ var __meta__ = { // jshint ignore:line
             dataValueField: null,
             template: "#:data#",
             placeholderTemplate: "loading...",
-            groupTemplate: "#:group#",
+            groupTemplate: "#:data#",
             fixedGroupTemplate: "fixed header template",
             valueMapper: null
         },
@@ -312,8 +323,11 @@ var __meta__ = { // jshint ignore:line
 
             if (that.dataSource) {
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
-                that.dataSource.unbind(CHANGE, that._rangeChangeHandler);
 
+                that._clean();
+                that.bound(false);
+
+                that._deferValueSet = true;
                 value = that.value();
 
                 that.value([]);
@@ -322,65 +336,87 @@ var __meta__ = { // jshint ignore:line
                 });
             } else {
                 that._refreshHandler = $.proxy(that.refresh, that);
-                that._rangeChangeHandler = $.proxy(that.rangeChange, that);
             }
 
-            that.dataSource = dataSource.bind(CHANGE, that._refreshHandler)
-                                        .bind(CHANGE, that._rangeChangeHandler);
+            that.dataSource = dataSource.bind(CHANGE, that._refreshHandler);
 
-            if (that.dataSource.view().length !== 0) {
+            that.setDSFilter(dataSource.filter());
+
+            if (dataSource.view().length !== 0) {
                 that.refresh();
             } else if (that.options.autoBind) {
-                that.dataSource.fetch();
+                dataSource.fetch();
             }
         },
 
-        rangeChange: function () {
-            var that = this;
-            var page = that.dataSource.page();
+        skip: function() {
+            return this.dataSource.currentRangeStart();
+        },
 
-            if (that.isBound() && that._rangeChange === true && that._lastPage !== page) {
-                that._lastPage = page;
+        _triggerListBound: function () {
+            var that = this;
+            var skip = that.skip();
+
+            if (that.bound() && !that._selectingValue && that._skip !== skip) {
+                that._skip = skip;
                 that.trigger(LISTBOUND);
             }
+        },
+
+        _getValues: function(dataItems) {
+            var getter = this._valueGetter;
+
+            return $.map(dataItems, function(dataItem) {
+                return getter(dataItem);
+            });
         },
 
         refresh: function(e) {
             var that = this;
             var action = e && e.action;
-            var changedItems;
+            var isItemChange = action === "itemchange";
+            var filtered = this.isFiltered();
+            var result;
 
             if (that._mute) { return; }
 
+            that._deferValueSet = false;
+
             if (!that._fetching) {
-                if (that._filter) {
+                if (filtered) {
                     that.focus(0);
                 }
 
                 that._createList();
-                if (!action && that._values.length && !that._filter) {
+                if (!action && that._values.length && !filtered && !that.options.skipUpdateOnBind) {
+                    that._selectingValue = true;
                     that.value(that._values, true).done(function() {
-                        that._lastPage = that.dataSource.page();
-                        that._listCreated = true;
-                        that.trigger(LISTBOUND);
+                        that.bound(true);
+                        that._selectingValue = false;
+                        that._triggerListBound();
                     });
                 } else {
-                    that._lastPage = that.dataSource.page();
-                    that._listCreated = true;
-                    that.trigger(LISTBOUND);
+                    that.bound(true);
+                    that._triggerListBound();
                 }
             } else {
                 if (that._renderItems) {
                     that._renderItems(true);
                 }
+
+                that._triggerListBound();
             }
 
-            if (action === "itemchange") {
-                changedItems = findChangedItems(that._selectedDataItems, e.items);
-                if (changedItems.length) {
-                    that.trigger("selectedItemChange", {
-                        items: changedItems
-                    });
+            if (isItemChange || action === "remove") {
+                result = mapChangedItems(that._selectedDataItems, e.items);
+                if (result.changed.length) {
+                    if (isItemChange) {
+                        that.trigger("selectedItemChange", {
+                            items: result.changed
+                        });
+                    } else {
+                        that.value(that._getValues(result.unchanged));
+                    }
                 }
             }
 
@@ -408,6 +444,10 @@ var __meta__ = { // jshint ignore:line
                 return that._values.slice();
             }
 
+            if (value === null) {
+                value = [];
+            }
+
             value = toArray(value);
 
             if (that.options.selectable === "multiple" && that.select().length && value.length) {
@@ -424,7 +464,7 @@ var __meta__ = { // jshint ignore:line
 
             that._values = value;
 
-            if ((that.isBound() && !that._mute) || _forcePrefetch) {
+            if ((that.bound() && !that._mute && !that._deferValueSet) || _forcePrefetch) {
                 that._prefetchByValue(value);
             }
 
@@ -446,7 +486,7 @@ var __meta__ = { // jshint ignore:line
                         match = isPrimitive(item) ? value[i] === item : value[i] === valueGetter(item);
 
                         if (match) {
-                            forSelection.push(idx);
+                            forSelection.push(dataView[idx].index);
                         }
                     }
                 }
@@ -487,7 +527,6 @@ var __meta__ = { // jshint ignore:line
             var ranges = this._rangesList;
             var result = $.Deferred();
             var defs = [];
-
 
             var low = Math.floor(index / take) * take;
             var high = Math.ceil(index / take) * take;
@@ -691,6 +730,10 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 return index;
+            } else {
+                index = this.dataSource.total() - 1;
+                this.focus(index);
+                return index;
             }
         },
 
@@ -710,6 +753,22 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 return index;
+            } else {
+                index = 0;
+                this.focus(index);
+                return index;
+            }
+        },
+
+        _triggerChange: function(removed, added) {
+            removed = removed || [];
+            added = added || [];
+
+            if (removed.length || added.length) {
+                this.trigger(CHANGE, {
+                    removed: removed,
+                    added: added
+                });
             }
         },
 
@@ -718,7 +777,10 @@ var __meta__ = { // jshint ignore:line
                 indices,
                 singleSelection = that.options.selectable !== "multiple",
                 prefetchStarted = !!that._activeDeferred,
+                filtered = this.isFiltered(),
+                isAlreadySelected,
                 deferred,
+                result,
                 removed = [];
 
             if (candidate === undefined) {
@@ -726,16 +788,25 @@ var __meta__ = { // jshint ignore:line
             }
 
             indices = that._getIndecies(candidate);
+            isAlreadySelected = singleSelection && !filtered && lastFrom(indices) === lastFrom(this._selectedIndexes);
+            removed = that._deselectCurrentValues(indices);
 
-            if (that._filter && !singleSelection && that._deselectFiltered(indices)) {
+            if (removed.length || !indices.length || isAlreadySelected) {
+                that._triggerChange(removed);
+
+                if (that._valueDeferred) {
+                    that._valueDeferred.resolve();
+                }
                 return;
             }
 
-            if (!indices.length || (singleSelection && !that._filter && lastFrom(indices) === lastFrom(this._selectedIndexes))) {
-                return;
+            if (indices.length === 1 && indices[0] === -1) {
+                indices = [];
             }
 
-            removed = that._deselect(indices);
+            result = that._deselect(indices);
+            removed = result.removed;
+            indices = result.indices;
 
             if (singleSelection) {
                 that._activeDeferred = null;
@@ -749,13 +820,7 @@ var __meta__ = { // jshint ignore:line
                 var added = that._select(indices);
 
                 that.focus(indices);
-
-                if (added.length || removed.length) {
-                    that.trigger(CHANGE, {
-                        added: added,
-                        removed: removed
-                    });
-                }
+                that._triggerChange(removed, added);
 
                 if (that._valueDeferred) {
                     that._valueDeferred.resolve();
@@ -773,8 +838,12 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        isBound: function() {
-            return this._listCreated;
+        bound: function(bound) {
+            if (bound === undefined) {
+                return this._listCreated;
+            }
+
+            this._listCreated = bound;
         },
 
         mute: function(callback) {
@@ -783,13 +852,16 @@ var __meta__ = { // jshint ignore:line
             this._mute = false;
         },
 
-        filter: function(filter) {
-            if (filter === undefined) {
-                return this._filter;
+        setDSFilter: function(filter) {
+            this._lastDSFilter = $.extend({}, filter);
+        },
+
+        isFiltered: function() {
+            if (!this._lastDSFilter) {
+                this.setDSFilter(this.dataSource.filter());
             }
 
-            this._filter = filter;
-            this._rangeChange = true;
+            return !kendo.data.Query.compareFilters(this.dataSource.filter(), this._lastDSFilter);
         },
 
         skipUpdate: $.noop,
@@ -803,7 +875,7 @@ var __meta__ = { // jshint ignore:line
         _clean: function() {
             this.result = undefined;
             this._lastScrollTop = undefined;
-            this._lastPage = undefined;
+            this._skip = undefined;
             $(this.heightContainer).remove();
             this.heightContainer = undefined;
             this.element.empty();
@@ -908,7 +980,7 @@ var __meta__ = { // jshint ignore:line
                 options = that.options,
                 dataSource = that.dataSource;
 
-            if (that._listCreated) {
+            if (that.bound()) {
                 that._clean();
             }
 
@@ -980,13 +1052,18 @@ var __meta__ = { // jshint ignore:line
                 pageSize = this.itemCount,
                 flatGroups = {};
 
+            if (dataSource.pageSize() < pageSize) {
+                this.mute(function() {
+                    dataSource.pageSize(pageSize);
+                });
+            }
+
             return function(index, rangeStart) {
                 var that = this;
                 if (!dataSource.inRange(rangeStart, pageSize)) {
                     if (lastRequestedRange !== rangeStart) {
                         lastRequestedRange = rangeStart;
                         lastRangeStart = rangeStart;
-                        that._fetching = true;
 
                         if (that._getterDeferred) {
                             that._getterDeferred.reject();
@@ -1000,9 +1077,7 @@ var __meta__ = { // jshint ignore:line
 
                             if (rangeStart <= firstItemIndex && firstItemIndex <= (rangeStart + pageSize)) {
                                 that._fetching = true;
-                                that._rangeChange = true;
                                 dataSource.range(rangeStart, pageSize);
-                                that._rangeChange = false;
                             }
                         });
                     }
@@ -1010,16 +1085,10 @@ var __meta__ = { // jshint ignore:line
                     return null;
                 } else {
                     if (lastRangeStart !== rangeStart) {
-                        that._mute = true;
-                        that._fetching = true;
-                        that._rangeChange = true;
-
-                        dataSource.range(rangeStart, pageSize);
-                        lastRangeStart = rangeStart;
-
-                        that._rangeChange = false;
-                        that._fetching = false;
-                        that._mute = false;
+                        this.mute(function() {
+                            dataSource.range(rangeStart, pageSize);
+                            lastRangeStart = rangeStart;
+                        });
                     }
 
                     var result;
@@ -1084,7 +1153,7 @@ var __meta__ = { // jshint ignore:line
                 item = item ? item.item : null;
             }
 
-            if (value.length && item) {
+            if (!this.isFiltered() && value.length && item) {
                 for (var i = 0; i < value.length; i++) {
                     match = isPrimitive(item) ? value[i] === item : value[i] === valueGetter(item);
                     if (match) {
@@ -1190,7 +1259,7 @@ var __meta__ = { // jshint ignore:line
                     range2 = diff > 0 ? list2.slice(-diff) : list2.slice(0, -diff);
                 }
 
-                reorder(range, range2, that._listCreated);
+                reorder(range, range2, that.bound());
 
                 currentOffset = offset;
             };
@@ -1257,9 +1326,8 @@ var __meta__ = { // jshint ignore:line
             return result;
         },
 
-        _deselect: function(indexes) {
+        _deselect: function(indices) {
             var removed = [],
-                index,
                 selectedIndex,
                 dataItem,
                 selectedIndexes = this._selectedIndexes,
@@ -1268,47 +1336,28 @@ var __meta__ = { // jshint ignore:line
                 removedindexesCounter = 0,
                 item;
 
-            if (indexes[position] === -1) { //deselect everything
+            indices = indices.slice();
+
+            if (selectable === true || !indices.length) { //deselect everything
+
                 for (var idx = 0; idx < selectedIndexes.length; idx++) {
-                    selectedIndex = selectedIndexes[idx];
+                    if (selectedIndexes[idx] !== undefined) {
+                        this._getElementByIndex(selectedIndexes[idx]).removeClass(SELECTED);
 
-                    this._getElementByIndex(selectedIndex).removeClass(SELECTED);
-
-                    removed.push({
-                        index: selectedIndex,
-                        position: idx,
-                        dataItem: this._selectedDataItems[idx]
-                    });
+                        removed.push({
+                            index: selectedIndexes[idx],
+                            position: idx,
+                            dataItem: this._selectedDataItems[idx]
+                        });
+                    }
                 }
 
                 this._values = [];
                 this._selectedDataItems = [];
                 this._selectedIndexes = [];
-                indexes.splice(0, indexes.length);
-
-                return removed;
-            }
-
-            if (selectable === true) {
-                index = indexes[position];
-                selectedIndex = selectedIndexes[position];
-
-                if (selectedIndex !== undefined && index !== selectedIndex) {
-                    this._getElementByIndex(selectedIndex).removeClass(SELECTED);
-
-                    removed.push({
-                        index: selectedIndex,
-                        position: position,
-                        dataItem: this._selectedDataItems[position]
-                    });
-
-                    this._values = [];
-                    this._selectedDataItems = [];
-                    this._selectedIndexes = [];
-                }
             } else if (selectable === "multiple") {
-                for (var i = 0; i < indexes.length; i++) {
-                    position = $.inArray(indexes[i], selectedIndexes);
+                for (var i = 0; i < indices.length; i++) {
+                    position = $.inArray(indices[i], selectedIndexes);
                     selectedIndex = selectedIndexes[position];
 
                     if (selectedIndex !== undefined) {
@@ -1323,7 +1372,7 @@ var __meta__ = { // jshint ignore:line
                         this._selectedIndexes.splice(position, 1);
                         dataItem = this._selectedDataItems.splice(position, 1)[0];
 
-                        indexes.splice(i, 1);
+                        indices.splice(i, 1);
 
                         removed.push({
                             index: selectedIndex,
@@ -1337,16 +1386,23 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
-            return removed;
+            return {
+                indices: indices,
+                removed: removed
+            };
         },
 
-        _deselectFiltered: function(indices) {
+        _deselectCurrentValues: function(indices) {
             var children = this.element[0].children;
             var value, index, position;
             var values = this._values;
             var removed = [];
             var idx = 0;
             var j;
+
+            if (this.options.selectable !== "multiple" || !this.isFiltered()) {
+                return [];
+            }
 
             for (; idx < indices.length; idx++) {
                 position = -1;
@@ -1366,16 +1422,7 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
-            if (removed.length) {
-                this.trigger("change", {
-                    added: [],
-                    removed: removed
-                });
-
-                return true;
-            }
-
-            return false;
+            return removed;
         },
 
         _select: function(indexes) {
@@ -1458,4 +1505,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

@@ -1,3 +1,4 @@
+@sprite-image: url('@{image-folder}/sprite.png');
 @theme-type: "Bootstrap";
 @tooltip-texture: none;
 @widget-text-color: @normal-text-color;
@@ -139,7 +140,7 @@
 @form-widgets-border-color: darken(@base, 12%);
 @pager-text-color: darken(@base, 27%);
 @draghandle-selected-background: darken(@base, 12%);
-@upload-status-color: darken(@error, 17%);
+@upload-status-color: @normal-text-color;
 @form-widgets-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 @menu-active-background: darken(@base, 1%);
 @concave-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
@@ -174,43 +175,7 @@
 @button-focused-border-color: lighten(@accent, 13%);
 @button-focused-shadow: 0 0 7px 0 lighten(@accent, 13%);
 @button-focused-active-shadow: inset 0 0 5px 3px darken(@base, 9%);
-@checkbox-border-color-before: transparent;
-@checkbox-border-color-after: darken(@base, 12%);
-@checkbox-border-radius-before: 3px;
-@checkbox-background-color: @background;
-@checkbox-hover-border-color: darken(@base, 24%);
-@checkbox-hover-box-shadow: none;
-@checkbox-checked-border-color-after: darken(@base, 12%);
-@checkbox-checked-border-radius-after: 3px;
-@checkbox-checked-background-color-after: @background;
-@checkbox-checked-color-after: @accent;
-@checkbox-active-border-color-before: transparent;
-@checkbox-active-border-color-after: lighten(@accent, 13%);
-@checkbox-active-border-radius: 3px;
-@checkbox-active-border-radius-after: 3px;
-@checkbox-active-box-shadow: 0 0 2px 0 lighten(@accent, 13%);
-@checkbox-checked-active-border-radius-before: 3px;
-@checkbox-checked-active-box-shadow: 0 0 2px 0 lighten(@accent, 13%);
-@checkbox-checked-disabled-color-after: darken(@base, 29%);
-@checkbox-disabled-background-color-after: @background;
-@checkbox-disabled-color: darken(@base, 29%);
-@checkbox-disabled-box-shadow: none;
-@checkbox-disabled-border-color-before: darken(@base, 12%);
-@radio-border-color-before: darken(@base, 12%);
-@radio-background-color: @background;
-@radio-border-width-before: 1px;
-@radio-hover-border-color: darken(@base, 24%);
-@radio-hover-box-shadow: none;
-@radio-checked-border-color-before: darken(@base, 12%);
-@radio-checked-background-color-after: @accent;
-@radio-active-border-color-before: lighten(@accent, 13%);
-@radio-active-box-shadow: 0 0 2px 0 lighten(@accent, 13%);
-@radio-checked-active-border-color-before: lighten(@accent, 13%);
-@radio-checked-active-box-shadow: 0 0 2px 0 lighten(@accent, 13%);
-@radio-disabled-background-color-after: @background;
-@radio-disabled-color: darken(@background, 27%);
-@radio-disabled-box-shadow: none;
-@radio-disabled-background-color-before: @background;
+
 /* Kendo skin */
 
 @theme-name: ~"bootstrap";
@@ -636,9 +601,7 @@ html .km-pane-wrapper .k-header
     .box-shadow(0 0 0 2px @normal-text-color);
 }
 
-.k-ie7 .k-event .k-resize-handle,
 .k-event .k-resize-handle:after,
-.k-ie7 .k-task-single .k-resize-handle,
 .k-task-single .k-resize-handle:after
 {
     background-color: @resize-background-color;
@@ -747,65 +710,87 @@ html .km-pane-wrapper .k-header
     border-color: @focused-border-color;
 }
 
-.k-calendar .k-link
-{
-    color: @calendar-content-text-color;
+.k-calendar {
+    .k-link {
+        color: @calendar-content-text-color;
+    }
+
+    .k-footer {
+        padding: 0;
+    }
+
+    .k-footer .k-nav-today {
+        color: @form-widget-color;
+        text-decoration: @calendar-footer-text-decoration;
+        background-color: @calendar-footer-background;
+    }
+
+    .k-footer .k-nav-today:hover,
+    .k-footer .k-nav-today.k-state-hover {
+        background-color: @calendar-footer-hover-background;
+        text-decoration: @calendar-footer-hover-text-decoration;
+    }
+
+    .k-footer .k-nav-today:active {
+        background-color: @calendar-footer-active-background;
+    }
+
+    .k-link.k-nav-fast {
+        color: @form-widget-color;
+    }
+
+    .k-nav-fast.k-state-hover {
+        text-decoration: @calendar-header-hover-text-decoration;
+        background-color: @calendar-header-hover-background;
+        color: @hover-text-color;
+    }
+
+    .k-link.k-state-hover {
+        border-radius: @calendar-border-radius;
+    }
+
+    .k-state-focused.k-state-hover {
+        background-color: lighten(@selected-background-color, 37%);
+    }
+
+    .k-state-selected.k-state-hover {
+        background-color: darken(@selected-background, 8%);
+    }
+
+    .k-state-selected.k-state-hover .k-link {
+        color: @selected-text-color;
+    }
+
+    td.k-state-focused.k-state-selected.k-state-hover {
+        box-shadow: inset 0 0 7px 0 darken(@selected-background, 25%); 
+    }
+
+    .k-today {
+        background-color: @base;
+    }
+
+    .k-today.k-state-hover {
+        background-color: darken(@base, 7%);
+    }
+
+    .k-today.k-state-focused.k-state-hover {
+        background-color: lighten(@selected-background-color, 37%);
+    }
+
+    .k-footer .k-link {
+        border-radius: 0;
+    }
+
+    th {
+        background-color: @calendar-group-background-color;
+    }
 }
 
-.k-calendar .k-footer
-{
-    padding: 0;
-}
-
-.k-calendar .k-footer .k-nav-today
-{
-    color: @form-widget-color;
-    text-decoration: @calendar-footer-text-decoration;
-    background-color: @calendar-footer-background;
-}
-
-.k-calendar .k-footer .k-nav-today:hover,
-.k-calendar .k-footer .k-nav-today.k-state-hover
-{
-    background-color: @calendar-footer-hover-background;
-    text-decoration: @calendar-footer-hover-text-decoration;
-}
-
-.k-calendar .k-footer .k-nav-today:active
-{
-    background-color: @calendar-footer-active-background;
-}
-
-.k-calendar .k-link.k-nav-fast
-{
-    color: @form-widget-color;
-}
-
-.k-calendar .k-nav-fast.k-state-hover
-{
-    text-decoration: @calendar-header-hover-text-decoration;
-    background-color: @calendar-header-hover-background;
-    color: @hover-text-color;
-}
-
-.k-calendar .k-link.k-state-hover,
-.k-window-titlebar .k-link
-{
+.k-window-titlebar .k-link {
     border-radius: @calendar-border-radius;
 }
 
-.k-calendar .k-footer .k-link
-{
-    border-radius: 0;
-}
-
-.k-calendar th
-{
-    background-color: @calendar-group-background-color;
-}
-
-.k-calendar-container.k-group
-{
+ .k-calendar-container.k-group {
     border-color: @group-border-color;
 }
 
@@ -878,16 +863,7 @@ td.k-state-focused.k-state-selected
 .k-ie8 td.k-state-focused,
 .k-ie8 .k-tool.k-state-hover,
 .k-ie8 .k-button:focus,
-.k-ie8 .k-button.k-state-focused,
-
-.k-ie7 .k-panelbar span.k-state-focused,
-.k-ie7 .k-menu li.k-state-focused,
-.k-ie7 .k-listview>.k-state-focused,
-.k-ie7 .k-grid-header th.k-state-focused,
-.k-ie7 td.k-state-focused,
-.k-ie7 .k-tool.k-state-hover,
-.k-ie7 .k-button:focus,
-.k-ie7 .k-button.k-state-focused
+.k-ie8 .k-button.k-state-focused
 {
     background-color: @hover-background-color;
 }
@@ -932,7 +908,6 @@ td.k-state-focused.k-state-selected
     border-color: @hover-border-color;
 }
 
-.k-ie7 .k-window-titlebar .k-state-hover,
 .k-ie8 .k-window-titlebar .k-state-hover
 {
     border-color: @hover-border-color;
@@ -1392,6 +1367,10 @@ div.k-filebrowser-dropzone em
     background-color: darken(@alt-background-color, 10%);
 }
 
+.k-gantt .k-treelist tr:hover {
+    background-color: @hover-background;
+}
+
 .k-gantt .k-treelist .k-state-selected,
 .k-gantt .k-treelist .k-state-selected td,
 .k-gantt .k-treelist .k-alt.k-state-selected,
@@ -1539,8 +1518,12 @@ div.k-filebrowser-dropzone em
     border-radius: 0 @main-border-radius @main-border-radius 0;
 }
 
+.k-toolbar .k-button-group > .k-group-end {
+    border-radius: @main-border-radius;
+}
+
 .k-tool.k-group-end,
-.k-toolbar .k-button-group .k-group-end,
+.k-toolbar .k-button-group .k-button + .k-group-end,
 .k-toolbar .k-split-button .k-split-button-arrow
 {
     border-radius: 0 @main-border-radius @main-border-radius 0;
@@ -1905,6 +1888,16 @@ html .km-pane-wrapper .km-widget,
     background-color: darken(red, 20);
 }
 
+.km-pane-wrapper .k-pager-numbers .k-link,
+.km-pane-wrapper .k-pager-numbers .k-state-selected,
+.km-pane-wrapper .k-pager-wrap > .k-link {
+    border-radius: 0;
+}
+
+.km-pane-wrapper .k-pager-nav.k-pager-first {
+    border-radius: 4px 0 0 4px;
+}
+
 /* /Column Menu */
 
 .k-autocomplete.k-state-default,
@@ -1997,27 +1990,24 @@ html .km-pane-wrapper .km-widget,
     color: @hover-text-color;
 }
 
-.k-panelbar .k-state-focused.k-state-hover
+.k-panelbar > .k-state-focused.k-state-hover
 {
     background: @hover-background-color;
 	.box-shadow(none);
 }
 
-.k-tabstrip-items .k-state-default,
-.k-ie7 .k-tabstrip-items .k-state-default .k-loading
+.k-tabstrip-items .k-state-default
 {
     border-color: @tabstrip-items-border;
 }
 
-.k-tabstrip-items .k-state-hover,
-.k-ie7 .k-tabstrip-items .k-state-hover .k-loading
+.k-tabstrip-items .k-state-hover
 {
     border-color: @hover-border-color;
 }
 
 .k-tabstrip-items .k-state-active,
-.k-panelbar .k-tabstrip-items .k-state-active,
-.k-ie7 .k-tabstrip-items .k-state-active .k-loading
+.k-panelbar .k-tabstrip-items .k-state-active
 {
     background-color: @active-background-color;
     .composite-background(@active-gradient);
@@ -2089,9 +2079,28 @@ html .km-pane-wrapper .km-widget,
     color: @secondary-text-color;
 }
 
+.k-grid tr:hover {
+    background-color: @hover-background;
+}
+
 .k-grid td.k-state-focused
 {
     box-shadow: inset 0 0 0 1px @focused-item-shadow;
+}
+
+.k-grid tr:hover .k-state-focused,
+.k-grid tr.k-state-focused:hover td {
+    background-color: lighten(@selected-background-color, 37%);
+}
+
+.k-grid tr:hover .k-state-selected,
+.k-grid tr.k-state-selected:hover td {
+    background-color: darken(@selected-background-color, 7%);
+}
+
+.k-grid tr:hover .k-state-focused.k-state-selected,
+.k-grid tr.k-state-selected:hover td.k-state-focused {
+    box-shadow: inset 0 0 7px 0 darken(@accent, 30%);
 }
 
 .k-header,
@@ -2209,136 +2218,8 @@ html .km-pane-wrapper .km-widget,
    .box-shadow(@button-focused-shadow);
 }
 
-.k-checkbox-label:before {
-   border-color: @checkbox-border-color-before;
-   border-radius: @checkbox-border-radius-before;
-}
-
-.k-checkbox-label:after{
-  border-color: @checkbox-border-color-after;
-  background: @checkbox-background-color;
-  border-radius: @checkbox-border-radius-before;
-}
-
-.k-checkbox-label:hover:after,
-.k-checkbox:checked + .k-checkbox-label:hover:after  {
-   border-color: @checkbox-hover-border-color;
-   box-shadow: @checkbox-hover-box-shadow;
-}
-
-.k-checkbox:checked + .k-checkbox-label:after {
-  background-color: @checkbox-checked-background-color-after;
-  border-color: @checkbox-checked-border-color-after; 
-  border-radius: @checkbox-checked-border-radius-after;
-  color: @checkbox-checked-color-after;
-}
-
-.k-checkbox-label:active:before {
-   box-shadow: @checkbox-active-box-shadow;
-   border-color: @checkbox-active-border-color-before;
-   border-radius: @checkbox-active-border-radius;
-}
-
-.k-checkbox-label:active:after {
-   border-color: @checkbox-active-border-color-after;
-   border-radius: @checkbox-active-border-radius-after;
-}
-
-.k-checkbox:checked + .k-checkbox-label:active:after {
-    border-color: @checkbox-active-border-color-after;
-}   
-
-.k-checkbox:checked + .k-checkbox-label:active:before {
- box-shadow: @checkbox-checked-active-box-shadow;
- border-radius: @checkbox-checked-active-border-radius-before; 
-}
-
-.k-checkbox:disabled + .k-checkbox-label {
-   color: @checkbox-disabled-color;
-}
-
-.k-checkbox:disabled + .k-checkbox-label:hover:after,
-.k-checkbox:disabled + .k-checkbox-label:active:before {
-  box-shadow: @checkbox-disabled-box-shadow;
-}
-
-.k-checkbox:checked:disabled + .k-checkbox-label:after {
-    background: @checkbox-disabled-background-color-after;
-    color: @checkbox-checked-disabled-color-after;
-}
-
- 
-.k-checkbox:disabled + .k-checkbox-label:after,
-.k-checkbox:checked:disabled + .k-checkbox-label:active:after,
-.k-checkbox:disabled + .k-checkbox-label:hover:before,
-.k-checkbox:checked:disabled + .k-checkbox-label:hover:after  {
-    background: @checkbox-disabled-background-color-after;
-    border-color: @checkbox-disabled-border-color-before;
-    border-radius: @checkbox-border-radius-before;
-}
-
-//Radio buttons
-.k-radio-label:before {  
-  border-color: @radio-border-color-before;
-  border-radius: 50%;
-  background-color: @radio-background-color;
-  border-width: @radio-border-width-before;
-}
-
-.k-radio-label:hover:before,
-.k-radio:checked + .k-radio-label:hover:before  {
-   border-color: @radio-hover-border-color;
-   box-shadow: @radio-hover-box-shadow;
-}
-
-.k-radio:checked + .k-radio-label:before {
-   border-color: @radio-checked-border-color-before;
-}
-
-.k-radio:checked + .k-radio-label:after {
-  background-color: @radio-checked-background-color-after;
-  border-radius: 50%; 
-}
-
-.k-radio-label:active:before {
-  box-shadow: @radio-active-box-shadow; 
-  border-radius: 50%;
-  border-color: @radio-active-border-color-before;
-}
-
-.k-radio:checked + .k-radio-label:active:before {
-  box-shadow: @radio-checked-active-box-shadow; 
-  border-radius: 50%;
-  border-color: @radio-checked-active-border-color-before;
-}
-
-.k-radio:disabled + .k-radio-label {
-   color: @radio-disabled-color;
-}
-
-.k-radio:disabled + .k-radio-label:before {       
-   border-color: #bfbfbf;
-}
-
-.k-radio:disabled + .k-radio-label:active:before {
-  box-shadow: @radio-disabled-box-shadow;
-  background: @radio-disabled-background-color-before;
-}
-
-.k-radio:disabled + .k-radio-label:before {
-    background: @radio-disabled-background-color-after;
-}
-
-.k-radio:disabled + .k-radio-label:hover:after,
-.k-radio:disabled + .k-radio-label:hover:before {
-  box-shadow: @radio-disabled-box-shadow;
-}
-
-.k-checkbox:focus + .k-checkbox-label:after,
-.k-radio:focus + .k-radio-label:before {
-  border-color: @checkbox-active-border-color-after;
-  box-shadow: @checkbox-active-box-shadow;
-}
+@import "themes/checkbox.less";
+@import "themes/radiobutton.less";
 
 // Retina sprite
 @media only screen and (-webkit-min-device-pixel-ratio: 2),
@@ -2385,74 +2266,6 @@ html .km-pane-wrapper .km-widget,
     .k-editor-toolbar-wrap .k-button-group .k-tool:focus {
         border-color: #fff;
     }
-}
-
-//ThemeBuilder Checkboxes / Radio buttons rules
-.ktb-checkbox-label-after {
-    border-color: @checkbox-border-color-after;
-    background: @checkbox-background-color;
-}
-
-.ktb-checkbox-label-hover-after,
-.ktb-checkbox-checked + .ktb-checkbox-label-hover-after {
-    border-color: @checkbox-hover-border-color;
-}
-
-.ktb-checkbox-checked + .ktb-checkbox-label-after {
-   background-color: @checkbox-checked-background-color-after;
-   border-color: @checkbox-checked-border-color-after; 
-   color: @checkbox-checked-color-after;
-}
-
-.ktb-checkbox-label-hover-after,
-.ktb-checkbox-checked + .ktb-checkbox-label-hover-after  {
-   border-color: @checkbox-hover-border-color;
-}
-
-.ktb-checkbox-label-active-after {
-   border-color: @checkbox-active-border-color-after;
-}
-
-.ktb-checkbox-checked-disabled + .ktb-checkbox-label-after,
-.ktb-checkbox-disabled + .ktb-checkbox-label-after,
-.ktb-checkbox-checked-disabled + .ktb-checkbox-label-active-after,
-.ktb-checkbox-disabled + .ktb-checkbox-label-hover-before,
-.ktb-checkbox-checked-disabled + .ktb-checkbox-label-hover-after  {
-    background: @checkbox-disabled-background-color-after;
-    color: @checkbox-checked-disabled-color-after;
-    border-color: @checkbox-disabled-border-color-before;
-}
-
-.ktb-radio-label-before {  
-   border-color: @radio-border-color-before;
-   background-color: @radio-background-color;
-}
-
-.ktb-radio-checked + .ktb-radio-label-after {
-    background-color: @radio-checked-background-color-after;
-}
-
-.ktb-radio-checked + .ktb-radio-label-before {
-    border-color: @radio-checked-border-color-before;
-}
-
-.ktb-radio-label-hover-before,
-.ktb-radio-checked + .ktb-radio-label-hover-before  {
-    border-color: @radio-hover-border-color;
-}
-
-.ktb-radio-label-active-before {
-   border-color: @radio-active-border-color-before;
-}
-
-.ktb-radio-checked + .ktb-radio-label-after {
-   background-color: @radio-checked-background-color-after;
-}
-
-.ktb-radio-disabled + .ktb-radio-label-before,
-.ktb-radio-disabled + .ktb-radio-label-active-before {
-    background: @radio-disabled-background-color-after;
-    border-color: @checkbox-disabled-border-color-before;
 }
 
 /* Responsive styles */
@@ -2660,8 +2473,7 @@ thead.k-grid-header th.k-header:last-child
     .box-shadow(@focused-shadow);
 }
 
-.k-tabstrip-items .k-state-default.k-state-hover,
-.k-ie7 .k-tabstrip-items .k-state-default .k-loading
+.k-tabstrip-items .k-state-default.k-state-hover
 {
     border-color: @hover-background-color;
 }
@@ -2856,7 +2668,7 @@ thead.k-grid-header th.k-header:last-child
     color: @widget-text-color;
 }
 
-.k-panelbar .k-state-focused
+.k-panelbar > .k-state-focused
 {
     .box-shadow(inset @focused-shadow);
 }
@@ -2877,7 +2689,6 @@ thead.k-grid-header th.k-header:last-child
     color: @hover-text-color;
 }
 
-.k-panelbar .k-state-focused.k-state-selected,
 td.k-state-focused.k-state-selected,
 .k-state-selected td.k-state-focused,
 .k-listview>.k-state-focused.k-state-selected
@@ -2885,10 +2696,14 @@ td.k-state-focused.k-state-selected,
     .box-shadow(@focused-active-item-shadow);
 }
 
-.k-panelbar .k-state-focused.k-state-hover
+.k-panelbar > .k-state-focused.k-state-hover
 {
     background: @hover-background-color;
 	.box-shadow(none);
+}
+
+.k-panelbar > li .k-state-selected.k-state-hover {
+    .box-shadow(none);
 }
 
 .k-pager-wrap
@@ -3161,6 +2976,7 @@ td.k-state-focused.k-state-selected,
             overflow: visible;
             height: auto;
             transform: translatey(-100%);
+            -webkit-transform: translatey(-100%);
         }
         
         .km-pane-wrapper .k-pager-numbers .k-link,
@@ -3169,6 +2985,12 @@ td.k-state-focused.k-state-selected,
         .km-pane-wrapper .k-pager-wrap > .k-pager-info {
             padding-top: 0;
             padding-bottom: 0;
+        }
+        
+        .km-pane-wrapper .k-pager-wrap .k-pager-numbers + .k-pager-nav,
+        .km-pane-wrapper .k-pager-nav:first-child + .k-pager-nav + .k-pager-nav
+        {
+            right: 2.7em;
         }
         
         .k-rtl .k-pager-numbers,
@@ -3185,6 +3007,7 @@ td.k-state-focused.k-state-selected,
             display: block;
             border-left: 0;
             transform: translatey(100%);
+            -webkit-transform: translatey(100%);
         }
         
         .k-pager-numbers li:not(.k-current-page)
@@ -3211,6 +3034,7 @@ td.k-state-focused.k-state-selected,
             border-radius: 0 @main-border-radius @main-border-radius 0;
         }
         
+        .k-pager-nav.k-pager-first,
         .k-rtl .k-pager-nav.k-pager-first + .k-link {
             border-right: 0;
             border-radius: @main-border-radius 0 0 @main-border-radius;

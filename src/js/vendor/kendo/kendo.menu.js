@@ -1250,6 +1250,7 @@ var __meta__ = { // jshint ignore:line
                 if (that._triggerEvent({ item: that.element, type: OPEN }) === false) {
                     if (that.popup.visible() && that.options.filter) {
                         that.popup.close(true);
+                        that.popup.element.kendoStop(true);
                     }
 
                     if (y !== undefined) {
@@ -1257,6 +1258,7 @@ var __meta__ = { // jshint ignore:line
                         that.popup.open(x, y);
                     } else {
                         that.popup.options.anchor = (x ? x : that.popup.anchor) || that.target;
+                        that.popup.element.kendoStop(true);
                         that.popup.open();
                     }
 
@@ -1309,6 +1311,7 @@ var __meta__ = { // jshint ignore:line
 
             if ((options.filter && kendo.support.matchesSelector.call(ev.currentTarget, options.filter)) || !options.filter) {
                 if (options.alignToAnchor) {
+                    that.popup.options.anchor = ev.currentTarget;
                     that.open(ev.currentTarget);
                 } else {
                     that.popup.options.anchor = ev.currentTarget;
@@ -1409,4 +1412,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

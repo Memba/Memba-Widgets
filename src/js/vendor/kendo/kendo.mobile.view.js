@@ -317,7 +317,7 @@ var __meta__ = { // jshint ignore:line
 
             if (this.options.$angular) {
                 controller = this.element.controller();
-                scope = this.element.scope();
+                scope = this.options.$angular[0];
 
                 if (controller) {
                     var callback = $.proxy(this, '_callController', controller, scope);
@@ -714,4 +714,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

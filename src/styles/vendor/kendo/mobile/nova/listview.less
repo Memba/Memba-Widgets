@@ -4,9 +4,9 @@
 
 @font-face {
     font-family: "Kendo UI";
-    src: url("images/kendoui.woff?v=1.1") format("woff"),
-         url("images/kendoui.ttf?v=1.1") format("truetype"),
-         url("images/kendoui.svg#kendoui") format("svg");
+    src: url("../images/kendoui.woff?v=1.1") format("woff"),
+         url("../images/kendoui.ttf?v=1.1") format("truetype"),
+         url("../images/kendoui.svg#kendoui") format("svg");
 }
 
 /* ListView */
@@ -102,6 +102,10 @@
     transform: translateY(-50%);
     -webkit-transform: translateY(-50%);
     right: 4em;
+}
+
+.km-nova li.km-state-active {
+    background: @selected-background;
 }
 
 /* Filter box */

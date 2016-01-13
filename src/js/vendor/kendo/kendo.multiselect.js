@@ -125,20 +125,6 @@ var __meta__ = { // jshint ignore:line
             kendo.notify(that);
         },
 
-        _preselect: function(data, value) {
-            var that = this;
-
-            if (!isArray(data) && !(data instanceof kendo.data.ObservableArray)) {
-                data = [data];
-            }
-
-            if ($.isPlainObject(data[0]) || data[0] instanceof kendo.data.ObservableObject || !that.options.dataValueField) {
-                that.dataSource.data(data);
-                that.value(value || that._initialValues);
-                that._retrieveData = true;
-            }
-        },
-
         options: {
             name: "MultiSelect",
             tagMode: "multiple",
@@ -157,6 +143,7 @@ var __meta__ = { // jshint ignore:line
             placeholder: "",
             height: 200,
             animation: {},
+            virtual: false,
             itemTemplate: "",
             tagTemplate: "",
             groupTemplate: "#:data#",
@@ -189,8 +176,6 @@ var __meta__ = { // jshint ignore:line
             var listOptions = this._listOptions(options);
 
             List.fn.setOptions.call(this, options);
-
-            this._normalizeOptions(listOptions);
 
             this.listView.setOptions(listOptions);
 
@@ -247,54 +232,27 @@ var __meta__ = { // jshint ignore:line
             this.currentTag(null);
         },
 
-        _normalizeOptions: function(options) {
+        _listOptions: function(options) {
+            var that = this;
+            var listOptions = List.fn._listOptions.call(that, $.extend(options, {
+                selectedItemChange: proxy(that._selectedItemChange, that),
+                selectable: "multiple"
+            }));
+
             var itemTemplate = this.options.itemTemplate || this.options.template;
-            var template = options.itemTemplate || itemTemplate || options.template;
+            var template = listOptions.itemTemplate || itemTemplate || listOptions.template;
 
             if (!template) {
-                template = "#:" + kendo.expr(options.dataTextField, "data") + "#";
+                template = "#:" + kendo.expr(listOptions.dataTextField, "data") + "#";
             }
 
-            options.template = template;
+            listOptions.template = template;
+
+            return listOptions;
         },
 
-        _initList: function() {
-            var that = this;
-            var virtual = that.options.virtual;
-            var hasVirtual = !!virtual;
-
-            var listBoundHandler = proxy(that._listBound, that);
-
-            var listOptions = {
-                autoBind: false,
-                selectable: "multiple",
-                dataSource: that.dataSource,
-                click: proxy(that._click, that),
-                change: proxy(that._listChange, that),
-                activate: proxy(that._activateItem, that),
-                deactivate: proxy(that._deactivateItem, that),
-                dataBinding: function() {
-                    that.trigger("dataBinding");
-                    that._angularItems("cleanup");
-                },
-                dataBound: listBoundHandler,
-                listBound: listBoundHandler,
-                selectedItemChange: proxy(that._selectedItemChange, that)
-            };
-
-            listOptions = $.extend(that._listOptions(), listOptions, typeof virtual === "object" ? virtual : {});
-
-            that._normalizeOptions(listOptions);
-
-            if (!hasVirtual) {
-                that.listView = new kendo.ui.StaticList(that.ul, listOptions);
-            } else {
-                that.listView = new kendo.ui.VirtualList(that.ul, listOptions);
-            }
-
-            that.listView.bind("click", function(e) { e.preventDefault(); });
-
-            that.listView.value(that._initialValues || that.options.value);
+        _setListValue: function() {
+            List.fn._setListValue.call(this, this._initialValues.slice(0));
         },
 
         _listChange: function(e) {
@@ -360,7 +318,6 @@ var __meta__ = { // jshint ignore:line
 
             if (that._state === FILTER) {
                 that._state = ACCEPT;
-                that.listView.filter(false);
                 that.listView.skipUpdate(true);
             }
 
@@ -455,6 +412,14 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
+        _filterSource: function(filter, force) {
+            if(!force) {
+                force = this._retrieveData;
+            }
+            this._retrieveData = false;
+            List.fn._filterSource.call(this, filter, force);
+        },
+
         close: function() {
             this.popup.close();
         },
@@ -466,12 +431,10 @@ var __meta__ = { // jshint ignore:line
                 that._retrieveData = false;
             }
 
-            if (that._retrieveData || !that.listView.isBound() || that._state === ACCEPT) {
+            if (that._retrieveData || !that.listView.bound() || that._state === ACCEPT) {
                 that._open = true;
                 that._state = REBIND;
-                that._retrieveData = false;
 
-                that.listView.filter(false);
                 that.listView.skipUpdate(true);
 
                 that._filterSource();
@@ -494,14 +457,14 @@ var __meta__ = { // jshint ignore:line
         _listBound: function() {
             var that = this;
             var data = that.dataSource.flatView();
-            var page = that.dataSource.page();
+            var skip = that.listView.skip();
             var length = data.length;
 
             that._angularItems("compile");
 
             that._render(data);
 
-            that._calculateGroupPadding(that._height(length));
+            that._resizePopup();
 
             if (that._open) {
                 that._open = false;
@@ -510,7 +473,7 @@ var __meta__ = { // jshint ignore:line
 
             that.popup.position();
 
-            if (that.options.highlightFirst && (page === undefined || page === 1)) {
+            if (that.options.highlightFirst && (skip === undefined || skip === 0)) {
                 that.listView.focusFirst();
             }
 
@@ -545,7 +508,6 @@ var __meta__ = { // jshint ignore:line
             length = word.length;
 
             if (!length || length >= options.minLength) {
-                that.listView.filter(true);
                 that._state = FILTER;
                 that._open = true;
 
@@ -556,15 +518,16 @@ var __meta__ = { // jshint ignore:line
                     ignoreCase: ignoreCase
                 };
 
-                that._filterSource(expression, that._retrieveData);
-                that._retrieveData = false;
+                that._filterSource(expression);
             }
         },
 
         value: function(value) {
             var that = this;
-            var oldValue = that.listView.value().slice();
+            var listView = that.listView;
+            var oldValue = listView.value().slice();
             var maxSelectedItems = that.options.maxSelectedItems;
+            var clearFilters = listView.bound() && listView.isFiltered();
 
             if (value === undefined) {
                 return oldValue;
@@ -576,11 +539,31 @@ var __meta__ = { // jshint ignore:line
                 value = value.slice(0, maxSelectedItems);
             }
 
-            that.listView.value(value);
+            if (clearFilters) {
+                listView.bound(false);
+                that._filterSource();
+            }
 
+            listView.value(value);
             that._old = value;
 
-            that._fetchData();
+            if (!clearFilters) {
+                that._fetchData();
+            }
+        },
+
+        _preselect: function(data, value) {
+            var that = this;
+
+            if (!isArray(data) && !(data instanceof kendo.data.ObservableArray)) {
+                data = [data];
+            }
+
+            if ($.isPlainObject(data[0]) || data[0] instanceof kendo.data.ObservableObject || !that.options.dataValueField) {
+                that.dataSource.data(data);
+                that.value(value || that._initialValues);
+                that._retrieveData = true;
+            }
         },
 
         _setOption: function(value, selected) {
@@ -615,6 +598,10 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
+        _isBound: function() {
+            return this.listView.bound() && !this._retrieveData;
+        },
+
         _dataSource: function() {
             var that = this,
                 element = that.element,
@@ -631,10 +618,12 @@ var __meta__ = { // jshint ignore:line
                 that._unbindDataSource();
             } else {
                 that._progressHandler = proxy(that._showBusy, that);
+                that._errorHandler = proxy(that._hideBusy, that);
             }
 
             that.dataSource = kendo.data.DataSource.create(dataSource)
-                                   .bind(PROGRESS, that._progressHandler);
+                                   .bind(PROGRESS, that._progressHandler)
+                                   .bind("error", that._errorHandler);
         },
 
         _reset: function() {
@@ -693,6 +682,8 @@ var __meta__ = { // jshint ignore:line
 
         _click: function(e) {
             var item = e.item;
+
+            e.preventDefault();
 
             if (this.trigger(SELECT, { item: item })) {
                 this._close();
@@ -1088,7 +1079,6 @@ var __meta__ = { // jshint ignore:line
 
             if (that._state === FILTER) {
                 that._state = ACCEPT;
-                that.listView.filter(false);
                 that.listView.skipUpdate(true);
             }
         },
@@ -1209,4 +1199,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

@@ -61,6 +61,7 @@ var __meta__ = { // jshint ignore:line
             element = that.element;
             options = that.options;
 
+            options.disableDates = kendo.calendar.disabled(options.disableDates);
             options.min = parse(element.attr("min")) || parse(options.min);
             options.max = parse(element.attr("max")) || parse(options.max);
 
@@ -318,21 +319,28 @@ var __meta__ = { // jshint ignore:line
         },
 
         _change: function(value) {
-            var that = this;
+            var that = this,
+            oldValue = that.element.val(),
+            dateChanged;
 
             value = that._update(value);
+            dateChanged = +that._old != +value;
 
-            if (+that._old != +value) {
+            var valueUpdated = dateChanged && !that._typing;
+            var textFormatted = oldValue !== that.element.val();
+
+            if (valueUpdated || textFormatted) {
+                that.element.trigger(CHANGE);
+            }
+
+            if (dateChanged) {
                 that._old = value;
                 that._oldText = that.element.val();
 
                 that.trigger(CHANGE);
-
-                if (!that._typing) {
-                    // trigger the DOM change event so any subscriber gets notified
-                    that.element.trigger(CHANGE);
-                }
             }
+
+            that._typing = false;
         },
 
         _option: function(option, value) {
@@ -407,11 +415,19 @@ var __meta__ = { // jshint ignore:line
                 isSameType = (date === null && current === null) || (date instanceof Date && current instanceof Date),
                 rebind, timeViewOptions, old, skip, formattedValue;
 
+            if (options.disableDates && options.disableDates(date)) {
+                date = null;
+                if (!that._old) {
+                    value = null;
+                }
+            }
+
             if (+date === +current && isSameType) {
                 formattedValue = kendo.toString(date, options.format, options.culture);
 
                 if (formattedValue !== value) {
                     that.element.val(date === null ? value : formattedValue);
+                    that.element.trigger(CHANGE);
                 }
 
                 return date;
@@ -524,6 +540,10 @@ var __meta__ = { // jshint ignore:line
                         if (isInRange(current, msMin, msMax)) {
                             value = current;
                         }
+                    }
+
+                    if (that._value) {
+                        value = kendo.date.setHours(new Date(value), that._value);
                     }
 
                     that._change(value);
@@ -742,7 +762,7 @@ var __meta__ = { // jshint ignore:line
         options.format = extractFormat(options.format || patterns.g);
         options.timeFormat = timeFormat = extractFormat(options.timeFormat || patterns.t);
         kendo.DateView.normalize(options);
-        
+
         if (parseFormats) {
            options.parseFormats.unshift("yyyy-MM-ddTHH:mm:ss");
         }
@@ -758,4 +778,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

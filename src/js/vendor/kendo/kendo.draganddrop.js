@@ -332,10 +332,16 @@ var __meta__ = { // jshint ignore:line
                 movable: movable
             });
 
-            that.userEvents.bind(["move", "end", "gesturestart", "gesturechange"], {
+            that.userEvents.bind(["press", "move", "end", "gesturestart", "gesturechange"], {
                 gesturestart: function(e) {
                     that.gesture = e;
                     that.offset = that.dimensions.container.offset();
+                },
+
+                press: function(e) {
+                    if ($(e.event.target).closest("a").is("[data-navigate-on-press=true]")) {
+                        e.sender.cancel();
+                    }
                 },
 
                 gesturechange: function(e) {
@@ -790,13 +796,42 @@ var __meta__ = { // jshint ignore:line
         },
 
         _drag: function(e) {
-            var that = this;
-
             e.preventDefault();
 
             var cursorElement = this._elementUnderCursor(e);
+            this._lastEvent = e;
+            this._processMovement(e, cursorElement);
 
-            that._withDropTarget(cursorElement, function(target, targetElement) {
+            if (this.options.autoScroll) {
+                if (this._cursorElement !== cursorElement) {
+                    this._scrollableParent = findScrollableParent(cursorElement);
+                    this._cursorElement = cursorElement;
+                }
+
+                // chrome seems to trigger mousemove when mouse is moved outside of the window (over the Chrome), too.
+                if (this._scrollableParent[0]) {
+                    var velocity = autoScrollVelocity(e.x.location, e.y.location, scrollableViewPort(this._scrollableParent));
+
+
+                    this._scrollCompenstation = $.extend({}, this.hintOffset);
+                    this._scrollVelocity = velocity;
+
+                    if (velocity.y === 0 && velocity.x === 0) {
+                        clearInterval(this._scrollInterval);
+                        this._scrollInterval = null;
+                    } else if(!this._scrollInterval) {
+                        this._scrollInterval = setInterval($.proxy(this, "_autoScroll"), 50);
+                    }
+                }
+            }
+
+            if (this.hint) {
+                this._updateHint(e);
+            }
+        },
+
+        _processMovement: function(e, cursorElement) {
+            this._withDropTarget(cursorElement, function(target, targetElement) {
                 if (!target) {
                     if (lastDropTarget) {
                         lastDropTarget._trigger(DRAGLEAVE, extend(e, { dropTarget: $(lastDropTarget.targetElement) }));
@@ -817,33 +852,7 @@ var __meta__ = { // jshint ignore:line
                 lastDropTarget = extend(target, { targetElement: targetElement });
             });
 
-            that._trigger(DRAG, extend(e, { dropTarget: lastDropTarget, elementUnderCursor: cursorElement }));
-
-            if (this.options.autoScroll) {
-                if (this._cursorElement !== cursorElement) {
-                    this._scrollableParent = findScrollableParent(cursorElement);
-                    this._cursorElement = cursorElement;
-                }
-
-                // chrome seems to trigger mousemove when mouse is moved outside of the window (over the Chrome), too.
-                if (this._scrollableParent[0]) {
-                    var velocity = autoScrollVelocity(e.x.location, e.y.location, scrollableViewPort(this._scrollableParent));
-
-                    this._scrollCompenstation = $.extend({}, this.hintOffset);
-                    this._scrollVelocity = velocity;
-
-                    if (velocity.y === 0 && velocity.x === 0) {
-                        clearInterval(this._scrollInterval);
-                        this._scrollInterval = null;
-                    } else if(!this._scrollInterval) {
-                        this._scrollInterval = setInterval($.proxy(this, "_autoScroll"), 50);
-                    }
-                }
-            }
-
-            if (that.hint) {
-                that._updateHint(e);
-            }
+            this._trigger(DRAG, extend(e, { dropTarget: lastDropTarget, elementUnderCursor: cursorElement }));
         },
 
         _autoScroll: function() {
@@ -855,12 +864,16 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            var yIsScrollable, xIsScrollable;
-            var isBody = parent === document.body;
+            var cursorElement = this._elementUnderCursor(this._lastEvent);
+            this._processMovement(this._lastEvent, cursorElement);
 
-            if (isBody) {
-                yIsScrollable = document.body.offsetHeight > $window.height();
-                xIsScrollable = document.body.offsetWidth > $window.width();
+            var yIsScrollable, xIsScrollable;
+
+            var isRootNode = parent === scrollableRoot()[0];
+
+            if (isRootNode) {
+                yIsScrollable = document.body.scrollHeight > $window.height();
+                xIsScrollable = document.body.scrollWidth > $window.width();
             } else {
                 yIsScrollable = parent.offsetHeight <= parent.scrollHeight;
                 xIsScrollable = parent.offsetWidth <= parent.scrollWidth;
@@ -880,7 +893,7 @@ var __meta__ = { // jshint ignore:line
                 parent.scrollLeft += velocity.x;
             }
 
-            if (isBody && (xInBounds || yInBounds)) {
+            if (isRootNode && (xInBounds || yInBounds)) {
                 if (yInBounds) {
                     compensation.top += velocity.y;
                 }
@@ -908,6 +921,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             that._scrollableParent = null;
+            this._cursorElement = null;
             clearInterval(this._scrollInterval);
             that._activated = false;
 
@@ -1023,14 +1037,14 @@ var __meta__ = { // jshint ignore:line
     });
 
     function scrollableViewPort(element) {
-        var body = document.body,
+        var root = scrollableRoot()[0],
             offset,
             top,
             left;
 
-        if (element[0] === body) {
-            top = body.scrollTop;
-            left = body.scrollLeft;
+        if (element[0] === root) {
+            top = root.scrollTop;
+            left = root.scrollLeft;
 
             return {
                 top: top,
@@ -1046,19 +1060,25 @@ var __meta__ = { // jshint ignore:line
         }
     }
 
-    function isRootNode(element) {
-        return element === document.body || element === document.documentElement || element === document;
+    function scrollableRoot() {
+        return $(kendo.support.browser.chrome ? document.body : document.documentElement);
     }
 
     function findScrollableParent(element) {
-        if (!element || isRootNode(element)) {
-            return $(document.body);
+        var root = scrollableRoot();
+
+        if (!element || element === document.body || element === document.documentElement) {
+            return root;
         }
 
         var parent = $(element)[0];
 
-        while (!kendo.isScrollable(parent) && !isRootNode(parent)) {
+        while (parent && !kendo.isScrollable(parent) && parent !== document.body) {
             parent = parent.parentNode;
+        }
+
+        if (parent === document.body) {
+            return root;
         }
 
         return $(parent);
@@ -1095,4 +1115,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

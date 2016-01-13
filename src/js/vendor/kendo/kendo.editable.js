@@ -260,6 +260,10 @@ var __meta__ = { // jshint ignore:line
             kendo.destroy(that.element);
 
             that.element.removeData("kendoValidator");
+
+            if (that.element.is("[" + kendo.attr("role") + "=editable]")) {
+                that.element.removeAttr(kendo.attr("role"));
+            }
         },
 
         refresh: function() {
@@ -335,4 +339,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

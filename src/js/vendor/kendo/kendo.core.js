@@ -1,5 +1,5 @@
 (function(f, define){
-    define([], f);
+    define(['jquery'], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -34,10 +34,9 @@ var __meta__ = { // jshint ignore:line
         UNDEFINED = "undefined",
         getterCache = {},
         setterCache = {},
-        slice = [].slice,
-        globalize = window.Globalize;
+        slice = [].slice;
 
-    kendo.version = "$KENDO_VERSION";
+    kendo.version = "$KENDO_VERSION".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -557,12 +556,6 @@ function pad(number, digits, end) {
         return culture || kendo.cultures.current;
     }
 
-    function expandNumberFormat(numberFormat) {
-        numberFormat.groupSizes = numberFormat.groupSize;
-        numberFormat.percent.groupSizes = numberFormat.percent.groupSize;
-        numberFormat.currency.groupSizes = numberFormat.currency.groupSize;
-    }
-
     kendo.culture = function(cultureName) {
         var cultures = kendo.cultures, culture;
 
@@ -570,11 +563,6 @@ function pad(number, digits, end) {
             culture = findCulture(cultureName) || cultures[EN];
             culture.calendar = culture.calendars.standard;
             cultures.current = culture;
-
-            if (globalize && !globalize.load) {
-                expandNumberFormat(culture.numberFormat);
-            }
-
         } else {
             return cultures.current;
         }
@@ -674,8 +662,6 @@ function pad(number, digits, end) {
         culture = getCulture(culture);
 
         var numberFormat = culture.numberFormat,
-            groupSize = numberFormat.groupSize[0],
-            groupSeparator = numberFormat[COMMA],
             decimal = numberFormat[POINT],
             precision = numberFormat.decimals,
             pattern = numberFormat.pattern[0],
@@ -732,8 +718,6 @@ function pad(number, digits, end) {
             if (isCurrency || isPercent) {
                 //get specific number format information if format is currency or percent
                 numberFormat = isCurrency ? numberFormat.currency : numberFormat.percent;
-                groupSize = numberFormat.groupSize[0];
-                groupSeparator = numberFormat[COMMA];
                 decimal = numberFormat[POINT];
                 precision = numberFormat.decimals;
                 symbol = numberFormat.symbol;
@@ -768,19 +752,7 @@ function pad(number, digits, end) {
                 integer = integer.substring(1);
             }
 
-            value = integer;
-            integerLength = integer.length;
-
-            //add group separator to the number if it is longer enough
-            if (integerLength >= groupSize) {
-                value = EMPTY;
-                for (idx = 0; idx < integerLength; idx++) {
-                    if (idx > 0 && (integerLength - idx) % groupSize === 0) {
-                        value += groupSeparator;
-                    }
-                    value += integer.charAt(idx);
-                }
-            }
+            value = groupInteger(integer, 0, integer.length, numberFormat);
 
             if (fraction) {
                 value += decimal + fraction;
@@ -862,8 +834,6 @@ function pad(number, digits, end) {
         if (isCurrency || isPercent) {
             //get specific number format information if format is currency or percent
             numberFormat = isCurrency ? numberFormat.currency : numberFormat.percent;
-            groupSize = numberFormat.groupSize[0];
-            groupSeparator = numberFormat[COMMA];
             decimal = numberFormat[POINT];
             precision = numberFormat.decimals;
             symbol = numberFormat.symbol;
@@ -953,23 +923,6 @@ function pad(number, digits, end) {
                 negative = false;
             }
 
-            //add group separator to the number if it is longer enough
-            if (hasGroup) {
-                if (integerLength === groupSize && integerLength < decimalIndex - startZeroIndex) {
-                    integer = groupSeparator + integer;
-                } else if (integerLength > groupSize) {
-                    value = EMPTY;
-                    for (idx = 0; idx < integerLength; idx++) {
-                        if (idx > 0 && (integerLength - idx) % groupSize === 0) {
-                            value += groupSeparator;
-                        }
-                        value += integer.charAt(idx);
-                    }
-
-                    integer = value;
-                }
-            }
-
             number = format.substring(0, start);
 
             if (negative && !hasNegativeFormat) {
@@ -1009,6 +962,10 @@ function pad(number, digits, end) {
                 }
             }
 
+            if (hasGroup) {
+                number = groupInteger(number, start, end, numberFormat);
+            }
+
             if (end >= start) {
                 number += format.substring(end + 1);
             }
@@ -1035,6 +992,45 @@ function pad(number, digits, end) {
         return number;
     }
 
+    var groupInteger = function(number, start, end, numberFormat) {
+        var decimalIndex = number.indexOf(numberFormat[POINT]);
+        var groupSizes = numberFormat.groupSize.slice();
+        var groupSize = groupSizes.shift();
+        var integer, integerLength;
+        var idx, parts, value;
+        var newGroupSize;
+
+        end = decimalIndex !== -1 ? decimalIndex : end + 1;
+
+        integer = number.substring(start, end);
+        integerLength = integer.length;
+
+        if (integerLength >= groupSize) {
+            idx = integerLength;
+            parts = [];
+
+            while (idx > -1) {
+                value = integer.substring(idx - groupSize, idx);
+                if (value) {
+                    parts.push(value);
+                }
+                idx -= groupSize;
+                newGroupSize = groupSizes.shift();
+                groupSize = newGroupSize !== undefined ? newGroupSize : groupSize;
+
+                if (groupSize === 0) {
+                    parts.push(integer.substring(0, idx));
+                    break;
+                }
+            }
+
+            integer = parts.reverse().join(numberFormat[COMMA]);
+            number = number.substring(0, start) + integer + number.substring(end);
+        }
+
+        return number;
+    };
+
     var round = function(value, precision) {
         precision = precision || 0;
 
@@ -1058,16 +1054,6 @@ function pad(number, digits, end) {
 
         return value !== undefined ? value : "";
     };
-
-    if (globalize && !globalize.load) {
-        toString = function(value, format, culture) {
-            if ($.isPlainObject(culture)) {
-                culture = culture.name;
-            }
-
-            return globalize.format(value, format, culture);
-        };
-    }
 
     kendo.format = function(fmt) {
         var values = arguments;
@@ -1339,18 +1325,12 @@ function pad(number, digits, end) {
                     count = lookAhead("f");
 
                     match = value.substr(valueIdx, count).match(numberRegExp[3]);
-                    milliseconds = getNumber(count);
+                    milliseconds = getNumber(count); //move value index position
 
                     if (milliseconds !== null) {
-                        match = match[0].length;
-
-                        if (match < 3) {
-                            milliseconds *= Math.pow(10, (3 - match));
-                        }
-
-                        if (count > 3) {
-                            milliseconds = parseInt(milliseconds.toString().substring(0, 3), 10);
-                        }
+                        milliseconds = parseFloat("0." + match[0], 10);
+                        milliseconds = kendo._round(milliseconds, 3);
+                        milliseconds *= 1000;
                     }
 
                     if (milliseconds === null || outOfRange(milliseconds, 0, 999)) {
@@ -1626,34 +1606,6 @@ function pad(number, digits, end) {
 
         return value;
     };
-
-    if (globalize && !globalize.load) {
-        kendo.parseDate = function (value, format, culture) {
-            if (objectToString.call(value) === "[object Date]") {
-                return value;
-            }
-
-            return globalize.parseDate(value, format, culture);
-        };
-
-        kendo.parseFloat = function (value, culture) {
-            if (typeof value === NUMBER) {
-                return value;
-            }
-
-            if (value === undefined || value === null) {
-               return null;
-            }
-
-            if ($.isPlainObject(culture)) {
-                culture = culture.name;
-            }
-
-            value = globalize.parseFloat(value, culture);
-
-            return isNaN(value) ? null : value;
-        };
-    }
 })();
 
     function getShadows(element) {
@@ -1846,7 +1798,7 @@ function pad(number, digits, end) {
     }
 
     function isScrollable(element) {
-        if (element.className.indexOf("k-auto-scrollable") > -1) {
+        if (element && element.className && typeof(element.className) === "string" && element.className.indexOf("k-auto-scrollable") > -1) {
             return true;
         }
 
@@ -1855,10 +1807,16 @@ function pad(number, digits, end) {
     }
 
     function scrollLeft(element, value) {
-        var el = element instanceof $ ? element[0] : element;
-        var isRtl = support.isRtl(element);
         var webkit = support.browser.webkit;
         var mozila = support.browser.mozilla;
+        var el = element instanceof $ ? element[0] : element;
+        var isRtl;
+
+        if (!element) {
+            return;
+        }
+
+        isRtl = support.isRtl(element);
 
         if (value !== undefined) {
             if (isRtl && webkit) {
@@ -2043,6 +2001,35 @@ function pad(number, digits, end) {
             support.hasNativeScrolling = mobileOS;
         }
 
+        support.delayedClick = function() {
+
+            // only the mobile devices with touch events do this.
+            if (support.touch) {
+                // All iOS devices so far (by the time I am writing this, iOS 9.0.2 is the latest),
+                // delay their click events.
+                if (mobileOS.ios) {
+                    return true;
+                }
+
+                if (mobileOS.android) {
+
+                    if (!support.browser.chrome) { // older webkits and webviews delay the click
+                        return true;
+                    }
+
+                    // from here on, we deal with Chrome on Android.
+                    if (support.browser.version < 32) {
+                        return false;
+                    }
+
+                    // Chrome 32+ does conditional fast clicks if the view port is not user scalable.
+                    return !($("meta[name=viewport]").attr("content") || "").match(/user-scalable=no/i);
+                }
+            }
+
+            return false;
+        };
+
         support.mouseAndTouchPresent = support.touch && !(support.mobileOS.ios || support.mobileOS.android);
 
         support.detectBrowser = function(ua) {
@@ -2074,6 +2061,24 @@ function pad(number, digits, end) {
         };
 
         support.browser = support.detectBrowser(navigator.userAgent);
+
+        support.detectClipboardAccess = function() {
+            var commands = {
+                copy: document.queryCommandSupported ? document.queryCommandSupported("copy") : false,
+                cut: document.queryCommandSupported ? document.queryCommandSupported("cut") : false,
+                paste : document.queryCommandSupported ? document.queryCommandSupported("paste") : false
+            };
+
+            if (support.browser.chrome && support.browser.version >= 43) {
+                //not using queryCommandSupported due to chromium issue #476508
+                commands.copy = true;
+                commands.cut = true;
+            }
+
+            return commands;
+        };
+
+        support.clipboard = support.detectClipboardAccess();
 
         support.zoomLevel = function() {
             try {
@@ -2497,7 +2502,7 @@ function pad(number, digits, end) {
         data: kendo.data || {},
         dataviz: kendo.dataviz || {},
         drawing: kendo.drawing || {},
-        spreadsheet: {},
+        spreadsheet: { messages: {} },
         keys: {
             INSERT: 45,
             DELETE: 46,
@@ -2531,7 +2536,7 @@ function pad(number, digits, end) {
         wrap: wrap,
         deepExtend: deepExtend,
         getComputedStyles: getComputedStyles,
-        webComponents: [],
+        webComponents: kendo.webComponents || [],
         isScrollable: isScrollable,
         scrollLeft: scrollLeft,
         size: size,
@@ -3849,6 +3854,12 @@ function pad(number, digits, end) {
             }
         }
 
+        function setHours(date, time) {
+            date = new Date(kendo.date.getDate(date).getTime() + kendo.date.getMilliseconds(time));
+            adjustDST(date, time.getHours());
+            return date;
+        }
+
         function today() {
             return getDate(new Date());
         }
@@ -3886,13 +3897,13 @@ function pad(number, digits, end) {
             MS_PER_HOUR: 60 * MS_PER_MINUTE,
             MS_PER_MINUTE: MS_PER_MINUTE,
             setTime: setTime,
+            setHours: setHours,
             addDays: addDays,
             today: today,
             toInvariantTime: toInvariantTime,
             firstDayOfMonth: firstDayOfMonth,
             lastDayOfMonth: lastDayOfMonth,
             getMilliseconds: getMilliseconds
-            //TODO methods: combine date portion and time portion from arguments - date1, date 2
         };
     })();
 
@@ -4182,7 +4193,7 @@ function pad(number, digits, end) {
         }
 
         var fileSaver = document.createElement("a");
-        var downloadAttribute = "download" in fileSaver;
+        var downloadAttribute = "download" in fileSaver && !kendo.support.browser.edge;
 
         function saveAsBlob(dataURI, fileName) {
             var blob = dataURI; // could be a Blob object
@@ -4231,8 +4242,28 @@ function pad(number, digits, end) {
             save(options.dataURI, options.fileName, options.proxyURL, options.proxyTarget);
         };
     })();
+
+    // kendo proxySetters
+    kendo.proxyModelSetters = function proxyModelSetters(data) {
+        var observable = {};
+
+        Object.keys(data).forEach(function(property) {
+          Object.defineProperty(observable, property, {
+            get: function() {
+              return data[property];
+            },
+            set: function(value) {
+              data[property] = value;
+              data.dirty = true;
+            }
+          });
+        });
+
+        return observable;
+    };
+
 })(jQuery, window);
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

@@ -29,7 +29,7 @@ var __meta__ = { // jshint ignore:line
         DATABINDING = "dataBinding",
         Widget = kendo.ui.Widget,
         keys = kendo.keys,
-        FOCUSSELECTOR =  ">*",
+        FOCUSSELECTOR =  ">*:not(.k-loading-mask)",
         PROGRESS = "progress",
         ERROR = "error",
         FOCUSED = "k-state-focused",
@@ -419,7 +419,7 @@ var __meta__ = { // jshint ignore:line
                             current = that.current(),
                             target = $(e.target),
                             canHandle = !target.is(":button,textarea,a,a>.t-icon,input"),
-                            isTextBox = target.is(":text"),
+                            isTextBox = target.is(":text,:password"),
                             preventDefault = kendo.preventDefault,
                             editItem = element.find("." + KEDITITEM),
                             active = activeElement(), idx;
@@ -698,4 +698,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

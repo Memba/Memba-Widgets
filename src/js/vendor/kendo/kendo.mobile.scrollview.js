@@ -124,6 +124,7 @@ var __meta__ = { // jshint ignore:line
             });
 
             userEvents = new kendo.UserEvents(element, {
+                fastTap: true,
                 start: function(e) {
                     if (abs(e.x.velocity) * 2 >= abs(e.y.velocity)) {
                         userEvents.capture();
@@ -899,4 +900,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

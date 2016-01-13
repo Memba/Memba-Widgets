@@ -54,6 +54,7 @@ var __meta__ = { // jshint ignore:line
                 });
 
                 userEvents = this.userEvents = new kendo.UserEvents(pane.element, {
+                    fastTap: true,
                     filter: roleSelector("view splitview"),
                     allowSelection: true
                 });
@@ -66,7 +67,7 @@ var __meta__ = { // jshint ignore:line
                     throw new Error("The drawer needs a container configuration option set.");
                 }
 
-                userEvents = this.userEvents = new kendo.UserEvents(container, { allowSelection: true });
+                userEvents = this.userEvents = new kendo.UserEvents(container, { fastTap: true, allowSelection: true });
                 this._attachTransition(container);
             }
 
@@ -321,4 +322,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

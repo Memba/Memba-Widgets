@@ -591,6 +591,10 @@ var __meta__ = { // jshint ignore:line
                 element = this.container(),
                 template = this.template();
 
+            if (source == null) {
+                return;
+            }
+
             if (source instanceof kendo.data.DataSource) {
                 source = source.view();
             }
@@ -611,8 +615,7 @@ var __meta__ = { // jshint ignore:line
                         bindElement(element.children[idx], source[idx], this.options.roles, [source[idx]].concat(parents));
                     }
                 }
-            }
-            else {
+            } else {
                 $(element).html(kendo.render(template, source));
             }
         }
@@ -731,7 +734,12 @@ var __meta__ = { // jshint ignore:line
                         that.render();
                         if(that.bindings.value){
                             if (that.bindings.value) {
-                                that.element.value = retrievePrimitiveValues(that.bindings.value.get(), $(that.element).data("valueField"));
+                                var val = retrievePrimitiveValues(that.bindings.value.get(), $(that.element).data("valueField"));
+                                if(val === null) {
+                                    that.element.selectedIndex = -1;
+                                } else {
+                                    that.element.value = val;
+                                }
                             }
                         }
                     }
@@ -1128,6 +1136,27 @@ var __meta__ = { // jshint ignore:line
                 this._initChange = false;
             },
 
+            _source: function() {
+                var source;
+
+                if (this.widget.dataItem) {
+                    source = this.widget.dataItem();
+                    if (source && source instanceof ObservableObject) {
+                        return [source];
+                    }
+                }
+
+                if (this.bindings.source) {
+                    source = this.bindings.source.get();
+                }
+
+                if (!source || source instanceof kendo.data.DataSource) {
+                    source = this.widget.dataSource.flatView();
+                }
+
+                return source;
+            },
+
             change: function() {
                 var value = this.widget.value(),
                     field = this.options.dataValueField || this.options.dataTextField,
@@ -1141,16 +1170,10 @@ var __meta__ = { // jshint ignore:line
 
                 if (field) {
 
-                    if (this.bindings.source) {
-                        source = this.bindings.source.get();
-                    }
-
                     if (value === "" && (isObservableObject || this.options.valuePrimitive)) {
                         value = null;
                     } else {
-                        if (!source || source instanceof kendo.data.DataSource) {
-                            source = this.widget.dataSource.flatView();
-                        }
+                        source = this._source();
 
                         if (isArray) {
                             valueLength = value.length;
@@ -1217,7 +1240,7 @@ var __meta__ = { // jshint ignore:line
                         }
                     }
 
-                    if (options.autoBind === false && !options.cascadeFrom && widget.listView && !widget.listView.isBound()) {
+                    if (options.autoBind === false && !options.cascadeFrom && widget.listView && !widget.listView.bound()) {
                         if (textField === valueField && !text) {
                             text = value;
                         }
@@ -1361,7 +1384,7 @@ var __meta__ = { // jshint ignore:line
                             }
                         }
 
-                        if (options.autoBind === false && options.valuePrimitive !== true && !widget.listView.isBound()) {
+                        if (options.autoBind === false && options.valuePrimitive !== true && !widget._isBound()) {
                             widget._preselect(data, value);
                         } else {
                             widget.value(value);
@@ -1738,7 +1761,7 @@ var __meta__ = { // jshint ignore:line
                 element.kendoBindingTarget = null;
             }
         }
-        
+
         if(destroyWidget) {
             var widget = kendo.widgetInstance($(element));
             if (widget && typeof widget.destroy === FUNCTION) {
@@ -1852,4 +1875,4 @@ var __meta__ = { // jshint ignore:line
 return window.kendo;
 
 
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });

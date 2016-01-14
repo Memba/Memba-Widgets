@@ -401,22 +401,23 @@
                 var files = e.target.files;
                 if (files instanceof window.FileList && files.length) {
                     // that.trigger(UPLOAD, { files: files });
+                    that.listView.element.addClass('k-loading');
                     for (var i = 0; i < files.length; i++) {
                         // TODO: Assert we are on the right tab !!!!!
-                        that.listView.element.addClass('k-loading');
+                        // TODO: Can we have several files???
                         that.dataSource.add({
                             size: files[i].size,
                             file: files[i]
                         });
-                        // Note: syncing to the dataSource calls the create transport where you should actually upload your file,
-                        // update the url and push to the dataSource using the options.success callback
-                        // if there is an error, call options.error and cancel changes in the error event raised by the widget
-                        that.dataSource.sync()
-                            .always(function () {
-                                that.listView.element.removeClass('k-loading');
-                            });
                     }
-                    that.toolbar.find('.k-upload input[type=file]').val('');
+                    // Note: syncing to the dataSource calls the create transport where you should actually upload your file,
+                    // update the url and push to the dataSource using the options.success callback
+                    // if there is an error, call options.error and cancel changes in the error event raised by the widget
+                    that.dataSource.sync()
+                        .always(function () {
+                            that.toolbar.find('.k-upload input[type=file]').val('');
+                            that.listView.element.removeClass('k-loading');
+                        });
                 }
             },
 

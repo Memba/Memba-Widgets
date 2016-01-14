@@ -49,9 +49,17 @@
         var FORMULA = 'function validate(value, solution, all) {\n\t{0}\n}';
         var JS_COMMENT = '// ';
         var CUSTOM = {
-                name: 'custom',
-                formula: kendo.format(FORMULA, '// Your code should return true when value is validated against solution.')
-            };
+            name: 'custom',
+            formula: kendo.format(FORMULA, '// Your code should return true when value is validated against solution.')
+        };
+
+        /*********************************************************************************
+         * Helpers
+         *********************************************************************************/
+
+        /**
+         * Incors images for corrections
+         */
         // Incors O-Collection check.svg
         // var SVG_SUCCESS = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#76A797" d="M3840 5760l3934 -3934c124,-124 328,-124 452,0l1148 1148c124,124 124,328 0,452l-5308 5308c-124,124 -328,124 -452,0l-2748 -2748c-124,-124 -124,-328 0,-452l1148 -1148c124,-124 328,-124 452,0l1374 1374z"/></svg>';
         var SVG_SUCCESS = 'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBmaWxsLXJ1bGU9Im5vbnplcm8iIGNsaXAtcnVsZT0iZXZlbm9kZCIgdmlld0JveD0iMCAwIDEwMjQwIDEwMjQwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggaWQ9ImN1cnZlMCIgZmlsbD0iIzc2QTc5NyIgZD0iTTM4NDAgNTc2MGwzOTM0IC0zOTM0YzEyNCwtMTI0IDMyOCwtMTI0IDQ1MiwwbDExNDggMTE0OGMxMjQsMTI0IDEyNCwzMjggMCw0NTJsLTUzMDggNTMwOGMtMTI0LDEyNCAtMzI4LDEyNCAtNDUyLDBsLTI3NDggLTI3NDhjLTEyNCwtMTI0IC0xMjQsLTMyOCAwLC00NTJsMTE0OCAtMTE0OGMxMjQsLTEyNCAzMjgsLTEyNCA0NTIsMGwxMzc0IDEzNzR6Ii8+PC9zdmc+';
@@ -59,9 +67,110 @@
         // var SVG_FAILURE = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#E68497" d="M1273 7156l2037 -2036 -2037 -2036c-124,-125 -124,-328 0,-453l1358 -1358c125,-124 328,-124 453,0l2036 2037 2036 -2037c125,-124 328,-124 453,0l1358 1358c124,125 124,328 0,453l-2037 2036 2037 2036c124,125 124,328 0,453l-1358 1358c-125,124 -328,124 -453,0l-2036 -2037 -2036 2037c-125,124 -328,124 -453,0l-1358 -1358c-124,-125 -124,-328 0,-453z"/></svg>';
         var SVG_FAILURE = 'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBmaWxsLXJ1bGU9Im5vbnplcm8iIGNsaXAtcnVsZT0iZXZlbm9kZCIgdmlld0JveD0iMCAwIDEwMjQwIDEwMjQwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggaWQ9ImN1cnZlMCIgZmlsbD0iI0U2ODQ5NyIgZD0iTTEyNzMgNzE1NmwyMDM3IC0yMDM2IC0yMDM3IC0yMDM2Yy0xMjQsLTEyNSAtMTI0LC0zMjggMCwtNDUzbDEzNTggLTEzNThjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMjAzNiAyMDM3IDIwMzYgLTIwMzdjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMTM1OCAxMzU4YzEyNCwxMjUgMTI0LDMyOCAwLDQ1M2wtMjAzNyAyMDM2IDIwMzcgMjAzNmMxMjQsMTI1IDEyNCwzMjggMCw0NTNsLTEzNTggMTM1OGMtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTIwMzYgLTIwMzcgLTIwMzYgMjAzN2MtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTEzNTggLTEzNThjLTEyNCwtMTI1IC0xMjQsLTMyOCAwLC00NTN6Ii8+PC9zdmc+';
 
-        /*********************************************************************************
-         * Helpers
-         *********************************************************************************/
+        /**
+         * All i18n messages
+         */
+        var i18n = {
+
+            tool: {
+                top: { title: 'Top' },
+                left: { title: 'Left' },
+                height: { title: 'Height' },
+                width: { title: 'Width' },
+                rotate: { title: 'Rotate' }
+            },
+
+            dialogs: {
+                ok: { text: 'OK' },
+                cancel: { text: 'Cancel' }
+            },
+
+            audio: {
+                attributes: {
+                    autoplay: { title: 'Autoplay' },
+                    mp3: { title: 'MP3 File' },
+                    ogg: { title: 'OGG File' }
+                }
+            },
+
+            checkbox: {
+                attributes: {
+                    checkboxStyle: { title: 'Checkbox Style' },
+                    labelStyle: { title: 'Label Style' },
+                    text: { title: 'Text' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    description: { title: 'Description' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
+                }
+            },
+
+            image: {
+                attributes: {
+                    src: { title: 'Source' },
+                    alt: { title: 'Text' }
+                }
+                // properties: {}
+            },
+
+            label: {
+                attributes: {
+                    style: { title: 'Style' },
+                    text: { title: 'Text' }
+                }
+                // properties: {}
+            },
+
+            quiz: {
+                attributes: {
+                    activeStyle: { title: 'Active Style' },
+                    data: { title: 'Values' },
+                    groupStyle: { title: 'Group Style' },
+                    itemStyle: { title: 'Item Style' },
+                    mode: { title: 'Mode' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    description: { title: 'Description' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
+                }
+            },
+
+            texbox: {
+                attributes: {
+                    style: { title: 'Style' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    description: { title: 'Description' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
+                }
+            },
+
+            video: {
+                attributes: {
+                    autoplay: { title: 'Autoplay' },
+                    toolbarHeight: { title: 'Toolbar Height' },
+                    mp4: { title: 'MP4 File' },
+                    ogv: { title: 'OGV File' },
+                    wbem: { title: 'WBEM File' }
+                }
+            }
+
+        };
 
         /**
          * Build a random hex string of length characters
@@ -150,6 +259,20 @@
                 success: SVG_SUCCESS,
                 failure: SVG_FAILURE
             },
+            i18n: {
+                // They are here to be translated in kidoju.messages.[locale].js
+                tool: {
+                    top: { title: i18n.tool.top.title },
+                    left: { title: i18n.tool.left.title },
+                    height: { title: i18n.tool.height.title },
+                    width: { title: i18n.tool.width.title },
+                    rotate: { title: i18n.tool.rotate.title }
+                },
+                dialogs: {
+                    ok: { text: i18n.dialogs.ok.text }, // TODO : icon?
+                    cancel: { text: i18n.dialogs.cancel.text }
+                }
+            },
 
             /**
              * Constructor
@@ -201,11 +324,11 @@
 
                 // Add top, left, height, width, rotation
                 // rows.push(new adapters.NumberAdapter({attributes:{'data-min': 0}}).getRow('top'));
-                rows.push(new adapters.NumberAdapter().getRow('top'));
-                rows.push(new adapters.NumberAdapter().getRow('left'));
-                rows.push(new adapters.NumberAdapter().getRow('height'));
-                rows.push(new adapters.NumberAdapter().getRow('width'));
-                rows.push(new adapters.NumberAdapter().getRow('rotate'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.title }).getRow('top'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.left }).getRow('left'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.height }).getRow('height'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.width }).getRow('width'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.rotate }).getRow('rotate'));
 
                 // Add other attributes
                 for (var attr in this.attributes) {
@@ -638,8 +761,10 @@
                 dialog.title(options.title);
                 var content = '<div class="k-edit-form-container">' +
                     '<div data-role="styleeditor" data-bind="value: style"></div>' +
-                    '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="ok" href="#">OK</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
-                    '</div>';
+                    '<div class="k-edit-buttons k-state-default">' +
+                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
+                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
+                    '</div></div>';
                 dialog.content(content);
                 kendo.bind(dialog.element, dialog.viewModel);
                 dialog.element.addClass('no-padding');
@@ -717,8 +842,10 @@
                 dialog.title(settings.title);
                 var content = '<div class="k-edit-form-container">' +
                     '<div data-role="assetmanager" data-bind="value: url"></div>' +
-                    '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="ok" href="#">OK</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
-                    '</div>';
+                    '<div class="k-edit-buttons k-state-default">' +
+                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
+                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
+                    '</div></div>';
                 dialog.content(content);
                 assert.instanceof(PageComponent, settings.model, kendo.format(assert.messages.instanceof.default, 'settings.model', 'kidoju.data.PageComponent'));
                 assert.instanceof(ToolAssets, assets[settings.model.tool], kendo.format(assert.messages.instanceof.default, 'assets[settings.model.tool]', 'kidoju.ToolAssets'));
@@ -813,8 +940,10 @@
                 dialog.title(options.title);
                 var content = '<div class="k-edit-form-container">' +
                     '<div data-role="codeeditor" data-bind="value: code, source: library" data-default="' + that.defaultValue + '" data-solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"></div>' +
-                    '<div class="k-edit-buttons k-state-default"><a class="k-primary k-button" data-command="ok" href="#">OK</a><a class="k-button" data-command="cancel" href="#">Cancel</a></div>' +
-                    '</div>';
+                    '<div class="k-edit-buttons k-state-default">' +
+                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
+                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
+                    '</div></div>';
                 dialog.content(content);
                 kendo.bind(dialog.element, dialog.viewModel);
                 dialog.element.addClass('no-padding');
@@ -879,405 +1008,6 @@
         tools.register(Pointer);
 
         /**
-         * @class Label tool
-         * @type {void|*}
-         */
-        var Label = Tool.extend({
-            id: 'label',
-            icon: 'document_orientation_landscape',
-            cursor: CURSOR_CROSSHAIR,
-            templates: {
-                default: '<div style="#: attributes.style #">#: attributes.text #</div>'
-            },
-            height: 100,
-            width: 300,
-            attributes: {
-                text: new adapters.StringAdapter({ title: 'Label', defaultValue: 'Label' }),
-                style: new adapters.StyleAdapter({ title: 'Style' })
-            },
-
-            /**
-             * onResize Event Handler
-             * @method onResize
-             * @param e
-             * @param component
-             */
-            onResize: function (e, component) {
-                var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                var content = stageElement.children('div');
-                var height = component.height;
-                var width = component.width;
-                if ($.type(width) === NUMBER) {
-                    content.outerWidth(width);
-                }
-                if ($.type(height) === NUMBER) {
-                    content.outerHeight(height);
-                    if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
-                        /*
-                         * We make a best guess for the number of lines as follows
-                         * Let's suppose the height (line-height, not font-size) and width of a character are respectively y and x
-                         * We have y = x * sizeRatio
-                         * How many of these character rectangles (x, y) can we fit in the content div (width, height)?
-                         *
-                         * the label only takes 1 line, if we have:
-                         * y = height and length <= width/x, that is length <= width*sizeRatio/y or y = height <= length*sizeRatio/width, which is length >= width*sizeRatio/height
-                         *
-                         * the label takes 2 lines, if we have:
-                         * y = height/2 and length <= width/x, that is length <= 2*width*sizeRatio/y or y = height/2 <= length*sizeRatio/width, which is length >= 4*width*sizeRatio/height
-                         *
-                         * the label takes n lines if we have sqrt((length*height)/sizeRatio*width) <= lines < sqrt(((length + 1)*height)/sizeRatio*width)
-                         *
-                         */
-                        var length = component.attributes.text.length;
-                        var sizeRatio = 1.6; // font-size being the height, this is the line-height/char-width ratio
-                        var lines = Math.max(1, Math.floor(Math.sqrt((length * height) / (width * sizeRatio))));
-                        // We can now make a best guess for the font size
-                        var fontRatio = 1.2; // this is the line-height/font-size ration
-                        content.css('font-size', Math.floor(height / lines / fontRatio));
-                        // Note: in previous versions, we have tried to iterate through a hidden clone
-                        // to find that font size that does not trigger an overflow but it is too slow
-                    }
-                }
-                // prevent any side effect
-                e.preventDefault();
-                // prevent event to bubble on stage
-                e.stopPropagation();
-            }
-        });
-        tools.register(Label);
-
-        /**
-         * @class Image tool
-         * @type {void|*}
-         */
-        var Image = Tool.extend({
-            id: 'image',
-            icon: 'painting_landscape',
-            cursor: CURSOR_CROSSHAIR,
-            templates: {
-                default: '<img src="#: attributes.src$() #" alt="#: attributes.alt #">'
-            },
-            height: 250,
-            width: 250,
-            attributes: {
-                src: new adapters.AssetAdapter({ title: 'Image', defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' }),
-                alt: new adapters.StringAdapter({ title: 'Text', defaultValue: 'Painting Landscape' })
-            },
-
-            /**
-             * Get Html or jQuery content
-             * @method getHtmlContent
-             * @param component
-             * @param mode
-             * @returns {*}
-             */
-            getHtmlContent: function (component, mode) {
-                var that = this;
-                assert.instanceof(Image, that, kendo.format(assert.messages.instanceof.default, 'this', 'Image'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
-                var template = kendo.template(that.templates.default);
-                // The src$ function resolves urls with schemes like cdn://sample.jpg
-                component.attributes.src$ = function () {
-                    var src = component.attributes.get('src');
-                    var schemes = assets.image.schemes;
-                    for (var scheme in schemes) {
-                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(src)) {
-                            src = src.replace(scheme + '://', schemes[scheme]);
-                            break;
-                        }
-                    }
-                    return src;
-                };
-                return template(component);
-            },
-
-            /**
-             * onResize Event Handler
-             * @method onResize
-             * @param e
-             * @param component
-             */
-            onResize: function (e, component) {
-                var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                var content = stageElement.children('img');
-                if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
-                }
-                if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
-                }
-                // prevent any side effect
-                e.preventDefault();
-                // prevent event to bubble on stage
-                e.stopPropagation();
-            }
-        });
-        tools.register(Image);
-
-        var TEXTBOX = '<input type="text" id="#: properties.name #" class="k-textbox" style="#: attributes.style #" {0}>';
-        /**
-         * @class Textbox tool
-         * @type {void|*}
-         */
-        var Textbox = Tool.extend({
-            id: 'textbox',
-            icon: 'text_field',
-            cursor: CURSOR_CROSSHAIR,
-            templates: {
-                design: kendo.format(TEXTBOX, ''),
-                play: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"'),
-                review: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"') + Tool.fn.showResult()
-            },
-            height: 100,
-            width: 300,
-            attributes: {
-                style: new adapters.StyleAdapter({ title: 'Style' })
-            },
-            properties: {
-                name: new adapters.NameAdapter({ title: 'Name' }),
-                description: new adapters.StringAdapter({ title: 'Description' }),
-                solution: new adapters.StringAdapter({ title: 'Solution' }),
-                validation: new adapters.ValidationAdapter({
-                    title: 'Validation'
-                    // The following is now achieved in Tool.init
-                    // solutionAdapter: new adapters.StringAdapter({ title: 'Solution' }),
-                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault
-                }),
-                success: new adapters.ScoreAdapter({ title: 'Success', defaultValue: 1 }),
-                failure: new adapters.ScoreAdapter({ title: 'Failure', defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: 'Omit', defaultValue: 0 })
-            },
-
-            /**
-             * onEnable event handler
-             * @class Textbox
-             * @method onEnable
-             * @param e
-             * @param component
-             * @param enabled
-             */
-            onEnable: function (e, component, enabled) {
-                var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    stageElement.children('input')
-                        .prop({
-                            // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
-                            readonly: !enabled
-                        });
-                }
-            },
-
-            /**
-             * onResize Event Handler
-             * @method onResize
-             * @param e
-             * @param component
-             */
-            onResize: function (e, component) {
-                var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                var content = stageElement.children('input');
-                if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
-                }
-                if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
-                    if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
-                        content.css('font-size', Math.floor(0.65 * content.height()));
-                    }
-                }
-                // prevent any side effect
-                e.preventDefault();
-                // prevent event to bubble on stage
-                e.stopPropagation();
-            }
-        });
-        tools.register(Textbox);
-
-        var CHECKBOX = '<div><input id="#: properties.name #" type="checkbox" style="#: attributes.checkboxStyle #" {0}><label for="#: properties.name #" style="#: attributes.labelStyle #">#: attributes.text #</label></div>';
-        /**
-         * Checkbox tool
-         * @class CheckBox
-         * @type {void|*}
-         */
-        var CheckBox = Tool.extend({
-            id: 'checkbox',
-            icon: 'checkbox',
-            cursor: CURSOR_CROSSHAIR,
-            templates: {
-                design: kendo.format(CHECKBOX, ''),
-                play: kendo.format(CHECKBOX, 'data-#= ns #bind="checked: #: properties.name #.value"'),
-                review: kendo.format(CHECKBOX, 'data-#= ns #bind="checked: #: properties.name #.value"') + Tool.fn.showResult()
-
-            },
-            height: 60,
-            width: 300,
-            attributes: {
-                checkboxStyle: new adapters.StyleAdapter({ title: 'Checkbox Style' }),
-                labelStyle: new adapters.StyleAdapter({ title: 'Label Style' }),
-                text: new adapters.StringAdapter({ title: 'Text', defaultValue: 'text' })
-            },
-            properties: {
-                name: new adapters.NameAdapter({ title: 'Name' }),
-                description: new adapters.StringAdapter({ title: 'Description' }),
-                solution: new adapters.BooleanAdapter({ title: 'Solution' }),
-                validation: new adapters.ValidationAdapter({
-                    title: 'Validation'
-                    // The following is now achieved in Tool.init
-                    // solutionAdapter: new adapters.BooleanAdapter({ title: 'Solution' }),
-                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault
-                }),
-                success: new adapters.ScoreAdapter({ title: 'Success', defaultValue: 1 }),
-                failure: new adapters.ScoreAdapter({ title: 'Failure', defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: 'Omit', defaultValue: 0 })
-            },
-
-            /**
-             * onEnable event handler
-             * @class CheckBox
-             * @method onEnable
-             * @param e
-             * @param component
-             * @param enabled
-             */
-            onEnable: function (e, component, enabled) {
-                var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    stageElement.children('input')
-                        .prop({
-                            disabled: !enabled,
-                            readonly: !enabled
-                        });
-                }
-            },
-
-            /**
-             * onResize Event Handler
-             * @method onResize
-             * @param e
-             * @param component
-             */
-            onResize: function (e, component) {
-                var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                var content = stageElement.children('div');
-                var input = content.children('input');
-                if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
-                }
-                if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
-                    if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
-                        content.css('font-size', Math.floor(0.85 * content.height()));
-                    }
-                }
-                var size = parseInt(content.css('font-size'), 10);
-                content.children('input')
-                    .height(0.6 * size)
-                    .width(0.6 * size);
-                // prevent any side effect
-                e.preventDefault();
-                // prevent event to bubble on stage
-                e.stopPropagation();
-            }
-        });
-        tools.register(CheckBox);
-
-        var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" data-group-style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #active-style="#: attributes.activeStyle #"></div>';
-        /**
-         * Quiz tool
-         * @class Quiz
-         * @type {void|*}
-         */
-        var Quiz = Tool.extend({
-            id: 'quiz',
-            icon: 'radio_button_group',
-            cursor: CURSOR_CROSSHAIR,
-            templates: {
-                design: kendo.format(QUIZ, 'data-#= ns #enable="false"'),
-                play: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value"'),
-                review: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
-            },
-            height: 100,
-            width: 300,
-            attributes: {
-                mode: new adapters.EnumAdapter({ title: 'Mode', defaultValue: 'button', enum: ['button', 'dropdown', 'radio'] }),
-                groupStyle: new adapters.StyleAdapter({ title: 'Group Style' }),
-                itemStyle: new adapters.StyleAdapter({ title: 'Item Style' }),
-                activeStyle: new adapters.StyleAdapter({ title: 'Active Style' }),
-                data: new adapters.TextAdapter({ title: 'Data', defaultValue: 'True\nFalse' })
-            },
-            properties: {
-                name: new adapters.NameAdapter({ title: 'Name' }),
-                description: new adapters.StringAdapter({ title: 'Description' }),
-                solution: new adapters.StringAdapter({ title: 'Solution' }),
-                validation: new adapters.ValidationAdapter({
-                    title: 'Validation'
-                    // The following is now achieved in Tool.init
-                    // solutionAdapter: new adapters.BooleanAdapter({ title: 'Solution' }),
-                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault)
-                }),
-                success: new adapters.ScoreAdapter({ title: 'Success', defaultValue: 1 }),
-                failure: new adapters.ScoreAdapter({ title: 'Failure', defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: 'Omit', defaultValue: 0 })
-            },
-
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
-
-            /**
-             * onResize Event Handler
-             * @method onResize
-             * @param e
-             * @param component
-             */
-            onResize: function (e, component) {
-                /* jshint maxcomplexity: 8 */
-                var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                var content = stageElement.children('div' + kendo.roleSelector('quiz'));
-                var data = component.attributes.data;
-                var length = data.trim().split('\n').length || 1;
-                var height = $.type(component.height) === NUMBER ? component.height : 0;
-                // var width = $.type(component.width) === NUMBER ? component.width : 0;
-                // content.outerWidth(width);
-                // content.outerHeight(height);
-                switch (component.attributes.mode) {
-                    case 'button':
-                        content.css('font-size', Math.floor(0.57 * height));
-                        break;
-                    case 'dropdown':
-                        content.css('font-size', Math.floor(0.5 * height));
-                        break;
-                    case 'radio':
-                        var h = height / (length || 1);
-                        content.css('font-size', Math.floor(0.9 * h));
-                        content.find('input')
-                            .height(0.6 * h)
-                            .width(0.6 * h);
-                        break;
-                }
-                // prevent any side effect
-                e.preventDefault();
-                // prevent event to bubble on stage
-                e.stopPropagation();
-            }
-
-            /* jshint +W074 */
-
-        });
-        tools.register(Quiz);
-
-        /**
          * Audio tool
          * @class Audio
          */
@@ -1291,9 +1021,9 @@
             height: 100,
             width: 400,
             attributes: {
-                autoplay: new adapters.BooleanAdapter({ title: 'Autoplay', defaultValue: false }),
-                mp3: new adapters.AssetAdapter({ title: 'MP3 File' }),
-                ogg: new adapters.AssetAdapter({ title: 'OGG File' })
+                autoplay: new adapters.BooleanAdapter({ title: i18n.audio.attributes.autoplay.title, defaultValue: false }),
+                mp3: new adapters.AssetAdapter({ title: i18n.audio.attributes.mp3.title }),
+                ogg: new adapters.AssetAdapter({ title: i18n.audio.attributes.ogg.title })
             },
 
             /**
@@ -1364,6 +1094,406 @@
             }
         });
         tools.register(Audio);
+
+        var CHECKBOX = '<div><input id="#: properties.name #" type="checkbox" style="#: attributes.checkboxStyle #" {0}><label for="#: properties.name #" style="#: attributes.labelStyle #">#: attributes.text #</label></div>';
+        /**
+         * Checkbox tool
+         * @class CheckBox
+         * @type {void|*}
+         */
+        var CheckBox = Tool.extend({
+            id: 'checkbox',
+            icon: 'checkbox',
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                design: kendo.format(CHECKBOX, ''),
+                play: kendo.format(CHECKBOX, 'data-#= ns #bind="checked: #: properties.name #.value"'),
+                review: kendo.format(CHECKBOX, 'data-#= ns #bind="checked: #: properties.name #.value"') + Tool.fn.showResult()
+
+            },
+            height: 60,
+            width: 300,
+            attributes: {
+                checkboxStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.checkboxStyle.title }),
+                labelStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.labelStyle.title }),
+                text: new adapters.StringAdapter({ title: i18n.checkbox.attributes.text.title, defaultValue: 'text' })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.checkbox.properties.name.title }),
+                description: new adapters.StringAdapter({ title: i18n.checkbox.properties.description.title }),
+                solution: new adapters.BooleanAdapter({ title: i18n.checkbox.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({
+                    title: i18n.checkbox.properties.validation.title
+                    // The following is now achieved in Tool.init
+                    // solutionAdapter: new adapters.BooleanAdapter({ title: 'Solution' }),
+                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault
+                }),
+                success: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * onEnable event handler
+             * @class CheckBox
+             * @method onEnable
+             * @param e
+             * @param component
+             * @param enabled
+             */
+            onEnable: function (e, component, enabled) {
+                var stageElement = $(e.currentTarget);
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
+                    stageElement.children('input')
+                        .prop({
+                            disabled: !enabled,
+                            readonly: !enabled
+                        });
+                }
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div');
+                var input = content.children('input');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                    if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
+                        content.css('font-size', Math.floor(0.85 * content.height()));
+                    }
+                }
+                var size = parseInt(content.css('font-size'), 10);
+                content.children('input')
+                    .height(0.6 * size)
+                    .width(0.6 * size);
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            }
+        });
+        tools.register(CheckBox);
+
+        /**
+         * @class Image tool
+         * @type {void|*}
+         */
+        var Image = Tool.extend({
+            id: 'image',
+            icon: 'painting_landscape',
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                default: '<img src="#: attributes.src$() #" alt="#: attributes.alt #">'
+            },
+            height: 250,
+            width: 250,
+            attributes: {
+                src: new adapters.AssetAdapter({ title: 'Image', defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' }),
+                alt: new adapters.StringAdapter({ title: 'Text', defaultValue: 'Painting Landscape' })
+                // TODO add style (border, shadow, ...)
+            },
+
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(Image, that, kendo.format(assert.messages.instanceof.default, 'this', 'Image'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                var template = kendo.template(that.templates.default);
+                // The src$ function resolves urls with schemes like cdn://sample.jpg
+                component.attributes.src$ = function () {
+                    var src = component.attributes.get('src');
+                    var schemes = assets.image.schemes;
+                    for (var scheme in schemes) {
+                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(src)) {
+                            src = src.replace(scheme + '://', schemes[scheme]);
+                            break;
+                        }
+                    }
+                    return src;
+                };
+                return template(component);
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('img');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            }
+        });
+        tools.register(Image);
+
+        /**
+         * @class Label tool
+         * @type {void|*}
+         */
+        var Label = Tool.extend({
+            id: 'label',
+            icon: 'document_orientation_landscape',
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                default: '<div style="#: attributes.style #">#: attributes.text #</div>'
+            },
+            height: 100,
+            width: 300,
+            attributes: {
+                text: new adapters.StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: 'Label' }),
+                style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title })
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div');
+                var height = component.height;
+                var width = component.width;
+                if ($.type(width) === NUMBER) {
+                    content.outerWidth(width);
+                }
+                if ($.type(height) === NUMBER) {
+                    content.outerHeight(height);
+                    if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
+                        /*
+                         * We make a best guess for the number of lines as follows
+                         * Let's suppose the height (line-height, not font-size) and width of a character are respectively y and x
+                         * We have y = x * sizeRatio
+                         * How many of these character rectangles (x, y) can we fit in the content div (width, height)?
+                         *
+                         * the label only takes 1 line, if we have:
+                         * y = height and length <= width/x, that is length <= width*sizeRatio/y or y = height <= length*sizeRatio/width, which is length >= width*sizeRatio/height
+                         *
+                         * the label takes 2 lines, if we have:
+                         * y = height/2 and length <= width/x, that is length <= 2*width*sizeRatio/y or y = height/2 <= length*sizeRatio/width, which is length >= 4*width*sizeRatio/height
+                         *
+                         * the label takes n lines if we have sqrt((length*height)/sizeRatio*width) <= lines < sqrt(((length + 1)*height)/sizeRatio*width)
+                         *
+                         */
+                        var length = component.attributes.text.length;
+                        var sizeRatio = 1.6; // font-size being the height, this is the line-height/char-width ratio
+                        var lines = Math.max(1, Math.floor(Math.sqrt((length * height) / (width * sizeRatio))));
+                        // We can now make a best guess for the font size
+                        var fontRatio = 1.2; // this is the line-height/font-size ration
+                        content.css('font-size', Math.floor(height / lines / fontRatio));
+                        // Note: in previous versions, we have tried to iterate through a hidden clone
+                        // to find that font size that does not trigger an overflow but it is too slow
+                    }
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            }
+        });
+        tools.register(Label);
+
+        var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" data-group-style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #active-style="#: attributes.activeStyle #"></div>';
+        /**
+         * Quiz tool
+         * @class Quiz
+         * @type {void|*}
+         */
+        var Quiz = Tool.extend({
+            id: 'quiz',
+            icon: 'radio_button_group',
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                design: kendo.format(QUIZ, 'data-#= ns #enable="false"'),
+                play: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value"'),
+                review: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+            },
+            height: 100,
+            width: 300,
+            attributes: {
+                mode: new adapters.EnumAdapter({ title: i18n.quiz.attributes.mode.title, defaultValue: 'button', enum: ['button', 'dropdown', 'radio'] }),
+                groupStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.groupStyle.title }),
+                itemStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.itemStyle.title }),
+                activeStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.activeStyle.title }),
+                data: new adapters.TextAdapter({ title: i18n.quiz.attributes.data.title, defaultValue: 'True\nFalse' })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.quiz.properties.name.title }),
+                description: new adapters.StringAdapter({ title: i18n.quiz.properties.description.title }),
+                solution: new adapters.StringAdapter({ title: i18n.quiz.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({
+                    title: i18n.quiz.properties.validation.title
+                    // The following is now achieved in Tool.init
+                    // solutionAdapter: new adapters.BooleanAdapter({ title: 'Solution' }),
+                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault)
+                }),
+                success: new adapters.ScoreAdapter({ title: i18n.quiz.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.quiz.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.quiz.properties.omit.title, defaultValue: 0 })
+            },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                /* jshint maxcomplexity: 8 */
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div' + kendo.roleSelector('quiz'));
+                var data = component.attributes.data;
+                var length = data.trim().split('\n').length || 1;
+                var height = $.type(component.height) === NUMBER ? component.height : 0;
+                // var width = $.type(component.width) === NUMBER ? component.width : 0;
+                // content.outerWidth(width);
+                // content.outerHeight(height);
+                switch (component.attributes.mode) {
+                    case 'button':
+                        content.css('font-size', Math.floor(0.57 * height));
+                        break;
+                    case 'dropdown':
+                        content.css('font-size', Math.floor(0.5 * height));
+                        break;
+                    case 'radio':
+                        var h = height / (length || 1);
+                        content.css('font-size', Math.floor(0.9 * h));
+                        content.find('input')
+                            .height(0.6 * h)
+                            .width(0.6 * h);
+                        break;
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            }
+
+            /* jshint +W074 */
+
+        });
+        tools.register(Quiz);
+
+        var TEXTBOX = '<input type="text" id="#: properties.name #" class="k-textbox" style="#: attributes.style #" {0}>';
+        /**
+         * @class Textbox tool
+         * @type {void|*}
+         */
+        var Textbox = Tool.extend({
+            id: 'textbox',
+            icon: 'text_field',
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                design: kendo.format(TEXTBOX, ''),
+                play: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"'),
+                review: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"') + Tool.fn.showResult()
+            },
+            height: 100,
+            width: 300,
+            attributes: {
+                style: new adapters.StyleAdapter({ title: i18n.texbox.attributes.style.title })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.textbox.properties.name.title }),
+                description: new adapters.StringAdapter({ title: i18n.textbox.properties.description.title }),
+                solution: new adapters.StringAdapter({ title: i18n.textbox.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({
+                    title: i18n.textbox.properties.validation.title
+                    // The following is now achieved in Tool.init
+                    // solutionAdapter: new adapters.StringAdapter({ title: 'Solution' }),
+                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault
+                }),
+                success: new adapters.ScoreAdapter({ title: i18n.textbox.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.textbox.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.textbox.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * onEnable event handler
+             * @class Textbox
+             * @method onEnable
+             * @param e
+             * @param component
+             * @param enabled
+             */
+            onEnable: function (e, component, enabled) {
+                var stageElement = $(e.currentTarget);
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
+                    stageElement.children('input')
+                        .prop({
+                            // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
+                            readonly: !enabled
+                        });
+                }
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('input');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                    if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
+                        content.css('font-size', Math.floor(0.65 * content.height()));
+                    }
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            }
+        });
+        tools.register(Textbox);
 
         /**
          * Video tool

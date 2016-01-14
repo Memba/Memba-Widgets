@@ -147,7 +147,7 @@
                 var that = this;
                 var page;
                 if ($.type(index) === NUMBER) {
-                    if ((index % 1 !== 0) || (index < 0) || (index > 0 && index >= that.length())) {
+                    if ((index % 1 !== 0) || (index < -1) || (index >= that.length())) {
                         throw new RangeError();
                     }
                     page = that.dataSource.at(index);
@@ -493,17 +493,11 @@
                 } else if (e.action === 'itemchange') {
                     return;
                 }
-                // TODO: Review: it does not seem to be a good idea to set the value in the refresh function (check kendo widgets like ComboBox)
                 var total = that.dataSource.total();
-                if (total > 0 && selectedIndex > -1 && selectedIndex < total) {
-                    that.index(selectedIndex);
-                } else if (total > 0 && selectedIndex <= -1) {
-                    that.index(0);
-                } else if (total > 0 && selectedIndex >= total) {
-                    that.index(total - 1);
-                } else {
-                    that.value(null);
+                if (selectedIndex >= total) {
+                    selectedIndex = total - 1;
                 }
+                that.index(selectedIndex);
                 // TODO Display a message when there is no data to display?
                 that.resize();
                 if (e && e.action === undefined) {

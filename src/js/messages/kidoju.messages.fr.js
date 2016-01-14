@@ -294,7 +294,7 @@
                 attributes.toolbarHeight.title = 'Haut. Commandes';
                 attributes.mp4.title = 'Fichier MP4';
                 attributes.ogv.title = 'Fichier OGV';
-                attributes.webm.title = 'Fichier WEBM';
+                attributes.wbem.title = 'Fichier WBEM';
             }
         }
 

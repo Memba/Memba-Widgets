@@ -145,7 +145,7 @@
                 }
             },
 
-            texbox: {
+            textbox: {
                 attributes: {
                     style: { title: 'Style' }
                 },
@@ -325,10 +325,10 @@
                 // Add top, left, height, width, rotation
                 // rows.push(new adapters.NumberAdapter({attributes:{'data-min': 0}}).getRow('top'));
                 rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.title }).getRow('top'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.left }).getRow('left'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.height }).getRow('height'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.width }).getRow('width'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.rotate }).getRow('rotate'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.left.title }).getRow('left'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.height.title }).getRow('height'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.width.title }).getRow('width'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.rotate.title }).getRow('rotate'));
 
                 // Add other attributes
                 for (var attr in this.attributes) {
@@ -1431,7 +1431,7 @@
             height: 100,
             width: 300,
             attributes: {
-                style: new adapters.StyleAdapter({ title: i18n.texbox.attributes.style.title })
+                style: new adapters.StyleAdapter({ title: i18n.textbox.attributes.style.title })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.textbox.properties.name.title }),

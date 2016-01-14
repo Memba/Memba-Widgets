@@ -295,7 +295,7 @@
                 attributes.toolbarHeight.title = 'Toolbar Height';
                 attributes.mp4.title = 'MP4 File';
                 attributes.ogv.title = 'OGV File';
-                attributes.webm.title = 'WEBM File';
+                attributes.wbem.title = 'Fichier WBEM';
             }
         }
 

@@ -23,13 +23,13 @@
             kendo.ui.AssetManager.prototype.options.messages =
                 $.extend(true, kendo.ui.AssetManager.prototype.options.messages, {
                     toolbar: {
-                        upload: 'Upload',
-                        delete: 'Delete',
+                        upload: 'Mettre en ligne', // comme sur Youtube.fr
+                        delete: 'Supprimer',
                         filter: 'Collection: ',
-                        search: 'Search'
+                        search: 'Recherche'
                     },
                     tabs: {
-                        default: 'Project'
+                        default: 'Projet'
                     }
                 });
         }
@@ -58,7 +58,7 @@
         if (kendo.ui.Explorer) {
             kendo.ui.Explorer.prototype.options.messages =
                 $.extend(true, kendo.ui.Explorer.prototype.options.messages, {
-                    empty: 'No item to display'
+                    empty: 'Rien à afficher'
                 });
         }
 
@@ -66,10 +66,10 @@
         if (kendo.ui.MediaPlayer) {
             kendo.ui.MediaPlayer.prototype.options.messages =
                 $.extend(true, kendo.ui.MediaPlayer.prototype.options.messages, {
-                    play: 'Play/Pause',
-                    mute: 'Mute/Unmute',
-                    full: 'Full Screen',
-                    notSupported: 'Media not supported'
+                    play: 'Jouer/Pauser',
+                    mute: 'Avec/Sans son',
+                    full: 'Plein écran',
+                    notSupported: 'Fichier non supporté'
                 });
         }
 
@@ -77,7 +77,7 @@
         if (kendo.ui.MultiInput) {
             kendo.ui.MultiInput.prototype.options.messages =
                 $.extend(true, kendo.ui.MultiInput.prototype.options.messages, {
-                    delete: 'Delete'
+                    delete: 'Effacer'
                 });
         }
 
@@ -85,7 +85,7 @@
         if (kendo.ui.Navigation) {
             kendo.ui.Navigation.prototype.options.messages =
                 $.extend(true, kendo.ui.Navigation.prototype.options.messages, {
-                    empty: 'No item to display'
+                    empty: 'Rien à afficher'
                 });
         }
 
@@ -93,15 +93,15 @@
         if (kendo.ui.PlayBar) {
             kendo.ui.PlayBar.prototype.options.messages =
                 $.extend(true, kendo.ui.PlayBar.prototype.options.messages, {
-                    empty: 'No page to display',
+                    empty: 'Rien à afficher',
                     page: 'Page',
-                    of: 'of {0}',
-                    first: 'Go to the first page',
-                    previous: 'Go to the previous page',
-                    next: 'Go to the next page',
-                    last: 'Go to the last page',
-                    refresh: 'Refresh',
-                    morePages: 'More pages'
+                    of: 'de {0}',
+                    first: 'Aller à la première page',
+                    previous: 'Aller à la dernière page',
+                    next: 'Aller à la prochaine page',
+                    last: 'Aller à la page précédente',
+                    refresh: 'Rafraichîr',
+                    morePages: 'Plus de pages'
                 });
         }
 
@@ -109,8 +109,8 @@
         if (kendo.ui.PropertyGrid) {
             kendo.ui.PropertyGrid.prototype.options.messages =
                 $.extend(true, kendo.ui.PropertyGrid.prototype.options.messages, {
-                    property: 'Property',
-                    value: 'Value'
+                    property: 'Propriété',
+                    value: 'Valeur'
                 });
         }
 
@@ -118,7 +118,7 @@
         if (kendo.ui.Quiz) {
             kendo.ui.Quiz.prototype.options.messages =
                 $.extend(true, kendo.ui.Quiz.prototype.options.messages, {
-                    optionLabel: 'Select...'
+                    optionLabel: 'Sélectionner...'
                 });
         }
 
@@ -146,7 +146,7 @@
         if (kendo.ui.Stage) {
             kendo.ui.Stage.prototype.options.messages =
                 $.extend(true, kendo.ui.Stage.prototype.options.messages, {
-                    noPage: 'Please add or select a page'
+                    noPage: 'Veuillez ajouter ou sélectionner une page'
                 });
         }
 
@@ -155,16 +155,16 @@
             kendo.ui.StyleEditor.prototype.options.messages =
                 $.extend(true, kendo.ui.StyleEditor.prototype.options.messages, {
                     columns: {
-                        name: 'Name',
-                        value: 'Value'
+                        name: 'Nom',
+                        value: 'Valeur'
                     },
                     toolbar: {
-                        create: 'New Style',
-                        destroy: 'Delete'
+                        create: 'Nouveau',
+                        destroy: 'Effacer'
                     },
                     validation: {
-                        name: 'Name is required',
-                        value: 'Value is required'
+                        name: 'Nom de style manquant',
+                        value: 'Valeur manquante'
                     }
                 });
         }

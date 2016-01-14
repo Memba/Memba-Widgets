@@ -240,9 +240,15 @@
                 }
             },
 
+            /**
+             * Set options
+             * @param options
+             */
+            /*
             setOptions: function (options) {
                 $.noop(); // TODO especially to change filters when extensions change
             },
+            */
 
             /**
              * Widget events

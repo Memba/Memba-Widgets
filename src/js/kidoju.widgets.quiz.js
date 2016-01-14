@@ -130,12 +130,14 @@
                 autoBind: true,
                 dataSource: [],
                 mode: MODES.BUTTON,
-                optionLabel: 'Select...',
                 groupStyle: {},
                 itemStyle: {},
                 activeStyle: {},
                 value: null,
-                enable: true
+                enable: true,
+                messages: {
+                    optionLabel: 'Select...'
+                }
             },
 
             /**
@@ -218,7 +220,7 @@
                         autoBind: that.options.autoBind,
                         change: $.proxy(that._onDropDownListChange, that), // change is not triggered by dropDownList api calls incl. value(), text(), ...
                         dataSource: that.options.dataSource,
-                        optionLabel: that.options.optionLabel,
+                        optionLabel: that.options.messages.optionLabel,
                         value: that.options.value
                         // valuePrimitive: true
                     })

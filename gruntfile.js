@@ -20,13 +20,13 @@ module.exports = function (grunt) {
             tasks: ['lint', 'test']
         },
         jscs: {
-            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
+            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'src/js/messages/kidoju.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
             options: {
                 config: '.jscsrc'
             }
         },
         jshint: {
-            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
+            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'src/js/messages/kidoju.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
             options: {
                 // options here to override JSHint defaults
                 jshintrc: '.jshintrc'

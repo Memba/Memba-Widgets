@@ -111,7 +111,10 @@
                 pageHeight: 768,
                 selectionBorder: 10, // this is the padding of the page wrapper, which draws a border around it
                 pageSpacing: 20, // pageSpacing - selectionBorder determines the margin
-                menuIcon: 'calibration_mark.svg'
+                menuIcon: 'calibration_mark.svg',
+                messages: {
+                    empty: 'No item to display' // TODO: add message in UI (see refresh)
+                }
             },
 
             /**

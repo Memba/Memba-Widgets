@@ -7,6 +7,12 @@
 .kj-playbar .k-pager-info {
     margin-top: 0.175em;
 }
+@media (min-width: 0) {
+    .kj-playbar .k-pager-info {
+        /* always display page number */
+        display: inline-block !important;
+    }
+}
 /**
  * The following styles are aimed at expanding the drop down list of numeric values downward
  * when the kj-top style is added to the playbar

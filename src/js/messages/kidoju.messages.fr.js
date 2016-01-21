@@ -14,13 +14,8 @@
     'use strict';
 
     var kendo = window.kendo;
-    var kidoju = window.kidoju;
     var ui = kendo.ui;
-    var tools = kidoju.tools;
-    var Tool = kidoju.Tool;
     var options;
-    var attributes;
-    var properties;
 
     /*  This function has too many statements. */
     /* jshint -W071 */
@@ -195,107 +190,117 @@
          * kidoju.tools
          */
 
-        // if (kidoju.Tool instanceof Function) {
-        if (Tool && Tool.constructor && Tool.constructor.name === 'Function') {
-            Tool.prototype.i18n = $.extend(true, Tool.prototype.i18n, {
-                tool: {
-                    top: { title: 'Pos. Haut' },
-                    left: { title: 'Pos. Gauche' },
-                    height: { title: 'Hauteur' },
-                    width: { title: 'Largeur' },
-                    rotate: { title: 'Rotation' }
-                },
-                dialogs: {
-                    ok: { text: 'OK' },
-                    cancel: { text: 'Annuler' }
+        if (window.kidoju) {
+
+            var kidoju = window.kidoju;
+            var tools = kidoju.tools;
+            var Tool = kidoju.Tool;
+            var attributes;
+            var properties;
+
+            // if (kidoju.Tool instanceof Function) {
+            if (Tool && Tool.constructor && Tool.constructor.name === 'Function') {
+                Tool.prototype.i18n = $.extend(true, Tool.prototype.i18n, {
+                    tool: {
+                        top: {title: 'Pos. Haut'},
+                        left: {title: 'Pos. Gauche'},
+                        height: {title: 'Hauteur'},
+                        width: {title: 'Largeur'},
+                        rotate: {title: 'Rotation'}
+                    },
+                    dialogs: {
+                        ok: {text: 'OK'},
+                        cancel: {text: 'Annuler'}
+                    }
+                });
+            }
+
+            if (tools instanceof kendo.Observable) {
+
+                if (tools.audio instanceof Tool) {
+                    // Attributes
+                    attributes = tools.audio.constructor.prototype.attributes;
+                    attributes.autoplay.title = 'Auto.';
+                    attributes.mp3.title = 'Fichier MP3';
+                    attributes.ogg.title = 'Fichier OGG';
                 }
-            });
-        }
 
-        if (tools instanceof kendo.Observable) {
+                if (tools.checkbox instanceof Tool) {
+                    // Attributes
+                    attributes = tools.checkbox.constructor.prototype.attributes;
+                    attributes.checkboxStyle.title = 'Style Boîte';
+                    attributes.labelStyle.title = 'Style Texte';
+                    attributes.text.title = 'Texte';
+                    // Properties
+                    properties = tools.checkbox.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.description.title = 'Description';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Echec';
+                    properties.omit.title = 'Omission';
+                }
 
-            if (kidoju.tools.audio instanceof Tool) {
-                // Attributes
-                attributes = kidoju.tools.audio.constructor.prototype.attributes;
-                attributes.autoplay.title = 'Auto.';
-                attributes.mp3.title = 'Fichier MP3';
-                attributes.ogg.title = 'Fichier OGG';
+                if (tools.image instanceof Tool) {
+                    // Attributes
+                    attributes = tools.image.constructor.prototype.attributes;
+                    attributes.src.title = 'Source';
+                    attributes.alt.title = 'Texte';
+                }
+
+                if (tools.label instanceof Tool) {
+                    // Attributes
+                    attributes = tools.label.constructor.prototype.attributes;
+                    attributes.style.title = 'Style';
+                    attributes.text.title = 'Texte';
+                }
+
+                if (tools.quiz instanceof Tool) {
+                    // Attributes
+                    attributes = tools.quiz.constructor.prototype.attributes;
+                    attributes.activeStyle.title = 'Style Sélect.';
+                    attributes.data.title = 'Valeurs';
+                    attributes.groupStyle.title = 'Style Groupe';
+                    attributes.itemStyle.title = 'Style Element';
+                    attributes.mode.title = 'Mode';
+                    // Properties
+                    properties = tools.quiz.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.description.title = 'Description';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Echec';
+                    properties.omit.title = 'Omission';
+                }
+
+                if (tools.textbox instanceof Tool) {
+                    // Attributes
+                    attributes = tools.textbox.constructor.prototype.attributes;
+                    attributes.style.title = 'Style';
+                    // Properties
+                    properties = tools.textbox.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.description.title = 'Description';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Echec';
+                    properties.omit.title = 'Omission';
+                }
+
+                if (tools.video instanceof Tool) {
+                    // Attributes
+                    attributes = tools.video.constructor.prototype.attributes;
+                    attributes.autoplay.title = 'Auto.';
+                    attributes.toolbarHeight.title = 'Haut. Commandes';
+                    attributes.mp4.title = 'Fichier MP4';
+                    attributes.ogv.title = 'Fichier OGV';
+                    attributes.wbem.title = 'Fichier WBEM';
+                }
             }
 
-            if (kidoju.tools.checkbox instanceof Tool) {
-                // Attributes
-                attributes = kidoju.tools.checkbox.constructor.prototype.attributes;
-                attributes.checkboxStyle.title = 'Style Boîte';
-                attributes.labelStyle.title = 'Style Texte';
-                attributes.text.title = 'Texte';
-                // Properties
-                properties = kidoju.tools.checkbox.constructor.prototype.properties;
-                properties.name.title = 'Nom';
-                properties.description.title = 'Description';
-                properties.solution.title = 'Solution';
-                properties.validation.title = 'Validation';
-                properties.success.title = 'Succès';
-                properties.failure.title = 'Echec';
-                properties.omit.title = 'Omission';
-            }
-
-            if (kidoju.tools.image instanceof Tool) {
-                // Attributes
-                attributes = kidoju.tools.image.constructor.prototype.attributes;
-                attributes.src.title = 'Source';
-                attributes.alt.title = 'Texte';
-            }
-
-            if (kidoju.tools.label instanceof Tool) {
-                // Attributes
-                attributes = kidoju.tools.label.constructor.prototype.attributes;
-                attributes.style.title = 'Style';
-                attributes.text.title = 'Texte';
-            }
-
-            if (kidoju.tools.quiz instanceof Tool) {
-                // Attributes
-                attributes = kidoju.tools.quiz.constructor.prototype.attributes;
-                attributes.activeStyle.title = 'Style Sélect.';
-                attributes.data.title = 'Valeurs';
-                attributes.groupStyle.title = 'Style Groupe';
-                attributes.itemStyle.title = 'Style Element';
-                attributes.mode.title = 'Mode';
-                // Properties
-                properties = kidoju.tools.quiz.constructor.prototype.properties;
-                properties.name.title = 'Nom';
-                properties.description.title = 'Description';
-                properties.solution.title = 'Solution';
-                properties.validation.title = 'Validation';
-                properties.success.title = 'Succès';
-                properties.failure.title = 'Echec';
-                properties.omit.title = 'Omission';
-            }
-
-            if (kidoju.tools.textbox instanceof Tool) {
-                // Attributes
-                attributes = kidoju.tools.textbox.constructor.prototype.attributes;
-                attributes.style.title = 'Style';
-                // Properties
-                properties = kidoju.tools.textbox.constructor.prototype.properties;
-                properties.name.title = 'Nom';
-                properties.description.title = 'Description';
-                properties.solution.title = 'Solution';
-                properties.validation.title = 'Validation';
-                properties.success.title = 'Succès';
-                properties.failure.title = 'Echec';
-                properties.omit.title = 'Omission';
-            }
-
-            if (kidoju.tools.video instanceof Tool) {
-                // Attributes
-                attributes = kidoju.tools.video.constructor.prototype.attributes;
-                attributes.autoplay.title = 'Auto.';
-                attributes.toolbarHeight.title = 'Haut. Commandes';
-                attributes.mp4.title = 'Fichier MP4';
-                attributes.ogv.title = 'Fichier OGV';
-                attributes.wbem.title = 'Fichier WBEM';
-            }
         }
 
     })(window.kendo.jQuery);

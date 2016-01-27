@@ -25,6 +25,7 @@
     "start": "node ./nodejs/http.server.js",
     "test": "grunt test"
   },
+  "dependencies": {},
   "devDependencies": {
     "chai": "^3.4.1",
     "grunt": "^0.4.5",
@@ -52,10 +53,9 @@
     "karma-safari-launcher": "^0.1.1",
     "karma-sauce-launcher": "^0.3.0",
     "karma-sinon-chai": "^1.1.0",
-    "mocha": "^2.3.4",
-    "phantomjs": "^1.9.19",
+    "mocha": "^2.4.2",
+    "phantomjs": "^2.1.2",
     "sinon": "^1.17.2",
     "zombie": "^4.2.1"
-  },
-  "dependencies": {}
+  }
 }

@@ -68,7 +68,7 @@
                     self.popup.canClose = true;
                     kendo.ui.ComboBox.fn._closeHandler.call(this, e);
                 };
-                self.bind('open', function() {
+                self.bind('open', function () {
                     if (self.value()) {
                         var treeview = self._treeview.getKendoTreeView();
                         var selectedNode = treeview.findByText(self.text());
@@ -84,7 +84,7 @@
             },
             refresh: function () {
                 ComboBox.fn.refresh.call(this);
-                if (this._treeview.getKendoTreeView().dataSource.data().length == 0) {
+                if (this._treeview.getKendoTreeView().dataSource.data().length === 0) {
                     this._treeview.getKendoTreeView().dataSource.data(
                         processTable(
                             this.dataSource._pristineData,
@@ -98,13 +98,13 @@
         kendo.ui.plugin(DropDownTreeView);
 
         function processTable(data, idField, foreignKey) {
-            var hash = {},
-                root = null;
+            var hash = {};
+            var root = null;
             for (var i = 0; i < data.length; i++) {
                 var item = data[i];
                 var id = item[idField];
                 var parentId = item[foreignKey];
-                if (parentId == null) {
+                if (parentId === null) {
                     root = id;
                 }
 

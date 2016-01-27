@@ -1263,11 +1263,13 @@
                 // Clear
 
                 // Set
+                /*
                 if (!disabled && !readonly) {
                     // TODO iterate through components and call onEnable
                 } else {
 
                 }
+                */
             },
 
             /**

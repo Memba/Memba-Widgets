@@ -133,8 +133,8 @@
              * @private
              */
             function log2Console(logEntry) {
-                /* jshint maxcomplexity: 22 */
-                /* jshint maxstatements: 32 */
+                /* jshint maxcomplexity: 24 */
+                /* jshint maxstatements: 34 */
                 var console = window.console;
                 if (app.DEBUG && console && typeof console.log === FUNCTION) {
                     var message = '[' + logEntry.level + (logEntry.level.length === 4 ? ' ' : '') + ']';

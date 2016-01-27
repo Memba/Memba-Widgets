@@ -317,14 +317,14 @@
                         change(e.value);
                     }
                 }).data('kendoNavigation');
-                expect(change).to.have.been.calledOnce;
+                expect(change).not.to.have.been.called;
                 expect(navigation).to.be.an.instanceof(Navigation);
                 expect(navigation.dataSource).to.be.an.instanceof(PageCollectionDataSource);
                 expect(navigation.dataSource.data()).to.be.an.instanceof(ObservableArray).with.property('length', pageCollectionArray.length);
                 var page = navigation.dataSource.at(1);
                 expect(page).to.be.an.instanceof(Page);
                 navigation.value(page);
-                expect(change).to.have.been.calledTwice; // TODO: once!
+                expect(change).to.have.been.calledOnce;
                 expect(change).to.have.been.calledWith(page);
             });
 

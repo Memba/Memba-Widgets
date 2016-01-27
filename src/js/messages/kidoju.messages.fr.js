@@ -202,15 +202,15 @@
             if (Tool && Tool.constructor && Tool.constructor.name === 'Function') {
                 Tool.prototype.i18n = $.extend(true, Tool.prototype.i18n, {
                     tool: {
-                        top: {title: 'Pos. Haut'},
-                        left: {title: 'Pos. Gauche'},
-                        height: {title: 'Hauteur'},
-                        width: {title: 'Largeur'},
-                        rotate: {title: 'Rotation'}
+                        top: { title: 'Pos. Haut' },
+                        left: { title: 'Pos. Gauche' },
+                        height: { title: 'Hauteur' },
+                        width: { title: 'Largeur' },
+                        rotate: { title: 'Rotation' }
                     },
                     dialogs: {
-                        ok: {text: 'OK'},
-                        cancel: {text: 'Annuler'}
+                        ok: { text: 'OK' },
+                        cancel: { text: 'Annuler' }
                     }
                 });
             }

@@ -58,8 +58,7 @@ module.exports = function(config) {
         }
     };
 
-
-  config.set({
+    config.set({
 
       // mocha configuration
       client: {
@@ -160,4 +159,5 @@ module.exports = function(config) {
       // if true, Karma captures browsers, runs the tests and exits
       singleRun: true
   });
+
 };

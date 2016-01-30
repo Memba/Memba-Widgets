@@ -23,8 +23,7 @@ module.exports = function(config) {
 
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        //frameworks: ['mocha', 'requirejs', 'chai', 'sinon'],
-        frameworks: ['mocha', 'sinon-chai'],
+        frameworks: ['mocha', 'chai', 'sinon'],
 
         // list of files / patterns to load in the browser
         // See: http://karma-runner.github.io/0.12/config/files.html
@@ -35,7 +34,7 @@ module.exports = function(config) {
             { pattern: 'src/js/vendor/kendo/jquery.min.js', served: true, included: true },
             { pattern: 'src/js/vendor/kendo/kendo.all.min.js', served: true, included: true },
             { pattern: 'src/js/window.assert.js', served: true, included: true },
-            { pattern: 'src/js/window.log.js', served: true, included: true },
+            { pattern: 'src/js/window.logger.js', served: true, included: true },
             { pattern: 'src/js/kidoju.data.js', served: true, included: true },
             { pattern: 'src/js/kidoju.data.workerlibjs', served: true, included: false },
             { pattern: 'src/js/kidoju.tools.js', served: true, included: true },
@@ -55,9 +54,11 @@ module.exports = function(config) {
             { pattern: 'src/js/kidoju.widgets.toolbox.js', served: true, included: true },
             { pattern: 'test/vendor/chai-jquery.js', served: true, included: true },
             { pattern: 'test/vendor/jquery.simulate.js', served: true, included: true },
+            // Our tests
             { pattern: 'test/browsers/*.js', served: true, included: true },
-            { pattern: 'src/**/*.*', served: true, included: false },
-            { pattern: 'test/data/*.json', served: true, included: false }
+            // served but not included
+            { pattern: 'test/data/*.json', served: true, included: false },
+            { pattern: 'src/**/*.*', served: true, included: false }
         ],
 
         // list of files to exclude
@@ -92,7 +93,7 @@ module.exports = function(config) {
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
         browsers: ['Chrome', 'IE', 'Safari', 'Firefox', 'PhantomJS'],
-        //browsers: ['PhantomJS'],
+        // TODO browsers: ['Edge'],
 
         // optionally, configure the reporter
         coverageReporter: {

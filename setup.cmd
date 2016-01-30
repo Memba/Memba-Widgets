@@ -1,17 +1,19 @@
-REM goto current directory
 cd /d %~dp0
-REM set node environment
 call "%ProgramFiles%\nodejs\nodevars.bat"
-REM -------------------------
-REM Install global packages
-call npm update -g npm
-call npm install -g grunt-cli
-call npm install -g istanbul
-call npm install -g karma-cli
-REM call npm install -g mocha
-call npm install -g nodemon
-call npm install -g webpack
-call npm install -g webpack-dev-server
-REM -------------------------
-REM Install dependencies listed in package.json
-call npm install
+REM update npm, which is a requirement for some modules
+npm install -g npm
+REM grunt command in terminal mode
+npm install -g grunt-cli
+REM code coverage with istanbul
+npm install -g istanbul
+REM karma command in terminal mode
+npm install -g karma-cli
+REM mocha command in terminal mode
+REM npm install -g mocha
+REM nodemon to run webapp while debugging browser code
+npm install -g nodemon
+REM webpack for builds
+npm install -g webpack
+npm install -g webpack-dev-server
+REM install dependencies listed in package.json
+npm install

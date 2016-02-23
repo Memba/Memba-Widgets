@@ -26,7 +26,7 @@
     "test": "grunt test"
   },
   "dependencies": {},
-  "devDependencies": npm commit -a {
+  "devDependencies": {
     "chai": "^3.5.0",
     "grunt": "^0.4.5",
     "grunt-contrib-clean": "^1.0.0",

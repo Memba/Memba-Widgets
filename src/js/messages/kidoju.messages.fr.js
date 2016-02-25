@@ -229,6 +229,7 @@
                     // Attributes
                     attributes = tools.checkbox.constructor.prototype.attributes;
                     attributes.checkboxStyle.title = 'Style Boîte';
+                    attributes.containerStyle.title = 'Style Conteneur';
                     attributes.labelStyle.title = 'Style Texte';
                     attributes.text.title = 'Texte';
                     // Properties

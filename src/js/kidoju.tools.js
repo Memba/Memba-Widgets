@@ -1273,7 +1273,7 @@
             width: 300,
             attributes: {
                 text: new adapters.StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: 'Label' }),
-                style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title })
+                style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size: 80px;' })
             },
 
             /**
@@ -1287,44 +1287,18 @@
                 assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
-                var height = component.height;
-                var width = component.width;
-                if ($.type(width) === NUMBER) {
-                    content.outerWidth(width);
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
                 }
-                if ($.type(height) === NUMBER) {
-                    content.outerHeight(height);
-                    if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
-                        /*
-                         * We make a best guess for the number of lines as follows
-                         * Let's suppose the height (line-height, not font-size) and width of a character are respectively y and x
-                         * We have y = x * sizeRatio
-                         * How many of these character rectangles (x, y) can we fit in the content div (width, height)?
-                         *
-                         * the label only takes 1 line, if we have:
-                         * y = height and length <= width/x, that is length <= width*sizeRatio/y or y = height <= length*sizeRatio/width, which is length >= width*sizeRatio/height
-                         *
-                         * the label takes 2 lines, if we have:
-                         * y = height/2 and length <= width/x, that is length <= 2*width*sizeRatio/y or y = height/2 <= length*sizeRatio/width, which is length >= 4*width*sizeRatio/height
-                         *
-                         * the label takes n lines if we have sqrt((length*height)/sizeRatio*width) <= lines < sqrt(((length + 1)*height)/sizeRatio*width)
-                         *
-                         */
-                        var length = component.attributes.text.length;
-                        var sizeRatio = 1.6; // font-size being the height, this is the line-height/char-width ratio
-                        var lines = Math.max(1, Math.floor(Math.sqrt((length * height) / (width * sizeRatio))));
-                        // We can now make a best guess for the font size
-                        var fontRatio = 1.2; // this is the line-height/font-size ration
-                        content.css('font-size', Math.floor(height / lines / fontRatio));
-                        // Note: in previous versions, we have tried to iterate through a hidden clone
-                        // to find that font size that does not trigger an overflow but it is too slow
-                    }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
                 }
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
             }
+
         });
         tools.register(Label);
 

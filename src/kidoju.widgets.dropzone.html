@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>kidoju.widgets.dropzone</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <script src="./js/vendor/kendo/jquery.min.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
+    <script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script>
+    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
+    <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
+    <!-- dropzone requirements -->
+    <link rel="stylesheet" href="./styles/kidoju.widgets.dropzone.css">
+    <script src="./js/window.assert.js"></script>
+    <script src="./js/window.logger.js"></script>
+    <script src="./js/kidoju.widgets.dropzone.js"></script>
+    <style>
+        .demo-section {
+            height: 300px;
+            position: relative;
+        }
+        #droptarget {
+            height: 200px;
+            width: 200px;
+            font-size: 14px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 200px;
+            margin: 0 auto;
+            cursor: default;
+            border: 1px solid #999;
+        }
+        [draggable] {
+            cursor: move;
+            position: absolute;
+            top: 260px;
+            left: 50%;
+            margin-left: -28px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #03a9f4;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.23), 0 3px 10px rgba(0, 0, 0, 0.16);
+        }
+    </style>
+</head>
+<body>
+<h1>kidoju.widgets.dropzone</h1>
+<div class="demo-section k-content">
+    <div id="droptarget" class="k-header" data-role="dropzone">Drag the small circle here.</div>
+    <div draggable></div>
+</div>
+
+<script>
+    ;(function(window, $, undefined){
+
+        'use strict';
+
+        var kendo = window.kendo;
+        var viewModel = new kendo.observable({
+            // TODO
+        });
+
+        $(document).ready(function() {
+            kendo.bind('body', viewModel);
+        });
+
+    }(this, jQuery));
+</script>
+</body>
+</html>

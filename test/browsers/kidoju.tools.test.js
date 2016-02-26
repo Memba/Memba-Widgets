@@ -368,7 +368,7 @@
                 expect(tool.id).to.equal('checkbox');
                 expect(tool.icon).to.equal('checkbox');
                 expect(tool.cursor).to.equal('crosshair');
-                expect(tool.height).to.equal(60);
+                expect(tool.height).to.equal(70);
                 expect(tool.width).to.equal(300);
                 expect(tool.getHtmlContent).to.respond;
                 expect(tool.onMove).to.be.undefined;
@@ -395,15 +395,15 @@
 
                 // If we submit a valid page component in design mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
-                expect(html).to.match(/^<div><input/);
+                expect(html).to.match(/^<div style="[^"]+"><input/);
 
                 // If we submit a valid page component in play mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
-                expect(html).to.match(/^<div><input/);
+                expect(html).to.match(/^<div style="[^"]+"><input/);
 
                 // If we submit a valid page component in review mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
-                expect(html).to.match(/^<div><input/);
+                expect(html).to.match(/^<div style="[^"]+"><input/);
             });
 
         });
@@ -415,8 +415,8 @@
                 expect(tool.id).to.equal('quiz');
                 expect(tool.icon).to.equal('radio_button_group');
                 expect(tool.cursor).to.equal('crosshair');
-                expect(tool.height).to.equal(100);
-                expect(tool.width).to.equal(300);
+                expect(tool.height).to.equal(200);
+                expect(tool.width).to.equal(350);
                 expect(tool.getHtmlContent).to.respond;
                 expect(tool.onMove).to.be.undefined;
                 expect(tool.onResize).to.respond;

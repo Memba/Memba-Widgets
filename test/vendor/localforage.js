@@ -1,6 +1,6 @@
 /*!
     localForage -- Offline Storage, Improved
-    Version 1.3.3
+    Version 1.4.0
     https://mozilla.github.io/localForage
     (c) 2013-2015 Mozilla, Apache License 2.0
 */
@@ -2536,9 +2536,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            try {
 	                dbInfo.db = openDatabase(dbInfo.name, String(dbInfo.version), dbInfo.description, dbInfo.size);
 	            } catch (e) {
-	                return self.setDriver(self.LOCALSTORAGE).then(function () {
-	                    return self._initStorage(options);
-	                }).then(resolve)['catch'](reject);
+	                return reject(e);
 	            }
 
 	            // Create our key/value table if it doesn't exist.

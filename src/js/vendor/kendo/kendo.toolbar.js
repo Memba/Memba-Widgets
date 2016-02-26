@@ -1106,7 +1106,9 @@ var __meta__ = { // jshint ignore:line
                     if (item.toolbar.options.type === "button" && item.toolbar.options.isChild) {
                         item.toolbar.getParentGroup().refresh();
                     }
-                } else if (item.overflow) {
+                }
+
+                if (item.overflow) {
                     item.overflow.show();
 
                     if (item.overflow.options.type === "button" && item.overflow.options.isChild) {
@@ -1227,7 +1229,15 @@ var __meta__ = { // jshint ignore:line
             },
 
             _toggleOverflowAnchor: function() {
-                if (this.popup.element.children(":not(." + OVERFLOW_HIDDEN + ", ." + POPUP + ")").length > 0) {
+                var hasVisibleChildren = false;
+
+                if (this.options.mobile) {
+                    hasVisibleChildren = this.popup.element.find("." + OVERFLOW_CONTAINER).children(":not(." + OVERFLOW_HIDDEN + ", ." + POPUP + ")").length > 0;
+                } else {
+                    hasVisibleChildren = this.popup.element.children(":not(." + OVERFLOW_HIDDEN + ", ." + POPUP + ")").length > 0;
+                }
+
+                if (hasVisibleChildren) {
                     this.overflowAnchor.css({
                         visibility: "visible",
                         width: ""
@@ -1244,7 +1254,7 @@ var __meta__ = { // jshint ignore:line
                 var that = this, popup,
                     target, item, splitContainer,
                     isSplitButtonArrow = e.target.closest("." + SPLIT_BUTTON_ARROW).length,
-                    handler, eventData;
+                    handler, eventData, urlTarget;
 
                 e.preventDefault();
 
@@ -1287,7 +1297,10 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (item.options.url) {
-                    window.location.href = item.options.url;
+                    if (item.options.attributes && item.options.attributes.target) {
+                        urlTarget = item.options.attributes.target;
+                    }
+                    window.open(item.options.url, urlTarget || "_self");
                 }
 
                 if (target.hasClass(OVERFLOW_BUTTON)) {

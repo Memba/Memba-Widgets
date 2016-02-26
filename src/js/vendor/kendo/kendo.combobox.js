@@ -149,7 +149,8 @@ var __meta__ = { // jshint ignore:line
             "filtering",
             "dataBinding",
             "dataBound",
-            "cascade"
+            "cascade",
+            "set"
         ],
 
         setOptions: function(options) {
@@ -293,7 +294,6 @@ var __meta__ = { // jshint ignore:line
             }
 
             var custom = that._customOption;
-            var hasChild = that.element[0].children[0];
 
             if (that._state === STATE_REBIND) {
                 that._state = "";
@@ -304,8 +304,6 @@ var __meta__ = { // jshint ignore:line
 
             if (custom && custom[0].selected) {
                 that._custom(custom.val());
-            } else if (!hasChild) {
-                that._custom("");
             }
         },
 
@@ -341,7 +339,9 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            that._custom(that._value(dataItem) || "");
+            if (that._value(dataItem) !== that.value()) {
+                that._custom(that._value(dataItem));
+            }
 
             if (that.text() && that.text() !== that._text(dataItem)) {
                 that._selectValue(dataItem);
@@ -599,13 +599,15 @@ var __meta__ = { // jshint ignore:line
                 return value === undefined || value === null ? "" : value;
             }
 
+            that.trigger("set", { value: value });
+
             if (value === options.value && that.input.val() === options.text) {
                 return;
             }
 
             that._accessor(value);
 
-            if (listView.bound() && listView.isFiltered()) {
+            if (that._isFilterEnabled() && listView.bound() && listView.isFiltered()) {
                 listView.bound(false);
                 that._filterSource();
             } else {
@@ -615,8 +617,6 @@ var __meta__ = { // jshint ignore:line
             listView
                 .value(value)
                 .done(function() {
-                    that._selectValue(listView.selectedDataItems()[0]);
-
                     if (that.selectedIndex === -1) {
                         that._accessor(value);
                         that.input.val(value);
@@ -823,7 +823,7 @@ var __meta__ = { // jshint ignore:line
                     that._prev = value;
 
                     if (that.options.filter === "none") {
-                        that.listView.value("");
+                        that.listView.select(-1);
                     }
 
                     that.search(value);

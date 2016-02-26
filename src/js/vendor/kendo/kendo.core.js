@@ -2645,11 +2645,11 @@ function pad(number, digits, end) {
             kendo._widgetRegisteredCallbacks.push(callback);
         },
 
-        logToConsole: function(message) {
+        logToConsole: function(message, type) {
             var console = window.console;
 
             if (!kendo.suppressLog && typeof(console) != "undefined" && console.log) {
-                console.log(message);
+                console[type || "log"](message);
             }
         }
     });
@@ -4247,7 +4247,7 @@ function pad(number, digits, end) {
     kendo.proxyModelSetters = function proxyModelSetters(data) {
         var observable = {};
 
-        Object.keys(data).forEach(function(property) {
+        Object.keys(data || {}).forEach(function(property) {
           Object.defineProperty(observable, property, {
             get: function() {
               return data[property];

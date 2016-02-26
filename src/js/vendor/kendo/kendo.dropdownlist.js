@@ -24,6 +24,7 @@ var __meta__ = { // jshint ignore:line
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
+        List = ui.List,
         Select = ui.Select,
         support = kendo.support,
         activeElement = kendo._activeElement,
@@ -165,7 +166,8 @@ var __meta__ = { // jshint ignore:line
             "filtering",
             "dataBinding",
             "dataBound",
-            "cascade"
+            "cascade",
+            "set"
         ],
 
         setOptions: function(options) {
@@ -332,9 +334,11 @@ var __meta__ = { // jshint ignore:line
                 return value === undefined || value === null ? "" : value;
             }
 
-            if (value) {
+            if (value || !that.hasOptionLabel()) {
                 that._initialIndex = null;
             }
+
+            this.trigger("set", { value: value });
 
             if (that._request && that.options.cascadeFrom && that.listView.bound()) {
                 if (that._valueSetter) {
@@ -347,7 +351,7 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            if (listView.bound() && listView.isFiltered()) {
+            if (that._isFilterEnabled() && listView.bound() && listView.isFiltered()) {
                 listView.bound(false);
                 that._filterSource();
             } else {
@@ -408,8 +412,8 @@ var __meta__ = { // jshint ignore:line
                             .click(proxy(that._click, that))
                             .on(HOVEREVENTS, that._toggleHover);
 
-            that.angular("compile", function(){
-                return { elements: that.optionLabel };
+            that.angular("compile", function() {
+                return { elements: that.optionLabel, data: [{ dataItem: that._optionLabelDataItem() }] };
             });
         },
 
@@ -429,17 +433,38 @@ var __meta__ = { // jshint ignore:line
             return null;
         },
 
+        _buildOptions: function(data) {
+            var that = this;
+            if (!that._isSelect) {
+                return;
+            }
+
+            var value = that.listView.value()[0];
+            var optionLabel = that._optionLabelDataItem();
+
+            if (value === undefined || value === null) {
+                value = "";
+            }
+
+            if (optionLabel) {
+                optionLabel = '<option value="' + that._value(optionLabel) + '">' + that._text(optionLabel) + "</option>";
+            }
+
+            that._options(data, optionLabel, value);
+
+            if (value !== List.unifyType(that._accessor(), typeof value)) {
+                that._customOption = null;
+                that._custom(value);
+            }
+        },
+
         _listBound: function() {
             var that = this;
             var initialIndex = that._initialIndex;
-            var optionLabel = that.options.optionLabel;
             var filtered = that._state === STATE_FILTER;
 
             var data = that.dataSource.flatView();
-            var length = data.length;
             var dataItem;
-
-            var value;
 
             that._angularItems("compile");
 
@@ -449,19 +474,7 @@ var __meta__ = { // jshint ignore:line
 
             that.popup.position();
 
-            if (that._isSelect) {
-                value = that.value();
-
-                if (length) {
-                    if (optionLabel) {
-                        optionLabel = that._option("", that._optionLabelText());
-                    }
-                } else if (value) {
-                    optionLabel = that._option(value, that.text());
-                }
-
-                that._options(data, optionLabel, value);
-            }
+            that._buildOptions(data);
 
             that._makeUnselectable();
 
@@ -473,7 +486,7 @@ var __meta__ = { // jshint ignore:line
                 that._open = false;
 
                 if (!that._fetch) {
-                    if (length) {
+                    if (data.length) {
                         if (!that.listView.value().length && initialIndex > -1 && initialIndex !== null) {
                             that.select(initialIndex);
                         }
@@ -602,10 +615,6 @@ var __meta__ = { // jshint ignore:line
                    .attr(ARIA_READONLY, readonly);
         },
 
-        _option: function(value, text) {
-            return '<option value="' + value + '">' + text + "</option>";
-        },
-
         _keydown: function(e) {
             var that = this;
             var key = e.keyCode;
@@ -696,7 +705,7 @@ var __meta__ = { // jshint ignore:line
 
         _selectNext: function() {
             var that = this;
-            var data = that.dataSource.flatView().toJSON();
+            var data = that.dataSource.flatView();
             var dataLength = data.length + (that.hasOptionLabel() ? 1 : 0);
             var isInLoop = sameCharsOnly(that._word, that._last);
             var startIndex = that.selectedIndex;
@@ -710,6 +719,7 @@ var __meta__ = { // jshint ignore:line
                 startIndex = normalizeIndex(startIndex, dataLength);
             }
 
+            data = data.toJSON ? data.toJSON() : data.slice();
             data = that._shuffleData(data, startIndex);
 
             for (var idx = 0; idx < dataLength; idx++) {
@@ -832,7 +842,7 @@ var __meta__ = { // jshint ignore:line
 
             clearTimeout(that._typingTimeout);
 
-            if (that.options.filter !== "none") {
+            if (that._isFilterEnabled()) {
                 that._typingTimeout = setTimeout(function() {
                     var value = that.filterInput.val();
 
@@ -1059,8 +1069,6 @@ var __meta__ = { // jshint ignore:line
 
         _filterHeader: function() {
             var icon;
-            var options = this.options;
-            var filterEnalbed = options.filter !== "none";
 
             if (this.filterInput) {
                 this.filterInput
@@ -1071,7 +1079,7 @@ var __meta__ = { // jshint ignore:line
                 this.filterInput = null;
             }
 
-            if (filterEnalbed) {
+            if (this._isFilterEnabled()) {
                 icon = '<span unselectable="on" class="k-icon k-i-search">select</span>';
 
                 this.filterInput = $('<input class="k-textbox"/>')
@@ -1154,7 +1162,7 @@ var __meta__ = { // jshint ignore:line
 
             that.valueTemplate = template;
 
-            if (that.hasOptionLabel()) {
+            if (that.hasOptionLabel() && !that.options.optionLabelTemplate) {
                 try {
                     that.valueTemplate(that._optionLabelDataItem());
                 } catch(e) {

@@ -10,11 +10,15 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "gte": "É posterior ou igual a",
     "lt": "É anterior a",
     "lte": "É anterior ou igual a",
-    "neq": "Não é igual a"
+    "neq": "Não é igual a",
+    "isnull": "É nulo",
+    "isnotnull": "É não nulo"
   },
   "enums": {
     "eq": "É igual a",
-    "neq": "Não é igual a"
+    "neq": "Não é igual a",
+    "isnull": "É nulo",
+    "isnotnull": "É não nulo"
   },
   "number": {
     "eq": "É igual a",
@@ -22,7 +26,9 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "gte": "É maior que ou igual a",
     "lt": "É menor que",
     "lte": "É menor que ou igual a",
-    "neq": "Não é igual a"
+    "neq": "Não é igual a",
+    "isnull": "É nulo",
+    "isnotnull": "É não nulo"
   },
   "string": {
     "contains": "Contém",
@@ -30,7 +36,11 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "endswith": "Termina com",
     "eq": "É igual a",
     "neq": "Não é igual a",
-    "startswith": "Começa com"
+    "startswith": "Começa com",
+    "isnull": "É nulo",
+    "isnotnull": "É não nulo",
+    "isempty": "É vazio",
+    "isnotempty": "É não vazio"
   }
 });
 }
@@ -46,11 +56,15 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "gte": "É posterior ou igual a",
     "lt": "É anterior a",
     "lte": "É anterior ou igual a",
-    "neq": "Não é igual a"
+    "neq": "Não é igual a",
+    "isnull": "É nulo",
+    "isnotnull": "É não nulo"
   },
   "enums": {
     "eq": "É igual a",
-    "neq": "Não é igual a"
+    "neq": "Não é igual a",
+    "isnull": "É nulo",
+    "isnotnull": "É não nulo"
   },
   "number": {
     "eq": "É igual a",
@@ -58,7 +72,9 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "gte": "É maior que ou igual a",
     "lt": "É menor que",
     "lte": "É menor que ou igual a",
-    "neq": "Não é igual a"
+    "neq": "Não é igual a",
+    "isnull": "É nulo",
+    "isnotnull": "É não nulo"
   },
   "string": {
     "contains": "Contém",
@@ -66,7 +82,11 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "endswith": "Termina com",
     "eq": "É igual a",
     "neq": "Não é igual a",
-    "startswith": "Começa com"
+    "startswith": "Começa com",
+    "isnull": "É nulo",
+    "isnotnull": "É não nulo",
+    "isempty": "É vazio",
+    "isnotempty": "É não vazio"
   }
 });
 }
@@ -359,6 +379,23 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "statusUploaded": "enviado",
   "statusUploading": "enviando",
   "uploadSelectedFiles": "Enviar arquivos"
+});
+}
+
+/* Validator messages */
+
+if (kendo.ui.Validator) {
+kendo.ui.Validator.prototype.options.messages =
+$.extend(true, kendo.ui.Validator.prototype.options.messages,{
+  "required": "{0} é obrigatório",
+  "pattern": "{0} não é válido",
+  "min": "{0} deve ser maior ou igual a {1}",
+  "max": "{0} deve ser menor ou igual a {1}",
+  "step": "{0} não é válido",
+  "email": "{0} não é um email válido",
+  "url": "{0} não é um endereço web válido",
+  "date": "{0} não é uma data válida",
+  "dateCompare": "A data final deve ser posterior à data inicial"
 });
 }
 })(window.kendo.jQuery);

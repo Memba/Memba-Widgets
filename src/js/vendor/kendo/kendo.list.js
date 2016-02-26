@@ -185,6 +185,11 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
+        _isFilterEnabled: function() {
+            var filter = this.options.filter;
+            return filter && filter !== "none";
+        },
+
         _filterSource: function(filter, force) {
             var that = this;
             var options = that.options;
@@ -360,7 +365,7 @@ var __meta__ = { // jshint ignore:line
 
             element.attr("aria-owns", id);
 
-            that.ul.attr("aria-live", !options.filter || options.filter === "none" ? "off" : "polite");
+            that.ul.attr("aria-live", !that._isFilterEnabled() ? "off" : "polite");
         },
 
         _blur: function() {
@@ -744,7 +749,6 @@ var __meta__ = { // jshint ignore:line
             var length = word.length;
             var options = that.options;
             var ignoreCase = options.ignoreCase;
-            var filter = options.filter;
             var field = options.dataTextField;
 
             clearTimeout(that._typingTimeout);
@@ -752,14 +756,14 @@ var __meta__ = { // jshint ignore:line
             if (!length || length >= options.minLength) {
                 that._state = "filter";
 
-                if (filter === "none") {
+                if (!that._isFilterEnabled()) {
                     that._filter(word);
                 } else {
                     that._open = true;
                     that._filterSource({
                         value: ignoreCase ? word.toLowerCase() : word,
                         field: field,
-                        operator: filter,
+                        operator: options.filter,
                         ignoreCase: ignoreCase
                     });
                 }
@@ -1142,6 +1146,12 @@ var __meta__ = { // jshint ignore:line
                     return;
                 }
 
+                parent.bind("set", function() { //will cascade
+                    that.one("set", function(e) { //get your value
+                        that._selectedValue = e.value;
+                    });
+                });
+
                 options.autoBind = false;
 
                 cascadeHandler = proxy(function(e) {
@@ -1179,7 +1189,9 @@ var __meta__ = { // jshint ignore:line
 
         _cascadeChange: function(parent) {
             var that = this;
-            var value = that._accessor();
+            var value = that._accessor() || that._selectedValue;
+
+            that._selectedValue = null;
 
             if (that._userTriggered) {
                 that._clearSelection(parent, true);
@@ -1213,7 +1225,7 @@ var __meta__ = { // jshint ignore:line
             if (filterValue || filterValue === 0) {
                 expressions = that.dataSource.filter() || {};
                 removeFiltersForField(expressions, valueField);
-                filters = expressions.filters || [];
+                filters = (expressions.filters || []).slice(0);
 
                 filters.push({
                     field: valueField,

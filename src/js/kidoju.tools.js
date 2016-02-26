@@ -96,6 +96,7 @@
             checkbox: {
                 attributes: {
                     checkboxStyle: { title: 'Checkbox Style' },
+                    containerStyle: { title: 'Container Style' },
                     labelStyle: { title: 'Label Style' },
                     text: { title: 'Text' }
                 },
@@ -1095,7 +1096,7 @@
         });
         tools.register(Audio);
 
-        var CHECKBOX = '<div><input id="#: properties.name #" type="checkbox" style="#: attributes.checkboxStyle #" {0}><label for="#: properties.name #" style="#: attributes.labelStyle #">#: attributes.text #</label></div>';
+        var CHECKBOX = '<div style="#: attributes.containerStyle #"><input id="#: properties.name #" type="checkbox" style="#: attributes.checkboxStyle #" {0}>&nbsp;<label for="#: properties.name #" style="#: attributes.labelStyle #">#: attributes.text #</label></div>';
         /**
          * Checkbox tool
          * @class CheckBox
@@ -1111,11 +1112,14 @@
                 review: kendo.format(CHECKBOX, 'data-#= ns #bind="checked: #: properties.name #.value"') + Tool.fn.showResult()
 
             },
-            height: 60,
+            height: 70,
             width: 300,
             attributes: {
-                checkboxStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.checkboxStyle.title }),
-                labelStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.labelStyle.title }),
+                // checkboxStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.checkboxStyle.title }),
+                checkboxStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.checkboxStyle.title, defaultValue: 'height: 40px; width: 40px;' }),
+                containerStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.containerStyle.title }),
+                // labelStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.labelStyle.title }),
+                labelStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.labelStyle.title, defaultValue: 'font-size: 60px;' }),
                 text: new adapters.StringAdapter({ title: i18n.checkbox.attributes.text.title, defaultValue: 'text' })
             },
             properties: {
@@ -1163,20 +1167,20 @@
                 assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
-                var input = content.children('input');
+                // var input = content.children('input');
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.width);
                 }
                 if ($.type(component.height) === NUMBER) {
                     content.outerHeight(component.height);
-                    if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
-                        content.css('font-size', Math.floor(0.85 * content.height()));
-                    }
+                    // if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
+                    //     content.css('font-size', Math.floor(0.85 * content.height()));
+                    // }
                 }
-                var size = parseInt(content.css('font-size'), 10);
-                content.children('input')
-                    .height(0.6 * size)
-                    .width(0.6 * size);
+                // var size = parseInt(content.css('font-size'), 10);
+                // content.children('input')
+                //     .height(0.6 * size)
+                //     .width(0.6 * size);
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage
@@ -1292,6 +1296,31 @@
                 }
                 if ($.type(component.height) === NUMBER) {
                     content.outerHeight(component.height);
+                    // if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
+                    /*
+                     * We make a best guess for the number of lines as follows
+                     * Let's suppose the height (line-height, not font-size) and width of a character are respectively y and x
+                     * We have y = x * sizeRatio
+                     * How many of these character rectangles (x, y) can we fit in the content div (width, height)?
+                     *
+                     * the label only takes 1 line, if we have:
+                     * y = height and length <= width/x, that is length <= width*sizeRatio/y or y = height <= length*sizeRatio/width, which is length >= width*sizeRatio/height
+                     *
+                     * the label takes 2 lines, if we have:
+                     * y = height/2 and length <= width/x, that is length <= 2*width*sizeRatio/y or y = height/2 <= length*sizeRatio/width, which is length >= 4*width*sizeRatio/height
+                     *
+                     * the label takes n lines if we have sqrt((length*height)/sizeRatio*width) <= lines < sqrt(((length + 1)*height)/sizeRatio*width)
+                     *
+                     */
+                    // var length = component.attributes.text.length;
+                    // var sizeRatio = 1.6; // font-size being the height, this is the line-height/char-width ratio
+                    // var lines = Math.max(1, Math.floor(Math.sqrt((length * component.height) / (width * sizeRatio))));
+                    // We can now make a best guess for the font size
+                    // var fontRatio = 1.2; // this is the line-height/font-size ration
+                    // content.css('font-size', Math.floor(component.height / lines / fontRatio));
+                    // Note: in previous versions, we have tried to iterate through a hidden clone
+                    // to find that font size that does not trigger an overflow but it is too slow
+                    // }
                 }
                 // prevent any side effect
                 e.preventDefault();
@@ -1571,7 +1600,6 @@
          * HTML
          * Drawing surface
          * Shape
-         * Checkbox
          * Drop Target
          * Connector
          * Clock

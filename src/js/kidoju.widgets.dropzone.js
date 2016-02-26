@@ -106,24 +106,33 @@
                 that.element.addClass(WIDGET_CLASS);
                 $(that.options.draggable).kendoDraggable({
                     hint: function(element) {
+                        assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
                         return element.clone();
                     },
                     // TODO container: stage,
                     dragstart: function(e) {
-                        $.noop();
+                        assert.instanceof(kendo.ui.Draggable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Draggable'));
+                        e.sender.element.hide();
                     },
                     dragend: function(e) {
-                        $.noop();
+                        assert.instanceof(kendo.ui.Draggable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Draggable'));
+                        var position = e.sender.hint.position();
+                        e.sender.hint.hide();
+                        e.sender.element.css(position).show();
+                        if (e.sender.dropped) {
+                            $.noop();
+                            // Add value to drop target??
+                        }
                     }
                 });
                 that.element.kendoDropTarget({
-                    dragenter: function(e) {
-                        $.noop();
-                    },
+                    // dragenter: $.noop,
                     dragleave: function(e) {
+                        // Remove value to drop target??
                         $.noop();
                     },
                     drop: function(e) {
+                        // Add value to drop target??
                         $.noop();
                     }
                 });

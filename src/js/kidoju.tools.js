@@ -95,9 +95,9 @@
 
             checkbox: {
                 attributes: {
-                    checkboxStyle: { title: 'Checkbox Style' },
-                    containerStyle: { title: 'Container Style' },
-                    labelStyle: { title: 'Label Style' },
+                    // checkboxStyle: { title: 'Checkbox Style' },
+                    containerStyle: { title: 'Style' },
+                    // labelStyle: { title: 'Label Style' },
                     text: { title: 'Text' }
                 },
                 properties: {
@@ -1096,7 +1096,8 @@
         });
         tools.register(Audio);
 
-        var CHECKBOX = '<div style="#: attributes.checkboxStyle #"><input id="#: properties.name #" type="checkbox" {0}>&nbsp;<label for="#: properties.name #">#: attributes.text #</label></div>';
+        // var CHECKBOX = '<div style="#: attributes.containerStyle #"><input id="#: properties.name #" type="checkbox" style="#: attributes.checkboxStyle #" {0}>&nbsp;<label for="#: properties.name #" style="#: attributes.labelStyle #">#: attributes.text #</label></div>';
+        var CHECKBOX = '<div style="#: attributes.containerStyle #"><input id="#: properties.name #" type="checkbox" {0}>&nbsp;<label for="#: properties.name #">#: attributes.text #</label></div>';
         /**
          * Checkbox tool
          * @class CheckBox
@@ -1116,8 +1117,7 @@
             width: 300,
             attributes: {
                 // checkboxStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.checkboxStyle.title }),
-                checkboxStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.checkboxStyle.title, defaultValue: 'font-size: 60px;' }),
-                // containerStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.containerStyle.title }),
+                containerStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.containerStyle.title, defaultValue: 'font-size: 60px;' }),
                 // labelStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.labelStyle.title }),
                 text: new adapters.StringAdapter({ title: i18n.checkbox.attributes.text.title, defaultValue: 'text' })
             },

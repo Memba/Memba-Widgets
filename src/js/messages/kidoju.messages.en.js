@@ -229,9 +229,9 @@
                 if (tools.checkbox instanceof Tool) {
                     // Attributes
                     attributes = tools.checkbox.constructor.prototype.attributes;
-                    attributes.checkboxStyle.title = 'Checkbox Style';
-                    attributes.containerStyle.title = 'Container Style';
-                    attributes.labelStyle.title = 'Label Style';
+                    // attributes.checkboxStyle.title = 'Checkbox Style';
+                    attributes.containerStyle.title = 'Style';
+                    // attributes.labelStyle.title = 'Label Style';
                     attributes.text.title = 'Text';
                     // Properties
                     properties = tools.checkbox.constructor.prototype.properties;

@@ -26,18 +26,18 @@
     (function () {
         // TODO Consider searching whether it is not already loaded
         // TODO MathML cannot be used + hide contextual menu
-        var head = document.getElementsByTagName("head")[0];
-        var script = document.createElement("script");
-        script.type = "text/x-mathjax-config";
-        script[(window.opera ? "innerHTML" : "text")] =
-            "MathJax.Hub.Config({\n" +
-            "  asciimath2jax: { delimiters: [['§','§'], ['`','`']] }\n" +
-            "});";
+        var head = document.getElementsByTagName('head')[0];
+        var script = document.createElement('script');
+        script.type = 'text/x-mathjax-config';
+        script[(window.opera ? 'innerHTML' : 'text')] =
+            'MathJax.Hub.Config({\n' +
+            '  asciimath2jax: { delimiters: [["§","§"], ["`","`"]] }\n' +
+            '});';
         head.appendChild(script);
-        script = document.createElement("script");
-        script.type = "text/javascript";
-        // script.src  = "http://cdn.mathjax.org/mathjax/2.6-latest/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
-        script.src  = "http://cdn.mathjax.org/mathjax/2.6-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML";
+        script = document.createElement('script');
+        script.type = 'text/javascript';
+        // script.src  = 'http://cdn.mathjax.org/mathjax/2.6-latest/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+        script.src  = 'http://cdn.mathjax.org/mathjax/2.6-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML';
         head.appendChild(script);
     })();
 
@@ -46,6 +46,7 @@
         var kendo = window.kendo;
         var Widget = kendo.ui.Widget;
         var MarkdownIt = window.markdownit;
+        var hljs = window.hljs;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.markdown');
         var STRING = 'string';
@@ -150,7 +151,7 @@
                 if ($.type(value) === STRING || $.type(value) === NULL) {
                     if (that._value !== value) {
                         that._value = value;
-                        that.trigger(CHANGE, {value: that._value});
+                        that.trigger(CHANGE, { value: that._value });
                         that.refresh();
                     }
                 } else if ($.type(value) === UNDEFINED) {
@@ -168,7 +169,7 @@
              * Initialize markdown-it
              * @private
              */
-            _initMarkdownIt: function() {
+            _initMarkdownIt: function () {
                 this.md = new MarkdownIt({
                     html: false,
                     linkify: true,
@@ -182,7 +183,7 @@
                                     '</code></pre>';
                             } catch (ex) {}
                         }
-                        return '<pre class="hljs"><code>' + md.utils.escapeHtml(code) + '</code></pre>';
+                        return '<pre class="hljs"><code>' + this.md.utils.escapeHtml(code) + '</code></pre>';
                     }
                 });
             },
@@ -210,7 +211,7 @@
              * @method _inline
              * @private
              */
-            inline: function() {
+            inline: function () {
                 var that = this;
                 var element = that.element;
                 var inline = element.find(SCRIPT_SELECTOR);
@@ -223,7 +224,7 @@
              * Reads the markdown text from a url
              * @param url
              */
-            url: function(url) {
+            url: function (url) {
                 var that = this;
                 if ($.type(url) === NULL) {
                     return;
@@ -243,7 +244,7 @@
             /**
              * Returns yml metadata
              */
-            metadata: function() {
+            metadata: function () {
                 return head((this.value() || '').trim());
             },
 
@@ -265,7 +266,7 @@
                 var element = that.element;
                 var inline = element.find(SCRIPT_SELECTOR);
                 var script = EMPTY;
-                if(inline.length) {
+                if (inline.length) {
                     script = $(SCRIPT_TAG).text(inline.text()).wrapAll(WRAP_TAG).parent().html();
                 }
                 element.html(script + that.html());

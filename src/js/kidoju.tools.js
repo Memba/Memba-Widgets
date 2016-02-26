@@ -1096,7 +1096,7 @@
         });
         tools.register(Audio);
 
-        var CHECKBOX = '<div style="#: attributes.containerStyle #"><input id="#: properties.name #" type="checkbox" style="#: attributes.checkboxStyle #" {0}>&nbsp;<label for="#: properties.name #" style="#: attributes.labelStyle #">#: attributes.text #</label></div>';
+        var CHECKBOX = '<div style="#: attributes.checkboxStyle #"><input id="#: properties.name #" type="checkbox" {0}>&nbsp;<label for="#: properties.name #">#: attributes.text #</label></div>';
         /**
          * Checkbox tool
          * @class CheckBox
@@ -1116,10 +1116,9 @@
             width: 300,
             attributes: {
                 // checkboxStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.checkboxStyle.title }),
-                checkboxStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.checkboxStyle.title, defaultValue: 'height: 40px; width: 40px;' }),
-                containerStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.containerStyle.title }),
+                checkboxStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.checkboxStyle.title, defaultValue: 'font-size: 60px;' }),
+                // containerStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.containerStyle.title }),
                 // labelStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.labelStyle.title }),
-                labelStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.labelStyle.title, defaultValue: 'font-size: 60px;' }),
                 text: new adapters.StringAdapter({ title: i18n.checkbox.attributes.text.title, defaultValue: 'text' })
             },
             properties: {
@@ -1167,7 +1166,7 @@
                 assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
-                // var input = content.children('input');
+                var input = content.children('input');
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.width);
                 }
@@ -1177,10 +1176,10 @@
                     //     content.css('font-size', Math.floor(0.85 * content.height()));
                     // }
                 }
-                // var size = parseInt(content.css('font-size'), 10);
-                // content.children('input')
-                //     .height(0.6 * size)
-                //     .width(0.6 * size);
+                var size = parseInt(content.css('font-size'), 10);
+                content.children('input')
+                    .height(0.6 * size)
+                    .width(0.6 * size);
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage
@@ -1346,11 +1345,11 @@
                 play: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value"'),
                 review: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
-            height: 100,
-            width: 300,
+            height: 200,
+            width: 350,
             attributes: {
                 mode: new adapters.EnumAdapter({ title: i18n.quiz.attributes.mode.title, defaultValue: 'button', enum: ['button', 'dropdown', 'radio'] }),
-                groupStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.groupStyle.title }),
+                groupStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
                 itemStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.itemStyle.title }),
                 activeStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.activeStyle.title }),
                 data: new adapters.TextAdapter({ title: i18n.quiz.attributes.data.title, defaultValue: 'True\nFalse' })
@@ -1385,27 +1384,31 @@
                 assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('quiz'));
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                }
+                /*
                 var data = component.attributes.data;
                 var length = data.trim().split('\n').length || 1;
-                var height = $.type(component.height) === NUMBER ? component.height : 0;
-                // var width = $.type(component.width) === NUMBER ? component.width : 0;
-                // content.outerWidth(width);
-                // content.outerHeight(height);
                 switch (component.attributes.mode) {
                     case 'button':
-                        content.css('font-size', Math.floor(0.57 * height));
+                        content.css('font-size', Math.floor(0.57 * component.height));
                         break;
                     case 'dropdown':
-                        content.css('font-size', Math.floor(0.5 * height));
+                        content.css('font-size', Math.floor(0.5 * component.height));
                         break;
                     case 'radio':
-                        var h = height / (length || 1);
+                        var h = component.height / (length || 1);
                         content.css('font-size', Math.floor(0.9 * h));
                         content.find('input')
                             .height(0.6 * h)
                             .width(0.6 * h);
                         break;
                 }
+                */
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage

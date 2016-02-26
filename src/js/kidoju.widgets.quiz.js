@@ -35,7 +35,7 @@
         var WIDGET_CLASS = 'kj-quiz'; // 'k-widget kj-quiz',
         var GROUP_CLASS = 'kj-quiz-group';
         var BUTTON = '<input type="button" class="k-button" value="{0}">';
-        var RADIO = '<div><input id="{1}_{2}" name="{1}" type="radio" value="{0}"><label for="{1}_{2}">{0}</label></div>';
+        var RADIO = '<div><input id="{1}_{2}" name="{1}" type="radio" value="{0}">&nbsp;<label for="{1}_{2}">{0}</label></div>';
         var MARGIN = '0.2em';
         var MODES = {
                 BUTTON: 'button',
@@ -197,7 +197,9 @@
             _layout: function () {
                 var that = this;
                 that.wrapper = that.element;
-                that.element.addClass(WIDGET_CLASS);
+                that.element
+                    .addClass(WIDGET_CLASS)
+                    .css(that.options.groupStyle);
                 if (that.options.mode === MODES.DROPDOWN) {
                     that._layoutDropDown();
                 } else if (that.options.mode === MODES.BUTTON || that.options.mode === MODES.RADIO) {
@@ -251,7 +253,6 @@
                 var that = this;
                 that.groupList = $('<div>')
                     .addClass(GROUP_CLASS)
-                    .css(that.options.groupStyle)
                     // .on(CLICK + NS, 'input', $.proxy(that._onClick, that))
                     .appendTo(that.element);
             },

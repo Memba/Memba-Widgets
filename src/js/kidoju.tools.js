@@ -1411,7 +1411,7 @@
                 */
                 // TODO: this should be part of the widget resize event handler
                 var size = 0.6 * parseInt(content.css('font-size'), 10);
-                content.find('input["type=radio"]')
+                content.find('input[type="radio"]')
                     .height(size)
                     .width(size);
                 // prevent any side effect

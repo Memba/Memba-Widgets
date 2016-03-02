@@ -1176,7 +1176,7 @@
                     // }
                 }
                 var size = 0.6 * parseInt(content.css('font-size'), 10);
-                content.children('input')
+                content.children('input[type="checkbox"]')
                     .height(size)
                     .width(size);
                 // prevent any side effect
@@ -1409,9 +1409,9 @@
                 }
                 */
                 var size = 0.6 * parseInt(content.css('font-size'), 10);
-                content.children('input')
-                    .height(component.attributes.mode === 'radio' ? size : '')
-                    .width(component.attributes.mode === 'radio' ? size : '');
+                content.find('input["type=radio"]')
+                    .height(size)
+                    .width(size);
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage

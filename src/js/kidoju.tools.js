@@ -1329,7 +1329,7 @@
         });
         tools.register(Label);
 
-        var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" data-group-style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #active-style="#: attributes.activeStyle #"></div>';
+        var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" data-#= ns #group-style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #active-style="#: attributes.activeStyle #"></div>';
         /**
          * Quiz tool
          * @class Quiz
@@ -1409,11 +1409,6 @@
                         break;
                 }
                 */
-                // TODO: this should be part of the widget resize event handler
-                var size = 0.6 * parseInt(content.css('font-size'), 10);
-                content.find('input[type="radio"]')
-                    .height(size)
-                    .width(size);
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage

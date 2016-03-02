@@ -1166,7 +1166,6 @@
                 assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
-                var input = content.children('input');
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.width);
                 }
@@ -1176,10 +1175,10 @@
                     //     content.css('font-size', Math.floor(0.85 * content.height()));
                     // }
                 }
-                var size = parseInt(content.css('font-size'), 10);
+                var size = 0.6 * parseInt(content.css('font-size'), 10);
                 content.children('input')
-                    .height(0.6 * size)
-                    .width(0.6 * size);
+                    .height(size)
+                    .width(size);
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage
@@ -1409,6 +1408,10 @@
                         break;
                 }
                 */
+                var size = 0.6 * parseInt(content.css('font-size'), 10);
+                content.children('input')
+                    .height(component.attributes.mode === 'radio' ? size : '')
+                    .width(component.attributes.mode === 'radio' ? size : '');
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage

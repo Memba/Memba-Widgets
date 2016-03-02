@@ -260,7 +260,7 @@
                 if (tools.quiz instanceof Tool) {
                     // Attributes
                     attributes = tools.quiz.constructor.prototype.attributes;
-                    attributes.activeStyle.title = 'Style Sélect.';
+                    attributes.activeStyle.title = 'Style Sélection';
                     attributes.data.title = 'Valeurs';
                     attributes.groupStyle.title = 'Style Groupe';
                     attributes.itemStyle.title = 'Style Element';

@@ -1390,6 +1390,7 @@
                     content.outerHeight(component.height);
                 }
                 /*
+                // Auto-resize algorithm is not great so let's wait until we find a better solution
                 var data = component.attributes.data;
                 var length = data.trim().split('\n').length || 1;
                 switch (component.attributes.mode) {
@@ -1408,6 +1409,7 @@
                         break;
                 }
                 */
+                // TODO: this should be part of the widget resize event handler
                 var size = 0.6 * parseInt(content.css('font-size'), 10);
                 content.find('input["type=radio"]')
                     .height(size)

@@ -23,6 +23,8 @@
     (function ($, undefined) {
 
         var kendo = window.kendo;
+        var drawing = kendo.drawing;
+        var geometry = kendo.geometry;
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.crossalphanum');
@@ -63,7 +65,9 @@
             options: {
                 name: 'CrossAlphaNum',
                 rows: 4,
-                columns: 4,
+                columns: 6,
+                height: 100,
+                width: 150,
                 whitelist: '0-9',
                 gridStroke: { color: '#9999b6', width: 2 },
                 setupStroke: { color: '#9999b6', width: 2 },
@@ -109,17 +113,42 @@
                 var that = this;
                 that.wrapper = that.element;
                 that.element.addClass(WIDGET_CLASS);
-                // that.surface =
+                that.surface = drawing.Surface.create(
+                    that.element,
+                    { click: $.proxy(that._onSurfaceClick, that) }
+                );
                 that._grid();
+            },
+
+            _onSurfaceClick: function (e) {
+                var that = this;
+                var offset = that.element.offset();
+                var coordinates = {
+                    x: e.originalEvent.pageX - offset.left,
+                    y: e.originalEvent.pageY - offset.top
+                };
+
             },
 
             _grid: function () {
                 var that = this;
-                var drawing = kendo.drawing;
-                var Group = drawing.Group;
-                var grid = new Group();
-
-
+                var height = that.options.height;
+                var width = that.options.width;
+                var rows = that.options.rows;
+                var columns = that.options.columns;
+                var grid = new drawing.Group();
+                var rectGeometry = new geometry.Rect([0, 0], [width, height]);
+                // IMPORTANT: fill is required for the click event to fire everywhere
+                var rect = new drawing.Rect(rectGeometry).fill('white');
+                grid.append(rect);
+                // columns
+                for (var col = 1; col < columns; col++) {
+                    grid.append(new drawing.Path().moveTo(width * col / columns, 0).lineTo(width * col / columns, height));
+                }
+                // rows
+                for (var row = 1; row < rows; row++) {
+                    grid.append(new drawing.Path().moveTo(0, height * row / rows).lineTo(width, height * row / rows));
+                }
                 that.surface.draw(grid);
             },
 

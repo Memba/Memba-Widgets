@@ -27,22 +27,22 @@
         var geometry = kendo.geometry;
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.crossalphanum');
+        var logger = new window.Logger('kidoju.widgets.chargrid');
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
-        // var NS = '.kendoCrossAlphaNum';
-        var WIDGET_CLASS = 'k-widget kj-crossalphanum';
+        // var NS = '.kendoCharGrid';
+        var WIDGET_CLASS = 'k-widget kj-chargrid';
 
         /*********************************************************************************
          * Widget
          *********************************************************************************/
 
         /**
-         * CrossAlphaNum
-         * @class CrossAlphaNum Widget (kendoCrossAlphaNum)
+         * CharGrid
+         * @class CharGrid Widget (kendoCharGrid)
          */
-        var CrossAlphaNum = Widget.extend({
+        var CharGrid = Widget.extend({
 
             /**
              * Initializes the widget
@@ -63,18 +63,20 @@
              * @property options
              */
             options: {
-                name: 'CrossAlphaNum',
+                name: 'CharGrid',
                 rows: 4,
                 columns: 6,
                 height: 100,
                 width: 150,
                 whitelist: '0-9',
+
+                // grid Fill
                 gridStroke: { color: '#9999b6', width: 2 },
-                setupStroke: { color: '#9999b6', width: 2 },
+                initialStroke: { color: '#9999b6', width: 2 },
                 valueStroke: { color: '#9999b6', width: 2 },
-                selectColor: '#FF0000',
-                setup: [],
-                value: []
+                selectorColor: '#FF0000',
+                initial: {},
+                value: {}
             },
 
             /**
@@ -120,8 +122,14 @@
                 that._grid();
             },
 
+            /**
+             * Click event handler
+             * @param e
+             * @private
+             */
             _onSurfaceClick: function (e) {
                 var that = this;
+                // TODO: think of headings a, b, c, 1,2,3 linke in Excel
                 var offset = that.element.offset();
                 var coordinates = {
                     x: e.originalEvent.pageX - offset.left,
@@ -130,6 +138,10 @@
 
             },
 
+            /**
+             * Draw the grid
+             * @private
+             */
             _grid: function () {
                 var that = this;
                 var height = that.options.height;
@@ -183,7 +195,7 @@
 
         });
 
-        kendo.ui.plugin(CrossAlphaNum);
+        kendo.ui.plugin(CharGrid);
 
     }(window.jQuery));
 

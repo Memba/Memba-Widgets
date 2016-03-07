@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>kidoju.widgets.mathexpression</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <script src="./js/vendor/kendo/jquery.min.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
+    <script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script>
+    <!-- mathexpression requirements -->
+    <!--link rel="stylesheet" href="./styles/kidoju.widgets.mathexpression.css"-->
+    <script src="./js/window.assert.js"></script>
+    <script src="./js/window.logger.js"></script>
+    <script src="./js/kidoju.widgets.mathexpression.js"></script>
+    <style>
+    </style>
+</head>
+<body>
+<h1>kidoju.widgets.mathexpression</h1>
+<h2>Math expression set by code</h2>
+<div id="math1"></div>
+<h2>Math expression set declaratively</h2>
+<div id="math2" data-role="mathexpression" data-value="§sum_(i=1)^n i^3=((n(n+1))/2)^2§" style="font-size:200%;color:red;"></div>
+<h2>Math expression bound to observable</h2>
+<div id="math3" data-role="mathexpression" data-bind="value: formula, visible: visible"></div>
+<pre>
+{
+    value: <span data-bind="text: formula"></span>,
+    visible: <span data-bind="text: visible"></span>>
+}
+</pre>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible
+</div>
+<textarea data-bind="value: formula" class="k-textbox" rows="5" style="width:500px;"></textarea>
+
+<script>
+    ;(function(window, $, undefined){
+
+        'use strict';
+
+        var kendo = window.kendo;
+        var viewModel = new kendo.observable({
+            formula: '§sum_(i=1)^n i^3=((n(n+1))/2)^2§',
+            visible: true,
+            enabled: true
+        });
+
+        $(document).ready(function() {
+            $('#math1').kendoMathExpression({
+                value: '§sum_(i=1)^n i^3=((n(n+1))/2)^2§'
+            });
+            kendo.bind('body', viewModel);
+        });
+
+    }(this, jQuery));
+</script>
+</body>
+</html>

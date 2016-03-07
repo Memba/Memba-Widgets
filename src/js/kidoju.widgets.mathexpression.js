@@ -21,7 +21,7 @@
     'use strict';
 
     // Load MathJax 2.6 dynamically - see https://docs.mathjax.org/en/v2.6-latest/advanced/dynamic.html
-    // SSee configuration options - see http://mathjax.readthedocs.org/en/latest/configuration.html
+    // See configuration options - see http://mathjax.readthedocs.org/en/latest/configuration.html
     // And combined configuration options - see http://mathjax.readthedocs.org/en/latest/config-files.html
     (function () {
         var TYPE = 'text/x-mathjax-config';
@@ -37,9 +37,10 @@
         if (!found) {
             var script = document.createElement('script');
             script.type = TYPE;
-            // TODO OPTIMIZE: MathML cannot be used + hide contextual menu
+            // TODO OPTIMIZE without MathML input
             script[(window.opera ? 'innerHTML' : 'text')] =
                 'MathJax.Hub.Config({\n' +
+                '  showMathMenu: false,\n' + // Hide contextual menu
                 '  asciimath2jax: { delimiters: [["§","§"], ["`","`"]] }\n' +
                 '});';
             head.appendChild(script);
@@ -87,7 +88,8 @@
                 that.bind(CHANGE, $.proxy(that.refresh, that));
                 that._layout();
                 that.value(that.options.value);
-                // kendo.notify(that);
+                // see http://www.telerik.com/forums/kendo-notify()
+                kendo.notify(that);
             },
 
             /**
@@ -147,6 +149,7 @@
                     // See http://mathjax.readthedocs.org/en/latest/advanced/typeset.html
                     MathJax.Hub.Queue(['Typeset', MathJax.Hub, element[0]]);
                 }
+                logger.debug('widget refreshed');
             },
 
             /**

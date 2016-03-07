@@ -24,21 +24,31 @@
     // SSee configuration options - see http://mathjax.readthedocs.org/en/latest/configuration.html
     // And combined configuration options - see http://mathjax.readthedocs.org/en/latest/config-files.html
     (function () {
-        // TODO Consider searching whether it is not already loaded
-        // TODO MathML cannot be used + hide contextual menu
+        var TYPE = 'text/x-mathjax-config';
         var head = document.getElementsByTagName('head')[0];
-        var script = document.createElement('script');
-        script.type = 'text/x-mathjax-config';
-        script[(window.opera ? 'innerHTML' : 'text')] =
-            'MathJax.Hub.Config({\n' +
-            '  asciimath2jax: { delimiters: [["§","§"], ["`","`"]] }\n' +
-            '});';
-        head.appendChild(script);
-        script = document.createElement('script');
-        script.type = 'text/javascript';
-        // script.src  = 'http://cdn.mathjax.org/mathjax/2.6-latest/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
-        script.src  = 'http://cdn.mathjax.org/mathjax/2.6-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML';
-        head.appendChild(script);
+        var scripts = head.getElementsByTagName('script');
+        var found = false;
+        for (var i = 0; i < scripts.length; i++) {
+            if (scripts[i].type === TYPE) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            var script = document.createElement('script');
+            script.type = TYPE;
+            // TODO OPTIMIZE: MathML cannot be used + hide contextual menu
+            script[(window.opera ? 'innerHTML' : 'text')] =
+                'MathJax.Hub.Config({\n' +
+                '  asciimath2jax: { delimiters: [["§","§"], ["`","`"]] }\n' +
+                '});';
+            head.appendChild(script);
+            script = document.createElement('script');
+            script.type = 'text/javascript';
+            // script.src  = 'http://cdn.mathjax.org/mathjax/2.6-latest/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+            script.src = 'http://cdn.mathjax.org/mathjax/2.6-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+            head.appendChild(script);
+        }
     })();
 
     (function ($, undefined) {

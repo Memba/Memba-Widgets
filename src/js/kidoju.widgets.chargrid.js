@@ -36,12 +36,18 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var KEYDOWN = 'keydown';
-        var KEYPRESS = 'keypress';
         var FOCUSOUT = 'focusout';
         // var NS = '.kendoCharGrid';
-        var WIDGET_CLASS = 'k-widget kj-chargrid';
+        var WIDGET_CLASS = 'kj-chargrid'; // 'k-widget kj-chargrid';
         var BASE_CODE = 65; // for A (a = 97)
         var RX_WHITELIST = '^[{0}]$';
+
+        /*********************************************************************************
+         * Helpers
+         *********************************************************************************/
+        function isArray(arr) {
+            return $.isArray(arr) || arr instanceof kendo.data.ObservableArray;
+        }
 
         /*********************************************************************************
          * Widget
@@ -79,7 +85,7 @@
                 columns: 6,
                 height: 100,
                 width: 150,
-                whitelist: '0-9',
+                whitelist: '0-9.',
                 blank: '.',
                 headings: false,
                 gridFill: { color: '#cce6ff', opacity: 1 }, // http://docs.telerik.com/kendo-ui/api/javascript/drawing/fill-options
@@ -91,7 +97,7 @@
                 valueStroke: { color: '#9999b6', width: 2 },
                 // successStroke and failureStroke in review mode ????
                 locked: { A: [1, 1, 0, 0], B: [1, 1, 0, 0], C: [1, 1, 0, 0], D: [1, 1, 0, 0], E: [1, 1, 0, 0], F: [1, 1, 0, 0] },
-                value: { A: ['.', '1', '2', '3'] }
+                value: { A: ['.', '1', '2', '3'], B: ['+', null, null, '3'] }
             },
 
             /**
@@ -117,14 +123,48 @@
                     var prop = String.fromCharCode(BASE_CODE + col);
                     that._value[prop] = new Array(rows);
                     for (var row = 0; row < rows; row++) {
-                        if ($.isArray(value[prop]) && value[prop][row] && (rx.test('' + value[prop][row]) || value[prop][row] === options.blank )) {
+                        if (isArray(value[prop]) && value[prop][row] && (rx.test('' + value[prop][row]) || value[prop][row] === options.blank )) {
                             that._value[prop][row] = '' + value[prop][row];
                         } else {
-                            that._value[prop][row] = undefined;
+                            that._value[prop][row] = null;
                         }
                     }
                 }
             },
+
+            /**
+             * Compare values
+             * @param value1
+             * @param value2
+             * @private
+             */
+            /*
+            _compareValues: function (value1, value2) {
+                var that = this;
+                var options = this.options;
+                var columns = options.columns;
+                var rows = options.rows;
+                if ($.type(value1) !== OBJECT || $.type(value2) !== OBJECT) {
+                    return false;
+                }
+                // TODO same number of object properties (ObservableObject)
+                for (var col = 0; col < columns; col++) {
+                    var prop = String.fromCharCode(BASE_CODE + col);
+                    if (!isArray(value1[prop]) || !isArray(value2[prop])) {
+                        return false;
+                    }
+                    if (value1[prop].length !== value2[prop].length) {
+                        return false;
+                    }
+                    for (var row = 0; row < rows; row++) {
+                        if (value[prop][row] !== value2[prop][row]) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            },
+            */
 
             /**
              * Value for MVVM binding
@@ -136,7 +176,8 @@
                 if ($.type(value) === UNDEFINED) {
                     return that._value;
                 } else if ($.type(value) === OBJECT) {
-                    if (value !== that._value) { // TODO compare
+                    // if (!that._compareValues(that._value, value)) {
+                    if (value !== that._value) {
                         that._setValue(value);
                         that.refresh();
                         that.trigger(CHANGE);
@@ -161,20 +202,24 @@
                 var rx = new RegExp(kendo.format(RX_WHITELIST, options.whitelist));
                 var colValues = that._value[String.fromCharCode(BASE_CODE + col)];
                 if ($.type(value) === UNDEFINED) {
-                    if ($.isArray(colValues) && rx.test(colValues[row])) {
+                    if (isArray(colValues) && rx.test(colValues[row])) {
                         return colValues[row];
                     }
                 } else if ($.type(value) === NULL) {
-                    colValues[row] = undefined;
-                    that.refresh();
-                    that.trigger(CHANGE);
-                } else if ($.type(value) === STRING && value.length === 1)  {
-                    if (rx.test(value)) {
-                        // TODO locked cell should raise an error
+                    if (colValues[row] !== null) {
+                        colValues[row] = null;
+                        that.refresh();
+                        that.trigger(CHANGE);
+                    }
+                } else if ($.type(value) === STRING && value.length === 1) {
+                    if (that.isLocked(col, row)) {
+                        throw new Error('Cannot assign a new value to a locked cell');
+                    } else if (colValues[row] !== value && rx.test(value)) {
                         colValues[row] = value;
                         that.refresh();
                         that.trigger(CHANGE);
                     }
+                    // discard any value that is not whitelisted
                 } else {
                     throw new TypeError('`value` is expected to be a single char string');
                 }
@@ -194,9 +239,9 @@
                 var rows = options.rows;
                 var blank = options.blank;
                 var colLocked = options.locked[String.fromCharCode(BASE_CODE + col)];
-                return $.isArray(colLocked) &&
+                return isArray(colLocked) &&
                     col >= 0 && col < columns && row >= 0 && row < rows &&
-                    $.isArray(colLocked) && !!colLocked[row] &&
+                    isArray(colLocked) && !!colLocked[row] &&
                     that.cellValue(col, row) !== blank;
             },
 
@@ -232,7 +277,6 @@
                 that.element
                     .addClass(WIDGET_CLASS)
                     .on(KEYDOWN, $.proxy(that._onKeyDown, that))
-                    .on(KEYPRESS, $.proxy(that._onKeyPress, that))
                     .on(FOCUSOUT, $.proxy(that._onFocusOut, that));
                 that.surface = drawing.Surface.create(
                     that.element,
@@ -387,7 +431,7 @@
                     assert.type(OBJECT, that._value, kendo.format(assert.messages.type.default, 'this._value', OBJECT));
                     var colValues = that._value[String.fromCharCode(BASE_CODE + col)];
                     var colLocked = locked[String.fromCharCode(BASE_CODE + col)];
-                    if ($.isArray(colValues)) {
+                    if (isArray(colValues)) {
                         for (var row = 0; row < rows; row++) {
                             if (colValues[row] === that.options.blank) { // the value is a blank
                                 var blank = that._getCharRect(col, row, that.options.blankFill);
@@ -469,6 +513,7 @@
 
             /**
              * Key down event handler
+             * Note: Delete and arrows only trigger the keydown event
              * @param e
              * @private
              */
@@ -481,34 +526,17 @@
                 var rows = options.rows;
                 var col = that._selectedCell && that._selectedCell.col;
                 var row = that._selectedCell && that._selectedCell.row;
-                if (e.which === 37 && col > 0 && !that.isLocked(col - 1, row)) { // Arrow left
-                    that.select(col - 1, row);
-                } else if (e.which === 38 && row > 0 && !that.isLocked(col, row - 1)) { // Arrow up
-                    that.select(col, row - 1);
-                } else if (e.which === 39 && col < columns - 1 && !that.isLocked(col + 1, row)) { // Arrow right
-                    that.select(col + 1, row);
-                } else if (e.which === 40 && row < rows - 1 && !that.isLocked(col, row + 1)) { // Arrow down
-                    that.select(col, row + 1);
-                }
-            },
-
-            /**
-             * Key press event handler
-             * @param e
-             * @private
-             */
-            _onKeyPress: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                assert.ok(this.element.is(':focus'), '`this.element` is expected to have focus');
-                var that = this;
-                var options = that.options;
-                var rows = options.rows;
-                var columns = options.columns;
-                var col = that._selectedCell && that._selectedCell.col;
-                var row = that._selectedCell && that._selectedCell.row;
                 if ($.type(col) === NUMBER && col >= 0 && col < columns &&
                     $.type(row) === NUMBER && row >= 0 && row < rows) {
-                    if (e.which === 32) { // SPACE
+                    if (e.which === 37 && col > 0 && !that.isLocked(col - 1, row)) { // Arrow left
+                        that.select(col - 1, row);
+                    } else if (e.which === 38 && row > 0 && !that.isLocked(col, row - 1)) { // Arrow up
+                        that.select(col, row - 1);
+                    } else if (e.which === 39 && col < columns - 1 && !that.isLocked(col + 1, row)) { // Arrow right
+                        that.select(col + 1, row);
+                    } else if (e.which === 40 && row < rows - 1 && !that.isLocked(col, row + 1)) { // Arrow down
+                        that.select(col, row + 1);
+                    } else if ((e.which === 32 || e.which === 46) && !that.isLocked(col, row)) { // Space or Delete
                         that.cellValue(col, row, null);
                     } else {
                         var rx = new RegExp(kendo.format(RX_WHITELIST, options.whitelist));

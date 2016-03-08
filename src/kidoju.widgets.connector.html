@@ -42,16 +42,16 @@
 <h2>Connectors bound to observable</h2>
 <div class="demo-section k-content" style="height:300px;width:300px;border:solid 1px black;position:relative;">
     <div class="kj-element" style="position:absolute;top:10px;left:10px;height:20px;width:20px;">
-        <div id="connectorA" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueA"></div>
+        <div id="connectorA" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueA, visible: visible, enabled: enabledTop"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:10px;left:270px;height:20px;width:20px;">
-        <div id="connectorB" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueB"></div>
+        <div id="connectorB" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueB, visible: visible, enabled: enabledTop"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:270px;left:270px;height:20px;width:20px;">
-        <div id="connectorC" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueC"></div>
+        <div id="connectorC" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueC, visible: visible, enabled: enabledBottom"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:270px;left:10px;height:20px;width:20px;">
-        <div id="connectorD" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueD"></div>
+        <div id="connectorD" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueD, visible: visible, enabled: enabledBottom"></div>
     </div>
 </div>
 
@@ -62,9 +62,15 @@
     valueC: <span data-bind="text: valueC"></span>,
     valueD: <span data-bind="text: valueD"></span>,
     visible: <span data-bind="text: visible"></span>
+    enabledTop: <span data-bind="text: enabledTop"></span>
+    enabledBottom: <span data-bind="text: enabledBottom"></span>
 }
 </pre>
-
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabledTop" />enabledTop&nbsp;
+    <input type="checkbox" data-bind="checked: enabledBottom" />enabledBottom
+</div>
 
 <script>
     ;(function(window, $, undefined){
@@ -76,7 +82,10 @@
             valueA: 'connectorB',
             valueB: 'connectorA',
             valueC: null,
-            valueD: null
+            valueD: null,
+            visible: true,
+            enabledTop: true,
+            enabledBottom: true
         });
 
         $(document).ready(function() {

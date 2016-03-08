@@ -88,6 +88,7 @@
                 that._drawConnector();
                 that._addDragAndDrop();
                 that.value(that.options.value);
+                that._enabled = !that.element.prop('disabled');
                 kendo.notify(that);
             },
 
@@ -351,10 +352,10 @@
                     return connection.origin === id || connection.destination === id;
                 });
                 if (found) {
-                    connections.remove(found);
                     var targetSelector = found.origin === id ? found.destination : found.origin;
                     var target = container.find(targetSelector);
                     var targetWidget = target.data(WIDGET);
+                    connections.remove(found);
                     that._value = null;
                     if (targetWidget instanceof Connector) {
                         targetWidget._value = null;
@@ -371,31 +372,36 @@
              * @param enabled
              * @private
              */
-            _addDragAndDrop: function (enabled) {
+            _addDragAndDrop: function () {
+                // TODO set cursor!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 // IMPORTANT
                 // We can have several containers containing connectors
-                // But we only have on set of handlers across all containers
-                // So we cannot use `this` connector to access the container
+                // But we only have on set of handlers shared across all containers
+                // So we cannot use `this`, which is specific to this connector
                 var element, path, target;
                 $(document)
                     .off(NS)
                     .on(MOUSEDOWN, DOT + WIDGET_CLASS, function (e) {
+                        e.preventDefault(); // prevents from selecting the div
                         element = $(e.currentTarget);
                         var elementOffset = element.offset();
                         var elementWidget = element.data(WIDGET);
-                        if (elementWidget instanceof Connector) {
+                        if (elementWidget instanceof Connector && elementWidget._enabled) {
                             elementWidget._dropConnection();
                             var container = element.closest(elementWidget.options.container);
                             assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
                             var containerOffset = container.offset();
                             var surface = container.data(SURFACE);
                             assert.instanceof(Surface, surface, kendo.format(assert.messages.instanceof.default, 'surface', 'kendo.drawing.Surface'));
-                            path = new drawing.Path({ stroke: { color: elementWidget.options.color, width: PATH_WIDTH } });
+                            path = new drawing.Path({
+                                stroke: {
+                                    color: elementWidget.options.color,
+                                    width: PATH_WIDTH
+                                }
+                            });
                             path.moveTo(elementOffset.left - containerOffset.left + element.width() / 2, elementOffset.top - containerOffset.top + element.height() / 2);
                             path.lineTo(e.pageX - containerOffset.left, e.pageY - containerOffset.top);
                             surface.draw(path);
-                        } else {
-                            element = undefined;
                         }
                     })
                     .on(MOUSEMOVE, function (e) {
@@ -414,7 +420,7 @@
                             assert.instanceof(Connector, elementWidget, kendo.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Connector'));
                             target = $(e.currentTarget);
                             var targetWidget = target.data(WIDGET);
-                            if (targetWidget instanceof Connector) {
+                            if (element.attr(ID) !== target.attr(ID) && targetWidget instanceof Connector && targetWidget._enabled) {
                                 var container = element.closest(elementWidget.options.container);
                                 assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
                                 var targetContainer = target.closest(targetWidget.options.container);
@@ -427,11 +433,13 @@
                                     assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
                                     connections.draw();
                                 }
+                            }  else {
+                                target = undefined;
                             }
                         }
                         // Note: The MOUSEUP events bubble and the following handler is always executed after this one
                     })
-                    .on(MOUSEUP, function(e) {
+                    .on(MOUSEUP, function (e) {
                         if (path instanceof kendo.drawing.Path) {
                             path.close();
                         }
@@ -451,16 +459,11 @@
             },
 
             /**
-             * Enable/disable user interactivity
+             * Enable/disable user interactivity on connector
              */
             enable: function(enabled) {
-
-                // Attention one connector or all connectors?
-
-                // Remove drag & drop handlers
-                if (enabled) {
-                    // Add drag & drop handlers
-                }
+                // this._enabled is checked in _addDragAndDrop
+                this._enabled = enabled;
             },
 
             /**

@@ -24,12 +24,13 @@
 </head>
 <body>
 <h1>kidoju.widgets.connector</h1>
+<h2>Connectors set declaratively</h2>
 <div class="demo-section k-content" style="height:300px;width:300px;border:solid 1px black;position:relative;">
     <div class="kj-element" style="position:absolute;top:10px;left:10px;height:20px;width:20px;">
-        <div id="connector1" data-role="connector" data-container=".k-content" data-target="connector2"></div>
+        <div id="connector1" data-role="connector" data-container=".k-content" data-value="connector2"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:10px;left:270px;height:20px;width:20px;">
-        <div id="connector2" data-role="connector" data-container=".k-content" data-target="connector1"></div>
+        <div id="connector2" data-role="connector" data-container=".k-content" data-value="connector1"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:270px;left:270px;height:20px;width:20px;">
         <div id="connector3" data-role="connector" data-container=".k-content"></div>
@@ -38,23 +39,31 @@
         <div id="connector4" data-role="connector" data-container=".k-content"></div>
     </div>
 </div>
-<h2>Second stage</h2>
+<h2>Connectors bound to observable</h2>
 <div class="demo-section k-content" style="height:300px;width:300px;border:solid 1px black;position:relative;">
     <div class="kj-element" style="position:absolute;top:10px;left:10px;height:20px;width:20px;">
-        <div id="connectorA" data-role="connector" data-container=".k-content" data-color="#0000FF" data-target="connectorB"></div>
+        <div id="connectorA" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueA"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:10px;left:270px;height:20px;width:20px;">
-        <div id="connectorB" data-role="connector" data-container=".k-content" data-color="#0000FF" data-target="connectorA"></div>
+        <div id="connectorB" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueB"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:270px;left:270px;height:20px;width:20px;">
-        <div id="connectorC" data-role="connector" data-container=".k-content" data-color="#0000FF"></div>
+        <div id="connectorC" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueC"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:270px;left:10px;height:20px;width:20px;">
-        <div id="connectorD" data-role="connector" data-container=".k-content" data-color="#0000FF"></div>
+        <div id="connectorD" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueD"></div>
     </div>
 </div>
 
-
+<pre>
+{
+    valueA: <span data-bind="text: valueA"></span>,
+    valueB: <span data-bind="text: valueB"></span>,
+    valueC: <span data-bind="text: valueC"></span>,
+    valueD: <span data-bind="text: valueD"></span>,
+    visible: <span data-bind="text: visible"></span>
+}
+</pre>
 
 
 <script>
@@ -63,8 +72,11 @@
         'use strict';
 
         var kendo = window.kendo;
-        var viewModel = new kendo.observable({
-            // TODO
+        var viewModel = window.viewModel = new kendo.observable({
+            valueA: 'connectorB',
+            valueB: 'connectorA',
+            valueC: null,
+            valueD: null
         });
 
         $(document).ready(function() {

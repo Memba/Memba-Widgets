@@ -31,6 +31,7 @@
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.connector');
         var STRING = 'string';
+        var NULL = 'null';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var DOT = '.';
@@ -46,9 +47,23 @@
         var PATH_WIDTH = 5;
         var OBSERVABLE = 'observableArray';
         var SURFACE = 'surface';
+        var RX_SELECTOR = /^#\S/;
+        var ID = 'id';
+        var VALUE = 'value';
 
         /*********************************************************************************
-         * Connector Widget
+         * Helpers
+         *********************************************************************************/
+
+        function getRandomColor(){
+            var r = (Math.round(Math.random()* 127) + 127).toString(16);
+            var g = (Math.round(Math.random()* 127) + 127).toString(16);
+            var b = (Math.round(Math.random()* 127) + 127).toString(16);
+            return '#' + r + g + b;
+        }
+
+        /*********************************************************************************
+         * Widget
          *********************************************************************************/
 
         /**
@@ -70,8 +85,9 @@
                 that._layout();
                 that._ensureSurface();
                 that._bindConnectionArray();
+                that._drawConnector();
                 that._addDragAndDrop();
-                that.refresh();
+                that.value(that.options.value);
                 kendo.notify(that);
             },
 
@@ -82,7 +98,7 @@
             options: {
                 name: 'Connector',
                 value: null,
-                container: '.k-content', // .kj-stage>div[data-role="stage"]
+                container: 'body', // .kj-stage>div[data-role="stage"]
                 color: '#FF0000',
                 height: 20,
                 width: 20
@@ -98,19 +114,21 @@
 
             /**
              * Value for MVVM binding
-             * Returns either a JS function as a string or a library formula name prefixed as a Javascript comment
              * @param value
              */
             value: function (value) {
                 var that = this;
-                if ($.type(value) === STRING) {
-                    that._toggle(value);
-                } else if ($.type(value) === UNDEFINED) {
-                    if ($.type(that._value) !== STRING || !that._value.length) {
-                        return undefined;
-                    } else {
-                        return that._value;
+                if ($.type(value) === STRING || $.type(value) === NULL) { // nullable string
+                    if (that._value !== value) {
+                        that._value = value;
+                        if ($.type(that._value) === STRING && that._value.length) {
+                            that._addConnection(HASH + that._value);
+                        } else {
+                            that._dropConnection();
+                        }
                     }
+                } else if ($.type(value) === UNDEFINED) {
+                    return that._value;
                 } else {
                     throw new TypeError('`value` is expected to be a string if not undefined');
                 }
@@ -214,6 +232,7 @@
 
             /**
              * Draw connections
+             * Note: do not use directly, use container.data(OBSERVABLE).draw
              * @private
              */
             _drawConnections: function () {
@@ -238,7 +257,7 @@
                         var destinationOffset = destination.offset();
                         var containerOffset = container.offset();
                         var path = new drawing.Path({
-                            stroke: { color: originWidget.options.color, width: PATH_WIDTH }
+                            stroke: { color: connection.color, width: PATH_WIDTH }
                         })
                             .moveTo(originOffset.left - containerOffset.left + origin.width() / 2, originOffset.top - containerOffset.top + origin.height() / 2)
                             .lineTo(destinationOffset.left - containerOffset.left + destination.width() / 2, destinationOffset.top - containerOffset.top + destination.height() / 2);
@@ -248,58 +267,67 @@
             },
 
             /**
-             * Add widget connection (check data-target on element)
-             * @private
-             */
-            _addWidgetConnection: function () {
-                var that = this;
-                var element = that.element;
-                var targetId = element.attr(kendo.attr('target'));
-                if ($.type(targetId) === STRING) {
-                    that.addConnection(HASH + targetId);
-                }
-            },
-
-            /**
-             * Redraw the widget
+             * Redraw all elements
              */
             refresh: function () {
+                // TODO
+                // Redraw all connectors
                 this._drawConnector();
-                this._addWidgetConnection();
+                // Redraw all connections
+
             },
 
             /**
              * Add connection
-             * @param target (with a HASH)
+             * Note: use this.value(string)
+             * @param targetSelector (with a HASH)
              */
-            addConnection: function(target) {
-                assert.match(/^#/, target, kendo.format(assert.messages.match.default, 'target', '^#'));
+            _addConnection: function(targetSelector) {
+                assert.match(RX_SELECTOR, targetSelector, kendo.format(assert.messages.match.default, 'targetSelector', RX_SELECTOR));
                 var that = this;
                 var options = that.options;
                 var element = that.element;
-                var id = HASH + element.attr('id');
-                var targetWidget = $(target).data(WIDGET);
-                if (targetWidget instanceof Connector && id !== target) {
-                    var container = that.element.closest(options.container);
-                    assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
-                    var connections = container.data(OBSERVABLE);
-                    assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
-                    var found;
-                    if (id < target) {
-                        found = connections.find(function (connection) { return connection.origin === id && connection.destination === target });
-                        if (!found) {
+                var id = HASH + element.attr(ID);
+                assert.match(RX_SELECTOR, id, kendo.format(assert.messages.match.default, 'id', RX_SELECTOR));
+                var container = that.element.closest(options.container);
+                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
+                var target = container.find(targetSelector);
+                var targetWidget = target.data(WIDGET);
+                if (id !== targetSelector && targetWidget instanceof Connector) {
+                    var targetContainer = target.closest(targetWidget.options.container);
+                    assert.hasLength(targetContainer, kendo.format(assert.messages.hasLength.default, targetWidget.options.container));
+                    if (container[0] === targetContainer[0]) {
+                        var connections = container.data(OBSERVABLE);
+                        assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
+                        var origin = id < targetSelector ? id : targetSelector;
+                        var destination = id < targetSelector ? targetSelector : id;
+                        var originWidget = id < targetSelector ? that : targetWidget;
+                        var destinationWidget = id < targetSelector ? targetWidget : that;
+                        var originConnection = connections.find(function (connection) {
+                            return connection.origin === origin || connection.destination === origin;
+                        });
+                        var destinationConnection = connections.find(function (connection) {
+                            return connection.origin === destination || connection.destination === destination;
+                        });
+                        if (($.type(originConnection) === UNDEFINED && $.type(destinationConnection) === UNDEFINED) ||
+                            (originConnection !== destinationConnection)) {
+                            if (originConnection) {
+                                // connections.remove(originConnection);
+                                originWidget._dropConnection();
+                            }
+                            if (destinationConnection) {
+                                // connections.remove(destinationConnection);
+                                destinationWidget._dropConnection();
+                            }
                             connections.push({
-                                origin: id,
-                                destination: target
+                                origin: origin,
+                                destination: destination,
+                                color: getRandomColor()
                             });
-                        }
-                    } else {
-                        found = connections.find(function (connection) { return connection.origin === target && connection.destination === id });
-                        if (!found) {
-                            connections.push({
-                                origin: target,
-                                destination: id
-                            });
+                            originWidget._value = destination.substr(1);
+                            destinationWidget._value = origin.substr(1);
+                            originWidget.trigger(CHANGE, { value: originWidget._value });
+                            destinationWidget.trigger(CHANGE, { value: destinationWidget._value });
                         }
                     }
                 }
@@ -307,10 +335,35 @@
 
             /**
              * Remove connection
+             * Note: use this.value(null)
              */
-            removeConnection: function() {
-                var found;
-
+            _dropConnection: function() {
+                var that = this;
+                var options = that.options;
+                var element = that.element;
+                var id = HASH + element.attr(ID);
+                assert.match(RX_SELECTOR, id, kendo.format(assert.messages.match.default, 'id', RX_SELECTOR));
+                var container = that.element.closest(options.container);
+                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
+                var connections = container.data(OBSERVABLE);
+                assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
+                var found = connections.find(function (connection) {
+                    return connection.origin === id || connection.destination === id;
+                });
+                if (found) {
+                    connections.remove(found);
+                    var targetSelector = found.origin === id ? found.destination : found.origin;
+                    var target = container.find(targetSelector);
+                    var targetWidget = target.data(WIDGET);
+                    that._value = null;
+                    if (targetWidget instanceof Connector) {
+                        targetWidget._value = null;
+                    }
+                    that.trigger(CHANGE, { value: null });
+                    if (targetWidget instanceof Connector) {
+                        targetWidget.trigger(CHANGE, { value: null });
+                    }
+                }
             },
 
             /**
@@ -323,7 +376,7 @@
                 // We can have several containers containing connectors
                 // But we only have on set of handlers across all containers
                 // So we cannot use `this` connector to access the container
-                var element, path;
+                var element, path, target;
                 $(document)
                     .off(NS)
                     .on(MOUSEDOWN, DOT + WIDGET_CLASS, function (e) {
@@ -331,6 +384,7 @@
                         var elementOffset = element.offset();
                         var elementWidget = element.data(WIDGET);
                         if (elementWidget instanceof Connector) {
+                            elementWidget._dropConnection();
                             var container = element.closest(elementWidget.options.container);
                             assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
                             var containerOffset = container.offset();
@@ -358,23 +412,41 @@
                         if (element instanceof $ && path instanceof kendo.drawing.Path) {
                             var elementWidget = element.data(WIDGET);
                             assert.instanceof(Connector, elementWidget, kendo.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Connector'));
-                            var target = $(e.currentTarget);
+                            target = $(e.currentTarget);
                             var targetWidget = target.data(WIDGET);
                             if (targetWidget instanceof Connector) {
-                                var targetId = $(e.currentTarget).attr('id');
-                                // TODO: assert targetId
-                                elementWidget.addConnection(HASH + targetId);
+                                var container = element.closest(elementWidget.options.container);
+                                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
+                                var targetContainer = target.closest(targetWidget.options.container);
+                                assert.hasLength(targetContainer, kendo.format(assert.messages.hasLength.default, targetWidget.options.container));
+                                if (container[0] === targetContainer[0]) {
+                                    var targetSelector = HASH + $(e.currentTarget).attr(ID);
+                                    elementWidget._addConnection(targetSelector);
+                                } else {
+                                    var connections = container.data(OBSERVABLE);
+                                    assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
+                                    connections.draw();
+                                }
                             }
                         }
-                        // Note: The MOUSEUP events bubble and the following handler is executed
+                        // Note: The MOUSEUP events bubble and the following handler is always executed after this one
                     })
                     .on(MOUSEUP, function(e) {
-                        if (element instanceof $ && path instanceof kendo.drawing.Path) {
+                        if (path instanceof kendo.drawing.Path) {
                             path.close();
-                            path = undefined;
-                            element = undefined;
-                            // TODO: redraw
                         }
+                        if (element instanceof $ && $.type(target) === UNDEFINED) {
+                            var elementWidget = element.data(WIDGET);
+                            if (elementWidget instanceof Connector) {
+                                var container = element.closest(elementWidget.options.container);
+                                var connections = container.data(OBSERVABLE);
+                                assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
+                                connections.draw();
+                            }
+                        }
+                        path = undefined;
+                        element = undefined;
+                        target = undefined;
                     });
             },
 

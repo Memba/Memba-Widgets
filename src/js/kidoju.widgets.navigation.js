@@ -340,7 +340,7 @@
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
 
-                if (that.options.dataSource !== NULL) {  // use null to explicitely destroy the dataSource bindings
+                if (that.options.dataSource !== NULL) {  // use null to explicitly destroy the dataSource bindings
 
                     // returns the datasource OR creates one if using array or configuration object
                     that.dataSource = PageCollectionDataSource.create(that.options.dataSource);

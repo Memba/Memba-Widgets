@@ -95,9 +95,7 @@
 
             checkbox: {
                 attributes: {
-                    // checkboxStyle: { title: 'Checkbox Style' },
-                    containerStyle: { title: 'Style' },
-                    // labelStyle: { title: 'Label Style' },
+                    style: { title: 'Style' },
                     text: { title: 'Text' }
                 },
                 properties: {
@@ -1097,8 +1095,7 @@
         });
         tools.register(Audio);
 
-        // var CHECKBOX = '<div style="#: attributes.containerStyle #"><input id="#: properties.name #" type="checkbox" style="#: attributes.checkboxStyle #" {0}>&nbsp;<label for="#: properties.name #" style="#: attributes.labelStyle #">#: attributes.text #</label></div>';
-        var CHECKBOX = '<div style="#: attributes.containerStyle #"><input id="#: properties.name #" type="checkbox" {0}>&nbsp;<label for="#: properties.name #">#: attributes.text #</label></div>';
+        var CHECKBOX = '<div style="#: attributes.containerStyle #"><input id="#: properties.name #" type="checkbox" class="k-checkbox" {0}><label class="k-checkbox-label" for="#: properties.name #">#: attributes.text #</label></div>';
         /**
          * Checkbox tool
          * @class CheckBox
@@ -1117,9 +1114,7 @@
             height: 70,
             width: 300,
             attributes: {
-                // checkboxStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.checkboxStyle.title }),
-                containerStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.containerStyle.title, defaultValue: 'font-size: 60px;' }),
-                // labelStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.labelStyle.title }),
+                style: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.style.title, defaultValue: 'font-size: 60px;' }),
                 text: new adapters.StringAdapter({ title: i18n.checkbox.attributes.text.title, defaultValue: 'text' })
             },
             properties: {
@@ -1176,10 +1171,6 @@
                     //     content.css('font-size', Math.floor(0.85 * content.height()));
                     // }
                 }
-                var size = 0.6 * parseInt(content.css('font-size'), 10);
-                content.children('input[type="checkbox"]')
-                    .height(size)
-                    .width(size);
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage

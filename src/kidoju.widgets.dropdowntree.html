@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DropDown TreeView</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <script src="./js/vendor/kendo/jquery.min.js"></script>
+    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
+    <script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script>
+    <script src="./js/vendor/kendo/kendo.popup.js"></script>
+    <script src="./js/vendor/kendo/kendo.list.js"></script>
+    <script src="./js/vendor/kendo/kendo.dropdownlist.js"></script>
+    <script src="./js/vendor/kendo/kendo.treeview.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.multiselect.js"></script-->
+    <!-- Code Input requirements -->
+    <script src="./js/window.assert.js"></script>
+    <script src="./js/window.logger.js"></script>
+    <script src="./js/kidoju.widgets.dropdowntree.js"></script>
+    <style>
+        .k-image {
+            height: 20px;
+            width: 20px;
+            vertical-align: middle;
+        }
+        .k-span {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+<h1>DropDownTree</h1>
+<h2>DropDownTree initialized by Code</h2>
+<input id="dropdowntree1">
+<h2>DropDownTree set declaratively</h2>
+<input data-role="dropdowntree" data-source="[{'id':1,'name':'abc'},{'id':11,'parentId':1,'name':'abc1'},{'id':12,'parentId':1,'name':'abc2'},{'id':13,'parentId':1,'name':'abc3'},{'id':2,'name':'def'},{'id':3,'name':'hij'}]" data-value-field="id" data-text-field="name" data-parent-id="parentId">
+<h2>DropDownTree databound to viewModel</h2>
+<input data-role="dropdownlist" data-bind="value: selection, source: library" data-value-field="id" data-text-field="name">
+<!-- input data-role="dropdowntree" data-bind="value: selection, source: library" data-value-field="id" data-text-field="name" data-parent-id="parentId" data-value-template="create-window-data-template" data-tree-template="create-window-item-template" data-option-label="{'id':0,parentId:null,'name':'Please select...',icon:'https://cdn.kidoju.com/images/o_collection/svg/office/spacer.svg'}"-->
+<input data-role="dropdowntree" data-bind="value: selection, source: library" data-value-field="id" data-text-field="name" data-parent-id="parentId" data-value-template="create-window-data-template" data-tree-template="create-window-item-template">
+<input type="number" class="k-textbox" data-bind="value: selection">
+<script id="create-window-item-template" type="text/x-kendo-template">
+    <img class="k-image" src="#: item.icon #" alt="#: item.name #" />#: item.name #
+</script>
+<script id="create-window-data-template" type="text/x-kendo-template">
+    <img class="k-image" src="#: data.icon #" alt="#: data.name #" />&nbsp;<span class="k-span">#: data.name #</span>
+</script>
+<pre>
+{
+    selection: <span data-bind="text: selection"></span>,
+    visible: <span data-bind="text: visible"></span>
+    enabled: <span data-bind="text: enabledTop"></span>
+}
+</pre>
+
+
+<script>
+    ;(function(window, $, undefined){
+
+        'use strict';
+
+        var kendo = window.kendo,
+            library = [
+                { id: 1, name: 'abc', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                { id: 11, parentId: 1, name: 'abc1', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg' },
+                { id: 12, parentId: 1, name: 'abc2', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                { id: 13, parentId: 1, name: 'abc3', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                { id: 2, name: 'def', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                { id: 21, parentId: 2, name: 'def1', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                { id: 22, parentId: 2, name: 'def2', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                { id: 23, parentId: 2, name: 'def3', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                { id: 3, name: 'ghi', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                { id: 31, parentId: 3, name: 'ghi1', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                { id: 32, parentId: 3, name: 'ghi2', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                { id: 33, parentId: 3, name: 'ghi3', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  }
+            ],
+            viewModel = kendo.observable({
+                library: library,
+                selection: 21
+            });
+
+        $(document).ready(function(){
+
+            /**
+            $('#dropdowntree1').kendoDropDownTree({
+                dataSource: library,
+                dataTextField: 'name',
+                dataValueField: 'id',
+                dataParentField: 'parentId'
+            });
+            **/
+
+            kendo.bind('body', viewModel);
+        });
+
+    }(this, jQuery));
+</script>
+</body>
+</html>

@@ -1095,7 +1095,7 @@
         });
         tools.register(Audio);
 
-        var CHECKBOX = '<div style="#: attributes.containerStyle #"><input id="#: properties.name #" type="checkbox" class="k-checkbox" {0}><label class="k-checkbox-label" for="#: properties.name #">#: attributes.text #</label></div>';
+        var CHECKBOX = '<div style="#: attributes.style #"><input id="#: properties.name #" type="checkbox" class="k-checkbox" {0}><label class="k-checkbox-label" for="#: properties.name #">#: attributes.text #</label></div>';
         /**
          * Checkbox tool
          * @class CheckBox

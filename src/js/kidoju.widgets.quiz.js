@@ -35,7 +35,7 @@
         var WIDGET_CLASS = 'kj-quiz'; // 'k-widget kj-quiz',
         var GROUP_CLASS = 'kj-quiz-group';
         var BUTTON = '<input type="button" class="k-button" value="{0}">';
-        var RADIO = '<div><input id="{1}_{2}" name="{1}" type="radio" value="{0}">&nbsp;<label for="{1}_{2}">{0}</label></div>';
+        var RADIO = '<div><input id="{1}_{2}" name="{1}" type="radio" class="k-radio" value="{0}"><label class="k-radio-label" for="{1}_{2}">{0}</label></div>';
         var MARGIN = '0.2em';
         var MODES = {
                 BUTTON: 'button',
@@ -387,6 +387,7 @@
                             var radio = $(kendo.format(RADIO, value, that._randomId, index))
                                 .css(that.options.itemStyle)
                                 .appendTo(that.groupList);
+                            /*
                             var size = parseInt(radio.css('fontSize'), 10) || parseInt(radio.parent().css('fontSize'), 10) || parseInt(radio.parent().parent().css('fontSize'), 10);
                             if (!isNaN(size)) {
                                 // TODO See http://www.telerik.com/forums/font-size-of-styled-radio-buttons-and-checkboxes
@@ -395,6 +396,7 @@
                                     .height(0.6 * size)
                                     .width(0.6 * size);
                             }
+                            */
                         }
                     });
                 }

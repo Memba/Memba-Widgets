@@ -888,8 +888,8 @@
                         transform: kendo.format(CSS_ROTATE, component.get(ROTATE))
                     });
 
-                // Update stageElement with component
-                that._updateStageElement(stageElement, component);
+                // Prepare stageElement with component
+                that._prepareStageElement(stageElement, component);
 
                 // Check index in the dataSource
                 var index = that.dataSource.indexOf(component);
@@ -901,15 +901,18 @@
                 } else {
                     stage.append(stageElement);
                 }
+
+                // init stageElement
+                that._initStageElement(stageElement, component);
             },
 
             /**
-             *
+             * Prepare Stage Element
              * @param stageElement
              * @param component
              * @private
              */
-            _updateStageElement: function (stageElement, component) {
+            _prepareStageElement: function (stageElement, component) {
                 assert.instanceof($, stageElement, kendo.format(assert.messages.instanceof.default, 'stageElement', 'jQuery'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.instanceof(kendo.ui.Stage, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Stage'));
@@ -920,7 +923,7 @@
                 assert.instanceof(Tool, tool, kendo.format(assert.messages.instanceof.default, tool, 'kidoju.Tool'));
                 var mode = this.mode();
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                var content =  tool.getHtmlContent(component, mode);
+                var content = tool.getHtmlContent(component, mode);
                 if (!(content instanceof $)) {
                     assert.type(STRING, content, kendo.format(assert.messages.type.default, 'tool.getHtmlContent(...)', STRING));
                     content = $(content);
@@ -934,12 +937,20 @@
                 // Append content
                 stageElement.append(content);
 
+            },
+
+            /**
+             *
+             * @param stageElement
+             * @private
+             */
+            _initStageElement: function (stageElement, component) {
                 // In case stageElement is made from kendo UI controls
                 kendo.init(stageElement);
 
                 // We cannot trigger transform event handlers on stage elements
                 // because they are not yet added to the stage to which events are delegated
-                // Calling event handlers without raising events here as another benefit:
+                // Calling event handlers without raising events here has another benefit:
                 // We only need the event handlers in design mode - see _toggleTransformEventHandlers
                 /*
                 stageElement.trigger(ENABLE + NS, component);
@@ -1380,7 +1391,8 @@
                                     break;
                                 default:
                                     if (/^attributes/.test(e.field) || /^properties/.test(e.field)) {
-                                        that._updateStageElement(stageElement, component);
+                                        that._prepareStageElement(stageElement, component);
+                                        that._initStageElement(stageElement, component);
                                     }
                             }
                         }

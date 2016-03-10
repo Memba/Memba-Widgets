@@ -66,7 +66,7 @@
     ];
     var EXTENSIONS = ['.gif', '.jpg', '.png', '.svg'];
     var SCHEMES = {
-        cdn: 'https://d2rvsmwqptocm.cloudfront.net/',
+        cdn: 'https://cdn.kidoju.com/',
         data: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/'
     };
     var TTL = 500;
@@ -307,7 +307,7 @@
                             // Make sure we are asynchronous to simulate a file upload...
                             setTimeout(function () {
                                 options.data.file = null;
-                                options.data.url = 'https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/add.svg';
+                                options.data.url = 'https://cdn.kidoju.com/images/o_collection/svg/office/add.svg';
                                 // VERY IMPORTANT: it won't work without total + data which are both expected
                                 options.success({ total: 1, data: [options.data] });
                             }, 2 * TTL);
@@ -561,7 +561,7 @@
                             // Make sure we are asynchronous to simulate a file upload...
                             setTimeout(function () {
                                 options.data.file = null;
-                                options.data.url = 'https://d2rvsmwqptocm.cloudfront.net/images/o_collection/svg/office/add.svg';
+                                options.data.url = 'https://cdn.kidoju.com/images/o_collection/svg/office/add.svg';
                                 // VERY IMPORTANT: it won't work without total + data which are both expected
                                 options.success({ total: 1, data: [options.data] });
                             }, 2 * TTL);

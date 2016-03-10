@@ -219,6 +219,8 @@
             if (tools instanceof kendo.Observable) {
 
                 if (tools.audio instanceof Tool) {
+                    // Description
+                    tools.audio.constructor.prototype.description = 'Audio Player';
                     // Attributes
                     attributes = tools.audio.constructor.prototype.attributes;
                     attributes.autoplay.title = 'Autoplay';
@@ -227,6 +229,8 @@
                 }
 
                 if (tools.checkbox instanceof Tool) {
+                    // Description
+                    tools.checkbox.constructor.prototype.description = 'CheckBox';
                     // Attributes
                     attributes = tools.checkbox.constructor.prototype.attributes;
                     attributes.style.title = 'Style';
@@ -243,6 +247,8 @@
                 }
 
                 if (tools.image instanceof Tool) {
+                    // Description
+                    tools.image.constructor.prototype.description = 'Image';
                     // Attributes
                     attributes = tools.image.constructor.prototype.attributes;
                     attributes.src.title = 'Source';
@@ -253,13 +259,26 @@
                 }
 
                 if (tools.label instanceof Tool) {
+                    // Description
+                    tools.label.constructor.prototype.description = 'Label';
                     // Attributes
                     attributes = tools.label.constructor.prototype.attributes;
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Text';
                 }
 
+                if (tools.mathexpression instanceof Tool) {
+                    // Description
+                    tools.mathexpression.constructor.prototype.description = 'Math Expression';
+                    // Attributes
+                    attributes = tools.mathexpression.constructor.prototype.attributes;
+                    attributes.formula.title = 'Formula';
+                    attributes.style.title = 'Style';
+                }
+
                 if (tools.quiz instanceof Tool) {
+                    // Description
+                    tools.quiz.constructor.prototype.description = 'Quiz';
                     // Attributes
                     attributes = tools.quiz.constructor.prototype.attributes;
                     attributes.activeStyle.title = 'Active Style';
@@ -280,6 +299,8 @@
                 }
 
                 if (tools.textbox instanceof Tool) {
+                    // Description
+                    tools.textbox.constructor.prototype.description = 'TextBox';
                     // Attributes
                     attributes = tools.textbox.constructor.prototype.attributes;
                     attributes.style.title = 'Style';
@@ -295,6 +316,8 @@
                 }
 
                 if (tools.video instanceof Tool) {
+                    // Description
+                    tools.video.constructor.prototype.description = 'Video Player';
                     // Attributes
                     attributes = tools.video.constructor.prototype.attributes;
                     attributes.autoplay.title = 'Autoplay';

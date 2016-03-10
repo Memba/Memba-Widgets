@@ -130,7 +130,7 @@
             quiz: {
                 attributes: {
                     activeStyle: { title: 'Active Style' },
-                    data: { title: 'Values' },
+                    data: { title: 'Values', defaultValue: 'True\nFalse' },
                     groupStyle: { title: 'Group Style' },
                     itemStyle: { title: 'Item Style' },
                     mode: { title: 'Mode' }
@@ -1351,7 +1351,7 @@
                 groupStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
                 itemStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.itemStyle.title }),
                 activeStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.activeStyle.title }),
-                data: new adapters.TextAdapter({ title: i18n.quiz.attributes.data.title, defaultValue: 'True\nFalse' })
+                data: new adapters.TextAdapter({ title: i18n.quiz.attributes.data.title, defaultValue: i18n.quiz.attributes.data.defaultValue })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.quiz.properties.name.title }),

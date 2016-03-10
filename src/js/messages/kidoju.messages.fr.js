@@ -262,6 +262,7 @@
                     attributes = tools.quiz.constructor.prototype.attributes;
                     attributes.activeStyle.title = 'Style Sélection';
                     attributes.data.title = 'Valeurs';
+                    attributes.data.defaultValue = 'Vrai\nFaux';
                     attributes.groupStyle.title = 'Style Groupe';
                     attributes.itemStyle.title = 'Style Element';
                     attributes.mode.title = 'Mode';

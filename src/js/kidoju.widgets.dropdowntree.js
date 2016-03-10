@@ -24,17 +24,15 @@
 
         var kendo = window.kendo;
         var data = kendo.data;
-        var HierarchicalDataSource = data.HierarchicalDataSource;
+        var DataSource = data.DataSource;
         var ui = kendo.ui;
         var DropDownList = ui.DropDownList;
         var TreeView = ui.TreeView;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.dropdowntree');
-        var STRING = 'string';
+        // var STRING = 'string';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
-        var DATABINDING = 'dataBinding';
-        var DATABOUND = 'dataBound';
         var DIV = '<div/>';
 
         /*********************************************************************************
@@ -115,7 +113,11 @@
                     var options = that.options;
                     // DropDownList.fn.value.call(this, value);
                     var dataItem = that.dataSource.data().find(function (record) { return record[options.dataValueField] === value; });
-                    that.text(dataItem[options.dataTextField]);
+                    if (dataItem) {
+                        that.text(dataItem[options.dataTextField]);
+                    } else {
+                        that.text('');
+                    }
                 }
             },
 
@@ -226,9 +228,13 @@
                 var that = this;
                 DropDownList.fn._dataSource.call(that);
                 // bind to the change event to refresh the widget
-                that.dataSource.bind(CHANGE, function() {
-                    that.refresh();
-                });
+                if (that.dataSource instanceof DataSource) {
+                    if (that._refreshHandler) {
+                        that.dataSource.unbind(CHANGE, that._refreshHandler);
+                    }
+                    that._refreshHandler = $.proxy(that.refresh, that);
+                    that.dataSource.bind(CHANGE, that._refreshHandler);
+                }
             },
 
             /**

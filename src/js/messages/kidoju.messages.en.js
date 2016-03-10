@@ -249,6 +249,9 @@
                     attributes = tools.image.constructor.prototype.attributes;
                     attributes.src.title = 'Source';
                     attributes.alt.title = 'Text';
+                    attributes.alt.defaultValue = 'Image';
+                    attributes.style.title = 'Style';
+
                 }
 
                 if (tools.label instanceof Tool) {

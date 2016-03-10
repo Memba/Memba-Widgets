@@ -114,7 +114,8 @@
             image: {
                 attributes: {
                     src: { title: 'Source' },
-                    alt: { title: 'Text' }
+                    alt: { title: 'Text', defaultValue: 'Image' },
+                    style: { title: 'Style' }
                 }
                 // properties: {}
             },
@@ -1196,14 +1197,14 @@
             icon: 'painting_landscape',
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<img src="#: attributes.src$() #" alt="#: attributes.alt #">'
+                default: '<img src="#: attributes.src$() #" alt="#: attributes.alt #" style="#: attributes.style #">'
             },
             height: 250,
             width: 250,
             attributes: {
-                src: new adapters.AssetAdapter({ title: 'Image', defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' }),
-                alt: new adapters.StringAdapter({ title: 'Text', defaultValue: 'Painting Landscape' })
-                // TODO add style (border, shadow, ...)
+                src: new adapters.AssetAdapter({ title: i18n.image.attributes.src.title, defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' }),
+                alt: new adapters.StringAdapter({ title: i18n.image.attributes.alt.title, defaultValue: i18n.image.attributes.alt.defaultValue }),
+                style: new adapters.StyleAdapter({ title: i18n.image.attributes.style.title })
             },
 
             /**

@@ -21,40 +21,33 @@
     <script src="./js/window.logger.js"></script>
     <script src="./js/kidoju.widgets.dropzone.js"></script>
     <style>
-        .demo-section {
-            height: 300px;
-            position: relative;
-        }
-        #droptarget {
-            height: 200px;
-            width: 200px;
-            font-size: 14px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 200px;
-            margin: 0 auto;
-            cursor: default;
-            border: 1px solid #999;
-        }
-        [draggable] {
-            cursor: move;
-            position: absolute;
-            top: 260px;
-            left: 50%;
-            margin-left: -28px;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background-color: #03a9f4;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.23), 0 3px 10px rgba(0, 0, 0, 0.16);
+        .kj-stage {
+            height: 600px;
+            width: 800px;
+            border: solid 1px black;
         }
     </style>
 </head>
 <body>
 <h1>kidoju.widgets.dropzone</h1>
-<div class="demo-section k-content">
-    <div id="droptarget" class="k-header" data-role="dropzone">Drag the small circle here.</div>
-    <div draggable></div>
+<div class="kj-stage">
+    <div style="position:relative;">
+        <div class="kj-element" style="position:absolute;top:100px;left:200px;width:400px;height:400px;">
+            <div class="k-header" data-role="dropzone" style="width:400px;height:400px;">Drag the small circles here.</div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:50px;left:50px;width:50px;height:50px;">
+            <div data-draggable="true" data-value="1" style="border:solid 1px blue;background-color:red;width:50px;height:50px;"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:150px;left:50px;width:50px;height:50px;">
+            <div data-draggable="true" data-value="2" style="border:solid 1px blue;background-color:red;width:50px;height:50px;"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:250px;left:50px;width:50px;height:50px;">
+            <div data-draggable="true" data-value="3" style="border:solid 1px blue;background-color:red;width:50px;height:50px;"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:350px;left:50px;width:50px;height:50px;">
+            <div data-draggable="true" data-value="4" style="border:solid 1px blue;background-color:red;width:50px;height:50px;"></div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -64,7 +57,7 @@
 
         var kendo = window.kendo;
         var viewModel = new kendo.observable({
-            // TODO
+            dropzone: []
         });
 
         $(document).ready(function() {

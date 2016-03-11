@@ -12,8 +12,8 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
-        './vendor/kendo/kendo.userevents',
-        './vendor/kendo/kendo.draganddrop'
+        './vendor/kendo/kendo.color',
+        './vendor/kendo/kendo.drawing'
         // './vendor/kendo/kendo.multiselect' // required because of a test in kendo.binder.js
     ], f);
 })(function () {
@@ -44,7 +44,7 @@
         var DIV = '<div/>';
         var WIDGET_CLASS = 'kj-connector';
         var SURFACE_CLASS = WIDGET_CLASS + '-surface';
-        var PATH_WIDTH = 5;
+        var PATH_WIDTH = 10;
         var OBSERVABLE = 'observableArray';
         var SURFACE = 'surface';
         var RX_SELECTOR = /^#\S/;
@@ -60,6 +60,18 @@
             var g = (Math.round(Math.random()* 127) + 127).toString(16);
             var b = (Math.round(Math.random()* 127) + 127).toString(16);
             return '#' + r + g + b;
+        }
+
+        /**
+         * Get the scale of an element's CSS transformation
+         * Note: the same function is used in kidoju.widgets.stage
+         * @param element
+         * @returns {Number|number}
+         */
+        function getTransformScale(element) {
+            // $(element).css('transform') returns a matrix, so we have to read the style attribute
+            var match = ($(element).attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
+            return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
         }
 
         /*********************************************************************************
@@ -99,10 +111,10 @@
             options: {
                 name: 'Connector',
                 value: null,
-                container: 'body', // .kj-stage>div[data-role="stage"]
+                scaler: '', // e.g. '.kj-stage', a parent component that is scaled using CSS transforms
+                container: 'body', // e.g. '.kj-stage>div[data-role="stage"]',
                 color: '#FF0000',
-                height: 20,
-                width: 20
+                enable: true
             },
 
             /**
@@ -141,14 +153,13 @@
              */
             _layout: function () {
                 var that = this;
-                var options = that.options;
-                var height = options.height;
-                var width = options.width;
+                // var options = that.options;
+                // var height = options.height;
+                // var width = options.width;
                 that.wrapper = that.element;
-                that.element
-                    .addClass(WIDGET_CLASS)
-                    .height(width)
-                    .width(height);
+                that.element.addClass(WIDGET_CLASS)
+                    // .height(width)
+                    // .width(height);
                 that.surface = drawing.Surface.create(that.element);
             },
 
@@ -217,8 +228,9 @@
                 var that = this; // this is the connector widget
                 var options = that.options;
                 var color = options.color;
-                var x = parseInt(options.width, 10) / 2;
-                var y = parseInt(options.height, 10) / 2;
+                var element = that.element;
+                var x = element.width() / 2; // parseInt(options.width, 10) / 2;
+                var y = element.height() / 2; // parseInt(options.height, 10) / 2;
                 var radius = Math.min(x, y);
                 var connector = new drawing.Group();
                 var outerCircleGeometry = new geometry.Circle([x, y], 0.8* radius);
@@ -388,6 +400,8 @@
                         var elementWidget = element.data(WIDGET);
                         if (elementWidget instanceof Connector && elementWidget._enabled) {
                             elementWidget._dropConnection();
+                            var scaler = element.closest(elementWidget.options.scaler);
+                            var scale = scaler.length ? getTransformScale(scaler) : 1;
                             var container = element.closest(elementWidget.options.container);
                             assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
                             var containerOffset = container.offset();
@@ -400,7 +414,7 @@
                                 }
                             });
                             path.moveTo(elementOffset.left - containerOffset.left + element.width() / 2, elementOffset.top - containerOffset.top + element.height() / 2);
-                            path.lineTo(e.pageX - containerOffset.left, e.pageY - containerOffset.top);
+                            path.lineTo(e.pageX/scale - containerOffset.left, e.pageY/scale - containerOffset.top);
                             surface.draw(path);
                         }
                     })
@@ -408,10 +422,12 @@
                         if (element instanceof $ && path instanceof kendo.drawing.Path) {
                             var elementWidget = element.data(WIDGET);
                             assert.instanceof(Connector, elementWidget, kendo.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Connector'));
+                            var scaler = element.closest(elementWidget.options.scaler);
+                            var scale = scaler.length ? getTransformScale(scaler) : 1;
                             var container = element.closest(elementWidget.options.container);
                             assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
                             var containerOffset = container.offset();
-                            path.segments[1].anchor().move(e.pageX - containerOffset.left, e.pageY - containerOffset.top);
+                            path.segments[1].anchor().move(e.pageX/scale - containerOffset.left, e.pageY/scale - containerOffset.top);
                         }
                     })
                     .on(MOUSEUP, DOT + WIDGET_CLASS, function (e) {

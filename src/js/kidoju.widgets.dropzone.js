@@ -23,14 +23,21 @@
     (function ($, undefined) {
 
         var kendo = window.kendo;
-        var Widget = kendo.ui.Widget;
+        var data = kendo.data;
+        var DataSource = data.DataSource;
+        var ui = kendo.ui;
+        var Widget = ui.Widget;
+        var Draggable = ui.Draggable;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.dropzone');
         var STRING = 'string';
+        var NULL = 'null';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
+        var DATABINDING = 'dataBinding';
+        var DATABOUND = 'dataBound';
         // var NS = '.kendoDropZone';
-        var WIDGET_CLASS = 'k-widget kj-dropzone';
+        var WIDGET_CLASS = 'kj-dropzone'; // 'k-widget kj-dropzone';
 
         /*********************************************************************************
          * Widget
@@ -53,6 +60,7 @@
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
                 that._layout();
+                that._addDraggable();
                 // kendo.notify(that);
             },
 
@@ -62,9 +70,10 @@
              */
             options: {
                 name: 'DropZone',
-                value: null,
-                // container:  TODO
-                draggable: '[draggable]' // The draggable actually is the parent stage element - use http://www.w3schools.com/jquery/sel_has.asp
+                autoBind: true,
+                dataSource: [],
+                container: 'div.kj-stage>div[data-role="stage"]',
+                draggable: 'div.kj-element:has(div[data-draggable="true"])' // The draggable actually is the parent stage element - use http://www.w3schools.com/jquery/sel_has.asp
                 // TODO Axis?????
             },
 
@@ -73,27 +82,17 @@
              * @property events
              */
             events: [
-                CHANGE
+                CHANGE,
+                DATABINDING,
+                DATABOUND
             ],
 
             /**
              * Value for MVVM binding
-             * Returns either a JS function as a string or a library formula name prefixed as a Javascript comment
-             * @param value
              */
-            value: function (value) {
+            value: function () {
                 var that = this;
-                if ($.type(value) === STRING) {
-                    that._toggle(value);
-                } else if ($.type(value) === UNDEFINED) {
-                    if ($.type(that._value) !== STRING || !that._value.length) {
-                        return undefined;
-                    } else {
-                        return that._value;
-                    }
-                } else {
-                    throw new TypeError('`value` is expected to be a string if not undefined');
-                }
+                return [];
             },
 
             /**
@@ -104,27 +103,6 @@
                 var that = this;
                 that.wrapper = that.element;
                 that.element.addClass(WIDGET_CLASS);
-                $(that.options.draggable).kendoDraggable({
-                    hint: function (element) {
-                        assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
-                        return element.clone();
-                    },
-                    // TODO container: stage,
-                    dragstart: function (e) {
-                        assert.instanceof(kendo.ui.Draggable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Draggable'));
-                        e.sender.element.hide();
-                    },
-                    dragend: function (e) {
-                        assert.instanceof(kendo.ui.Draggable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Draggable'));
-                        var position = e.sender.hint.position();
-                        e.sender.hint.hide();
-                        e.sender.element.css(position).show();
-                        if (e.sender.dropped) {
-                            $.noop();
-                            // Add value to drop target??
-                        }
-                    }
-                });
                 that.element.kendoDropTarget({
                     // dragenter: $.noop,
                     dragleave: function (e) {
@@ -136,9 +114,108 @@
                         $.noop();
                     }
                 });
-                that.draggable = $(that.options.draggable).data('kendoDraggable');
             },
 
+            /**
+             * Add draggable (there may be several)
+             * @private
+             */
+            _addDraggable: function () {
+                var that = this;
+                var options = that.options;
+                var container = that.element.closest(options.container);
+                that.draggable = container.find(options.draggable);
+                that.draggable.kendoDraggable({
+                    container: $('.kj-stage'), // TODO
+                    hint: function (element) {
+                        assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
+                        return element.clone();
+                    },
+                    dragstart: function (e) {
+                        assert.instanceof(Draggable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Draggable'));
+                        e.sender.element.hide();
+                    },
+                    dragend: function (e) {
+                        assert.instanceof(Draggable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Draggable'));
+                        var position = e.sender.hint.position();
+                        var offset = $(that.options.container).offset();
+                        e.sender.hint.hide();
+                        // TODO the following goes in refresh
+                        e.sender.element
+                            .css({
+                                left: position.left - offset.left,
+                                top: position.top - offset.top
+                            })
+                            .show();
+                        if (e.sender.dropped) {
+                            $.noop();
+                            // Add value to drop target??
+                        }
+                    }
+                });
+            },
+
+            /**
+             * Changes the dataSource
+             * @method setDataSource
+             * @param dataSource
+             */
+            setDataSource: function (dataSource) {
+                // set the internal datasource equal to the one passed in by MVVM
+                this.options.dataSource = dataSource;
+                // rebuild the datasource if necessary, or just reassign
+                this._dataSource();
+            },
+
+            /**
+             * Binds the widget to the change event of the dataSource
+             * See http://docs.telerik.com/kendo-ui/howto/create-custom-kendo-widget
+             * @method _dataSource
+             * @private
+             */
+            _dataSource: function () {
+                var that = this;
+                // if the DataSource is defined and the _refreshHandler is wired up, unbind because
+                // we need to rebuild the DataSource
+
+                // There is no reason why, in its current state, it would not work with any dataSource
+                // if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
+                if (that.dataSource instanceof DataSource && that._refreshHandler) {
+                    that.dataSource.unbind(CHANGE, that._refreshHandler);
+                }
+
+                if (that.options.dataSource !== NULL) {  // use null to explicitly destroy the dataSource bindings
+
+                    // returns the datasource OR creates one if using array or configuration object
+                    that.dataSource = DataSource.create(that.options.dataSource);
+
+                    that._refreshHandler = $.proxy(that.refresh, that);
+
+                    // bind to the change event to refresh the widget
+                    that.dataSource.bind(CHANGE, that._refreshHandler);
+
+                    if (that.options.autoBind) {
+                        that.dataSource.fetch();
+                    }
+                }
+            },
+
+            /**
+             * Items required for MVVM source binding
+             */
+            items: function() {
+                // TODO return the list of elements corresponding to dropped items
+                return;
+            },
+
+            /**
+             * Refresh the display
+             */
+            refresh: function (e) {
+                // TODO:
+                // We need to be able to rebuild the preview so we need
+                // the id and position of all draggables
+            },
 
             /**
              * Clears the widget

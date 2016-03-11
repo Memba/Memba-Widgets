@@ -85,7 +85,12 @@
                 cancel: { text: 'Cancel' }
             },
 
+            pointer: {
+                description: 'Pointer'
+            },
+
             audio: {
+                description: 'Audio Player',
                 attributes: {
                     autoplay: { title: 'Autoplay' },
                     mp3: { title: 'MP3 File' },
@@ -93,7 +98,25 @@
                 }
             },
 
+            chargrid: {
+                description: 'Character Grid',
+                attributes: {
+                    columns: { title: 'Columns' },
+                    rows: { title: 'Rows' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    description: { title: 'Description' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
+                }
+            },
+
             checkbox: {
+                description: 'CheckBox',
                 attributes: {
                     style: { title: 'Style' },
                     text: { title: 'Text' }
@@ -109,7 +132,42 @@
                 }
             },
 
+            connector: {
+                description: 'Connector',
+                attributes: {
+                    color: { title: 'Color' },
+                    size: { title: 'Size' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    description: { title: 'Description' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
+                }
+            },
+
+            dropzone: {
+                description: 'Drop Zone',
+                attributes: {
+                    style: { title: 'Style'},
+                    text: { title: 'Text' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    description: { title: 'Description' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
+                }
+            },
+
             image: {
+                description: 'Image',
                 attributes: {
                     src: { title: 'Source' },
                     alt: { title: 'Text', defaultValue: 'Image' },
@@ -119,6 +177,7 @@
             },
 
             label: {
+                description: 'Label',
                 attributes: {
                     style: { title: 'Style' },
                     text: { title: 'Text' }
@@ -126,7 +185,16 @@
                 // properties: {}
             },
 
+            mathexpression: {
+                description: 'Math Expression',
+                attributes: {
+                    formula: { title: 'Formula' },
+                    style: { title: 'Style' }
+                }
+            },
+
             quiz: {
+                description: 'Quiz',
                 attributes: {
                     activeStyle: { title: 'Active Style' },
                     data: { title: 'Values', defaultValue: 'True\nFalse' },
@@ -146,6 +214,7 @@
             },
 
             textbox: {
+                description: 'TextBox',
                 attributes: {
                     style: { title: 'Style' }
                 },
@@ -161,6 +230,7 @@
             },
 
             video: {
+                description: 'Video Player',
                 attributes: {
                     autoplay: { title: 'Autoplay' },
                     toolbarHeight: { title: 'Toolbar Height' },
@@ -250,6 +320,7 @@
         var Tool = kidoju.Tool = kendo.Class.extend({
             id: null,
             icon: null,
+            description: null,
             cursor: null,
             height: 250,
             width: 250,
@@ -688,6 +759,27 @@
         });
 
         /**
+         * Color adapter
+         */
+        adapters.ColorAdapter = BaseAdapter.extend({
+            init: function (options) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '#000000');
+                this.editor = 'input';
+                this.attributes = $.extend({}, this.attributes);
+                this.attributes[kendo.attr('role')] = 'colorpicker';
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
+                }
+            ],
+            libraryDefault: 'equal'
+        });
+
+        /**
          * Text (multiline) adapter
          */
         adapters.TextAdapter = adapters.StringAdapter.extend({
@@ -735,7 +827,7 @@
                     var input = $('<input/>')
                         .addClass('k-textbox') // or k-input
                         .css({ width: '100%' })
-                        .attr($.extend({}, options.attributes, { 'data-bind': 'value: ' + options.field }))
+                        .attr($.extend({}, options.attributes, { 'data-bind': 'value: ' + options.field })) // TODO namespace?
                         .appendTo(cell);
                     $('<button/>')
                         .text('...')
@@ -759,7 +851,7 @@
                 });
                 // Prepare UI
                 dialog.title(options.title);
-                var content = '<div class="k-edit-form-container">' +
+                var content = '<div class="k-edit-form-container">' + // TODO namespace???
                     '<div data-role="styleeditor" data-bind="value: style"></div>' +
                     '<div class="k-edit-buttons k-state-default">' +
                     '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
@@ -816,7 +908,7 @@
                     var input = $('<input/>')
                         .addClass('k-textbox')
                         .css({ width: '100%' })
-                        .attr($.extend({}, settings.attributes, { 'data-bind': 'value: ' + settings.field }))
+                        .attr($.extend({}, settings.attributes, { 'data-bind': 'value: ' + settings.field }))// TODO: namespace???
                         .appendTo(cell);
                     $('<button/>')
                         .text('...')
@@ -840,7 +932,7 @@
                 });
                 // Prepare UI
                 dialog.title(settings.title);
-                var content = '<div class="k-edit-form-container">' +
+                var content = '<div class="k-edit-form-container">' + // TODO namespace???
                     '<div data-role="assetmanager" data-bind="value: url"></div>' +
                     '<div class="k-edit-buttons k-state-default">' +
                     '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
@@ -906,9 +998,9 @@
                             paddingRight: '8px'
                         })
                         .appendTo(table);
-                    var input = $('<div data-role="codeinput" />')
+                    var input = $('<div data-role="codeinput" />') // TODO namespace???
                         // Note: _library is added to the data bound PageComponent in its init method
-                        .attr($.extend({}, options.attributes, { 'data-bind': 'value: ' + options.field + ', source: _library' }))
+                        .attr($.extend({}, options.attributes, { 'data-bind': 'value: ' + options.field + ', source: _library' })) // TODO namespace???
                         .appendTo(cell);
                     // We need a temporary textbox to calculate the height and align the button
                     var temp = $('<input type="text" class="k-textbox">')
@@ -938,7 +1030,7 @@
                 });
                 // Prepare UI
                 dialog.title(options.title);
-                var content = '<div class="k-edit-form-container">' +
+                var content = '<div class="k-edit-form-container">' + // TODO namespace???
                     '<div data-role="codeeditor" data-bind="value: code, source: library" data-default="' + that.defaultValue + '" data-solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"></div>' +
                     '<div class="k-edit-buttons k-state-default">' +
                     '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
@@ -989,6 +1081,29 @@
          */
         adapters.ScoreAdapter = adapters.NumberAdapter.extend({});
 
+        /**
+         * Connectors Adapter
+         */
+        adapters.ConnectorsAdapter = BaseAdapter.extend({
+            init: function (options) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
+                this.editor = 'input';
+                this.attributes = $.extend({}, this.attributes, { style: 'width: 100%;' });
+                this.attributes[kendo.attr('role')] = 'dropdownlist';
+                this.attributes[kendo.attr('source')] = JSON.stringify([]);
+                // TODO: how to initialise the  dropdownlist with the list of connector ids on stage????????????????????
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
+                }
+            ],
+            libraryDefault: 'equal'
+        });
+
+
         /*******************************************************************************************
          * Tool classes
          *******************************************************************************************/
@@ -1000,6 +1115,7 @@
         var Pointer = Tool.extend({
             id: POINTER,
             icon: 'mouse_pointer',
+            description: i18n.pointer.description,
             cursor: CURSOR_DEFAULT,
             height: 0,
             width: 0,
@@ -1014,9 +1130,10 @@
         var Audio = Tool.extend({
             id: 'audio',
             icon: 'loudspeaker3',
+            description: i18n.audio.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-role="mediaplayer" data-mode="audio" data-autoplay="#: attributes.autoplay #" data-files="#: attributes.files$() #"></div>'
+                default: '<div data-#= ns #role="mediaplayer" data-#= ns #mode="audio" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #files="#: attributes.files$() #"></div>'
             },
             height: 100,
             width: 400,
@@ -1095,6 +1212,63 @@
         });
         tools.register(Audio);
 
+        var CHARGRID = '<div data-#= ns #role="chargrid" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" {0}></div>';
+        /**
+         * @class CharGrid tool
+         * @type {void|*}
+         */
+        var CharGrid = Tool.extend({
+            id: 'chargrid',
+            icon: 'dot_matrix',
+            description: i18n.chargrid.description,
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                design: kendo.format(CHARGRID, 'data-#= ns #enable="false"'),
+                play: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value"'),
+                review: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+            },
+            height: 100,
+            width: 100,
+            attributes: {
+                rows: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.rows.title, defaultValue: 9 }),
+                columns: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.columns.title, defaultValue: 9 })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
+                description: new adapters.StringAdapter({ title: i18n.chargrid.properties.description.title }),
+                solution: new adapters.StringAdapter({ title: i18n.chargrid.properties.solution.title }), // TODO
+                validation: new adapters.ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            }
+
+        });
+        // TODO tools.register(CharGrid);
+
         var CHECKBOX = '<div style="#: attributes.style #"><input id="#: properties.name #" type="checkbox" class="k-checkbox" {0}><label class="k-checkbox-label" for="#: properties.name #">#: attributes.text #</label></div>';
         /**
          * Checkbox tool
@@ -1104,11 +1278,12 @@
         var CheckBox = Tool.extend({
             id: 'checkbox',
             icon: 'checkbox',
+            description: i18n.checkbox.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
                 design: kendo.format(CHECKBOX, ''),
                 play: kendo.format(CHECKBOX, 'data-#= ns #bind="checked: #: properties.name #.value"'),
-                review: kendo.format(CHECKBOX, 'data-#= ns #bind="checked: #: properties.name #.value"') + Tool.fn.showResult()
+                review: kendo.format(CHECKBOX, 'data-#= ns #bind="checked: #: properties.name #.value"') + Tool.fn.showResult() // TODO: enabled????
 
             },
             height: 70,
@@ -1179,6 +1354,130 @@
         });
         tools.register(CheckBox);
 
+        var CONNECTOR = '<div id="#: properties.name #" data-#= ns #role="connector" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-#= ns #role=stage]" data-#= ns #color="#: attributes.color #" {0}></div>';
+        /**
+         * @class Connector tool
+         * @type {void|*}
+         */
+        var Connector = Tool.extend({
+            id: 'connector',
+            icon: 'target',
+            description: i18n.connector.description,
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                design: kendo.format(CONNECTOR, 'data-#= ns #enable="false"'),
+                play: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value"'),
+                review: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+            },
+            height: 50,
+            width: 50,
+            attributes: {
+                color: new adapters.ColorAdapter({ title: i18n.connector.attributes.color.title, defaultValue: '#FF0000' })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.connector.properties.name.title }),
+                description: new adapters.StringAdapter({ title: i18n.connector.properties.description.title }),
+                // solution: new adapters.ConnectorsAdapter({ title: i18n.connector.properties.solution.title }),
+                solution: new adapters.StringAdapter({ title: i18n.connector.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({
+                    title: i18n.connector.properties.validation.title
+                    // The following is now achieved in Tool.init
+                    // solutionAdapter: new adapters.StringAdapter({ title: 'Solution' }),
+                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault
+                }),
+                success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.connector.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.connector.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div[' + kendo.attr('role') + '="connector"]');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                }
+                // Redraw the connector widget
+                var connectorWidget = content.data('kendoConnector');
+                assert.instanceof(kendo.ui.Connector, connectorWidget, kendo.format(assert.messages.instanceof.default, 'connectorWidget', 'kendo.ui.Connector'));
+                connectorWidget._drawConnector();
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            }
+
+        });
+        tools.register(Connector);
+
+        var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #container=".kj-stage" {0}></div>';
+        /**
+         * @class Connector tool
+         * @type {void|*}
+         */
+        var DropZone = Tool.extend({
+            id: 'dropzone',
+            icon: 'elements_selection',
+            description: i18n.dropzone.description,
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                design: kendo.format(DROPZONE, 'data-#= ns #enable="false"'),
+                play: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value"'),
+                review: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+            },
+            height: 100,
+            width: 100,
+            attributes: {
+                style: new adapters.StyleAdapter({ title: i18n.dropzone.attributes.style.title }),
+                text: new adapters.StringAdapter({ title: i18n.dropzone.attributes.text.title })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.dropzone.properties.name.title }),
+                description: new adapters.StringAdapter({ title: i18n.dropzone.properties.description.title }),
+                // solution: new adapters.ConnectorsAdapter({ title: i18n.dropzone.properties.solution.title }),
+                solution: new adapters.StringAdapter({ title: i18n.dropzone.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({ title: i18n.dropzone.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            }
+
+        });
+        tools.register(DropZone);
+
         /**
          * @class Image tool
          * @type {void|*}
@@ -1186,6 +1485,7 @@
         var Image = Tool.extend({
             id: 'image',
             icon: 'painting_landscape',
+            description: i18n.image.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
                 default: '<img src="#: attributes.src$() #" alt="#: attributes.alt #" style="#: attributes.style #">'
@@ -1259,13 +1559,15 @@
         var Label = Tool.extend({
             id: 'label',
             icon: 'document_orientation_landscape',
+            description: i18n.label.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div style="#: attributes.style #">#: attributes.text #</div>'
+                default: '<div style="#: attributes.style #" data-#= ns #draggable="# attributes.draggable #">#: attributes.text #</div>'
             },
             height: 100,
             width: 300,
             attributes: {
+                draggable: new adapters.BooleanAdapter({ title: i18n.label.attributes.text.title, defaultValue: false }),
                 text: new adapters.StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: 'Label' }),
                 style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size: 80px;' })
             },
@@ -1321,6 +1623,51 @@
         });
         tools.register(Label);
 
+        /**
+         * @class MathExpression tool
+         * @type {void|*}
+         */
+        var MathExpression = Tool.extend({
+            id: 'mathexpression',
+            icon: 'formula',
+            description: i18n.mathexpression.description,
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                default: '<div data-#= ns #role="mathexpression" style="#: attributes.style #" data-#= ns #value="#: attributes.formula #"></div>'
+            },
+            height: 150,
+            width: 480,
+            attributes: {
+                formula: new adapters.TextAdapter({ title: i18n.mathexpression.attributes.formula.title, defaultValue: '§sum_(i=1)^n i^3=((n(n+1))/2)^2§' }),
+                style: new adapters.StyleAdapter({ title: i18n.mathexpression.attributes.style.title, defaultValue: 'font-size: 40px;' })
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            }
+
+        });
+        tools.register(MathExpression);
+
         var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" data-#= ns #group-style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #active-style="#: attributes.activeStyle #"></div>';
         /**
          * Quiz tool
@@ -1330,6 +1677,7 @@
         var Quiz = Tool.extend({
             id: 'quiz',
             icon: 'radio_button_group',
+            description: i18n.quiz.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
                 design: kendo.format(QUIZ, 'data-#= ns #enable="false"'),
@@ -1420,6 +1768,7 @@
         var Textbox = Tool.extend({
             id: 'textbox',
             icon: 'text_field',
+            description: i18n.textbox.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
                 design: kendo.format(TEXTBOX, ''),
@@ -1500,9 +1849,10 @@
         var Video = Tool.extend({
             id: 'video',
             icon: 'movie',
+            description: i18n.video.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-role="mediaplayer" data-mode="video" data-autoplay="#: attributes.autoplay #" data-files="#: attributes.files$() #" data-toolbar-height="#: attributes.toolbarHeight #"></div>'
+                default: '<div data-#= ns #role="mediaplayer" data-#= ns #mode="video" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #iles="#: attributes.files$() #" data-#= ns #toolbar-height="#: attributes.toolbarHeight #"></div>'
             },
             height: 300,
             width: 600,
@@ -1592,14 +1942,12 @@
 
         /**
          * We could also consider
+         * Better Textbox with masked inputs
          * HTML
          * Drawing surface
          * Shape
-         * Drop Target
-         * Connector
          * Clock
          * Text-to-Speech
-         * MathJax
          * Grid
          */
 

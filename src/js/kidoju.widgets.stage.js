@@ -1529,6 +1529,7 @@
 
             /**
              * Get the scale of an element's CSS transformation
+             * Note: the same function is used in kidoju.widgets.connector
              * @param element
              * @returns {Number|number}
              */

@@ -11,6 +11,8 @@
     <script src="./js/vendor/kendo/jquery.min.js"></script>
     <script src="./js/vendor/kendo/kendo.all.min.js"></script>
     <!--script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script>
     <script src="./js/vendor/kendo/kendo.color.js"></script>
     <script src="./js/vendor/kendo/kendo.drawing.js"></script-->
     <!-- connector requirements -->
@@ -27,31 +29,31 @@
 <h2>Connectors set declaratively</h2>
 <div class="demo-section k-content" style="height:300px;width:300px;border:solid 1px black;position:relative;">
     <div class="kj-element" style="position:absolute;top:10px;left:10px;height:20px;width:20px;">
-        <div id="connector1" data-role="connector" data-container=".k-content" data-value="connector2"></div>
+        <div id="connector1" data-role="connector" data-container=".k-content" style="height:20px;width:20px;" data-value="connector2"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:10px;left:270px;height:20px;width:20px;">
-        <div id="connector2" data-role="connector" data-container=".k-content" data-value="connector1"></div>
+        <div id="connector2" data-role="connector" data-container=".k-content" style="height:20px;width:20px;" data-value="connector1"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:270px;left:270px;height:20px;width:20px;">
-        <div id="connector3" data-role="connector" data-container=".k-content"></div>
+        <div id="connector3" data-role="connector" data-container=".k-content" style="height:20px;width:20px;"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:270px;left:10px;height:20px;width:20px;">
-        <div id="connector4" data-role="connector" data-container=".k-content"></div>
+        <div id="connector4" data-role="connector" data-container=".k-content" style="height:20px;width:20px;"></div>
     </div>
 </div>
 <h2>Connectors bound to observable</h2>
 <div class="demo-section k-content" style="height:300px;width:300px;border:solid 1px black;position:relative;">
     <div class="kj-element" style="position:absolute;top:10px;left:10px;height:20px;width:20px;">
-        <div id="connectorA" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueA, visible: visible, enabled: enabledTop"></div>
+        <div id="connectorA" data-role="connector" data-container=".k-content" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueA, visible: visible, enabled: enabledTop"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:10px;left:270px;height:20px;width:20px;">
-        <div id="connectorB" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueB, visible: visible, enabled: enabledTop"></div>
+        <div id="connectorB" data-role="connector" data-container=".k-content" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueB, visible: visible, enabled: enabledTop"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:270px;left:270px;height:20px;width:20px;">
-        <div id="connectorC" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueC, visible: visible, enabled: enabledBottom"></div>
+        <div id="connectorC" data-role="connector" data-container=".k-content" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueC, visible: visible, enabled: enabledBottom"></div>
     </div>
     <div class="kj-element" style="position:absolute;top:270px;left:10px;height:20px;width:20px;">
-        <div id="connectorD" data-role="connector" data-container=".k-content" data-color="#0000FF" data-bind="value: valueD, visible: visible, enabled: enabledBottom"></div>
+        <div id="connectorD" data-role="connector" data-container=".k-content" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueD, visible: visible, enabled: enabledBottom"></div>
     </div>
 </div>
 

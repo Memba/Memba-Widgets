@@ -22,30 +22,28 @@
     <script src="./js/kidoju.widgets.dropzone.js"></script>
     <style>
         .kj-stage {
-            height: 600px;
-            width: 800px;
             border: solid 1px black;
         }
     </style>
 </head>
 <body>
 <h1>kidoju.widgets.dropzone</h1>
-<div class="kj-stage">
-    <div style="position:relative;">
+<div class="kj-stage" style="height: 600px; width: 800px; transform-origin: 0 0; transform: scale(0.75);">
+    <div data-role="stage" style="position:relative;height: 600px; width: 800px;">
         <div class="kj-element" style="position:absolute;top:100px;left:200px;width:400px;height:400px;">
             <div class="k-header" data-role="dropzone" style="width:400px;height:400px;">Drag the small circles here.</div>
         </div>
         <div class="kj-element" style="position:absolute;top:50px;left:50px;width:50px;height:50px;">
             <div data-draggable="true" data-value="1" style="border:solid 1px blue;background-color:red;width:50px;height:50px;"></div>
         </div>
-        <div class="kj-element" style="position:absolute;top:150px;left:50px;width:50px;height:50px;">
-            <div data-draggable="true" data-value="2" style="border:solid 1px blue;background-color:red;width:50px;height:50px;"></div>
+        <div class="kj-element" style="position:absolute;top:150px;left:50px;width:40px;height:40px;">
+            <div data-draggable="true" data-value="2" style="border:solid 1px blue;background-color:blue;width:40px;height:40px;"></div>
         </div>
-        <div class="kj-element" style="position:absolute;top:250px;left:50px;width:50px;height:50px;">
-            <div data-draggable="true" data-value="3" style="border:solid 1px blue;background-color:red;width:50px;height:50px;"></div>
+        <div class="kj-element" style="position:absolute;top:250px;left:50px;width:30px;height:30px;">
+            <div data-draggable="true" data-value="3" style="border:solid 1px blue;background-color:green;width:30px;height:30px;"></div>
         </div>
-        <div class="kj-element" style="position:absolute;top:350px;left:50px;width:50px;height:50px;">
-            <div data-draggable="true" data-value="4" style="border:solid 1px blue;background-color:red;width:50px;height:50px;"></div>
+        <div class="kj-element" style="position:absolute;top:350px;left:50px;width:20px;height:20px;">
+            <div data-draggable="true" data-value="4" style="border:solid 1px blue;background-color:yellow;width:20px;height:20px;"></div>
         </div>
     </div>
 </div>

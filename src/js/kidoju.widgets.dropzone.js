@@ -40,6 +40,26 @@
         var WIDGET_CLASS = 'kj-dropzone'; // 'k-widget kj-dropzone';
 
         /*********************************************************************************
+         * Helpers
+         *********************************************************************************/
+
+        var util = {
+
+            /**
+             * Get the scale of an element's CSS transformation
+             * Note: the same function is used in kidoju.widgets.stage
+             * @param element
+             * @returns {Number|number}
+             */
+            getTransformScale: function (element) {
+                // $(element).css('transform') returns a matrix, so we have to read the style attribute
+                var match = ($(element).attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
+                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
+            }
+
+        };
+
+        /*********************************************************************************
          * Widget
          *********************************************************************************/
 
@@ -72,8 +92,9 @@
                 name: 'DropZone',
                 autoBind: true,
                 dataSource: [],
+                scaler: 'div.kj-stage',
                 container: 'div.kj-stage>div[data-role="stage"]',
-                draggable: 'div.kj-element:has(div[data-draggable="true"])' // The draggable actually is the parent stage element - use http://www.w3schools.com/jquery/sel_has.asp
+                draggable: 'div.kj-element:has([data-draggable="true"])' // The draggable actually is the parent stage element - use http://www.w3schools.com/jquery/sel_has.asp
                 // TODO Axis?????
             },
 
@@ -126,25 +147,49 @@
                 var container = that.element.closest(options.container);
                 that.draggable = container.find(options.draggable);
                 that.draggable.kendoDraggable({
-                    container: $('.kj-stage'), // TODO
                     hint: function (element) {
                         assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
-                        return element.clone();
+                        var scaler = that.element.closest(that.options.scaler);
+                        var scale = util.getTransformScale(scaler);
+                        return element.clone()
+                            .css({
+                                transformOrigin: '0 0',
+                                transform: kendo.format('scale({0})', scale),
+                                left: container.offset().left + element.position().left * scale,
+                                top: container.offset().top + element.position().top * scale
+                            });
                     },
                     dragstart: function (e) {
+                        assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
                         assert.instanceof(Draggable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Draggable'));
+                        var scaler = that.element.closest(that.options.scaler);
+                        var scale = util.getTransformScale(scaler);
+                        var hint = e.sender.hint;
                         e.sender.element.hide();
+                        e.sender.boundaries = {
+                            x: {
+                                min: container.offset().left,
+                                max: container.offset().left + scale * (container.width() - hint.width())
+                            },
+                            y: {
+                                min: container.offset().top,
+                                max: container.offset().top + scale * (container.height() - hint.height())
+                            }
+                        }
                     },
                     dragend: function (e) {
+                        assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
                         assert.instanceof(Draggable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Draggable'));
-                        var position = e.sender.hint.position();
-                        var offset = $(that.options.container).offset();
-                        e.sender.hint.hide();
+                        var scaler = that.element.closest(that.options.scaler);
+                        var scale = util.getTransformScale(scaler);
+                        var hint = e.sender.hint;
+                        var position = hint.position();
                         // TODO the following goes in refresh
+                        hint.hide();
                         e.sender.element
                             .css({
-                                left: position.left - offset.left,
-                                top: position.top - offset.top
+                                left: (position.left - container.offset().left) / scale,
+                                top: (position.top - container.offset().top) / scale
                             })
                             .show();
                         if (e.sender.dropped) {

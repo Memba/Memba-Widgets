@@ -27,36 +27,39 @@
 <body>
 <h1>kidoju.widgets.connector</h1>
 <h2>Connectors set declaratively</h2>
-<div class="demo-section k-content" style="height:300px;width:300px;border:solid 1px black;position:relative;">
-    <div class="kj-element" style="position:absolute;top:10px;left:10px;height:20px;width:20px;">
-        <div id="connector1" data-role="connector" data-container=".k-content" style="height:20px;width:20px;" data-value="connector2"></div>
-    </div>
-    <div class="kj-element" style="position:absolute;top:10px;left:270px;height:20px;width:20px;">
-        <div id="connector2" data-role="connector" data-container=".k-content" style="height:20px;width:20px;" data-value="connector1"></div>
-    </div>
-    <div class="kj-element" style="position:absolute;top:270px;left:270px;height:20px;width:20px;">
-        <div id="connector3" data-role="connector" data-container=".k-content" style="height:20px;width:20px;"></div>
-    </div>
-    <div class="kj-element" style="position:absolute;top:270px;left:10px;height:20px;width:20px;">
-        <div id="connector4" data-role="connector" data-container=".k-content" style="height:20px;width:20px;"></div>
+<div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;">
+    <div data-role="stage" style="position:relative;height:300px;width:300px;">
+        <div class="kj-element" style="position:absolute;top:10px;left:10px;height:20px;width:20px;">
+            <div id="connector1" data-role="connector" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" style="height:20px;width:20px;" data-value="connector2"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:10px;left:270px;height:20px;width:20px;">
+            <div id="connector2" data-role="connector" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" style="height:20px;width:20px;" data-value="connector1"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:270px;left:270px;height:20px;width:20px;">
+            <div id="connector3" data-role="connector" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" style="height:20px;width:20px;"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:270px;left:10px;height:20px;width:20px;">
+            <div id="connector4" data-role="connector" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" style="height:20px;width:20px;"></div>
+        </div>
     </div>
 </div>
 <h2>Connectors bound to observable</h2>
-<div class="demo-section k-content" style="height:300px;width:300px;border:solid 1px black;position:relative;">
-    <div class="kj-element" style="position:absolute;top:10px;left:10px;height:20px;width:20px;">
-        <div id="connectorA" data-role="connector" data-container=".k-content" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueA, visible: visible, enabled: enabledTop"></div>
-    </div>
-    <div class="kj-element" style="position:absolute;top:10px;left:270px;height:20px;width:20px;">
-        <div id="connectorB" data-role="connector" data-container=".k-content" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueB, visible: visible, enabled: enabledTop"></div>
-    </div>
-    <div class="kj-element" style="position:absolute;top:270px;left:270px;height:20px;width:20px;">
-        <div id="connectorC" data-role="connector" data-container=".k-content" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueC, visible: visible, enabled: enabledBottom"></div>
-    </div>
-    <div class="kj-element" style="position:absolute;top:270px;left:10px;height:20px;width:20px;">
-        <div id="connectorD" data-role="connector" data-container=".k-content" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueD, visible: visible, enabled: enabledBottom"></div>
+<div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.75);">
+    <div data-role="stage" style="height:300px;width:300px;">
+        <div class="kj-element" style="position:absolute;top:10px;left:10px;height:20px;width:20px;">
+            <div id="connectorA" data-role="connector" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueA, visible: visible, enabled: enabledTop"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:10px;left:270px;height:20px;width:20px;">
+            <div id="connectorB" data-role="connector" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueB, visible: visible, enabled: enabledTop"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:270px;left:270px;height:20px;width:20px;">
+            <div id="connectorC" data-role="connector" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueC, visible: visible, enabled: enabledBottom"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:270px;left:10px;height:20px;width:20px;">
+            <div id="connectorD" data-role="connector" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueD, visible: visible, enabled: enabledBottom"></div>
+        </div>
     </div>
 </div>
-
 <pre>
 {
     valueA: <span data-bind="text: valueA"></span>,
@@ -83,8 +86,8 @@
         var viewModel = window.viewModel = new kendo.observable({
             valueA: 'connectorB',
             valueB: 'connectorA',
-            valueC: null,
-            valueD: null,
+            valueC: 'connectorD',
+            valueD: 'connectorC',
             visible: true,
             enabledTop: true,
             enabledBottom: true

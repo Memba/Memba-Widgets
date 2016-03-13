@@ -38,13 +38,14 @@
         var HASH = '#';
         var WIDGET = 'kendoConnector';
         var NS = DOT + WIDGET;
-        var MOUSEDOWN = 'mousedown' + NS + ' ' + 'touchdown' + NS;
+        var MOUSEDOWN = 'mousedown' + NS + ' ' + 'touchstart' + NS;
         var MOUSEMOVE = 'mousemove' + NS + ' ' + 'touchmove' + NS;
-        var MOUSEUP = 'mouseup' + NS + ' ' + 'touchup' + NS;
+        var MOUSEUP = 'mouseup' + NS + ' ' + 'touchend' + NS;
         var DIV = '<div/>';
         var WIDGET_CLASS = 'kj-connector';
         var SURFACE_CLASS = WIDGET_CLASS + '-surface';
         var PATH_WIDTH = 10;
+        var PATH_LINECAP = 'round';
         var OBSERVABLE = 'observableArray';
         var SURFACE = 'surface';
         var RX_SELECTOR = /^#\S/;
@@ -55,24 +56,67 @@
          * Helpers
          *********************************************************************************/
 
-        function getRandomColor(){
-            var r = (Math.round(Math.random()* 127) + 127).toString(16);
-            var g = (Math.round(Math.random()* 127) + 127).toString(16);
-            var b = (Math.round(Math.random()* 127) + 127).toString(16);
-            return '#' + r + g + b;
-        }
+        var util = {
 
-        /**
-         * Get the scale of an element's CSS transformation
-         * Note: the same function is used in kidoju.widgets.stage
-         * @param element
-         * @returns {Number|number}
-         */
-        function getTransformScale(element) {
-            // $(element).css('transform') returns a matrix, so we have to read the style attribute
-            var match = ($(element).attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
-            return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
-        }
+            /**
+             * Get a random pastel color to draw connections
+             * @returns {string}
+             */
+            getRandomColor: function ()
+            {
+                var r = (Math.round(Math.random() * 127) + 127).toString(16);
+                var g = (Math.round(Math.random() * 127) + 127).toString(16);
+                var b = (Math.round(Math.random() * 127) + 127).toString(16);
+                return '#' + r + g + b;
+            },
+
+            /**
+             * Get the mouse (or touch) position
+             * @param e
+             * @param stage
+             * @returns {{x: *, y: *}}
+             */
+            getMousePosition: function (e, stage) {
+                // See http://www.jacklmoore.com/notes/mouse-position/
+                // See http://www.jqwidgets.com/community/topic/dragend-event-properties-clientx-and-clienty-are-undefined-on-ios/
+                // See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
+                // ATTENTION: e.originalEvent.changedTouches instanceof TouchList, not Array
+                var clientX = e.originalEvent && e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].clientX : e.clientX;
+                var clientY = e.originalEvent && e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].clientY : e.clientY;
+                // IMPORTANT: Position is relative to the stage and e.offsetX / e.offsetY do not work in Firefox
+                // var stage = $(e.target).closest('.kj-stage').find(kendo.roleSelector('stage'));
+                var mouse = {
+                    x: clientX - stage.offset().left + $(stage.get(0).ownerDocument).scrollLeft(),
+                    y: clientY - stage.offset().top + $(stage.get(0).ownerDocument).scrollTop()
+                };
+                return mouse;
+            },
+
+            /**
+             * Get the position of the center of an element
+             * @param element
+             * @param stage
+             */
+            getElementCenter: function (element, stage) {
+                return {
+                    left: element.offset().left - stage.offset().left + element.width()/ 2,
+                    top: element.offset().top - stage.offset().top + element.height() / 2
+                };
+            },
+
+            /**
+             * Get the scale of an element's CSS transformation
+             * Note: the same function is used in kidoju.widgets.stage
+             * @param element
+             * @returns {Number|number}
+             */
+            getTransformScale: function (element) {
+                // $(element).css('transform') returns a matrix, so we have to read the style attribute
+                var match = ($(element).attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
+                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
+            }
+
+        };
 
         /*********************************************************************************
          * Widget
@@ -100,7 +144,7 @@
                 that._drawConnector();
                 that._addDragAndDrop();
                 that.value(that.options.value);
-                that._enabled = !that.element.prop('disabled');
+                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 kendo.notify(that);
             },
 
@@ -157,9 +201,9 @@
                 // var height = options.height;
                 // var width = options.width;
                 that.wrapper = that.element;
-                that.element.addClass(WIDGET_CLASS)
-                    // .height(width)
-                    // .width(height);
+                that.element.addClass(WIDGET_CLASS);
+                // .height(width)
+                // .width(height);
                 that.surface = drawing.Surface.create(that.element);
             },
 
@@ -252,6 +296,8 @@
                 var container = this;
                 // The following prevents from using this method directly, in which case `this` is the connector widget
                 assert.instanceof($, container, kendo.format(assert.messages.instanceof.default, 'container', 'jQuery'));
+                var scaler = container.parent(); // TODO wrong!
+                var scale = scaler.length ? util.getTransformScale(scaler) : 1;
                 var connections = this.data(OBSERVABLE);
                 assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'this.connections', 'kendo.data.ObservableArray'));
                 var surface = this.data(SURFACE);
@@ -269,11 +315,23 @@
                         var originOffset = origin.offset();
                         var destinationOffset = destination.offset();
                         var containerOffset = container.offset();
+                        var from = {
+                            x: originOffset.left - containerOffset.left + origin.width() / 2,
+                            y: originOffset.top - containerOffset.top + origin.height() / 2
+                        };
+                        var to = {
+                            x: destinationOffset.left - containerOffset.left + destination.width() / 2,
+                            y: destinationOffset.top - containerOffset.top + destination.height() / 2
+                        };
                         var path = new drawing.Path({
-                            stroke: { color: connection.color, width: PATH_WIDTH }
+                            stroke: {
+                                color: connection.color,
+                                lineCap: PATH_LINECAP,
+                                width: PATH_WIDTH
+                            }
                         })
-                            .moveTo(originOffset.left - containerOffset.left + origin.width() / 2, originOffset.top - containerOffset.top + origin.height() / 2)
-                            .lineTo(destinationOffset.left - containerOffset.left + destination.width() / 2, destinationOffset.top - containerOffset.top + destination.height() / 2);
+                            .moveTo(from.x /scale, from.y / scale)
+                            .lineTo(to.x /scale, to.y / scale);
                         surface.draw(path);
                     }
                 });
@@ -335,7 +393,7 @@
                             connections.push({
                                 origin: origin,
                                 destination: destination,
-                                color: getRandomColor()
+                                color: util.getRandomColor()
                             });
                             originWidget._value = destination.substr(1);
                             destinationWidget._value = origin.substr(1);
@@ -401,20 +459,22 @@
                         if (elementWidget instanceof Connector && elementWidget._enabled) {
                             elementWidget._dropConnection();
                             var scaler = element.closest(elementWidget.options.scaler);
-                            var scale = scaler.length ? getTransformScale(scaler) : 1;
+                            var scale = scaler.length ? util.getTransformScale(scaler) : 1;
                             var container = element.closest(elementWidget.options.container);
                             assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
-                            var containerOffset = container.offset();
+                            var mouse = util.getMousePosition(e, container);
+                            var center = util.getElementCenter(element, container);
                             var surface = container.data(SURFACE);
                             assert.instanceof(Surface, surface, kendo.format(assert.messages.instanceof.default, 'surface', 'kendo.drawing.Surface'));
                             path = new drawing.Path({
                                 stroke: {
                                     color: elementWidget.options.color,
+                                    lineCap: PATH_LINECAP,
                                     width: PATH_WIDTH
                                 }
                             });
-                            path.moveTo(elementOffset.left - containerOffset.left + element.width() / 2, elementOffset.top - containerOffset.top + element.height() / 2);
-                            path.lineTo(e.pageX/scale - containerOffset.left, e.pageY/scale - containerOffset.top);
+                            path.moveTo(center.left / scale, center.top /scale);
+                            path.lineTo(mouse.x / scale, mouse.y / scale);
                             surface.draw(path);
                         }
                     })
@@ -423,26 +483,36 @@
                             var elementWidget = element.data(WIDGET);
                             assert.instanceof(Connector, elementWidget, kendo.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Connector'));
                             var scaler = element.closest(elementWidget.options.scaler);
-                            var scale = scaler.length ? getTransformScale(scaler) : 1;
+                            var scale = scaler.length ? util.getTransformScale(scaler) : 1;
                             var container = element.closest(elementWidget.options.container);
                             assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
-                            var containerOffset = container.offset();
-                            path.segments[1].anchor().move(e.pageX/scale - containerOffset.left, e.pageY/scale - containerOffset.top);
+                            var mouse = util.getMousePosition(e, container);
+                            path.segments[1].anchor().move(mouse.x / scale, mouse.y / scale);
                         }
                     })
                     .on(MOUSEUP, DOT + WIDGET_CLASS, function (e) {
                         if (element instanceof $ && path instanceof kendo.drawing.Path) {
                             var elementWidget = element.data(WIDGET);
                             assert.instanceof(Connector, elementWidget, kendo.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Connector'));
-                            target = $(e.currentTarget);
+                            var scaler = element.closest(elementWidget.options.scaler);
+                            var scale = scaler.length ? util.getTransformScale(scaler) : 1;
+                            var container = element.closest(elementWidget.options.container);
+                            assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
+                            var mouse = util.getMousePosition(e, container);
+                            var targetElement = e.originalEvent && e.originalEvent.changedTouches ?
+                                document.elementFromPoint(e.originalEvent.changedTouches[0].clientX, e.originalEvent.changedTouches[0].clientY) :
+                                e.currentTarget;
+                            target = $(targetElement).closest(DOT + WIDGET_CLASS);
                             var targetWidget = target.data(WIDGET);
+                            // with touchend target === element
+                            // BUG REPORT  here: https://github.com/jquery/jquery/issues/2987
                             if (element.attr(ID) !== target.attr(ID) && targetWidget instanceof Connector && targetWidget._enabled) {
                                 var container = element.closest(elementWidget.options.container);
                                 assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
                                 var targetContainer = target.closest(targetWidget.options.container);
                                 assert.hasLength(targetContainer, kendo.format(assert.messages.hasLength.default, targetWidget.options.container));
                                 if (container[0] === targetContainer[0]) {
-                                    var targetSelector = HASH + $(e.currentTarget).attr(ID);
+                                    var targetSelector = HASH + target.attr(ID);
                                     elementWidget._addConnection(targetSelector);
                                 } else {
                                     var connections = container.data(OBSERVABLE);

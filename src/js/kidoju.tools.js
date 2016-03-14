@@ -1438,14 +1438,8 @@
                 name: new adapters.NameAdapter({ title: i18n.connector.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.connector.properties.description.title }),
                 solution: new adapters.ConnectorsAdapter({ title: i18n.connector.properties.solution.title }),
-                // solution: new adapters.StringAdapter({ title: i18n.connector.properties.solution.title }),
-                validation: new adapters.ValidationAdapter({
-                    title: i18n.connector.properties.validation.title
-                    // The following is now achieved in Tool.init
-                    // solutionAdapter: new adapters.StringAdapter({ title: 'Solution' }),
-                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault
-                }),
-                success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 1 }),
+                validation: new adapters.ValidationAdapter({ title: i18n.connector.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 0.5 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.connector.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.connector.properties.omit.title, defaultValue: 0 })
             },

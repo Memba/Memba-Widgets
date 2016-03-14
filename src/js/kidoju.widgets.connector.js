@@ -95,11 +95,12 @@
              * Get the position of the center of an element
              * @param element
              * @param stage
+             * @param scale
              */
-            getElementCenter: function (element, stage) {
+            getElementCenter: function (element, stage, scale) {
                 return {
-                    left: element.offset().left - stage.offset().left + element.width()/ 2,
-                    top: element.offset().top - stage.offset().top + element.height() / 2
+                    left: (element.offset().left - stage.offset().left) / scale + element.width()/ 2,
+                    top: (element.offset().top - stage.offset().top) / scale + element.height() / 2
                 };
             },
 
@@ -176,12 +177,16 @@
                 var that = this;
                 if ($.type(value) === STRING || $.type(value) === NULL) { // nullable string
                     if (that._value !== value) {
-                        that._value = value;
-                        if ($.type(that._value) === STRING && that._value.length) {
-                            that._addConnection(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), that._value));
-                            // TODO What if that._value does not allow a connection (e.g. not found?)
+                        if ($.type(value) === STRING && value.length) {
+                            var added = that._addConnection(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), value));
+                            if (added) {
+                                that._value = value;
+                            } else {
+                                that._value = undefined;
+                            }
                         } else {
                             that._dropConnection();
+                            that._value = null;
                         }
                     }
                 } else if ($.type(value) === UNDEFINED) {
@@ -310,19 +315,10 @@
                     var destinationWidget = destination.data(WIDGET);
                     // Only connector widgets can be connected
                     if (originWidget instanceof Connector && destinationWidget instanceof Connector) {
-                        var originOffset = origin.offset();
-                        var destinationOffset = destination.offset();
-                        var containerOffset = container.offset();
                         var scaler = origin.closest(originWidget.options.scaler);
                         var scale = scaler.length ? util.getTransformScale(scaler) : 1;
-                        var from = {
-                            x: originOffset.left - containerOffset.left + origin.width() / 2,
-                            y: originOffset.top - containerOffset.top + origin.height() / 2
-                        };
-                        var to = {
-                            x: destinationOffset.left - containerOffset.left + destination.width() / 2,
-                            y: destinationOffset.top - containerOffset.top + destination.height() / 2
-                        };
+                        var originCenter = util.getElementCenter(origin, container, scale);
+                        var destinationCenter = util.getElementCenter(destination, container, scale);
                         var path = new drawing.Path({
                             stroke: {
                                 color: connection.color,
@@ -330,8 +326,8 @@
                                 width: PATH_WIDTH
                             }
                         })
-                            .moveTo(from.x /scale, from.y / scale)
-                            .lineTo(to.x /scale, to.y / scale);
+                            .moveTo(originCenter.left, originCenter.top)
+                            .lineTo(destinationCenter.left, destinationCenter.top);
                         surface.draw(path);
                     }
                 });
@@ -356,6 +352,7 @@
             _addConnection: function(target) {
                 target = $(target);
                 var that = this;
+                var ret = false;
                 var options = that.options;
                 var element = that.element;
                 var id = element.attr(kendo.attr(ID));
@@ -396,11 +393,19 @@
                             });
                             originWidget._value = destination;
                             destinationWidget._value = origin;
-                            originWidget.trigger(CHANGE, { value: originWidget._value });
-                            destinationWidget.trigger(CHANGE, { value: destinationWidget._value });
+                            // if (originWidget.element[0].kendoBindingTarget && !(originWidget.element[0].kendoBindingTarget.source instanceof kidoju.data.PageComponent)) {
+                            if (originWidget.element[0].kendoBindingTarget && !(originWidget.element[0].kendoBindingTarget.source instanceof kendo.data.Model)) {
+                                originWidget.trigger(CHANGE, { value: originWidget._value });
+                            }
+                            // if (destinationWidget.element[0].kendoBindingTarget && !(destinationWidget.element[0].kendoBindingTarget.source instanceof kidoju.data.PageComponent)) {
+                            if (destinationWidget.element[0].kendoBindingTarget && !(destinationWidget.element[0].kendoBindingTarget.source instanceof kendo.data.Model)) {
+                                destinationWidget.trigger(CHANGE, { value: destinationWidget._value });
+                            }
                         }
+                        ret = true;
                     }
                 }
+                return ret;
             },
 
             /**
@@ -441,7 +446,6 @@
              * @private
              */
             _addDragAndDrop: function () {
-                // TODO set cursor!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 // IMPORTANT
                 // We can have several containers containing connectors
                 // But we only have on set of handlers shared across all containers
@@ -461,7 +465,7 @@
                             var container = element.closest(elementWidget.options.container);
                             assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
                             var mouse = util.getMousePosition(e, container);
-                            var center = util.getElementCenter(element, container);
+                            var center = util.getElementCenter(element, container, scale);
                             var surface = container.data(SURFACE);
                             assert.instanceof(Surface, surface, kendo.format(assert.messages.instanceof.default, 'surface', 'kendo.drawing.Surface'));
                             path = new drawing.Path({
@@ -471,7 +475,7 @@
                                     width: PATH_WIDTH
                                 }
                             });
-                            path.moveTo(center.left / scale, center.top /scale);
+                            path.moveTo(center.left, center.top);
                             path.lineTo(mouse.x / scale, mouse.y / scale);
                             surface.draw(path);
                         }
@@ -550,34 +554,35 @@
             },
 
             /**
-             * Clears the widget
-             * @method _clear
-             * @private
-             */
-            _clear: function () {
-                var that = this;
-                // unbind kendo
-                // kendo.unbind($(that.element));
-                // unbind all other events
-                $(that.element).find('*').off();
-                $(that.element).off();
-                // remove descendants
-                $(that.element).empty();
-                // remove element classes
-                // $(that.element).removeClass(WIDGET_CLASS);
-            },
-
-            /**
              * Destroys the widget including all DOM modifications
              * @method destroy
              */
             destroy: function () {
                 var that = this;
+                var element = that.element;
+                var container = element.closest(that.options.container);
+                var surface = container.data(SURFACE);
                 Widget.fn.destroy.call(that);
-                that._clear();
-                kendo.destroy(that.element);
+                // unbind document events
+                $(document).off(NS);
+                // unbind and destroy all descendants
+                kendo.unbind(element);
+                kendo.destroy(element);
+                // unbind all other events (probably redundant)
+                element.find('*').off();
+                element.off();
+                // remove descendants
+                element.empty();
+                // remove widget class
+                element.removeClass(WIDGET_CLASS);
+                // If last connector on stage, remove surface
+                if (container.find(DOT + WIDGET_CLASS).length === 0 && surface instanceof Surface) {
+                    kendo.destroy(surface.element);
+                    surface.element.remove();
+                    container.removeData(SURFACE);
+                    container.removeData(OBSERVABLE);
+                }
             }
-
         });
 
         kendo.ui.plugin(Connector);

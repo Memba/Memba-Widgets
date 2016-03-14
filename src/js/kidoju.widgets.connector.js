@@ -35,7 +35,6 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var DOT = '.';
-        var HASH = '#';
         var WIDGET = 'kendoConnector';
         var NS = DOT + WIDGET;
         var MOUSEDOWN = 'mousedown' + NS + ' ' + 'touchstart' + NS;
@@ -48,7 +47,7 @@
         var PATH_LINECAP = 'round';
         var OBSERVABLE = 'observableArray';
         var SURFACE = 'surface';
-        var RX_SELECTOR = /^#\S/;
+        var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
         var ID = 'id';
         var VALUE = 'value';
 
@@ -179,7 +178,8 @@
                     if (that._value !== value) {
                         that._value = value;
                         if ($.type(that._value) === STRING && that._value.length) {
-                            that._addConnection(HASH + that._value);
+                            that._addConnection(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), that._value));
+                            // TODO What if that._value does not allow a connection (e.g. not found?)
                         } else {
                             that._dropConnection();
                         }
@@ -187,7 +187,7 @@
                 } else if ($.type(value) === UNDEFINED) {
                     return that._value;
                 } else {
-                    throw new TypeError('`value` is expected to be a string if not undefined');
+                    throw new TypeError('`value` is expected to be a nullable string if not undefined');
                 }
             },
 
@@ -296,8 +296,6 @@
                 var container = this;
                 // The following prevents from using this method directly, in which case `this` is the connector widget
                 assert.instanceof($, container, kendo.format(assert.messages.instanceof.default, 'container', 'jQuery'));
-                var scaler = container.parent(); // TODO wrong!
-                var scale = scaler.length ? util.getTransformScale(scaler) : 1;
                 var connections = this.data(OBSERVABLE);
                 assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'this.connections', 'kendo.data.ObservableArray'));
                 var surface = this.data(SURFACE);
@@ -306,15 +304,17 @@
                 surface.clear();
                 // Redraw all connections
                 connections.forEach(function(connection) {
-                    var origin = $(connection.origin);
+                    var origin = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), connection.origin));
                     var originWidget = origin.data(WIDGET);
-                    var destination = $(connection.destination);
+                    var destination = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), connection.destination));
                     var destinationWidget = destination.data(WIDGET);
                     // Only connector widgets can be connected
                     if (originWidget instanceof Connector && destinationWidget instanceof Connector) {
                         var originOffset = origin.offset();
                         var destinationOffset = destination.offset();
                         var containerOffset = container.offset();
+                        var scaler = origin.closest(originWidget.options.scaler);
+                        var scale = scaler.length ? util.getTransformScale(scaler) : 1;
                         var from = {
                             x: originOffset.left - containerOffset.left + origin.width() / 2,
                             y: originOffset.top - containerOffset.top + origin.height() / 2
@@ -351,29 +351,28 @@
             /**
              * Add connection
              * Note: use this.value(string)
-             * @param targetSelector (with a HASH)
+             * @param target
              */
-            _addConnection: function(targetSelector) {
-                assert.match(RX_SELECTOR, targetSelector, kendo.format(assert.messages.match.default, 'targetSelector', RX_SELECTOR));
+            _addConnection: function(target) {
+                target = $(target);
                 var that = this;
                 var options = that.options;
                 var element = that.element;
-                var id = HASH + element.attr(ID);
-                assert.match(RX_SELECTOR, id, kendo.format(assert.messages.match.default, 'id', RX_SELECTOR));
+                var id = element.attr(kendo.attr(ID));
                 var container = that.element.closest(options.container);
                 assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
-                var target = container.find(targetSelector);
+                var targetId = target.attr(kendo.attr(ID));
                 var targetWidget = target.data(WIDGET);
-                if (id !== targetSelector && targetWidget instanceof Connector) {
+                if (id !== targetId && targetWidget instanceof Connector) {
                     var targetContainer = target.closest(targetWidget.options.container);
                     assert.hasLength(targetContainer, kendo.format(assert.messages.hasLength.default, targetWidget.options.container));
                     if (container[0] === targetContainer[0]) {
                         var connections = container.data(OBSERVABLE);
                         assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
-                        var origin = id < targetSelector ? id : targetSelector;
-                        var destination = id < targetSelector ? targetSelector : id;
-                        var originWidget = id < targetSelector ? that : targetWidget;
-                        var destinationWidget = id < targetSelector ? targetWidget : that;
+                        var origin = id < targetId ? id : targetId;
+                        var destination = id < targetId ? targetId : id;
+                        var originWidget = id < targetId ? that : targetWidget;
+                        var destinationWidget = id < targetId ? targetWidget : that;
                         var originConnection = connections.find(function (connection) {
                             return connection.origin === origin || connection.destination === origin;
                         });
@@ -395,8 +394,8 @@
                                 destination: destination,
                                 color: util.getRandomColor()
                             });
-                            originWidget._value = destination.substr(1);
-                            destinationWidget._value = origin.substr(1);
+                            originWidget._value = destination;
+                            destinationWidget._value = origin;
                             originWidget.trigger(CHANGE, { value: originWidget._value });
                             destinationWidget.trigger(CHANGE, { value: destinationWidget._value });
                         }
@@ -412,8 +411,7 @@
                 var that = this;
                 var options = that.options;
                 var element = that.element;
-                var id = HASH + element.attr(ID);
-                assert.match(RX_SELECTOR, id, kendo.format(assert.messages.match.default, 'id', RX_SELECTOR));
+                var id = element.attr(kendo.attr(ID));
                 var container = that.element.closest(options.container);
                 assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
                 var connections = container.data(OBSERVABLE);
@@ -494,8 +492,8 @@
                         if (element instanceof $ && path instanceof kendo.drawing.Path) {
                             var elementWidget = element.data(WIDGET);
                             assert.instanceof(Connector, elementWidget, kendo.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Connector'));
-                            var scaler = element.closest(elementWidget.options.scaler);
-                            var scale = scaler.length ? util.getTransformScale(scaler) : 1;
+                            // var scaler = element.closest(elementWidget.options.scaler);
+                            // var scale = scaler.length ? util.getTransformScale(scaler) : 1;
                             var container = element.closest(elementWidget.options.container);
                             assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
                             var mouse = util.getMousePosition(e, container);
@@ -506,14 +504,13 @@
                             var targetWidget = target.data(WIDGET);
                             // with touchend target === element
                             // BUG REPORT  here: https://github.com/jquery/jquery/issues/2987
-                            if (element.attr(ID) !== target.attr(ID) && targetWidget instanceof Connector && targetWidget._enabled) {
+                            if (element.attr(kendo.attr(ID)) !== target.attr(kendo.attr(ID)) && targetWidget instanceof Connector && targetWidget._enabled) {
                                 var container = element.closest(elementWidget.options.container);
                                 assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
                                 var targetContainer = target.closest(targetWidget.options.container);
                                 assert.hasLength(targetContainer, kendo.format(assert.messages.hasLength.default, targetWidget.options.container));
                                 if (container[0] === targetContainer[0]) {
-                                    var targetSelector = HASH + target.attr(ID);
-                                    elementWidget._addConnection(targetSelector);
+                                    elementWidget._addConnection(target);
                                 } else {
                                     var connections = container.data(OBSERVABLE);
                                     assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));

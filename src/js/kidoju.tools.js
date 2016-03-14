@@ -1086,13 +1086,73 @@
          */
         adapters.ConnectorsAdapter = BaseAdapter.extend({
             init: function (options) {
-                BaseAdapter.fn.init.call(this, options);
-                this.type = STRING;
-                this.editor = 'input';
-                this.attributes = $.extend({}, this.attributes, { style: 'width: 100%;' });
-                this.attributes[kendo.attr('role')] = 'dropdownlist';
-                this.attributes[kendo.attr('source')] = JSON.stringify([]);
-                // TODO: how to initialise the  dropdownlist with the list of connector ids on stage????????????????????
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = STRING;
+                // this.editor = 'input';
+                // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
+                that.editor = function (container, options) {
+                    var input = $('<input/>')
+                        .css({ width: '100%' })
+                        .attr({ 'data-bind': 'value: ' + options.field }) // TODO namespace???
+                        .appendTo(container);
+                    input.kendoComboBox({
+                        // dataSource: { data: [] }, // We need a non-empty dataSource otherwise open is not triggered
+                        /**
+                         * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
+                         * @param e
+                         */
+                        open: function(e) {
+                            var ids = [];
+                            // find the design (mode) stage, avoiding navigation
+                            var stage = $('[' + kendo.attr('role') + '="stage"][' + kendo.attr('mode') + '="design"]');
+                            // find the handle box and the selected uid which should be a connector
+                            var handleBox = stage.parent().children('.kj-handle-box');
+                            var uid = handleBox.attr(kendo.attr('uid'));
+                            // find all unselected connectors
+                            var connectors = stage.find('.kj-element[' + kendo.attr('uid') + '!="' + uid + '"]>.kj-connector');
+                            connectors.each(function (index, connector) {
+                                var id = $(connector).attr(kendo.attr('id'));
+                                if ($.type(id) === STRING) {
+                                    ids.push(id);
+                                }
+                            });
+                            ids.sort();
+                            e.sender.setDataSource(ids);
+                        },
+                        /**
+                         * Make connections reflexive by setting the solution on the target
+                         * @param e
+                         */
+                        change: function (e) {
+                            // Get the stage
+                            var stage = $('[' + kendo.attr('role') + '="stage"][' + kendo.attr('mode') + '="design"]');
+                            // find the handle box and the selected uid which should be a connector
+                            var handleBox = stage.parent().children('.kj-handle-box');
+                            var uid = handleBox.attr(kendo.attr('uid'));
+                            // find the selected connector
+                            var connector = stage.find('.kj-element[' + kendo.attr('uid') + '="' + uid + '"]>.kj-connector');
+                            var id = connector.attr(kendo.attr('id'));
+                            var targetId = e.sender.value();
+                            // Get the property grid
+                            var propertyGrid = e.sender.element.closest('.kj-propertygrid');
+                            assert.hasLength(propertyGrid, kendo.format(assert.messages.hasLength.default, 'propertyGrid'));
+                            // Get the viewModel
+                            var bindingTarget = propertyGrid[0].kendoBindingTarget;
+                            if ($.type(id) === STRING && $.type(targetId) === STRING && bindingTarget && bindingTarget.source instanceof kendo.data.ObservableObject) {
+                                var components = bindingTarget.source.currentPage.components;
+                                // assert.instanceof(PageComponentCollectionDataSource, components, kendo.format(assert.messages.instanceof.default, 'components', 'kidoju.data.PageComponentCollectionDataSource'));
+                                assert.instanceof(kendo.data.DataSource, components, kendo.format(assert.messages.instanceof.default, 'components', 'kendo.data.DataSource'));
+                                // find the target components
+                                var target = components.data().find(function (component) {
+                                    return component.properties.name === targetId;
+                                });
+                                // set the solution on the target component;
+                                target.set('properties.solution', id);
+                            }
+                        }
+                    });
+                }
             },
             library: [
                 {
@@ -1354,7 +1414,7 @@
         });
         tools.register(CheckBox);
 
-        var CONNECTOR = '<div id="#: properties.name #" data-#= ns #role="connector" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-#= ns #role=stage]" data-#= ns #color="#: attributes.color #" {0}></div>';
+        var CONNECTOR = '<div data-#= ns #role="connector" data-#= ns #id="#: properties.name #"  data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-#= ns #role=stage]" data-#= ns #color="#: attributes.color #" {0}></div>';
         /**
          * @class Connector tool
          * @type {void|*}
@@ -1377,8 +1437,8 @@
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.connector.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.connector.properties.description.title }),
-                // solution: new adapters.ConnectorsAdapter({ title: i18n.connector.properties.solution.title }),
-                solution: new adapters.StringAdapter({ title: i18n.connector.properties.solution.title }),
+                solution: new adapters.ConnectorsAdapter({ title: i18n.connector.properties.solution.title }),
+                // solution: new adapters.StringAdapter({ title: i18n.connector.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({
                     title: i18n.connector.properties.validation.title
                     // The following is now achieved in Tool.init

@@ -992,6 +992,7 @@
                 // Find and remove stage element
                 var stageElement = this.stage.children(kendo.format(ELEMENT_SELECTOR, uid));
                 kendo.unbind(stageElement);
+                kendo.destroy(stageElement);
                 stageElement
                     .off(NS)
                     .remove();

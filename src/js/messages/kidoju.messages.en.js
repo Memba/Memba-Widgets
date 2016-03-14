@@ -228,6 +228,25 @@
                     attributes.ogg.title = 'OGG File';
                 }
 
+                if (tools.chargrid instanceof Tool) {
+                    // Description
+                    tools.chargrid.constructor.prototype.description = 'Character Grid';
+                    // Attributes
+                    attributes = tools.chargrid.constructor.prototype.attributes;
+                    attributes.columns.title = 'Columns';
+                    attributes.layout.title = 'Layout';
+                    attributes.rows.title = 'Rows';
+                    // Properties
+                    properties = tools.chargrid.constructor.prototype.attributes;
+                    properties.name.title = 'Name';
+                    properties.description.title = 'Description';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Success';
+                    properties.failure.title = 'Failure';
+                    properties.omit.title = 'Omit';
+                }
+
                 if (tools.checkbox instanceof Tool) {
                     // Description
                     tools.checkbox.constructor.prototype.description = 'CheckBox';
@@ -237,6 +256,24 @@
                     attributes.text.title = 'Text';
                     // Properties
                     properties = tools.checkbox.constructor.prototype.properties;
+                    properties.name.title = 'Name';
+                    properties.description.title = 'Description';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Success';
+                    properties.failure.title = 'Failure';
+                    properties.omit.title = 'Omit';
+                }
+
+                if (tools.connector instanceof Tool) {
+                    // Description
+                    tools.connector.constructor.prototype.description = 'Connectorr';
+                    // Attributes
+                    attributes = tools.connector.constructor.prototype.attributes;
+                    attributes.style.color = 'Color';
+                    attributes.text.size = 'Size';
+                    // Properties
+                    properties = tools.connector.constructor.prototype.properties;
                     properties.name.title = 'Name';
                     properties.description.title = 'Description';
                     properties.solution.title = 'Solution';

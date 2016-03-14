@@ -11,8 +11,19 @@
     define([
         './window.assert',
         './window.logger',
-        './vendor/kendo/kendo.binder',
-        './kidoju.data'
+        './kidoju.data',
+        './kidoju.widgets.assetmanager',
+        './kidoju.widgets.chargrid',
+        './kidoju.widgets.codeeditor',
+        './kidoju.widgets.codeinput',
+        './kidoju.widgets.connector',
+        './kidoju.widgets.dropzone',
+        './kidoju.widgets.mathexpression',
+        './kidoju.widgets.mediaplayer',
+        './kidoju.widgets.propertygrid',
+        './kidoju.widgets.quiz',
+        './kidoju.widgets.stage',
+        './kidoju.widgets.styleeditor'
     ], f);
 })(function () {
 
@@ -102,6 +113,7 @@
                 description: 'Character Grid',
                 attributes: {
                     columns: { title: 'Columns' },
+                    layout: { title: 'Layout' },
                     rows: { title: 'Rows' }
                 },
                 properties: {
@@ -1163,6 +1175,101 @@
             libraryDefault: 'equal'
         });
 
+        /**
+         * CharGrid adapter
+         */
+        adapters.CharGridAdapter = BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = STRING;
+                that.editor = function (container, options) {
+                    var table = $('<div/>')
+                        .css({ display: 'table' })
+                        .appendTo(container);
+                    var cell = $('<div/>')
+                        .css({
+                            display: 'table-cell',
+                            width: '100%',
+                            paddingRight: '8px'
+                        })
+                        .appendTo(table);
+                    var input = $('<div data-role="codeinput" />') // TODO namespace???
+                    // Note: _library is added to the data bound PageComponent in its init method
+                        .attr($.extend({}, options.attributes, { 'data-bind': 'value: ' + options.field + ', source: _library' })) // TODO namespace???
+                        .appendTo(cell);
+                    // We need a temporary textbox to calculate the height and align the button
+                    var temp = $('<input type="text" class="k-textbox">')
+                        .css({ visibility: 'hidden' })
+                        .appendTo(cell);
+                    $('<button/>')
+                        .text('...')
+                        .addClass('k-button')
+                        .css({
+                            display: 'table-cell',
+                            minWidth: '40px',
+                            height: temp.css('height'), // $('input.k-textbox').last().css('height'),
+                            margin: 0
+                        })
+                        .appendTo(table)
+                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                    temp.remove();
+                };
+            },
+            showDialog: function (options/*,evt*/) {
+                var that = this;
+                var dialog = that.getDialog();
+                // Create viewModel (Cancel shall not save changes to main model)
+                dialog.viewModel = kendo.observable({
+                    code: options.model.get(options.field)
+                });
+                // Prepare UI
+                dialog.title(options.title);
+                var content = '<div class="k-edit-form-container">' + // TODO namespace???
+                    '<div data-role="codeeditor" data-bind="value: code, source: library" data-default="' + that.defaultValue + '" data-solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"></div>' +
+                    '<div class="k-edit-buttons k-state-default">' +
+                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
+                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
+                    '</div></div>';
+                dialog.content(content);
+                kendo.bind(dialog.element, dialog.viewModel);
+                dialog.element.addClass('no-padding');
+                // Bind click handler for edit buttons
+                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                // Bind window activate handler
+                dialog.bind('activate', function () {
+                    // IMPORTANT, we need to refresh codemirror here
+                    // otherwise the open animation messes with CodeMirror calculations
+                    // and gutter and line numbers are displayed at the wrong coordinates
+                    var codeEditor = dialog.element
+                        .find('.kj-codeeditor')
+                        .data('kendoCodeEditor');
+                    if (codeEditor instanceof kendo.ui.CodeEditor && codeEditor.codeMirror && $.isFunction(codeEditor.codeMirror.refresh)) {
+                        codeEditor.codeMirror.refresh();
+                    }
+                    dialog.unbind('activate');
+                });
+                // Show dialog
+                dialog.center().open();
+            },
+            closeDialog: function (options, dialog, e) {
+                var that = this;
+                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
+                    var command = $(e.target).attr(kendo.attr('command'));
+                    if (command === 'ok') {
+                        options.model.set(options.field, dialog.viewModel.get('code'));
+                    }
+                    if (command === 'ok' || command === 'cancel') {
+                        dialog.close();
+                        dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
+                        dialog.element.removeClass('no-padding');
+                        // The content method destroys widgets and unbinds data
+                        dialog.content('');
+                        dialog.viewModel = undefined;
+                    }
+                }
+            }
+        });
 
         /*******************************************************************************************
          * Tool classes
@@ -1291,12 +1398,13 @@
             width: 100,
             attributes: {
                 rows: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.rows.title, defaultValue: 9 }),
-                columns: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.columns.title, defaultValue: 9 })
+                columns: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.columns.title, defaultValue: 9 }),
+                layout: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.layout.title })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.chargrid.properties.description.title }),
-                solution: new adapters.StringAdapter({ title: i18n.chargrid.properties.solution.title }), // TODO
+                solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.failure.title, defaultValue: 0 }),
@@ -1320,6 +1428,10 @@
                 if ($.type(component.height) === NUMBER) {
                     content.outerHeight(component.height);
                 }
+                // Redraw the charGrid widget
+                var charGridWidget = content.data('kendoCharGrid');
+                assert.instanceof(kendo.ui.CharGrid, charGridWidget, kendo.format(assert.messages.instanceof.default, 'charGridWidget', 'kendo.ui.CharGrid'));
+                charGridWidget.refresh();
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage
@@ -1327,7 +1439,7 @@
             }
 
         });
-        // TODO tools.register(CharGrid);
+        tools.register(CharGrid);
 
         var CHECKBOX = '<div style="#: attributes.style #"><input id="#: properties.name #" type="checkbox" class="k-checkbox" {0}><label class="k-checkbox-label" for="#: properties.name #">#: attributes.text #</label></div>';
         /**

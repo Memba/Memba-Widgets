@@ -105,7 +105,7 @@
              * Value
              * @param value
              */
-            value: function(value) {
+            value: function (value) {
                 var that = this;
                 if ($.type(value) === UNDEFINED) {
                     return DropDownList.fn.value.call(this);
@@ -206,7 +206,7 @@
              *
              * @returns {*}
              */
-            items: function() {
+            items: function () {
                 // return DropDownList.fn.items.call(this);
                 return this.treeView.items();
             },
@@ -253,7 +253,7 @@
              * Clear DOM
              * @private
              */
-            _clear: function() {
+            _clear: function () {
                 // TODO
             },
 

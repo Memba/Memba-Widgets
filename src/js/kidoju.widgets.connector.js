@@ -20,6 +20,9 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -99,7 +102,7 @@
              */
             getElementCenter: function (element, stage, scale) {
                 return {
-                    left: (element.offset().left - stage.offset().left) / scale + element.width()/ 2,
+                    left: (element.offset().left - stage.offset().left) / scale + element.width() / 2,
                     top: (element.offset().top - stage.offset().top) / scale + element.height() / 2
                 };
             },
@@ -282,7 +285,7 @@
                 var y = element.height() / 2; // parseInt(options.height, 10) / 2;
                 var radius = Math.min(x, y);
                 var connector = new drawing.Group();
-                var outerCircleGeometry = new geometry.Circle([x, y], 0.8* radius);
+                var outerCircleGeometry = new geometry.Circle([x, y], 0.8 * radius);
                 var outerCircle = new drawing.Circle(outerCircleGeometry).stroke(color, 0.2 * radius);
                 connector.append(outerCircle);
                 var innerCircleGeometry = new geometry.Circle([x, y], 0.5 * radius);
@@ -308,7 +311,7 @@
                 // Clear surface
                 surface.clear();
                 // Redraw all connections
-                connections.forEach(function(connection) {
+                connections.forEach(function (connection) {
                     var origin = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), connection.origin));
                     var originWidget = origin.data(WIDGET);
                     var destination = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), connection.destination));
@@ -337,19 +340,23 @@
              * Redraw all elements
              */
             refresh: function () {
-                // TODO
                 // Redraw all connectors
                 this._drawConnector();
                 // Redraw all connections
 
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W073 */
+
             /**
              * Add connection
              * Note: use this.value(string)
              * @param target
              */
-            _addConnection: function(target) {
+            _addConnection: function (target) {
+                /* jshint maxstatements: 36 */
+                /* jshint maxcomplexity: 13 */
                 target = $(target);
                 var that = this;
                 var ret = false;
@@ -408,11 +415,13 @@
                 return ret;
             },
 
+            /* jshint +W073 */
+
             /**
              * Remove connection
              * Note: use this.value(null)
              */
-            _dropConnection: function() {
+            _dropConnection: function () {
                 var that = this;
                 var options = that.options;
                 var element = that.element;
@@ -450,7 +459,9 @@
                 // We can have several containers containing connectors
                 // But we only have on set of handlers shared across all containers
                 // So we cannot use `this`, which is specific to this connector
-                var element, path, target;
+                var element;
+                var path;
+                var target;
                 $(document)
                     .off(NS)
                     .on(MOUSEDOWN, DOT + WIDGET_CLASS, function (e) {
@@ -494,13 +505,6 @@
                     })
                     .on(MOUSEUP, DOT + WIDGET_CLASS, function (e) {
                         if (element instanceof $ && path instanceof kendo.drawing.Path) {
-                            var elementWidget = element.data(WIDGET);
-                            assert.instanceof(Connector, elementWidget, kendo.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Connector'));
-                            // var scaler = element.closest(elementWidget.options.scaler);
-                            // var scale = scaler.length ? util.getTransformScale(scaler) : 1;
-                            var container = element.closest(elementWidget.options.container);
-                            assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
-                            var mouse = util.getMousePosition(e, container);
                             var targetElement = e.originalEvent && e.originalEvent.changedTouches ?
                                 document.elementFromPoint(e.originalEvent.changedTouches[0].clientX, e.originalEvent.changedTouches[0].clientY) :
                                 e.currentTarget;
@@ -509,6 +513,8 @@
                             // with touchend target === element
                             // BUG REPORT  here: https://github.com/jquery/jquery/issues/2987
                             if (element.attr(kendo.attr(ID)) !== target.attr(kendo.attr(ID)) && targetWidget instanceof Connector && targetWidget._enabled) {
+                                var elementWidget = element.data(WIDGET);
+                                assert.instanceof(Connector, elementWidget, kendo.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Connector'));
                                 var container = element.closest(elementWidget.options.container);
                                 assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
                                 var targetContainer = target.closest(targetWidget.options.container);
@@ -548,7 +554,7 @@
             /**
              * Enable/disable user interactivity on connector
              */
-            enable: function(enabled) {
+            enable: function (enabled) {
                 // this._enabled is checked in _addDragAndDrop
                 this._enabled = enabled;
             },
@@ -588,6 +594,8 @@
         kendo.ui.plugin(Connector);
 
     }(window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kendo;
 

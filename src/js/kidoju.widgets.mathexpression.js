@@ -140,7 +140,7 @@
             /**
              * Refresh the widget
              */
-            refresh: function() {
+            refresh: function () {
                 var element = this.element;
                 element.text(this.value() || '');
                 // If MathJax is not yet loaded it will parse the page anyway

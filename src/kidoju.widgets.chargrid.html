@@ -37,12 +37,22 @@
 <div class="kj-stage" style="height:600px;width:800px;transform:scale(0.75);">
     <div data-role="stage" style="position:relative;height:600px;width:800px;">
         <div class="kj-element" style="position:absolute;left:200px;top:100px;height:400px;width:400px;">
-            <div id="chargrid2" data-role="chargrid" data-scaler=".kj-stage" data-container=".kj-stage>div[data-role=stage]" data-whitelist="a-z" style="height:400px;width:400px;"></div>
+            <div id="chargrid2" data-role="chargrid" data-scaler=".kj-stage" data-container=".kj-stage>div[data-role=stage]" data-whitelist="a-z" data-bind="value: value, visible: visible, enabled: enabled" style="height:400px;width:400px;"></div>
         </div>
     </div>
 </div>
 <p>Test in the following input that chars do not get mixed up with the grid above</p>
 <div><input type="text" class="k-textbox"></div>
+<pre>
+{
+    value: <span data-bind="text: value$()"></span>,
+    visible: <span data-bind="text: visible"></span>
+    enabled: <span data-bind="text: enabled"></span>
+}
+</pre>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled
 </div>
 
 <script>
@@ -52,7 +62,12 @@
 
         var kendo = window.kendo;
         var viewModel = new kendo.observable({
-            // TODO
+            value: {},
+            visible: true,
+            enabled: true,
+            value$: function () {
+                return JSON.stringify(this.get('value'));
+            }
         });
 
         $(document).ready(function() {

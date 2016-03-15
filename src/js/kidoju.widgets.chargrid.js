@@ -35,19 +35,66 @@
         var NULL = 'null';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
+        var CLICK = 'click';
+        var KEYPRESS = 'keypress';
         var KEYDOWN = 'keydown';
-        var FOCUSOUT = 'focusout';
-        // var NS = '.kendoCharGrid';
+        var BLUR = 'blur';
+        var NS = '.kendoCharGrid';
         var WIDGET_CLASS = 'kj-chargrid'; // 'k-widget kj-chargrid';
-        var BASE_CODE = 65; // for A (a = 97)
+        // var BASE_CODE = 65; // for A (a = 97)
         var RX_WHITELIST = '^[{0}]$';
+        var STROKE_WIDTH = 2;
 
         /*********************************************************************************
          * Helpers
          *********************************************************************************/
-        function isArray(arr) {
-            return $.isArray(arr) || arr instanceof kendo.data.ObservableArray;
-        }
+
+        var util = {
+
+            /**
+             * Check array or observable array
+             * @param arr
+             * @returns {*|boolean}
+             */
+            isArray: function (arr) {
+                return $.isArray(arr) || arr instanceof kendo.data.ObservableArray;
+            },
+
+            /**
+             * Get the mouse (or touch) position
+             * @param e
+             * @param stage
+             * @returns {{x: *, y: *}}
+             */
+            getMousePosition: function (e, stage) {
+                // See http://www.jacklmoore.com/notes/mouse-position/
+                // See http://www.jqwidgets.com/community/topic/dragend-event-properties-clientx-and-clienty-are-undefined-on-ios/
+                // See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
+                // ATTENTION: e.originalEvent.changedTouches instanceof TouchList, not Array
+                var clientX = e.originalEvent && e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].clientX : e.clientX;
+                var clientY = e.originalEvent && e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].clientY : e.clientY;
+                // IMPORTANT: Position is relative to the stage and e.offsetX / e.offsetY do not work in Firefox
+                // var stage = $(e.target).closest('.kj-stage').find(kendo.roleSelector('stage'));
+                var mouse = {
+                    x: clientX - stage.offset().left + $(stage.get(0).ownerDocument).scrollLeft(),
+                    y: clientY - stage.offset().top + $(stage.get(0).ownerDocument).scrollTop()
+                };
+                return mouse;
+            },
+
+            /**
+             * Get the scale of an element's CSS transformation
+             * Note: the same function is used in kidoju.widgets.stage
+             * @param element
+             * @returns {Number|number}
+             */
+            getTransformScale: function (element) {
+                // $(element).css('transform') returns a matrix, so we have to read the style attribute
+                var match = ($(element).attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
+                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
+            }
+
+        };
 
         /*********************************************************************************
          * Widget
@@ -81,23 +128,24 @@
              */
             options: {
                 name: 'CharGrid',
-                rows: 4,
+                scaler: '.kj-stage',
+                container: '.kj-stage>div[data-role="stage"]',
                 columns: 6,
-                height: 100,
-                width: 150,
-                whitelist: '0-9.',
+                rows: 4,
                 blank: '.',
-                headings: false,
-                gridFill: { color: '#cce6ff', opacity: 1 }, // http://docs.telerik.com/kendo-ui/api/javascript/drawing/fill-options
-                gridStroke: { color: '#002699', width: 2 }, // http://docs.telerik.com/kendo-ui/api/javascript/drawing/stroke-options
-                blankFill: { color: '#000000', opacity: 1 },
-                selectedFill: { color: '#ffffcc', opacity: 1 },
-                lockedFill: { color: '#cccccc', opacity: 1 },
-                lockedStroke: { color: '#9999b6', width: 2 },
-                valueStroke: { color: '#9999b6', width: 2 },
+                whitelist: '1-9',
+                // TODO headings: false,
+                gridFill: '#cce6ff',
+                gridStroke: '#000000',
+                blankFill: '#000000',
+                selectedFill: '#ffffcc',
+                lockedFill: '#e6e6e6',
+                lockedChar: '#9999b6',
+                valueChar: '#9999b6',
                 // successStroke and failureStroke in review mode ????
-                locked: { A: [1, 1, 0, 0], B: [1, 1, 0, 0], C: [1, 1, 0, 0], D: [1, 1, 0, 0], E: [1, 1, 0, 0], F: [1, 1, 0, 0] },
-                value: { A: ['.', '1', '2', '3'], B: ['+', null, null, '3'] }
+                locked: [[1, 1, 0, 0], [1, 1, 0, 0], [1, 1, 0, 0], [1, 1, 0, 0], [1, 1, 0, 0], [1, 1, 0, 0]],
+                value: [['.', '1', '2', '3'], ['+', null, null, '3']],
+                enable: true
             },
 
             /**
@@ -117,16 +165,16 @@
                 var options = this.options;
                 var columns = options.columns;
                 var rows = options.rows;
-                var rx = new RegExp(kendo.format(RX_WHITELIST, options.whitelist));
-                that._value = {};
+                // var whitelist = (options.whitelist || '').trim();
+                // var rx = new RegExp(kendo.format(RX_WHITELIST, whitelist), 'i');
+                that._value = [];
                 for (var col = 0; col < columns; col++) {
-                    var prop = String.fromCharCode(BASE_CODE + col);
-                    that._value[prop] = new Array(rows);
+                    that._value.push(new Array(rows));
                     for (var row = 0; row < rows; row++) {
-                        if (isArray(value[prop]) && value[prop][row] && (rx.test('' + value[prop][row]) || value[prop][row] === options.blank )) {
-                            that._value[prop][row] = '' + value[prop][row];
+                        if (util.isArray(value[col]) && value[col][row]) { // && (rx.test('' + value[prop][row]) || value[prop][row] === options.blank)) {
+                            that._value[col][row] = '' + value[col][row];
                         } else {
-                            that._value[prop][row] = null;
+                            that._value[col][row] = null;
                         }
                     }
                 }
@@ -138,33 +186,28 @@
              * @param value2
              * @private
              */
-            /*
             _compareValues: function (value1, value2) {
-                var that = this;
-                var options = this.options;
-                var columns = options.columns;
-                var rows = options.rows;
-                if ($.type(value1) !== OBJECT || $.type(value2) !== OBJECT) {
+                if (!util.isArray(value1) || !util.isArray(value2)) {
                     return false;
                 }
-                // TODO same number of object properties (ObservableObject)
-                for (var col = 0; col < columns; col++) {
-                    var prop = String.fromCharCode(BASE_CODE + col);
-                    if (!isArray(value1[prop]) || !isArray(value2[prop])) {
+                if (value1.length !== value2.length) {
+                    return false;
+                }
+                for (var col = 0; col < value1.length; col++) {
+                    if (!util.isArray(value1[col]) || !util.isArray(value2[col])) {
                         return false;
                     }
-                    if (value1[prop].length !== value2[prop].length) {
+                    if (value1[col].length !== value2[col].length) {
                         return false;
                     }
-                    for (var row = 0; row < rows; row++) {
-                        if (value[prop][row] !== value2[prop][row]) {
+                    for (var row = 0; row < value1[col].length; row++) {
+                        if (value[col][row] !== value2[col][row]) {
                             return false;
                         }
                     }
                 }
                 return true;
             },
-            */
 
             /**
              * Value for MVVM binding
@@ -176,8 +219,7 @@
                 if ($.type(value) === UNDEFINED) {
                     return that._value;
                 } else if ($.type(value) === OBJECT) {
-                    // if (!that._compareValues(that._value, value)) {
-                    if (value !== that._value) {
+                    if (!that._compareValues(that._value, value)) {
                         that._setValue(value);
                         that.refresh();
                         that.trigger(CHANGE);
@@ -196,13 +238,13 @@
             cellValue: function (col, row, value) {
                 assert.type(NUMBER, col, kendo.format(assert.messages.type.default, 'col', NUMBER));
                 assert.type(NUMBER, row, kendo.format(assert.messages.type.default, 'row', NUMBER));
-                assert.type(OBJECT, this._value, kendo.format(assert.messages.type.default, 'this._value', OBJECT));
                 var that = this;
                 var options = that.options;
-                var rx = new RegExp(kendo.format(RX_WHITELIST, options.whitelist));
-                var colValues = that._value[String.fromCharCode(BASE_CODE + col)];
+                var whitelist = (options.whitelist || '').trim();
+                var rx = new RegExp(kendo.format(RX_WHITELIST, whitelist), 'i');
+                var colValues = that._value[col];
                 if ($.type(value) === UNDEFINED) {
-                    if (isArray(colValues) && rx.test(colValues[row])) {
+                    if (util.isArray(colValues) && rx.test(colValues[row])) {
                         return colValues[row];
                     }
                 } else if ($.type(value) === NULL) {
@@ -215,7 +257,7 @@
                     if (that.isLocked(col, row)) {
                         throw new Error('Cannot assign a new value to a locked cell');
                     } else if (colValues[row] !== value && rx.test(value)) {
-                        colValues[row] = value;
+                        colValues[row] = value.toUpperCase();
                         that.refresh();
                         that.trigger(CHANGE);
                     }
@@ -238,10 +280,9 @@
                 var columns = options.columns;
                 var rows = options.rows;
                 var blank = options.blank;
-                var colLocked = options.locked[String.fromCharCode(BASE_CODE + col)];
-                return isArray(colLocked) &&
-                    col >= 0 && col < columns && row >= 0 && row < rows &&
-                    isArray(colLocked) && !!colLocked[row] &&
+                var colLocked = options.locked[col];
+                return col >= 0 && col < columns && row >= 0 && row < rows &&
+                    util.isArray(colLocked) && !!colLocked[row] &&
                     that.cellValue(col, row) !== blank;
             },
 
@@ -263,8 +304,12 @@
              * @param e
              * @private
              */
-            _onFocusOut: function (e) {
-                this.select(-1, -1);
+            _onBlur: function (e) {
+                // relatedTarget is used to handle behaviour that is specific to IE and Edge
+                // In IE and edge, if relatedTarget is an SVG Element and if this SVG element is inside the widget element, the event should be discarded
+                if (!(e.relatedTarget instanceof window.SVGSVGElement) || this.element.has($(e.relatedTarget)).length === 0) {
+                    this.select(-1, -1);
+                }
             },
 
             /**
@@ -273,18 +318,31 @@
              */
             _layout: function () {
                 var that = this;
-                that.wrapper = that.element;
-                that.element
-                    .addClass(WIDGET_CLASS)
-                    .on(KEYDOWN, $.proxy(that._onKeyDown, that))
-                    .on(FOCUSOUT, $.proxy(that._onFocusOut, that));
-                that.surface = drawing.Surface.create(
-                    that.element,
-                    {
-                        click: $.proxy(that._onSurfaceClick, that)
-                    }
-                );
+                var element = that.element;
+                var options = that.options;
+                that.wrapper = element;
+                element.addClass(WIDGET_CLASS);
+                that.surface = drawing.Surface.create(that.element);
+                that.enable(options.enable);
                 that.refresh();
+            },
+
+            /**
+             * Enables/disables the grid
+             * @param enabled
+             */
+            enable: function (enabled) {
+                var that = this;
+                var element = that.element;
+                element.off(NS);
+                if (enabled) {
+                    // Note: we handle the click on the DOM element, not the drawing surface
+                    element
+                        .on(CLICK + NS, $.proxy(that._onSurfaceClick, that))
+                        .on(KEYDOWN + NS, $.proxy(that._onKeyDown, that))
+                        .on(KEYPRESS + NS, $.proxy(that._onKeyPress, that))
+                        .on(BLUR + NS, $.proxy(that._onBlur, that));
+                }
             },
 
             /**
@@ -293,23 +351,32 @@
              */
             _drawGrid: function () {
                 var that = this;
+                var element = that.element;
+                var height = element.height();
+                var width = element.width();
                 var options = that.options;
-                var height = options.height;
-                var width = options.width;
                 var rows = options.rows;
                 var columns = options.columns;
                 var grid = new drawing.Group();
                 var rectGeometry = new geometry.Rect([0, 0], [width, height]);
-                // IMPORTANT: fill is required for the click event to fire everywhere
-                var rect = new drawing.Rect(rectGeometry, { fill: that.options.gridFill, stroke: that.options.gridStroke });
-                grid.append(rect);
+                grid.append(new drawing.Rect(
+                    rectGeometry,
+                    {
+                        fill: { color: options.gridFill },
+                        stroke: { color: options.gridStroke, width: STROKE_WIDTH }
+                    }
+                ));
                 // columns
                 for (var col = 1; col < columns; col++) {
-                    grid.append(new drawing.Path({ stroke: that.options.gridStroke }).moveTo(width * col / columns, 0).lineTo(width * col / columns, height));
+                    grid.append(new drawing.Path(
+                        { stroke: { color: options.gridStroke, width: STROKE_WIDTH } }
+                    ).moveTo(width * col / columns, 0).lineTo(width * col / columns, height));
                 }
                 // rows
                 for (var row = 1; row < rows; row++) {
-                    grid.append(new drawing.Path({ stroke: that.options.gridStroke }).moveTo(0, height * row / rows).lineTo(width, height * row / rows));
+                    grid.append(new drawing.Path(
+                        { stroke: { color: options.gridStroke, width: STROKE_WIDTH } }
+                    ).moveTo(0, height * row / rows).lineTo(width, height * row / rows));
                 }
                 that.surface.draw(grid);
             },
@@ -321,46 +388,29 @@
             _drawSelectedCell: function () {
                 var that = this;
                 var options = that.options;
-                var height = options.height;
-                var width = options.width;
-                var rows = options.rows;
-                var columns = options.columns;
                 var col = that._selectedCell && that._selectedCell.col;
                 var row = that._selectedCell && that._selectedCell.row;
-                if ($.type(col) === NUMBER && col >= 0 && col < columns &&
-                    $.type(row) === NUMBER && row >= 0 && row < rows) {
-                    var selectedCellGeometry = new geometry.Rect(
-                        [
-                            (col * width) / columns, // left or x
-                            (row * height) / rows // top or y
-                        ],
-                        [
-                            width / columns, // width
-                            height / rows // height
-                        ]
-                    );
-                    var selectedCell = new drawing.Rect(selectedCellGeometry, {
-                        fill: that.options.selectedFill,
-                        stroke: that.options.gridStroke
-                    });
-                    that.surface.draw(selectedCell);
+                var rect = that._getCellRect(col, row, options.selectedFill);
+                if (rect) {
+                    that.surface.draw(rect);
                 }
             },
 
             /**
-             * Get a blank rectangle
+             * Get a cell rectangle filled with color
              * @private
              */
-            _getCharRect: function(col, row, fillOptions) {
+            _getCellRect: function (col, row, fillColor) {
                 var that = this;
+                var element = that.element;
+                var height = element.height();
+                var width = element.width();
                 var options = that.options;
-                var height = options.height;
-                var width = options.width;
                 var rows = options.rows;
                 var columns = options.columns;
                 if ($.type(col) === NUMBER && col >= 0 && col < columns &&
                     $.type(row) === NUMBER && row >= 0 && row < rows) {
-                    var blankGeometry = new geometry.Rect(
+                    var rectGeometry = new geometry.Rect(
                         [
                             (col * width) / columns, // left or x
                             (row * height) / rows // top or y
@@ -370,11 +420,11 @@
                             height / rows // height
                         ]
                     );
-                    var blank = new drawing.Rect(blankGeometry, {
-                        fill: fillOptions,
-                        stroke: that.options.gridStroke
+                    var rect = new drawing.Rect(rectGeometry, {
+                        fill: { color: fillColor },
+                        stroke: { color: options.gridStroke, width: STROKE_WIDTH }
                     });
-                    return blank;
+                    return rect;
                 }
             },
 
@@ -388,18 +438,19 @@
              */
             _getCharText: function (col, row, char) {
                 var that = this;
+                var element = that.element;
+                var height = element.height();
+                var width = element.width();
                 var options = that.options;
-                var height = options.height;
-                var width = options.width;
                 var rows = options.rows;
                 var columns = options.columns;
                 if ($.type(col) === NUMBER && col >= 0 && col < columns &&
                     $.type(row) === NUMBER && row >= 0 && row < rows &&
                     $.type(char) === STRING && char.length === 1) {
-                    var fontSize = Math.floor(0.8 * height/rows);
+                    var fontSize = Math.floor(0.75 * height / rows);
                     var params = {
                         font:  fontSize + 'px "Open Sans", sans-serif',
-                        stroke: that.isLocked(col, row) ? options.lockedStroke : options.valueStroke
+                        stroke: that.isLocked(col, row) ? { color: options.lockedChar, width: 2 } : { color: options.valueChar, width: 2 }
                     };
                     var text = new drawing.Text(char, new geometry.Point(0, 0), params);
                     var size = text.bbox().size;
@@ -418,29 +469,25 @@
              */
             _drawCellValues: function () {
                 var that = this;
+                var element = that.element;
                 var options = that.options;
-                var height = options.height;
-                var width = options.width;
                 var rows = options.rows;
                 var columns = options.columns;
-                var rx = new RegExp(kendo.format(RX_WHITELIST, options.whitelist));
                 var locked = options.locked;
                 var chars = new drawing.Group();
                 // columns
                 for (var col = 0; col < columns; col++) {
-                    assert.type(OBJECT, that._value, kendo.format(assert.messages.type.default, 'this._value', OBJECT));
-                    var colValues = that._value[String.fromCharCode(BASE_CODE + col)];
-                    var colLocked = locked[String.fromCharCode(BASE_CODE + col)];
-                    if (isArray(colValues)) {
+                    var colValues = that._value[col];
+                    if (util.isArray(colValues)) {
                         for (var row = 0; row < rows; row++) {
-                            if (colValues[row] === that.options.blank) { // the value is a blank
-                                var blank = that._getCharRect(col, row, that.options.blankFill);
+                            if (colValues[row] === options.blank) { // the value is a blank
+                                var blank = that._getCellRect(col, row, options.blankFill);
                                 if (blank instanceof kendo.drawing.Rect) {
                                     chars.append(blank);
                                 }
                             } else {
                                 if (that.isLocked(col, row)) {
-                                    var locked = that._getCharRect(col, row, that.options.lockedFill);
+                                    locked = that._getCellRect(col, row, options.lockedFill);
                                     if (locked instanceof kendo.drawing.Rect) {
                                         chars.append(locked);
                                     }
@@ -459,7 +506,7 @@
             /**
              * Redraw everything
              */
-            refresh: function() {
+            refresh: function () {
                 assert.instanceof(drawing.Surface, this.surface, kendo.format(assert.messages.instanceof.default, 'this.surface', 'kendo.drawing.Surface'));
                 this.surface.clear();
                 this._drawGrid();
@@ -481,7 +528,7 @@
                 var columns = options.columns;
                 var locked = options.locked;
                 if ((col >= 0 && col < columns) && (row >= 0 && row < rows) && !that.isLocked(col, row)) {
-                    that._selectedCell = {col: col, row: row};
+                    that._selectedCell = { col: col, row: row };
                     that.element.focus();
                 } else {
                     that._selectedCell = undefined;
@@ -499,15 +546,22 @@
              */
             _onSurfaceClick: function (e) {
                 var that = this;
+                var element = that.element;
+                var height = element.height();
+                var width = element.width();
+                var offset = element.offset();
                 var options = that.options;
-                var height = options.height;
-                var width = options.width;
                 var rows = options.rows;
                 var columns = options.columns;
-                // TODO: think of headings a, b, c, 1, 2, 3 as in in Excel which add 1 row + 1 col
-                var offset = that.element.offset();
-                var col = Math.floor((e.originalEvent.pageX - offset.left) * columns / width);
-                var row = Math.floor((e.originalEvent.pageY - offset.top) * rows / height);
+                var scaler = that.element.closest(options.scaler);
+                var scale = scaler.length ? util.getTransformScale(scaler) : 1;
+                var container = that.element.closest(options.container);
+                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, 'container'));
+                var containerOffset = container.offset();
+                // TODO: consider headings a, b, c, 1, 2, 3 as in in Excel which add 1 row + 1 col
+                var mouse = util.getMousePosition(e, container);
+                var col = Math.floor((containerOffset.left + mouse.x - offset.left) * columns / width / scale);
+                var row = Math.floor((containerOffset.top + mouse.y - offset.top) * rows / height / scale);
                 that.select(col, row);
             },
 
@@ -528,42 +582,53 @@
                 var row = that._selectedCell && that._selectedCell.row;
                 if ($.type(col) === NUMBER && col >= 0 && col < columns &&
                     $.type(row) === NUMBER && row >= 0 && row < rows) {
+                    var done = false;
                     if (e.which === 37 && col > 0 && !that.isLocked(col - 1, row)) { // Arrow left
                         that.select(col - 1, row);
+                        done = true;
                     } else if (e.which === 38 && row > 0 && !that.isLocked(col, row - 1)) { // Arrow up
                         that.select(col, row - 1);
+                        done = true;
                     } else if (e.which === 39 && col < columns - 1 && !that.isLocked(col + 1, row)) { // Arrow right
                         that.select(col + 1, row);
+                        done = true;
                     } else if (e.which === 40 && row < rows - 1 && !that.isLocked(col, row + 1)) { // Arrow down
                         that.select(col, row + 1);
-                    } else if ((e.which === 32 || e.which === 46) && !that.isLocked(col, row)) { // Space or Delete
+                        done = true;
+                    } else if ((e.which === 8 || e.which === 32 || e.which === 46) && !that.isLocked(col, row)) { // Backspace, Space or Delete
                         that.cellValue(col, row, null);
-                    } else {
-                        var rx = new RegExp(kendo.format(RX_WHITELIST, options.whitelist));
-                        var char = String.fromCharCode(e.which);
-                        if (rx.test(char)) {
-                            that.cellValue(col, row, char);
-                        }
+                        done = true;
+                    }
+                    if (done) {
+                        e.preventDefault();
+                        e.stopPropagation();
                     }
                 }
             },
 
             /**
-             * Clears the widget
-             * @method _clear
+             * Key press event handler (required to get correct values from numeric keypad)
+             * @param e
              * @private
              */
-            _clear: function () {
+            _onKeyPress: function (e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                // assert.ok(this.element.is(':focus'), '`this.element` is expected to have focus');
                 var that = this;
-                // unbind kendo
-                // kendo.unbind($(that.element));
-                // unbind all other events
-                $(that.element).find('*').off();
-                $(that.element).off();
-                // remove descendants
-                $(that.element).empty();
-                // remove element classes
-                // $(that.element).removeClass(WIDGET_CLASS);
+                var options = that.options;
+                var columns = options.columns;
+                var rows = options.rows;
+                var col = that._selectedCell && that._selectedCell.col;
+                var row = that._selectedCell && that._selectedCell.row;
+                if ($.type(col) === NUMBER && col >= 0 && col < columns &&
+                    $.type(row) === NUMBER && row >= 0 && row < rows) {
+                    var whitelist = (options.whitelist || '').trim();
+                    var rx = new RegExp(kendo.format(RX_WHITELIST, whitelist), 'i');
+                    var char = String.fromCharCode(e.which);
+                    if (rx.test(char)) {
+                        that.cellValue(col, row, char);
+                    }
+                }
             },
 
             /**
@@ -572,9 +637,18 @@
              */
             destroy: function () {
                 var that = this;
+                var element = that.element;
                 Widget.fn.destroy.call(that);
-                that._clear();
-                kendo.destroy(that.element);
+                // unbind and destroy all descendants
+                kendo.unbind(element);
+                kendo.destroy(element);
+                // unbind all other events (probably redundant)
+                element.find('*').off();
+                element.off();
+                // remove descendants
+                element.empty();
+                // remove widget class
+                element.removeClass(WIDGET_CLASS);
             }
 
         });

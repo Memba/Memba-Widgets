@@ -272,7 +272,8 @@
                                 // if rows are desinated in this.options.rows, only select these rows
                             (!hasRows || hashedOptionRows.hasOwnProperty(prop))) {
 
-                            if ($.type(properties[prop]) === OBJECT) {
+                            // TODO:  if ($.type(properties[prop]) === OBJECT) {
+                            if ($.type(properties[prop]) === OBJECT && properties[prop].fields) {
 
                                 buildRows(properties[prop], hashedOptionRows[prop] || {}, path.length === 0 ? prop : path + '.' + prop);
 
@@ -310,7 +311,7 @@
 
                                 /* Blocks are nested too deeply. */
                                 /* jshint -W073 */
-                                if (row.type) {
+                                // TODO if (row.type) {
                                     if (hasRows) {
                                         // With this.options.rows, only designated properties are displayed
                                         rows[hashedOptionRows[prop]._index] = row;
@@ -318,7 +319,7 @@
                                         // Without this.options.rows, all public properties are displayed
                                         rows.push(row);
                                     }
-                                }
+                                // TODO }
                                 /* jshint +W073 */
                             }
                         }

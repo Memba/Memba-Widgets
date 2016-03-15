@@ -112,9 +112,11 @@
             chargrid: {
                 description: 'Character Grid',
                 attributes: {
+                    blank: { title: 'Blank' },
                     columns: { title: 'Columns' },
                     layout: { title: 'Layout' },
-                    rows: { title: 'Rows' }
+                    rows: { title: 'Rows' },
+                    whitelist: { title: 'Whitelist' }
                 },
                 properties: {
                     name: { title: 'Name' },
@@ -692,12 +694,12 @@
          * Number adapter
          */
         adapters.NumberAdapter = BaseAdapter.extend({
-            init: function (options) {
+            init: function (options, attributes) {
                 BaseAdapter.fn.init.call(this, options);
                 this.type = NUMBER;
                 this.defaultValue = this.defaultValue || (this.nullable ? null : 0);
                 this.editor = 'input';
-                this.attributes = $.extend({}, this.attributes);
+                this.attributes = $.extend({}, this.attributes, attributes);
                 this.attributes[kendo.attr('role')] = 'numerictextbox';
             },
             library: [
@@ -1182,38 +1184,14 @@
             init: function (options) {
                 var that = this;
                 BaseAdapter.fn.init.call(that, options);
-                that.type = STRING;
+                that.type = undefined;
                 that.editor = function (container, options) {
-                    var table = $('<div/>')
-                        .css({ display: 'table' })
-                        .appendTo(container);
-                    var cell = $('<div/>')
-                        .css({
-                            display: 'table-cell',
-                            width: '100%',
-                            paddingRight: '8px'
-                        })
-                        .appendTo(table);
-                    var input = $('<div data-role="codeinput" />') // TODO namespace???
-                    // Note: _library is added to the data bound PageComponent in its init method
-                        .attr($.extend({}, options.attributes, { 'data-bind': 'value: ' + options.field + ', source: _library' })) // TODO namespace???
-                        .appendTo(cell);
-                    // We need a temporary textbox to calculate the height and align the button
-                    var temp = $('<input type="text" class="k-textbox">')
-                        .css({ visibility: 'hidden' })
-                        .appendTo(cell);
                     $('<button/>')
                         .text('...')
                         .addClass('k-button')
-                        .css({
-                            display: 'table-cell',
-                            minWidth: '40px',
-                            height: temp.css('height'), // $('input.k-textbox').last().css('height'),
-                            margin: 0
-                        })
-                        .appendTo(table)
+                        .css({ margin: 0, width: '100%' })
+                        .appendTo(container)
                         .on(CLICK, $.proxy(that.showDialog, that, options));
-                    temp.remove();
                 };
             },
             showDialog: function (options/*,evt*/) {
@@ -1221,12 +1199,15 @@
                 var dialog = that.getDialog();
                 // Create viewModel (Cancel shall not save changes to main model)
                 dialog.viewModel = kendo.observable({
-                    code: options.model.get(options.field)
+                    chargrid: options.model.get(options.field)
                 });
                 // Prepare UI
                 dialog.title(options.title);
                 var content = '<div class="k-edit-form-container">' + // TODO namespace???
-                    '<div data-role="codeeditor" data-bind="value: code, source: library" data-default="' + that.defaultValue + '" data-solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"></div>' +
+                    '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-edit-form-container" data-container=".k-edit-form-container" ' +
+                    'data-columns="' + options.model.get('attributes.columns') + '" data-rows="' + options.model.get('attributes.rows') + '" ' +
+                    'data-blank="' + options.model.get('attributes.blank') + '" data-whitelist="' + options.model.get('attributes.whitelist') + '\\' + options.model.get('attributes.blank') + '" ' +
+                    'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;"></div>' +
                     '<div class="k-edit-buttons k-state-default">' +
                     '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
                     '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
@@ -1236,19 +1217,6 @@
                 dialog.element.addClass('no-padding');
                 // Bind click handler for edit buttons
                 dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
-                // Bind window activate handler
-                dialog.bind('activate', function () {
-                    // IMPORTANT, we need to refresh codemirror here
-                    // otherwise the open animation messes with CodeMirror calculations
-                    // and gutter and line numbers are displayed at the wrong coordinates
-                    var codeEditor = dialog.element
-                        .find('.kj-codeeditor')
-                        .data('kendoCodeEditor');
-                    if (codeEditor instanceof kendo.ui.CodeEditor && codeEditor.codeMirror && $.isFunction(codeEditor.codeMirror.refresh)) {
-                        codeEditor.codeMirror.refresh();
-                    }
-                    dialog.unbind('activate');
-                });
                 // Show dialog
                 dialog.center().open();
             },
@@ -1257,7 +1225,7 @@
                 if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
                     var command = $(e.target).attr(kendo.attr('command'));
                     if (command === 'ok') {
-                        options.model.set(options.field, dialog.viewModel.get('code'));
+                        options.model.set(options.field, dialog.viewModel.get('chargrid'));
                     }
                     if (command === 'ok' || command === 'cancel') {
                         dialog.close();
@@ -1268,7 +1236,15 @@
                         dialog.viewModel = undefined;
                     }
                 }
-            }
+            },
+            library: [
+                {
+                    name: 'equal',
+                    // TODO add array comparison to workerLib
+                    formula: kendo.format(FORMULA, 'return String(value).toLowerCase() === String(solution).toLowerCase();')
+                }
+            ],
+            libraryDefault: 'equal'
         });
 
         /*******************************************************************************************
@@ -1349,7 +1325,7 @@
                     }
                     return JSON.stringify(files);
                 };
-                return template(component);
+                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /**
@@ -1379,7 +1355,7 @@
         });
         tools.register(Audio);
 
-        var CHARGRID = '<div data-#= ns #role="chargrid" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" {0}></div>';
+        var CHARGRID = '<div data-#= ns #role="chargrid" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-role=stage]" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" {0}></div>';
         /**
          * @class CharGrid tool
          * @type {void|*}
@@ -1390,21 +1366,25 @@
             description: i18n.chargrid.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                design: kendo.format(CHARGRID, 'data-#= ns #enable="false"'),
+                design: kendo.format(CHARGRID, 'data-#= ns #value="#: JSON.stringify(attributes.layout) #" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'),
                 play: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value"'),
                 review: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
             height: 100,
             width: 100,
             attributes: {
-                rows: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.rows.title, defaultValue: 9 }),
-                columns: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.columns.title, defaultValue: 9 }),
-                layout: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.layout.title })
+                rows: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.rows.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
+                columns: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.columns.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
+                blank: new adapters.StringAdapter({ title: i18n.chargrid.attributes.blank.title, defaultValue: '.' }),
+                whitelist: new adapters.StringAdapter({ title: i18n.chargrid.attributes.whitelist.title, defaultValue: '1-9' }),
+                layout: new adapters.CharGridAdapter({ title: i18n.chargrid.attributes.layout.title, defaultValue: null }),
+                gridFill: new adapters.ColorAdapter({ title: 'color', defaultValue: '#000000' })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.chargrid.properties.description.title }),
-                solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
+                solution: new adapters.StringAdapter({ title: i18n.chargrid.properties.solution.title }),
+                // solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.failure.title, defaultValue: 0 }),
@@ -1421,7 +1401,7 @@
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                var content = stageElement.children('div');
+                var content = stageElement.children('div.kj-chargrid');
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.width);
                 }
@@ -1468,12 +1448,6 @@
                 name: new adapters.NameAdapter({ title: i18n.checkbox.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.checkbox.properties.description.title }),
                 solution: new adapters.BooleanAdapter({ title: i18n.checkbox.properties.solution.title }),
-                validation: new adapters.ValidationAdapter({
-                    title: i18n.checkbox.properties.validation.title
-                    // The following is now achieved in Tool.init
-                    // solutionAdapter: new adapters.BooleanAdapter({ title: 'Solution' }),
-                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault
-                }),
                 success: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.omit.title, defaultValue: 0 })
@@ -1690,7 +1664,7 @@
                     }
                     return src;
                 };
-                return template(component);
+                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /**
@@ -1863,12 +1837,7 @@
                 name: new adapters.NameAdapter({ title: i18n.quiz.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.quiz.properties.description.title }),
                 solution: new adapters.StringAdapter({ title: i18n.quiz.properties.solution.title }),
-                validation: new adapters.ValidationAdapter({
-                    title: i18n.quiz.properties.validation.title
-                    // The following is now achieved in Tool.init
-                    // solutionAdapter: new adapters.BooleanAdapter({ title: 'Solution' }),
-                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault)
-                }),
+                validation: new adapters.ValidationAdapter({ title: i18n.quiz.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.quiz.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.quiz.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.quiz.properties.omit.title, defaultValue: 0 })
@@ -1950,12 +1919,7 @@
                 name: new adapters.NameAdapter({ title: i18n.textbox.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.textbox.properties.description.title }),
                 solution: new adapters.StringAdapter({ title: i18n.textbox.properties.solution.title }),
-                validation: new adapters.ValidationAdapter({
-                    title: i18n.textbox.properties.validation.title
-                    // The following is now achieved in Tool.init
-                    // solutionAdapter: new adapters.StringAdapter({ title: 'Solution' }),
-                    // defaultValue: '// ' + adapters.StringAdapter.prototype.libraryDefault
-                }),
+                validation: new adapters.ValidationAdapter({ title: i18n.textbox.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.textbox.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.textbox.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.textbox.properties.omit.title, defaultValue: 0 })
@@ -2018,7 +1982,7 @@
             description: i18n.video.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-#= ns #role="mediaplayer" data-#= ns #mode="video" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #iles="#: attributes.files$() #" data-#= ns #toolbar-height="#: attributes.toolbarHeight #"></div>'
+                default: '<div data-#= ns #role="mediaplayer" data-#= ns #mode="video" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #files="#: attributes.files$() #" data-#= ns #toolbar-height="#: attributes.toolbarHeight #"></div>'
             },
             height: 300,
             width: 600,
@@ -2076,7 +2040,7 @@
                     }
                     return JSON.stringify(files);
                 };
-                return template(component);
+                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /**

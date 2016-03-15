@@ -232,9 +232,11 @@
                     tools.chargrid.constructor.prototype.description = 'Character Grid';
                     // Attributes
                     attributes = tools.chargrid.constructor.prototype.attributes;
+                    attributes.blank.title = 'Vide';
                     attributes.columns.title = 'Colonnes';
                     attributes.layout.title = 'Mise en Page';
                     attributes.rows.title = 'Lignes';
+                    attributes.whitelist.title = 'Caractères';
                     // Properties
                     properties = tools.chargrid.constructor.prototype.attributes;
                     properties.name.title = 'Nom';

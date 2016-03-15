@@ -143,8 +143,8 @@
                 lockedChar: '#9999b6',
                 valueChar: '#9999b6',
                 // successStroke and failureStroke in review mode ????
-                locked: [[1, 1, 0, 0], [1, 1, 0, 0], [1, 1, 0, 0], [1, 1, 0, 0], [1, 1, 0, 0], [1, 1, 0, 0]],
-                value: [['.', '1', '2', '3'], ['+', null, null, '3']],
+                locked: [],
+                value: [],
                 enable: true
             },
 
@@ -174,7 +174,7 @@
                         if (util.isArray(value[col]) && value[col][row]) { // && (rx.test('' + value[prop][row]) || value[prop][row] === options.blank)) {
                             that._value[col][row] = '' + value[col][row];
                         } else {
-                            that._value[col][row] = null;
+                            that._value[col][row] = undefined;
                         }
                     }
                 }
@@ -201,7 +201,7 @@
                         return false;
                     }
                     for (var row = 0; row < value1[col].length; row++) {
-                        if (value[col][row] !== value2[col][row]) {
+                        if (value1[col][row] !== value2[col][row]) {
                             return false;
                         }
                     }
@@ -218,14 +218,12 @@
                 var that = this;
                 if ($.type(value) === UNDEFINED) {
                     return that._value;
-                } else if ($.type(value) === OBJECT) {
+                } else {
                     if (!that._compareValues(that._value, value)) {
-                        that._setValue(value);
+                        that._setValue(value || '');
                         that.refresh();
                         that.trigger(CHANGE);
                     }
-                } else {
-                    throw new TypeError('`value` is expected to be an `object`');
                 }
             },
 
@@ -526,7 +524,6 @@
                 var options = that.options;
                 var rows = options.rows;
                 var columns = options.columns;
-                var locked = options.locked;
                 if ((col >= 0 && col < columns) && (row >= 0 && row < rows) && !that.isLocked(col, row)) {
                     that._selectedCell = { col: col, row: row };
                     that.element.focus();

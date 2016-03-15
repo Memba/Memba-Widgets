@@ -30,14 +30,17 @@
         var Draggable = ui.Draggable;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.dropzone');
-        var STRING = 'string';
+        // var STRING = 'string';
         var NULL = 'null';
-        var UNDEFINED = 'undefined';
+        // var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var DATABINDING = 'dataBinding';
         var DATABOUND = 'dataBound';
         // var NS = '.kendoDropZone';
         var WIDGET_CLASS = 'kj-dropzone'; // 'k-widget kj-dropzone';
+        var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
+        var ID = 'id';
+        var CONTENT_SELECTOR = '[' + kendo.attr(ID) +  ']';
 
         /*********************************************************************************
          * Helpers
@@ -79,6 +82,7 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
+                that._dataSource();
                 that._layout();
                 that._addDraggable();
                 // kendo.notify(that);
@@ -142,31 +146,38 @@
              * @private
              */
             _addDraggable: function () {
-                var that = this;
-                var options = that.options;
-                var container = that.element.closest(options.container);
-                that.draggable = container.find(options.draggable);
-                that.draggable.kendoDraggable({
-                    hint: function (element) {
-                        assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
-                        var scaler = that.element.closest(that.options.scaler);
+                var dropZoneWidget = this; // not using that here makes code clearer
+                var options = dropZoneWidget.options;
+                var container = dropZoneWidget.element.closest(options.container);
+                dropZoneWidget.draggable = container.find(options.draggable);
+                dropZoneWidget.draggable.kendoDraggable({
+                    // container: not used, see boundaries below
+                    hint: function (draggable) {
+                        assert.instanceof($, draggable, kendo.format(assert.messages.instanceof.default, 'draggable', 'jQuery'));
+                        var scaler = dropZoneWidget.element.closest(dropZoneWidget.options.scaler);
                         var scale = util.getTransformScale(scaler);
-                        return element.clone()
+                        return draggable.clone()
                             .css({
                                 transformOrigin: '0 0',
                                 transform: kendo.format('scale({0})', scale),
-                                left: container.offset().left + element.position().left * scale,
-                                top: container.offset().top + element.position().top * scale
+                                left: container.offset().left + draggable.position().left * scale,
+                                top: container.offset().top + draggable.position().top * scale
                             });
                     },
                     dragstart: function (e) {
                         assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
                         assert.instanceof(Draggable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Draggable'));
-                        var scaler = that.element.closest(that.options.scaler);
+                        var scaler = dropZoneWidget.element.closest(dropZoneWidget.options.scaler);
                         var scale = util.getTransformScale(scaler);
-                        var hint = e.sender.hint;
-                        e.sender.element.hide();
-                        e.sender.boundaries = {
+                        var draggableWidget = e.sender;
+                        var draggable = draggableWidget.element;
+                        var hint = draggableWidget.hint;
+                        draggable.hide();
+                        // Kendo UI apis recommend setting a container on the kendo.ui.Draggable
+                        // Unfortunately this would not work because of scaling the stage
+                        // Another benefit of setting the boundaries in the event handler
+                        // is for changing the scale of the stage after the draggable widgets have been initialized.
+                        draggableWidget.boundaries = { // container boundaries
                             x: {
                                 min: container.offset().left,
                                 max: container.offset().left + scale * (container.width() - hint.width())
@@ -175,26 +186,62 @@
                                 min: container.offset().top,
                                 max: container.offset().top + scale * (container.height() - hint.height())
                             }
-                        }
+                        };
                     },
                     dragend: function (e) {
                         assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
                         assert.instanceof(Draggable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Draggable'));
-                        var scaler = that.element.closest(that.options.scaler);
+                        var scaler = dropZoneWidget.element.closest(dropZoneWidget.options.scaler);
                         var scale = util.getTransformScale(scaler);
-                        var hint = e.sender.hint;
+                        var draggableWidget = e.sender;
+                        var draggable = draggableWidget.element; // draggable is a .kj-element which contains something (image, label, ...)
+                        var hint = draggableWidget.hint;
                         var position = hint.position();
-                        // TODO the following goes in refresh
                         hint.hide();
-                        e.sender.element
-                            .css({
-                                left: (position.left - container.offset().left) / scale,
-                                top: (position.top - container.offset().top) / scale
-                            })
-                            .show();
-                        if (e.sender.dropped) {
-                            $.noop();
-                            // Add value to drop target??
+                        // TODO the following goes in refresh
+                        var left = (position.left - container.offset().left) / scale;
+                        var top = (position.top - container.offset().top) / scale;
+                        draggable.css({ left: left, top: top }).show();
+                        if (draggableWidget.dropped) {
+                            // TODO: ensure within dropZone
+                            /*
+                            var dropZoneParent = dropZoneWidget.element.parent();
+                            var boundaries = { // boundaries of the .kj-element containing the dropZone
+                                x: {
+                                    min: dropZoneParent.position().left,
+                                    max: dropZoneParent.position().left + dropZoneParent.width() - draggable.width()
+                                },
+                                y: {
+                                    min: dropZoneParent.position().top,
+                                    max:dropZoneParent.position().top + dropZoneParent.height() - draggable.height()
+                                }
+                            };
+                            // Ensure draggable within dropZone boundaries (magnet feature)
+                            if (left < boundaries.x.min) {
+                                left = boundaries.x.min;
+                            } else if (left > boundaries.x.max) {
+                                left = boundaries.x.max;
+                            }
+                            if (top < boundaries.y.min) {
+                                top = boundaries.y.min;
+                            } else if (left > boundaries.y.max) {
+                                top = boundaries.y.max;
+                            }
+                            */
+                            // Add/Update value to dataSource
+                            var id = draggable.find(CONTENT_SELECTOR).attr(kendo.attr(ID));
+                            var dataItem = dropZoneWidget.dataSource.get(id);
+                            if (dataItem) {
+                                dataItem.set('left', left);
+                                dataItem.set('top', top);
+                            } else {
+                                dropZoneWidget.dataSource.add({
+                                    id: id,
+                                    left: left,
+                                    top: top
+                                });
+                            }
+                            // draggable.animate({ left: left, top: top });
                         }
                     }
                 });
@@ -248,7 +295,7 @@
             /**
              * Items required for MVVM source binding
              */
-            items: function() {
+            items: function () {
                 // TODO return the list of elements corresponding to dropped items
                 return;
             },
@@ -257,9 +304,27 @@
              * Refresh the display
              */
             refresh: function (e) {
-                // TODO:
-                // We need to be able to rebuild the preview so we need
-                // the id and position of all draggables
+                var dropZoneWidget = this;
+                var dropZone = dropZoneWidget.element;
+                var container = dropZone.closest(dropZoneWidget.options.container);
+                // var parent = dropZone.parent(); // The absolutely positioned kj-element containing the dropZone
+                if ($.isPlainObject(e) && $.isArray(e.items)) {
+                    $.each(e.items, function (index, item) {
+                        var draggable = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), item.id)).parent();
+                        var position = draggable.position();
+                        var css = {};
+                        if (position.left !== item.left) {
+                            css.left = item.left;
+                        }
+                        if (position.top !== item.top) {
+                            css.top = item.top;
+                        }
+                        if (!$.isEmptyObject(css)) {
+                            draggable.css(css);
+                        }
+                    });
+                }
+                $.noop();
             },
 
             /**

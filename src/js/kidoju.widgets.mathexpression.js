@@ -63,7 +63,7 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         // var NS = '.kendoDropZone';
-        var WIDGET_CLASS = 'k-widget kj-mathexpression';
+        var WIDGET_CLASS = 'kj-mathexpression'; //'k-widget kj-mathexpression';
 
         /*********************************************************************************
          * Widget

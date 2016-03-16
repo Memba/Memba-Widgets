@@ -14,3 +14,6 @@
     top: 0.2em;
     left: 0.2em;
 }
+.kj-quiz[data-enable="false"] input.k-radio.k-state-disabled {
+    display:none;
+}

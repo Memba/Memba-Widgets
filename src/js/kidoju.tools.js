@@ -1209,24 +1209,12 @@
                 // Build data (resize array especially after changing rows and columns)
                 var columns = model.get('attributes.columns');
                 var rows = model.get('attributes.rows');
-                var data = [];
+                var whitelist = model.get('attributes.whitelist');
                 var layout = model.get('attributes.layout');
-                var solution = model.get(options.field);
-                for (var col = 0; col < columns; col++) {
-                    data[col] = [];
-                    for (var row = 0; row < rows; row++) {
-                        data[col][row] = null;
-                        if (solution && solution[col] && $.type(solution[col][row]) === STRING) {
-                            data[col][row] = solution[col][row];
-                        }
-                        if (layout && layout[col] && $.type(layout[col][row]) === STRING) {
-                            data[col][row] = layout[col][row];
-                        }
-                    }
-                }
+                var data = model.get(options.field);
                 // Create viewModel (Cancel shall not save changes to main model)
                 dialog.viewModel = kendo.observable({
-                    chargrid: data
+                    chargrid: kendo.ui.CharGrid._getCharGridArray(columns, rows, whitelist, layout, data)
                 });
                 // Prepare UI
                 dialog.title(options.title);

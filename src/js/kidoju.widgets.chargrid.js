@@ -649,6 +649,38 @@
 
         });
 
+        /**
+         * Add a method for CharGridAdapter
+         * @param columns
+         * @param rows
+         * @param whitelist
+         * @param layout
+         * @param data
+         * @private
+         */
+        CharGrid._getCharGridArray = function (columns, rows, whitelist, layout, data) {
+            assert.type(NUMBER, columns, kendo.format(assert.messages.type.default, 'columns', NUMBER));
+            assert.type(NUMBER, rows, kendo.format(assert.messages.type.default, 'rows', NUMBER));
+            assert.type(STRING, whitelist, kendo.format(assert.messages.type.default, 'whitelist', STRING));
+            var ret = [];
+            var rx = new RegExp(kendo.format(RX_WHITELIST, whitelist), 'i');
+            for (var col = 0; col < columns; col++) {
+                ret[col] = [];
+                for (var row = 0; row < rows; row++) {
+                    ret[col][row] = null;
+                    // First fill with data assuming values are whitelisted
+                    if (util.isArray(data) && util.isArray(data[col]) && rx.test(data[col][row])) {
+                        ret[col][row] = data[col][row];
+                    }
+                    // Then impose layout
+                    if (util.isArray(layout) && util.isArray(layout[col]) && $.type(layout[col][row]) === STRING) {
+                        ret[col][row] = layout[col][row];
+                    }
+                }
+            }
+            return ret;
+        };
+
         kendo.ui.plugin(CharGrid);
 
     }(window.jQuery));

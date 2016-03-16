@@ -272,7 +272,8 @@
                                 // if rows are desinated in this.options.rows, only select these rows
                             (!hasRows || hashedOptionRows.hasOwnProperty(prop))) {
 
-                            // TODO:  if ($.type(properties[prop]) === OBJECT) {
+                            // TODO: the following line has been modified to care for complex values like CharGrid, which should be edited as a whole in a specific editor
+                            // if ($.type(properties[prop]) === OBJECT) {
                             if ($.type(properties[prop]) === OBJECT && properties[prop].fields) {
 
                                 buildRows(properties[prop], hashedOptionRows[prop] || {}, path.length === 0 ? prop : path + '.' + prop);
@@ -311,7 +312,8 @@
 
                                 /* Blocks are nested too deeply. */
                                 /* jshint -W073 */
-                                // TODO if (row.type) {
+                                // TODO: the following line has been modified to care for complex values like CharGrid, which have a type of undefined
+                                // if (row.type) {
                                     if (hasRows) {
                                         // With this.options.rows, only designated properties are displayed
                                         rows[hashedOptionRows[prop]._index] = row;

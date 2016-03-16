@@ -205,13 +205,12 @@
              */
             _layout: function () {
                 var that = this;
-                // var options = that.options;
-                // var height = options.height;
-                // var width = options.width;
                 that.wrapper = that.element;
-                that.element.addClass(WIDGET_CLASS);
-                // .height(width)
-                // .width(height);
+                // touch-action: 'none' is for Internet Explorer
+                // @see https://github.com/jquery/jquery/issues/2987
+                that.element
+                    .addClass(WIDGET_CLASS)
+                    .css({ touchAction: 'none' });
                 that.surface = drawing.Surface.create(that.element);
             },
 

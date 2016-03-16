@@ -489,6 +489,14 @@
             },
 
             /**
+             * Return the default value when playing the component as part of a test
+             * @param component
+             */
+            getTestDefaultValue: function (component) {
+                return;
+            },
+
+            /**
              * Add the display of a success or failure icon to the corresponding stage element
              * @returns {string}
              */
@@ -1197,16 +1205,38 @@
             showDialog: function (options/*,evt*/) {
                 var that = this;
                 var dialog = that.getDialog();
+                var model = options.model;
+                // Build data (resize array especially after changing rows and columns)
+                var columns = model.get('attributes.columns');
+                var rows = model.get('attributes.rows');
+                var data = [];
+                var layout = model.get('attributes.layout');
+                var solution = model.get(options.field);
+                for (var col = 0; col < columns; col++) {
+                    data[col] = [];
+                    for (var row = 0; row < rows; row++) {
+                        data[col][row] = null;
+                        if (solution && solution[col] && $.type(solution[col][row]) === STRING) {
+                            data[col][row] = solution[col][row];
+                        }
+                        if (layout && layout[col] && $.type(layout[col][row]) === STRING) {
+                            data[col][row] = layout[col][row];
+                        }
+                    }
+                }
                 // Create viewModel (Cancel shall not save changes to main model)
                 dialog.viewModel = kendo.observable({
-                    chargrid: options.model.get(options.field)
+                    chargrid: data
                 });
                 // Prepare UI
                 dialog.title(options.title);
                 var content = '<div class="k-edit-form-container">' + // TODO namespace???
                     '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-edit-form-container" data-container=".k-edit-form-container" ' +
-                    'data-columns="' + options.model.get('attributes.columns') + '" data-rows="' + options.model.get('attributes.rows') + '" ' +
-                    'data-blank="' + options.model.get('attributes.blank') + '" data-whitelist="' + options.model.get('attributes.whitelist') + '\\' + options.model.get('attributes.blank') + '" ' +
+                    'data-columns="' + model.get('attributes.columns') + '" data-rows="' + model.get('attributes.rows') + '" ' +
+                    'data-blank="' + model.get('attributes.blank') + '" ' +
+                    'data-whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
+                    (options.field === 'properties.solution' ? 'data-locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
+                    // TODO Add colors
                     'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;"></div>' +
                     '<div class="k-edit-buttons k-state-default">' +
                     '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
@@ -1240,8 +1270,7 @@
             library: [
                 {
                     name: 'equal',
-                    // TODO add array comparison to workerLib
-                    formula: kendo.format(FORMULA, 'return String(value).toLowerCase() === String(solution).toLowerCase();')
+                    formula: kendo.format(FORMULA, 'return value && typeof value.equals === "function" && value.equals(solution);')
                 }
             ],
             libraryDefault: 'equal'
@@ -1367,8 +1396,8 @@
             cursor: CURSOR_CROSSHAIR,
             templates: {
                 design: kendo.format(CHARGRID, 'data-#= ns #value="#: JSON.stringify(attributes.layout) #" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'),
-                play: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value"'),
-                review: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+                play: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #"'),
+                review: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
             height: 100,
             width: 100,
@@ -1383,12 +1412,20 @@
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.chargrid.properties.description.title }),
-                solution: new adapters.StringAdapter({ title: i18n.chargrid.properties.solution.title }),
-                // solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
+                solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * Get the default value when playing the component as part of a test
+             * @param component
+             */
+            getTestDefaultValue: function (component) {
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                return $.isFunction(component.attributes.layout.slice) ? component.attributes.layout.slice(0) : '';
             },
 
             /**

@@ -461,9 +461,7 @@
 
                 // Note: Kendo UI requires that new PageComponent() works, i.e. component = undefined
                 if ($.type(component) === OBJECT /*&& !$.isEmptyObject(component)*/) {
-                    if (!kidoju.tools) {
-                        throw new Error('Kidoju tools are missing');
-                    }
+                    assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                     if ($.type(component.tool) !== STRING || component.tool.length === 0 || !(kidoju.tools[component.tool] instanceof kidoju.Tool)) {
                         throw new Error(kendo.format('`{0}` is not a valid Kidoju tool', component.tool));
                     }
@@ -800,7 +798,8 @@
                         // No need to run next task because $.when fails on the first failing deferred
                         // runNextTask(thread);
                     };
-                    workers[thread].postMessage(task.message);
+                    // We need JSON.stringify because of a DataCloneError with character grid values
+                    workers[thread].postMessage(JSON.stringify(task.message));
                     if ($.type(timeOut) === 'number') {
                         setTimeout(function () {
                             if (deferreds[task.id].state() === 'pending') {
@@ -930,15 +929,19 @@
              * @returns {*}
              */
             getTestFromProperties: function () {
+                assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                 var that = this;
+                var tools = kidoju.tools;
                 var test = {};
                 $.each(that.data(), function (pageIdx, page) {
                     $.each(page.components.data(), function (componentIdx, component) {
                         var properties = component.properties;
                         if (properties instanceof kendo.data.Model &&
                             $.type(properties.fields) === OBJECT && !$.isEmptyObject(properties.fields) &&
-                            $.type(properties.name) === STRING) {
-                            test[properties.name] = { value: undefined };
+                            $.type(properties.name) === STRING && $.type(properties.validation) === STRING) {
+                            var tool = kidoju.tools[component.tool];
+                            assert.instanceof(kidoju.Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                            test[properties.name] = { value: tool.getTestDefaultValue(component) };
                         }
                     });
                 });
@@ -1063,7 +1066,7 @@
                                     var blob = new Blob([
                                         // 'self.importScripts("' + workerLibPath + '");\n' +
                                         workerLib + ';\n' +
-                                        'self.onmessage = function (e) {\n' + code + '\nif (typeof e.data.value === "undefined") { self.postMessage(undefined); } else { self.postMessage(validate(e.data.value, e.data.solution, e.data.all)); } self.close(); };'
+                                        'self.onmessage = function (e) {\n' + code + '\nvar data=JSON.parse(e.data);\nif (typeof data.value === "undefined") { self.postMessage(undefined); } else { self.postMessage(validate(data.value, data.solution, data.all)); } self.close(); };'
                                     ]);
                                     var blobURL = window.URL.createObjectURL(blob);
 

@@ -570,9 +570,11 @@
                 items: [
                     { template: '<div data-role="playbar" data-bind="source: stream.pages, value: currentPage" data-refresh="false" data-button-count="5" class="kj-top" style="width:450px;border:none;background:none;" ></div>' },
                     { type: 'separator' },
-                    { type: 'button', id: 'submit', text: 'Submit' },
+                    { type: 'button', id: 'submit', text: 'Submit', primary: true },
                     { type: 'button', id: 'score', text: 'Score', hidden: true },
-                    { type: 'button', id: 'review', text: 'Review', enable: false }
+                    { type: 'button', id: 'review', text: 'Review', enable: false },
+                    { type: 'separator' },
+                    { type: 'button', id: 'design', text: 'Design' }
                 ],
                 click: function (e) {
                     var sections = $('div.centered>div');
@@ -603,6 +605,8 @@
                         }
                         sections.first().css('display', 'block');
                         sections.last().css('display', 'none');
+                    } else if (e.id === 'design') {
+                        window.location.assign('./kidoju.integration.designmode.html');
                     }
                 }
             });

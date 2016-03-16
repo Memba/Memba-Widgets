@@ -112,11 +112,11 @@
     </header>
     <main>
         <div data-role="toolbar"></div>
-        <div data-role="splitter" data-panes="[{min: 100, max:400, size: 300}, {}, {min: 100, max:400, size: 300}]">
+        <div data-role="splitter" data-panes="[{min: 100, max:400, size: 300}, { scrollable: false }, {min: 100, max:400, size: 300}]">
             <div id="left-pane">
                 <div data-role="navigation" data-bind="source: stream.pages, value: currentPage"></div>
             </div>
-            <div id="center-pane">
+            <div id="center-pane" style="touch-action:none">
                 <div class="centered">
                     <div data-role="stage" data-bind="source: currentPage.components, value: currentComponent" data-mode="design"></div>
                 </div>

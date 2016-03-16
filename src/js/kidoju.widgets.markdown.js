@@ -37,9 +37,10 @@
         if (!found) {
             var script = document.createElement('script');
             script.type = TYPE;
-            // TODO OPTIMIZE: MathML cannot be used + hide contextual menu
+            // TODO OPTIMIZE without MathML input
             script[(window.opera ? 'innerHTML' : 'text')] =
                 'MathJax.Hub.Config({\n' +
+                '  showMathMenu: false,\n' + // Hide contextual menu
                 '  asciimath2jax: { delimiters: [["§","§"], ["`","`"]] }\n' +
                 '});';
             head.appendChild(script);

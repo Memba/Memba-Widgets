@@ -171,7 +171,7 @@
                 for (var col = 0; col < columns; col++) {
                     that._value.push(new Array(rows));
                     for (var row = 0; row < rows; row++) {
-                        if (util.isArray(value[col]) && value[col][row]) { // && (rx.test('' + value[prop][row]) || value[prop][row] === options.blank)) {
+                        if (util.isArray(value) && util.isArray(value[col]) && value[col][row]) { // && (rx.test('' + value[prop][row]) || value[prop][row] === options.blank)) {
                             that._value[col][row] = '' + value[col][row];
                         } else {
                             that._value[col][row] = undefined;
@@ -222,7 +222,6 @@
                     if (!that._compareValues(that._value, value)) {
                         that._setValue(value || '');
                         that.refresh();
-                        that.trigger(CHANGE);
                     }
                 }
             },
@@ -278,9 +277,9 @@
                 var columns = options.columns;
                 var rows = options.rows;
                 var blank = options.blank;
-                var colLocked = options.locked[col];
+                var locked = options.locked;
                 return col >= 0 && col < columns && row >= 0 && row < rows &&
-                    util.isArray(colLocked) && !!colLocked[row] &&
+                    util.isArray(locked) && util.isArray(locked[col]) && !!locked[col][row] &&
                     that.cellValue(col, row) !== blank;
             },
 

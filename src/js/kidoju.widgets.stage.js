@@ -89,10 +89,11 @@
         var HANDLE_BOX = kendo.format(DIV_W_CLASS, HANDLE_BOX_CLASS);
         var HANDLE_BOX_SELECTOR = DOT + HANDLE_BOX_CLASS + '[' + DATA_UID + '="{0}"]';
         var HANDLE_CLASS = 'kj-handle';
-        var HANDLE_MOVE = '<span class="' + HANDLE_CLASS + '" ' + DATA_COMMAND + '="move"></span>';
-        var HANDLE_RESIZE = '<span class="' + HANDLE_CLASS + '" ' + DATA_COMMAND + '="resize"></span>';
-        var HANDLE_ROTATE = '<span class="' + HANDLE_CLASS + '" ' + DATA_COMMAND + '="rotate"></span>';
-        var HANDLE_MENU = '<span class="' + HANDLE_CLASS + '" ' + DATA_COMMAND + '="menu"></span>';
+        // Note: without touch-action: none, touch gestures won't work in Internet Explorer
+        var HANDLE_MOVE = '<span class="' + HANDLE_CLASS + '" ' + DATA_COMMAND + '="move" style="touch-action:none;"></span>';
+        var HANDLE_RESIZE = '<span class="' + HANDLE_CLASS + '" ' + DATA_COMMAND + '="resize" style="touch-action:none;"></span>';
+        var HANDLE_ROTATE = '<span class="' + HANDLE_CLASS + '" ' + DATA_COMMAND + '="rotate" style="touch-action:none;"></span>';
+        var HANDLE_MENU = '<span class="' + HANDLE_CLASS + '" ' + DATA_COMMAND + '="menu" style="touch-action:none;"></span>';
         // var HANDLE_SELECTOR = '.kj-handle[' + DATA_COMMAND + '="{0}"]';
         var NOPAGE_CLASS = 'kj-nopage';
         var STATE = 'state';

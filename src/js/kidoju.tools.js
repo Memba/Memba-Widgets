@@ -149,8 +149,7 @@
             connector: {
                 description: 'Connector',
                 attributes: {
-                    color: { title: 'Color' },
-                    size: { title: 'Size' }
+                    color: { title: 'Color' }
                 },
                 properties: {
                     name: { title: 'Name' },

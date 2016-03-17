@@ -293,7 +293,7 @@
                 expect(div).to.have.text(value.sample);
             });
 
-            it('string object value with basic rows options (title only)', function () {
+            xit('string object value with basic rows options (title only)', function () {
                 var element = $(PROPERTYGRID1).appendTo(FIXTURES);
                 var propertyGrid = element.kendoPropertyGrid({
                         value: { sample: { subvalue: 'Sample' } },

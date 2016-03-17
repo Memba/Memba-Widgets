@@ -269,7 +269,7 @@
 
                         // Select only public properties that are not functions (discards _events)
                         if (properties.hasOwnProperty(prop) && !RX_PRIVATE.test(prop) && !$.isFunction(properties[prop]) &&
-                                // if rows are desinated in this.options.rows, only select these rows
+                            // if rows are designated in this.options.rows, only select these rows
                             (!hasRows || hashedOptionRows.hasOwnProperty(prop))) {
 
                             // TODO: the following line has been modified to care for complex values like CharGrid, which should be edited as a whole in a specific editor

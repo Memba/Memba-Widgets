@@ -290,9 +290,10 @@
                     tools.image.constructor.prototype.description = 'Image';
                     // Attributes
                     attributes = tools.image.constructor.prototype.attributes;
-                    attributes.src.title = 'Source';
                     attributes.alt.title = 'Text';
                     attributes.alt.defaultValue = 'Image';
+                    // attributes.draggable.title = 'Draggable';
+                    attributes.src.title = 'Source';
                     attributes.style.title = 'Style';
 
                 }
@@ -302,6 +303,7 @@
                     tools.label.constructor.prototype.description = 'Label';
                     // Attributes
                     attributes = tools.label.constructor.prototype.attributes;
+                    // attributes.draggable.title = 'Draggable';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Text';
                 }

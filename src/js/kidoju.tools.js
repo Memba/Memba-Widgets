@@ -705,7 +705,7 @@
          */
         adapters.NameAdapter = adapters.StringAdapter.extend({
             init: function (options, attributes) {
-                adapters.StringAdapter.fn.init.call(this, options, $(attributes, { readonly: true }));
+                adapters.StringAdapter.fn.init.call(this, options, $.extend(attributes, { readonly: true }));
             }
         });
 
@@ -1405,7 +1405,7 @@
          gridFill: new adapters.ColorAdapter({ title: 'color', defaultValue: '#000000' })
          },
          properties: {
-         name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }, { style: 'width:100%;'}),
+         name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
          description: new adapters.StringAdapter({ title: i18n.chargrid.properties.description.title }),
          solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
          validation: new adapters.ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
@@ -1481,7 +1481,7 @@
                 text: new adapters.StringAdapter({ title: i18n.checkbox.attributes.text.title, defaultValue: 'text' })
             },
             properties: {
-                name: new adapters.NameAdapter({ title: i18n.checkbox.properties.name.title }, { style: 'width:100%;'}),
+                name: new adapters.NameAdapter({ title: i18n.checkbox.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.checkbox.properties.description.title }),
                 solution: new adapters.BooleanAdapter({ title: i18n.checkbox.properties.solution.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.success.title, defaultValue: 1 }),
@@ -1557,7 +1557,7 @@
                 color: new adapters.ColorAdapter({ title: i18n.connector.attributes.color.title, defaultValue: '#FF0000' })
             },
             properties: {
-                name: new adapters.NameAdapter({ title: i18n.connector.properties.name.title }, { style: 'width:100%;'}),
+                name: new adapters.NameAdapter({ title: i18n.connector.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.connector.properties.description.title }),
                 solution: new adapters.ConnectorsAdapter({ title: i18n.connector.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.connector.properties.validation.title }),
@@ -1619,7 +1619,7 @@
          text: new adapters.StringAdapter({ title: i18n.dropzone.attributes.text.title })
          },
          properties: {
-         name: new adapters.NameAdapter({ title: i18n.dropzone.properties.name.title }, { style: 'width:100%;'}),
+         name: new adapters.NameAdapter({ title: i18n.dropzone.properties.name.title }),
          description: new adapters.StringAdapter({ title: i18n.dropzone.properties.description.title }),
          // solution: new adapters.ConnectorsAdapter({ title: i18n.dropzone.properties.solution.title }),
          solution: new adapters.StringAdapter({ title: i18n.dropzone.properties.solution.title }),
@@ -1883,7 +1883,7 @@
                 )
             },
             properties: {
-                name: new adapters.NameAdapter({ title: i18n.quiz.properties.name.title }, { style: 'width:100%;'}),
+                name: new adapters.NameAdapter({ title: i18n.quiz.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.quiz.properties.description.title }),
                 solution: new adapters.StringAdapter({ title: i18n.quiz.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.quiz.properties.validation.title }),
@@ -1965,7 +1965,7 @@
                 style: new adapters.StyleAdapter({ title: i18n.textbox.attributes.style.title })
             },
             properties: {
-                name: new adapters.NameAdapter({ title: i18n.textbox.properties.name.title }, { style: 'width:100%;'}),
+                name: new adapters.NameAdapter({ title: i18n.textbox.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.textbox.properties.description.title }),
                 solution: new adapters.StringAdapter({ title: i18n.textbox.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.textbox.properties.validation.title }),

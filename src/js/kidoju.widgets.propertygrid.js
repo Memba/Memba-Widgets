@@ -314,13 +314,13 @@
                                 /* jshint -W073 */
                                 // TODO: the following line has been modified to care for complex values like CharGrid, which have a type of undefined
                                 // if (row.type) {
-                                    if (hasRows) {
-                                        // With this.options.rows, only designated properties are displayed
-                                        rows[hashedOptionRows[prop]._index] = row;
-                                    } else {
-                                        // Without this.options.rows, all public properties are displayed
-                                        rows.push(row);
-                                    }
+                                if (hasRows) {
+                                    // With this.options.rows, only designated properties are displayed
+                                    rows[hashedOptionRows[prop]._index] = row;
+                                } else {
+                                    // Without this.options.rows, all public properties are displayed
+                                    rows.push(row);
+                                }
                                 // TODO }
                                 /* jshint +W073 */
                             }

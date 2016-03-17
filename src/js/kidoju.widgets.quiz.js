@@ -380,11 +380,11 @@
                     that.groupList.empty();
                     $(e.items).each(function (index, value) {
                         if (that.options.mode === MODES.BUTTON) {
-                            $(kendo.format(BUTTON, value))
+                            $(kendo.format(BUTTON, kendo.htmlEncode(value)))
                                 .css(that.options.itemStyle)
                                 .appendTo(that.groupList);
                         } else if (that.options.mode === MODES.RADIO) {
-                            var radio = $(kendo.format(RADIO, value, that._randomId, index))
+                            var radio = $(kendo.format(RADIO, kendo.htmlEncode(value), that._randomId, index))
                                 .css(that.options.itemStyle)
                                 .appendTo(that.groupList);
                             /*

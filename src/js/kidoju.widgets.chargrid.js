@@ -31,7 +31,7 @@
         var STRING = 'string';
         // var BOOLEAN = 'boolean';
         var NUMBER = 'number';
-        var OBJECT = 'object';
+        // var OBJECT = 'object';
         var NULL = 'null';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
@@ -99,6 +99,11 @@
         /*********************************************************************************
          * Widget
          *********************************************************************************/
+
+        // TODO: 3 things that need to be done:
+        // https://github.com/kidoju/Kidoju-Widgets/issues/90
+        // https://github.com/kidoju/Kidoju-Widgets/issues/91
+        // https://github.com/kidoju/Kidoju-Widgets/issues/92
 
         /**
          * CharGrid

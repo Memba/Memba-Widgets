@@ -455,11 +455,11 @@
                     for (var i = 0; i < assetManager.listView.dataSource.total(); i++) {
                         var item = list.children('li.k-tile:nth-child(' + (i + 1) + ')');
                         expect(item).to.be.an.instanceof($).with.property('length', 1);
-                        if (kendo.support.mousedown === 'mousedown') {
-                            // item.simulate('click'); // click does not work because kendo.ui.UserEvents needs mousedown + mouseup to match touch events
+                        if (kendo.support.click === 'click') {
+                            item.simulate('click');
                             // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
-                            item.simulate('mousedown');
-                            item.simulate('mouseup');
+                            // item.simulate('mousedown');
+                            // item.simulate('mouseup');
                             expect(assetManager.value()).to.equal(assetManager.listView.dataSource.at(i).id);
                             expect(change).to.have.been.calledWith(assetManager.value());
                             expect(viewModel.get('url')).to.equal(assetManager.value());
@@ -482,6 +482,7 @@
                 expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
                 expect(assetManager.searchInput).to.be.an.instanceof($);
                 expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
+                var doneCalled = false;
                 var count = assetManager.listView.dataSource.total();
                 assetManager.listView.bind('dataBound', function (e) {
                     var list = $('div.k-filebrowser ul.k-tiles');
@@ -491,11 +492,11 @@
                         var item = list.children('li.k-tile:first');
                         expect(item).to.be.an.instanceof($).with.property('length', 1);
                         expect(assetManager.value()).to.be.undefined;
-                        if (kendo.support.mousedown === 'mousedown') {
-                            // item.simulate('click'); // click does not work because kendo.ui.UserEvents needs mousedown + mouseup to match touch events
+                        if (kendo.support.click === 'click') {
+                            item.simulate('click');
                             // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
-                            item.simulate('mousedown');
-                            item.simulate('mouseup');
+                            // item.simulate('mousedown');
+                            // item.simulate('mouseup');
                             expect(assetManager.value()).to.equal(assetManager.listView.dataSource.at(0).id);
                             expect(deleteButton).to.be.visible;
                             setTimeout(function () { deleteButton.simulate(CLICK); }, 0);
@@ -509,7 +510,10 @@
                         // If not added to the timer queue, this is executed before the last delete and misses one count
                         setTimeout(function () {
                             expect(destroy).to.have.callCount(count);
-                            done();
+                            if (!doneCalled) {
+                                done();
+                                doneCalled = true;
+                            }
                         }, 0);
                     }
                 });

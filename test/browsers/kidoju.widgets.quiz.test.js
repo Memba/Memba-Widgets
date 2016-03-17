@@ -50,8 +50,6 @@
                 expect(quiz.element).to.be.an.instanceof($);
                 expect(quiz.wrapper).to.be.an.instanceof($);
                 expect(quiz.dropDownList).to.be.undefined;
-                expect(quiz.groupList).to.be.an.instanceof($);
-                expect(quiz.groupList).to.be.empty;
                 expect(element.hasClass('k-widget')).to.be.false;
                 expect(element.hasClass('kj-quiz')).to.be.true;
             });
@@ -61,7 +59,6 @@
                 var options = {
                     dataSource: ['answer 1', 'answer 2', 'answer 3'],
                     mode: 'dropdown',
-                    groupStyle: { border: '1px solid rgb(255, 0, 0)' },
                     itemStyle: { color: 'rgb(255, 0, 0)' },
                     activeStyle: { backgroundColor: 'rgb(255, 224, 224)' }
                 };
@@ -74,9 +71,6 @@
                 expect(quiz.wrapper).to.be.an.instanceof($);
                 expect(quiz.dropDownList).to.be.an.instanceof(kendo.ui.DropDownList);
                 expect(quiz.dropDownList.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', options.dataSource.length);
-                expect(quiz.groupList).to.be.undefined;
-                // expect(quiz.groupList).to.have.css('border', options.groupStyle);
-                // expect(quiz.groupList.children()).to.have.css('color', options.itemStyle);
                 expect(element.hasClass('k-widget')).to.be.false;
                 expect(element.hasClass('kj-quiz')).to.be.true;
             });
@@ -92,8 +86,6 @@
                 expect(quiz.element).to.be.an.instanceof($);
                 expect(quiz.wrapper).to.be.an.instanceof($);
                 expect(quiz.dropDownList).to.be.undefined;
-                expect(quiz.groupList).to.be.an.instanceof($);
-                expect(quiz.groupList).to.be.empty;
                 expect(element.hasClass('k-widget')).to.be.false;
                 expect(element.hasClass('kj-quiz')).to.be.true;
             });
@@ -116,12 +108,10 @@
                 expect(quiz.element).to.be.an.instanceof($);
                 expect(quiz.wrapper).to.be.an.instanceof($);
                 expect(quiz.dropDownList).to.be.undefined;
-                expect(quiz.groupList).to.be.an.instanceof($);
-                expect(quiz.groupList.find('input[type="button"]')).not.to.exist;
-                expect(quiz.groupList.find('input[type="radio"]')).to.be.an.instanceof($).with.property('length', $.parseJSON(attributes['data-source']).length);
+                expect(quiz.element.find('input[type="button"]')).not.to.exist;
+                expect(quiz.element.find('input[type="radio"]')).to.be.an.instanceof($).with.property('length', $.parseJSON(attributes['data-source']).length);
                 if (!window.PHANTOMJS) { // TODO fails in PhantomJS (and in Edge too)
-                    expect(quiz.groupList).to.have.attr('style', attributes['data-group-style']);
-                    expect(quiz.groupList.children()).to.have.attr('style', attributes['data-item-style']);
+                    expect(quiz.element.children()).to.have.attr('style', attributes['data-item-style']);
                 }
                 expect(element.hasClass('k-widget')).to.be.false;
                 expect(element.hasClass('kj-quiz')).to.be.true;
@@ -144,14 +134,12 @@
             var options1 = {
                 dataSource: ['answer 1', 'answer 2', 'answer 3'],
                 mode: 'dropdown',
-                groupStyle: { border: '1px solid rgb(255, 0, 0)' },
                 itemStyle: { color: 'rgb(255, 0, 0)' },
                 activeStyle: { backgroundColor: 'rgb(255, 224, 224)' }
             };
             var options2 = {
                 dataSource: ['answer 1', 'answer 2', 'answer 3', 'answer 4'],
                 mode: 'button',
-                groupStyle: { border: '1px solid rgb(0, 0, 255)' },
                 itemStyle: { color: 'rgb(0, 0, 255)' },
                 activeStyle: { backgroundColor: 'rgb(224, 224, 255)' }
             };
@@ -243,7 +231,6 @@
                 expect(quiz).to.be.an.instanceof(Quiz);
                 expect(quiz.options.mode).to.equal('button');
                 expect(quiz.dropDownList).to.be.undefined;
-                expect(quiz.groupList).to.exist;
                 expect(quiz.value()).to.be.null;
                 expect(viewModel.get('current')).to.be.null;
                 for (var i = 0; i < viewModel.data.length; i++) {
@@ -251,7 +238,7 @@
                     expect(quiz.value()).to.equal(viewModel.data[i]);
                     expect(viewModel.get('current')).to.equal(viewModel.data[i]);
                     expect(change).to.have.callCount(i + 1);
-                    expect(quiz.groupList.find('input[type="button"]:eq(' + i + ')')).to.have.class('k-state-active');
+                    expect(quiz.element.find('input[type="button"]:eq(' + i + ')')).to.have.class('k-state-active');
                 }
             });
 
@@ -259,7 +246,6 @@
                 expect(quiz).to.be.an.instanceof(Quiz);
                 expect(quiz.options.mode).to.equal('button');
                 expect(quiz.dropDownList).to.be.undefined;
-                expect(quiz.groupList).to.exist;
                 expect(quiz.value()).to.be.null;
                 expect(viewModel.get('current')).to.be.null;
                 for (var i = 0; i < viewModel.data.length; i++) {
@@ -267,7 +253,7 @@
                     expect(quiz.value()).to.equal(viewModel.data[i]);
                     expect(viewModel.get('current')).to.equal(viewModel.data[i]);
                     expect(change).to.have.callCount(i + 1);
-                    expect(quiz.groupList.find('input[type="button"]:eq(' + i + ')')).to.have.class('k-state-active');
+                    expect(quiz.element.find('input[type="button"]:eq(' + i + ')')).to.have.class('k-state-active');
                 }
             });
 
@@ -275,15 +261,14 @@
                 expect(quiz).to.be.an.instanceof(Quiz);
                 expect(quiz.options.mode).to.equal('button');
                 expect(quiz.dropDownList).to.be.undefined;
-                expect(quiz.groupList).to.exist;
                 expect(quiz.value()).to.be.null;
                 expect(viewModel.get('current')).to.be.null;
                 for (var i = 0; i < viewModel.data.length; i++) {
-                    quiz.groupList.find('input[type="button"]:eq(' + i + ')').simulate('click');
+                    quiz.element.find('input[type="button"]:eq(' + i + ')').simulate('click');
                     expect(quiz.value()).to.equal(viewModel.data[i]);
                     expect(viewModel.get('current')).to.equal(viewModel.data[i]);
                     expect(change).to.have.callCount(i + 1);
-                    expect(quiz.groupList.find('input[type="button"]:eq(' + i + ')')).to.have.class('k-state-active');
+                    expect(quiz.element.find('input[type="button"]:eq(' + i + ')')).to.have.class('k-state-active');
                 }
             });
 
@@ -325,7 +310,6 @@
                 expect(quiz).to.be.an.instanceof(Quiz);
                 expect(quiz.options.mode).to.equal('dropdown');
                 expect(quiz.dropDownList).to.be.an.instanceof(kendo.ui.DropDownList);
-                expect(quiz.groupList).to.be.undefined;
                 expect(quiz.value()).to.be.null;
                 expect(viewModel.get('current')).to.be.null;
                 for (var i = 0; i < viewModel.data.length; i++) {
@@ -342,7 +326,6 @@
                 expect(quiz).to.be.an.instanceof(Quiz);
                 expect(quiz.options.mode).to.equal('dropdown');
                 expect(quiz.dropDownList).to.be.an.instanceof(kendo.ui.DropDownList);
-                expect(quiz.groupList).to.be.undefined;
                 expect(quiz.value()).to.be.null;
                 expect(viewModel.get('current')).to.be.null;
                 for (var i = 0; i < viewModel.data.length; i++) {
@@ -359,7 +342,6 @@
                 expect(quiz).to.be.an.instanceof(Quiz);
                 expect(quiz.options.mode).to.equal('dropdown');
                 expect(quiz.dropDownList).to.be.an.instanceof(kendo.ui.DropDownList);
-                expect(quiz.groupList).to.be.undefined;
                 expect(quiz.value()).to.be.null;
                 expect(viewModel.get('current')).to.be.null;
                 for (var i = 0; i < viewModel.data.length; i++) {
@@ -411,7 +393,6 @@
                 expect(quiz).to.be.an.instanceof(Quiz);
                 expect(quiz.options.mode).to.equal('radio');
                 expect(quiz.dropDownList).to.be.undefined;
-                expect(quiz.groupList).to.exist;
                 expect(quiz.value()).to.be.null;
                 expect(viewModel.get('current')).to.be.null;
                 for (var i = 0; i < viewModel.data.length; i++) {
@@ -419,7 +400,7 @@
                     expect(quiz.value()).to.equal(viewModel.data[i]);
                     expect(viewModel.get('current')).to.equal(viewModel.data[i]);
                     expect(change).to.have.callCount(i + 1);
-                    expect(quiz.groupList.find('input[type="radio"]:eq(' + i + ')')).to.be.checked;
+                    expect(quiz.element.find('input[type="radio"]:eq(' + i + ')')).to.be.checked;
                 }
             });
 
@@ -427,7 +408,6 @@
                 expect(quiz).to.be.an.instanceof(Quiz);
                 expect(quiz.options.mode).to.equal('radio');
                 expect(quiz.dropDownList).to.be.undefined;
-                expect(quiz.groupList).to.exist;
                 expect(quiz.value()).to.be.null;
                 expect(viewModel.get('current')).to.be.null;
                 for (var i = 0; i < viewModel.data.length; i++) {
@@ -435,7 +415,7 @@
                     expect(quiz.value()).to.equal(viewModel.data[i]);
                     expect(viewModel.get('current')).to.equal(viewModel.data[i]);
                     expect(change).to.have.callCount(i + 1);
-                    expect(quiz.groupList.find('input[type="radio"]:eq(' + i + ')')).to.be.checked;
+                    expect(quiz.element.find('input[type="radio"]:eq(' + i + ')')).to.be.checked;
                 }
             });
 
@@ -443,7 +423,6 @@
                 expect(quiz).to.be.an.instanceof(Quiz);
                 expect(quiz.options.mode).to.equal('radio');
                 expect(quiz.dropDownList).to.be.undefined;
-                expect(quiz.groupList).to.exist;
                 expect(quiz.value()).to.be.null;
                 expect(viewModel.get('current')).to.be.null;
                 for (var i = 0; i < viewModel.data.length; i++) {
@@ -451,7 +430,7 @@
                     expect(quiz.value()).to.equal(viewModel.data[i]);
                     expect(viewModel.get('current')).to.equal(viewModel.data[i]);
                     expect(change).to.have.callCount(i + 1);
-                    expect(quiz.groupList.find('input[type="radio"]:eq(' + i + ')')).to.be.checked;
+                    expect(quiz.element.find('input[type="radio"]:eq(' + i + ')')).to.be.checked;
                 }
             });
 
@@ -472,7 +451,6 @@
             var options = {
                 dataSource: ['answer 1', 'answer 2', 'answer 3', 'answer 4'],
                 mode: 'button',
-                groupStyle: { border: '1px solid rgb(0, 0, 255)' },
                 itemStyle: { color: 'rgb(0, 0, 255)' },
                 activeStyle: { backgroundColor: 'rgb(224, 224, 255)' }
             };

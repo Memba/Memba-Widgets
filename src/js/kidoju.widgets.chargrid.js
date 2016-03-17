@@ -185,6 +185,9 @@
                 }
             },
 
+            /*  This function's cyclomatic complexity is too high. */
+            /* jshint -W073 */
+
             /**
              * Compare values
              * @param value1
@@ -192,6 +195,7 @@
              * @private
              */
             _compareValues: function (value1, value2) {
+                /* jshint maxcomplexity: 10 */
                 if (!util.isArray(value1) || !util.isArray(value2)) {
                     return false;
                 }
@@ -214,6 +218,8 @@
                 return true;
             },
 
+            /* jshint +W073 */
+
             /**
              * Value for MVVM binding
              * Returns either a JS function as a string or a library formula name prefixed as a Javascript comment
@@ -231,6 +237,9 @@
                 }
             },
 
+            /*  This function's cyclomatic complexity is too high. */
+            /* jshint -W073 */
+
             /**
              * Get/set cell value
              * @param col
@@ -238,6 +247,7 @@
              * @param value
              */
             cellValue: function (col, row, value) {
+                /* jshint maxcomplexity: 9 */
                 assert.type(NUMBER, col, kendo.format(assert.messages.type.default, 'col', NUMBER));
                 assert.type(NUMBER, row, kendo.format(assert.messages.type.default, 'row', NUMBER));
                 var that = this;
@@ -268,6 +278,8 @@
                     throw new TypeError('`value` is expected to be a single char string');
                 }
             },
+
+            /* jshint +W073 */
 
             /**
              * Get cell locked state
@@ -465,11 +477,15 @@
                 }
             },
 
+            /*  This function's cyclomatic complexity is too high. */
+            /* jshint -W073 */
+
             /**
              * Draw cell values
              * @private
              */
             _drawCellValues: function () {
+                /* jshint maxcomplexity: 9 */
                 var that = this;
                 var element = that.element;
                 var options = that.options;
@@ -504,6 +520,8 @@
                 }
                 that.surface.draw(chars);
             },
+
+            /* jshint +W073 */
 
             /**
              * Redraw everything
@@ -566,6 +584,9 @@
                 that.select(col, row);
             },
 
+            /*  This function's cyclomatic complexity is too high. */
+            /* jshint -W073 */
+
             /**
              * Key down event handler
              * Note: Delete and arrows only trigger the keydown event
@@ -573,6 +594,7 @@
              * @private
              */
             _onKeyDown: function (e) {
+                /* jshint maxcomplexity: 10 */
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 assert.ok(this.element.is(':focus'), '`this.element` is expected to have focus');
                 var that = this;
@@ -606,6 +628,8 @@
                     }
                 }
             },
+
+            /* jshint +W073 */
 
             /**
              * Key press event handler (required to get correct values from numeric keypad)

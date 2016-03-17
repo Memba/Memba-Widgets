@@ -504,9 +504,10 @@
                             clientY: offset.top + 60 * count
                         });
                         expect(stage.dataSource.total()).to.equal(total + count);
-                        expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', total + count);
+                        var items = stage.items();
+                        expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', total + count);
                         var component = stage.dataSource.at(total + count - 1);
-                        var item = stage.items()[total + count - 1];
+                        var item = items[total + count - 1];
                         expect(component).to.have.property('id', null);
                         expect(component).to.have.property('tool', tool.id);
                         expect(component).to.have.property('top', 60 * count);
@@ -525,7 +526,7 @@
                         // expect($(item).css('transform')).to.equal(kendo.format('rotate({0})deg', component.rotate));
                     }
                 });
-                expect(check).to.have.been.called;
+                expect(check).to.have.callCount(count);
             });
 
             it('Moving an element on stage, updates top & left properties of the corresponding component in the viewModel', function () {

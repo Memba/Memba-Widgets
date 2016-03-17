@@ -1587,6 +1587,7 @@
                 var connectorWidget = content.data('kendoConnector');
                 assert.instanceof(kendo.ui.Connector, connectorWidget, kendo.format(assert.messages.instanceof.default, 'connectorWidget', 'kendo.ui.Connector'));
                 connectorWidget._drawConnector();
+
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage

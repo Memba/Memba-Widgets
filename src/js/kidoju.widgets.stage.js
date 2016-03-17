@@ -1424,10 +1424,16 @@
             /**
              * Stage Elements
              * @method items
-             * @returns {XMLList|*}
+             * @returns {*}
              */
             items: function () {
-                return this.element[0].children;
+                // Do not return .kj-connector-surface
+                var element = this.element;
+                if ($.isFunction(element[0].getElementsByClassName)) { // To return an HTMLCollection when possible
+                    return element[0].getElementsByClassName(ELEMENT_CLASS);
+                } else { // Otherwise fallback to a simple array
+                    return $.makeArray(this.element.children(DOT + ELEMENT_CLASS));
+                }
             },
 
             /**

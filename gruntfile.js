@@ -60,7 +60,7 @@ module.exports = function (grunt) {
                     logErrors: true,
                     reporter: 'Spec',
                     run: true,
-                    timeout: 10000
+                    timeout: 20000
                 },
                 src: ['test/browsers/*.test.html']
             }

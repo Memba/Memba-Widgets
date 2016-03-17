@@ -1273,7 +1273,7 @@
             ];
             var workerPool = new WorkerPool(2, 250);
             var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
-            var blob = new Blob(['importScripts("' + scriptUrl + '"); onmessage = function (e) { postMessage(soundex(e.data)); close(); };']);
+            var blob = new Blob(['importScripts("' + scriptUrl + '"); onmessage = function (e) { postMessage(soundex(JSON.parse(e.data))); close(); };']);
             var blobURL = window.URL.createObjectURL(blob);
             var i = 0;
             for (i = 0; i < soundex.length; i++) {
@@ -1306,7 +1306,7 @@
             ];
             var workerPool = new WorkerPool(2, 250);
             var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
-            var blob = new Blob(['importScripts("' + scriptUrl + '"); onmessage = function (e) { postMessage(metaphone(e.data)); close(); };']);
+            var blob = new Blob(['importScripts("' + scriptUrl + '"); onmessage = function (e) { postMessage(metaphone(JSON.parse(e.data))); close(); };']);
             var blobURL = window.URL.createObjectURL(blob);
             var i = 0;
             for (i = 0; i < metaphone.length; i++) {
@@ -1339,7 +1339,7 @@
             ];
             var workerPool = new WorkerPool(2, 250);
             var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
-            var blob = new Blob(['importScripts("' + scriptUrl + '"); onmessage = function (e) { postMessage(removeDiacritics(e.data)); close(); };']);
+            var blob = new Blob(['importScripts("' + scriptUrl + '"); onmessage = function (e) { postMessage(removeDiacritics(JSON.parse(e.data))); close(); };']);
             var blobURL = window.URL.createObjectURL(blob);
             var i = 0;
             for (i = 0; i < diacritics.length; i++) {
@@ -1855,14 +1855,14 @@
                             style: 'background-colour: lightblue;',
                             components: [
                                 { tool: 'label', attributes: { style: 'color: red;', text: 'Label1' } },
-                                { tool: 'image', attributes: { alt: 'Label1', src: 'photo1.jpg' } }
+                                { tool: 'image', attributes: { alt: 'Label1', src: 'photo1.jpg', style: 'border: solid 1px blue;' } }
                             ]
                         },
                         {
                             style: 'background-colour: lightgreen;',
                             components: [
                                 { tool: 'label', attributes: { style: 'color: blue;', text: 'Label2' } },
-                                { tool: 'image', attributes: { alt: 'Label2', src: 'photo2.jpg' } }
+                                { tool: 'image', attributes: { alt: 'Label2', src: 'photo2.jpg', style: 'border: solid 1px red;' } }
                             ]
                         }
                     ]

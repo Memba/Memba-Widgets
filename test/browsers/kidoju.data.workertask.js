@@ -1,7 +1,8 @@
 /* globals self: false */self.onmessage = function (event) {
     'use strict';
-    if (typeof event.data === 'number') {
-        self.postMessage(event.data);
+    var data = JSON.parse(event.data);
+    if (typeof data === 'number') {
+        self.postMessage(data);
     } else {
         throw new TypeError('invalid message');
     }

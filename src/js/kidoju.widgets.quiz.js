@@ -284,7 +284,7 @@
                         assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                         that.dropDownList.text(that._value);
                         break;
-                    case MODES.RADIO:
+                    // case MODES.RADIO:
                     default:
                         element.children('div')
                             .attr('style', '')

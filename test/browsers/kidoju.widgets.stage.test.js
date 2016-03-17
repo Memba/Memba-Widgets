@@ -265,7 +265,11 @@
                 expect(stage).to.be.an.instanceof(Stage);
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 var items = stage.items();
-                expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                if (window.PHANTOMJS) {
+                    expect(items).to.have.property('length', pageComponentCollectionArray.length);
+                } else {
+                    expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                }
                 var check = sinon.spy();
                 $.each(items, function (index, item) {
                     check();
@@ -417,7 +421,11 @@
                 expect(stage).to.be.an.instanceof(Stage);
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                if (window.PHANTOMJS) {
+                    expect(stage.items()).to.have.property('length', pageComponentCollectionArray.length);
+                } else {
+                    expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                }
                 viewModel.components.add(new PageComponent({
                     id: kendo.guid(),
                     tool : 'label',
@@ -432,24 +440,40 @@
                     }
                 }));
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length + 1);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length + 1);
+                if (window.PHANTOMJS) {
+                    expect(stage.items()).to.have.property('length', pageComponentCollectionArray.length + 1);
+                } else {
+                    expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length + 1);
+                }
             });
 
             it('Removing a component from the viewModel removes the corresponding element from the stage', function () {
                 expect(stage).to.be.an.instanceof(Stage);
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                if (window.PHANTOMJS) {
+                    expect(stage.items()).to.have.property('length', pageComponentCollectionArray.length);
+                } else {
+                    expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                }
                 viewModel.components.remove(viewModel.components.at(0));
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length - 1);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length - 1);
+                if (window.PHANTOMJS) {
+                    expect(stage.items()).to.have.property('length', pageComponentCollectionArray.length - 1);
+                } else {
+                    expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length - 1);
+                }
             });
 
             it('Changing the selected component in the viewModel changes the corresponding element in the stage', function () {
                 expect(stage).to.be.an.instanceof(Stage);
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                if (window.PHANTOMJS) {
+                    expect(stage.items()).to.have.property('length', pageComponentCollectionArray.length);
+                } else {
+                    expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                }
                 var check = sinon.spy();
                 $.each(viewModel.components.data(), function (index, component) {
                     check();
@@ -465,7 +489,11 @@
                 expect(stage).to.be.an.instanceof(Stage);
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                if (window.PHANTOMJS) {
+                    expect(stage.items()).to.have.property('length', pageComponentCollectionArray.length);
+                } else {
+                    expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                }
                 var check = sinon.spy();
                 $.each(stage.items(), function (index, item) {
                     check();
@@ -488,7 +516,11 @@
                 expect(stage).to.be.an.instanceof(Stage);
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                if (window.PHANTOMJS) {
+                    expect(stage.items()).to.have.property('length', pageComponentCollectionArray.length);
+                } else {
+                    expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                }
                 var total = pageComponentCollectionArray.length;
                 var offset = element.offset();
                 var count = 0;
@@ -505,7 +537,11 @@
                         });
                         expect(stage.dataSource.total()).to.equal(total + count);
                         var items = stage.items();
-                        expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', total + count);
+                        if (window.PHANTOMJS) {
+                            expect(items).to.have.property('length', total + count);
+                        } else {
+                            expect(items).to.be.an.instanceof(window.HTMLCollection).with.property('length', total + count);
+                        }
                         var component = stage.dataSource.at(total + count - 1);
                         var item = items[total + count - 1];
                         expect(component).to.have.property('id', null);
@@ -533,7 +569,11 @@
                 expect(stage).to.be.an.instanceof(Stage);
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                if (window.PHANTOMJS) {
+                    expect(stage.items()).to.have.property('length', pageComponentCollectionArray.length);
+                } else {
+                    expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                }
                 var counter = sinon.spy();
                 $.each(stage.items(), function (index, item) {
                     counter();
@@ -593,7 +633,11 @@
                 expect(stage).to.be.an.instanceof(Stage);
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                if (window.PHANTOMJS) {
+                    expect(stage.items()).to.have.property('length', pageComponentCollectionArray.length);
+                } else {
+                    expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                }
                 var counter = sinon.spy();
                 $.each(stage.items(), function (index, item) {
                     counter();
@@ -657,7 +701,11 @@
                 expect(stage).to.be.an.instanceof(Stage);
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
                 expect(stage.dataSource.total()).to.equal(pageComponentCollectionArray.length);
-                expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                if (window.PHANTOMJS) {
+                    expect(stage.items()).to.have.property('length', pageComponentCollectionArray.length);
+                } else {
+                    expect(stage.items()).to.be.an.instanceof(window.HTMLCollection).with.property('length', pageComponentCollectionArray.length);
+                }
                 var counter = sinon.spy();
                 $.each(stage.items(), function (index, item) {
                     counter();

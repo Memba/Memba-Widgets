@@ -1,14 +1,14 @@
-.kj-quiz-group .k-radio-label {
+.kj-quiz .k-radio-label {
     vertical-align: baseline;
 }
-.kj-quiz-group .k-radio-label:before {
+.kj-quiz .k-radio-label:before {
     border-width: 0.05em;
     top: 0.1em;
     left: 0.1em;
     width: 0.8em;
     height: 0.8em;
 }
-.kj-quiz-group .k-radio:checked + .k-radio-label:after {
+.kj-quiz .k-radio:checked + .k-radio-label:after {
     width: 0.7em;
     height: 0.7em;
     top: 0.2em;

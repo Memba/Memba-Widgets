@@ -43,12 +43,9 @@
         var NULL = null;
         var UNDEFINED = 'undefined';
         var NS = '.kendoStage';
-        var MOUSEDOWN = 'mousedown';
-        var MOUSEMOVE = 'mousemove';
-        var MOUSEUP = 'mouseup'; // TODO: mouseout
-        var TOUCHSTART = 'touchstart';
-        var TOUCHMOVE = 'touchmove';
-        var TOUCHEND = 'touchend';
+        var MOUSEDOWN = 'mousedown' + NS + ' touchstart' + NS;
+        var MOUSEMOVE = 'mousemove' + NS + ' touchmove' + NS;
+        var MOUSEUP = 'mouseup' + NS + ' touchend' + NS;
         var CHANGE = 'change';
         var DATABINDING = 'dataBinding';
         var DATABOUND = 'dataBound';
@@ -695,9 +692,9 @@
 
                     // Add stage event handlers
                     $(document) // was that.wrapper
-                        .on(MOUSEDOWN + NS + ' ' + TOUCHSTART + NS, $.proxy(that._onMouseDown, that))
-                        .on(MOUSEMOVE + NS + ' ' + TOUCHMOVE + NS, $.proxy(that._onMouseMove, that))
-                        .on(MOUSEUP + NS + ' ' + TOUCHEND + NS, $.proxy(that._onMouseUp, that));
+                        .on(MOUSEDOWN, $.proxy(that._onMouseDown, that))
+                        .on(MOUSEMOVE, $.proxy(that._onMouseMove, that))
+                        .on(MOUSEUP, $.proxy(that._onMouseUp, that));
 
                     // Add debug visual elements
                     util.addDebugVisualElements(wrapper);
@@ -816,7 +813,7 @@
                         .appendTo(that.wrapper)
                         .kendoContextMenu({
                             target: '.kj-handle[' + DATA_COMMAND + '="menu"]',
-                            showOn: MOUSEDOWN + NS + ' ' + TOUCHSTART + NS,
+                            showOn: MOUSEDOWN,
                             select: $.proxy(that._contextMenuSelectHandler, that)
                         })
                         .data('kendoContextMenu');

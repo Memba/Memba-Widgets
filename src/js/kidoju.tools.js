@@ -1484,6 +1484,7 @@
                 name: new adapters.NameAdapter({ title: i18n.checkbox.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.checkbox.properties.description.title }),
                 solution: new adapters.BooleanAdapter({ title: i18n.checkbox.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({ title: i18n.checkbox.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.omit.title, defaultValue: 0 })

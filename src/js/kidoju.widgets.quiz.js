@@ -33,9 +33,8 @@
         var ACTIVE = 'k-state-active';
         var DISABLE = 'k-state-disabled';
         var WIDGET_CLASS = 'kj-quiz'; // 'k-widget kj-quiz',
-        var GROUP_CLASS = 'kj-quiz-group';
-        var BUTTON = '<input type="button" class="k-button" value="{0}">';
-        var RADIO = '<div><input id="{1}_{2}" name="{1}" type="radio" class="k-radio" value="{0}"><label class="k-radio-label" for="{1}_{2}">{0}</label></div>';
+        var BUTTON = '<input type="button" class="k-button kj-quiz-item" value="{0}">';
+        var RADIO = '<div class="kj-quiz-item"><input id="{1}_{2}" name="{1}" type="radio" class="k-radio" value="{0}"><label class="k-radio-label" for="{1}_{2}">{0}</label></div>';
         var MARGIN = '0.2em';
         var MODES = {
                 BUTTON: 'button',
@@ -83,7 +82,7 @@
                 }
                 return ret;
             } else {
-                throw new Error('`style` is expected to be a string or a plain object');
+                return {};
             }
         }
 
@@ -130,7 +129,6 @@
                 autoBind: true,
                 dataSource: [],
                 mode: MODES.BUTTON,
-                groupStyle: {},
                 itemStyle: {},
                 activeStyle: {},
                 value: null,
@@ -198,15 +196,11 @@
                 var that = this;
                 that.wrapper = that.element;
                 that.element
-                    .addClass(WIDGET_CLASS)
-                    .css(that.options.groupStyle);
+                    .addClass(WIDGET_CLASS);
                 if (that.options.mode === MODES.DROPDOWN) {
                     that._layoutDropDown();
-                } else if (that.options.mode === MODES.BUTTON || that.options.mode === MODES.RADIO) {
-                    that._layoutGroup();
-                } else {
-                    throw new Error('Unknown `mode`');
                 }
+                // refresh updates buttons and radios
             },
 
             /**
@@ -246,18 +240,6 @@
             },
 
             /**
-             * Widget layout as buttons or radios
-             * @private
-             */
-            _layoutGroup: function () {
-                var that = this;
-                that.groupList = $('<div>')
-                    .addClass(GROUP_CLASS)
-                    // .on(CLICK + NS, 'input', $.proxy(that._onClick, that))
-                    .appendTo(that.element);
-            },
-
-            /**
              * Event handler for click event and radios and buttons
              * Handles
              * @param e
@@ -283,15 +265,16 @@
              */
             _toggleUI: function () {
                 var that = this;
+                var element = this.element;
+                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 switch (that.options.mode) {
                     case MODES.BUTTON:
-                        assert.instanceof($, that.groupList, kendo.format(assert.messages.instanceof.default, 'this.groupList', 'jQuery'));
-                        that.groupList.find('input[type=button]')
+                        element.find('input[type=button]')
                             .removeClass(ACTIVE)
                             .attr('style', '')
                             .css(that.options.itemStyle);
                         if (that._value) {
-                            that.groupList.find('input[type=button][value="' + that._value + '"]')
+                            element.find('input[type=button][value="' + that._value + '"]')
                                 .addClass(ACTIVE)
                                 .attr('style', '')
                                 .css($.extend({}, that.options.itemStyle, that.options.activeStyle));
@@ -302,18 +285,18 @@
                         that.dropDownList.text(that._value);
                         break;
                     case MODES.RADIO:
-                        assert.instanceof($, that.groupList, kendo.format(assert.messages.instanceof.default, 'this.groupList', 'jQuery'));
-                        that.groupList.find('div')
+                    default:
+                        element.children('div')
                             .attr('style', '')
                             .css(that.options.itemStyle);
                         if (that._value) {
-                            that.groupList.find('input[type=radio][value="' + that._value + '"]')
+                            element.find('input[type=radio][value="' + that._value + '"]')
                                 .prop('checked', true)
                                 .parent()
                                     .attr('style', '')
                                     .css($.extend({}, that.options.itemStyle, that.options.activeStyle));
                         } else {
-                            that.groupList.find('input[type=radio]:checked')
+                            element.find('input[type=radio]:checked')
                                 .prop('checked', false);
                         }
                         break;
@@ -368,25 +351,26 @@
              */
             refresh: function (e) {
                 var that = this;
+                var element = this.element;
+                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 if (that.options.mode === MODES.DROPDOWN) {
                     assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'that.dropDownList', 'kendo.ui.DropDownList'));
                     that.dropDownList.refresh(e);
                 } else {
-                    assert.instanceof($, that.groupList, kendo.format(assert.messages.instanceof.default, 'that.groupList', 'jQuery'));
                     var items = that.dataSource.data();
                     if (e && e.items instanceof kendo.data.ObservableArray) {
                         items = e.items;
                     }
-                    that.groupList.empty();
+                    that.element.empty();
                     $(e.items).each(function (index, value) {
                         if (that.options.mode === MODES.BUTTON) {
                             $(kendo.format(BUTTON, kendo.htmlEncode(value)))
                                 .css(that.options.itemStyle)
-                                .appendTo(that.groupList);
+                                .appendTo(that.element);
                         } else if (that.options.mode === MODES.RADIO) {
                             var radio = $(kendo.format(RADIO, kendo.htmlEncode(value), that._randomId, index))
                                 .css(that.options.itemStyle)
-                                .appendTo(that.groupList);
+                                .appendTo(that.element);
                             /*
                             var size = parseInt(radio.css('fontSize'), 10) || parseInt(radio.parent().css('fontSize'), 10) || parseInt(radio.parent().parent().css('fontSize'), 10);
                             if (!isNaN(size)) {
@@ -408,21 +392,25 @@
              */
             enable: function (enable) {
                 var that = this;
-                if (typeof enable === UNDEFINED) {
+                var element = this.element;
+                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
+                if ($.type(enable) === UNDEFINED) {
                     enable = true;
                 }
-                if (that.dropDownList) {
+                if (that.options.mode === MODES.DROPDOWN) {
+                    assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'that.dropDownList', 'kendo.ui.DropDownList'));
                     that.dropDownList.enable(enable);
-                }
-                if (that.groupList) {
-                    that.groupList.off(NS);
+                } else {
+                    element.off(NS);
                     if (enable) {
-                        that.groupList.on(CLICK + NS, 'input', $.proxy(that._onClick, that));
+                        element.on(CLICK + NS, 'input', $.proxy(that._onClick, that));
                     } else {
                         // Because input are readonly and not disabled, we need to prevent default (checking checkbox) and let it bubble to the stage element to display the handle box
-                        that.groupList.on(CLICK + NS, 'input', function (e) { e.preventDefault(); });
+                        element.on(CLICK + NS, 'input', function (e) {
+                            e.preventDefault();
+                        });
                     }
-                    that.groupList.find('input')
+                    element.find('input')
                         .toggleClass(DISABLE, !enable)
                         // .prop('disabled', !enable) <--- suppresses the click event so elements are no more selectable in design mode
                         .prop('readonly', !enable);
@@ -430,33 +418,27 @@
             },
 
             /**
-             * Clear layout
-             * @private
-             */
-            _clear: function () {
-                var that = this;
-                // unbind kendo
-                kendo.unbind(that.element);
-                // Destroy drop down list (especially the popup)
-                if (that.dropDownList) {
-                    that.dropDownList.destroy();
-                }
-                // unbind all other events
-                that.element.find('*').off(NS);
-                // remove descendants
-                that.element.empty();
-                // remove element classes
-                that.element.removeClass(WIDGET_CLASS);
-            },
-
-            /**
              * Destroy widget
              */
             destroy: function () {
                 var that = this;
+                var element = this.element;
                 Widget.fn.destroy.call(that);
-                that._clear();
-                kendo.destroy(that.element);
+                // Destroy the drop down list (especially the popup)
+                if (that.dropDownList) {
+                    that.dropDownList.destroy();
+                    that.dropDownList = undefined;
+                }
+                // unbind and destroy kendo
+                kendo.unbind(element);
+                kendo.destroy(element);
+                // unbind all other events
+                that.element.find('*').off();
+                that.element.off(NS);
+                // remove descendants
+                that.element.empty();
+                // remove element classes
+                that.element.removeClass(WIDGET_CLASS);
             }
 
         });

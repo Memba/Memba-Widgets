@@ -21,7 +21,7 @@
 <h1>kidoju.widgets.quiz</h1>
 
 <h2>Quiz initiated from code</h2>
-<div id="quiz1"></div>
+<div id="quiz1" style="font-size:60px; border: solid 1px black;"></div>
 
 <h2>Quiz bound to observable</h2>
 <div id="quiz2" data-role="quiz" data-mode="button" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
@@ -55,11 +55,6 @@
             $('#quiz1').kendoQuiz({
                 value: null,
                 mode: kendo.ui.Quiz.fn.modes.radio,
-                // enable: false,
-                groupStyle: {
-                    borderStyle: 'solid',
-                    fontSize: '60px'
-                },
                 itemStyle: {
                     color: '#FF0000'
                 },

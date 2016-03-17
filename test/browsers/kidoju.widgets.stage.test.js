@@ -512,6 +512,9 @@
                 expect(check).to.have.callCount(pageComponentCollectionArray.length);
             });
 
+            /* This function has too many statements. */
+            /* jshint -W071 */
+
             it('Adding a new element to the stage, adds the corresponding component to the viewModel', function () {
                 expect(stage).to.be.an.instanceof(Stage);
                 expect(stage.dataSource).to.be.an.instanceof(PageComponentCollectionDataSource);
@@ -564,6 +567,8 @@
                 });
                 expect(check).to.have.callCount(count);
             });
+
+            /* jshint +W071 */
 
             it('Moving an element on stage, updates top & left properties of the corresponding component in the viewModel', function () {
                 expect(stage).to.be.an.instanceof(Stage);

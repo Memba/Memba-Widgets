@@ -504,8 +504,10 @@
              */
             showResult: function () {
                 // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
-                return '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.success + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
-                       '<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.failure + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>';
+                return '<div style="position:relative; height: 0">' +
+                       '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.success + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
+                       '<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.failure + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
+                       '</div>';
             }
 
             // onEnable: function (e, component, enabled) {},
@@ -1519,7 +1521,7 @@
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                var content = stageElement.children('div');
+                var content = stageElement.children('div').first();
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.width);
                 }

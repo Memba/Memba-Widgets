@@ -16,7 +16,7 @@
         './vendor/highlight/highlight.pack.js'
         // './vendor/kendo/kendo.multiselect' // required because of a test in kendo.binder.js
     ], f);
-})(function () {
+})(function (a, b, c, markdownit, highlight) {
 
     'use strict';
 
@@ -56,8 +56,8 @@
 
         var kendo = window.kendo;
         var Widget = kendo.ui.Widget;
-        var MarkdownIt = window.markdownit;
-        var hljs = window.hljs;
+        var MarkdownIt = window.markdownit || markdownit;
+        var hljs = window.hljs || highlight;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.markdown');
         var STRING = 'string';
@@ -66,7 +66,7 @@
         var EMPTY = '';
         var CHANGE = 'change';
         // var NS = '.kendoMarkdown';
-        var WIDGET_CLASS = 'k-widget kj-markdown';
+        var WIDGET_CLASS = 'kj-markdown'; // 'k-widget kj-markdown';
         var RX_YML = /^---\n([\s\S]*)\n---/;
         var RX_KEYVAL = /([^:\n]+):([^\n]+)/g;
         var KEY_BLACKLIST = /[-\s]/g;
@@ -181,7 +181,8 @@
              * @private
              */
             _initMarkdownIt: function () {
-                this.md = new MarkdownIt({
+                var that = this;
+                that.md = new MarkdownIt({
                     html: false,
                     linkify: true,
                     typographer: true,
@@ -194,7 +195,7 @@
                                     '</code></pre>';
                             } catch (ex) {}
                         }
-                        return '<pre class="hljs"><code>' + this.md.utils.escapeHtml(code) + '</code></pre>';
+                        return '<pre class="hljs"><code>' + that.md.utils.escapeHtml(code) + '</code></pre>';
                     }
                 });
             },

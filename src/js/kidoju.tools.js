@@ -11,19 +11,20 @@
     define([
         './window.assert',
         './window.logger',
-        './kidoju.data',
-        './kidoju.widgets.assetmanager',
+        './kidoju.data'
+        // Note: The player does not need the assetmanager, the codeeditor and teh styleeditor
+        // './kidoju.widgets.assetmanager',
         // './kidoju.widgets.chargrid',
-        './kidoju.widgets.codeeditor',
-        './kidoju.widgets.codeinput',
-        './kidoju.widgets.connector',
+        // './kidoju.widgets.codeeditor',
+        // './kidoju.widgets.codeinput',
+        // './kidoju.widgets.connector',
         // './kidoju.widgets.dropzone',
-        './kidoju.widgets.mathexpression',
-        './kidoju.widgets.mediaplayer',
-        './kidoju.widgets.propertygrid',
-        './kidoju.widgets.quiz',
-        './kidoju.widgets.stage',
-        './kidoju.widgets.styleeditor'
+        // './kidoju.widgets.mathexpression',
+        // './kidoju.widgets.mediaplayer',
+        // './kidoju.widgets.propertygrid',
+        // './kidoju.widgets.quiz',
+        // './kidoju.widgets.stage', !IMPORTANT: Stage needs to be loaded after tools
+        // './kidoju.widgets.styleeditor'
     ], f);
 })(function () {
 

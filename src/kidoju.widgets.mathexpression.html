@@ -27,7 +27,7 @@
 <h2>Math expression set by code</h2>
 <div id="math1"></div>
 <h2>Math expression set declaratively</h2>
-<div id="math2" data-role="mathexpression" data-value="§sum_(i=1)^n i^3=((n(n+1))/2)^2§" style="font-size:200%;color:red;"></div>
+<div id="math2" data-role="mathexpression" data-value="#sum_(i=1)^n i^3=((n(n+1))/2)^2#" style="font-size:200%;color:red;"></div>
 <h2>Math expression bound to observable</h2>
 <div id="math3" data-role="mathexpression" data-bind="value: formula, visible: visible"></div>
 <pre>
@@ -48,14 +48,14 @@
 
         var kendo = window.kendo;
         var viewModel = new kendo.observable({
-            formula: '§sum_(i=1)^n i^3=((n(n+1))/2)^2§',
+            formula: '#sum_(i=1)^n i^3=((n(n+1))/2)^2#',
             visible: true,
             enabled: true
         });
 
         $(document).ready(function() {
             $('#math1').kendoMathExpression({
-                value: '§sum_(i=1)^n i^3=((n(n+1))/2)^2§'
+                value: '#sum_(i=1)^n i^3=((n(n+1))/2)^2#'
             });
             kendo.bind('body', viewModel);
         });

@@ -41,7 +41,7 @@
             script[(window.opera ? 'innerHTML' : 'text')] =
                 'MathJax.Hub.Config({\n' +
                 '  showMathMenu: false,\n' + // Hide contextual menu
-                '  asciimath2jax: { delimiters: [["§","§"], ["`","`"]] }\n' +
+                '  asciimath2jax: { delimiters: [["#","#"], ["`","`"]] }\n' +
                 '});';
             head.appendChild(script);
             script = document.createElement('script');

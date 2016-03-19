@@ -244,7 +244,7 @@
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
-                    properties.failure.title = 'Echec';
+                    properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
                 }
 
@@ -262,7 +262,7 @@
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
-                    properties.failure.title = 'Echec';
+                    properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
                 }
 
@@ -279,7 +279,7 @@
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
-                    properties.failure.title = 'Echec';
+                    properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
                 }
 
@@ -332,7 +332,7 @@
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
-                    properties.failure.title = 'Echec';
+                    properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
                 }
 
@@ -349,7 +349,7 @@
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
-                    properties.failure.title = 'Echec';
+                    properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
                 }
 

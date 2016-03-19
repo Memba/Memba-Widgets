@@ -92,7 +92,7 @@
     <div id="toolbar"></div>
     <div id="wrapper" class="k-content">
         <div class="centered">
-            <div data-role="stage" data-bind="source: currentPage.components, properties: test" data-mode="play"></div>
+            <div data-role="stage" data-bind="source: selectedPage.components, properties: test" data-mode="play"></div>
             <div style="display: none">
                 <div class="k-block k-info-colored">
                     <div class="k-header">Your Score</div>
@@ -526,7 +526,7 @@
         //Define viewModel
         var viewModel = window.viewModel = kendo.observable({
             stream: new LocalStream(),
-            currentPage: undefined,
+            selectedPage: undefined,
             test: undefined,
             calculate: function() {
                 return viewModel.stream.pages.validateTestFromProperties(viewModel.get('test'))
@@ -568,7 +568,7 @@
 
             $('#toolbar').kendoToolBar({
                 items: [
-                    { template: '<div data-role="playbar" data-bind="source: stream.pages, value: currentPage" data-refresh="false" data-button-count="5" class="kj-top" style="width:450px;border:none;background:none;" ></div>' },
+                    { template: '<div data-role="playbar" data-bind="source: stream.pages, value: selectedPage" data-refresh="false" data-button-count="5" class="kj-top" style="width:450px;border:none;background:none;" ></div>' },
                     { type: 'separator' },
                     { type: 'button', id: 'submit', text: 'Submit', primary: true },
                     { type: 'button', id: 'score', text: 'Score', hidden: true },
@@ -612,7 +612,7 @@
             });
 
             viewModel.stream.load().then(function() {
-                viewModel.set('currentPage', viewModel.stream.pages.at(0));
+                viewModel.set('selectedPage', viewModel.stream.pages.at(0));
                 viewModel.set('test', viewModel.stream.pages.getTestFromProperties());
                 kendo.bind('body', viewModel);
                 onResize();

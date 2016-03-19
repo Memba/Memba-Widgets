@@ -114,11 +114,11 @@
         <div data-role="toolbar"></div>
         <div data-role="splitter" data-panes="[{min: 100, max:400, size: 300}, { scrollable: false }, {min: 100, max:400, size: 300}]">
             <div id="left-pane">
-                <div data-role="navigation" data-bind="source: stream.pages, value: currentPage"></div>
+                <div data-role="navigation" data-bind="source: stream.pages, value: selectedPage"></div>
             </div>
             <div id="center-pane" style="touch-action:none">
                 <div class="centered">
-                    <div data-role="stage" data-bind="source: currentPage.components, value: currentComponent" data-mode="design"></div>
+                    <div data-role="stage" data-bind="source: selectedPage.components, value: selectedComponent" data-mode="design"></div>
                 </div>
             </div>
             <div id="right-pane">
@@ -130,23 +130,23 @@
                         </li>
                         <li>
                             Explorer
-                            <div data-role="explorer" data-bind="source: currentPage.components, value: currentComponent"></div>
+                            <div data-role="explorer" data-bind="source: selectedPage.components, value: selectedComponent"></div>
                         </li>
                         <li>
                             Display Attributes
-                            <div id="attributes" data-role="propertygrid" data-bind="value: currentComponent"></div>
+                            <div id="attributes" data-role="propertygrid" data-bind="value: selectedComponent"></div>
                         </li>
                         <li>
                             Test Logic
-                            <div id="properties" data-role="propertygrid" data-bind="value: currentComponent"></div>
+                            <div id="properties" data-role="propertygrid" data-bind="value: selectedComponent"></div>
                         </li>
                         <li>
                             Instructions
-                            <div id="instructions" style="padding:0.5em;"><textarea rows="10" data-bind="value: currentPage.instructions, enabled: currentPage" class="k-textbox" style="width:100%;resize:vertical;"></textarea></div>
+                            <div id="instructions" style="padding:0.5em;"><textarea rows="10" data-bind="value: selectedPage.instructions, enabled: selectedPage" class="k-textbox" style="width:100%;resize:vertical;"></textarea></div>
                         </li>
                         <li>
                             Explanations
-                            <div id="explanations" style="padding:0.5em;"><textarea rows="10" data-bind="value: currentPage.explanations, enabled: currentPage" class="k-textbox" style="width:100%;resize:vertical;"></textarea></div>
+                            <div id="explanations" style="padding:0.5em;"><textarea rows="10" data-bind="value: selectedPage.explanations, enabled: selectedPage" class="k-textbox" style="width:100%;resize:vertical;"></textarea></div>
                         </li>
                     </ul>
                 </div>
@@ -577,16 +577,16 @@
             //Define viewModel
             var viewModel = window.viewModel = kendo.observable({
                     stream: new LocalStream(),
-                    currentPage: undefined,
-                    currentComponent: undefined
+                    selectedPage: undefined,
+                    selectedComponent: undefined
             });
 
             //Bind change event to map rows
             viewModel.bind('change', function(e) {
-                if(e.field === 'currentPage') {
-                    viewModel.set('currentComponent', undefined);
-                } else if(e.field === 'currentComponent') {
-                    var tool = tools[e.sender.get('currentComponent.tool')];
+                if(e.field === 'selectedPage') {
+                    viewModel.set('selectedComponent', undefined);
+                } else if(e.field === 'selectedComponent') {
+                    var tool = tools[e.sender.get('selectedComponent.tool')];
                     if (tool instanceof Tool) {
                         var grid1 = $('#attributes').data('kendoPropertyGrid'),
                             grid2 = $('#properties').data('kendoPropertyGrid');
@@ -600,12 +600,12 @@
                 }
             });
 
-            // Bind set event to ensure property grid changes are passed to viewModel when changing currentPage or currentComponent
+            // Bind set event to ensure property grid changes are passed to viewModel when changing selectedPage or selectedComponent
             viewModel.bind('set', function(e) {
-                // IMPORTANT: by default changing currentComponent does not trigger a blur event on the input holding the property grid value being edited if any.
+                // IMPORTANT: by default changing selectedComponent does not trigger a blur event on the input holding the property grid value being edited if any.
                 // So one may edit a component value in a property grid, click another component on stage, the selected component would then change on stage and in the property grid
                 // and the value being edited would not have been changed in the view Model. Below is a fix.
-                if(e.field === 'currentComponent') {
+                if(e.field === 'selectedComponent') {
                     $(document.activeElement).blur();
                 }
             });
@@ -657,8 +657,8 @@
                                     explorer = $('#right-pane').find(kendo.roleSelector('explorer')).data('kendoExplorer'),
                                     page = navigation.value();
                                 if (page instanceof Page) {
-                                    viewModel.set('currentComponent', undefined);
-                                    viewModel.set('currentPage', undefined); // This does not trigger source binding on currentPage.components
+                                    viewModel.set('selectedComponent', undefined);
+                                    viewModel.set('selectedPage', undefined); // This does not trigger source binding on selectedPage.components
                                     stage.setDataSource(undefined); // ... so we need to explicitely set the dataSource on the stage
                                     explorer.setDataSource(undefined); // ... and on the explorer
                                     viewModel.stream.pages.remove(page);
@@ -671,7 +671,7 @@
                             case 'reset':
                                 window.localStorage.setItem(storageKey, kendo.stringify(streamData));
                                 viewModel.stream.load().then(function() {
-                                    viewModel.set('currentPage', viewModel.stream.pages.at(0));
+                                    viewModel.set('selectedPage', viewModel.stream.pages.at(0));
                                 });
                                 break;
                             case 'play':
@@ -683,7 +683,7 @@
 
                 //Load stream
                 viewModel.stream.load().then(function() {
-                    viewModel.set('currentPage', viewModel.stream.pages.at(0));
+                    viewModel.set('selectedPage', viewModel.stream.pages.at(0));
                     kendo.bind('body', viewModel);
                 });
 

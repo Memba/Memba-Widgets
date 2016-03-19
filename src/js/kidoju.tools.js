@@ -1167,7 +1167,8 @@
                             // Get the viewModel
                             var bindingTarget = propertyGrid[0].kendoBindingTarget;
                             if ($.type(id) === STRING && $.type(targetId) === STRING && bindingTarget && bindingTarget.source instanceof kendo.data.ObservableObject) {
-                                var components = bindingTarget.source.currentPage.components;
+                                // TODO: we have a dependency here on the name of the selected page in the viewModel!
+                                var components = bindingTarget.source.selectedPage.components;
                                 // assert.instanceof(PageComponentCollectionDataSource, components, kendo.format(assert.messages.instanceof.default, 'components', 'kidoju.data.PageComponentCollectionDataSource'));
                                 assert.instanceof(kendo.data.DataSource, components, kendo.format(assert.messages.instanceof.default, 'components', 'kendo.data.DataSource'));
                                 // find the target components

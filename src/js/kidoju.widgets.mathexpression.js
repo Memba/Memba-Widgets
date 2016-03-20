@@ -46,8 +46,8 @@
             head.appendChild(script);
             script = document.createElement('script');
             script.type = 'text/javascript';
-            // script.src  = 'http://cdn.mathjax.org/mathjax/2.6-latest/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
-            script.src = 'http://cdn.mathjax.org/mathjax/2.6-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+            // script.src  = 'https://cdn.mathjax.org/mathjax/2.6-latest/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+            script.src = 'https://cdn.mathjax.org/mathjax/2.6-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML';
             head.appendChild(script);
         }
     })();

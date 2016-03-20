@@ -134,7 +134,7 @@
                 description: 'CheckBox',
                 attributes: {
                     style: { title: 'Style' },
-                    text: { title: 'Text' }
+                    text: { title: 'Text', defaultValue: 'Text' }
                 },
                 properties: {
                     name: { title: 'Name' },
@@ -196,7 +196,7 @@
                 attributes: {
                     // draggable: { title: 'Draggable' },
                     style: { title: 'Style' },
-                    text: { title: 'Text' }
+                    text: { title: 'Text', defaultValue: 'Label' }
                 }
                 // properties: {}
             },
@@ -1481,7 +1481,7 @@
             width: 300,
             attributes: {
                 style: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.style.title, defaultValue: 'font-size: 60px;' }),
-                text: new adapters.StringAdapter({ title: i18n.checkbox.attributes.text.title, defaultValue: 'text' })
+                text: new adapters.StringAdapter({ title: i18n.checkbox.attributes.text.title, defaultValue: i18n.checkbox.attributes.text.defaultValue })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.checkbox.properties.name.title }),
@@ -1753,7 +1753,7 @@
             width: 300,
             attributes: {
                 // TODO draggable: new adapters.BooleanAdapter({ title: i18n.label.attributes.draggable.title, defaultValue: false }),
-                text: new adapters.StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: 'Label' }),
+                text: new adapters.StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue }),
                 style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size: 80px;' })
             },
 
@@ -1824,7 +1824,7 @@
             width: 480,
             attributes: {
                 formula: new adapters.TextAdapter(
-                    { title: i18n.mathexpression.attributes.formula.title, defaultValue: '§sum_(i=1)^n i^3=((n(n+1))/2)^2§' },
+                    { title: i18n.mathexpression.attributes.formula.title, defaultValue: '#sum_(i=1)^n i^3=((n(n+1))/2)^2#' },
                     { rows: 4, style: 'resize:vertical; width: 100%;' }
                 ),
                 style: new adapters.StyleAdapter({ title: i18n.mathexpression.attributes.style.title, defaultValue: 'font-size: 40px;' })

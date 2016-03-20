@@ -256,6 +256,7 @@
                     attributes = tools.checkbox.constructor.prototype.attributes;
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Text';
+                    attributes.text.defaultValue = 'Text';
                     // Properties
                     properties = tools.checkbox.constructor.prototype.properties;
                     properties.name.title = 'Name';
@@ -305,6 +306,7 @@
                     // attributes.draggable.title = 'Draggable';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Text';
+                    attributes.text.defaultValue = 'Label';
                 }
 
                 if (tools.mathexpression instanceof Tool) {

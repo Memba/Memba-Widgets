@@ -272,7 +272,7 @@
                     tools.connector.constructor.prototype.description = 'Connecteur';
                     // Attributes
                     attributes = tools.connector.constructor.prototype.attributes;
-                    attributes.color.title = 'Color';
+                    attributes.color.title = 'Couleur';
                     // Properties
                     properties = tools.connector.constructor.prototype.properties;
                     properties.name.title = 'Nom';

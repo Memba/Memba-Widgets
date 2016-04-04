@@ -531,7 +531,7 @@
                 var clone = {};
                 // Copy page component fields (tool, top, left, height, width, rotate, ...), but not attributes and properties
                 for (var field in fields) {
-                    if (fields.hasOwnProperty(field) && $.type(fields[field].type) === STRING && field !== clone.idField) {
+                    if (fields.hasOwnProperty(field) && $.type(fields[field].type) === STRING && field !== component.idField) {
                         clone[field] = component.get(field);
                     }
                 }
@@ -789,7 +789,7 @@
                 var clone = {};
                 // Copy page fields (explanations, instructions, style)
                 for (var field in fields) {
-                    if (fields.hasOwnProperty(field) && $.type(fields[field].type) === STRING && field !== clone.idField) {
+                    if (fields.hasOwnProperty(field) && $.type(fields[field].type) === STRING && field !== page.idField) {
                         clone[field] = page.get(field);
                     }
                 }

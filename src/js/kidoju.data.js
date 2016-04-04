@@ -538,7 +538,7 @@
                 // Copy display attributes
                 fields = component.attributes.fields;
                 clone.attributes = {};
-                for (var field in fields) {
+                for (/*var */field in fields) {
                     if (fields.hasOwnProperty(field) && $.type(fields[field].type) === STRING) {
                         clone.attributes[field] = component.get('attributes.' + field);
                     }

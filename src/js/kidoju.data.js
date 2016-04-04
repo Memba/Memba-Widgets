@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2016 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -519,6 +519,34 @@
                         return componentCollectionArray.parent();
                     }
                 }
+            },
+
+            /**
+             * Clone a page component
+             */
+            clone: function () {
+                var component = this;
+                assert.type(STRING, component.tool, kendo.format(assert.messages.type.default, 'component.tool', STRING));
+                var fields = component.fields;
+                var clone = {};
+                // Copy page component fields (tool, top, left, height, width, rotate, ...), but not attributes and properties
+                for (var field in fields) {
+                    if (fields.hasOwnProperty(field) && $.type(fields[field].type) === STRING && field !== clone.idField) {
+                        clone[field] = component.get(field);
+                    }
+                }
+                // Copy display attributes
+                fields = component.attributes.fields;
+                clone.attributes = {};
+                for (var field in fields) {
+                    if (fields.hasOwnProperty(field) && $.type(fields[field].type) === STRING) {
+                        clone.attributes[field] = component.get('attributes.' + field);
+                    }
+                }
+                // IMPORTANT: we do not copy test logic (properties)
+                clone = new PageComponent(clone);
+                // Return clone
+                return clone;
             }
 
         });
@@ -750,6 +778,29 @@
                 } else {
                     return this._loaded;
                 }
+            },
+
+            /**
+             * Clone a page
+             */
+            clone: function () {
+                var page = this;
+                var fields = page.fields;
+                var clone = {};
+                // Copy page fields (explanations, instructions, style)
+                for (var field in fields) {
+                    if (fields.hasOwnProperty(field) && $.type(fields[field].type) === STRING && field !== clone.idField) {
+                        clone[field] = page.get(field);
+                    }
+                }
+                clone = new Page(clone);
+                // Copy components
+                var components = page.components;
+                for (var i = 0, total = components.total(); i < total; i++) {
+                    clone.components.add(components.at(i).clone());
+                }
+                // Return clone
+                return clone;
             }
         });
 

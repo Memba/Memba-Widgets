@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2016 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -84,7 +84,7 @@
      * Base Model and DataSource
      *********************************************************************************/
 
-    describe('Problems we had to solve with kendo.data.Model which lead to creating kidoju.data.Model', function () {
+    xdescribe('Problems we had to solve with kendo.data.Model which lead to creating kidoju.data.Model', function () {
 
         describe('When instantiating a kidoju.data.Model: init and accept', function () {
 
@@ -618,7 +618,7 @@
      * PageComponent
      *********************************************************************************************************/
 
-    describe('Test PageComponent', function () {
+    xdescribe('Test PageComponent', function () {
 
         describe('When initializing a PageComponent', function () {
 
@@ -735,7 +735,7 @@
      * PageComponentCollectionDataSource
      *********************************************************************************************************/
 
-    describe('Test PageComponentCollectionDataSource', function () {
+    xdescribe('Test PageComponentCollectionDataSource', function () {
 
         describe('When initializing a PageComponentCollectionDataSource', function (done) {
 
@@ -1155,6 +1155,21 @@
                     done();
                 });
             });
+
+            it('if cloned from an object with components, it should pass', function (done) {
+                var page = new Page({ components: [{ tool: 'label' }, { tool: 'image' }] });
+                expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
+                expect(page).to.have.property('id').that.is.null;
+                expect(page).to.have.property('style', '');
+                expect(page.components.fetch).to.respond;
+                page.components.fetch().then(function () {
+                    expect(page.components.total()).to.equal(2);
+                    var clone = page.clone();
+                    debugger;
+                    done();
+                });
+            });
+
         });
     });
 
@@ -1162,7 +1177,7 @@
      * WorkerPool
      *********************************************************************************************************/
 
-    describe('Test WorkerPool', function () {
+    xdescribe('Test WorkerPool', function () {
 
         if (window.PHANTOMJS) {
             // PhantomJS does not support web workers
@@ -1423,7 +1438,7 @@
      * PageCollectionDataSource
      *********************************************************************************************************/
 
-    describe('Test PageCollectionDataSource', function () {
+    xdescribe('Test PageCollectionDataSource', function () {
 
         describe('When initializing a PageCollectionDataSource', function () {
 
@@ -1791,7 +1806,7 @@
      * Stream
      *********************************************************************************************************/
 
-    describe('Test Stream', function () {
+    xdescribe('Test Stream', function () {
 
         var stream;
 
@@ -1906,7 +1921,7 @@
      *
      *********************************************************************************************************/
 
-    describe('Test a complex schema with sinonJS', function () {
+    xdescribe('Test a complex schema with sinonJS', function () {
 
         // See http://docs.telerik.com/kendo-ui/framework/hierarchicaldatasource/overview#binding-a-hierarchicaldatasource-to-remote-data-with-multiple-service-end-points
 
@@ -2302,7 +2317,6 @@
 
         });
 
-
         describe('Same with batch: true and submit method', function () {
 
             xit('Mixing operations and saving stream', function (done) {
@@ -2335,7 +2349,7 @@
      * Synchronization localStorage
      *********************************************************************************************************/
 
-    describe('Test synchronization with localStorage', function () {
+    xdescribe('Test synchronization with localStorage', function () {
 
         var storageKey = 'stream';
         var stream;
@@ -2502,7 +2516,7 @@
      * Miscellanesous to improve code coverage
      *********************************************************************************************************/
 
-    describe('Miscellaneous to improve code coverage', function () {
+    xdescribe('Miscellaneous to improve code coverage', function () {
 
         it('Stream.append & Page.append', function () {
             var stream = new Stream({});

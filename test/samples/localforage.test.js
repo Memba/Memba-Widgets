@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2016 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 

@@ -641,6 +641,7 @@
                 $(kendo.roleSelector('toolbar')).kendoToolBar({
                     items: [
                         { id: 'add', type: 'button', text: 'Add Page'},
+                        { id: 'duplicate', type: 'button', text: 'Duplicate Page'},
                         { id: 'delete', type: 'button', text: 'Delete Page'},
                         { id: 'save', type: 'button', text: 'Save'},
                         { id: 'reset', type: 'button', text: 'Reset'},
@@ -651,11 +652,16 @@
                             case 'add':
                                 viewModel.stream.pages.add({}); //consider index position
                                 break;
+                            case 'duplicate':
+                                var navigation = $(kendo.roleSelector('navigation')).data('kendoNavigation');
+                                var page = navigation.value();
+                                viewModel.stream.pages.add(page.clone()); //consider index position
+                                break;
                             case 'delete':
-                                var navigation = $(kendo.roleSelector('navigation')).data('kendoNavigation'),
-                                    stage = $('#center-pane').find(kendo.roleSelector('stage')).data('kendoStage'),
-                                    explorer = $('#right-pane').find(kendo.roleSelector('explorer')).data('kendoExplorer'),
-                                    page = navigation.value();
+                                var navigation = $(kendo.roleSelector('navigation')).data('kendoNavigation');
+                                var stage = $('#center-pane').find(kendo.roleSelector('stage')).data('kendoStage');
+                                var explorer = $('#right-pane').find(kendo.roleSelector('explorer')).data('kendoExplorer');
+                                var page = navigation.value();
                                 if (page instanceof Page) {
                                     viewModel.set('selectedComponent', undefined);
                                     viewModel.set('selectedPage', undefined); // This does not trigger source binding on selectedPage.components

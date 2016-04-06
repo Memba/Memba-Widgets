@@ -84,7 +84,6 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
-                that._enabled = that.options.enable;
                 that._dataSource();
                 that._layout();
                 kendo.notify(that);
@@ -212,7 +211,7 @@
                 // Draggables should remain active if there is at least one active dropzone
                 $.each(dropZoneCollection, function (index, otherDropZone) {
                     var otherDropZoneWidget = $(otherDropZone).data('kendoDropZone');
-                    if (otherDropZoneWidget instanceof kendo.ui.DropZone) {
+                    if (otherDropZoneWidget instanceof kendo.ui.DropZone && otherDropZoneWidget !== dropZoneWidget) {
                         enable = enable || otherDropZoneWidget._enabled;
                     }
                 });
@@ -309,7 +308,10 @@
                 }
                 that._enabled = enable;
                 that._initDropTarget(enable);
-                that._initDraggable(enable);
+                // Note: all components might not have been added to the stage yet
+                setTimeout(function() {
+                    that._initDraggable(enable);
+                }, 100);
             },
 
             /**

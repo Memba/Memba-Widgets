@@ -17,7 +17,7 @@
     <script src="./js/vendor/kendo/kendo.userevents.js"></script>
     <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
     <!-- dropzone requirements -->
-    <link rel="stylesheet" href="./styles/kidoju.widgets.dropzone.css">
+    <!--link rel="stylesheet" href="./styles/kidoju.widgets.dropzone.css"-->
     <script src="./js/window.assert.js"></script>
     <script src="./js/window.logger.js"></script>
     <script src="./js/kidoju.widgets.dropzone.js"></script>
@@ -32,22 +32,22 @@
 <div class="kj-stage" style="height: 600px; width: 800px; transform-origin: 0 0; transform: scale(0.75);">
     <div data-role="stage" style="position:relative;height: 600px; width: 800px;">
         <div class="kj-element" style="position:absolute;top:100px;left:150px;width:250px;height:250px;">
-            <div class="k-header" data-role="dropzone" data-bind="source: source, visible: visible, enabled: enabled" style="width:250px;height:250px;">Drag the small circles here.</div>
+            <div class="k-header" data-role="dropzone" data-bind="value: value1, source: source, visible: visible, enabled: enabled" style="width:250px;height:250px;">Drag the small circles here.</div>
         </div>
         <div class="kj-element" style="position:absolute;top:300px;left:500px;width:250px;height:250px;">
-            <div class="k-header" data-role="dropzone" data-bind="source: source, visible: visible, enabled: enabled" style="width:250px;height:250px;">Or here.</div>
+            <div class="k-header" data-role="dropzone" data-bind="value: value2, source: source, visible: visible, enabled: enabled" style="width:250px;height:250px;">Or here.</div>
         </div>
         <div class="kj-element" style="position:absolute;top:50px;left:50px;width:50px;height:50px;">
-            <div data-draggable="true" data-id="draggable1" data-value="1" style="border:solid 1px blue;border-radius: 50%;background-color:red;width:50px;height:50px;"></div>
+            <div data-draggable="true" data-id="draggable1" data-value="red" style="border:solid 1px blue;border-radius: 50%;background-color:red;width:50px;height:50px;"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:150px;left:50px;width:40px;height:40px;">
-            <div data-draggable="true" data-id="draggable2" data-value="2" style="border:solid 1px blue;border-radius: 50%;background-color:blue;width:40px;height:40px;"></div>
+            <div data-draggable="true" data-id="draggable2" data-value="blue" style="border:solid 1px blue;border-radius: 50%;background-color:blue;width:40px;height:40px;"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:250px;left:50px;width:30px;height:30px;">
-            <div data-draggable="true" data-id="draggable3" data-value="3" style="border:solid 1px blue;border-radius: 50%;background-color:green;width:30px;height:30px;"></div>
+            <div data-draggable="true" data-id="draggable3" data-value="green" style="border:solid 1px blue;border-radius: 50%;background-color:green;width:30px;height:30px;"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:350px;left:50px;width:20px;height:20px;">
-            <div data-draggable="true" data-id="draggable4" data-value="4" style="border:solid 1px blue;border-radius: 50%;background-color:yellow;width:20px;height:20px;"></div>
+            <div data-draggable="true" data-id="draggable4" data-value="yellow" style="border:solid 1px blue;border-radius: 50%;background-color:yellow;width:20px;height:20px;"></div>
         </div>
     </div>
 </div>
@@ -57,11 +57,11 @@
 </div>
 <pre>
 {
-    value: <span data-bind="text: value"></span>,
-    source:
-        <div data-bind="text: source" style="margin-left: 80px;"></div>
-    source$: <span data-bind="text: source$"></span>
-    visible: <span data-bind="text: visible"></span>,
+    value1: <span data-bind="text: value1$"></span>
+    value2: <span data-bind="text: value2$"></span>
+    source$:
+        <div data-bind="text: source$" style="margin-left:50px;"></div>
+    visible: <span data-bind="text: visible"></span>
     enabled: <span data-bind="text: enabled"></span>
 }
 </pre>
@@ -73,14 +73,24 @@
 
         var kendo = window.kendo;
         var viewModel = new kendo.observable({
+            value1: undefined,
+            value2: undefined,
             source: [],
             source$: function() {
                 var ret = '';
-                this.get('source').forEach(function() {});
+                this.get('source').forEach(function(item) {
+                    ret += item.id + kendo.format(' ({0}, {1})\n', item.top, item.left);
+                });
                 return ret;
             },
             visible: true,
-            enabled: true
+            enabled: true,
+            value1$: function () {
+                return (this.get('value1') || []).join(',');
+            },
+            value2$: function () {
+                return (this.get('value2') || []).join(',');
+            }
         });
 
         $(document).ready(function() {

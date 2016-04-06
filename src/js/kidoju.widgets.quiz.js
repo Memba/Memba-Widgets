@@ -365,6 +365,7 @@
                     if (e && e.items instanceof kendo.data.ObservableArray) {
                         items = e.items;
                     }
+                    // Note: we only add elements here (not modify or remove depending on e.action) and we might have to improve
                     that.element.empty();
                     $(items).each(function (index, item) {
                         if (that.options.mode === MODES.BUTTON) {

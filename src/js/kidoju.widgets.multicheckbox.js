@@ -221,11 +221,17 @@
                     .attr('style', '')
                     .css(that.options.itemStyle);
                 if ($.isArray(that._value) || that._value instanceof ObservableArray) {
+                    element.find(CHECKBOX_SELECTOR)
+                        .prop(CHECKED, false)
+                        .parent()
+                                .attr('style', '')
+                                .css($.extend({}, that.options.itemStyle));
                     $.each(that._value, function (index, val) {
                         element.find(CHECKBOX_SELECTOR + '[value="' + val + '"]')
+                            .prop(CHECKED, true)
                             .parent()
-                            .attr('style', '')
-                            .css($.extend({}, that.options.itemStyle, that.options.activeStyle));
+                                .attr('style', '')
+                                .css($.extend({}, that.options.itemStyle, that.options.activeStyle));
                     });
                 }
             },

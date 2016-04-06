@@ -362,7 +362,7 @@
                         items = e.items;
                     }
                     that.element.off(NS).empty();
-                    $(e.items).each(function (index, value) {
+                    $(items).each(function (index, value) {
                         if (that.options.mode === MODES.BUTTON) {
                             $(kendo.format(BUTTON, kendo.htmlEncode(value)))
                                 .css(that.options.itemStyle)

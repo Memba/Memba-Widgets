@@ -221,7 +221,7 @@
                     .attr('style', '')
                     .css(that.options.itemStyle);
                 if ($.isArray(that._value) || that._value instanceof ObservableArray) {
-                    $.each(that._value, function(index, val) {
+                    $.each(that._value, function (index, val) {
                         element.find(CHECKBOX_SELECTOR + '[value="' + val + '"]')
                             .parent()
                             .attr('style', '')
@@ -289,10 +289,10 @@
                 var _value = that._value = that._value || [];
                 var data = that.dataSource.data();
                 var changed = false;
-                $.each(_value, function(index, val) {
+                $.each(_value, function (index, val) {
                     if (data.indexOf(val) === -1) {
-                       _value.splice(index, 1);
-                       changed = true;
+                        _value.splice(index, 1);
+                        changed = true;
                     }
                 });
                 if (changed) {

@@ -18,6 +18,9 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -446,6 +449,8 @@
         ui.plugin(Quiz);
 
     })(window.jQuery);
+
+    /* jshint +W071 */
 
     return window.kendo;
 

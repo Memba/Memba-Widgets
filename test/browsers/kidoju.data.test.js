@@ -727,6 +727,12 @@
 
             });
 
+            xit('if cloned, it should pass', function (done) {
+                // TODO
+            });
+
+            // TODO Many other components!!!
+
         });
 
     });
@@ -1165,7 +1171,7 @@
                 page.components.fetch().then(function () {
                     expect(page.components.total()).to.equal(2);
                     var clone = page.clone();
-                    debugger;
+                    // TODO
                     done();
                 });
             });

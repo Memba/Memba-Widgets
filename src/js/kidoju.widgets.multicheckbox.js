@@ -161,12 +161,10 @@
                     // Note, we are expecting an array of strings which is not checked here
                     that._value = value;
                     that._toggleUI();
-                    // that.trigger(CHANGE);
                 } else if ($.type(value) === NULL) {
                     that._value = [];
                     that._toggleUI();
-                    // that.trigger(CHANGE);
-                } else if ($.type(value) === 'undefined') {
+                } else if ($.type(value) === UNDEFINED) {
                     return that._value;
                 } else {
                     throw new TypeError('`value` is expected to be a an array or null if not undefined');
@@ -313,7 +311,7 @@
              */
             enable: function (enable) {
                 var that = this;
-                var element = this.element;
+                var element = that.element;
                 assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 if ($.type(enable) === UNDEFINED) {
                     enable = true;

@@ -253,9 +253,11 @@
                     tools.checkbox.constructor.prototype.description = 'Boîte à Cocher';
                     // Attributes
                     attributes = tools.checkbox.constructor.prototype.attributes;
-                    attributes.style.title = 'Style';
-                    attributes.text.title = 'Texte';
-                    attributes.text.defaultValue = 'Texte';
+                    attributes.data.title = 'Valeurs';
+                    attributes.data.defaultValue = 'Option 1\nOption 2';
+                    attributes.groupStyle.title = 'Style Groupe';
+                    attributes.itemStyle.title = 'Style Element';
+                    attributes.selectedStyle.title = 'Style Sélection';
                     // Properties
                     properties = tools.checkbox.constructor.prototype.properties;
                     properties.name.title = 'Nom';
@@ -277,6 +279,7 @@
                     properties = tools.connector.constructor.prototype.properties;
                     properties.name.title = 'Nom';
                     properties.description.title = 'Description';
+                    properties.value.title = 'Value';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
@@ -291,20 +294,26 @@
                     attributes = tools.image.constructor.prototype.attributes;
                     attributes.alt.title = 'Texte';
                     attributes.alt.defaultValue = 'Image';
-                    // attributes.draggable.title = 'Draggable';
                     attributes.src.title = 'Source';
                     attributes.style.title = 'Style';
+                    // Properties
+                    properties = tools.image.constructor.prototype.properties;
+                    properties.draggable.title = 'Déplaçable';
+                    properties.value.title = 'Valeur';
                 }
 
                 if (tools.label instanceof Tool) {
                     // Description
-                    tools.label.constructor.prototype.description = 'Etiquette';
+                    tools.label.constructor.prototype.description = 'Étiquette';
                     // Attributes
                     attributes = tools.label.constructor.prototype.attributes;
-                    // attributes.draggable.title = 'Draggable';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Texte';
                     attributes.text.defaultValue = 'Label';
+                    // Properties
+                    properties = tools.label.constructor.prototype.properties;
+                    properties.draggable.title = 'Déplaçable';
+                    properties.value.title = 'Valeur';
                 }
 
                 if (tools.mathexpression instanceof Tool) {
@@ -321,12 +330,12 @@
                     tools.quiz.constructor.prototype.description = 'Question à Choix Multiple';
                     // Attributes
                     attributes = tools.quiz.constructor.prototype.attributes;
-                    attributes.activeStyle.title = 'Style Sélection';
                     attributes.data.title = 'Valeurs';
                     attributes.data.defaultValue = 'Vrai\nFaux';
                     attributes.groupStyle.title = 'Style Groupe';
                     attributes.itemStyle.title = 'Style Element';
                     attributes.mode.title = 'Mode';
+                    attributes.selectedStyle.title = 'Style Sélection';
                     // Properties
                     properties = tools.quiz.constructor.prototype.properties;
                     properties.name.title = 'Nom';

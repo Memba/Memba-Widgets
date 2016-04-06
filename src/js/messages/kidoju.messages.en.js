@@ -254,9 +254,11 @@
                     tools.checkbox.constructor.prototype.description = 'CheckBox';
                     // Attributes
                     attributes = tools.checkbox.constructor.prototype.attributes;
-                    attributes.style.title = 'Style';
-                    attributes.text.title = 'Text';
-                    attributes.text.defaultValue = 'Text';
+                    attributes.data.title = 'Values';
+                    attributes.data.defaultValue = 'Option 1\nOption 2';
+                    attributes.groupStyle.title = 'Group Style';
+                    attributes.itemStyle.title = 'Item Style';
+                    attributes.selectedStyle.title = 'Select. Style';
                     // Properties
                     properties = tools.checkbox.constructor.prototype.properties;
                     properties.name.title = 'Name';
@@ -278,6 +280,7 @@
                     properties = tools.connector.constructor.prototype.properties;
                     properties.name.title = 'Name';
                     properties.description.title = 'Description';
+                    properties.value.title = 'Value';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -292,10 +295,12 @@
                     attributes = tools.image.constructor.prototype.attributes;
                     attributes.alt.title = 'Text';
                     attributes.alt.defaultValue = 'Image';
-                    // attributes.draggable.title = 'Draggable';
                     attributes.src.title = 'Source';
                     attributes.style.title = 'Style';
-
+                    // Properties
+                    properties = tools.image.constructor.prototype.properties;
+                    properties.draggable.title = 'Draggable';
+                    properties.value.title = 'Value';
                 }
 
                 if (tools.label instanceof Tool) {
@@ -303,10 +308,13 @@
                     tools.label.constructor.prototype.description = 'Label';
                     // Attributes
                     attributes = tools.label.constructor.prototype.attributes;
-                    // attributes.draggable.title = 'Draggable';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Text';
                     attributes.text.defaultValue = 'Label';
+                    // Properties
+                    properties = tools.label.constructor.prototype.properties;
+                    properties.draggable.title = 'Draggable';
+                    properties.value.title = 'Value';
                 }
 
                 if (tools.mathexpression instanceof Tool) {
@@ -323,12 +331,12 @@
                     tools.quiz.constructor.prototype.description = 'Quiz';
                     // Attributes
                     attributes = tools.quiz.constructor.prototype.attributes;
-                    attributes.activeStyle.title = 'Active Style';
                     attributes.data.title = 'Values';
                     attributes.data.defaultValue = 'True\nFalse';
                     attributes.groupStyle.title = 'Group Style';
                     attributes.itemStyle.title = 'Item Style';
                     attributes.mode.title = 'Mode';
+                    attributes.selectedStyle.title = 'Select. Style';
                     // Properties
                     properties = tools.quiz.constructor.prototype.properties;
                     properties.name.title = 'Name';

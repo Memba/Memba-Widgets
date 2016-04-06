@@ -147,7 +147,7 @@
              * @param enable
              * @private
              */
-            _initDropTarget: function(enable) {
+            _initDropTarget: function (enable) {
                 var that = this;
                 var element = that.element;
                 var dropTargetWidget = element.data('kendoDropTarget');
@@ -216,7 +216,7 @@
                     }
                 });
                 dropZoneWidget.draggable = container.find(options.draggable);
-                $.each(dropZoneWidget.draggable, function(index, htmlElement) {
+                $.each(dropZoneWidget.draggable, function (index, htmlElement) {
                     var draggable = $(htmlElement);
                     var draggableWidget = $(draggable).data('kendoDraggable');
                     if (draggableWidget instanceof Draggable) {
@@ -309,7 +309,7 @@
                 that._enabled = enable;
                 that._initDropTarget(enable);
                 // Note: all components might not have been added to the stage yet
-                setTimeout(function() {
+                setTimeout(function () {
                     that._initDraggable(enable);
                 }, 100);
             },

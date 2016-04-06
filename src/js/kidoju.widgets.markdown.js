@@ -64,7 +64,7 @@
         var NULL = 'null';
         var UNDEFINED = 'undefined';
         var EMPTY = '';
-        var CHANGE = 'change';
+        // var CHANGE = 'change';
         // var NS = '.kendoMarkdown';
         var WIDGET_CLASS = 'kj-markdown'; // 'k-widget kj-markdown';
         var RX_YML = /^---\n([\s\S]*)\n---/;
@@ -148,9 +148,11 @@
              * Widget events
              * @property events
              */
+            /*
             events: [
                 CHANGE
             ],
+            */
 
             /**
              * Value for MVVM binding
@@ -162,7 +164,7 @@
                 if ($.type(value) === STRING || $.type(value) === NULL) {
                     if (that._value !== value) {
                         that._value = value;
-                        that.trigger(CHANGE, { value: that._value });
+                        // that.trigger(CHANGE, { value: that._value });
                         that.refresh();
                     }
                 } else if ($.type(value) === UNDEFINED) {

@@ -1,5 +1,8 @@
+.kj-quiz .kj-quiz-item {
+    margin-bottom: 0.15em;
+}
 .kj-quiz .k-radio-label {
-    vertical-align: baseline;
+    vertical-align: initial;
 }
 .kj-quiz .k-radio-label:before {
     border-width: 0.05em;

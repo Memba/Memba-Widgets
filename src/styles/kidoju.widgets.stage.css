@@ -1,6 +1,10 @@
 .kj-stage .kj-element input.k-textbox {
     text-indent: initial;
 }
+.kj-stage .kj-element-result {
+    position: relative;
+    height: 0 !important;
+}
 .kj-stage .kj-nopage {
     font-size: xx-large;
 }

@@ -52,7 +52,7 @@
         var SURFACE = 'surface';
         var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
         var ID = 'id';
-        var VALUE = 'value';
+        // var VALUE = 'value';
 
         /*********************************************************************************
          * Helpers
@@ -161,6 +161,7 @@
                 scaler: '', // e.g. '.kj-stage', a parent component that is scaled using CSS transforms
                 container: 'body', // e.g. '.kj-stage>div[data-role="stage"]',
                 color: '#FF0000',
+                hasSurface: true,
                 enable: true
             },
 
@@ -231,7 +232,7 @@
                 }
                 // ensure surface
                 var surface = container.data(SURFACE);
-                if (!(surface instanceof Surface)) {
+                if (options.hasSurface && !(surface instanceof Surface)) {
                     var surfaceElement = container.find(DOT + SURFACE_CLASS);
                     if (surfaceElement.length === 0) {
                         assert.ok(this.element.hasClass(WIDGET_CLASS), 'this._layout should be called before this._ensureSurface');
@@ -306,33 +307,34 @@
                 var connections = this.data(OBSERVABLE);
                 assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'this.connections', 'kendo.data.ObservableArray'));
                 var surface = this.data(SURFACE);
-                assert.instanceof(Surface, surface, kendo.format(assert.messages.instanceof.default, 'this.surface', 'kendo.drawing.Surface'));
-                // Clear surface
-                surface.clear();
-                // Redraw all connections
-                connections.forEach(function (connection) {
-                    var origin = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), connection.origin));
-                    var originWidget = origin.data(WIDGET);
-                    var destination = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), connection.destination));
-                    var destinationWidget = destination.data(WIDGET);
-                    // Only connector widgets can be connected
-                    if (originWidget instanceof Connector && destinationWidget instanceof Connector) {
-                        var scaler = origin.closest(originWidget.options.scaler);
-                        var scale = scaler.length ? util.getTransformScale(scaler) : 1;
-                        var originCenter = util.getElementCenter(origin, container, scale);
-                        var destinationCenter = util.getElementCenter(destination, container, scale);
-                        var path = new drawing.Path({
-                            stroke: {
-                                color: connection.color,
-                                lineCap: PATH_LINECAP,
-                                width: PATH_WIDTH
-                            }
-                        })
-                            .moveTo(originCenter.left, originCenter.top)
-                            .lineTo(destinationCenter.left, destinationCenter.top);
-                        surface.draw(path);
-                    }
-                });
+                if (surface instanceof kendo.drawing.Surface) {
+                    // Clear surface
+                    surface.clear();
+                    // Redraw all connections
+                    connections.forEach(function (connection) {
+                        var origin = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), connection.origin));
+                        var originWidget = origin.data(WIDGET);
+                        var destination = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), connection.destination));
+                        var destinationWidget = destination.data(WIDGET);
+                        // Only connector widgets can be connected
+                        if (originWidget instanceof Connector && destinationWidget instanceof Connector) {
+                            var scaler = origin.closest(originWidget.options.scaler);
+                            var scale = scaler.length ? util.getTransformScale(scaler) : 1;
+                            var originCenter = util.getElementCenter(origin, container, scale);
+                            var destinationCenter = util.getElementCenter(destination, container, scale);
+                            var path = new drawing.Path({
+                                stroke: {
+                                    color: connection.color,
+                                    lineCap: PATH_LINECAP,
+                                    width: PATH_WIDTH
+                                }
+                            })
+                                .moveTo(originCenter.left, originCenter.top)
+                                .lineTo(destinationCenter.left, destinationCenter.top);
+                            surface.draw(path);
+                        }
+                    });
+                }
             },
 
             /**

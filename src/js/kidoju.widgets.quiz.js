@@ -371,16 +371,6 @@
                             var radio = $(kendo.format(RADIO, kendo.htmlEncode(value), that._randomId, index))
                                 .css(that.options.itemStyle)
                                 .appendTo(that.element);
-                            /*
-                            var size = parseInt(radio.css('fontSize'), 10) || parseInt(radio.parent().css('fontSize'), 10) || parseInt(radio.parent().parent().css('fontSize'), 10);
-                            if (!isNaN(size)) {
-                                // TODO See http://www.telerik.com/forums/font-size-of-styled-radio-buttons-and-checkboxes
-                                // TODO consider as part of resize event handler
-                                radio.find('input[type=radio]')
-                                    .height(0.6 * size)
-                                    .width(0.6 * size);
-                            }
-                            */
                         }
                     });
                 }

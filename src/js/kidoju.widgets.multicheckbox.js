@@ -161,11 +161,11 @@
                     // Note, we are expecting an array of strings which is not checked here
                     that._value = value;
                     that._toggleUI();
-                    that.trigger(CHANGE);
+                    // that.trigger(CHANGE);
                 } else if ($.type(value) === NULL) {
                     that._value = [];
                     that._toggleUI();
-                    that.trigger(CHANGE);
+                    // that.trigger(CHANGE);
                 } else if ($.type(value) === 'undefined') {
                     return that._value;
                 } else {

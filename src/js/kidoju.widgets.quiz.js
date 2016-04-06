@@ -366,17 +366,21 @@
                         items = e.items;
                     }
                     that.element.empty();
-                    $(items).each(function (index, value) {
+                    $(items).each(function (index, item) {
                         if (that.options.mode === MODES.BUTTON) {
-                            $(kendo.format(BUTTON, kendo.htmlEncode(value)))
+                            $(kendo.format(BUTTON, kendo.htmlEncode(item)))
                                 .css(that.options.itemStyle)
                                 .appendTo(that.element);
                         } else if (that.options.mode === MODES.RADIO) {
-                            var radio = $(kendo.format(RADIO, kendo.htmlEncode(value), that._randomId, index))
+                            var radio = $(kendo.format(RADIO, kendo.htmlEncode(item), that._randomId, index))
                                 .css(that.options.itemStyle)
                                 .appendTo(that.element);
                         }
                     });
+                }
+                // Get rid of value if there is no more a match in the dataSource
+                if (that.dataSource.data().indexOf(that._value) === -1) {
+                    that.value(null);
                 }
             },
 

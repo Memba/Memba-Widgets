@@ -361,7 +361,7 @@
                     if (e && e.items instanceof kendo.data.ObservableArray) {
                         items = e.items;
                     }
-                    that.element.off(NS).empty();
+                    that.element.empty();
                     $(items).each(function (index, value) {
                         if (that.options.mode === MODES.BUTTON) {
                             $(kendo.format(BUTTON, kendo.htmlEncode(value)))

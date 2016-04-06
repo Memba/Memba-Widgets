@@ -41,6 +41,10 @@
                 DROPDOWN: 'dropdown',
                 RADIO: 'radio'
             };
+        var CHECKED = 'checked';
+        var INPUT_SELECTOR = 'input';
+        var RADIO_SELECTOR = 'input[type="radio"]';
+        var BUTTON_SELECTOR = 'input[type="button"]';
 
         /*********************************************************************************
          * Helpers
@@ -130,7 +134,7 @@
                 dataSource: [],
                 mode: MODES.BUTTON,
                 itemStyle: {},
-                activeStyle: {},
+                selectedStyle: {},
                 value: null,
                 enable: true,
                 messages: {
@@ -152,7 +156,7 @@
                     // Add default space between buttons
                     options.itemStyle = $.extend({ marginRight: MARGIN, marginBottom: MARGIN }, options.itemStyle);
                 }
-                options.activeStyle = formatStyle(options.activeStyle);
+                options.selectedStyle = formatStyle(options.selectedStyle);
             },
 
             /**
@@ -269,15 +273,15 @@
                 assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 switch (that.options.mode) {
                     case MODES.BUTTON:
-                        element.find('input[type=button]')
+                        element.find(BUTTON_SELECTOR)
                             .removeClass(ACTIVE)
                             .attr('style', '')
                             .css(that.options.itemStyle);
                         if (that._value) {
-                            element.find('input[type=button][value="' + that._value + '"]')
+                            element.find(BUTTON_SELECTOR + '[value="' + that._value + '"]')
                                 .addClass(ACTIVE)
                                 .attr('style', '')
-                                .css($.extend({}, that.options.itemStyle, that.options.activeStyle));
+                                .css($.extend({}, that.options.itemStyle, that.options.selectedStyle));
                         }
                         break;
                     case MODES.DROPDOWN:
@@ -290,14 +294,14 @@
                             .attr('style', '')
                             .css(that.options.itemStyle);
                         if (that._value) {
-                            element.find('input[type=radio][value="' + that._value + '"]')
-                                .prop('checked', true)
+                            element.find(RADIO_SELECTOR + '[value="' + that._value + '"]')
+                                .prop(CHECKED, true)
                                 .parent()
                                     .attr('style', '')
-                                    .css($.extend({}, that.options.itemStyle, that.options.activeStyle));
+                                    .css($.extend({}, that.options.itemStyle, that.options.selectedStyle));
                         } else {
-                            element.find('input[type=radio]:checked')
-                                .prop('checked', false);
+                            element.find(RADIO_SELECTOR + ':checked')
+                                .prop(CHECKED, false);
                         }
                         break;
                 }
@@ -393,14 +397,14 @@
                 } else {
                     element.off(NS);
                     if (enable) {
-                        element.on(CLICK + NS, 'input', $.proxy(that._onClick, that));
+                        element.on(CLICK + NS, INPUT_SELECTOR, $.proxy(that._onClick, that));
                     } else {
                         // Because input are readonly and not disabled, we need to prevent default (checking checkbox) and let it bubble to the stage element to display the handle box
-                        element.on(CLICK + NS, 'input', function (e) {
+                        element.on(CLICK + NS, INPUT_SELECTOR, function (e) {
                             e.preventDefault();
                         });
                     }
-                    element.find('input')
+                    element.find(INPUT_SELECTOR)
                         .toggleClass(DISABLE, !enable)
                         // .prop('disabled', !enable) <--- suppresses the click event so elements are no more selectable in design mode
                         .prop('readonly', !enable);

@@ -24,20 +24,18 @@
 <div id="multicheckbox1" style="font-size:60px; border: solid 1px black;"></div>
 
 <h2>MultiCheckBox bound to observable</h2>
-<div id="multicheckbox2" data-role="multicheckbox" data-mode="button" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
-<div id="multicheckbox3" data-role="multicheckbox" data-mode="dropdown" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
-<div id="multicheckbox4" data-role="multicheckbox" data-mode="radio" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+<div id="multicheckbox2" data-role="multicheckbox" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled&nbsp;
 </div>
 <pre>
     {
-        value: <span data-bind="text: value"></span>,
+        value: <span data-bind="text: value$"></span>
         source:
             <div data-bind="text: source" style="margin-left: 80px;"></div>
         source$: <span data-bind="text: source$"></span>
-        visible: <span data-bind="text: visible"></span>,
+        visible: <span data-bind="text: visible"></span>
         enabled: <span data-bind="text: enabled"></span>
     }
 </pre>
@@ -69,6 +67,9 @@
                 visible: true,
                 enabled: true,
                 readonly: true,
+                value$: function() {
+                    return this.get('value').join(',');
+                },
                 source$: function() {
                     return this.get('source').split('\n');
                 }

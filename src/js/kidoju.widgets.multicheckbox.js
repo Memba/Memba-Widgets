@@ -272,18 +272,33 @@
              */
             refresh: function (e) {
                 var that = this;
-                var element = this.element;
+                var element = that.element;
                 assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 var items = that.dataSource.data();
                 if (e && e.items instanceof ObservableArray) {
                     items = e.items;
                 }
+                // Note: we only add elements here (not modify or remove depending on e.action) and we might have to improve
                 that.element.empty();
-                $(items).each(function (index, value) {
-                    var checkbox = $(kendo.format(CHECKBOX, kendo.htmlEncode(value), that._randomId, index))
+                $(items).each(function (index, item) {
+                    var checkbox = $(kendo.format(CHECKBOX, kendo.htmlEncode(item), that._randomId, item))
                         .css(that.options.itemStyle)
                         .appendTo(that.element);
                 });
+                // get rid of values that no more have a match in dataSource
+                var _value = that._value = that._value || [];
+                var data = that.dataSource.data();
+                var changed = false;
+                $.each(_value, function(index, val) {
+                    if (data.indexOf(val) === -1) {
+                       _value.splice(index, 1);
+                       changed = true;
+                    }
+                });
+                if (changed) {
+                    // that._toggleUI(); // not needed
+                    that.trigger(CHANGE, { value: that._value });
+                }
             },
 
             /**

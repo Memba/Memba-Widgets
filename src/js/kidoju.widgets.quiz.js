@@ -177,13 +177,13 @@
                     if (that._value !== value && that.dataSource instanceof kendo.data.DataSource && that.dataSource.data().indexOf(value) > -1) {
                         that._value = value;
                         that._toggleUI();
-                        that.trigger(CHANGE);
+                        // that.trigger(CHANGE);
                     }
                 } else if (value === null) {
                     if (that._value !== value) {
                         that._value = null;
                         that._toggleUI();
-                        that.trigger(CHANGE);
+                        // that.trigger(CHANGE);
                     }
                 } else if ($.type(value) === 'undefined') {
                     return that._value;
@@ -381,7 +381,8 @@
                 }
                 // Get rid of value if there is no more a match in the dataSource
                 if (that.dataSource.data().indexOf(that._value) === -1) {
-                    that.value(null);
+                    that._value = null;
+                    that.trigger(CHANGE, { value: that._value });
                 }
             },
 

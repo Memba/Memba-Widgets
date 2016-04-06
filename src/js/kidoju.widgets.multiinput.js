@@ -136,6 +136,7 @@
 
             /**
              * Initialization of values from HTML markup
+             * TODO: looks a bit dodgy
              * @private
              */
             _initValue: function () {
@@ -158,7 +159,7 @@
             },
 
             /**
-             * Value containing an email which can be used to find a Gravatar
+             * Get/set value
              * @method value
              * @param value
              * @return {*}

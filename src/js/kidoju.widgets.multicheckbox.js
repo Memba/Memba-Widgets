@@ -22,9 +22,11 @@
         var kendo = window.kendo;
         var ui = kendo.ui;
         var Widget = ui.Widget;
+        var ObservableArray = kendo.data.ObservableArray;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.multicheckbox');
-        var NS = '.kendoQuiz';
+        var NS = '.kendoMultiCheckBox';
+        var NULL = 'null';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
@@ -32,13 +34,10 @@
         var ACTIVE = 'k-state-active';
         var DISABLE = 'k-state-disabled';
         var WIDGET_CLASS = 'kj-multicheckbox'; // 'k-widget kj-multicheckbox',
-        var RADIO = '<div class="kj-multicheckbox-item"><input id="{1}_{2}" name="{1}" type="radio" class="k-radio" value="{0}"><label class="k-radio-label" for="{1}_{2}">{0}</label></div>';
-        var MARGIN = '0.2em';
-        var MODES = {
-                BUTTON: 'button',
-                DROPDOWN: 'dropdown',
-                RADIO: 'radio'
-            };
+        var CHECKBOX = '<div class="kj-multicheckbox-item"><input id="{1}_{2}" name="{1}" type="checkbox" class="k-checkbox" value="{0}"><label class="k-checkbox-label" for="{1}_{2}">{0}</label></div>';
+        var CHECKBOX_SELECTOR = 'input[type="checkbox"]';
+        var CHECKED = 'checked';
+        var READONLY = 'readonly';
 
         /*********************************************************************************
          * Helpers
@@ -58,10 +57,19 @@
             });
         }
 
+        /**
+         * Get a random id
+         * @returns {string}
+         */
         function randomId() {
             return 'id_' + randomString(6);
         }
 
+        /**
+         * Format a style string into a style object
+         * @param style
+         * @returns {*}
+         */
         function formatStyle(style) {
             if ($.isPlainObject(style)) {
                 return style;
@@ -119,7 +127,7 @@
                 dataSource: [],
                 itemStyle: {},
                 activeStyle: {},
-                value: null,
+                value: [],
                 enable: true
             },
 
@@ -149,23 +157,19 @@
              */
             value: function (value) {
                 var that = this;
-                if ($.type(value) === STRING) {
-                    // Note: Giving a value to the dropDownList that does not exist in dataSource is discarded without raising an error
-                    if (that._value !== value && that.dataSource instanceof kendo.data.DataSource && that.dataSource.data().indexOf(value) > -1) {
-                        that._value = value;
-                        that._toggleUI();
-                        that.trigger(CHANGE);
-                    }
-                } else if (value === null) {
-                    if (that._value !== value) {
-                        that._value = null;
-                        that._toggleUI();
-                        that.trigger(CHANGE);
-                    }
+                if ($.isArray(value) || value instanceof ObservableArray) {
+                    // Note, we are expecting an array of strings which is not checked here
+                    that._value = value;
+                    that._toggleUI();
+                    that.trigger(CHANGE);
+                } else if ($.type(value) === NULL) {
+                    that._value = [];
+                    that._toggleUI();
+                    that.trigger(CHANGE);
                 } else if ($.type(value) === 'undefined') {
                     return that._value;
                 } else {
-                    throw new TypeError('`value` is expected to be a string if not undefined');
+                    throw new TypeError('`value` is expected to be a an array or null if not undefined');
                 }
             },
 
@@ -191,12 +195,15 @@
             _onClick: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
+                var _value = that._value = that._value || [];
                 var target = $(e.target);
-                var value = target.val();
-                if (value !== that._value) {
-                    that._value = value;
-                } else { // clicking the same value resets the button (and value)
-                    that._value = null;
+                var val = target.val();
+                var index = _value.indexOf(val);
+                var checked = target.prop(CHECKED);
+                if (checked && index === -1) {
+                    _value.push(val);
+                } else if (!checked && index >= 0) {
+                    _value.splice(index, 1);
                 }
                 that._toggleUI();
                 that.trigger(CHANGE, { value: that._value });
@@ -213,15 +220,13 @@
                 element.children('div')
                     .attr('style', '')
                     .css(that.options.itemStyle);
-                if (that._value) {
-                    element.find('input[type=checkbox][value="' + that._value + '"]')
-                        .prop('checked', true)
-                        .parent()
+                if ($.isArray(that._value) || that._value instanceof ObservableArray) {
+                    $.each(that._value, function(index, val) {
+                        element.find(CHECKBOX_SELECTOR + '[value="' + val + '"]')
+                            .parent()
                             .attr('style', '')
                             .css($.extend({}, that.options.itemStyle, that.options.activeStyle));
-                } else {
-                    element.find('input[type=radio]:checked')
-                        .prop('checked', false);
+                    });
                 }
             },
 
@@ -241,12 +246,6 @@
                 }
                 that._refreshHandler = $.proxy(that.refresh, that);
                 that.dataSource.bind(CHANGE, that._refreshHandler);
-
-                // Assign dataSource to dropDownList
-                var dropDownList = that.dropDownList;
-                if (dropDownList instanceof kendo.ui.DropDownList && dropDownList.dataSource !== that.dataSource) {
-                    dropDownList.setDataSource(that.dataSource);
-                }
 
                 // trigger a read on the dataSource if one hasn't happened yet
                 if (that.options.autoBind) {
@@ -268,44 +267,23 @@
 
             /**
              * Refresh method (called when dataSource is updated)
-             * for example to add buttons or options
+             * for example to add checkboxes
              * @param e
              */
             refresh: function (e) {
                 var that = this;
                 var element = this.element;
                 assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
-                if (that.options.mode === MODES.DROPDOWN) {
-                    assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'that.dropDownList', 'kendo.ui.DropDownList'));
-                    that.dropDownList.refresh(e);
-                } else {
-                    var items = that.dataSource.data();
-                    if (e && e.items instanceof kendo.data.ObservableArray) {
-                        items = e.items;
-                    }
-                    that.element.empty();
-                    $(e.items).each(function (index, value) {
-                        if (that.options.mode === MODES.BUTTON) {
-                            $(kendo.format(BUTTON, kendo.htmlEncode(value)))
-                                .css(that.options.itemStyle)
-                                .appendTo(that.element);
-                        } else if (that.options.mode === MODES.RADIO) {
-                            var radio = $(kendo.format(RADIO, kendo.htmlEncode(value), that._randomId, index))
-                                .css(that.options.itemStyle)
-                                .appendTo(that.element);
-                            /*
-                            var size = parseInt(radio.css('fontSize'), 10) || parseInt(radio.parent().css('fontSize'), 10) || parseInt(radio.parent().parent().css('fontSize'), 10);
-                            if (!isNaN(size)) {
-                                // TODO See http://www.telerik.com/forums/font-size-of-styled-radio-buttons-and-checkboxes
-                                // TODO consider as part of resize event handler
-                                radio.find('input[type=radio]')
-                                    .height(0.6 * size)
-                                    .width(0.6 * size);
-                            }
-                            */
-                        }
-                    });
+                var items = that.dataSource.data();
+                if (e && e.items instanceof ObservableArray) {
+                    items = e.items;
                 }
+                that.element.empty();
+                $(items).each(function (index, value) {
+                    var checkbox = $(kendo.format(CHECKBOX, kendo.htmlEncode(value), that._randomId, index))
+                        .css(that.options.itemStyle)
+                        .appendTo(that.element);
+                });
             },
 
             /**
@@ -319,24 +297,19 @@
                 if ($.type(enable) === UNDEFINED) {
                     enable = true;
                 }
-                if (that.options.mode === MODES.DROPDOWN) {
-                    assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'that.dropDownList', 'kendo.ui.DropDownList'));
-                    that.dropDownList.enable(enable);
+                element.off(NS);
+                if (enable) {
+                    element.on(CLICK + NS, CHECKBOX_SELECTOR, $.proxy(that._onClick, that));
                 } else {
-                    element.off(NS);
-                    if (enable) {
-                        element.on(CLICK + NS, 'input', $.proxy(that._onClick, that));
-                    } else {
-                        // Because input are readonly and not disabled, we need to prevent default (checking checkbox) and let it bubble to the stage element to display the handle box
-                        element.on(CLICK + NS, 'input', function (e) {
-                            e.preventDefault();
-                        });
-                    }
-                    element.find('input')
-                        .toggleClass(DISABLE, !enable)
-                        // .prop('disabled', !enable) <--- suppresses the click event so elements are no more selectable in design mode
-                        .prop('readonly', !enable);
+                    // Because input are readonly and not disabled, we need to prevent default (checking checkbox) and let it bubble to the stage element to display the handle box
+                    element.on(CLICK + NS, CHECKBOX_SELECTOR, function (e) {
+                        e.preventDefault();
+                    });
                 }
+                element.find(CHECKBOX_SELECTOR)
+                    .toggleClass(DISABLE, !enable)
+                    // .prop('disabled', !enable) <--- suppresses the click event so elements are no more selectable in design mode
+                    .prop(READONLY, !enable);
             },
 
             /**
@@ -346,11 +319,6 @@
                 var that = this;
                 var element = this.element;
                 Widget.fn.destroy.call(that);
-                // Destroy the drop down list (especially the popup)
-                if (that.dropDownList) {
-                    that.dropDownList.destroy();
-                    that.dropDownList = undefined;
-                }
                 // unbind and destroy kendo
                 kendo.unbind(element);
                 kendo.destroy(element);

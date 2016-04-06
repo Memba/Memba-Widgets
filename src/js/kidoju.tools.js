@@ -133,8 +133,10 @@
             checkbox: {
                 description: 'CheckBox',
                 attributes: {
-                    style: { title: 'Style' },
-                    text: { title: 'Text', defaultValue: 'Text' }
+                    data: { title: 'Values', defaultValue: 'Option 1\nOption 2' },
+                    groupStyle: { title: 'Group Style' },
+                    itemStyle: { title: 'Item Style' },
+                    selectedStyle: { title: 'Select. Style' }
                 },
                 properties: {
                     name: { title: 'Name' },
@@ -155,6 +157,7 @@
                 properties: {
                     name: { title: 'Name' },
                     description: { title: 'Description' },
+                    value: { title: 'Value' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -184,21 +187,25 @@
                 description: 'Image',
                 attributes: {
                     alt: { title: 'Text', defaultValue: 'Image' },
-                    // draggable: { title: 'Draggable' },
                     src: { title: 'Source' },
                     style: { title: 'Style' }
+                },
+                properties: {
+                    draggable: { title: 'Draggable' },
+                    value: { title: 'Value' }
                 }
-                // properties: {}
             },
 
             label: {
                 description: 'Label',
                 attributes: {
-                    // draggable: { title: 'Draggable' },
                     style: { title: 'Style' },
                     text: { title: 'Text', defaultValue: 'Label' }
+                },
+                properties: {
+                    draggable: { title: 'Draggable' },
+                    value: { title: 'Value' }
                 }
-                // properties: {}
             },
 
             mathexpression: {
@@ -212,11 +219,11 @@
             quiz: {
                 description: 'Quiz',
                 attributes: {
-                    activeStyle: { title: 'Active Style' },
                     data: { title: 'Values', defaultValue: 'True\nFalse' },
                     groupStyle: { title: 'Group Style' },
                     itemStyle: { title: 'Item Style' },
-                    mode: { title: 'Mode' }
+                    mode: { title: 'Mode' },
+                    selectedStyle: { title: 'Select. Style' }
                 },
                 properties: {
                     name: { title: 'Name' },
@@ -495,7 +502,7 @@
              * @param component
              */
             getTestDefaultValue: function (component) {
-                return;
+                return; // TODO: review - is this used anywhere?
             },
 
             /**
@@ -504,10 +511,28 @@
              */
             showResult: function () {
                 // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
-                return '<div style="position:relative; height: 0">' +
+                return '<div class=".kj-element-result">' +
                        '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.success + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
                        '<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.failure + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
                        '</div>';
+            },
+
+            /**
+             * Improved display of value in score grid
+             * Note: search for getScoreArray in kidoju.data
+             * @param value
+             */
+            value$: function (value) {
+                return kendo.htmlEncode(value || '');
+            },
+
+            /**
+             * Improved display of solution in score grid
+             * Note: search for getScoreArray in kidoju.data
+             * @param solution
+             */
+            solution$: function (solution) {
+                return kendo.htmlEncode(solution || '');
             }
 
             // onEnable: function (e, component, enabled) {},
@@ -830,6 +855,20 @@
                 this.editor = 'textarea';
                 this.attributes = $.extend({}, this.attributes, attributes);
             }
+        });
+
+        /**
+         * String Array adapter
+         */
+        adapters.StringArrayAdapter = adapters.TextAdapter.extend({
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(FORMULA, '// Note: value is an array and solution is a multiline string\n\t' +
+                        'return String(value.sort()) === String(solution.trim().split("\\n").sort());')
+                }
+            ],
+            libraryDefault: 'equal'
         });
 
         /**
@@ -1321,7 +1360,7 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
-                assert.instanceof(Audio, that, kendo.format(assert.messages.instanceof.default, 'this', 'Image'));
+                assert.instanceof(Audio, that, kendo.format(assert.messages.instanceof.default, 'this', 'Audio'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 assert.instanceof(ToolAssets, assets.audio, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
@@ -1460,7 +1499,7 @@
          tools.register(CharGrid);
          */
 
-        var CHECKBOX = '<div style="#: attributes.style #"><input id="#: properties.name #" type="checkbox" class="k-checkbox" {0}><label class="k-checkbox-label" for="#: properties.name #">#: attributes.text #</label></div>';
+        var CHECKBOX = '<div data-#= ns #role="multicheckbox" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #"></div>';
         /**
          * Checkbox tool
          * @class CheckBox
@@ -1472,25 +1511,49 @@
             description: i18n.checkbox.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                design: kendo.format(CHECKBOX, ''),
-                play: kendo.format(CHECKBOX, 'data-#= ns #bind="checked: #: properties.name #.value"'),
-                review: kendo.format(CHECKBOX, 'data-#= ns #bind="checked: #: properties.name #.value"') + Tool.fn.showResult() // TODO: enabled????
-
+                design: kendo.format(CHECKBOX, 'data-#= ns #enable="false"'),
+                play: kendo.format(CHECKBOX, 'data-#= ns #bind="value: #: properties.name #.value"'),
+                review: kendo.format(CHECKBOX, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
-            height: 70,
-            width: 300,
+            height: 200,
+            width: 350,
             attributes: {
-                style: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.style.title, defaultValue: 'font-size: 60px;' }),
-                text: new adapters.StringAdapter({ title: i18n.checkbox.attributes.text.title, defaultValue: i18n.checkbox.attributes.text.defaultValue })
+                groupStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
+                itemStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.itemStyle.title }),
+                selectedStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.selectedStyle.title }),
+                data: new adapters.TextAdapter(
+                    { title: i18n.checkbox.attributes.data.title, defaultValue: i18n.checkbox.attributes.data.defaultValue },
+                    { rows: 4, style: 'resize:vertical; width: 100%;' }
+                )
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.checkbox.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.checkbox.properties.description.title }),
-                solution: new adapters.BooleanAdapter({ title: i18n.checkbox.properties.solution.title }),
+                solution: new adapters.StringArrayAdapter({ title: i18n.checkbox.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.checkbox.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * Improved display of value in score grid
+             * @param value
+             */
+            value$: function (value) {
+                return kendo.htmlEncode(
+                    (value || []).join('<br/>')
+                );
+            },
+
+            /**
+             * Improved display of solution in score grid
+             * @param solution
+             */
+            solution$: function (solution) {
+                return kendo.htmlEncode(
+                    (solution || '').split('\n').join('<br/>')
+                );
             },
 
             /**
@@ -1551,7 +1614,7 @@
             description: i18n.connector.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                design: kendo.format(CONNECTOR, 'data-#= ns #enable="false"'),
+                design: kendo.format(CONNECTOR, 'data-#= ns #enable="false" data-#= ns #has-surface="false"'),
                 play: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value"'),
                 review: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
@@ -1563,6 +1626,7 @@
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.connector.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.connector.properties.description.title }),
+                value: new adapters.StringAdapter({ title: i18n.connector.properties.value.title }),
                 solution: new adapters.ConnectorsAdapter({ title: i18n.connector.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.connector.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 0.5 }),
@@ -1601,66 +1665,81 @@
         });
         tools.register(Connector);
 
-        // var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #container=".kj-stage" {0}></div>';
+        var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-role=stage]" data-#= ns #draggable=".kj-element:has([data-draggable=true])" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>';
         /**
          * @class Connector tool
          * @type {void|*}
          */
-        /*
-         var DropZone = Tool.extend({
-         id: 'dropzone',
-         icon: 'elements_selection',
-         description: i18n.dropzone.description,
-         cursor: CURSOR_CROSSHAIR,
-         templates: {
-         design: kendo.format(DROPZONE, 'data-#= ns #enable="false"'),
-         play: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value"'),
-         review: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
-         },
-         height: 100,
-         width: 100,
-         attributes: {
-         style: new adapters.StyleAdapter({ title: i18n.dropzone.attributes.style.title }),
-         text: new adapters.StringAdapter({ title: i18n.dropzone.attributes.text.title })
-         },
-         properties: {
-         name: new adapters.NameAdapter({ title: i18n.dropzone.properties.name.title }),
-         description: new adapters.StringAdapter({ title: i18n.dropzone.properties.description.title }),
-         // solution: new adapters.ConnectorsAdapter({ title: i18n.dropzone.properties.solution.title }),
-         solution: new adapters.StringAdapter({ title: i18n.dropzone.properties.solution.title }),
-         validation: new adapters.ValidationAdapter({ title: i18n.dropzone.properties.validation.title }),
-         success: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.success.title, defaultValue: 1 }),
-         failure: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.failure.title, defaultValue: 0 }),
-         omit: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.omit.title, defaultValue: 0 })
-         },
-         */
-        /**
-         * onResize Event Handler
-         * @method onResize
-         * @param e
-         * @param component
-         */
-        /*
-         onResize: function (e, component) {
-         var stageElement = $(e.currentTarget);
-         assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
-         assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-         var content = stageElement.children('div');
-         if ($.type(component.width) === NUMBER) {
-         content.outerWidth(component.width);
-         }
-         if ($.type(component.height) === NUMBER) {
-         content.outerHeight(component.height);
-         }
-         // prevent any side effect
-         e.preventDefault();
-         // prevent event to bubble on stage
-         e.stopPropagation();
-         }
+        var DropZone = Tool.extend({
+            id: 'dropzone',
+            icon: 'elements_selection',
+            description: i18n.dropzone.description,
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                design: kendo.format(DROPZONE, 'data-#= ns #enable="false"'),
+                play: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggable"'),
+                review: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggable" data-#= ns #enable="false"') + Tool.fn.showResult()
+            },
+            height: 100,
+            width: 100,
+            attributes: {
+                style: new adapters.StyleAdapter({ title: i18n.dropzone.attributes.style.title }),
+                text: new adapters.StringAdapter({ title: i18n.dropzone.attributes.text.title })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.dropzone.properties.name.title }),
+                description: new adapters.StringAdapter({ title: i18n.dropzone.properties.description.title }),
+                solution: new adapters.StringArrayAdapter({ title: i18n.dropzone.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({ title: i18n.dropzone.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.omit.title, defaultValue: 0 })
+            },
 
-         });
-         tools.register(DropZone);
-         */
+            /**
+             * Improved display of value in score grid
+             * @param value
+             */
+            value$: function (value) {
+                return kendo.htmlEncode(
+                    (value || []).join('<br/>')
+                );
+            },
+
+            /**
+             * Improved display of solution in score grid
+             * @param solution
+             */
+            solution$: function (solution) {
+                return kendo.htmlEncode(
+                    (solution || '').split('\n').join('<br/>')
+                );
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            }
+        });
+        tools.register(DropZone);
 
         /**
          * @class Image tool
@@ -1672,15 +1751,18 @@
             description: i18n.image.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<img src="#: attributes.src$() #" alt="#: attributes.alt #" style="#: attributes.style #">'
+                default: '<img src="#: attributes.src$() #" alt="#: attributes.alt #" style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #value="#: properties.value #">'
             },
             height: 250,
             width: 250,
             attributes: {
-                // TODO draggable: new adapters.BooleanAdapter({ title: i18n.image.attributes.draggable.title, defaultValue: false }),
                 alt: new adapters.StringAdapter({ title: i18n.image.attributes.alt.title, defaultValue: i18n.image.attributes.alt.defaultValue }),
                 src: new adapters.AssetAdapter({ title: i18n.image.attributes.src.title, defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' }),
                 style: new adapters.StyleAdapter({ title: i18n.image.attributes.style.title })
+            },
+            properties: {
+                draggable: new adapters.BooleanAdapter({ title: i18n.image.properties.draggable.title, defaultValue: false }),
+                value: new adapters.StringAdapter({ title: i18n.image.properties.value.title })
             },
 
             /**
@@ -1708,6 +1790,10 @@
                         }
                     }
                     return src;
+                };
+                // The id$ function returns the component id for draggable components
+                component.properties.id$ = function () {
+                    return component.properties.draggable && $.type(component.id) === STRING && component.id.length ? component.id : '';
                 };
                 return template($.extend(component, { ns: kendo.ns }));
             },
@@ -1747,14 +1833,37 @@
             description: i18n.label.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div style="#: attributes.style #" data-#= ns #draggable="# attributes.draggable #">#: attributes.text #</div>'
+                default: '<div style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #value="#: properties.value #">#: attributes.text #</div>'
             },
             height: 100,
             width: 300,
             attributes: {
-                // TODO draggable: new adapters.BooleanAdapter({ title: i18n.label.attributes.draggable.title, defaultValue: false }),
                 text: new adapters.StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue }),
                 style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size: 80px;' })
+            },
+            properties: {
+                draggable: new adapters.BooleanAdapter({ title: i18n.label.properties.draggable.title, defaultValue: false }),
+                value: new adapters.StringAdapter({ title: i18n.label.properties.value.title })
+            },
+
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(Label, that, kendo.format(assert.messages.instanceof.default, 'this', 'Label'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                var template = kendo.template(that.templates.default);
+                // The id$ function returns the component id for draggable components
+                component.properties.id$ = function () {
+                    return component.properties.draggable && $.type(component.id) === STRING && component.id.length ? component.id : '';
+                };
+                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /**
@@ -1856,7 +1965,7 @@
         });
         tools.register(MathExpression);
 
-        var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #active-style="#: attributes.activeStyle #"></div>';
+        var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #"></div>';
         /**
          * Quiz tool
          * @class Quiz
@@ -1881,7 +1990,7 @@
                 ),
                 groupStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
                 itemStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.itemStyle.title }),
-                activeStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.activeStyle.title }),
+                selectedStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.selectedStyle.title }),
                 data: new adapters.TextAdapter(
                     { title: i18n.quiz.attributes.data.title, defaultValue: i18n.quiz.attributes.data.defaultValue },
                     { rows: 4, style: 'resize:vertical; width: 100%;' }

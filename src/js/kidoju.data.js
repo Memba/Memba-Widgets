@@ -34,7 +34,7 @@
         var NUMBER = 'number';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
-        var ERROR = 'error';
+        // var ERROR = 'error';
         var ZERO_NUMBER = 0;
         var NEGATIVE_NUMBER = -1;
         // var RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i; // TODO instead of val_
@@ -983,7 +983,10 @@
                 assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                 var that = this;
                 var tools = kidoju.tools;
-                var test = {};
+                var test = {
+                    // Store for positioning draggable items
+                    draggable: []
+                };
                 $.each(that.data(), function (pageIdx, page) {
                     $.each(page.components.data(), function (componentIdx, component) {
                         var properties = component.properties;
@@ -1002,7 +1005,7 @@
             /**
              * Validate user test data
              * IMPORTANT: Make sure all pages are loaded first
-             * @method getTestFromProperties
+             * @method validateTestFromProperties
              * @returns {*}
              */
             validateTestFromProperties: function (test) {
@@ -1015,6 +1018,7 @@
                 var workerPool = new WorkerPool(window.navigator.hardwareConcurrency || 4, workerTimeout);
                 // TODO: use an app.model and define a submodel with each field - see ValidatedTest above
                 var result = {
+                        draggable: test.draggable,
                         score: function () {
                             var score = 0;
                             assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
@@ -1045,8 +1049,14 @@
                             var array = [];
                             assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                             for (var name in this) {
+                                // TODO: handle links specifically
                                 if (this.hasOwnProperty(name) && /^val_/.test(name)) {
-                                    array.push(this.get(name).toJSON());
+                                    var testItem = this.get(name);
+                                    var scoreItem = testItem.toJSON();
+                                    // Improved display of values in score grids
+                                    scoreItem.value = testItem.value$();
+                                    scoreItem.solution = testItem.solution$();
+                                    array.push(scoreItem);
                                 }
                             }
                             return array;
@@ -1067,20 +1077,21 @@
                         }
                     };
 
-                // Flatten test for simpler validation formulas
+                // Flatten test for validation formulas
                 var all = test.toJSON();
+                delete all.draggable;
                 for (var prop in all) {
                     if (all.hasOwnProperty(prop) && $.type(all[prop]) === OBJECT) {
                         if (all[prop].value === null) {
                             // tools built upon kendo ui widgets cannot have undefined values because value(undefined) === value() so they use null
-                            all[prop] = undefined; // TODO intervertir undefined and null: we should use null for unanswered tests
+                            all[prop] = undefined; // TODO use undefined or null? we should probably use null for unanswered tests
                         } else {
                             all[prop] = all[prop].value;
                         }
                     }
                 }
 
-                // TODO we might even consider storing workerLib in session storage
+                // TODO we might even consider storing workerLib in session storage considering https://addyosmani.com/basket.js/
                 var app = window.app;
                 $.ajax({ url: (app && app.uris && app.uris.webapp && app.uris.webapp.workerlib) || workerLibPath, cache: true, dataType: 'text' })
                     .done(function (workerLib) {
@@ -1142,7 +1153,22 @@
                                         result: undefined,
                                         omit: properties.omit,
                                         failure: properties.failure,
-                                        success: properties.success
+                                        success: properties.success,
+                                        // Functions used by getScoreArray for improved display in score grid
+                                        value$: function () {
+                                            assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
+                                            assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                                            var tool = kidoju.tools[component.tool];
+                                            assert.instanceof(kidoju.Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                                            return tool.value$(test[properties.name].value);
+                                        },
+                                        solution$: function () {
+                                            assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
+                                            assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                                            var tool = kidoju.tools[component.tool];
+                                            assert.instanceof(kidoju.Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                                            return tool.solution$(properties.solution);
+                                        }
                                     };
 
                                     logger.debug({ message: properties.name + ' added to the worker pool', data: blobURL });

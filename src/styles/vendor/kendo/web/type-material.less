@@ -796,6 +796,10 @@ html .km-pane-wrapper .k-header
     border-top-color: @hover-border-color;
 }
 
+.k-group-header + div > .k-list > .k-item.k-first {
+    box-shadow: 0 -1px 0px 0px @hover-border-color;
+}
+
 .k-popup > .k-group-header,
 .k-popup > .k-virtual-wrap > .k-group-header
 {
@@ -2143,7 +2147,7 @@ html .km-pane-wrapper .km-widget,
 @checkbox-active-border-color: lighten(@normal-text-color, 23%);
 @checkbox-active-box-shadow: none;
 @checkbox-disabled-background-color: contrast(@background, lighten(@background, 20%), darken(@background, 4%), 0.5);
-@checkbox-disabled-color: darken(@hover-background, 17%);
+@checkbox-disabled-color: @disabled-text-color;
 @checkbox-disabled-border-color: contrast(@background, lighten(@background, 20%), darken(@background, 25%), 0.5);
 @checkbox-indeterminate-background-color: @accent;
 @checkbox-indeterminate-border-color: @accent;
@@ -2168,6 +2172,10 @@ html .km-pane-wrapper .km-widget,
 
 .k-checkbox:checked + .k-checkbox-label:active:after {
     box-shadow: 0 0 0 12px fadeout(@accent, 70%);
+}
+
+.k-checkbox:disabled + .k-checkbox-label:active:after {
+    box-shadow: none;
 }
 
 .k-checkbox:indeterminate + .k-checkbox-label:before {
@@ -2356,6 +2364,10 @@ html .km-pane-wrapper .km-widget,
 
         .k-gantt-toolbar > ul.k-gantt-views {
             top: 0;
+        }
+
+        .k-widget.k-grid .k-pager-nav + .k-pager-numbers {
+            position: absolute;
         }
     }
 }
@@ -2803,6 +2815,34 @@ border-color: @widget-border-color;
 .k-toolbar {
 background-color: @drop-down-background;
 border-color: @panelbar-items-border;
+
+    .k-toggle-button {
+        &:focus {
+            background-color: transparent;
+            border-color: contrast(@background, darken(@base, 30%), lighten(@base, 30%), 0.5);
+        }
+
+        &:hover {
+            background-color: @hover-background-color;        
+        }
+
+        &.k-state-active {
+            color: @base;
+            background-color: @accent;
+            border-color: @accent;
+
+            &:focus {
+                background-color: @accent;
+                border-color: darken(@accent, 15%);
+            }
+
+            &:hover {
+                color: #fff;
+                background-color: darken(@accent, 10%);
+                border-color: darken(@accent, 10%);
+            }
+        }
+    }
 }
 
 .k-toolbar .k-button {
@@ -3566,7 +3606,7 @@ div.k-scheduler-marquee:after {
 
         .k-pager-numbers,
         .k-grid .k-pager-numbers {
-            position: absolute;
+            position: relative;
             left: 5.6em;
             display: inline-flex;
             flex-direction: column-reverse;

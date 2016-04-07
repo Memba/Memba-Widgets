@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -201,19 +201,18 @@
             _syncHtmlAndDataSource: function (root, dataSource) {
                 root = root || this.root;
                 dataSource = dataSource || this.dataSource;
-                var data = dataSource.view();
-                var uidAttr = kendo.attr('uid');
-                var expandedAttr = kendo.attr('expanded');
-                var inferCheckedState = this.options.checkboxes;
-                var items = root.children('li');
-                var i, item, dataItem;
+                var data = dataSource.view(), uidAttr = kendo.attr('uid'), expandedAttr = kendo.attr('expanded'), checkboxesEnabled = this.options.checkboxes, items = root.children('li'), i, item, dataItem, uid, itemCheckbox;
                 for (i = 0; i < items.length; i++) {
                     dataItem = data[i];
+                    uid = dataItem.uid;
                     item = items.eq(i);
-                    item.attr('role', 'treeitem').attr(uidAttr, dataItem.uid);
+                    item.attr('role', 'treeitem').attr(uidAttr, uid);
                     dataItem.expanded = item.attr(expandedAttr) === 'true';
-                    if (inferCheckedState) {
-                        dataItem.checked = checkboxes(item).prop(CHECKED);
+                    if (checkboxesEnabled) {
+                        itemCheckbox = checkboxes(item);
+                        dataItem.checked = itemCheckbox.prop(CHECKED);
+                        itemCheckbox.attr('id', '_' + uid);
+                        itemCheckbox.next('.k-checkbox-label').attr('for', '_' + uid);
                     }
                     this._syncHtmlAndDataSource(item.children('ul'), dataItem.children);
                 }
@@ -1259,7 +1258,9 @@
                 that.root = that.wrapper = that.element = null;
             },
             _expanded: function (node, value) {
-                var expandedAttr = kendo.attr('expanded'), dataItem = this.dataItem(node);
+                var expandedAttr = kendo.attr('expanded');
+                var dataItem = this.dataItem(node);
+                var expanded = value;
                 if (arguments.length == 1) {
                     return node.attr(expandedAttr) === 'true' || dataItem && dataItem.expanded;
                 }
@@ -1267,10 +1268,10 @@
                     return;
                 }
                 if (dataItem) {
-                    dataItem.set('expanded', value);
-                    value = dataItem.expanded;
+                    dataItem.set('expanded', expanded);
+                    expanded = dataItem.expanded;
                 }
-                if (value) {
+                if (expanded) {
                     node.attr(expandedAttr, 'true');
                     node.attr('aria-expanded', 'true');
                 } else {
@@ -1425,40 +1426,37 @@
                 return $(result);
             },
             expandPath: function (path, complete) {
-                path = path.slice(0);
                 var treeview = this;
-                var dataSource = this.dataSource;
-                var node = dataSource.get(path[0]);
-                complete = complete || $.noop;
-                function tryExpand(node, complete, context) {
-                    if (node && !node.loaded()) {
-                        node.set('expanded', true);
+                var nodeIds = path.slice(0);
+                var callback = complete || $.noop;
+                function proceed() {
+                    nodeIds.shift();
+                    if (nodeIds.length) {
+                        expand(nodeIds[0]).then(proceed);
                     } else {
-                        complete.call(context);
+                        callback.call(treeview);
                     }
                 }
-                while (path.length > 0 && node && (node.expanded || node.loaded())) {
-                    node.set('expanded', true);
-                    path.shift();
-                    node = dataSource.get(path[0]);
-                }
-                if (!path.length) {
-                    return complete.call(treeview);
-                }
-                dataSource.bind('change', function expandLevel(e) {
-                    var id = e.node && e.node.id;
-                    var node;
-                    if (id && id === path[0]) {
-                        path.shift();
-                        if (path.length) {
-                            node = dataSource.get(path[0]);
-                            tryExpand(node, complete, treeview);
+                function expand(id) {
+                    var result = $.Deferred();
+                    var node = treeview.dataSource.get(id);
+                    if (node) {
+                        if (node.loaded()) {
+                            node.set('expanded', true);
+                            result.resolve();
                         } else {
-                            complete.call(treeview);
+                            treeview._progress(treeview.findByUid(node.uid), true);
+                            node.load().then(function () {
+                                node.set('expanded', true);
+                                result.resolve();
+                            });
                         }
+                    } else {
+                        result.resolve();
                     }
-                });
-                tryExpand(node, complete, treeview);
+                    return result.promise();
+                }
+                expand(nodeIds[0]).then(proceed);
             },
             _parentIds: function (node) {
                 var parent = node && node.parentNode();

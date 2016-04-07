@@ -373,6 +373,9 @@ var __meta__ = { // jshint ignore:line
         }
 
         var value;
+        // Some widgets trigger "change" on the input field
+        // and this would result in two events sent (#135)
+        var haveChangeOnElement = false;
 
         if (isForm(element)) {
             value = function() {
@@ -399,7 +402,9 @@ var __meta__ = { // jshint ignore:line
                 val = null;
             }
 
+            haveChangeOnElement = true;
             setTimeout(function(){
+                haveChangeOnElement = false;
                 if (widget) { // might have been destroyed in between. :-(
                     var kNgModel = scope[widget.element.attr("k-ng-model")];
 
@@ -417,10 +422,6 @@ var __meta__ = { // jshint ignore:line
                 }
             }, 0);
         };
-
-        // Some widgets trigger "change" on the input field
-        // and this would result in two events sent (#135)
-        var haveChangeOnElement = false;
 
         if (isForm(element)) {
             element.on("change", function() {
@@ -536,9 +537,7 @@ var __meta__ = { // jshint ignore:line
         var deregister = scope.$on("$destroy", function() {
             deregister();
             if (widget) {
-                if (widget.element) {
-                    widget.destroy();
-                }
+                kendo.destroy(widget.element);
                 widget = null;
             }
         });
@@ -1444,7 +1443,7 @@ var __meta__ = { // jshint ignore:line
                                 $log.warn(attrName + " without a matching parent widget found. It can be one of the following: " + parents.join(", "));
                             } else {
                                 controller.template(templateName, template);
-                                $element.remove();
+                                element.remove();
                             }
                         };
                     }

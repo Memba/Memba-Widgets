@@ -818,6 +818,10 @@ html .km-pane-wrapper .k-header
     border-top-color: @hover-border-color;
 }
 
+.k-group-header + div > .k-list > .k-item.k-first {
+    box-shadow: 0 -1px 0px 0px @hover-border-color;
+}
+
 .k-popup > .k-group-header,
 .k-popup > .k-virtual-wrap > .k-group-header
 {
@@ -1044,6 +1048,10 @@ div.k-filebrowser-dropzone em
 .k-dropzone .k-upload-status
 {
     color: @normal-text-color;
+}
+
+.k-upload-status .k-button:hover .k-delete {
+    background-color: @accent;
 }
 
 /* Progressbar */
@@ -2389,6 +2397,11 @@ html .km-pane-wrapper .km-widget,
         .k-pager-numbers .k-link
         {
             .guarded-border-radius(@list-border-radius);
+        }
+
+        .k-widget.k-grid .k-pager-nav + .k-pager-numbers
+        {
+            position: absolute;
         }
     }
 }

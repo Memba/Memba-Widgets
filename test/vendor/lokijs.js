@@ -74,11 +74,38 @@
 
     // Sort helper that support null and undefined
     function ltHelper(prop1, prop2, equal) {
-      if (prop1 === undefined || prop1 === null || prop1 === false || prop2 === true) {
-        return true;
-      }
-      if (prop2 === undefined || prop2 === null || prop1 === true || prop2 === false) {
-        return false;
+
+      // 'falsy' and Boolean handling
+      if (!prop1 || !prop2 || prop1 === true || prop2 === true) {
+        if ((prop1 === true || prop1 === false) && (prop2 === true || prop2 === false)) {
+          if (equal) {
+            return prop1 === prop2;
+          } else {
+            if (prop1) {
+              return false;
+            } else {
+              return prop2;
+            }
+          }
+        }
+
+        if (prop2 === undefined || prop2 === null || prop1 === true || prop2 === false) {
+            return equal;
+        }
+        if (prop1 === undefined || prop1 === null || prop1 === false || prop2 === true) {
+          return true;
+        }
+
+        if (prop1 < prop2) {
+          return true;
+        }
+
+        if (prop1 > prop2) {
+          return false;
+        }
+
+        // not lt and and not gt so equality assumed-- this ordering of tests is date compatible
+        return equal;
       }
 
       if (prop1 < prop2) {
@@ -94,11 +121,38 @@
     }
 
     function gtHelper(prop1, prop2, equal) {
-      if (prop1 === undefined || prop1 === null || prop1 === false || prop2 === true) {
-        return false;
-      }
-      if (prop2 === undefined || prop2 === null || prop1 === true || prop2 === false) {
-        return true;
+
+      // 'falsy' and Boolean handling
+      if (!prop1 || !prop2 || prop1 === true || prop2 === true) {
+        if ((prop1 === true || prop1 === false) && (prop2 === true || prop2 === false)) {
+          if (equal) {
+            return prop1 === prop2;
+          } else {
+            if (prop1) {
+              return !prop2;
+            } else {
+              return false;
+            }
+          }
+        }
+
+        if (prop1 === undefined || prop1 === null || prop1 === false || prop2 === true) {
+          return equal;
+        }
+        if (prop2 === undefined || prop2 === null || prop1 === true || prop2 === false) {
+          return true;
+        }
+
+        if (prop1 > prop2) {
+          return true;
+        }
+
+        if (prop1 < prop2) {
+          return false;
+        }
+
+        // not lt and and not gt so equality assumed-- this ordering of tests is date compatible
+        return equal;
       }
 
       if (prop1 > prop2) {
@@ -118,11 +172,11 @@
         return 0;
       }
 
-      if (ltHelper(prop1, prop2)) {
+      if (ltHelper(prop1, prop2, false)) {
         return (desc) ? (1) : (-1);
       }
 
-      if (gtHelper(prop1, prop2)) {
+      if (gtHelper(prop1, prop2, false)) {
         return (desc) ? (-1) : (1);
       }
 
@@ -228,14 +282,14 @@
       },
 
       $dteq: function(a, b) {
-        if (ltHelper(a, b)) {
+        if (ltHelper(a, b, false)) {
           return false;
         }
-        return !gtHelper(a, b);
+        return !gtHelper(a, b, false);
       },
 
       $gt: function (a, b) {
-        return gtHelper(a, b);
+        return gtHelper(a, b, false);
       },
 
       $gte: function (a, b) {
@@ -243,7 +297,7 @@
       },
 
       $lt: function (a, b) {
-        return ltHelper(a, b);
+        return ltHelper(a, b, false);
       },
 
       $lte: function (a, b) {
@@ -259,10 +313,18 @@
       },
 
       $keyin: function (a, b) {
-        return b[a] !== undefined;
+        return a in b;
       },
 
       $nkeyin: function (a, b) {
+        return !(a in b);
+      },
+
+      $definedin: function (a, b) {
+        return b[a] !== undefined;
+      },
+
+      $undefinedin: function (a, b) {
         return b[a] === undefined;
       },
 
@@ -1293,25 +1355,32 @@
      *
      * @constructor
      * @param {Collection} collection - The collection which this Resultset will query against.
-     * @param {string} queryObj - Optional mongo-style query object to initialize resultset with.
-     * @param {function} queryFunc - Optional javascript filter function to initialize resultset with.
-     * @param {bool} firstOnly - Optional boolean used by collection.findOne().
+     * @param {Object} options - Object containing one or more options.
+     * @param {string} options.queryObj - Optional mongo-style query object to initialize resultset with.
+     * @param {function} options.queryFunc - Optional javascript filter function to initialize resultset with.
+     * @param {bool} options.firstOnly - Optional boolean used by collection.findOne().
      */
-    function Resultset(collection, queryObj, queryFunc, firstOnly) {
+    function Resultset(collection, options) {
+      options = options || {};
+
+      options.queryObj = options.queryObj || null;
+      options.queryFunc = options.queryFunc || null;
+      options.firstOnly = options.firstOnly || false;
+
       // retain reference to collection we are querying against
       this.collection = collection;
 
       // if chain() instantiates with null queryObj and queryFunc, so we will keep flag for later
-      this.searchIsChained = (!queryObj && !queryFunc);
+      this.searchIsChained = (!options.queryObj && !options.queryFunc);
       this.filteredrows = [];
       this.filterInitialized = false;
 
       // if user supplied initial queryObj or queryFunc, apply it
-      if (typeof (queryObj) !== "undefined" && queryObj !== null) {
-        return this.find(queryObj, firstOnly);
+      if (typeof (options.queryObj) !== "undefined" && options.queryObj !== null) {
+        return this.find(options.queryObj, options.firstOnly);
       }
-      if (typeof (queryFunc) !== "undefined" && queryFunc !== null) {
-        return this.where(queryFunc);
+      if (typeof (options.queryFunc) !== "undefined" && options.queryFunc !== null) {
+        return this.where(options.queryFunc);
       }
 
       // otherwise return unfiltered Resultset for future filtering
@@ -1354,7 +1423,7 @@
         this.filteredrows = this.collection.prepareFullDocIndex();
       }
 
-      var rscopy = new Resultset(this.collection, null, null);
+      var rscopy = new Resultset(this.collection);
       rscopy.filteredrows = this.filteredrows.slice(0, qty);
       rscopy.filterInitialized = true;
       return rscopy;
@@ -1372,7 +1441,7 @@
         this.filteredrows = this.collection.prepareFullDocIndex();
       }
 
-      var rscopy = new Resultset(this.collection, null, null);
+      var rscopy = new Resultset(this.collection);
       rscopy.filteredrows = this.filteredrows.slice(pos);
       rscopy.filterInitialized = true;
       return rscopy;
@@ -1384,7 +1453,7 @@
      * @returns {Resultset} Returns a copy of the resultset (set) but the underlying document references will be the same.
      */
     Resultset.prototype.copy = function () {
-      var result = new Resultset(this.collection, null, null);
+      var result = new Resultset(this.collection);
 
       if (this.filteredrows.length > 0) {
         result.filteredrows = this.filteredrows.slice();
@@ -1609,12 +1678,12 @@
       // if value falls outside of our range return [0, -1] to designate no results
       switch (op) {
       case '$eq':
-        if (ltHelper(val, minVal) || gtHelper(val, maxVal)) {
+        if (ltHelper(val, minVal, false) || gtHelper(val, maxVal, false)) {
           return [0, -1];
         }
         break;
       case '$dteq':
-        if (ltHelper(val, minVal) || gtHelper(val, maxVal)) {
+        if (ltHelper(val, minVal, false) || gtHelper(val, maxVal, false)) {
           return [0, -1];
         }
         break;
@@ -1624,7 +1693,7 @@
         }
         break;
       case '$gte':
-        if (gtHelper(val, maxVal)) {
+        if (gtHelper(val, maxVal, false)) {
           return [0, -1];
         }
         break;
@@ -1632,12 +1701,12 @@
         if (ltHelper(val, minVal, true)) {
           return [0, -1];
         }
-        if (ltHelper(maxVal, val)) {
+        if (ltHelper(maxVal, val, false)) {
           return [0, rcd.length - 1];
         }
         break;
       case '$lte':
-        if (ltHelper(val, minVal)) {
+        if (ltHelper(val, minVal, false)) {
           return [0, -1];
         }
         if (ltHelper(maxVal, val, true)) {
@@ -1650,7 +1719,7 @@
       while (min < max) {
         mid = (min + max) >> 1;
 
-        if (ltHelper(rcd[index[mid]][prop], val)) {
+        if (ltHelper(rcd[index[mid]][prop], val, false)) {
           min = mid + 1;
         } else {
           max = mid;
@@ -1666,7 +1735,7 @@
       while (min < max) {
         mid = (min + max) >> 1;
 
-        if (ltHelper(val, rcd[index[mid]][prop])) {
+        if (ltHelper(val, rcd[index[mid]][prop], false)) {
           max = mid;
         } else {
           min = mid + 1;
@@ -1707,14 +1776,14 @@
         return [ubound, rcd.length - 1];
 
       case '$gte':
-        if (ltHelper(lval, val)) {
+        if (ltHelper(lval, val, false)) {
           return [0, -1];
         }
 
         return [lbound, rcd.length - 1];
 
       case '$lt':
-        if (lbound === 0 && ltHelper(lval, val)) {
+        if (lbound === 0 && ltHelper(lval, val, false)) {
           return [0, 0];
         }
         return [0, lbound - 1];
@@ -1724,7 +1793,7 @@
           ubound--;
         }
 
-        if (ubound === 0 && ltHelper(uval, val)) {
+        if (ubound === 0 && ltHelper(uval, val, false)) {
           return [0, 0];
         }
         return [0, ubound];
@@ -3417,8 +3486,8 @@
             var objAp = data[a][p],
                 objBp = data[b][p];
             if (objAp !== objBp) {
-              if (ltHelper(objAp, objBp)) return -1;
-              if (gtHelper(objAp, objBp)) return 1;
+              if (ltHelper(objAp, objBp, false)) return -1;
+              if (gtHelper(objAp, objBp, false)) return 1;
             }
             return 0;
           };
@@ -3758,7 +3827,9 @@
       if (typeof query === 'function') {
         list = this.data.filter(query);
       } else {
-        list = new Resultset(this, query);
+        list = new Resultset(this, {
+          queryObj: query
+        });
       }
       this.remove(list);
     };
@@ -3894,7 +3965,10 @@
      */
     Collection.prototype.findOne = function (query) {
       // Instantiate Resultset and exec find op passing firstOnly = true param
-      var result = new Resultset(this, query, null, true);
+      var result = new Resultset(this, {
+        queryObj: query,
+        firstOnly: true
+      });
       if (Array.isArray(result) && result.length === 0) {
         return null;
       } else {
@@ -3916,7 +3990,7 @@
      * @returns {Resultset} : (or data array if any map or join functions where called)
      */
     Collection.prototype.chain = function (transform, parameters) {
-      var rs = new Resultset(this, null, null);
+      var rs = new Resultset(this);
 
       if (typeof transform === 'undefined') {
         return rs;
@@ -3934,7 +4008,9 @@
         query = 'getAll';
       }
 
-      var results = new Resultset(this, query, null);
+      var results = new Resultset(this, {
+        queryObj: query
+      });
       if (!this.cloneObjects) {
         return results;
       }
@@ -4023,7 +4099,9 @@
      * Create view function - filter
      */
     Collection.prototype.where = function (fun) {
-      var results = new Resultset(this, null, fun);
+      var results = new Resultset(this, {
+        queryFunc: fun
+      });
       if (!this.cloneObjects) {
         return results;
       }
@@ -4518,6 +4596,7 @@
     };
 
 
+    Loki.LokiOps = LokiOps;
     Loki.Collection = Collection;
     Loki.KeyValueStore = KeyValueStore;
     return Loki;

@@ -1541,9 +1541,11 @@
              * @param value
              */
             value$: function (value) {
-                return kendo.htmlEncode(
-                    (value || []).join('<br/>')
-                );
+                var ret = (value || []).slice();
+                for (var i = 0; i < ret.length; ret++) {
+                    ret[i] = kendo.htmlEncode(ret[i]);
+                }
+                return ret.join('<br/>');
             },
 
             /**
@@ -1551,9 +1553,7 @@
              * @param solution
              */
             solution$: function (solution) {
-                return kendo.htmlEncode(
-                    (solution || '').split('\n').join('<br/>')
-                );
+                return kendo.htmlEncode(solution || '').split('\n').join('<br/>');
             },
 
             /**
@@ -1701,9 +1701,11 @@
              * @param value
              */
             value$: function (value) {
-                return kendo.htmlEncode(
-                    (value || []).join('<br/>')
-                );
+                var ret = (value || []).slice();
+                for (var i = 0; i < ret.length; ret++) {
+                    ret[i] = kendo.htmlEncode(ret[i]);
+                }
+                return ret.join('<br/>');
             },
 
             /**
@@ -1711,9 +1713,7 @@
              * @param solution
              */
             solution$: function (solution) {
-                return kendo.htmlEncode(
-                    (solution || '').split('\n').join('<br/>')
-                );
+                return kendo.htmlEncode(solution || '').split('\n').join('<br/>');
             },
 
             /**

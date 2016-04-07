@@ -176,6 +176,8 @@
                             }
                         },
                         // On Droppping a draggable on a drop target, add value
+                        // Note: this is only fired if the draggable is dropped direclty on the droptarget
+                        // but not if the draggable is dropped on another draggable which hides the drop target
                         drop: function (e) {
                             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
                             assert.instanceof(DropTarget, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropTarget'));
@@ -276,10 +278,11 @@
                                 var draggable = draggableWidget.element; // draggable is a .kj-element which contains something (image, label, ...)
                                 var hint = draggableWidget.hint;
                                 var position = hint.position();
+                                var offset = container.offset();
                                 hint.hide();
                                 // Add/update item into dataSource
-                                var left = (position.left - container.offset().left) / scale;
-                                var top = (position.top - container.offset().top) / scale;
+                                var left = (position.left - offset.left) / scale;
+                                var top = (position.top - offset.top) / scale;
                                 draggable.css({ left: left, top: top }).show();
                                 var id = draggable.find(CONTENT_SELECTOR).attr(kendo.attr(ID));
                                 var dataItem = dropZoneWidget.dataSource.get(id);
@@ -293,6 +296,44 @@
                                         top: top
                                     });
                                 }
+                                // Handle the case where the draggable is dropped on another draggable which hides any dropTarget
+                                if (!draggableWidget.dropped) {
+                                    var center = {
+                                        x: left + draggable.width() / 2,
+                                        y: top + draggable.height() / 2
+                                    };
+                                    $.each(dropZoneCollection, function (index, htmlElement) {
+                                        var anyDropZone = $(htmlElement);
+                                        var parent = anyDropZone.parent(); // The parent .kj-element
+                                        // TODO: in order for the implementation to be more flexible, we should search for the closest absolutely positioned parent
+                                        position = parent.position();
+                                        var rect = {
+                                            x: {
+                                                min: position.left / scale,
+                                                max: position.left / scale + parent.width()
+                                            },
+                                            y: {
+                                                min: position.top / scale,
+                                                max: position.top / scale + parent.height()
+                                            }
+                                        };
+                                        var dropTargetWidget = anyDropZone.data('kendoDropTarget');
+                                        assert.instanceof(DropTarget, dropTargetWidget, kendo.format(assert.messages.instanceof.default, 'dropTargetWidget', 'kendo.ui.DropTarget'));
+                                        if (center.x >= rect.x.min && center.x <= rect.x.max &&
+                                            center.y >= rect.y.min && center.y <= rect.y.max) {
+                                            dropTargetWidget.trigger('drop', {
+                                                sender: dropTargetWidget,
+                                                draggable: e.sender
+                                            });
+                                        } else {
+                                            dropTargetWidget.trigger('dragleave', {
+                                                sender: dropTargetWidget,
+                                                draggable: e.sender
+                                            });
+                                        }
+                                    });
+                                }
+
                             }
                         });
                         logger.info({ message: 'Draggable enabled', method: '_initDraggable', data: { id: draggableContent.attr(kendo.attr(ID)), value: draggableContent.attr(kendo.attr(VALUE)) } });

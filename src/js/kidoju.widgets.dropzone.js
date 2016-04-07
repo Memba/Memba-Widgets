@@ -151,10 +151,10 @@
                 var that = this;
                 var element = that.element;
                 var dropTargetWidget = element.data('kendoDropTarget');
-                if (dropTargetWidget instanceof DropTarget) {
+                if (!enable && dropTargetWidget instanceof DropTarget) {
                     dropTargetWidget.destroy();
-                }
-                if (enable) {
+                    logger.info({ message: 'DropTarget disabled', method: '_initDropTarget' });
+                } else if (enable && !(dropTargetWidget instanceof DropTarget)) {
                     element.kendoDropTarget({
                         // On dragging a draggable beyond the edges of a drop target, remove value
                         dragleave: function (e) {
@@ -192,6 +192,7 @@
                             }
                         }
                     });
+                    logger.info({ message: 'DropTarget enabled', method: '_initDropTarget' });
                 }
             },
 
@@ -218,12 +219,13 @@
                 dropZoneWidget.draggable = container.find(options.draggable);
                 $.each(dropZoneWidget.draggable, function (index, htmlElement) {
                     var draggable = $(htmlElement);
+                    var draggableContent = draggable.find(CONTENT_SELECTOR);
                     var draggableWidget = $(draggable).data('kendoDraggable');
-                    if (draggableWidget instanceof Draggable) {
+                    if (!enable && draggableWidget instanceof Draggable) {
                         draggable.css({ cursor: 'default' });
                         draggableWidget.destroy();
-                    }
-                    if (enable) {
+                        logger.info({ message: 'Draggable disabled', method: '_initDraggable', data: { id: draggableContent.attr(kendo.attr(ID)), value: draggableContent.attr(kendo.attr(VALUE)) } });
+                    } else if (enable && !(draggableWidget instanceof Draggable)) {
                         draggable.css({ cursor: 'move' });
                         draggable.kendoDraggable({
                             // container: cannot be used due to scaling, see boundaries below
@@ -291,6 +293,7 @@
                                 }
                             }
                         });
+                        logger.info({ message: 'Draggable enabled', method: '_initDraggable', data: { id: draggableContent.attr(kendo.attr(ID)), value: draggableContent.attr(kendo.attr(VALUE)) } });
                     }
                 });
             },

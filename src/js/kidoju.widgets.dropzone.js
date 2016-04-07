@@ -170,6 +170,7 @@
                                 var index = _value.indexOf(val);
                                 if (index >= 0) {
                                     _value.splice(index, 1);
+                                    logger.info({ message: 'value removed', method: 'dragleave', data: { value: val } });
                                     dropZoneWidget.trigger(CHANGE);
                                 }
                             }
@@ -187,6 +188,7 @@
                                 var _value = dropZoneWidget._value = dropZoneWidget._value || [];
                                 if (_value.indexOf(val) === -1) {
                                     _value.push(val);
+                                    logger.info({ message: 'value added', method: 'drop', data: { value: val } });
                                     dropZoneWidget.trigger(CHANGE);
                                 }
                             }

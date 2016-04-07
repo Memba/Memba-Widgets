@@ -1542,7 +1542,7 @@
              */
             value$: function (value) {
                 var ret = (value || []).slice();
-                for (var i = 0; i < ret.length; ret++) {
+                for (var i = 0; i < ret.length; i++) {
                     ret[i] = kendo.htmlEncode(ret[i]);
                 }
                 return ret.join('<br/>');
@@ -1702,7 +1702,7 @@
              */
             value$: function (value) {
                 var ret = (value || []).slice();
-                for (var i = 0; i < ret.length; ret++) {
+                for (var i = 0; i < ret.length; i++) {
                     ret[i] = kendo.htmlEncode(ret[i]);
                 }
                 return ret.join('<br/>');

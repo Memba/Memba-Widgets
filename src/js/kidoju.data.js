@@ -1065,12 +1065,16 @@
                             var json = {};
                             assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                             for (var name in this) {
-                                if (this.hasOwnProperty(name) && /^val_/.test(name)) {
-                                    json[name] = {
-                                        result: this.get(name + '.result'),
-                                        score: this.get(name + '.score'),
-                                        value: this.get(name + '.value')
-                                    };
+                                if (this.hasOwnProperty(name)) {
+                                    if (/^val_/.test(name)) {
+                                        json[name] = {
+                                            result: this.get(name + '.result'),
+                                            score: this.get(name + '.score'),
+                                            value: this.get(name + '.value')
+                                        };
+                                    } else if (name === 'draggable') {
+                                        json[name] = this.get(name).slice();
+                                    }
                                 }
                             }
                             return json;

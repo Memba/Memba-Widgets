@@ -41,7 +41,7 @@
     "grunt-jscs": "^2.8.0",
     "grunt-jsdoc": "^1.1.0",
     "grunt-kendo-lint": "0.0.3",
-    "grunt-mocha": "^1.0.0",
+    "grunt-mocha": "^1.0.1",
     "grunt-mocha-test": "^0.12.7",
     "karma": "^0.13.22",
     "karma-chai": "^0.1.0",

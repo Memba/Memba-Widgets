@@ -26,9 +26,11 @@
     (function ($, undefined) {
 
         var kendo = window.kendo;
+        var data = kendo.data;
         var drawing = kendo.drawing;
         var geometry = kendo.geometry;
-        var ObservableArray = kendo.data.ObservableArray;
+        var ObservableArray = data.ObservableArray;
+        var DataSource = data.DataSource;
         var Surface = drawing.Surface;
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
@@ -46,13 +48,14 @@
         var DIV = '<div/>';
         var WIDGET_CLASS = 'kj-connector';
         var SURFACE_CLASS = WIDGET_CLASS + '-surface';
+        var DRAGGABLE = 'draggable';
         var PATH_WIDTH = 10;
         var PATH_LINECAP = 'round';
-        var OBSERVABLE = 'observableArray';
         var SURFACE = 'surface';
         var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
+        var TRUE = 'true';
         var ID = 'id';
-        // var VALUE = 'value';
+        var VALUE = 'value';
 
         /*********************************************************************************
          * Helpers
@@ -101,6 +104,7 @@
              * @param scale
              */
             getElementCenter: function (element, stage, scale) {
+                // TODO use https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect to account for rotation
                 return {
                     left: (element.offset().left - stage.offset().left) / scale + element.width() / 2,
                     top: (element.offset().top - stage.offset().top) / scale + element.height() / 2
@@ -143,7 +147,7 @@
                 logger.debug('widget initialized');
                 that._layout();
                 that._ensureSurface();
-                that._bindConnectionArray();
+                that._dataSource();
                 that._drawConnector();
                 that._addDragAndDrop();
                 that.value(that.options.value);
@@ -157,9 +161,13 @@
              */
             options: {
                 name: 'Connector',
+                id: null,
                 value: null,
-                scaler: '', // e.g. '.kj-stage', a parent component that is scaled using CSS transforms
-                container: 'body', // e.g. '.kj-stage>div[data-role="stage"]',
+                targetValue: null, // Cannot be undefined otherwise it won't be read
+                autoBind: true,
+                dataSource: [],
+                scaler: 'div.kj-stage',
+                container: 'div.kj-stage>div[data-role="stage"]',
                 color: '#FF0000',
                 hasSurface: true,
                 enable: true
@@ -179,20 +187,8 @@
              */
             value: function (value) {
                 var that = this;
-                if ($.type(value) === STRING || $.type(value) === NULL) { // nullable string
-                    if (that._value !== value) {
-                        if ($.type(value) === STRING && value.length) {
-                            var added = that._addConnection(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), value));
-                            if (added) {
-                                that._value = value;
-                            } else {
-                                that._value = undefined;
-                            }
-                        } else {
-                            that._dropConnection();
-                            that._value = null;
-                        }
-                    }
+                if ($.type(value) === STRING || $.type(value) === NULL) {
+                    that._value = value;
                 } else if ($.type(value) === UNDEFINED) {
                     return that._value;
                 } else {
@@ -207,10 +203,11 @@
             _layout: function () {
                 var that = this;
                 that.wrapper = that.element;
-                // touch-action: 'none' is for Internet Explorer
-                // @see https://github.com/jquery/jquery/issues/2987
+                // touch-action: 'none' is for Internet Explorer - https://github.com/jquery/jquery/issues/2987
+                // DRAGGABLE (which might be shared with other widgets) is used to position the drawing surface below draggable elements
                 that.element
                     .addClass(WIDGET_CLASS)
+                    .attr(kendo.attr(DRAGGABLE), TRUE)
                     .css({ touchAction: 'none' });
                 that.surface = drawing.Surface.create(that.element);
             },
@@ -224,50 +221,25 @@
                 var options = that.options;
                 var container = that.element.closest(options.container);
                 assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
-                // ensure ObservableArray
-                var connections = container.data(OBSERVABLE);
-                if (!(connections instanceof ObservableArray)) {
-                    connections = new ObservableArray([]);
-                    container.data(OBSERVABLE, connections);
-                }
                 // ensure surface
                 var surface = container.data(SURFACE);
                 if (options.hasSurface && !(surface instanceof Surface)) {
                     var surfaceElement = container.find(DOT + SURFACE_CLASS);
                     if (surfaceElement.length === 0) {
                         assert.ok(this.element.hasClass(WIDGET_CLASS), 'this._layout should be called before this._ensureSurface');
-                        var firstChildWithConnector = container.children().has(DOT + WIDGET_CLASS).first();
-                        if (firstChildWithConnector.length) {
+                        var firstElementWithDraggable = container.children().has(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(DRAGGABLE), TRUE)).first();
+                        if (firstElementWithDraggable.length) {
                             surfaceElement = $(DIV)
                                 .addClass(SURFACE_CLASS)
                                 .css({ position: 'absolute', top: 0, left: 0 })
                                 .height(container.height())
                                 .width(container.width());
-                            // TODO: what if elements have been reordered in explorer ?????????
-                            // The solution is not to ensure the surface in design mode
-                            surfaceElement.insertBefore(firstChildWithConnector);
+                            surfaceElement.insertBefore(firstElementWithDraggable);
                         }
                     }
                     surfaceElement.empty();
                     surface = kendo.drawing.Surface.create(surfaceElement);
                     container.data(SURFACE, surface);
-                }
-            },
-
-            /**
-             * Bind connection array
-             * @private
-             */
-            _bindConnectionArray: function () {
-                var that = this;
-                var options = that.options;
-                var container = that.element.closest(options.container);
-                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
-                var connections = container.data(OBSERVABLE);
-                assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
-                if (!$.isFunction(connections.draw)) {
-                    connections.draw = $.proxy(that._drawConnections, container);
-                    connections.bind(CHANGE, connections.draw);
                 }
             },
 
@@ -296,169 +268,13 @@
             },
 
             /**
-             * Draw connections
-             * Note: do not use directly, use container.data(OBSERVABLE).draw
-             * @private
-             */
-            _drawConnections: function () {
-                var container = this;
-                // The following prevents from using this method directly, in which case `this` is the connector widget
-                assert.instanceof($, container, kendo.format(assert.messages.instanceof.default, 'container', 'jQuery'));
-                var connections = this.data(OBSERVABLE);
-                assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'this.connections', 'kendo.data.ObservableArray'));
-                var surface = this.data(SURFACE);
-                if (surface instanceof kendo.drawing.Surface) {
-                    // Clear surface
-                    surface.clear();
-                    // Redraw all connections
-                    connections.forEach(function (connection) {
-                        var origin = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), connection.origin));
-                        var originWidget = origin.data(WIDGET);
-                        var destination = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), connection.destination));
-                        var destinationWidget = destination.data(WIDGET);
-                        // Only connector widgets can be connected
-                        if (originWidget instanceof Connector && destinationWidget instanceof Connector) {
-                            var scaler = origin.closest(originWidget.options.scaler);
-                            var scale = scaler.length ? util.getTransformScale(scaler) : 1;
-                            var originCenter = util.getElementCenter(origin, container, scale);
-                            var destinationCenter = util.getElementCenter(destination, container, scale);
-                            var path = new drawing.Path({
-                                stroke: {
-                                    color: connection.color,
-                                    lineCap: PATH_LINECAP,
-                                    width: PATH_WIDTH
-                                }
-                            })
-                                .moveTo(originCenter.left, originCenter.top)
-                                .lineTo(destinationCenter.left, destinationCenter.top);
-                            surface.draw(path);
-                        }
-                    });
-                }
-            },
-
-            /**
-             * Redraw all elements
-             */
-            refresh: function () {
-                // Redraw all connectors
-                this._drawConnector();
-                // Redraw all connections
-
-            },
-
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W073 */
-
-            /**
-             * Add connection
-             * Note: use this.value(string)
-             * @param target
-             */
-            _addConnection: function (target) {
-                /* jshint maxstatements: 36 */
-                /* jshint maxcomplexity: 13 */
-                target = $(target);
-                var that = this;
-                var ret = false;
-                var options = that.options;
-                var element = that.element;
-                var id = element.attr(kendo.attr(ID));
-                var container = that.element.closest(options.container);
-                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
-                var targetId = target.attr(kendo.attr(ID));
-                var targetWidget = target.data(WIDGET);
-                if (id !== targetId && targetWidget instanceof Connector) {
-                    var targetContainer = target.closest(targetWidget.options.container);
-                    assert.hasLength(targetContainer, kendo.format(assert.messages.hasLength.default, targetWidget.options.container));
-                    if (container[0] === targetContainer[0]) {
-                        var connections = container.data(OBSERVABLE);
-                        assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
-                        var origin = id < targetId ? id : targetId;
-                        var destination = id < targetId ? targetId : id;
-                        var originWidget = id < targetId ? that : targetWidget;
-                        var destinationWidget = id < targetId ? targetWidget : that;
-                        var originConnection = connections.find(function (connection) {
-                            return connection.origin === origin || connection.destination === origin;
-                        });
-                        var destinationConnection = connections.find(function (connection) {
-                            return connection.origin === destination || connection.destination === destination;
-                        });
-                        if (($.type(originConnection) === UNDEFINED && $.type(destinationConnection) === UNDEFINED) ||
-                            (originConnection !== destinationConnection)) {
-                            if (originConnection) {
-                                // connections.remove(originConnection);
-                                originWidget._dropConnection();
-                            }
-                            if (destinationConnection) {
-                                // connections.remove(destinationConnection);
-                                destinationWidget._dropConnection();
-                            }
-                            connections.push({
-                                origin: origin,
-                                destination: destination,
-                                color: util.getRandomColor()
-                            });
-                            originWidget._value = destination;
-                            destinationWidget._value = origin;
-                            // if (originWidget.element[0].kendoBindingTarget && !(originWidget.element[0].kendoBindingTarget.source instanceof kidoju.data.PageComponent)) {
-                            if (originWidget.element[0].kendoBindingTarget && !(originWidget.element[0].kendoBindingTarget.source instanceof kendo.data.Model)) {
-                                originWidget.trigger(CHANGE, { value: originWidget._value });
-                            }
-                            // if (destinationWidget.element[0].kendoBindingTarget && !(destinationWidget.element[0].kendoBindingTarget.source instanceof kidoju.data.PageComponent)) {
-                            if (destinationWidget.element[0].kendoBindingTarget && !(destinationWidget.element[0].kendoBindingTarget.source instanceof kendo.data.Model)) {
-                                destinationWidget.trigger(CHANGE, { value: destinationWidget._value });
-                            }
-                        }
-                        ret = true;
-                    }
-                }
-                return ret;
-            },
-
-            /* jshint +W073 */
-
-            /**
-             * Remove connection
-             * Note: use this.value(null)
-             */
-            _dropConnection: function () {
-                var that = this;
-                var options = that.options;
-                var element = that.element;
-                var id = element.attr(kendo.attr(ID));
-                var container = that.element.closest(options.container);
-                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
-                var connections = container.data(OBSERVABLE);
-                assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
-                var found = connections.find(function (connection) {
-                    return connection.origin === id || connection.destination === id;
-                });
-                if (found) {
-                    var targetSelector = found.origin === id ? found.destination : found.origin;
-                    var target = container.find(targetSelector);
-                    var targetWidget = target.data(WIDGET);
-                    connections.remove(found);
-                    that._value = null;
-                    if (targetWidget instanceof Connector) {
-                        targetWidget._value = null;
-                    }
-                    that.trigger(CHANGE, { value: null });
-                    if (targetWidget instanceof Connector) {
-                        targetWidget.trigger(CHANGE, { value: null });
-                    }
-                }
-            },
-
-            /**
              * Add drag and drop handlers
-             * @param enabled
              * @private
              */
             _addDragAndDrop: function () {
                 // IMPORTANT
-                // We can have several containers containing connectors
-                // But we only have on set of handlers shared across all containers
+                // We can have several containers containing connectors on a page
+                // But we only have on set of event handlers shared across all containers
                 // So we cannot use `this`, which is specific to this connector
                 var element;
                 var path;
@@ -511,7 +327,7 @@
                                 e.currentTarget;
                             target = $(targetElement).closest(DOT + WIDGET_CLASS);
                             var targetWidget = target.data(WIDGET);
-                            // with touchend target === element
+                            // with touchend, target === element
                             // BUG REPORT  here: https://github.com/jquery/jquery/issues/2987
                             if (element.attr(kendo.attr(ID)) !== target.attr(kendo.attr(ID)) && targetWidget instanceof Connector && targetWidget._enabled) {
                                 var elementWidget = element.data(WIDGET);
@@ -523,9 +339,10 @@
                                 if (container[0] === targetContainer[0]) {
                                     elementWidget._addConnection(target);
                                 } else {
-                                    var connections = container.data(OBSERVABLE);
-                                    assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
-                                    connections.draw();
+                                    // We cannot erase so we need to redraw all
+                                    // TODO var connections = container.data(OBSERVABLE);
+                                    ///assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
+                                    //connections.draw();
                                 }
                             }  else {
                                 target = undefined;
@@ -541,15 +358,196 @@
                             var elementWidget = element.data(WIDGET);
                             if (elementWidget instanceof Connector) {
                                 var container = element.closest(elementWidget.options.container);
-                                var connections = container.data(OBSERVABLE);
-                                assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
-                                connections.draw();
+                                // redraw
+                                // var connections = container.data(OBSERVABLE);
+                                // assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
+                                // connections.draw();
                             }
                         }
                         path = undefined;
                         element = undefined;
                         target = undefined;
                     });
+            },
+
+            /**
+             * _dataSource function to bind refresh to the change event
+             * @private
+             */
+            _dataSource: function () {
+                var that = this;
+
+                // returns the datasource OR creates one if using array or configuration
+                that.dataSource = DataSource.create(that.options.dataSource);
+
+                // bind to the change event to refresh the widget
+                if (that._refreshHandler) {
+                    that.dataSource.unbind(CHANGE, that._refreshHandler);
+                }
+                that._refreshHandler = $.proxy(that.refresh, that);
+                that.dataSource.bind(CHANGE, that._refreshHandler);
+
+                // trigger a read on the dataSource if one hasn't happened yet
+                if (that.options.autoBind) {
+                    that.dataSource.fetch();
+                }
+            },
+
+            /**
+             * sets the dataSource for source binding
+             * @param dataSource
+             */
+            setDataSource: function (dataSource) {
+                var that = this;
+                // set the internal datasource equal to the one passed in by MVVM
+                that.options.dataSource = dataSource;
+                // rebuild the datasource if necessary, or just reassign
+                that._dataSource();
+            },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W073 */
+
+            /**
+             * Add connection
+             * Note: use this.value(string)
+             * @param target
+             */
+            _addConnection: function (target) {
+                /* jshint maxstatements: 36 */
+                /* jshint maxcomplexity: 13 */
+                target = $(target);
+                var that = this;
+                var ret = false;
+                var options = that.options;
+                var element = that.element;
+                var id = element.attr(kendo.attr(ID));
+                var container = that.element.closest(options.container);
+                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
+                var targetId = target.attr(kendo.attr(ID));
+                var targetWidget = target.data(WIDGET);
+                if (id !== targetId && targetWidget instanceof Connector) {
+                    var targetContainer = target.closest(targetWidget.options.container);
+                    assert.hasLength(targetContainer, kendo.format(assert.messages.hasLength.default, targetWidget.options.container));
+                    if (container[0] === targetContainer[0]) {
+                        assert.instanceof(DataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+                        var connections = that.dataSource.data();
+                        var originId = id < targetId ? id : targetId;
+                        var destinationId = id < targetId ? targetId : id;
+                        var originWidget = id < targetId ? that : targetWidget;
+                        var destinationWidget = id < targetId ? targetWidget : that;
+                        var originConnection = connections.find(function (connection) {
+                            return connection.originId === originId || connection.destinationId === originId;
+                        });
+                        var destinationConnection = connections.find(function (connection) {
+                            return connection.originId === destinationId || connection.destinationId === destinationId;
+                        });
+                        if (($.type(originConnection) === UNDEFINED && $.type(destinationConnection) === UNDEFINED) ||
+                            (originConnection !== destinationConnection)) {
+                            if (originConnection) {
+                                connections.remove(originConnection);
+                                originWidget._dropConnection();
+                            }
+                            if (destinationConnection) {
+                                connections.remove(destinationConnection);
+                                destinationWidget._dropConnection();
+                            }
+                            that.dataSource.add({
+                                originId: originId,
+                                destinationId: destinationId,
+                                color: util.getRandomColor()
+                            });
+                            originWidget._value = destinationWidget.options.targetValue;
+                            destinationWidget._value = originWidget.options.targetValue;
+                            // if (originWidget.element[0].kendoBindingTarget && !(originWidget.element[0].kendoBindingTarget.source instanceof kidoju.data.PageComponent)) {
+                            if (originWidget.element[0].kendoBindingTarget && !(originWidget.element[0].kendoBindingTarget.source instanceof kendo.data.Model)) {
+                                originWidget.trigger(CHANGE, { value: originWidget._value });
+                            }
+                            // if (destinationWidget.element[0].kendoBindingTarget && !(destinationWidget.element[0].kendoBindingTarget.source instanceof kidoju.data.PageComponent)) {
+                            if (destinationWidget.element[0].kendoBindingTarget && !(destinationWidget.element[0].kendoBindingTarget.source instanceof kendo.data.Model)) {
+                                destinationWidget.trigger(CHANGE, { value: destinationWidget._value });
+                            }
+                        }
+                        ret = true;
+                    }
+                }
+                return ret;
+            },
+
+            /* jshint +W073 */
+
+            /**
+             * Remove connection
+             * Note: use this.value(null)
+             */
+            _dropConnection: function () {
+                var that = this;
+                var options = that.options;
+                var element = that.element;
+                var id = element.attr(kendo.attr(ID));
+                var container = that.element.closest(options.container);
+                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
+                assert.instanceof(DataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+                var connections = that.dataSource.data();
+                var found = connections.find(function (connection) {
+                    return connection.originId === id || connection.destinationId === id;
+                });
+                if (found) {
+                    var targetId = found.originId === id ? found.destinationId : found.originId;
+                    var target = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), targetId));
+                    var targetWidget = target.data(WIDGET);
+                    connections.remove(found);
+                    that._value = null;
+                    if (targetWidget instanceof Connector) {
+                        targetWidget._value = null;
+                    }
+                    that.trigger(CHANGE, { value: null });
+                    if (targetWidget instanceof Connector) {
+                        targetWidget.trigger(CHANGE, { value: null });
+                    }
+                }
+            },
+
+            /**
+             * Refresh upon changing the dataSource
+             * Redraw all connections
+             */
+            refresh: function () {
+                var that = this;
+                var options = that.options;
+                var container = that.element.closest(options.container);
+                assert.instanceof($, container, kendo.format(assert.messages.instanceof.default, 'container', 'jQuery'));
+                assert.instanceof(DataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+                var connections = this.dataSource.data();
+                var surface = container.data(SURFACE);
+                if (surface instanceof kendo.drawing.Surface) {
+                    // Clear surface
+                    surface.clear();
+                    // Redraw all connections
+                    connections.forEach(function (connection) {
+                        var origin = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), connection.originId));
+                        var originWidget = origin.data(WIDGET);
+                        var destination = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), connection.destinationId));
+                        var destinationWidget = destination.data(WIDGET);
+                        // Only connector widgets can be connected
+                        if (originWidget instanceof Connector && destinationWidget instanceof Connector) {
+                            var scaler = origin.closest(originWidget.options.scaler);
+                            var scale = scaler.length ? util.getTransformScale(scaler) : 1;
+                            var originCenter = util.getElementCenter(origin, container, scale);
+                            var destinationCenter = util.getElementCenter(destination, container, scale);
+                            var path = new drawing.Path({
+                                stroke: {
+                                    color: connection.color,
+                                    lineCap: PATH_LINECAP,
+                                    width: PATH_WIDTH
+                                }
+                            })
+                                .moveTo(originCenter.left, originCenter.top)
+                                .lineTo(destinationCenter.left, destinationCenter.top);
+                            surface.draw(path);
+                        }
+                    });
+                }
             },
 
             /**
@@ -587,7 +585,6 @@
                     kendo.destroy(surface.element);
                     surface.element.remove();
                     container.removeData(SURFACE);
-                    container.removeData(OBSERVABLE);
                 }
             }
         });

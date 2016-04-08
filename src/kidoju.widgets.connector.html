@@ -27,55 +27,37 @@
 </head>
 <body>
 <h1>kidoju.widgets.connector</h1>
-<h2>Connectors set declaratively</h2>
-<div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;">
-    <div data-role="stage" style="position:relative;height:300px;width:300px;">
-        <div class="kj-element" style="position:absolute;top:10px;left:10px;height:20px;width:20px;">
-            <div data-role="connector" data-id="connector1" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" style="height:20px;width:20px;" data-value="connector2"></div>
-        </div>
-        <div class="kj-element" style="position:absolute;top:10px;left:270px;height:20px;width:20px;">
-            <div data-role="connector" data-id="connector2" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" style="height:20px;width:20px;" data-value="connector1"></div>
-        </div>
-        <div class="kj-element" style="position:absolute;top:270px;left:270px;height:20px;width:20px;">
-            <div data-role="connector" data-id="connector3" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" style="height:20px;width:20px;"></div>
-        </div>
-        <div class="kj-element" style="position:absolute;top:270px;left:10px;height:20px;width:20px;">
-            <div data-role="connector" data-id="connector4" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" style="height:20px;width:20px;"></div>
-        </div>
-    </div>
-</div>
-<h2>Connectors bound to observable</h2>
 <div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.75);">
     <div data-role="stage" style="height:300px;width:300px;">
         <div class="kj-element" style="position:absolute;top:10px;left:10px;height:20px;width:20px;">
-            <div data-role="connector" data-id="connectorA" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueA, visible: visible, enabled: enabledTop"></div>
+            <div data-role="connector" data-id="id-red" data-target-value="red" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF0000" style="height:20px;width:20px;" data-bind="value: red, source: source, visible: visible, enabled: enabled"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:10px;left:270px;height:20px;width:20px;">
-            <div data-role="connector" data-id="connectorB" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueB, visible: visible, enabled: enabledTop"></div>
+            <div data-role="connector" data-id="id-green" data-target-value="green" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#00FF00" style="height:20px;width:20px;" data-bind="value: green, source: source, visible: visible, enabled: enabled"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:270px;left:270px;height:20px;width:20px;">
-            <div data-role="connector" data-id="connectorC" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueC, visible: visible, enabled: enabledBottom"></div>
+            <div data-role="connector" data-id="id-blue" data-target-value="blue" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: blue, source: source, visible: visible, enabled: enabled"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:270px;left:10px;height:20px;width:20px;">
-            <div data-role="connector" data-id="connectorD" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: valueD, visible: visible, enabled: enabledBottom"></div>
+            <div data-role="connector" data-id="id-yellow" data-target-value="yellow" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FFFF00" style="height:20px;width:20px;" data-bind="value: yellow, source: source, visible: visible, enabled: enabled"></div>
         </div>
     </div>
 </div>
 <pre>
 {
-    valueA: <span data-bind="text: valueA"></span>,
-    valueB: <span data-bind="text: valueB"></span>,
-    valueC: <span data-bind="text: valueC"></span>,
-    valueD: <span data-bind="text: valueD"></span>,
+    red: <span data-bind="text: red"></span>
+    green: <span data-bind="text: green"></span>
+    blue: <span data-bind="text: blue"></span>
+    yellow: <span data-bind="text: yellow"></span>
+    source$:
+    <div data-bind="text: source$" style="margin-left:50px;"></div>
     visible: <span data-bind="text: visible"></span>
-    enabledTop: <span data-bind="text: enabledTop"></span>
-    enabledBottom: <span data-bind="text: enabledBottom"></span>
+    enabled: <span data-bind="text: enabled"></span>
 }
 </pre>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
-    <input type="checkbox" data-bind="checked: enabledTop" />enabledTop&nbsp;
-    <input type="checkbox" data-bind="checked: enabledBottom" />enabledBottom
+    <input type="checkbox" data-bind="checked: enabled" />enabled
 </div>
 
 <script>
@@ -85,13 +67,20 @@
 
         var kendo = window.kendo;
         var viewModel = window.viewModel = new kendo.observable({
-            valueA: 'connectorB',
-            valueB: 'connectorA',
-            valueC: 'connectorD',
-            valueD: 'connectorC',
+            red: undefined,
+            green: undefined,
+            blue: undefined,
+            yellow: undefined,
+            source: [],
+            source$: function() {
+                var ret = '';
+                this.get('source').forEach(function(item) {
+                    ret += kendo.format('{0} --> {1} ({2})\n', item.originId, item.destinationId, item.color);
+                });
+                return ret;
+            },
             visible: true,
-            enabledTop: true,
-            enabledBottom: true
+            enabled: true
         });
 
         $(document).ready(function() {

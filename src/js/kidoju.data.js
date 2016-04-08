@@ -37,7 +37,7 @@
         // var ERROR = 'error';
         var ZERO_NUMBER = 0;
         var NEGATIVE_NUMBER = -1;
-        // var RX_VALID_NAME = /^[a-z][a-z0-9_]{3,}$/i; // TODO instead of val_
+        var RX_VALID_NAME = /^val_[a-z0-9]{6}$/;
         var location = window.location;
         var workerLibPath = location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js';
         // var workerLibPath = location.protocol + '//' + location.host + '/src/js/kidoju.data.workerlib.js'; // for WEINRE
@@ -1023,7 +1023,7 @@
                             var score = 0;
                             assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                             for (var name in this) {
-                                if (this.hasOwnProperty(name) && /^val_/.test(name)) {
+                                if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name)) {
                                     score += this.get(name + '.score');
                                 }
                             }
@@ -1033,7 +1033,7 @@
                             var max = 0;
                             assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                             for (var name in this) {
-                                if (this.hasOwnProperty(name) && /^val_/.test(name)) {
+                                if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name)) {
                                     max += this.get(name + '.success');
                                 }
                             }
@@ -1047,16 +1047,32 @@
                         },
                         getScoreArray: function () {
                             var array = [];
+                            var redundant = {};
                             assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                             for (var name in this) {
-                                // TODO: handle links specifically
-                                if (this.hasOwnProperty(name) && /^val_/.test(name)) {
+                                if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name)) {
                                     var testItem = this.get(name);
-                                    var scoreItem = testItem.toJSON();
-                                    // Improved display of values in score grids
-                                    scoreItem.value = testItem.value$();
-                                    scoreItem.solution = testItem.solution$();
-                                    array.push(scoreItem);
+                                    var solution = testItem.solution;
+                                    // TODO: any way to improve this ugly hack used to display coupled connectors as a single item in the score grid ?
+                                    if ($.type(redundant[name]) === UNDEFINED &&
+                                        RX_VALID_NAME.test(solution) && this.hasOwnProperty(solution) && $.type(redundant[solution]) === UNDEFINED) {
+                                            // Make the first connector found redundant
+                                            redundant[solution] = testItem;
+                                    } else {
+                                        var scoreItem = testItem.toJSON();
+                                        // Improved display of values in score grids
+                                        scoreItem.value = testItem.value$();
+                                        scoreItem.solution = testItem.solution$();
+                                        // Aggregate score of redundant items (connectors)
+                                        if (redundant[name]) {
+                                            // If there is a redundancy, adjust scores
+                                            scoreItem.failure += redundant[name].failure;
+                                            scoreItem.omit += redundant[name].omit;
+                                            scoreItem.score += redundant[name].score;
+                                            scoreItem.success += redundant[name].success;
+                                        }
+                                        array.push(scoreItem);
+                                    }
                                 }
                             }
                             return array;
@@ -1066,7 +1082,7 @@
                             assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                             for (var name in this) {
                                 if (this.hasOwnProperty(name)) {
-                                    if (/^val_/.test(name)) {
+                                    if (RX_VALID_NAME.test(name)) {
                                         json[name] = {
                                             result: this.get(name + '.result'),
                                             score: this.get(name + '.score'),

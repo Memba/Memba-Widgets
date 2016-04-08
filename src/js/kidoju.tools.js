@@ -1557,25 +1557,6 @@
             },
 
             /**
-             * onEnable event handler
-             * @class CheckBox
-             * @method onEnable
-             * @param e
-             * @param component
-             * @param enabled
-             */
-            onEnable: function (e, component, enabled) {
-                var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
-                    stageElement.children('input')
-                        .prop({
-                            disabled: !enabled,
-                            readonly: !enabled
-                        });
-                }
-            },
-
-            /**
              * onResize Event Handler
              * @method onResize
              * @param e
@@ -1632,6 +1613,24 @@
                 success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 0.5 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.connector.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.connector.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * Improved display of value in score grid
+             * @param value
+             */
+            value$: function (value) {
+                debugger;
+                return kendo.htmlEncode(value);
+            },
+
+            /**
+             * Improved display of solution in score grid
+             * @param solution
+             */
+            solution$: function (solution) {
+                debugger;
+                return kendo.htmlEncode(solution);
             },
 
             /**

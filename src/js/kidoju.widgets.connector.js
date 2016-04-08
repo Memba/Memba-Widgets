@@ -48,14 +48,12 @@
         var DIV = '<div/>';
         var WIDGET_CLASS = 'kj-connector';
         var SURFACE_CLASS = WIDGET_CLASS + '-surface';
-        var DRAGGABLE = 'draggable';
+        var DRAGGABLE_CLASS = 'kj-draggable';
         var PATH_WIDTH = 10;
         var PATH_LINECAP = 'round';
         var SURFACE = 'surface';
         var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
-        var TRUE = 'true';
         var ID = 'id';
-        var VALUE = 'value';
 
         /*********************************************************************************
          * Helpers
@@ -204,10 +202,10 @@
                 var that = this;
                 that.wrapper = that.element;
                 // touch-action: 'none' is for Internet Explorer - https://github.com/jquery/jquery/issues/2987
-                // DRAGGABLE (which might be shared with other widgets) is used to position the drawing surface below draggable elements
+                // DRAGGABLE_WIDGET (which might be shared with other widgets) is used to position the drawing surface below draggable elements
                 that.element
                     .addClass(WIDGET_CLASS)
-                    .attr(kendo.attr(DRAGGABLE), TRUE)
+                    .addClass(DRAGGABLE_CLASS)
                     .css({ touchAction: 'none' });
                 that.surface = drawing.Surface.create(that.element);
             },
@@ -227,7 +225,7 @@
                     var surfaceElement = container.find(DOT + SURFACE_CLASS);
                     if (surfaceElement.length === 0) {
                         assert.ok(this.element.hasClass(WIDGET_CLASS), 'this._layout should be called before this._ensureSurface');
-                        var firstElementWithDraggable = container.children().has(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(DRAGGABLE), TRUE)).first();
+                        var firstElementWithDraggable = container.children().has(DOT + DRAGGABLE_CLASS).first();
                         if (firstElementWithDraggable.length) {
                             surfaceElement = $(DIV)
                                 .addClass(SURFACE_CLASS)
@@ -340,9 +338,7 @@
                                     elementWidget._addConnection(target);
                                 } else {
                                     // We cannot erase so we need to redraw all
-                                    // TODO var connections = container.data(OBSERVABLE);
-                                    ///assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
-                                    //connections.draw();
+                                    elementWidget.refresh();
                                 }
                             }  else {
                                 target = undefined;
@@ -357,11 +353,7 @@
                         if (element instanceof $ && $.type(target) === UNDEFINED) {
                             var elementWidget = element.data(WIDGET);
                             if (elementWidget instanceof Connector) {
-                                var container = element.closest(elementWidget.options.container);
-                                // redraw
-                                // var connections = container.data(OBSERVABLE);
-                                // assert.instanceof(ObservableArray, connections, kendo.format(assert.messages.instanceof.default, 'connections', 'kendo.data.ObservableArray'));
-                                // connections.draw();
+                                elementWidget.refresh();
                             }
                         }
                         path = undefined;

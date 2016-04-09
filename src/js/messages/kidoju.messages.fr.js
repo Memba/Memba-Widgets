@@ -293,7 +293,7 @@
                     attributes = tools.dropzone.constructor.prototype.attributes;
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Texte';
-                    attributes.defaultValue.title = 'Veuillez déposer ici.';
+                    attributes.text.defaultValue = 'Veuillez déposer ici.';
                     // Properties
                     properties = tools.dropzone.constructor.prototype.properties;
                     properties.name.title = 'Nom';

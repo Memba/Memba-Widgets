@@ -294,7 +294,7 @@
                     attributes = tools.dropzone.constructor.prototype.attributes;
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Text';
-                    attributes.defaultValue.title = 'Please drop here.';
+                    attributes.text.defaultValue = 'Please drop here.';
                     // Properties
                     properties = tools.dropzone.constructor.prototype.properties;
                     properties.name.title = 'Name';

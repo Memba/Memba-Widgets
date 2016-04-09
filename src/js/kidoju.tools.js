@@ -870,8 +870,8 @@
                     name: 'sumEqual',
                     formula: kendo.format(FORMULA, '// Note: value is an array and solution is a multiline string\n\t' +
                         'var ret = 0;\t' +
-                        'value.forEach(function(val){ ret += parseFloat(val); });\t' +
-                        'return ret === parseFloat(solution);')
+                        'value.forEach(function(val){ ret += parseFloat(val.trim() || 0); });\t' +
+                        'return ret === parseFloat(solution.trim());')
                 }
             ],
             libraryDefault: 'equal'

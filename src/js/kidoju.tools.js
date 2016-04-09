@@ -157,7 +157,6 @@
                 properties: {
                     name: { title: 'Name' },
                     description: { title: 'Description' },
-                    value: { title: 'Value' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -192,7 +191,7 @@
                 },
                 properties: {
                     draggable: { title: 'Draggable' },
-                    value: { title: 'Value' }
+                    dropValue: { title: 'Value' }
                 }
             },
 
@@ -204,7 +203,7 @@
                 },
                 properties: {
                     draggable: { title: 'Draggable' },
-                    value: { title: 'Value' }
+                    dropValue: { title: 'Value' }
                 }
             },
 
@@ -1148,89 +1147,6 @@
         });
 
         /**
-         * Connectors Adapter
-         */
-        adapters.ConnectorsAdapter = BaseAdapter.extend({
-            init: function (options) {
-                var that = this;
-                BaseAdapter.fn.init.call(that, options);
-                that.type = STRING;
-                // this.editor = 'input';
-                // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
-                that.editor = function (container, options) {
-                    var input = $('<input/>')
-                        .css({ width: '100%' })
-                        .attr({ 'data-bind': 'value: ' + options.field }) // TODO namespace???
-                        .appendTo(container);
-                    input.kendoComboBox({
-                        // dataSource: { data: [] }, // We need a non-empty dataSource otherwise open is not triggered
-                        /**
-                         * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
-                         * @param e
-                         */
-                        open: function (e) {
-                            var ids = [];
-                            // find the design (mode) stage, avoiding navigation
-                            var stage = $('[' + kendo.attr('role') + '="stage"][' + kendo.attr('mode') + '="design"]');
-                            // find the handle box and the selected uid which should be a connector
-                            var handleBox = stage.parent().children('.kj-handle-box');
-                            var uid = handleBox.attr(kendo.attr('uid'));
-                            // find all unselected connectors
-                            var connectors = stage.find('.kj-element[' + kendo.attr('uid') + '!="' + uid + '"]>.kj-connector');
-                            connectors.each(function (index, connector) {
-                                var id = $(connector).attr(kendo.attr('id'));
-                                if ($.type(id) === STRING) {
-                                    ids.push(id);
-                                }
-                            });
-                            ids.sort();
-                            e.sender.setDataSource(ids);
-                        },
-                        /**
-                         * Make connections reflexive by setting the solution on the target
-                         * @param e
-                         */
-                        change: function (e) {
-                            // Get the stage
-                            var stage = $('[' + kendo.attr('role') + '="stage"][' + kendo.attr('mode') + '="design"]');
-                            // find the handle box and the selected uid which should be a connector
-                            var handleBox = stage.parent().children('.kj-handle-box');
-                            var uid = handleBox.attr(kendo.attr('uid'));
-                            // find the selected connector
-                            var connector = stage.find('.kj-element[' + kendo.attr('uid') + '="' + uid + '"]>.kj-connector');
-                            var id = connector.attr(kendo.attr('id'));
-                            var targetId = e.sender.value();
-                            // Get the property grid
-                            var propertyGrid = e.sender.element.closest('.kj-propertygrid');
-                            assert.hasLength(propertyGrid, kendo.format(assert.messages.hasLength.default, 'propertyGrid'));
-                            // Get the viewModel
-                            var bindingTarget = propertyGrid[0].kendoBindingTarget;
-                            if ($.type(id) === STRING && $.type(targetId) === STRING && bindingTarget && bindingTarget.source instanceof kendo.data.ObservableObject) {
-                                // TODO: we have a dependency here on the name of the selected page in the viewModel!
-                                var components = bindingTarget.source.selectedPage.components;
-                                // assert.instanceof(PageComponentCollectionDataSource, components, kendo.format(assert.messages.instanceof.default, 'components', 'kidoju.data.PageComponentCollectionDataSource'));
-                                assert.instanceof(kendo.data.DataSource, components, kendo.format(assert.messages.instanceof.default, 'components', 'kendo.data.DataSource'));
-                                // find the target components
-                                var target = components.data().find(function (component) {
-                                    return component.properties.name === targetId;
-                                });
-                                // set the solution on the target component;
-                                target.set('properties.solution', id);
-                            }
-                        }
-                    });
-                };
-            },
-            library: [
-                {
-                    name: 'equal',
-                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
-                }
-            ],
-            libraryDefault: 'equal'
-        });
-
-        /**
          * CharGrid adapter
          */
         /*
@@ -1584,7 +1500,7 @@
         });
         tools.register(CheckBox);
 
-        var CONNECTOR = '<div data-#= ns #role="connector" data-#= ns #id="#: properties.name #"  data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-#= ns #role=stage]" data-#= ns #color="#: attributes.color #" {0}></div>';
+        var CONNECTOR = '<div data-#= ns #role="connector" data-#= ns #id="#: properties.name #" data-#= ns #target-value="#: properties.solution #" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-#= ns #role=stage]" data-#= ns #color="#: attributes.color #" {0}></div>';
         /**
          * @class Connector tool
          * @type {void|*}
@@ -1596,8 +1512,8 @@
             cursor: CURSOR_CROSSHAIR,
             templates: {
                 design: kendo.format(CONNECTOR, 'data-#= ns #enable="false" data-#= ns #has-surface="false"'),
-                play: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value"'),
-                review: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+                play: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: connections"'),
+                review: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: connections" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
             height: 50,
             width: 50,
@@ -1607,30 +1523,11 @@
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.connector.properties.name.title }),
                 description: new adapters.StringAdapter({ title: i18n.connector.properties.description.title }),
-                value: new adapters.StringAdapter({ title: i18n.connector.properties.value.title }),
-                solution: new adapters.ConnectorsAdapter({ title: i18n.connector.properties.solution.title }),
+                solution: new adapters.StringAdapter({ title: i18n.connector.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.connector.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 0.5 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.connector.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.connector.properties.omit.title, defaultValue: 0 })
-            },
-
-            /**
-             * Improved display of value in score grid
-             * @param value
-             */
-            value$: function (value) {
-                debugger;
-                return kendo.htmlEncode(value);
-            },
-
-            /**
-             * Improved display of solution in score grid
-             * @param solution
-             */
-            solution$: function (solution) {
-                debugger;
-                return kendo.htmlEncode(solution);
             },
 
             /**
@@ -1676,8 +1573,8 @@
             cursor: CURSOR_CROSSHAIR,
             templates: {
                 design: kendo.format(DROPZONE, 'data-#= ns #enable="false"'),
-                play: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggable"'),
-                review: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggable" data-#= ns #enable="false"') + Tool.fn.showResult()
+                play: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggables"'),
+                review: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggables" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
             height: 100,
             width: 100,
@@ -1750,7 +1647,7 @@
             description: i18n.image.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<img src="#: attributes.src$() #" alt="#: attributes.alt #" style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #value="#: properties.value #">'
+                default: '<img src="#: attributes.src$() #" alt="#: attributes.alt #" style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #target-value="#: properties.dropValue #">'
             },
             height: 250,
             width: 250,
@@ -1761,7 +1658,7 @@
             },
             properties: {
                 draggable: new adapters.BooleanAdapter({ title: i18n.image.properties.draggable.title, defaultValue: false }),
-                value: new adapters.StringAdapter({ title: i18n.image.properties.value.title })
+                dropValue: new adapters.StringAdapter({ title: i18n.image.properties.dropValue.title })
             },
 
             /**
@@ -1832,7 +1729,7 @@
             description: i18n.label.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #value="#: properties.value #">#: attributes.text #</div>'
+                default: '<div style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #target-value="#: properties.dropValue #">#: attributes.text #</div>'
             },
             height: 100,
             width: 300,
@@ -1842,7 +1739,7 @@
             },
             properties: {
                 draggable: new adapters.BooleanAdapter({ title: i18n.label.properties.draggable.title, defaultValue: false }),
-                value: new adapters.StringAdapter({ title: i18n.label.properties.value.title })
+                dropValue: new adapters.StringAdapter({ title: i18n.label.properties.dropValue.title })
             },
 
             /**

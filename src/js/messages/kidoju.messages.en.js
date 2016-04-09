@@ -280,7 +280,6 @@
                     properties = tools.connector.constructor.prototype.properties;
                     properties.name.title = 'Name';
                     properties.description.title = 'Description';
-                    properties.value.title = 'Value';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -300,7 +299,7 @@
                     // Properties
                     properties = tools.image.constructor.prototype.properties;
                     properties.draggable.title = 'Draggable';
-                    properties.value.title = 'Value';
+                    properties.dropValue.title = 'Value';
                 }
 
                 if (tools.label instanceof Tool) {
@@ -314,7 +313,7 @@
                     // Properties
                     properties = tools.label.constructor.prototype.properties;
                     properties.draggable.title = 'Draggable';
-                    properties.value.title = 'Value';
+                    properties.dropValue.title = 'Value';
                 }
 
                 if (tools.mathexpression instanceof Tool) {

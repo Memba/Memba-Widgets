@@ -984,8 +984,10 @@
                 var that = this;
                 var tools = kidoju.tools;
                 var test = {
+                    // Store for connections
+                    connections: [],
                     // Store for positioning draggable items
-                    draggable: []
+                    draggables: []
                 };
                 $.each(that.data(), function (pageIdx, page) {
                     $.each(page.components.data(), function (componentIdx, component) {
@@ -1018,7 +1020,8 @@
                 var workerPool = new WorkerPool(window.navigator.hardwareConcurrency || 4, workerTimeout);
                 // TODO: use an app.model and define a submodel with each field - see ValidatedTest above
                 var result = {
-                        draggable: test.draggable,
+                        connections: test.connections,
+                        draggables: test.draggables,
                         score: function () {
                             var score = 0;
                             assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
@@ -1046,30 +1049,41 @@
                             return score === 0 || max === 0 ?  0 : 100 * score / max;
                         },
                         getScoreArray: function () {
+                            function findFirstRedundancy (name) {
+                                var page = that[name].page;
+                                var solution = that[name].solution;
+                                for (var redundancy in that) {
+                                    if (that.hasOwnProperty(redundancy) && redundancy !== name && RX_VALID_NAME.test(redundancy)) {
+                                        if (that[redundancy].page === page && that[redundancy].solution === solution) {
+                                            return redundancy; // Hopefully there is only one
+                                        }
+                                    }
+                                }
+                            }
+                            var that = this;
                             var array = [];
-                            var redundant = {};
+                            var redundancies = {};
                             assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                             for (var name in this) {
                                 if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name)) {
                                     var testItem = this.get(name);
-                                    var solution = testItem.solution;
+                                    var redundancy = findFirstRedundancy(name);
                                     // TODO: any way to improve this ugly hack used to display coupled connectors as a single item in the score grid ?
-                                    if ($.type(redundant[name]) === UNDEFINED &&
-                                        RX_VALID_NAME.test(solution) && this.hasOwnProperty(solution) && $.type(redundant[solution]) === UNDEFINED) {
+                                    if ($.type(redundancy) === STRING && $.type(redundancies[name]) === UNDEFINED) {
                                             // Make the first connector found redundant
-                                            redundant[solution] = testItem;
+                                            redundancies[redundancy] = testItem;
                                     } else {
                                         var scoreItem = testItem.toJSON();
                                         // Improved display of values in score grids
                                         scoreItem.value = testItem.value$();
                                         scoreItem.solution = testItem.solution$();
                                         // Aggregate score of redundant items (connectors)
-                                        if (redundant[name]) {
+                                        if (redundancies[name]) {
                                             // If there is a redundancy, adjust scores
-                                            scoreItem.failure += redundant[name].failure;
-                                            scoreItem.omit += redundant[name].omit;
-                                            scoreItem.score += redundant[name].score;
-                                            scoreItem.success += redundant[name].success;
+                                            scoreItem.failure += redundancies[name].failure;
+                                            scoreItem.omit += redundancies[name].omit;
+                                            scoreItem.score += redundancies[name].score;
+                                            scoreItem.success += redundancies[name].success;
                                         }
                                         array.push(scoreItem);
                                     }
@@ -1088,7 +1102,7 @@
                                             score: this.get(name + '.score'),
                                             value: this.get(name + '.value')
                                         };
-                                    } else if (name === 'draggable') {
+                                    } else if (name === 'connections' || name === 'draggables') {
                                         json[name] = this.get(name).slice();
                                     }
                                 }
@@ -1099,7 +1113,8 @@
 
                 // Flatten test for validation formulas
                 var all = test.toJSON();
-                delete all.draggable;
+                delete all.connections;
+                delete all.draggables;
                 for (var prop in all) {
                     if (all.hasOwnProperty(prop) && $.type(all[prop]) === OBJECT) {
                         if (all[prop].value === null) {

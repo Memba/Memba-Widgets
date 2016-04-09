@@ -865,6 +865,13 @@
                     name: 'equal',
                     formula: kendo.format(FORMULA, '// Note: value is an array and solution is a multiline string\n\t' +
                         'return String(value.sort()) === String(solution.trim().split("\\n").sort());')
+                },
+                {
+                    name: 'sumEqual',
+                    formula: kendo.format(FORMULA, '// Note: value is an array and solution is a multiline string\n\t' +
+                        'var ret = 0;\t' +
+                        'value.forEach(function(val){ ret += parseFloat(val); });\t' +
+                        'return ret === parseFloat(solution);')
                 }
             ],
             libraryDefault: 'equal'

@@ -237,7 +237,7 @@
                 if (options.hasSurface && !(surface instanceof Surface)) {
                     var surfaceElement = container.find(DOT + SURFACE_CLASS);
                     if (surfaceElement.length === 0) {
-                        assert.ok(this.element.hasClass(WIDGET_CLASS), 'this._layout should be called before this._ensureSurface');
+                        // assert.ok(this.element.hasClass(WIDGET_CLASS), 'this._layout should be called before this._ensureSurface');
                         var firstElementWithDraggable = container.children().has(DOT + DRAGGABLE_CLASS).first();
                         if (firstElementWithDraggable.length) {
                             surfaceElement = $(DIV)

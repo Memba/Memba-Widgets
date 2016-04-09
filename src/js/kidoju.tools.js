@@ -870,7 +870,7 @@
                     name: 'sumEqual',
                     formula: kendo.format(FORMULA, '// Note: value is an array and solution is a multiline string\n\t' +
                         'var ret = 0;\t' +
-                        'value.forEach(function(val){ ret += parseFloat(val.trim() || 0); });\t' +
+                        'value.forEach(function(val){ ret += parseFloat((val || "").trim() || 0); });\t' +
                         'return ret === parseFloat(solution.trim());')
                 }
             ],
@@ -1654,7 +1654,7 @@
             description: i18n.image.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<img src="#: attributes.src$() #" alt="#: attributes.alt #" style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #target-value="#: properties.dropValue #">'
+                default: '<img src="#: attributes.src$() #" alt="#: attributes.alt #" style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #">'
             },
             height: 250,
             width: 250,
@@ -1736,7 +1736,7 @@
             description: i18n.label.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #target-value="#: properties.dropValue #">#: attributes.text #</div>'
+                default: '<div style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #">#: attributes.text #</div>'
             },
             height: 100,
             width: 300,

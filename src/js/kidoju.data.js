@@ -1070,8 +1070,8 @@
                                     var redundancy = findFirstRedundancy(name);
                                     // TODO: any way to improve this ugly hack used to display coupled connectors as a single item in the score grid ?
                                     if ($.type(redundancy) === STRING && $.type(redundancies[name]) === UNDEFINED) {
-                                            // Make the first connector found redundant
-                                            redundancies[redundancy] = testItem;
+                                        // Make the first connector found redundant
+                                        redundancies[redundancy] = testItem;
                                     } else {
                                         var scoreItem = testItem.toJSON();
                                         // Improved display of values in score grids

@@ -33,6 +33,7 @@
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.dropzone');
         // var STRING = 'string';
+        var NUMBER = 'number';
         var NULL = 'null';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';

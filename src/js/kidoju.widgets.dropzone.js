@@ -37,10 +37,14 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         // var NS = '.kendoDropZone';
+        // var MOUSEDOWN = 'mousedown' + NS + ' ' + 'touchstart' + NS;
+        // var MOUSEMOVE = 'mousemove' + NS + ' ' + 'touchmove' + NS;
+        // var MOUSEUP = 'mouseup' + NS + ' ' + 'touchend' + NS;
+        // var DRAGGABLE_CLASS = 'kj-draggable';
         var WIDGET_CLASS = 'kj-dropzone'; // 'k-widget kj-dropzone';
         var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
         var ID = 'id';
-        var VALUE = 'value';
+        var VALUE = 'dropValue';
         var CONTENT_SELECTOR = '[' + kendo.attr(ID) +  ']';
 
 
@@ -51,14 +55,62 @@
         var util = {
 
             /**
+             * Get the mouse (or touch) position
+             * @param e
+             * @param stage
+             * @returns {{x: *, y: *}}
+             */
+            getMousePosition: function (e, stage) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($, stage, kendo.format(assert.messages.instanceof.default, 'stage', 'jQuery'));
+                // See http://www.jacklmoore.com/notes/mouse-position/
+                // See http://www.jqwidgets.com/community/topic/dragend-event-properties-clientx-and-clienty-are-undefined-on-ios/
+                // See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
+                // ATTENTION: e.originalEvent.changedTouches instanceof TouchList, not Array
+                var originalEvent = e.originalEvent;
+                var clientX = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientX : e.clientX;
+                var clientY = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientY : e.clientY;
+                // IMPORTANT: Position is relative to the stage and e.offsetX / e.offsetY do not work in Firefox
+                // var stage = $(e.target).closest('.kj-stage').find(kendo.roleSelector('stage'));
+                var ownerDocument = $(stage.get(0).ownerDocument);
+                var stageOffset = stage.offset();
+                var mouse = {
+                    x: clientX - stageOffset.left + ownerDocument.scrollLeft(),
+                    y: clientY - stageOffset.top + ownerDocument.scrollTop()
+                };
+                return mouse;
+            },
+
+            /**
+             * Get the position of the center of an element
+             * @param element
+             * @param stage
+             * @param scale
+             */
+            getElementCenter: function (element, stage, scale) {
+                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
+                assert.instanceof($, stage, kendo.format(assert.messages.instanceof.default, 'stage', 'jQuery'));
+                assert.type(NUMBER, scale, kendo.format(assert.messages.type.default, 'scale', NUMBER));
+                // We need getBoundingClientRect to especially account for rotation
+                var rect = element[0].getBoundingClientRect();
+                var ownerDocument = $(stage.get(0).ownerDocument);
+                var stageOffset = stage.offset();
+                return {
+                    left: (rect.left - stageOffset.left + rect.width / 2  + ownerDocument.scrollLeft()) / scale,
+                    top: (rect.top - stageOffset.top + rect.height / 2 + ownerDocument.scrollTop()) / scale
+                };
+            },
+
+            /**
              * Get the scale of an element's CSS transformation
              * Note: the same function is used in kidoju.widgets.stage
              * @param element
              * @returns {Number|number}
              */
             getTransformScale: function (element) {
-                // $(element).css('transform') returns a matrix, so we have to read the style attribute
-                var match = ($(element).attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
+                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
+                // element.css('transform') returns a matrix, so we have to read the style attribute
+                var match = (element.attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
                 return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
             }
 
@@ -102,7 +154,6 @@
                 container: 'div.kj-stage>div[data-role="stage"]',
                 draggable: 'div.kj-element:has([data-draggable="true"])', // The draggable actually is the parent stage element - use http://www.w3schools.com/jquery/sel_has.asp
                 enable: true
-                // TODO Axis?????
             },
 
             /**
@@ -164,7 +215,7 @@
                             var dropZoneWidget = e.sender.element.data('kendoDropZone');
                             assert.instanceof(DropZone, dropZoneWidget, kendo.format(assert.messages.instanceof.default, 'dropZoneWidget', 'kendo.ui.DropZone'));
                             var draggableContent = e.draggable.element.find(CONTENT_SELECTOR);
-                            var val = draggableContent.attr(kendo.attr(VALUE));
+                            var val = draggableContent.attr(kendo.attr(kendo.toHyphens(VALUE)));
                             if (val) {
                                 var _value = dropZoneWidget._value = dropZoneWidget._value || [];
                                 var index = _value.indexOf(val);
@@ -185,7 +236,7 @@
                             var dropZoneWidget = e.sender.element.data('kendoDropZone');
                             assert.instanceof(DropZone, dropZoneWidget, kendo.format(assert.messages.instanceof.default, 'dropZoneWidget', 'kendo.ui.DropZone'));
                             var draggableContent = e.draggable.element.find(CONTENT_SELECTOR);
-                            var val = draggableContent.attr(kendo.attr(VALUE));
+                            var val = draggableContent.attr(kendo.attr(kendo.toHyphens(VALUE)));
                             if (val) {
                                 var _value = dropZoneWidget._value = dropZoneWidget._value || [];
                                 if (_value.indexOf(val) === -1) {
@@ -228,7 +279,7 @@
                     if (!enable && draggableWidget instanceof Draggable) {
                         draggable.css({ cursor: 'default' });
                         draggableWidget.destroy();
-                        logger.info({ message: 'Draggable disabled', method: '_initDraggable', data: { id: draggableContent.attr(kendo.attr(ID)), value: draggableContent.attr(kendo.attr(VALUE)) } });
+                        logger.info({ message: 'Draggable disabled', method: '_initDraggable', data: { id: draggableContent.attr(kendo.attr(ID)), value: draggableContent.attr(kendo.attr(kendo.toHyphens(VALUE))) } });
                     } else if (enable && !(draggableWidget instanceof Draggable)) {
                         draggable.css({ cursor: 'move' });
                         draggable.kendoDraggable({
@@ -336,7 +387,7 @@
 
                             }
                         });
-                        logger.info({ message: 'Draggable enabled', method: '_initDraggable', data: { id: draggableContent.attr(kendo.attr(ID)), value: draggableContent.attr(kendo.attr(VALUE)) } });
+                        logger.info({ message: 'Draggable enabled', method: '_initDraggable', data: { id: draggableContent.attr(kendo.attr(ID)), value: draggableContent.attr(kendo.attr(kendo.toHyphens(VALUE))) } });
                     }
                 });
             },
@@ -368,7 +419,7 @@
                 var that = this;
 
                 // returns the datasource OR creates one if using array or configuration
-                that.dataSource = kendo.data.DataSource.create(that.options.dataSource);
+                that.dataSource = DataSource.create(that.options.dataSource);
 
                 // bind to the change event to refresh the widget
                 if (that._refreshHandler) {

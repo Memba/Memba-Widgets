@@ -169,7 +169,7 @@
                 description: 'Drop Zone',
                 attributes: {
                     style: { title: 'Style' },
-                    text: { title: 'Text' }
+                    text: { title: 'Text', defaultValue: 'Please drop here.' }
                 },
                 properties: {
                     name: { title: 'Name' },
@@ -1286,13 +1286,13 @@
                 assert.instanceof(Audio, that, kendo.format(assert.messages.instanceof.default, 'this', 'Audio'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                assert.instanceof(ToolAssets, assets.audio, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                assert.instanceof(ToolAssets, assets.audio, kendo.format(assert.messages.instanceof.default, 'assets.audio', 'kidoju.ToolAssets'));
                 var template = kendo.template(that.templates.default);
                 // The files$ function resolves urls with schemes like cdn://audio.mp3 and returns a stringified array
                 component.attributes.files$ = function () {
                     var mp3 = component.attributes.get('mp3');
                     var ogg = component.attributes.get('ogg');
-                    var schemes = assets.video.schemes;
+                    var schemes = assets.audio.schemes;
                     for (var scheme in schemes) {
                         if (schemes.hasOwnProperty(scheme)) {
                             var schemeRx = new RegExp('^' + scheme + '://');
@@ -1583,11 +1583,11 @@
                 play: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggables"'),
                 review: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggables" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
-            height: 100,
-            width: 100,
+            height: 250,
+            width: 250,
             attributes: {
-                style: new adapters.StyleAdapter({ title: i18n.dropzone.attributes.style.title }),
-                text: new adapters.StringAdapter({ title: i18n.dropzone.attributes.text.title })
+                text: new adapters.StringAdapter({ title: i18n.dropzone.attributes.text.title, defaultValue: i18n.dropzone.attributes.text.defaultValue }),
+                style: new adapters.StyleAdapter({ title: i18n.dropzone.attributes.style.title, defaultValue: 'border: dashed 1px #e1e1e1;' })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.dropzone.properties.name.title }),
@@ -2072,7 +2072,7 @@
                 assert.instanceof(Video, that, kendo.format(assert.messages.instanceof.default, 'this', 'Image'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
-                assert.instanceof(ToolAssets, assets.video, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                assert.instanceof(ToolAssets, assets.video, kendo.format(assert.messages.instanceof.default, 'assets.video', 'kidoju.ToolAssets'));
                 var template = kendo.template(this.templates.default);
                 // The files$ function resolves urls with schemes like cdn://video.mp4 and returns a stringified array
                 component.attributes.files$ = function () {
@@ -2145,6 +2145,7 @@
          * Clock
          * Text-to-Speech
          * Spreadsheet
+         * Charts
          */
 
         /*****************************************************************************

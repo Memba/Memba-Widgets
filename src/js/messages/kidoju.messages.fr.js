@@ -286,6 +286,25 @@
                     properties.omit.title = 'Omission';
                 }
 
+                if (tools.dropzone instanceof Tool) {
+                    // Description
+                    tools.dropzone.constructor.prototype.description = 'Zone de Dépot';
+                    // Attributes
+                    attributes = tools.dropzone.constructor.prototype.attributes;
+                    attributes.style.title = 'Style';
+                    attributes.text.title = 'Texte';
+                    attributes.defaultValue.title = 'Veuillez déposer ici.';
+                    // Properties
+                    properties = tools.dropzone.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.description.title = 'Description';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Échec';
+                    properties.omit.title = 'Omission';
+                }
+
                 if (tools.image instanceof Tool) {
                     // Description
                     tools.image.constructor.prototype.description = 'Image';

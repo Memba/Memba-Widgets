@@ -41,9 +41,8 @@
         var MOUSEUP = 'mouseup' + NS + ' ' + 'touchend' + NS;
         var TOP = 'top';
         var LEFT = 'left';
-        // TODO var DRAGGABLE_CLASS = 'kj-draggable';
         var WIDGET_CLASS = 'kj-dropzone'; // 'k-widget kj-dropzone';
-        var DRAGGABLE_CLASS = 'kj-draggable';
+        // TODO var DRAGGABLE_CLASS = 'kj-draggable';
         var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
         var STATE = 'state';
         var ID = 'id';
@@ -237,7 +236,7 @@
                 var that = this;
                 assert.type(BOOLEAN, enable, kendo.format(assert.messages.type.default, 'enable', BOOLEAN));
                 that._enabled = enable;
-                // Yield some time for all drop zones to get enabled/disabled
+                // Yield some time for all drop zones to get enabled/disabled befor we init event handlers
                 setTimeout(function () {
                     $.proxy(that._initDragEventHandlers, that)();
                 }, 100);
@@ -261,13 +260,12 @@
                         enable = enable || otherDropZoneWidget._enabled;
                     }
                 });
+                // find stageElements containing images or labels with attribute [data-draggable=true]
                 container.children(options.draggable)
-                    .removeClass(DRAGGABLE_CLASS)
                     .css({ cursor: 'default' }); // or ''?
                 $(document).off(NS);
                 if (enable) {
                     container.children(options.draggable)
-                        .addClass(DRAGGABLE_CLASS)
                         .css({ cursor: 'move' });
                     $(document)
                         .on(MOUSEDOWN, $.proxy(that._onMouseDown, that))

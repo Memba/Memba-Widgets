@@ -43,6 +43,7 @@
         var LEFT = 'left';
         // TODO var DRAGGABLE_CLASS = 'kj-draggable';
         var WIDGET_CLASS = 'kj-dropzone'; // 'k-widget kj-dropzone';
+        var DRAGGABLE_CLASS = 'kj-draggable';
         var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
         var STATE = 'state';
         var ID = 'id';
@@ -251,6 +252,7 @@
                 var options = that.options;
                 var container = that.container;
                 var dropZoneCollection = container.find(kendo.roleSelector('dropzone'));
+                //
                 // Event handlers should remain active if there is at least one active dropzone
                 var enable = that._enabled;
                 $.each(dropZoneCollection, function (index, otherDropZone) {
@@ -259,10 +261,14 @@
                         enable = enable || otherDropZoneWidget._enabled;
                     }
                 });
-                container.children(options.draggable).css({ cursor: 'default' });
+                container.children(options.draggable)
+                    .removeClass(DRAGGABLE_CLASS)
+                    .css({ cursor: 'default' }); // or ''?
                 $(document).off(NS);
                 if (enable) {
-                    container.children(options.draggable).css({ cursor: 'move' });
+                    container.children(options.draggable)
+                        .addClass(DRAGGABLE_CLASS)
+                        .css({ cursor: 'move' });
                     $(document)
                         .on(MOUSEDOWN, $.proxy(that._onMouseDown, that))
                         .on(MOUSEMOVE, $.proxy(that._onMouseMove, that))

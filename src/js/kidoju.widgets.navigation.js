@@ -381,6 +381,7 @@
             _addSorting: function () {
                 var that = this;
                 that.element.kendoSortable({
+                    filter: ALL_ITEMS_SELECTOR,
                     hint: function (element) {
                         return element.clone().addClass(HINT_CLASS);  // Note: note used
                     },

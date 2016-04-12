@@ -339,6 +339,7 @@
             _addSorting: function () {
                 var that = this;
                 that.ul.kendoSortable({
+                    filter: ALL_ITEMS_SELECTOR,
                     hint: function (element) {
                         // element is LI, so it needs to be wrapped in UL
                         // but because of styles we need to wrap the UL in a DIV

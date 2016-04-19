@@ -19,14 +19,21 @@
 </head>
 <body>
 <h1>kidoju.widgets.mediaplayer</h1>
+<!--h2> Check audio support</h2-->
+<!-- Note: prefer media files delivered from AWS S3 for Chrome and Safari otherwise the page might not load  -->
+<!--audio controls style="width: 100%;">
+    <source src="https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.mp3" type="audio/mpeg">
+    <source src="https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.ogg" type="audio/ogg">
+    Media not supported
+</audio-->
 <h2>Audio MediaPlayer</h2>
-<div id="audio1" data-role="mediaplayer" data-mode="audio" style="height:50px;width:320px" data-files="['../test/data/audio/audio.ogg', '../test/data/audio/audio.mp3']"></div>
+<div id="audio1" data-role="mediaplayer" data-mode="audio" style="height:50px;width:320px" data-files="['https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.ogg', 'https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.mp3']"></div>
 <div style="height:12px"></div>
-<div id="audio2" data-role="mediaplayer" data-mode="audio" style="height:100px;width:650px" data-files="['../test/data/audio/audio.ogg', '../test/data/audio/audio.mp3']"></div>
+<div id="audio2" data-role="mediaplayer" data-mode="audio" style="height:100px;width:650px" data-files="['https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.ogg', 'https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.mp3']"></div>
 <div style="height:12px"></div>
-<div id="audio3" data-role="mediaplayer" data-mode="audio" style="height:200px;width:800px" data-files="['../test/data/audio/audio.ogg', '../test/data/audio/audio.mp3']"></div>
+<div id="audio3" data-role="mediaplayer" data-mode="audio" style="height:200px;width:800px" data-files="['https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.ogg', 'https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/audio.mp3']"></div>
 <h2>Video MediaPlayer</h2>
-<div id="video" data-role="mediaplayer" data-mode="video" data-files="['../test/data/video/video.mp4', '../test/data/video/video.webm']" data-bind="visible: visible, enabled: enabled"></div>
+<div id="video" data-role="mediaplayer" data-mode="video" style="width:50%;" data-files="['https://s3.amazonaws.com/kidoju.data/s/en/570cc7f46d1dd91900729417/video.mp4']" data-bind="visible: visible, enabled: enabled"></div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled
@@ -60,7 +67,6 @@
             });
 
             kendo.bind($('body'), viewModel);
-
         });
 
     }(this, jQuery));

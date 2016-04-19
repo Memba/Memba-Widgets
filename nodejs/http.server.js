@@ -22,9 +22,13 @@ var http = require('http'),
         'json'  : 'application/json',
         'xml'   : 'text/xml',
         'bin'   : 'application/octet-stream',
+        'mp3'   : 'audio/mpeg',
+        'ogg'   : 'audio/ogg',
+        'mp4'   : 'video/mpeg',
+        'ogv'   : 'video/ogg',
+        'webm'   : 'video/webm',
         'ttf'  : 'font/ttf',
         'woff'  : 'font/woff'
-
     };
 
 console.log('Server Running on port ' + port.toString() + '\n');

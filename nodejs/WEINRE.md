@@ -24,7 +24,7 @@ Launch the Weinre debugger in Chrome on your desktop at ```http://<IP Address>:8
 
 Run ```node nodejs/http.server 8081``` in another terminal window.
 
-Launch the web page on your mobile device at ```http://<IP Address>:8080/src/<page>.html``` 
+Launch the web page on your mobile device at ```http://<IP Address>:8081/src/<page>.html``` 
 
 ## Documentation
 

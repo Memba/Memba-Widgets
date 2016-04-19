@@ -135,6 +135,26 @@
             }
         }
 
+        /**
+         * Format duration as MM:SS
+         * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/duration
+         * @param seconds
+         */
+        function toHMS(seconds) {
+            assert.type(NUMBER, seconds, kendo.format(assert.messages.type.default, 'seconds', NUMBER));
+            assert.ok(seconds >= 0 && seconds < 24 * 60 * 60, 'Cannot format negative numbers or days.');
+            var s = Math.round(seconds);
+            var m = Math.floor (s / 60);
+            var h = Math.floor (m / 60);
+            s = s % 60;
+            m = m % 60;
+            if (h === 0) {
+                return kendo.format('{0:00}:{1:00}', m, s);
+            } else {
+                return kendo.format('{0:00}:{1:00}:{2:00}', h, m, s);
+            }
+        }
+
         /*********************************************************************************
          * Widget
          *********************************************************************************/
@@ -212,6 +232,7 @@
                     that.media = $('<video></video>');
                 }
                 that.media
+                    .attr('preload', 'auto')
                     .prop('autoplay', that.options.autoPlay)
                     .css({ width: '100%' });
                 // .css({ height: '100%', width: '100%' });
@@ -255,7 +276,7 @@
                     assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
                     this._setSeekerSlider(mediaElement.duration);
                     this.seekerSlider.value(0);
-                    this.toolbar.find(TIME_SELECTOR).text(kendo.toString(mediaElement.duration, 'n'));
+                    this.toolbar.find(TIME_SELECTOR).text(toHMS(mediaElement.duration));
                     this.volumeSlider.value(mediaElement.volume);
                     // we now need to resize our toolbar properly
                     this.resize();
@@ -290,7 +311,7 @@
                 if (this.toolbar instanceof $) {
                     var mediaElement = e.target;
                     assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
-                    this.toolbar.find(TIME_SELECTOR).text(kendo.toString(mediaElement.duration - mediaElement.currentTime, 'n'));
+                    this.toolbar.find(TIME_SELECTOR).text(toHMS(mediaElement.duration - mediaElement.currentTime));
                     this.seekerSlider.value(mediaElement.currentTime);
                 }
             },
@@ -518,7 +539,7 @@
             togglePlayPause: function () {
                 var mediaElement = this.media.get(0);
                 assert.instanceof(window.HTMLMediaElement, mediaElement, kendo.format(assert.messages.instanceof.default, 'this.media.get(0)', 'window.HTMLMediaElement'));
-                if (mediaElement.paused && mediaElement.readyState >= 3) { // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState
+                if (mediaElement.paused && mediaElement.readyState >= 1) { // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState
                     mediaElement.play();
                 } else {
                     mediaElement.pause();
@@ -678,7 +699,7 @@
                     var buttonSize = radius + 2 * margin;
                     // Resize timer
                     timeDiv.css({ fontSize: (fontRatio * radius) + PX, margin: '0 ' + margin + PX, lineHeight: '1em' });
-                    timeDiv.width(timeDiv.width()); // we do not want the width to change when the number of digits drops
+                    // timeDiv.width(timeDiv.width()); // we do not want the width to change when the number of digits drops
                     var timeSize = timeDiv.width() + 2 * margin;
                     // Resize volume slider
                     volumeDiv.css({ margin: 3 * margin + PX });

@@ -532,12 +532,20 @@
              */
             solution$: function (solution) {
                 return kendo.htmlEncode(solution || '');
-            }
+            },
 
             // onEnable: function (e, component, enabled) {},
             // onMove: function (e, component) {},
             // onResize: function (e, component) {},
             // onRotate: function (e, component) {},
+
+            /**
+             * Component validation
+             * @param component
+             */
+            validate: function(component) {
+                return []; // return no error or warning
+            }
 
         });
 

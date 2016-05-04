@@ -187,16 +187,38 @@
          */
 
         /**
-         * kidoju.tools
+         * kidoju.data & kidoju.tools
          */
 
         if (window.kidoju) {
 
             var kidoju = window.kidoju;
+            var data = kidoju.data;
             var tools = kidoju.tools;
             var Tool = kidoju.Tool;
             var attributes;
             var properties;
+
+            if (data && data.PageComponent) {
+                data.PageComponent.prototype.messages = {
+
+                }
+            }
+
+            if (data && data.Page) {
+                data.Stream.prototype.messages = {
+
+                }
+            }
+
+            if (data && data.Stream) {
+                data.Stream.prototype.messages = {
+                    minPages: 'Il vous faut au moins {0} pages pour pouvoir publier.',
+                    minQuestions: 'Il vous faut au moins {0} questions pour pouvoir publier.',
+                    typeVariety: 'On recommande l\'usage d\'au moins {0} types de questions (choix multiple, réponse simple, connecteurs ou autre).',
+                    qtyVariety: '{0:p0} des questions sont du type {1}. On recommande plus de variété.'
+                }
+            }
 
             // if (kidoju.Tool instanceof Function) {
             if (Tool && Tool.constructor && Tool.constructor.name === 'Function') {

@@ -34,7 +34,8 @@
         var NUMBER = 'number';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
-        // var ERROR = 'error';
+        var ERROR = 'Error';
+        var WARNING = 'Warning';
         var ZERO_NUMBER = 0;
         var NEGATIVE_NUMBER = -1;
         var RX_VALID_NAME = /^val_[a-z0-9]{6}$/;
@@ -801,6 +802,40 @@
                 }
                 // Return clone
                 return clone;
+            },
+
+            /**
+             * i18n Messages
+             */
+            messages: {
+                minConnectors: 'You need at least {0} connectors to make a question.',
+                // TODO dropZone without draggables
+                missingLabel: 'A label is missing on Page {0}.',
+                missingQuestion: 'A question is missing on Page {0}.',
+                missingInstructions: 'Instructions are missing on Page {0}.',
+                missingExplanations: 'Explanations are missing on Page {0}.'
+            },
+
+            /**
+             * Page validation
+             * @param index
+             * @returns {Array}
+             */
+            validate: function(index) {
+                assert.instanceof (Page, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Page'));
+                var ret = [];
+                var instructions = (this.get('instructions') || '').trim();
+                var explanations = (this.get('explanations') || '').trim();
+                for (var i = 0, length = this.components.length; i < length; i++) {
+                    ret = ret.concat(this.components[i].validate());
+                }
+                if (!instructions) {
+                    ret.push({ type: WARNING, index: index, message: kendo.format() });
+                }
+                if (!explanations) {
+                    ret.push({ type: ERROR, index: index, message: kendo.format() });
+                }
+                return ret;
             }
         });
 
@@ -1391,6 +1426,63 @@
                 } else {
                     return this._loaded;
                 }
+            },
+
+            /**
+             * i18n Messages
+             */
+            messages: {
+                minPages: 'You need at least {0} pages to be allowed to publish.',
+                minQuestions: 'You need at least {0} questions to be allowed to publish.',
+                typeVariety: 'We recommend the use of at least {0} types of questions (multiple choice, simple answer, connector or else).',
+                qtyVariety: '{0:p0} of questions are of type {1}. We recommend more variety.'
+            },
+
+            /**
+             * Stream validation
+             */
+            validate: function() {
+                assert.instanceof (Stream, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Stream'));
+                var ret = [];
+                var questions = { _total: 0 };
+                // Minimum number of pages
+                var MIN_PAGES = 5;
+                if (this.pages.length < MIN_PAGES) {
+                    ret.push({ type: ERROR, message: kendo.format(this.messages.minPages, MIN_PAGES) });
+                }
+                for (var i = 0, pageTotal = this.pages.length; i < pageTotal; i++) {
+                    // Count questions
+                    for (var j = 0, componentTotal = this.pages[i].components.length; j < componentTotal; j++) {
+                        var component = this.pages[i].components[j];
+                        if ($.type(component.tool) === STRING && $.type(component.properties) === OBJECT  && $.type(component.properties.validation) === STRING) {
+                            // Connectors go in pairs but it would not make sense to only have 2 connectors on a page, you need at least 4 to make a question
+                            questions._total += (component.tool === 'connector' ? 0.25 : 1);
+                            questions[component.tool] === (questions[component.tool] || 0) + (component.tool === 'connector' ? 0.25 : 1);
+                        }
+                    }
+                    // Validate each page
+                    ret = ret.concat(this.pages[i].validate(i));
+                }
+                // Minimum number of questions
+                var MIN_QUESTIONS = 10;
+                if (questions._total < MIN_QUESTIONS) {
+                    ret.push({ type: ERROR, message: kendo.format(this.messages.minQuestions, MIN_QUESTIONS) });
+                }
+                // Validate toolset (which includes _total) to make sure questions are varied
+                var TYPE_VARIETY = 3;
+                if (Object.keys(questions).length <= TYPE_VARIETY) {
+                    ret.push({ type: ERROR, message: kendo.format(this.messages.typeVariety, TYPE_VARIETY) }); // TODO: Should be a warning
+                }
+                var QTY_VARIETY = 0.5;
+                for (var name in questions) {
+                    if (questions.hasProperty(name) && name !== '_total') {
+                        var proportion =  questions[name] / questions._total;
+                        if (proportion > QTY_VARIETY) {
+                            ret.push({ type: ERROR, message: kendo.format(this.messages.qtyVariety, proportion, name) }); // TODO: Should be a warning
+                        }
+                    }
+                }
+                return ret;
             }
         });
 

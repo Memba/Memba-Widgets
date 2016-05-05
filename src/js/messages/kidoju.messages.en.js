@@ -200,24 +200,33 @@
             var attributes;
             var properties;
 
-            if (data && data.PageComponent) {
+            /*
+             if (data && data.PageComponent) {
                 data.PageComponent.prototype.messages = {
-
                 }
-            }
+             }
+             */
 
             if (data && data.Page) {
-                data.Stream.prototype.messages = {
-
+                data.Page.prototype.messages = {
+                    emptyPage: 'Page {0} cannot be empty.',
+                    minConnectors: 'At least {0} connectors are required to make a question on page {1}.',
+                    missingDraggable: 'Draggable labels or images are required for a drop zone on page {0}.',
+                    missingDropZone: 'A drop zone is required for draggable labels or images on page {0}.',
+                    missingLabel: 'A label is recommended on page {0}.',
+                    missingMultimedia: 'A multimedia element (image, audio, video) is recommended on page {0}.',
+                    missingQuestion: 'A question is recommended on page {0}.',
+                    missingInstructions: 'Instructions are recommended on page {0}.',
+                    missingExplanations: 'Explanations are missing on page {0}.'
                 }
             }
 
             if (data && data.Stream) {
                 data.Stream.prototype.messages = {
-                    minPages: 'You need at least {0} pages to be allowed to publish.',
-                    minQuestions: 'You need at least {0} questions to be allowed to publish.',
-                    typeVariety: 'We recommend the use of at least {0} types of questions (multiple choice, simple answer, connector or else).',
-                    qtyVariety: '{0:p0} of questions are of type {1}. We recommend more variety.'
+                    minPages: 'At least {0} pages are required to be allowed to publish.',
+                    minQuestions: 'At least {0} questions are required to be allowed to publish.',
+                    typeVariety: 'The use of at least {0} types of questions (multiple choice, simple answer, connector or else) is recommended.',
+                    qtyVariety: 'More variety is recommended because {0:p0} of questions are of type {1}.'
                 }
             }
 

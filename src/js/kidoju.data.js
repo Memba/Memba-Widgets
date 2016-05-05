@@ -548,6 +548,27 @@
                 clone = new PageComponent(clone);
                 // Return clone
                 return clone;
+            },
+
+            /**
+             * PageComponent validation
+             * @param pageIdx (in PageCollection)
+             */
+            validate: function (pageIdx) {
+                assert.instanceof (PageComponent, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.PageComponent'));
+                assert.type(NUMBER, pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', NUMBER));
+                assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                var component = this;
+                var ret = [];
+                var tool = component.get('tool');
+                assert.type(STRING, tool, kendo.format(assert.messages.type.default, 'tool', STRING));
+                if (kidoju.tools[tool] instanceof kidoju.Tool) {
+                    ret = kidoju.tools[tool].validate(component);
+                    for (var i = 0, length = ret.length; i < length; i++) {
+                        ret[i].index = pageIdx;
+                    }
+                }
+                return ret;
             }
 
         });
@@ -808,32 +829,90 @@
              * i18n Messages
              */
             messages: {
-                minConnectors: 'You need at least {0} connectors to make a question.',
-                // TODO dropZone without draggables
-                missingLabel: 'A label is missing on Page {0}.',
-                missingQuestion: 'A question is missing on Page {0}.',
-                missingInstructions: 'Instructions are missing on Page {0}.',
-                missingExplanations: 'Explanations are missing on Page {0}.'
+                emptyPage: 'Page {0} cannot be empty.',
+                minConnectors: 'At least {0} connectors are required to make a question on page {1}.',
+                missingDraggable: 'Draggable labels or images are required for a drop zone on page {0}.',
+                missingDropZone: 'A drop zone is required for draggable labels or images on page {0}.',
+                missingLabel: 'A label is recommended on page {0}.',
+                missingMultimedia: 'A multimedia element (image, audio, video) is recommended on page {0}.',
+                missingQuestion: 'A question is recommended on page {0}.',
+                missingInstructions: 'Instructions are recommended on page {0}.',
+                missingExplanations: 'Explanations are missing on page {0}.'
             },
 
             /**
              * Page validation
-             * @param index
+             * @param pageIdx
              * @returns {Array}
              */
-            validate: function(index) {
+            validate: function(pageIdx) {
                 assert.instanceof (Page, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Page'));
+                assert.type(NUMBER, pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', NUMBER));
                 var ret = [];
+                var hasDraggable = false;
+                var hasDropZone = false;
+                var hasLabel = false;
+                var hasMultimedia = false;
+                var hasQuestion = false;
+                var connectorCount = 0;
+                var componentTotal = this.components.total();
+                if (componentTotal === 0) {
+                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(this.messages.emptyPage, pageIdx + 1) });
+                }
+                for (var i = 0; i < componentTotal; i++) {
+                    var component = this.components.at(i);
+                    if (component.tool === 'label') {
+                        hasLabel = true;
+                        if (component.properties.draggable) {
+                            hasDraggable = true;
+                        }
+                    } else if (component.tool === 'image' || component.tool === 'audio' || component.tool === 'video') {
+                        hasMultimedia = true;
+                        if (component.properties.draggable) {
+                            hasDraggable = true;
+                        }
+                    } else if ($.type(component.properties) ===  OBJECT && $.type(component.properties.validation) === STRING) {
+                        hasQuestion = true;
+                        if (component.tool === 'connector') {
+                            connectorCount++;
+                        } else if (component.tool === 'dropzone') {
+                            hasDropZone = true;
+                        }
+                    }
+                    ret = ret.concat(component.validate(pageIdx));
+                }
+                // Check a label
+                if (componentTotal > 0 && !hasLabel) {
+                    ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.missingLabel, pageIdx + 1) });
+                }
+                // Check a multimedia element
+                if (componentTotal > 0 && !hasMultimedia) {
+                    ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.missingMultimedia, pageIdx + 1) });
+                }
+                // Check a question
+                if (componentTotal > 0 && !hasQuestion) {
+                    ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.missingQuestion, pageIdx + 1) });
+                }
+                // Check connectors
+                var MIN_CONNECTORS = 4;
+                if (connectorCount > 0 && connectorCount < MIN_CONNECTORS) {
+                    ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.minConnectors, MIN_CONNECTORS, pageIdx + 1) });
+                }
+                // Check drop zone and draggable
+                if (hasDropZone && !hasDraggable) {
+                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(this.messages.missingDraggable, pageIdx + 1) });
+                } else if (!hasDropZone && hasDraggable) {
+                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(this.messages.missingDropZone, pageIdx + 1) });
+                }
+                // Check instructions
                 var instructions = (this.get('instructions') || '').trim();
-                var explanations = (this.get('explanations') || '').trim();
-                for (var i = 0, length = this.components.length; i < length; i++) {
-                    ret = ret.concat(this.components[i].validate());
-                }
                 if (!instructions) {
-                    ret.push({ type: WARNING, index: index, message: kendo.format() });
+                    ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.missingInstructions, pageIdx + 1) });
                 }
+                // Check explanations
+                var explanations = (this.get('explanations') || '').trim();
                 if (!explanations) {
-                    ret.push({ type: ERROR, index: index, message: kendo.format() });
+                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(this.messages.missingExplanations, pageIdx + 1) });
                 }
                 return ret;
             }
@@ -1432,10 +1511,10 @@
              * i18n Messages
              */
             messages: {
-                minPages: 'You need at least {0} pages to be allowed to publish.',
-                minQuestions: 'You need at least {0} questions to be allowed to publish.',
-                typeVariety: 'We recommend the use of at least {0} types of questions (multiple choice, simple answer, connector or else).',
-                qtyVariety: '{0:p0} of questions are of type {1}. We recommend more variety.'
+                minPages: 'At least {0} pages are required to be allowed to publish.',
+                minQuestions: 'At least {0} questions are required to be allowed to publish.',
+                typeVariety: 'The use of at least {0} types of questions (multiple choice, simple answer, connector or else) is recommended.',
+                qtyVariety: 'More variety is recommended because {0:p0} of questions are of type {1}.'
             },
 
             /**
@@ -1447,13 +1526,16 @@
                 var questions = { _total: 0 };
                 // Minimum number of pages
                 var MIN_PAGES = 5;
-                if (this.pages.length < MIN_PAGES) {
-                    ret.push({ type: ERROR, message: kendo.format(this.messages.minPages, MIN_PAGES) });
+                var pageTotal = this.pages.total();
+                if (pageTotal < MIN_PAGES) {
+                    ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minPages, MIN_PAGES) });
                 }
-                for (var i = 0, pageTotal = this.pages.length; i < pageTotal; i++) {
+                for (var i = 0; i < pageTotal; i++) {
+                    var page = this.pages.at(i);
+                    var componentTotal = page.components.total();
                     // Count questions
-                    for (var j = 0, componentTotal = this.pages[i].components.length; j < componentTotal; j++) {
-                        var component = this.pages[i].components[j];
+                    for (var j = 0; j < componentTotal; j++) {
+                        var component = page.components.at(j);
                         if ($.type(component.tool) === STRING && $.type(component.properties) === OBJECT  && $.type(component.properties.validation) === STRING) {
                             // Connectors go in pairs but it would not make sense to only have 2 connectors on a page, you need at least 4 to make a question
                             questions._total += (component.tool === 'connector' ? 0.25 : 1);
@@ -1461,24 +1543,24 @@
                         }
                     }
                     // Validate each page
-                    ret = ret.concat(this.pages[i].validate(i));
+                    ret = ret.concat(page.validate(i));
                 }
                 // Minimum number of questions
                 var MIN_QUESTIONS = 10;
                 if (questions._total < MIN_QUESTIONS) {
-                    ret.push({ type: ERROR, message: kendo.format(this.messages.minQuestions, MIN_QUESTIONS) });
+                    ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minQuestions, MIN_QUESTIONS) });
                 }
                 // Validate toolset (which includes _total) to make sure questions are varied
                 var TYPE_VARIETY = 3;
                 if (Object.keys(questions).length <= TYPE_VARIETY) {
-                    ret.push({ type: ERROR, message: kendo.format(this.messages.typeVariety, TYPE_VARIETY) }); // TODO: Should be a warning
+                    ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.typeVariety, TYPE_VARIETY) }); // TODO: Should be a warning
                 }
                 var QTY_VARIETY = 0.5;
                 for (var name in questions) {
-                    if (questions.hasProperty(name) && name !== '_total') {
+                    if (questions.hasOwnProperty(name) && name !== '_total') {
                         var proportion =  questions[name] / questions._total;
                         if (proportion > QTY_VARIETY) {
-                            ret.push({ type: ERROR, message: kendo.format(this.messages.qtyVariety, proportion, name) }); // TODO: Should be a warning
+                            ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.qtyVariety, proportion, name) }); // TODO: Should be a warning
                         }
                     }
                 }

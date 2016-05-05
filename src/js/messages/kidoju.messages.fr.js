@@ -199,24 +199,33 @@
             var attributes;
             var properties;
 
+            /*
             if (data && data.PageComponent) {
                 data.PageComponent.prototype.messages = {
-
                 }
             }
+            */
 
             if (data && data.Page) {
-                data.Stream.prototype.messages = {
-
+                data.Page.prototype.messages = {
+                    emptyPage: 'La page {0} ne doit pas être vide.',
+                    minConnectors: 'Au moins {0} connecteurs sont nécessaires pour faire une question en page {1}.',
+                    missingDraggable: 'Des labels et images déplaçables sont requis pour la/les zone(s) de dépôt en page {0}.',
+                    missingDropZone: 'Une zone de dépôt est requise pour les labels et images déplaçables en page {0}.',
+                    missingLabel: 'Une étiquette est recommandée en page {0}.',
+                    missingMultimedia: 'Un élément multimédia (image, audio, vidéo) est recommandé en page {0}.',
+                    missingQuestion: 'Une question est recommandé en page {0}.',
+                    missingInstructions: 'Des instructions sont recommandées en page {0}.',
+                    missingExplanations: 'Les explications manquent en page {0}.'
                 }
             }
 
             if (data && data.Stream) {
                 data.Stream.prototype.messages = {
-                    minPages: 'Il vous faut au moins {0} pages pour pouvoir publier.',
-                    minQuestions: 'Il vous faut au moins {0} questions pour pouvoir publier.',
+                    minPages: 'Il faut au moins {0} pages pour pouvoir publier.',
+                    minQuestions: 'Il faut au moins {0} questions pour pouvoir publier.',
                     typeVariety: 'On recommande l\'usage d\'au moins {0} types de questions (choix multiple, réponse simple, connecteurs ou autre).',
-                    qtyVariety: '{0:p0} des questions sont du type {1}. On recommande plus de variété.'
+                    qtyVariety: 'On recommande plus de variété quand {0:p0} des questions sont du type {1}.'
                 }
             }
 

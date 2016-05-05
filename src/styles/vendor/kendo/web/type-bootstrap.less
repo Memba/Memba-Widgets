@@ -769,12 +769,20 @@ html .km-pane-wrapper .k-header
         background-color: @base;
     }
 
+    .k-today.k-state-selected {
+        background-color: @selected-background-color;
+    }
+
     .k-today.k-state-hover {
         background-color: darken(@base, 7%);
     }
 
     .k-today.k-state-focused.k-state-hover {
         background-color: lighten(@selected-background-color, 37%);
+    }
+
+    .k-today.k-state-selected.k-state-hover {
+        background-color: darken(@selected-background, 8%);
     }
 
     .k-footer .k-link {
@@ -819,8 +827,8 @@ html .km-pane-wrapper .k-header
     border-top-color: @hover-border-color;
 }
 
-.k-group-header + div > .k-list > .k-item.k-first {
-    box-shadow: 0 -1px 0px 0px @hover-border-color;
+.k-group-header + div > .k-list > .k-item.k-first:before {
+    border-top-color: @hover-border-color;
 }
 
 .k-popup > .k-group-header,
@@ -1005,6 +1013,25 @@ div.k-filebrowser-dropzone em
 .k-dropdown .k-state-focused .k-input
 {
     color: @widget-text-color;
+}
+
+.km-pane-wrapper .km-pane .k-mobile-list.k-filter-menu {
+    .k-space-right {
+        .composite-background(@widget-gradient);
+        background-position: 50% 50%;
+        background: @base;
+        border-color: @base;
+
+        > input {
+            background: @background;
+            border-color: @widget-border-color;
+        }
+
+        > input:focus {
+            border-color: lighten(@accent, 13%);
+            .box-shadow(@focused-shadow);
+        }
+    }
 }
 
 .k-dropdown .k-state-hover .k-input
@@ -1434,13 +1461,13 @@ div.k-filebrowser-dropzone em
 
 .k-line
 {
-	background-color: @widget-text-color;
+    background-color: @widget-text-color;
     color: @widget-text-color;
 }
 
 .k-state-selected.k-line
 {
-	background-color: @selected-background-color;
+    background-color: @selected-background-color;
     color: @selected-background-color;
 }
 
@@ -1991,7 +2018,7 @@ html .km-pane-wrapper .km-widget,
 .k-panelbar > .k-state-focused.k-state-hover
 {
     background: @hover-background-color;
-	.box-shadow(none);
+    .box-shadow(none);
 }
 
 .k-tabstrip-items .k-state-default
@@ -2500,7 +2527,7 @@ thead.k-grid-header th.k-header:last-child
 .k-multiselect .k-button:active
 {
     color: @multiselect-buttons-color;
-	.box-shadow(@focused-active-item-shadow);
+    .box-shadow(@focused-active-item-shadow);
 }
 
 .k-list > .k-state-hover
@@ -2530,6 +2557,27 @@ thead.k-grid-header th.k-header:last-child
 {
     background-color: @selected-background-color;
     color: @selected-text-color;
+}
+
+.k-menu {
+    .k-state-selected > .k-link {
+        color: @selected-text-color;
+        background-color: @selected-background-color;
+        border-color: @selected-border-color;
+        .composite-background(@selected-gradient);
+    }
+
+    .k-link.k-state-active,
+    .k-state-hover > .k-link {
+        color: @hover-text-color;
+        background-color: @hover-background-color;
+        border-color: @hover-border-color;
+        .composite-background(@hover-gradient);
+    }
+
+    .k-state-hover .k-link.k-state-active {
+        background-color: darken(@hover-background-color, 7%);
+    }
 }
 
 /* Slider */
@@ -2565,8 +2613,8 @@ thead.k-grid-header th.k-header:last-child
 .k-slider-buttons .k-button:active
 {
     .box-shadow(@focused-shadow);
-	border-color: @drop-down-focused-border-color;
-	background-color: @widget-background-color;
+    border-color: @drop-down-focused-border-color;
+    background-color: @widget-background-color;
 }
 
 .k-autocomplete.k-state-default,
@@ -2657,7 +2705,7 @@ thead.k-grid-header th.k-header:last-child
 }
 
 .k-picker-wrap.k-state-focused > .k-select,
-.k-picker-wrap.k-state-active > .k-select
+.k-picker-wrap.k-state-active > .k-select,
 .k-dropdown-wrap.k-state-focused > .k-select,
 .k-dropdown-wrap.k-state-active > .k-select
 {
@@ -2705,7 +2753,7 @@ td.k-state-focused.k-state-selected,
 .k-panelbar > .k-state-focused.k-state-hover
 {
     background: @hover-background-color;
-	.box-shadow(none);
+    .box-shadow(none);
 }
 
 .k-panelbar > li .k-state-selected.k-state-hover {
@@ -2884,7 +2932,7 @@ td.k-state-focused.k-state-selected,
 .k-state-disabled .k-button:active,
 .k-button.k-state-disabled:active
 {
- 	.box-shadow(none);
+    .box-shadow(none);
 }
 
 .k-primary:active
@@ -3003,7 +3051,7 @@ td.k-state-focused.k-state-selected,
         .k-rtl .k-grid .k-pager-numbers
         {
             right: 5.18em;
-            width: 4.45em
+            width: 4.45em;
         }
         
         

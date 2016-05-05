@@ -963,7 +963,7 @@ function pad(number, digits, end) {
             }
 
             if (hasGroup) {
-                number = groupInteger(number, start, end, numberFormat);
+                number = groupInteger(number, start, Math.max(end, (integerLength + start -1)), numberFormat);
             }
 
             if (end >= start) {
@@ -2069,10 +2069,13 @@ function pad(number, digits, end) {
                 paste : document.queryCommandSupported ? document.queryCommandSupported("paste") : false
             };
 
-            if (support.browser.chrome && support.browser.version >= 43) {
-                //not using queryCommandSupported due to chromium issue #476508
-                commands.copy = true;
-                commands.cut = true;
+            if (support.browser.chrome) {
+                //not using queryCommandSupported due to chromium issues 476508 and 542948
+                commands.paste = false;
+                if(support.browser.version >= 43) {
+                    commands.copy = true;
+                    commands.cut = true;
+                }
             }
 
             return commands;
@@ -4226,6 +4229,7 @@ function pad(number, digits, end) {
                 0, 0, 0, 0, 0, false, false, false, false, 0, null);
 
             fileSaver.dispatchEvent(e);
+            URL.revokeObjectURL(dataURI);
         }
 
         kendo.saveAs = function(options) {

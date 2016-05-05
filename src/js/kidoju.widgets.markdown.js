@@ -48,6 +48,7 @@
             script.type = 'text/javascript';
             // script.src  = 'https://cdn.mathjax.org/mathjax/2.6-latest/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
             script.src = 'https://cdn.mathjax.org/mathjax/2.6-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+            script.crossorigin = 'anonymous';
             head.appendChild(script);
         }
     })();

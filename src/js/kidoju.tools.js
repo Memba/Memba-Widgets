@@ -91,20 +91,21 @@
                 left: { title: 'Left' },
                 height: { title: 'Height' },
                 width: { title: 'Width' },
-                rotate: { title: 'Rotate' },
-                messages: {
-                    missingDropValue: 'A {0} named on page {1} requires a drop value.',
-                    missingDescription: 'A {0} named `{1}` on page {2} requires a description.',
-                    missingSolution: 'A {0} named `{1}` on page {2} requires a solution.',
-                    missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula.',
-                    invalidFailure: 'A {0} named `{1}` on page {2} has a failure score higher than the omit score or zero.',
-                    invalidSuccess: 'A {0} named `{1}` on page {2} has a success score lower than the omit score or zero.'
-                }
+                rotate: { title: 'Rotate' }
             },
 
             dialogs: {
                 ok: { text: 'OK' },
                 cancel: { text: 'Cancel' }
+            },
+
+            messages: {
+                missingDropValue: 'A {0} named on page {1} requires a drop value.',
+                missingDescription: 'A {0} named `{1}` on page {2} requires a description.',
+                missingSolution: 'A {0} named `{1}` on page {2} requires a solution.',
+                missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula.',
+                invalidFailure: 'A {0} named `{1}` on page {2} has a failure score higher than the omit score or zero.',
+                invalidSuccess: 'A {0} named `{1}` on page {2} has a success score lower than the omit score or zero.'
             },
 
             pointer: {
@@ -374,6 +375,14 @@
                 dialogs: {
                     ok: { text: i18n.dialogs.ok.text }, // TODO : icon?
                     cancel: { text: i18n.dialogs.cancel.text }
+                },
+                messages: {
+                    missingDropValue: i18n.messages.missingDropValue,
+                    missingDescription: i18n.messages.missingDescription,
+                    missingSolution: i18n.messages.missingSolution,
+                    missingValidation: i18n.messages.missingValidation,
+                    invalidFailure: i18n.messages.invalidFailure,
+                    invalidSuccess: i18n.messages.invalidSuccess
                 }
             },
 
@@ -565,27 +574,28 @@
                 if (component.properties) {
                     var properties = component.properties;
                     var description = this.description; // tool description
+                    var messages = this.i18n.messages;
                     var name = properties.name;
                     // TODO: test name? note that all components do not necessarily have a name
                     if (properties.draggable === true && !/\S+/.test(properties.dropValue)) {
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(i18n.tool.messages.missingDropValue, description, /*name,*/ pageIdx) });
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingDropValue, description, /*name,*/ pageIdx + 1) });
                     }
                     if ($.type(properties.description) === STRING && !/\S+/.test(properties.description)) {
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(i18n.tool.messages.missingDescription, description, name, pageIdx) });
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingDescription, description, name, pageIdx + 1) });
                     }
                     if ($.type(properties.solution) === STRING && !/\S+/.test(properties.solution)) {
                         // TODO: what if solution is not a string but a number or something else ?
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(i18n.tool.messages.missingSolution, description, name, pageIdx) });
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingSolution, description, name, pageIdx + 1) });
                     }
                     if ($.type(properties.validation) === STRING && !/\S+/.test(properties.validation)) {
                         // TODO: There is room for better validation of the validation formula
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(i18n.tool.messages.missingValidation, description, name, pageIdx) });
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingValidation, description, name, pageIdx + 1) });
                     }
                     if ($.type(properties.failure) === NUMBER && $.type(properties.omit) === NUMBER && properties.failure > Math.min(properties.omit, 0)) {
-                        ret.push({ type: WARNING, index: pageIdx, message: kendo.format(i18n.tool.messages.invalidFailure, description, name, pageIdx) });
+                        ret.push({ type: WARNING, index: pageIdx, message: kendo.format(messages.invalidFailure, description, name, pageIdx + 1) });
                     }
                     if ($.type(properties.success) === NUMBER && $.type(properties.omit) === NUMBER && properties.success < Math.max(properties.omit, 0)) {
-                        ret.push({ type: WARNING, index: pageIdx, message: kendo.format(i18n.tool.messages.invalidSuccess, description, name, pageIdx) });
+                        ret.push({ type: WARNING, index: pageIdx, message: kendo.format(messages.invalidSuccess, description, name, pageIdx + 1) });
                     }
                 }
                 return ret;

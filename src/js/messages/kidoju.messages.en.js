@@ -239,19 +239,19 @@
                         left: { title: 'Left' },
                         height: { title: 'Height' },
                         width: { title: 'Width' },
-                        rotate: { title: 'Rotate' },
-                        message: {
-                            missingDropValue: 'A {0} named on page {1} requires a drop value.',
-                            missingDescription: 'A {0} named `{1}` on page {2} requires a description.',
-                            missingSolution: 'A {0} named `{1}` on page {2} requires a solution.',
-                            missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula.',
-                            invalidFailure: 'A {0} named `{1}` on page {2} has a failure score higher than the omit score or zero.',
-                            invalidSuccess: 'A {0} named `{1}` on page {2} has a success score lower than the omit score or zero.'
-                        }
+                        rotate: { title: 'Rotate' }
                     },
                     dialogs: {
                         ok: { text: 'OK' },
                         cancel: { text: 'Cancel' }
+                    },
+                    messages: {
+                        missingDropValue: 'A {0} named on page {1} requires a drop value.',
+                        missingDescription: 'A {0} named `{1}` on page {2} requires a description.',
+                        missingSolution: 'A {0} named `{1}` on page {2} requires a solution.',
+                        missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula.',
+                        invalidFailure: 'A {0} named `{1}` on page {2} has a failure score higher than the omit score or zero.',
+                        invalidSuccess: 'A {0} named `{1}` on page {2} has a success score lower than the omit score or zero.'
                     }
                 });
             }

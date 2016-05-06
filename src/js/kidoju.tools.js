@@ -543,7 +543,7 @@
              * Component validation
              * @param component
              */
-            validate: function(component) {
+            validate: function (component) {
                 return []; // return no error or warning
             }
 

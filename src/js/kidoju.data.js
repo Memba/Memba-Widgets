@@ -840,12 +840,16 @@
                 missingExplanations: 'Explanations are missing on page {0}.'
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Page validation
              * @param pageIdx
              * @returns {Array}
              */
-            validate: function(pageIdx) {
+            validate: function (pageIdx) {
+                /* jshint maxcomplexity: 22 */
                 assert.instanceof (Page, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Page'));
                 assert.type(NUMBER, pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', NUMBER));
                 var ret = [];
@@ -916,6 +920,9 @@
                 }
                 return ret;
             }
+
+            /* jshint +W074 */
+
         });
 
         /**
@@ -1517,10 +1524,14 @@
                 qtyVariety: 'More variety is recommended because {0:p0} of questions are of type {1}.'
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Stream validation
              */
-            validate: function() {
+            validate: function () {
+                /* jshint maxcomplexity: 13 */
                 assert.instanceof (Stream, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Stream'));
                 var ret = [];
                 var questions = { _total: 0 };
@@ -1566,6 +1577,9 @@
                 }
                 return ret;
             }
+
+            /* jshint +W074 */
+
         });
 
 

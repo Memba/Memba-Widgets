@@ -218,7 +218,7 @@
                     missingQuestion: 'A question is recommended on page {0}.',
                     missingInstructions: 'Instructions are recommended on page {0}.',
                     missingExplanations: 'Explanations are missing on page {0}.'
-                }
+                };
             }
 
             if (data && data.Stream) {
@@ -227,7 +227,7 @@
                     minQuestions: 'At least {0} questions are required to be allowed to publish.',
                     typeVariety: 'The use of at least {0} types of questions (multiple choice, simple answer, connector or else) is recommended.',
                     qtyVariety: 'More variety is recommended because {0:p0} of questions are of type {1}.'
-                }
+                };
             }
 
             // if (kidoju.Tool instanceof Function) {

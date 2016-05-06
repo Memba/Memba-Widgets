@@ -563,10 +563,7 @@
                 var tool = component.get('tool');
                 assert.type(STRING, tool, kendo.format(assert.messages.type.default, 'tool', STRING));
                 if (kidoju.tools[tool] instanceof kidoju.Tool) {
-                    ret = kidoju.tools[tool].validate(component);
-                    for (var i = 0, length = ret.length; i < length; i++) {
-                        ret[i].index = pageIdx;
-                    }
+                    ret = kidoju.tools[tool].validate(component, pageIdx);
                 }
                 return ret;
             }
@@ -1518,6 +1515,7 @@
              * i18n Messages
              */
             messages: {
+                duplicateNames: 'Delete components using the same name `{0}` on pages {1}',
                 minPages: 'At least {0} pages are required to be allowed to publish.',
                 minQuestions: 'At least {0} questions are required to be allowed to publish.',
                 typeVariety: 'The use of at least {0} types of questions (multiple choice, simple answer, connector or else) is recommended.',
@@ -1531,9 +1529,10 @@
              * Stream validation
              */
             validate: function () {
-                /* jshint maxcomplexity: 13 */
+                /* jshint maxcomplexity: 18 */
                 assert.instanceof (Stream, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Stream'));
                 var ret = [];
+                var names = {};
                 var questions = { _total: 0 };
                 // Minimum number of pages
                 var MIN_PAGES = 5;
@@ -1544,17 +1543,34 @@
                 for (var i = 0; i < pageTotal; i++) {
                     var page = this.pages.at(i);
                     var componentTotal = page.components.total();
-                    // Count questions
+                    // Count names and questions
                     for (var j = 0; j < componentTotal; j++) {
                         var component = page.components.at(j);
+                        if ($.type(component.name) === STRING) {
+                            // Collect all pages where a name can be found in view to check that each name is only used once
+                            names[component.name] = (names[component.name] || []).push(i);
+                        }
                         if ($.type(component.tool) === STRING && $.type(component.properties) === OBJECT  && $.type(component.properties.validation) === STRING) {
-                            // Connectors go in pairs but it would not make sense to only have 2 connectors on a page, you need at least 4 to make a question
+                            // Connectors go in pairs but it would not make sense to only have 2 connectors or less on a page, you need at least 4 to make a question
+                            // Note: We are not checking here that these connectors are on the same page, which we do in page validation
                             questions._total += (component.tool === 'connector' ? 0.25 : 1);
                             questions[component.tool] === (questions[component.tool] || 0) + (component.tool === 'connector' ? 0.25 : 1);
                         }
                     }
                     // Validate each page
                     ret = ret.concat(page.validate(i));
+                }
+                // Duplicate names
+                for (var name in names) {
+                    if (names.hasOwnProperty(name)) {
+                        var pages = names[name];
+                        if ($.isArray(pages) && pages.length > 1) {
+                            var index = pages[0];
+                            // page numbers start at 1 when page indexes start at 0
+                            pages = pages.map(function (idx) { return idx + 1; });
+                            ret.push({ type: ERROR, index: index, message: kendo.format(this.messages.duplicateNames, name, pages) });
+                        }
+                    }
                 }
                 // Minimum number of questions
                 var MIN_QUESTIONS = 10;
@@ -1567,11 +1583,11 @@
                     ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.typeVariety, TYPE_VARIETY) }); // TODO: Should be a warning
                 }
                 var QTY_VARIETY = 0.5;
-                for (var name in questions) {
-                    if (questions.hasOwnProperty(name) && name !== '_total') {
-                        var proportion =  questions[name] / questions._total;
+                for (var prop in questions) {
+                    if (questions.hasOwnProperty(prop) && prop !== '_total') {
+                        var proportion =  questions[prop] / questions._total;
                         if (proportion > QTY_VARIETY) {
-                            ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.qtyVariety, proportion, name) }); // TODO: Should be a warning
+                            ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.qtyVariety, proportion, prop) }); // TODO: Should be a warning
                         }
                     }
                 }

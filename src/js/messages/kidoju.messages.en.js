@@ -223,6 +223,7 @@
 
             if (data && data.Stream) {
                 data.Stream.prototype.messages = {
+                    duplicateNames: 'Delete components using the same name `{0}` on pages {1}',
                     minPages: 'At least {0} pages are required to be allowed to publish.',
                     minQuestions: 'At least {0} questions are required to be allowed to publish.',
                     typeVariety: 'The use of at least {0} types of questions (multiple choice, simple answer, connector or else) is recommended.',
@@ -238,7 +239,15 @@
                         left: { title: 'Left' },
                         height: { title: 'Height' },
                         width: { title: 'Width' },
-                        rotate: { title: 'Rotate' }
+                        rotate: { title: 'Rotate' },
+                        message: {
+                            missingDropValue: 'A {0} named on page {1} requires a drop value.',
+                            missingDescription: 'A {0} named `{1}` on page {2} requires a description.',
+                            missingSolution: 'A {0} named `{1}` on page {2} requires a solution.',
+                            missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula.',
+                            invalidFailure: 'A {0} named `{1}` on page {2} has a failure score higher than the omit score or zero.',
+                            invalidSuccess: 'A {0} named `{1}` on page {2} has a success score lower than the omit score or zero.'
+                        }
                     },
                     dialogs: {
                         ok: { text: 'OK' },

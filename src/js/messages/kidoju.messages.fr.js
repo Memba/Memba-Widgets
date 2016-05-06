@@ -222,6 +222,7 @@
 
             if (data && data.Stream) {
                 data.Stream.prototype.messages = {
+                    duplicateNames: 'Supprimez les composants utilisant le même nom `{0}` en pages {1}',
                     minPages: 'Il faut au moins {0} pages pour pouvoir publier.',
                     minQuestions: 'Il faut au moins {0} questions pour pouvoir publier.',
                     typeVariety: 'On recommande l\'usage d\'au moins {0} types de questions (choix multiple, réponse simple, connecteurs ou autre).',
@@ -237,7 +238,15 @@
                         left: { title: 'Pos. Gauche' },
                         height: { title: 'Hauteur' },
                         width: { title: 'Largeur' },
-                        rotate: { title: 'Rotation' }
+                        rotate: { title: 'Rotation' },
+                        message: {
+                            missingDropValue: 'Une {0} en page {1} nécessite une valeur à glisser dans une zone de dépôt.',
+                            missingDescription: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une description.',
+                            missingSolution: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une solution.',
+                            missingValidation: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une formule de validation.',
+                            invalidFailure: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score d\'échec supérieur au score d\'omission ou zéro.',
+                            invalidSuccess: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score de succès inférieur au score d\'omission ou zéro.'
+                        }
                     },
                     dialogs: {
                         ok: { text: 'OK' },

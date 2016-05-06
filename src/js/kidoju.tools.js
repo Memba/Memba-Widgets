@@ -47,6 +47,8 @@
         var NUMBER = 'number';
         var BOOLEAN = 'boolean';
         var DATE = 'date';
+        var ERROR = 'Error';
+        var WARNING = 'Warning';
         var CURSOR_DEFAULT = 'default';
         var CURSOR_CROSSHAIR = 'crosshair';
         var REGISTER = 'register';
@@ -89,7 +91,15 @@
                 left: { title: 'Left' },
                 height: { title: 'Height' },
                 width: { title: 'Width' },
-                rotate: { title: 'Rotate' }
+                rotate: { title: 'Rotate' },
+                messages: {
+                    missingDropValue: 'A {0} named on page {1} requires a drop value.',
+                    missingDescription: 'A {0} named `{1}` on page {2} requires a description.',
+                    missingSolution: 'A {0} named `{1}` on page {2} requires a solution.',
+                    missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula.',
+                    invalidFailure: 'A {0} named `{1}` on page {2} has a failure score higher than the omit score or zero.',
+                    invalidSuccess: 'A {0} named `{1}` on page {2} has a success score lower than the omit score or zero.'
+                }
             },
 
             dialogs: {
@@ -539,13 +549,49 @@
             // onResize: function (e, component) {},
             // onRotate: function (e, component) {},
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Component validation
              * @param component
+             * @param pageIdx
              */
-            validate: function (component) {
-                return []; // return no error or warning
+            validate: function (component, pageIdx) {
+                /* jshint maxcomplexity: 8 */
+                assert.instanceof (PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.type(NUMBER, pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', NUMBER));
+                var ret = [];
+                if (component.properties) {
+                    var properties = component.properties;
+                    var description = this.description; // tool description
+                    var name = properties.name;
+                    // TODO: test name? note that all components do not necessarily have a name
+                    if (properties.draggable === true && !/\S+/.test(properties.dropValue)) {
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(i18n.tool.messages.missingDropValue, description, /*name,*/ pageIdx) });
+                    }
+                    if ($.type(properties.description) === STRING && !/\S+/.test(properties.description)) {
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(i18n.tool.messages.missingDescription, description, name, pageIdx) });
+                    }
+                    if ($.type(properties.solution) === STRING && !/\S+/.test(properties.solution)) {
+                        // TODO: what if solution is not a string but a number or something else ?
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(i18n.tool.messages.missingSolution, description, name, pageIdx) });
+                    }
+                    if ($.type(properties.validation) === STRING && !/\S+/.test(properties.validation)) {
+                        // TODO: There is room for better validation of the validation formula
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(i18n.tool.messages.missingValidation, description, name, pageIdx) });
+                    }
+                    if ($.type(properties.failure) === NUMBER && $.type(properties.omit) === NUMBER && properties.failure > Math.min(properties.omit, 0)) {
+                        ret.push({ type: WARNING, index: pageIdx, message: kendo.format(i18n.tool.messages.invalidFailure, description, name, pageIdx) });
+                    }
+                    if ($.type(properties.success) === NUMBER && $.type(properties.omit) === NUMBER && properties.success < Math.max(properties.omit, 0)) {
+                        ret.push({ type: WARNING, index: pageIdx, message: kendo.format(i18n.tool.messages.invalidSuccess, description, name, pageIdx) });
+                    }
+                }
+                return ret;
             }
+
+            /* jshint +W074 */
 
         });
 

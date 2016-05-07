@@ -1802,13 +1802,13 @@
             templates: {
                 default: '<div style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #">#: attributes.text #</div>'
             },
-            height: 100,
+            height: 80,
             width: 300,
             attributes: {
                 // text: new adapters.StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue }),
                 text: new adapters.TextAdapter(
                     { title:i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue },
-                    { rows: 4, style: 'resize:vertical; width: 100%;' }
+                    { rows: 2, style: 'resize:vertical; width: 100%;' }
                 ),
                 style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size: 60px;' })
             },
@@ -2044,7 +2044,7 @@
                 play: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"'),
                 review: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"') + Tool.fn.showResult()
             },
-            height: 100,
+            height: 80,
             width: 300,
             attributes: {
                 style: new adapters.StyleAdapter({ title: i18n.textbox.attributes.style.title })

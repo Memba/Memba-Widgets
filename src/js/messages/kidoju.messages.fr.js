@@ -209,11 +209,11 @@
             if (data && data.Page) {
                 data.Page.prototype.messages = {
                     emptyPage: 'La page {0} ne doit pas être vide.',
-                    minConnectors: 'Au moins {0} connecteurs sont nécessaires pour faire une question en page {1}.',
-                    missingDraggable: 'Des labels et images déplaçables sont requis pour la/les zone(s) de dépôt en page {0}.',
-                    missingDropZone: 'Une zone de dépôt est requise pour les labels et images déplaçables en page {0}.',
-                    missingLabel: 'Une étiquette est recommandée en page {0}.',
-                    missingMultimedia: 'Un élément multimédia (image, audio, vidéo) est recommandé en page {0}.',
+                    minConnectors: 'Au moins {0} Connecteurs sont nécessaires pour faire une question en page {1}.',
+                    missingDraggable: 'Des Étiquettes et Images déplaçables sont requis pour la/les Zone(s) de Dépôt en page {0}.',
+                    missingDropZone: 'Une Zone de Dépôt est requise pour les Étiquettes et Images déplaçables en page {0}.',
+                    missingLabel: 'Une Étiquettes est recommandée en page {0}.',
+                    missingMultimedia: 'Un élément multimédia (Image, Audio, Vidéo) est recommandé en page {0}.',
                     missingQuestion: 'Une question est recommandé en page {0}.',
                     missingInstructions: 'Des instructions sont recommandées en page {0}.',
                     missingExplanations: 'Les explications manquent en page {0}.'
@@ -225,7 +225,7 @@
                     duplicateNames: 'Supprimez les composants utilisant le même nom `{0}` en pages {1}',
                     minPages: 'Il faut au moins {0} pages pour pouvoir publier.',
                     minQuestions: 'Il faut au moins {0} questions pour pouvoir publier.',
-                    typeVariety: 'On recommande l\'usage d\'au moins {0} types de questions (choix multiple, réponse simple, connecteurs ou autre).',
+                    typeVariety: 'On recommande l\'usage d\'au moins {0} types de questions (Choix Multiple, Boîte de Texte, Connecteurs ou autre).',
                     qtyVariety: 'On recommande plus de variété quand {0:p0} des questions sont du type {1}.'
                 };
             }
@@ -245,7 +245,7 @@
                         cancel: { text: 'Annuler' }
                     },
                     messages: {
-                        missingDropValue: 'Une {0} en page {1} nécessite une valeur à glisser dans une zone de dépôt.',
+                        missingDropValue: 'Une {0} en page {1} nécessite une valeur à glisser dans une Zone de Dépôt.',
                         missingDescription: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une description.',
                         missingSolution: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une solution.',
                         missingValidation: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une formule de validation.',

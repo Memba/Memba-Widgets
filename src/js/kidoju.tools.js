@@ -100,7 +100,7 @@
             },
 
             messages: {
-                missingDropValue: 'A {0} named on page {1} requires a drop value.',
+                missingDropValue: 'A {0} on page {1} requires a drop value.',
                 missingDescription: 'A {0} named `{1}` on page {2} requires a description.',
                 missingSolution: 'A {0} named `{1}` on page {2} requires a solution.',
                 missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula.',

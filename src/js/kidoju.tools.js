@@ -47,8 +47,8 @@
         var NUMBER = 'number';
         var BOOLEAN = 'boolean';
         var DATE = 'date';
-        var ERROR = 'Error';
-        var WARNING = 'Warning';
+        var ERROR = 'error';
+        var WARNING = 'warning';
         var CURSOR_DEFAULT = 'default';
         var CURSOR_CROSSHAIR = 'crosshair';
         var REGISTER = 'register';

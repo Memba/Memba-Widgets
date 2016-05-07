@@ -34,8 +34,8 @@
         var NUMBER = 'number';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
-        var ERROR = 'Error';
-        var WARNING = 'Warning';
+        var ERROR = 'error';
+        var WARNING = 'warning';
         var ZERO_NUMBER = 0;
         var NEGATIVE_NUMBER = -1;
         var RX_VALID_NAME = /^val_[a-z0-9]{6}$/;

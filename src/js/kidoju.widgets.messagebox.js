@@ -176,7 +176,7 @@
             /**
              * Open messagebox
              */
-            open: function() {
+            open: function () {
 
                 // Erase the command before a new close
                 this.command = undefined;

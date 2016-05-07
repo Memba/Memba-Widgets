@@ -1805,8 +1805,12 @@
             height: 100,
             width: 300,
             attributes: {
-                text: new adapters.StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue }),
-                style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size: 80px;' })
+                // text: new adapters.StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue }),
+                text: new adapters.TextAdapter(
+                    { title:i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue },
+                    { rows: 4, style: 'resize:vertical; width: 100%;' }
+                ),
+                style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size: 60px;' })
             },
             properties: {
                 draggable: new adapters.BooleanAdapter({ title: i18n.label.properties.draggable.title, defaultValue: false }),

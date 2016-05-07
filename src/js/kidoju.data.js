@@ -1529,7 +1529,7 @@
              * Stream validation
              */
             validate: function () {
-                /* jshint maxcomplexity: 18 */
+                /* jshint maxcomplexity: 19 */
                 assert.instanceof (Stream, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Stream'));
                 var ret = [];
                 var names = {};
@@ -1546,15 +1546,20 @@
                     // Count names and questions
                     for (var j = 0; j < componentTotal; j++) {
                         var component = page.components.at(j);
-                        if ($.type(component.name) === STRING) {
-                            // Collect all pages where a name can be found in view to check that each name is only used once
-                            names[component.name] = (names[component.name] || []).push(i);
-                        }
-                        if ($.type(component.tool) === STRING && $.type(component.properties) === OBJECT  && $.type(component.properties.validation) === STRING) {
-                            // Connectors go in pairs but it would not make sense to only have 2 connectors or less on a page, you need at least 4 to make a question
-                            // Note: We are not checking here that these connectors are on the same page, which we do in page validation
-                            questions._total += (component.tool === 'connector' ? 0.25 : 1);
-                            questions[component.tool] === (questions[component.tool] || 0) + (component.tool === 'connector' ? 0.25 : 1);
+                        var properties = component.properties;
+                        if (properties) {
+                            if ($.type(properties.name) === STRING) {
+                                // Collect all pages where a name can be found in view to check that each name is only used once
+                                names[properties.name] = (names[properties.name] || []).push(i);
+                            }
+                            if ($.type(properties.validation) === STRING) {
+                                assert.type(STRING, component.tool, kendo.format(assert.messages.type.default, 'component.tool', STRING));
+                                var tool = component.tool;
+                                // Connectors go in pairs but it would not make sense to only have 2 connectors or less on a page, you need at least 4 to make a question
+                                // Note: We are not checking here that these connectors are on the same page, which we do in page validation
+                                questions._total += (tool === 'connector' ? 0.25 : 1);
+                                questions[tool] = (questions[tool] || 0) + (tool === 'connector' ? 0.25 : 1);
+                            }
                         }
                     }
                     // Validate each page

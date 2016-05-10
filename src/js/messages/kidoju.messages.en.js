@@ -153,6 +153,10 @@
         if (ui.Stage) {
             options = ui.Stage.prototype.options;
             options.messages = $.extend(true, options.messages, {
+                contextMenu: {
+                    delete: 'Delete',
+                    duplicate: 'Duplicate'
+                },
                 noPage: 'Please add or select a page'
             });
         }

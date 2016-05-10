@@ -208,6 +208,10 @@
                 disabled: false,
                 readonly: false,
                 messages: {
+                    contextMenu: {
+                        delete: 'Delete',
+                        duplicate: 'Duplicate'
+                    },
                     noPage: 'Please add or select a page'
                 }
             },
@@ -808,8 +812,9 @@
                 if (enable) {
                     // See http://docs.telerik.com/kendo-ui/api/javascript/ui/contextmenu
                     that.menu = $('<ul class="kj-stage-menu"></ul>')
-                        // .append('<li ' + DATA_COMMAND + '="lock">Lock</li>') // TODO Use constants + localize in messages
-                        .append('<li ' + DATA_COMMAND + '="delete">Delete</li>')// TODO: Bring forward, Push backward, Edit, etc.....
+                        // TODO: Bring forward, Push backward, Edit, etc.....
+                        .append('<li ' + DATA_COMMAND + '="delete">' + this.options.messages.contextMenu.delete + '</li>')
+                        .append('<li ' + DATA_COMMAND + '="duplicate">' + this.options.messages.contextMenu.duplicate + '</li>')
                         .appendTo(that.wrapper)
                         .kendoContextMenu({
                             target: '.kj-handle[' + DATA_COMMAND + '="menu"]',
@@ -833,13 +838,19 @@
                 // Check when implementing fonts, colors, etc....
                 var that = this;
                 switch ($(e.item).attr(DATA_COMMAND)) {
-                    case 'lock':
-                        break;
                     case 'delete':
                         var uid = that.wrapper.children(DOT + HANDLE_BOX_CLASS).attr(DATA_UID);
                         var item = that.dataSource.getByUid(uid);
                         that.dataSource.remove(item);
                         // This should raise the change event on the dataSource and call the refresh method of the widget
+                        break;
+                    case 'duplicate':
+                        var uid = that.wrapper.children(DOT + HANDLE_BOX_CLASS).attr(DATA_UID);
+                        var item = that.dataSource.getByUid(uid);
+                        var clone = item.clone();
+                        clone.top += 10;
+                        clone.left += 10;
+                        that.dataSource.add(clone);
                         break;
                 }
 

@@ -55,7 +55,7 @@
         };
 
         /**
-         * Social (kendoRating)
+         * Social (kendoSocial)
          * @class Social
          * @extend Widget
          */

@@ -1651,7 +1651,7 @@
             width: 250,
             attributes: {
                 text: new adapters.StringAdapter({ title: i18n.dropzone.attributes.text.title, defaultValue: i18n.dropzone.attributes.text.defaultValue }),
-                style: new adapters.StyleAdapter({ title: i18n.dropzone.attributes.style.title, defaultValue: 'border: dashed 1px #e1e1e1;' })
+                style: new adapters.StyleAdapter({ title: i18n.dropzone.attributes.style.title, defaultValue: 'font-size: 30px; border: dashed 3px #e1e1e1;' })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.dropzone.properties.name.title }),

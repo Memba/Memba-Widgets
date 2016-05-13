@@ -132,7 +132,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Description' },
+                    description: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -151,7 +151,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Description' },
+                    description: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -167,7 +167,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Description' },
+                    description: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -184,7 +184,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Description' },
+                    description: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -237,7 +237,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Description' },
+                    description: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -253,7 +253,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Description' },
+                    description: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },

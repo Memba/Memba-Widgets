@@ -800,6 +800,47 @@
         });
 
         /**
+         * Description Adapter
+         */
+        adapters.DescriptionAdapter = BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = STRING;
+                // this.editor = 'input';
+                // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
+                that.editor = function (container, options) {
+                    var input = $('<input/>')
+                        .css({ width: '100%' })
+                        .attr({ 'data-bind': 'value: ' + options.field }) // TODO namespace???
+                        .appendTo(container);
+                    input.kendoComboBox({
+                        // dataSource: { data: [] }, // We need a non-empty dataSource otherwise open is not triggered
+                        /**
+                         * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
+                         * @param e
+                         */
+                        open: function(e) {
+                            var texts = [];
+                            // find the design (mode) stage, avoiding navigation
+                            var stage = $('[' + kendo.attr('role') + '="stage"][' + kendo.attr('mode') + '="design"]');
+                            // find all labels
+                            var labels = stage.find('.kj-element[' + kendo.attr('tool') + '="label"]>div');
+                            labels.each(function (index, label) {
+                                var text = $(label).text();
+                                if ($.type(text) === STRING && text.length) {
+                                    texts.push(text);
+                                }
+                            });
+                            texts.sort();
+                            e.sender.setDataSource(texts);
+                        }
+                    });
+                }
+            }
+        });
+
+        /**
          * Number adapter
          */
         adapters.NumberAdapter = BaseAdapter.extend({
@@ -1435,7 +1476,7 @@
          },
          properties: {
          name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
-         description: new adapters.StringAdapter({ title: i18n.chargrid.properties.description.title }),
+         description: new adapters.DescriptionAdapter({ title: i18n.chargrid.properties.description.title }),
          solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
          validation: new adapters.ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
          success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
@@ -1515,7 +1556,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.checkbox.properties.name.title }),
-                description: new adapters.StringAdapter({ title: i18n.checkbox.properties.description.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.checkbox.properties.description.title }),
                 solution: new adapters.StringArrayAdapter({ title: i18n.checkbox.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.checkbox.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.success.title, defaultValue: 1 }),
@@ -1593,7 +1634,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.connector.properties.name.title }),
-                description: new adapters.StringAdapter({ title: i18n.connector.properties.description.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.connector.properties.description.title }),
                 solution: new adapters.StringAdapter({ title: i18n.connector.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.connector.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 0.5 }),
@@ -1655,7 +1696,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.dropzone.properties.name.title }),
-                description: new adapters.StringAdapter({ title: i18n.dropzone.properties.description.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.dropzone.properties.description.title }),
                 solution: new adapters.StringArrayAdapter({ title: i18n.dropzone.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.dropzone.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.success.title, defaultValue: 1 }),
@@ -1969,7 +2010,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.quiz.properties.name.title }),
-                description: new adapters.StringAdapter({ title: i18n.quiz.properties.description.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.quiz.properties.description.title }),
                 solution: new adapters.StringAdapter({ title: i18n.quiz.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.quiz.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.quiz.properties.success.title, defaultValue: 1 }),
@@ -2051,7 +2092,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.textbox.properties.name.title }),
-                description: new adapters.StringAdapter({ title: i18n.textbox.properties.description.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.textbox.properties.description.title }),
                 solution: new adapters.StringAdapter({ title: i18n.textbox.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.textbox.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.textbox.properties.success.title, defaultValue: 1 }),

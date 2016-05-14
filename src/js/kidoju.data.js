@@ -1133,7 +1133,7 @@
                 // Note: the model being created on the fly (no kendo.data.Model)), we only have an ObservableObject to test
                 assert.instanceof(kendo.data.ObservableObject, test, kendo.format(assert.messages.instanceof.default, 'test', 'kendo.data.ObservableObject'));
 
-                var that = this;
+                var pageCollectionDataSource = this; // don't use that which is used below
                 var deferred = $.Deferred();
                 var workerPool = new WorkerPool(window.navigator.hardwareConcurrency || 4, workerTimeout);
                 // TODO: use an app.model and define a submodel with each field - see ValidatedTest above
@@ -1167,47 +1167,75 @@
                             return score === 0 || max === 0 ?  0 : 100 * score / max;
                         },
                         getScoreArray: function () {
-                            function findFirstRedundancy (name) {
-                                var page = that[name].page;
-                                var solution = that[name].solution;
-                                for (var redundancy in that) {
-                                    if (that.hasOwnProperty(redundancy) && redundancy !== name && RX_VALID_NAME.test(redundancy)) {
-                                        if (that[redundancy].page === page && that[redundancy].solution === solution) {
-                                            return redundancy; // Hopefully there is only one
+                            function matchPageConnectors (pageIdx) {
+                                // Connectors are a match if they have the same solution
+                                var ret = {};
+                                var connectors = pageCollectionDataSource.at(pageIdx).components.data().filter(function (component) {
+                                    return component.tool === 'connector';
+                                });
+                                for (var i = 0, length = connectors.length; i < length; i++) {
+                                    var connector = connectors[i];
+                                    var name = connector.properties.name;
+                                    assert.match(RX_VALID_NAME, name, kendo.format(assert.messages.match.default, 'name', RX_VALID_NAME));
+                                    var solution = connector.properties.solution;
+                                    var found = false;
+                                    for (var prop in ret) {
+                                        if (ret.hasOwnProperty(prop)) {
+                                            if (prop === name) {
+                                                // already processed
+                                                found = true;
+                                                break;
+                                            } else if (ret[prop] === solution) {
+                                                // found matching connector, point to name
+                                                ret[prop] = name;
+                                                found = true;
+                                                break;
+                                            }
                                         }
                                     }
+                                    if (!found) {
+                                        // Add first connector, waiting to find a matching one
+                                        ret[name] = solution;
+                                    }
                                 }
+                                return ret;
                             }
-                            var that = this;
-                            var array = [];
-                            var redundancies = {};
+                            function matchConnectors () {
+                                // We need a separate function because matching connectors neded to have the same solution on the same page (not a different page)
+                                var ret = {};
+                                for (var pageIdx = 0, pageTotal = pageCollectionDataSource.total(); pageIdx < pageTotal; pageIdx++) {
+                                    ret = $.extend(ret, matchPageConnectors(pageIdx));
+                                }
+                                return ret;
+                            }
                             assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
-                            for (var name in this) {
-                                if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name)) {
-                                    var testItem = this.get(name);
-                                    var redundancy = findFirstRedundancy(name);
-                                    // TODO: any way to improve this ugly hack used to display coupled connectors as a single item in the score grid ?
-                                    if ($.type(redundancy) === STRING && $.type(redundancies[name]) === UNDEFINED) {
-                                        // Make the first connector found redundant
-                                        redundancies[redundancy] = testItem;
-                                    } else {
-                                        var scoreItem = testItem.toJSON();
-                                        // Improved display of values in score grids
-                                        scoreItem.value = testItem.value$();
-                                        scoreItem.solution = testItem.solution$();
-                                        // Aggregate score of redundant items (connectors)
-                                        if (redundancies[name]) {
-                                            // If there is a redundancy, adjust scores
-                                            scoreItem.failure += redundancies[name].failure;
-                                            scoreItem.omit += redundancies[name].omit;
-                                            scoreItem.score += redundancies[name].score;
-                                            scoreItem.success += redundancies[name].success;
-                                        }
-                                        array.push(scoreItem);
+                            var that = this; // this is variable `result`
+                            var matchingConnectors = matchConnectors();
+                            var redundantConnectors = {};
+                            var scoreArray = [];
+                            for (var name in that) {
+                                // Only display valid names in the form val_xxxxxx that are not redundant connectors
+                                if (that.hasOwnProperty(name) && RX_VALID_NAME.test(name) && !redundantConnectors.hasOwnProperty(name)) {
+                                    var testItem = that.get(name);
+                                    var scoreItem = testItem.toJSON();
+                                    // Improved display of values in score grids
+                                    scoreItem.value = testItem.value$();
+                                    scoreItem.solution = testItem.solution$();
+                                    // Aggregate score of redundant items (connectors)
+                                    var redundantName = matchingConnectors[name];
+                                    if (that.hasOwnProperty(redundantName) && RX_VALID_NAME.test(redundantName)) {
+                                        // If there is a redundancy, adjust scores
+                                        var redundantItem = that.get(redundantName);
+                                        scoreItem.failure += redundantItem.failure;
+                                        scoreItem.omit += redundantItem.omit;
+                                        scoreItem.score += redundantItem.score;
+                                        scoreItem.success += redundantItem.success;
+                                        redundantConnectors[redundantName] = true;
                                     }
+                                    scoreArray.push(scoreItem);
                                 }
                             }
-                            return array;
+                            return scoreArray;
                         },
                         toJSON: function () {
                             var json = {};
@@ -1251,7 +1279,7 @@
 
                         // Add tasks to the worker pool
                         // Iterate through pages
-                        $.each(that.data(), function (pageIdx, page) {
+                        $.each(pageCollectionDataSource.data(), function (pageIdx, page) {
                             // Iterate through page components
                             $.each(page.components.data(), function (componentIdx, component) {
 
@@ -1584,7 +1612,7 @@
                 }
                 // Validate toolset (which includes _total) to make sure questions are varied
                 var TYPE_VARIETY = 3;
-                if (Object.keys(questions).length <= TYPE_VARIETY) {
+                if (Object.keys(questions).length <= TYPE_VARIETY + (questions.quiz && questions.checkbox ? 1 : 0)) {
                     // TODO: Should be a warning
                     ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.typeVariety, TYPE_VARIETY) });
                 }

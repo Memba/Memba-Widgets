@@ -250,12 +250,12 @@
                         cancel: { text: 'Cancel' }
                     },
                     messages: {
-                        missingDropValue: 'A {0} on page {1} requires a drop value.',
-                        missingDescription: 'A {0} named `{1}` on page {2} requires a description.',
-                        missingSolution: 'A {0} named `{1}` on page {2} requires a solution.',
-                        missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula.',
-                        invalidFailure: 'A {0} named `{1}` on page {2} has a failure score higher than the omit score or zero.',
-                        invalidSuccess: 'A {0} named `{1}` on page {2} has a success score lower than the omit score or zero.'
+                        missingDropValue: 'A {0} on page {1} requires a drop value in test logic.',
+                        missingDescription: 'A {0} named `{1}` on page {2} requires a question in test logic.',
+                        missingSolution: 'A {0} named `{1}` on page {2} requires a solution in test logic.',
+                        missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula in test logic.',
+                        invalidFailure: 'A {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
+                        invalidSuccess: 'A {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.'
                     }
                 });
             }

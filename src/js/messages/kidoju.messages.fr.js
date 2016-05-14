@@ -249,12 +249,12 @@
                         cancel: { text: 'Annuler' }
                     },
                     messages: {
-                        missingDropValue: 'Une {0} en page {1} nécessite une valeur à glisser dans une Zone de Dépôt.',
-                        missingDescription: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une description.',
-                        missingSolution: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une solution.',
-                        missingValidation: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une formule de validation.',
-                        invalidFailure: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score d\'échec supérieur au score d\'omission ou zéro.',
-                        invalidSuccess: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score de succès inférieur au score d\'omission ou zéro.'
+                        missingDropValue: 'Une {0} en page {1} nécessite une valeur de dépôt dans la logique de test.',
+                        missingDescription: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une question dans la logique de test.',
+                        missingSolution: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une solution dans la logique de test.',
+                        missingValidation: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une formule de validation dans la logique de test.',
+                        invalidFailure: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score d\'échec supérieur au score d\'omission ou zéro dans la logique de test.',
+                        invalidSuccess: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score de succès inférieur au score d\'omission ou zéro dans la logique de test.'
                     }
                 });
             }

@@ -53,45 +53,71 @@
          * Helpers
          *********************************************************************************/
 
-        /**
-         * Build a random hex string of length characters
-         * @param length
-         * @returns {string}
-         */
-        function randomString(length) {
-            var s = new Array(length + 1).join('x');
-            return s.replace(/x/g, function (c) {
-                /* jshint -W016 */
-                return (Math.random() * 16|0).toString(16);
-                /* jshint +W016 */
-            });
-        }
+        var util = {
 
-        function randomId() {
-            return 'id_' + randomString(6);
-        }
+            /**
+             * Build a random hex string of length characters
+             * @param length
+             * @returns {string}
+             */
+            randomString: function (length)
+            {
+                var s = new Array(length + 1).join('x');
+                return s.replace(/x/g, function (c) {
+                    /* jshint -W016 */
+                    return (Math.random() * 16 | 0).toString(16);
+                    /* jshint +W016 */
+                });
+            },
 
-        function formatStyle(style) {
-            if ($.isPlainObject(style)) {
-                return style;
-            } else if ($.type(style) === STRING) {
-                var ret = {};
-                var styleArray = style.split(';');
-                for (var i = 0; i < styleArray.length; i++) {
-                    var styleKeyValue = styleArray[i].split(':');
-                    if ($.isArray(styleKeyValue) && styleKeyValue.length === 2) {
-                        var key = styleKeyValue[0].trim();
-                        var value = styleKeyValue[1].trim();
-                        if (key.length && value.length) {
-                            ret[key] = value;
+            /**
+             * Get a random id
+             * @returns {string}
+             */
+            randomId: function () {
+                return 'id_' + util.randomString(6);
+            },
+
+            /**
+             * Format style
+             * @param style
+             * @returns {*}
+             */
+            formatStyle: function (style) {
+                if ($.isPlainObject(style)) {
+                    return style;
+                } else if ($.type(style) === STRING) {
+                    var ret = {};
+                    var styleArray = style.split(';');
+                    for (var i = 0; i < styleArray.length; i++) {
+                        var styleKeyValue = styleArray[i].split(':');
+                        if ($.isArray(styleKeyValue) && styleKeyValue.length === 2) {
+                            var key = styleKeyValue[0].trim();
+                            var value = styleKeyValue[1].trim();
+                            if (key.length && value.length) {
+                                ret[key] = value;
+                            }
                         }
                     }
+                    return ret;
+                } else {
+                    return {};
                 }
-                return ret;
-            } else {
-                return {};
+            },
+
+            /**
+             * Get the scale of an element's CSS transformation
+             * Note: the same function is used in kidoju.widgets.stage
+             * @param element
+             * @returns {Number|number}
+             */
+            getTransformScale: function (element) {
+                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
+                // element.css('transform') returns a matrix, so we have to read the style attribute
+                var match = (element.attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
+                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
             }
-        }
+        };
 
         /*********************************************************************************
          * Widget
@@ -112,7 +138,7 @@
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
                 that._value = that.options.value;
-                that._randomId = randomId();
+                that._randomId = util.randomId();
                 that.setOptions(that.options);
                 that._layout();
                 that._dataSource();
@@ -153,13 +179,13 @@
                 var that = this;
                 Widget.fn.setOptions.call(that, options);
                 options = that.options;
-                options.groupStyle = formatStyle(options.groupStyle);
-                options.itemStyle = formatStyle(options.itemStyle);
+                options.groupStyle = util.formatStyle(options.groupStyle);
+                options.itemStyle = util.formatStyle(options.itemStyle);
                 if (options.mode === MODES.BUTTON) {
                     // Add default space between buttons
                     options.itemStyle = $.extend({ marginRight: MARGIN, marginBottom: MARGIN }, options.itemStyle);
                 }
-                options.selectedStyle = formatStyle(options.selectedStyle);
+                options.selectedStyle = util.formatStyle(options.selectedStyle);
             },
 
             /**
@@ -222,9 +248,11 @@
                     .kendoDropDownList({
                         autoBind: that.options.autoBind,
                         change: $.proxy(that._onDropDownListChange, that), // change is not triggered by dropDownList api calls incl. value(), text(), ...
+                        open: $.proxy(that._onDropDownListOpen, that),
                         dataSource: that.options.dataSource,
                         optionLabel: that.options.messages.optionLabel,
-                        value: that.options.value
+                        value: that.options.value,
+                        height: 400
                         // valuePrimitive: true
                     })
                     .data('kendoDropDownList');
@@ -244,6 +272,39 @@
                     that._value = null;
                 }
                 that.trigger(CHANGE, { value: this._value });
+            },
+
+            /**
+             * Event handler triggered when opening the popup list
+             * @param e
+             * @private
+             */
+            _onDropDownListOpen: function (e) {
+                var that = this;
+                // We need to scale the popup
+                var scaler = that.element.closest('.kj-stage');
+                var scale = util.getTransformScale(scaler);
+                var width = that.element.width();
+                var height = that.element.height();
+                var fontSize = parseInt(that.element.css('font-size'), 10);
+                var popup = that.dropDownList.popup;
+                popup.element
+                    .css('font-size', Math.floor(fontSize * scale) + 'px')
+                    .width(width * scale);
+                // And reposition the popup
+                // popup.one('open', function () { // the popup is already opened so the open evennt
+                // popup.one('activate', function () { // activate is only triggered at the end of the open animation which is too late
+                setTimeout(function() {
+                    var element = that.element.closest('.kj-element');
+                    if (scaler.length && element.length) {
+                        var top = element.position().top + scaler.offset().top;
+                        var popupTop = popup.wrapper.position().top;
+                        if (popupTop > top) {
+                            popup.wrapper.css('top', popupTop + (scale - 1) * height);
+                        }
+                    }
+
+                }, 25);
             },
 
             /**

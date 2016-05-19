@@ -1,6 +1,6 @@
 /*!
     localForage -- Offline Storage, Improved
-    Version 1.4.1
+    Version 1.4.2
     https://mozilla.github.io/localForage
     (c) 2013-2015 Mozilla, Apache License 2.0
 */
@@ -102,7 +102,9 @@ function createBlob(parts, properties) {
 
 // This is CommonJS because lie is an external dependency, so Rollup
 // can just ignore it.
-_dereq_('lie/polyfill');
+if (typeof Promise === 'undefined' && typeof _dereq_ !== 'undefined') {
+    _dereq_('lie/polyfill');
+}
 var Promise$1 = Promise;
 
 function executeCallback(promise, callback) {

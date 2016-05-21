@@ -1194,7 +1194,7 @@
             var workerPool = new WorkerPool(8, 300);
             var length = 500;
             for (var i = 0; i < length; i++) {
-                workerPool.add('name' + i, 'kidoju.data.workertask.js', i);
+                workerPool.add('name' + i, 'kidoju.data.test.workerlib.js', i);
             }
             workerPool.run()
                 .done(function () {
@@ -1390,10 +1390,10 @@
             var length = 5;
             var i = 0;
             for (i = 0; i < length; i++) {
-                workerPool.add('name' + i, 'kidoju.data.workertask.js', i);
+                workerPool.add('name' + i, 'kidoju.data.test.workerlib.js', i);
             }
             for (i = length; i < 2 * length; i++) {
-                workerPool.add('name' + i, 'kidoju.data.workertask.js', String(i));
+                workerPool.add('name' + i, 'kidoju.data.test.workerlib.js', String(i));
             }
             workerPool.run()
                 .done(function () {
@@ -1419,7 +1419,7 @@
             var length = 100;
             var i = 0;
             for (i = 0; i < length; i++) {
-                workerPool.add('name' + i, 'kidoju.data.workertask.js', i);
+                workerPool.add('name' + i, 'kidoju.data.test.workerlib.js', i);
             }
             workerPool.run()
                 .done(function () {

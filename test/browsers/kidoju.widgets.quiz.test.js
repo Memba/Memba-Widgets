@@ -250,6 +250,7 @@
                 expect(viewModel.get('current')).to.be.null;
                 for (var i = 0; i < viewModel.data.length; i++) {
                     quiz.value(viewModel.data[i]);
+                    quiz.trigger('change');
                     expect(quiz.value()).to.equal(viewModel.data[i]);
                     expect(viewModel.get('current')).to.equal(viewModel.data[i]);
                     expect(change).to.have.callCount(i + 1);
@@ -330,6 +331,7 @@
                 expect(viewModel.get('current')).to.be.null;
                 for (var i = 0; i < viewModel.data.length; i++) {
                     quiz.value(viewModel.data[i]);
+                    quiz.trigger('change');
                     expect(quiz.dropDownList.value()).to.equal(viewModel.data[i]);
                     expect(quiz.dropDownList.text()).to.equal(viewModel.data[i]);
                     expect(quiz.value()).to.equal(viewModel.data[i]);
@@ -412,6 +414,7 @@
                 expect(viewModel.get('current')).to.be.null;
                 for (var i = 0; i < viewModel.data.length; i++) {
                     quiz.value(viewModel.data[i]);
+                    quiz.trigger('change');
                     expect(quiz.value()).to.equal(viewModel.data[i]);
                     expect(viewModel.get('current')).to.equal(viewModel.data[i]);
                     expect(change).to.have.callCount(i + 1);
@@ -468,6 +471,7 @@
                 expect(quiz).to.be.an.instanceof(Quiz);
                 for (var i = 0; i < options.dataSource.length; i++) {
                     quiz.value(options.dataSource[i]);
+                    quiz.trigger('change');
                     expect(change).to.have.callCount(i + 1);
                 }
             });

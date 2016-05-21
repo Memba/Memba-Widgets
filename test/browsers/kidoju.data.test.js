@@ -1183,12 +1183,22 @@
      * WorkerPool
      *********************************************************************************************************/
 
-    xdescribe('Test WorkerPool', function () {
+    describe('Test WorkerPool', function () {
 
         if (window.PHANTOMJS) {
             // PhantomJS does not support web workers
             return;
         }
+
+        var workerLib;
+
+        before(function () {
+            var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
+            $.ajax({ url: scriptUrl, cache: true, dataType: 'text' })
+                .done(function (result) {
+                    workerLib = result;
+                });
+        });
 
         it('large number of tasks', function (done) {
             var workerPool = new WorkerPool(8, 300);
@@ -1239,16 +1249,19 @@
                 'SharedWorker'
             ];
             var workerPool = new WorkerPool(2, 250);
-            // var blob = new Blob(['onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
-            // All paths except a full URL raise error: Uncaught [object DOMException]
-            // var blob = new Blob(['importScripts("kidoju.data.workerlib.js"); onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
-            // var blob = new Blob(['importScripts("../../src/js/kidoju.data.workerlib.js"); onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
-            // var blob = new Blob(['importScripts("/Kidoju.Widgets/src/js/kidoju.data.workerlib.js"); onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
-            var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
-            var blob = new Blob(['importScripts("' + scriptUrl + '"); onmessage = function (e) { var msg; if ((/indexedDB/i).test(e.data)) { msg = (self[e.data] === undefined) || (self[e.data].open === undefined); } else { msg = (self[e.data] === undefined); console.log(e.data + ": " + typeof self[e.data]); } postMessage(msg); close(); };']);
-            var blobURL = window.URL.createObjectURL(blob);
             var i = 0;
             for (i = 0; i < unsafe.length; i++) {
+                // var blob = new Blob(['onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
+                // All paths except a full URL raise error: Uncaught [object DOMException]
+                // var blob = new Blob(['importScripts("kidoju.data.workerlib.js"); onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
+                // var blob = new Blob(['importScripts("../../src/js/kidoju.data.workerlib.js"); onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
+                // var blob = new Blob(['importScripts("/Kidoju.Widgets/src/js/kidoju.data.workerlib.js"); onmessage = function (e) { postMessage(self[e.data] === undefined); close(); };']);
+                // var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
+                var blob = new Blob([
+                    // 'self.importScripts("' + scriptUrl + '");\n' +
+                    workerLib + ';\n' +
+                    'self.onmessage = function (e) { var msg; if ((/' + unsafe[i] + '/i).test(e.data)) { msg = (self[e.data] === undefined) || (self[e.data].open === undefined); } else { msg = (self[e.data] === undefined); console.log(e.data + ": " + typeof self[e.data]); } self.postMessage(msg); self.close(); };']);
+                var blobURL = window.URL.createObjectURL(blob);
                 workerPool.add(unsafe[i], blobURL, unsafe[i]);
             }
             workerPool.run()
@@ -1293,8 +1306,11 @@
                 { name: 'O\'Hara', value: 'O600' }
             ];
             var workerPool = new WorkerPool(2, 250);
-            var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
-            var blob = new Blob(['importScripts("' + scriptUrl + '"); onmessage = function (e) { postMessage(soundex(JSON.parse(e.data))); close(); };']);
+            // var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
+            var blob = new Blob([
+                // 'self.importScripts("' + scriptUrl + '");\n' +
+                workerLib + ';\n' +
+                'self.onmessage = function (e) { self.postMessage(soundex(JSON.parse(e.data))); self.close(); };']);
             var blobURL = window.URL.createObjectURL(blob);
             var i = 0;
             for (i = 0; i < soundex.length; i++) {
@@ -1326,8 +1342,11 @@
                 // TODO we need more...
             ];
             var workerPool = new WorkerPool(2, 250);
-            var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
-            var blob = new Blob(['importScripts("' + scriptUrl + '"); onmessage = function (e) { postMessage(metaphone(JSON.parse(e.data))); close(); };']);
+            // var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
+            var blob = new Blob([
+                // 'self.importScripts("' + scriptUrl + '");\n' +
+                workerLib + ';\n' +
+                'self.onmessage = function (e) { self.postMessage(metaphone(JSON.parse(e.data))); self.close(); };']);
             var blobURL = window.URL.createObjectURL(blob);
             var i = 0;
             for (i = 0; i < metaphone.length; i++) {
@@ -1359,8 +1378,11 @@
                 // TODO we need more...
             ];
             var workerPool = new WorkerPool(2, 250);
-            var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
-            var blob = new Blob(['importScripts("' + scriptUrl + '"); onmessage = function (e) { postMessage(removeDiacritics(JSON.parse(e.data))); close(); };']);
+            // var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
+            var blob = new Blob([
+                // 'self.importScripts("' + scriptUrl + '");\n' +
+                workerLib + ';\n' +
+                'self.onmessage = function (e) { self.postMessage(removeDiacritics(JSON.parse(e.data))); self.close(); };']);
             var blobURL = window.URL.createObjectURL(blob);
             var i = 0;
             for (i = 0; i < diacritics.length; i++) {

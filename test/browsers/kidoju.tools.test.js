@@ -122,15 +122,8 @@
 
         describe('Attribute Adapters', function () {
 
-            it('Validate StringAdapter', function () {
-                var adapter = new adapters.StringAdapter();
-                var field = adapter.getField();
-                var row = adapter.getRow('test');
-                expect(field).to.have.property('type', adapter.type);
-            });
-
-            it('Validate NumberAdapter', function () {
-                var adapter = new adapters.NumberAdapter();
+            it('Validate AssetAdapter', function () {
+                var adapter = new adapters.AssetAdapter();
                 var field = adapter.getField();
                 var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
@@ -143,6 +136,13 @@
                 expect(field).to.have.property('type', adapter.type);
             });
 
+            it('Validate ColorAdapter', function () {
+                var adapter = new adapters.ColorAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
             it('Validate DateAdapter', function () {
                 var adapter = new adapters.DateAdapter();
                 var field = adapter.getField();
@@ -150,8 +150,8 @@
                 expect(field).to.have.property('type', adapter.type);
             });
 
-            it('Validate TextAdapter', function () {
-                var adapter = new adapters.TextAdapter();
+            it('Validate DescriptionAdapter', function () {
+                var adapter = new adapters.DescriptionAdapter();
                 var field = adapter.getField();
                 var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
@@ -164,20 +164,6 @@
                 expect(field).to.have.property('type', adapter.type);
             });
 
-            it('Validate StyleAdapter', function () {
-                var adapter = new adapters.StyleAdapter();
-                var field = adapter.getField();
-                var row = adapter.getRow('test');
-                expect(field).to.have.property('type', adapter.type);
-            });
-
-            it('Validate AssetAdapter', function () {
-                var adapter = new adapters.AssetAdapter();
-                var field = adapter.getField();
-                var row = adapter.getRow('test');
-                expect(field).to.have.property('type', adapter.type);
-            });
-
             it('Validate NameAdapter', function () {
                 var adapter = new adapters.NameAdapter();
                 var field = adapter.getField();
@@ -185,17 +171,50 @@
                 expect(field).to.have.property('type', adapter.type);
             });
 
-
-            it('Validate ValidationAdapter', function () {
-                var adapter = new adapters.ValidationAdapter();
+            it('Validate NumberAdapter', function () {
+                var adapter = new adapters.NumberAdapter();
                 var field = adapter.getField();
                 var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
             });
 
-
             it('Validate ScoreAdapter', function () {
                 var adapter = new adapters.ScoreAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+            it('Validate StringAdapter', function () {
+                var adapter = new adapters.StringAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+            it('Validate StringArrayAdapter', function () {
+                var adapter = new adapters.StringArrayAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+            it('Validate StyleAdapter', function () {
+                var adapter = new adapters.StyleAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+            it('Validate TextAdapter', function () {
+                var adapter = new adapters.TextAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+            it('Validate ValidationAdapter', function () {
+                var adapter = new adapters.ValidationAdapter();
                 var field = adapter.getField();
                 var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
@@ -220,15 +239,15 @@
 
         });
 
-        describe('Label', function () {
+        describe('Audio', function () {
 
-            it('Validate label properties', function () {
-                var tool = tools.label;
-                expect(tool.id).to.equal('label');
-                expect(tool.icon).to.equal('document_orientation_landscape');
+            it('Validate audio properties', function () {
+                var tool = tools.audio;
+                expect(tool.id).to.equal('audio');
+                expect(tool.icon).to.equal('loudspeaker3');
                 expect(tool.cursor).to.equal('crosshair');
                 expect(tool.height).to.equal(100);
-                expect(tool.width).to.equal(300);
+                expect(tool.width).to.equal(400);
                 expect(tool.getHtmlContent).to.respond;
                 expect(tool.onMove).to.be.undefined;
                 expect(tool.onResize).to.respond;
@@ -242,8 +261,8 @@
                 function fn2() {
                     return tool.getHtmlContent(component);
                 }
-                var tool = tools.label;
-                var component = new PageComponent({ tool: 'label' });
+                var tool = tools.audio;
+                var component = new PageComponent({ tool: 'audio' });
                 var html;
 
                 // If we do not submit a page component
@@ -254,15 +273,156 @@
 
                 // If we submit a valid page component in design mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
-                expect(html).to.match(/^<div/);
+                expect(html).to.match(/^<div data-role="mediaplayer" data-mode="audio"/);
 
                 // If we submit a valid page component in play mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
-                expect(html).to.match(/^<div/);
+                expect(html).to.match(/^<div data-role="mediaplayer" data-mode="audio"/);
 
                 // If we submit a valid page component in review mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
-                expect(html).to.match(/^<div/);
+                expect(html).to.match(/^<div data-role="mediaplayer" data-mode="audio"/);
+            });
+
+        });
+
+        describe('Checkbox', function () {
+
+            it('Validate checkbox properties', function () {
+                var tool = tools.checkbox;
+                expect(tool.id).to.equal('checkbox');
+                expect(tool.icon).to.equal('checkbox');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(200);
+                expect(tool.width).to.equal(350);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.checkbox;
+                var component = new PageComponent({ tool: 'checkbox' });
+                var html;
+
+                // If we do not submit a page component
+                expect(fn1).to.throw;
+
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
+                expect(html).to.match(/^<div data-role="multicheckbox"/);
+
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<div data-role="multicheckbox"/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<div data-role="multicheckbox"/);
+            });
+
+        });
+
+        describe('Connector', function () {
+
+            it('Validate connector properties', function () {
+                var tool = tools.connector;
+                expect(tool.id).to.equal('connector');
+                expect(tool.icon).to.equal('target');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(50);
+                expect(tool.width).to.equal(50);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.connector;
+                var component = new PageComponent({ tool: 'connector' });
+                var html;
+
+                // If we do not submit a page component
+                expect(fn1).to.throw;
+
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
+                expect(html).to.match(/^<div data-role="connector"/);
+
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<div data-role="connector"/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<div data-role="connector"/);
+            });
+
+        });
+
+        describe('DropZone', function () {
+
+            it('Validate dropzone properties', function () {
+                var tool = tools.dropzone;
+                expect(tool.id).to.equal('dropzone');
+                expect(tool.icon).to.equal('elements_selection');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(250);
+                expect(tool.width).to.equal(250);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.dropzone;
+                var component = new PageComponent({ tool: 'dropzone' });
+                var html;
+
+                // If we do not submit a page component
+                expect(fn1).to.throw;
+
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
+                expect(html).to.match(/^<div id="val_[\w]{6}" data-role="dropzone"/);
+
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<div id="val_[\w]{6}" data-role="dropzone"/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<div id="val_[\w]{6}" data-role="dropzone"/);
             });
 
         });
@@ -314,14 +474,14 @@
 
         });
 
-        describe('Textbox', function () {
+        describe('Label', function () {
 
-            it('Validate textbox properties', function () {
-                var tool = tools.textbox;
-                expect(tool.id).to.equal('textbox');
-                expect(tool.icon).to.equal('text_field');
+            it('Validate label properties', function () {
+                var tool = tools.label;
+                expect(tool.id).to.equal('label');
+                expect(tool.icon).to.equal('document_orientation_landscape');
                 expect(tool.cursor).to.equal('crosshair');
-                expect(tool.height).to.equal(100);
+                expect(tool.height).to.equal(80);
                 expect(tool.width).to.equal(300);
                 expect(tool.getHtmlContent).to.respond;
                 expect(tool.onMove).to.be.undefined;
@@ -336,8 +496,8 @@
                 function fn2() {
                     return tool.getHtmlContent(component);
                 }
-                var tool = tools.textbox;
-                var component = new PageComponent({ tool: 'textbox' });
+                var tool = tools.label;
+                var component = new PageComponent({ tool: 'label' });
                 var html;
 
                 // If we do not submit a page component
@@ -348,28 +508,28 @@
 
                 // If we submit a valid page component in design mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
-                expect(html).to.match(/^<input/);
+                expect(html).to.match(/^<div/);
 
                 // If we submit a valid page component in play mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
-                expect(html).to.match(/^<input/);
+                expect(html).to.match(/^<div/);
 
                 // If we submit a valid page component in review mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
-                expect(html).to.match(/^<input/);
+                expect(html).to.match(/^<div/);
             });
 
         });
 
-        describe('Checkbox', function () {
+        describe('MathExpression', function () {
 
             it('Validate checkbox properties', function () {
-                var tool = tools.checkbox;
-                expect(tool.id).to.equal('checkbox');
-                expect(tool.icon).to.equal('checkbox');
+                var tool = tools.mathexpression;
+                expect(tool.id).to.equal('mathexpression');
+                expect(tool.icon).to.equal('formula');
                 expect(tool.cursor).to.equal('crosshair');
-                expect(tool.height).to.equal(70);
-                expect(tool.width).to.equal(300);
+                expect(tool.height).to.equal(150);
+                expect(tool.width).to.equal(480);
                 expect(tool.getHtmlContent).to.respond;
                 expect(tool.onMove).to.be.undefined;
                 expect(tool.onResize).to.respond;
@@ -383,8 +543,8 @@
                 function fn2() {
                     return tool.getHtmlContent(component);
                 }
-                var tool = tools.checkbox;
-                var component = new PageComponent({ tool: 'checkbox' });
+                var tool = tools.mathexpression;
+                var component = new PageComponent({ tool: 'mathexpression' });
                 var html;
 
                 // If we do not submit a page component
@@ -395,15 +555,15 @@
 
                 // If we submit a valid page component in design mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
-                expect(html).to.match(/^<div style="[^"]+"><input/);
+                expect(html).to.match(/^<div data-role="mathexpression"/);
 
                 // If we submit a valid page component in play mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
-                expect(html).to.match(/^<div style="[^"]+"><input/);
+                expect(html).to.match(/^<div data-role="mathexpression"/);
 
                 // If we submit a valid page component in review mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
-                expect(html).to.match(/^<div style="[^"]+"><input/);
+                expect(html).to.match(/^<div data-role="mathexpression"/);
             });
 
         });
@@ -455,15 +615,15 @@
 
         });
 
-        describe('Audio', function () {
+        describe('Textbox', function () {
 
-            it('Validate audio properties', function () {
-                var tool = tools.audio;
-                expect(tool.id).to.equal('audio');
-                expect(tool.icon).to.equal('loudspeaker3');
+            it('Validate textbox properties', function () {
+                var tool = tools.textbox;
+                expect(tool.id).to.equal('textbox');
+                expect(tool.icon).to.equal('text_field');
                 expect(tool.cursor).to.equal('crosshair');
-                expect(tool.height).to.equal(100);
-                expect(tool.width).to.equal(400);
+                expect(tool.height).to.equal(80);
+                expect(tool.width).to.equal(300);
                 expect(tool.getHtmlContent).to.respond;
                 expect(tool.onMove).to.be.undefined;
                 expect(tool.onResize).to.respond;
@@ -477,8 +637,8 @@
                 function fn2() {
                     return tool.getHtmlContent(component);
                 }
-                var tool = tools.audio;
-                var component = new PageComponent({ tool: 'audio' });
+                var tool = tools.textbox;
+                var component = new PageComponent({ tool: 'textbox' });
                 var html;
 
                 // If we do not submit a page component
@@ -489,15 +649,15 @@
 
                 // If we submit a valid page component in design mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
-                expect(html).to.match(/^<div data-role="mediaplayer" data-mode="audio"/);
+                expect(html).to.match(/^<input/);
 
                 // If we submit a valid page component in play mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
-                expect(html).to.match(/^<div data-role="mediaplayer" data-mode="audio"/);
+                expect(html).to.match(/^<input/);
 
                 // If we submit a valid page component in review mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
-                expect(html).to.match(/^<div data-role="mediaplayer" data-mode="audio"/);
+                expect(html).to.match(/^<input/);
             });
 
         });

@@ -6,3 +6,6 @@ It seems Webstorm mocha implementation does not use mocha.opts.
 You need to edit your Mocha configuration and add ```--timeout 10000``` to mocha extra options.
 
 In Gruntfile.js grunt-mocha-test can be configured with the same timeout.
+
+The mocha command line requires mocha.opts to be kept in the ./test directory.
+See https://mochajs.org/#mochaopts

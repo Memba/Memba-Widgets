@@ -901,12 +901,11 @@
          */
         adapters.DescriptionAdapter = BaseAdapter.extend({
             init: function (options) {
-                var that = this;
-                BaseAdapter.fn.init.call(that, options);
-                that.type = STRING;
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
                 // this.editor = 'input';
                 // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
-                that.editor = function (container, options) {
+                this.editor = function (container, options) {
                     var input = $('<input/>')
                         .css({ width: '100%' })
                         .attr({ 'data-bind': 'value: ' + options.field }) // TODO namespace???
@@ -940,9 +939,11 @@
         /**
          * Enum adapter
          */
-        adapters.EnumAdapter = adapters.StringAdapter.extend({
+        adapters.EnumAdapter = BaseAdapter.extend({
             init: function (options, attributes) {
-                adapters.StringAdapter.fn.init.call(this, options);
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 this.editor = 'input';
                 this.attributes = $.extend({}, this.attributes, attributes);
                 this.attributes[kendo.attr('role')] = 'dropdownlist';
@@ -953,9 +954,13 @@
         /**
          * Property name adapter
          */
-        adapters.NameAdapter = adapters.StringAdapter.extend({
+        adapters.NameAdapter = BaseAdapter.extend({
             init: function (options, attributes) {
-                adapters.StringAdapter.fn.init.call(this, options, $.extend(attributes, { readonly: true }));
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+                this.editor = 'input';
+                this.attributes = $.extend({}, this.attributes, attributes, { type: 'text', class: 'k-textbox',  readonly: true });
             }
         });
 
@@ -998,9 +1003,18 @@
         });
 
         /**
-         * Score adapter (not really needed)
+         * Score adapter
          */
-        adapters.ScoreAdapter = adapters.NumberAdapter.extend({});
+        adapters.ScoreAdapter = BaseAdapter.extend({
+            init: function (options, attributes) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = NUMBER;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : 0);
+                this.editor = 'input';
+                this.attributes = $.extend({}, this.attributes, attributes);
+                this.attributes[kendo.attr('role')] = 'numerictextbox';
+            }
+        });
 
         /**
          * String adapter
@@ -1049,7 +1063,14 @@
         /**
          * String Array adapter
          */
-        adapters.StringArrayAdapter = adapters.TextAdapter.extend({
+        adapters.StringArrayAdapter = BaseAdapter.extend({
+            init: function (options, attributes) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+                this.editor = 'textarea';
+                this.attributes = $.extend({}, this.attributes, attributes);
+            },
             library: [
                 {
                     name: 'equal',
@@ -1151,7 +1172,7 @@
         /**
          * Text (multiline) adapter
          */
-        adapters.TextAdapter = adapters.StringAdapter.extend({
+        adapters.TextAdapter = BaseAdapter.extend({
             init: function (options, attributes) {
                 BaseAdapter.fn.init.call(this, options);
                 this.type = STRING;

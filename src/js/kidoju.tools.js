@@ -820,7 +820,7 @@
                          * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
                          * @param e
                          */
-                        open: function(e) {
+                        open: function (e) {
                             var texts = [];
                             // find the design (mode) stage, avoiding navigation
                             var stage = $('[' + kendo.attr('role') + '="stage"][' + kendo.attr('mode') + '="design"]');
@@ -836,7 +836,7 @@
                             e.sender.setDataSource(texts);
                         }
                     });
-                }
+                };
             }
         });
 

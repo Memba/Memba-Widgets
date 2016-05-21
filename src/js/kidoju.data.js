@@ -1557,7 +1557,7 @@
              * Stream validation
              */
             validate: function () {
-                /* jshint maxcomplexity: 19 */
+                /* jshint maxcomplexity: 20 */
                 assert.instanceof (Stream, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Stream'));
                 var ret = [];
                 var names = {};

@@ -294,7 +294,7 @@
                 // And reposition the popup
                 // popup.one('open', function () { // the popup is already opened so the open evennt
                 // popup.one('activate', function () { // activate is only triggered at the end of the open animation which is too late
-                setTimeout(function() {
+                setTimeout(function () {
                     var element = that.element.closest('.kj-element');
                     if (scaler.length && element.length) {
                         var top = element.position().top + scaler.offset().top;

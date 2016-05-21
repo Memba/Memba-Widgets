@@ -97,7 +97,7 @@
              * @param value
              * @returns {*}
              */
-            value: function(value) {
+            value: function (value) {
                 var that = this;
                 if ($.type(value) === UNDEFINED) {
                     return that._value;
@@ -105,7 +105,7 @@
                     that._value = value;
                     that.refresh();
                 } else {
-                    throw new TypeError('`value` should be undefined, null or a PageComponent.')
+                    throw new TypeError('`value` should be undefined, null or a PageComponent.');
                 }
             },
 
@@ -124,12 +124,18 @@
                 that.tabStrip.bind(SELECT, $.proxy(that._onTabSelect, that));
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Refresh
              * @param e
              */
             refresh: function (e) {
+                /* jshint maxcomplexity: 8 */
+
                 var that = this;
+
                 var index = 0;
                 // Clear Tabstrip but keep tab 0
                 for (var i = 1, length = that.tabStrip.contentElements.length; i < length; i++) {
@@ -154,7 +160,7 @@
                                     content: '<div>Yep</div>'
                                 });
                             }
-                            index ++;
+                            index++;
                         }
                     }
                 } else if (that.tabStrip.contentElements.length > 0) {
@@ -170,12 +176,14 @@
                 that.tabStrip.select(that.tabStrip.element.find('ul>li:first-child'));
             },
 
+            /* jshint +W074 */
+
             /**
              * Update the toolbar
              * @private
              */
             _onTabSelect: function () {
-                debugger;
+                // debugger;
             },
 
             /**

@@ -837,16 +837,18 @@
                 // TODO: Consider an event dispatcher so that the same commands can be called from toolbar
                 // Check when implementing fonts, colors, etc....
                 var that = this;
+                var uid;
+                var item;
                 switch ($(e.item).attr(DATA_COMMAND)) {
                     case 'delete':
-                        var uid = that.wrapper.children(DOT + HANDLE_BOX_CLASS).attr(DATA_UID);
-                        var item = that.dataSource.getByUid(uid);
+                        uid = that.wrapper.children(DOT + HANDLE_BOX_CLASS).attr(DATA_UID);
+                        item = that.dataSource.getByUid(uid);
                         that.dataSource.remove(item);
                         // This should raise the change event on the dataSource and call the refresh method of the widget
                         break;
                     case 'duplicate':
-                        var uid = that.wrapper.children(DOT + HANDLE_BOX_CLASS).attr(DATA_UID);
-                        var item = that.dataSource.getByUid(uid);
+                        uid = that.wrapper.children(DOT + HANDLE_BOX_CLASS).attr(DATA_UID);
+                        item = that.dataSource.getByUid(uid);
                         var clone = item.clone();
                         clone.top += 10;
                         clone.left += 10;

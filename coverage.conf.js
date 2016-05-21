@@ -92,7 +92,7 @@ module.exports = function(config) {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['Chrome', 'IE', 'Safari', 'Firefox', 'PhantomJS'],
+        browsers: ['Chrome', 'Firefox', 'IE', 'Opera', 'PhantomJS', 'Safari'],
         // TODO browsers: ['Edge'],
 
         // optionally, configure the reporter

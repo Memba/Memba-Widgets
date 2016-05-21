@@ -411,7 +411,7 @@
             },
 
             /* This function's cyclomatic complexity is too high. */
-            /* jshint -W073 */
+            /* jshint -W074 */
 
             /**
              * Add connection
@@ -479,7 +479,7 @@
                 return ret;
             },
 
-            /* jshint +W073 */
+            /* jshint +W074 */
 
             /**
              * Remove connection

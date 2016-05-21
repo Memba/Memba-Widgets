@@ -84,7 +84,7 @@
      * Base Model and DataSource
      *********************************************************************************/
 
-    xdescribe('Problems we had to solve with kendo.data.Model which lead to creating kidoju.data.Model', function () {
+    describe('Problems we had to solve with kendo.data.Model which lead to creating kidoju.data.Model', function () {
 
         describe('When instantiating a kidoju.data.Model: init and accept', function () {
 
@@ -618,7 +618,7 @@
      * PageComponent
      *********************************************************************************************************/
 
-    xdescribe('Test PageComponent', function () {
+    describe('Test PageComponent', function () {
 
         describe('When initializing a PageComponent', function () {
 
@@ -741,7 +741,7 @@
      * PageComponentCollectionDataSource
      *********************************************************************************************************/
 
-    xdescribe('Test PageComponentCollectionDataSource', function () {
+    describe('Test PageComponentCollectionDataSource', function () {
 
         describe('When initializing a PageComponentCollectionDataSource', function (done) {
 
@@ -1444,7 +1444,7 @@
      * PageCollectionDataSource
      *********************************************************************************************************/
 
-    xdescribe('Test PageCollectionDataSource', function () {
+    describe('Test PageCollectionDataSource', function () {
 
         describe('When initializing a PageCollectionDataSource', function () {
 
@@ -1812,7 +1812,7 @@
      * Stream
      *********************************************************************************************************/
 
-    xdescribe('Test Stream', function () {
+    describe('Test Stream', function () {
 
         var stream;
 
@@ -1875,15 +1875,15 @@
                         {
                             style: 'background-colour: lightblue;',
                             components: [
-                                { tool: 'label', attributes: { style: 'color: red;', text: 'Label1' } },
-                                { tool: 'image', attributes: { alt: 'Label1', src: 'photo1.jpg', style: 'border: solid 1px blue;' } }
+                                { tool: 'label', attributes: { style: 'color: red;', text: 'Label1' }, properties: { draggable: false, dropValue: '' } },
+                                { tool: 'image', attributes: { alt: 'Label1', src: 'photo1.jpg', style: 'border: solid 1px blue;' }, properties: { draggable: false, dropValue: '' } }
                             ]
                         },
                         {
                             style: 'background-colour: lightgreen;',
                             components: [
-                                { tool: 'label', attributes: { style: 'color: blue;', text: 'Label2' } },
-                                { tool: 'image', attributes: { alt: 'Label2', src: 'photo2.jpg', style: 'border: solid 1px red;' } }
+                                { tool: 'label', attributes: { style: 'color: blue;', text: 'Label2' }, properties: { draggable: false, dropValue: '' } },
+                                { tool: 'image', attributes: { alt: 'Label2', src: 'photo2.jpg', style: 'border: solid 1px red;' }, properties: { draggable: false, dropValue: '' } }
                             ]
                         }
                     ]
@@ -1904,12 +1904,14 @@
                 }
 
                 var json = $.extend(true, {}, defaults, s);
+                /*
                 for (var j = 0; j < json.pages.length; j++) {
                     for (var k = 0; k < json.pages[j].components.length; k++) {
                         // By default properties === {}, which is discarded by toJSON
                         delete json.pages[j].components[k].properties;
                     }
                 }
+                */
                 expect(stream.toJSON(true)).to.deep.equal(json);
                 done();
 
@@ -1927,7 +1929,7 @@
      *
      *********************************************************************************************************/
 
-    xdescribe('Test a complex schema with sinonJS', function () {
+    describe('Test a complex schema with sinonJS', function () {
 
         // See http://docs.telerik.com/kendo-ui/framework/hierarchicaldatasource/overview#binding-a-hierarchicaldatasource-to-remote-data-with-multiple-service-end-points
 
@@ -2355,7 +2357,7 @@
      * Synchronization localStorage
      *********************************************************************************************************/
 
-    xdescribe('Test synchronization with localStorage', function () {
+    describe('Test synchronization with localStorage', function () {
 
         var storageKey = 'stream';
         var stream;
@@ -2522,7 +2524,7 @@
      * Miscellanesous to improve code coverage
      *********************************************************************************************************/
 
-    xdescribe('Miscellaneous to improve code coverage', function () {
+    describe('Miscellaneous to improve code coverage', function () {
 
         it('Stream.append & Page.append', function () {
             var stream = new Stream({});

@@ -9,7 +9,7 @@
 
 'use strict';
 
-var httpServer = require('../../nodejs/http.server.js');
+var httpServer = require('../../../nodejs/http.server.js');
 var Zombie = require('zombie');
 var browser = new Zombie({ site: 'http://localhost:8080', waitDuration: '10s' });
 // var browser = new Zombie({ site: 'http://poc.kidoju.com'/*, waitDuration: '10s'*/ });

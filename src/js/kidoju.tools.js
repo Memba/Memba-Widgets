@@ -747,56 +747,153 @@
         /* jshint +W074 */
 
         /**
-         * String adapter
+         * Asset Adapter
          */
-        adapters.StringAdapter = BaseAdapter.extend({
+        adapters.AssetAdapter = BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = STRING;
+                that.defaultValue = that.defaultValue || (that.nullable ? null : '');
+                // that.editor is the inline editor with a [...] button which triggers this.showDialog
+                that.editor = function (container, settings) {
+                    var table = $('<div/>')
+                        .css({ display: 'table' })
+                        .appendTo(container);
+                    var cell = $('<div/>')
+                        .css({
+                            display: 'table-cell',
+                            width: '100%',
+                            paddingRight: '8px'
+                        })
+                        .appendTo(table);
+                    var input = $('<input/>')
+                        .addClass('k-textbox')
+                        .css({ width: '100%' })
+                        .prop({ readonly: true })
+                        .attr($.extend({}, settings.attributes, { 'data-bind': 'value: ' + settings.field }))// TODO: namespace???
+                        .appendTo(cell);
+                    $('<button/>')
+                        .text('...')
+                        .addClass('k-button')
+                        .css({
+                            display: 'table-cell',
+                            minWidth: '40px',
+                            height: input.css('height'), // to match input,
+                            margin: 0
+                        })
+                        .appendTo(table)
+                        .on(CLICK, $.proxy(that.showDialog, that, settings));
+                };
+            },
+            showDialog: function (settings) {
+                var that = this;
+                var dialog = that.getDialog();
+                // Create viewModel (Cancel shall not save changes to main model)
+                dialog.viewModel = kendo.observable({
+                    url: settings.model.get(settings.field)
+                });
+                // Prepare UI
+                dialog.title(settings.title);
+                var content = '<div class="k-edit-form-container">' + // TODO namespace???
+                    '<div data-role="assetmanager" data-bind="value: url"></div>' +
+                    '<div class="k-edit-buttons k-state-default">' +
+                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
+                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
+                    '</div></div>';
+                dialog.content(content);
+                assert.instanceof(PageComponent, settings.model, kendo.format(assert.messages.instanceof.default, 'settings.model', 'kidoju.data.PageComponent'));
+                assert.instanceof(ToolAssets, assets[settings.model.tool], kendo.format(assert.messages.instanceof.default, 'assets[settings.model.tool]', 'kidoju.ToolAssets'));
+                dialog.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets[settings.model.tool]);
+                kendo.bind(dialog.element, dialog.viewModel);
+                dialog.element.addClass('no-padding');
+                // Bind click handler for edit buttons
+                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, settings, dialog));
+                // Show dialog
+                dialog.center().open();
+            },
+            closeDialog: function (options, dialog, e) {
+                var that = this;
+                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
+                    var command = $(e.target).attr(kendo.attr('command'));
+                    if (command === 'ok') {
+                        options.model.set(options.field, dialog.viewModel.get('url'));
+                    }
+                    if (command === 'ok' || command === 'cancel') {
+                        dialog.close();
+                        dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
+                        dialog.element.removeClass('no-padding');
+                        // The content method destroys widgets and unbinds data
+                        dialog.content('');
+                        dialog.viewModel = undefined;
+                    }
+                }
+            }
+        });
+
+        /**
+         * Boolean adapter
+         */
+        adapters.BooleanAdapter = BaseAdapter.extend({
             init: function (options, attributes) {
                 BaseAdapter.fn.init.call(this, options);
-                this.type = STRING;
-                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+                this.type = BOOLEAN;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : false);
                 this.editor = 'input';
-                this.attributes = $.extend({}, this.attributes, attributes, { type: 'text', class: 'k-textbox' });
+                this.attributes = $.extend({}, this.attributes, attributes);
+                this.attributes[kendo.attr('role')] = 'switch';
             },
             library: [
                 {
                     name: 'equal',
-                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
-                },
-                {
-                    name: 'ignoreCaseEqual',
-                    formula: kendo.format(FORMULA, 'return String(value).trim().toUpperCase() === String(solution).trim().toUpperCase();')
-                },
-                {
-                    name: 'ignoreCaseMatch',
-                    formula: kendo.format(FORMULA, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\', \'i\')).test(String(value).trim());')
-                },
-                {
-                    name: 'ignoreDiacriticsEqual',
-                    formula: kendo.format(FORMULA, 'return removeDiacritics(String(value).trim().toUpperCase()) === removeDiacritics(String(solution).trim().toUpperCase());')
-                },
-                {
-                    name: 'match',
-                    formula: kendo.format(FORMULA, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\')).test(String(value).trim());')
-                },
-                {
-                    name: 'metaphone',
-                    formula: kendo.format(FORMULA, 'return metaphone(removeDiacritics(String(value).trim().toUpperCase())) === metaphone(removeDiacritics(String(solution).trim().toUpperCase()));')
-                },
-                {
-                    name: 'soundex',
-                    formula: kendo.format(FORMULA, 'return soundex(removeDiacritics(String(value).trim().toUpperCase())) === soundex(removeDiacritics(String(solution).trim().toUpperCase()));')
+                    formula: kendo.format(FORMULA, 'return String(value).toLowerCase() === String(solution).toLowerCase();')
                 }
             ],
             libraryDefault: 'equal'
         });
 
         /**
-         * Property name adapter
+         * Color adapter
          */
-        adapters.NameAdapter = adapters.StringAdapter.extend({
+        adapters.ColorAdapter = BaseAdapter.extend({
             init: function (options, attributes) {
-                adapters.StringAdapter.fn.init.call(this, options, $.extend(attributes, { readonly: true }));
-            }
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '#000000');
+                this.editor = 'input';
+                this.attributes = $.extend({}, this.attributes, attributes);
+                this.attributes[kendo.attr('role')] = 'colorpicker';
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
+                }
+            ],
+            libraryDefault: 'equal'
+        });
+
+        /**
+         * Date adapter
+         */
+        adapters.DateAdapter = BaseAdapter.extend({
+            init: function (options, attributes) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = DATE;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : new Date());
+                this.editor = 'input';
+                this.attributes = $.extend({}, this.attributes, attributes);
+                this.attributes[kendo.attr('role')] = 'datepicker';
+            },
+            library: [
+                {
+                    name: 'equal',
+                    // TODO: parsing raises a culture issue with MM/DD/YYYY in english and DD/MM/YYYY in french
+                    // Note: new Date(1994,1,1) !== new Date(1994,1,1) as they are two different objects
+                    formula: kendo.format(FORMULA, 'return new Date(value) - new Date(solution) === 0;')
+                }
+            ],
+            libraryDefault: 'equal'
         });
 
         /**
@@ -837,6 +934,28 @@
                         }
                     });
                 };
+            }
+        });
+
+        /**
+         * Enum adapter
+         */
+        adapters.EnumAdapter = adapters.StringAdapter.extend({
+            init: function (options, attributes) {
+                adapters.StringAdapter.fn.init.call(this, options);
+                this.editor = 'input';
+                this.attributes = $.extend({}, this.attributes, attributes);
+                this.attributes[kendo.attr('role')] = 'dropdownlist';
+                this.attributes[kendo.attr('source')] = JSON.stringify(options && options.enum ? options.enum : []); // kendo.htmlEncode??
+            }
+        });
+
+        /**
+         * Property name adapter
+         */
+        adapters.NameAdapter = adapters.StringAdapter.extend({
+            init: function (options, attributes) {
+                adapters.StringAdapter.fn.init.call(this, options, $.extend(attributes, { readonly: true }));
             }
         });
 
@@ -884,81 +1003,47 @@
         adapters.ScoreAdapter = adapters.NumberAdapter.extend({});
 
         /**
-         * Boolean adapter
+         * String adapter
          */
-        adapters.BooleanAdapter = BaseAdapter.extend({
-            init: function (options, attributes) {
-                BaseAdapter.fn.init.call(this, options);
-                this.type = BOOLEAN;
-                this.defaultValue = this.defaultValue || (this.nullable ? null : false);
-                this.editor = 'input';
-                this.attributes = $.extend({}, this.attributes, attributes);
-                this.attributes[kendo.attr('role')] = 'switch';
-            },
-            library: [
-                {
-                    name: 'equal',
-                    formula: kendo.format(FORMULA, 'return String(value).toLowerCase() === String(solution).toLowerCase();')
-                }
-            ],
-            libraryDefault: 'equal'
-        });
-
-        /**
-         * Date adapter
-         */
-        adapters.DateAdapter = BaseAdapter.extend({
-            init: function (options, attributes) {
-                BaseAdapter.fn.init.call(this, options);
-                this.type = DATE;
-                this.defaultValue = this.defaultValue || (this.nullable ? null : new Date());
-                this.editor = 'input';
-                this.attributes = $.extend({}, this.attributes, attributes);
-                this.attributes[kendo.attr('role')] = 'datepicker';
-            },
-            library: [
-                {
-                    name: 'equal',
-                    // TODO: parsing raises a culture issue with MM/DD/YYYY in english and DD/MM/YYYY in french
-                    // Note: new Date(1994,1,1) !== new Date(1994,1,1) as they are two different objects
-                    formula: kendo.format(FORMULA, 'return new Date(value) - new Date(solution) === 0;')
-                }
-            ],
-            libraryDefault: 'equal'
-        });
-
-        /**
-         * Color adapter
-         */
-        adapters.ColorAdapter = BaseAdapter.extend({
+        adapters.StringAdapter = BaseAdapter.extend({
             init: function (options, attributes) {
                 BaseAdapter.fn.init.call(this, options);
                 this.type = STRING;
-                this.defaultValue = this.defaultValue || (this.nullable ? null : '#000000');
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 this.editor = 'input';
-                this.attributes = $.extend({}, this.attributes, attributes);
-                this.attributes[kendo.attr('role')] = 'colorpicker';
+                this.attributes = $.extend({}, this.attributes, attributes, { type: 'text', class: 'k-textbox' });
             },
             library: [
                 {
                     name: 'equal',
                     formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
+                },
+                {
+                    name: 'ignoreCaseEqual',
+                    formula: kendo.format(FORMULA, 'return String(value).trim().toUpperCase() === String(solution).trim().toUpperCase();')
+                },
+                {
+                    name: 'ignoreCaseMatch',
+                    formula: kendo.format(FORMULA, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\', \'i\')).test(String(value).trim());')
+                },
+                {
+                    name: 'ignoreDiacriticsEqual',
+                    formula: kendo.format(FORMULA, 'return removeDiacritics(String(value).trim().toUpperCase()) === removeDiacritics(String(solution).trim().toUpperCase());')
+                },
+                {
+                    name: 'match',
+                    formula: kendo.format(FORMULA, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\')).test(String(value).trim());')
+                },
+                {
+                    name: 'metaphone',
+                    formula: kendo.format(FORMULA, 'return metaphone(removeDiacritics(String(value).trim().toUpperCase())) === metaphone(removeDiacritics(String(solution).trim().toUpperCase()));')
+                },
+                {
+                    name: 'soundex',
+                    formula: kendo.format(FORMULA, 'return soundex(removeDiacritics(String(value).trim().toUpperCase())) === soundex(removeDiacritics(String(solution).trim().toUpperCase()));')
                 }
             ],
             libraryDefault: 'equal'
-        });
-
-        /**
-         * Text (multiline) adapter
-         */
-        adapters.TextAdapter = adapters.StringAdapter.extend({
-            init: function (options, attributes) {
-                BaseAdapter.fn.init.call(this, options);
-                this.type = STRING;
-                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-                this.editor = 'textarea';
-                this.attributes = $.extend({}, this.attributes, attributes);
-            }
         });
 
         /**
@@ -980,19 +1065,6 @@
                 }
             ],
             libraryDefault: 'equal'
-        });
-
-        /**
-         * Enum adapter
-         */
-        adapters.EnumAdapter = adapters.StringAdapter.extend({
-            init: function (options, attributes) {
-                adapters.StringAdapter.fn.init.call(this, options);
-                this.editor = 'input';
-                this.attributes = $.extend({}, this.attributes, attributes);
-                this.attributes[kendo.attr('role')] = 'dropdownlist';
-                this.attributes[kendo.attr('source')] = JSON.stringify(options && options.enum ? options.enum : []); // kendo.htmlEncode??
-            }
         });
 
         /**
@@ -1077,87 +1149,15 @@
         });
 
         /**
-         * Asset Adapter
+         * Text (multiline) adapter
          */
-        adapters.AssetAdapter = BaseAdapter.extend({
-            init: function (options) {
-                var that = this;
-                BaseAdapter.fn.init.call(that, options);
-                that.type = STRING;
-                that.defaultValue = that.defaultValue || (that.nullable ? null : '');
-                // that.editor is the inline editor with a [...] button which triggers this.showDialog
-                that.editor = function (container, settings) {
-                    var table = $('<div/>')
-                        .css({ display: 'table' })
-                        .appendTo(container);
-                    var cell = $('<div/>')
-                        .css({
-                            display: 'table-cell',
-                            width: '100%',
-                            paddingRight: '8px'
-                        })
-                        .appendTo(table);
-                    var input = $('<input/>')
-                        .addClass('k-textbox')
-                        .css({ width: '100%' })
-                        .prop({ readonly: true })
-                        .attr($.extend({}, settings.attributes, { 'data-bind': 'value: ' + settings.field }))// TODO: namespace???
-                        .appendTo(cell);
-                    $('<button/>')
-                        .text('...')
-                        .addClass('k-button')
-                        .css({
-                            display: 'table-cell',
-                            minWidth: '40px',
-                            height: input.css('height'), // to match input,
-                            margin: 0
-                        })
-                        .appendTo(table)
-                        .on(CLICK, $.proxy(that.showDialog, that, settings));
-                };
-            },
-            showDialog: function (settings) {
-                var that = this;
-                var dialog = that.getDialog();
-                // Create viewModel (Cancel shall not save changes to main model)
-                dialog.viewModel = kendo.observable({
-                    url: settings.model.get(settings.field)
-                });
-                // Prepare UI
-                dialog.title(settings.title);
-                var content = '<div class="k-edit-form-container">' + // TODO namespace???
-                    '<div data-role="assetmanager" data-bind="value: url"></div>' +
-                    '<div class="k-edit-buttons k-state-default">' +
-                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
-                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
-                    '</div></div>';
-                dialog.content(content);
-                assert.instanceof(PageComponent, settings.model, kendo.format(assert.messages.instanceof.default, 'settings.model', 'kidoju.data.PageComponent'));
-                assert.instanceof(ToolAssets, assets[settings.model.tool], kendo.format(assert.messages.instanceof.default, 'assets[settings.model.tool]', 'kidoju.ToolAssets'));
-                dialog.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets[settings.model.tool]);
-                kendo.bind(dialog.element, dialog.viewModel);
-                dialog.element.addClass('no-padding');
-                // Bind click handler for edit buttons
-                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, settings, dialog));
-                // Show dialog
-                dialog.center().open();
-            },
-            closeDialog: function (options, dialog, e) {
-                var that = this;
-                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
-                    var command = $(e.target).attr(kendo.attr('command'));
-                    if (command === 'ok') {
-                        options.model.set(options.field, dialog.viewModel.get('url'));
-                    }
-                    if (command === 'ok' || command === 'cancel') {
-                        dialog.close();
-                        dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
-                        dialog.element.removeClass('no-padding');
-                        // The content method destroys widgets and unbinds data
-                        dialog.content('');
-                        dialog.viewModel = undefined;
-                    }
-                }
+        adapters.TextAdapter = adapters.StringAdapter.extend({
+            init: function (options, attributes) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+                this.editor = 'textarea';
+                this.attributes = $.extend({}, this.attributes, attributes);
             }
         });
 
@@ -2256,10 +2256,6 @@
          * Spreadsheet
          * Charts
          */
-
-        /*****************************************************************************
-         * TODO: Behaviours
-         ******************************************************************************/
 
     }(window.jQuery));
 

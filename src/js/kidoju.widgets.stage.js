@@ -801,8 +801,8 @@
             _toggleContextMenu: function (enable) {
                 var that = this;
 
-                // CLear
-                if (that.menu instanceof kendo.ui.ContextMenu) {
+                // Clear (noting that kendo.ui.ContextMenu is not available in kidoju-Mobile)
+                if (kendo.ui && kendo.ui.ContextMenu && that.menu instanceof kendo.ui.ContextMenu) {
                     that.menu.destroy();
                     that.menu.element.remove();
                     that.menu = undefined;

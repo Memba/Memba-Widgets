@@ -151,6 +151,13 @@
                             Explanations
                             <div id="explanations" style="padding:0.5em;"><textarea rows="10" data-bind="value: selectedPage.explanations, enabled: selectedPage" class="k-textbox" style="width:100%;resize:vertical;"></textarea></div>
                         </li>
+                        <li>
+                            Snap
+                            <div id="snap" style="padding:0.5em;">
+                                <div><label style="text-align: center">Grid:</label><input id="snap-grid" type="number" data-role="slider" data-min="0" data-max="50" data-small-step="1" data-large-step="10" data-tick-placement="none"></div>
+                                <div><label>Angle:</label><input id="snap-angle" type="number" data-role="slider" data-min="0" data-max="50" data-small-step="1" data-large-step="10" data-tick-placement="none"></div>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -694,6 +701,19 @@
                 viewModel.stream.load().then(function() {
                     viewModel.set('selectedPage', viewModel.stream.pages.at(0));
                     kendo.bind('body', viewModel);
+
+                    // Init sliders
+                    $('#snap-angle').data('kendoSlider').bind('change', function (e) {
+                        var stage = $('#center-pane').find(kendo.roleSelector('stage'));
+                        var stageWidget = stage.data('kendoStage');
+                        stageWidget.snapAngle(e.sender.value());
+                    });
+                    $('#snap-grid').data('kendoSlider').bind('change', function (e) {
+                        var stage = $('#center-pane').find(kendo.roleSelector('stage'));
+                        var stageWidget = stage.data('kendoStage');
+                        stageWidget.snapGrid(e.sender.value());
+                    });
+
                 });
 
                 //Bind resize events and resize

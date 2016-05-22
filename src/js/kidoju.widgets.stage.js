@@ -167,6 +167,8 @@
                 this._width = this.options.width;
                 this._disabled = this.options.disabled;
                 this._readonly = this.options.readonly;
+                this._snapAngle = this.options.snapAngle;
+                this._snapGrid = this.options.snapGrid;
                 that._layout();
                 that._dataSource();
                 kendo.notify(that);
@@ -207,6 +209,8 @@
                 dataSource: undefined,
                 disabled: false,
                 readonly: false,
+                snapAngle: 10,
+                snapGrid: 10,
                 messages: {
                     contextMenu: {
                         delete: 'Delete',
@@ -463,6 +467,34 @@
                 }
                 else {
                     return that._properties;
+                }
+            },
+
+            /**
+             * Get/set snap angle
+             * @param snapValue
+             */
+            snapAngle: function (snapValue) {
+                if ($.type(snapValue) === UNDEFINED) {
+                    return this._snapAngle;
+                } else if ($.type(snapValue) === NUMBER) {
+                    this._snapAngle = snapValue;
+                } else {
+                    throw new TypeError('Snap angle value should be a number');
+                }
+            },
+
+            /**
+             * Get/set snap grid
+             * @param snapValue
+             */
+            snapGrid: function (snapValue) {
+                if ($.type(snapValue) === UNDEFINED) {
+                    return this._snapGrid;
+                } else if ($.type(snapValue) === NUMBER) {
+                    this._snapGrid = snapValue;
+                } else {
+                    throw new TypeError('Snap grid value should be a number');
                 }
             },
 
@@ -1204,8 +1236,8 @@
                     });
 
                     if (startState.command === COMMANDS.MOVE) {
-                        item.set(LEFT, util.snap(startState.left + (mouse.x - startState.mouseX) / startState.scale, startState.snapGrid));
-                        item.set(TOP, util.snap(startState.top + (mouse.y - startState.mouseY) / startState.scale, startState.snapGrid));
+                        item.set(LEFT, util.snap(startState.left + (mouse.x - startState.mouseX) / startState.scale, that._snapGrid));
+                        item.set(TOP, util.snap(startState.top + (mouse.y - startState.mouseY) / startState.scale, that._snapGrid));
                         // Set triggers the change event on the dataSource which calls the refresh method to update the stage
 
                     } else if (startState.command === COMMANDS.RESIZE) {
@@ -1227,8 +1259,8 @@
                         // TODO these calculations depend on the transformOrigin attribute of that.wrapper - ideally we should introduce transformOrigin in the calculation
                         item.set(LEFT, topLeftAfterMove.x);
                         item.set(TOP, topLeftAfterMove.y);
-                        item.set(HEIGHT, util.snap(startState.height - dx * Math.sin(alpha) + dy * Math.cos(alpha), startState.snapGrid));
-                        item.set(WIDTH, util.snap(startState.width + dx * Math.cos(alpha) + dy * Math.sin(alpha), startState.snapGrid));
+                        item.set(HEIGHT, util.snap(startState.height - dx * Math.sin(alpha) + dy * Math.cos(alpha), that._snapGrid));
+                        item.set(WIDTH, util.snap(startState.width + dx * Math.cos(alpha) + dy * Math.sin(alpha), that._snapGrid));
                         // Set triggers the change event on the dataSource which calls the refresh method to update the stage
 
                     } else if (startState.command === COMMANDS.ROTATE) {
@@ -1236,7 +1268,7 @@
                                 x: startState.mouseX,
                                 y: startState.mouseY
                             }, mouse);
-                        var deg = util.snap((360 + startState.angle + util.rad2deg(rad)) % 360, startState.snapAngle);
+                        var deg = util.snap((360 + startState.angle + util.rad2deg(rad)) % 360, that._snapAngle);
                         item.set(ROTATE, deg);
                         // Set triggers the change event on the dataSource which calls the refresh method to update the stage
                     }

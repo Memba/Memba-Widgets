@@ -143,6 +143,13 @@
                 expect(field).to.have.property('type', adapter.type);
             });
 
+            it('Validate ConnectorAdapter', function () {
+                var adapter = new adapters.ConnectorAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
             it('Validate DateAdapter', function () {
                 var adapter = new adapters.DateAdapter();
                 var field = adapter.getField();
@@ -173,6 +180,13 @@
 
             it('Validate NumberAdapter', function () {
                 var adapter = new adapters.NumberAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+            it('Validate QuizAdapter', function () {
+                var adapter = new adapters.QuizAdapter();
                 var field = adapter.getField();
                 var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);

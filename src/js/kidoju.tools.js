@@ -39,6 +39,7 @@
         var kidoju = window.kidoju = window.kidoju || {};
         var Model = kidoju.data.Model;
         var PageComponent = kidoju.data.PageComponent;
+        var Page = kidoju.data.Page;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.tools');
         var OBJECT = 'object';
@@ -874,6 +875,59 @@
         });
 
         /**
+         * Connector adapter
+         */
+        adapters.ConnectorAdapter = BaseAdapter.extend({
+            init: function (options, attributes) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+                // this.editor = 'input';
+                // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
+                this.editor = function (container, options) {
+                    var input = $('<input/>')
+                        .css({ width: '100%' })
+                        .attr({ 'data-bind': 'value: ' + options.field }) // TODO namespace???
+                        .appendTo(container);
+                    input.kendoComboBox({
+                        // dataSource: { data: [''] }, // We need a non-empty dataSource otherwise open is not triggered
+                        /**
+                         * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
+                         * @param e
+                         */
+                        open: function (e) {
+                            var solutions = [];
+                            // find the design (mode) stage, avoiding navigation
+                            var stage = $('[' + kendo.attr('role') + '="stage"][' + kendo.attr('mode') + '="design"]');
+                            // find the handle box and the selected uid which should be a connector
+                            var handleBox = stage.parent().children('.kj-handle-box');
+                            var uid = handleBox.attr(kendo.attr('uid'));
+                            // find all unselected connectors
+                            assert.instanceof (PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageModel'));
+                            if (options.model.parent() instanceof kendo.Observable && options.model.parent().selectedPage instanceof Page) {
+                                var components = options.model.parent().selectedPage.components;
+                                $.each(components.data(), function (index, component) {
+                                    if (component.tool === 'connector' && component.uid !== uid) {
+                                        solutions.push(component.get(options.field));
+                                    }
+                                });
+                                solutions.sort();
+                            }
+                            e.sender.setDataSource(solutions);
+                        }
+                    });
+                };
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
+                }
+            ],
+            libraryDefault: 'equal'
+        });
+
+        /**
          * Date adapter
          */
         adapters.DateAdapter = BaseAdapter.extend({
@@ -903,6 +957,7 @@
             init: function (options) {
                 BaseAdapter.fn.init.call(this, options);
                 this.type = STRING;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 // this.editor = 'input';
                 // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
                 this.editor = function (container, options) {
@@ -997,6 +1052,45 @@
                 {
                     name: 'lowerThanOrEqual',
                     formula: kendo.format(FORMULA, 'return Number(value) <= Number(solution);')
+                }
+            ],
+            libraryDefault: 'equal'
+        });
+
+        /**
+         * Quiz adapter
+         */
+        adapters.QuizAdapter = BaseAdapter.extend({
+            init: function (options, attributes) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+                // this.editor = 'input';
+                // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
+                this.editor = function (container, options) {
+                    var input = $('<input/>')
+                        .css({ width: '100%' })
+                        .attr({ 'data-bind': 'value: ' + options.field }) // TODO namespace???
+                        .appendTo(container);
+                    input.kendoComboBox({
+                        // dataSource: { data: [''] }, // We need a non-empty dataSource otherwise open is not triggered
+                        /**
+                         * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
+                         * @param e
+                         */
+                       open: function (e) {
+                            var data = options.model.get('attributes.data');
+                            data = $.type(data) === STRING ? data.split('\n') : [];
+                            data.sort();
+                            e.sender.setDataSource(data);
+                        }
+                    });
+                };
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
                 }
             ],
             libraryDefault: 'equal'
@@ -1190,6 +1284,7 @@
                 var that = this;
                 BaseAdapter.fn.init.call(that, options);
                 that.type = STRING;
+                // this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 that.editor = function (container, options) {
                     var table = $('<div/>')
                         .css({ display: 'table' })
@@ -1656,7 +1751,7 @@
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.connector.properties.name.title }),
                 description: new adapters.DescriptionAdapter({ title: i18n.connector.properties.description.title }),
-                solution: new adapters.StringAdapter({ title: i18n.connector.properties.solution.title }),
+                solution: new adapters.ConnectorAdapter({ title: i18n.connector.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.connector.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 0.5 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.connector.properties.failure.title, defaultValue: 0 }),
@@ -2059,7 +2154,7 @@
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.quiz.properties.name.title }),
                 description: new adapters.DescriptionAdapter({ title: i18n.quiz.properties.description.title }),
-                solution: new adapters.StringAdapter({ title: i18n.quiz.properties.solution.title }),
+                solution: new adapters.QuizAdapter({ title: i18n.quiz.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.quiz.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.quiz.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.quiz.properties.failure.title, defaultValue: 0 }),

@@ -1837,13 +1837,40 @@
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var height = component.get('height');
+                var width = component.get('width');
                 var content = stageElement.children('img');
-                if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
+                // Assuming we can get the natural size of the image, we shall keep proportions
+                var naturalHeight = content[0].naturalHeight;
+                var naturalWidth = content[0].naturalWidth;
+                if (naturalHeight && naturalWidth) {
+                    var rectLimitedByHeight = {
+                        height: height,
+                        width: height * naturalWidth / naturalHeight
+                    };
+                    /*
+                    // Note: comparing rectLimitedBy Height and rectLimitedByWidth does not work because
+                    // we are using the component size and not the mouse position
+                    // therefore, we can only reduce the size proportionnaly, not increase it
+                    var rectLimitedByWidth = {
+                        height: width * naturalHeight / naturalWidth,
+                        width: width
+                    };
+                    // if (rectLimitedByHeight.height * rectLimitedByHeight.width <= rectLimitedByWidth.height * rectLimitedByWidth.width) {
+                    if (rectLimitedByHeight.width <= width) {
+                    */
+                    component.set('height', rectLimitedByHeight.height);
+                    component.set('width', rectLimitedByHeight.width);
+                    /*
+                    } else if(rectLimitedByWidth.height <= height) {
+                        component.set('height', rectLimitedByWidth.height);
+                        component.set('width', rectLimitedByWidth.width);
+                    }
+                    */
                 }
-                if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
-                }
+                // Set content size
+                content.outerHeight(component.get('height'));
+                content.outerWidth(component.get('width'));
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage

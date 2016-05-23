@@ -209,8 +209,8 @@
                 dataSource: undefined,
                 disabled: false,
                 readonly: false,
-                snapAngle: 10,
-                snapGrid: 10,
+                snapAngle: 0,
+                snapGrid: 0,
                 messages: {
                     contextMenu: {
                         delete: 'Delete',

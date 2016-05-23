@@ -1837,13 +1837,13 @@
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                var height = component.get('height');
-                var width = component.get('width');
                 var content = stageElement.children('img');
                 // Assuming we can get the natural size of the image, we shall keep proportions
                 var naturalHeight = content[0].naturalHeight;
                 var naturalWidth = content[0].naturalWidth;
                 if (naturalHeight && naturalWidth) {
+                    var height = component.get('height');
+                    var width = component.get('width');
                     var rectLimitedByHeight = {
                         height: height,
                         width: height * naturalWidth / naturalHeight

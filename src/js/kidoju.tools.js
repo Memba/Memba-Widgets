@@ -2277,14 +2277,12 @@
                 assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
+                content.outerHeight(component.get('height'));
+                content.outerWidth(component.get('width'));
                 var widget = content.data('kendoMediaPlayer');
-                if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
+                if (kendo.ui.MediaPlayer && widget instanceof kendo.ui.MediaPlayer) {
+                    widget.resize();
                 }
-                if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
-                }
-                widget.resize();
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage

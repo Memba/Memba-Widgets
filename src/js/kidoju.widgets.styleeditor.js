@@ -297,14 +297,15 @@
                                     { name: 'border-style', value: 'solid' },
                                     { name: 'border-width', value: '1px' },
                                     { name: 'color', value: '#000000' },
-                                    { name: 'font-family', value: 'Arial, Helvetica Neue, Helvetica, sans-serif' },
+                                    { name: 'font-family', value: 'Times New Roman' },
                                     { name: 'font-size', value: '20px' },
                                     { name: 'font-style', value: 'italic' },
                                     { name: 'font-weight', value: 'bold' },
                                     { name: 'padding', value: '10px' },
                                     { name: 'margin', value: '10px' },
                                     { name: 'text-align', value: 'center' },
-                                    { name: 'text-decoration', value: 'underline' }
+                                    { name: 'text-decoration', value: 'underline' },
+                                    { name: 'vertical-align', value: 'middle' }
                                 ];
                                 for (var i = 0; i < all.length; i++) {
                                     var found = false;

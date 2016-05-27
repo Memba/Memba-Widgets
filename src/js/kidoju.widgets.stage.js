@@ -1257,8 +1257,8 @@
                         var topLeftAfterMove = util.getRotatedPoint(mmprime, centerAfterMove, -alpha); // Also T'
 
                         // TODO these calculations depend on the transformOrigin attribute of that.wrapper - ideally we should introduce transformOrigin in the calculation
-                        item.set(LEFT, topLeftAfterMove.x);
-                        item.set(TOP, topLeftAfterMove.y);
+                        item.set(LEFT, Math.round(topLeftAfterMove.x));
+                        item.set(TOP, Math.round(topLeftAfterMove.y));
                         item.set(HEIGHT, util.snap(startState.height - dx * Math.sin(alpha) + dy * Math.cos(alpha), that._snapGrid));
                         item.set(WIDTH, util.snap(startState.width + dx * Math.cos(alpha) + dy * Math.sin(alpha), that._snapGrid));
                         // Set triggers the change event on the dataSource which calls the refresh method to update the stage
@@ -1403,26 +1403,37 @@
                         var stageElement = that.stage.children(kendo.format(ELEMENT_SELECTOR, component.uid));
                         var handleBox = that.wrapper.children(kendo.format(HANDLE_BOX_SELECTOR, component.uid));
                         if (stageElement.length) {
+                            var position = stageElement.position();
+                            position.height = stageElement.height();
+                            position.width = stageElement.width();
                             switch (e.field) {
                                 case LEFT:
-                                    stageElement.css(LEFT, component.left);
-                                    handleBox.css(LEFT, component.left);
-                                    stageElement.trigger(MOVE + NS, component);
+                                    if (Math.round(position.left) !== Math.round(component.left)) {
+                                        stageElement.css(LEFT, component.left);
+                                        handleBox.css(LEFT, component.left);
+                                        stageElement.trigger(MOVE + NS, component);
+                                    }
                                     break;
                                 case TOP:
-                                    stageElement.css(TOP, component.top);
-                                    handleBox.css(TOP, component.top);
-                                    stageElement.trigger(MOVE + NS, component);
+                                    if (Math.round(position.top) !== Math.round(component.top)) {
+                                        stageElement.css(TOP, component.top);
+                                        handleBox.css(TOP, component.top);
+                                        stageElement.trigger(MOVE + NS, component);
+                                    }
                                     break;
                                 case HEIGHT:
-                                    stageElement.css(HEIGHT, component.height);
-                                    handleBox.css(HEIGHT, component.height);
-                                    stageElement.trigger(RESIZE + NS, component);
+                                    if (Math.round(position.height) !== Math.round(component.height)) {
+                                        stageElement.css(HEIGHT, component.height);
+                                        handleBox.css(HEIGHT, component.height);
+                                        stageElement.trigger(RESIZE + NS, component);
+                                    }
                                     break;
                                 case WIDTH:
-                                    stageElement.css(WIDTH, component.width);
-                                    handleBox.css(WIDTH, component.width);
-                                    stageElement.trigger(RESIZE + NS, component);
+                                    if (Math.round(position.width) !== Math.round(component.width)) {
+                                        stageElement.css(WIDTH, component.width);
+                                        handleBox.css(WIDTH, component.width);
+                                        stageElement.trigger(RESIZE + NS, component);
+                                    }
                                     break;
                                 case ROTATE:
                                     stageElement
@@ -1559,10 +1570,12 @@
              * @returns {*}
              */
             snap: function (value, snapValue) {
+                assert.type(NUMBER, snapValue, assert.messages.type.default, 'snapValue', NUMBER);
+                snapValue = Math.round(snapValue);
                 if (snapValue) {
                     return value % snapValue < snapValue / 2 ? value - value % snapValue : value + snapValue - value % snapValue;
                 } else {
-                    return value;
+                    return Math.round(value);
                 }
             },
 
@@ -1574,7 +1587,7 @@
             getTransformRotation: function (element) {
                 // $(element).css('transform') returns a matrix, so we have to read the style attribute
                 var match = ($(element).attr('style') || '').match(/rotate\([\s]*([0-9\.]+)[deg\s]*\)/);
-                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 0 : 0;
+                return $.isArray(match) && match.length > 1 ? parseInt(match[1], 10) || 0 : 0;
             },
 
             /**
@@ -1706,24 +1719,24 @@
                     // Display center of rotation
                     options.wrapper.children(DOT + DEBUG_CENTER_CLASS).css({
                         display: 'block',
-                        left: options.center.x / options.scale,
-                        top: options.center.y / options.scale
+                        left: Math.round(options.center.x / options.scale),
+                        top: Math.round(options.center.y / options.scale)
                     });
 
                     // Display bounding rectangle
                     options.wrapper.children(DOT + DEBUG_BOUNDS_CLASS).css({
                         display: 'block',
-                        left: options.bounds.left / options.scale,
-                        top: options.bounds.top / options.scale,
-                        height: options.bounds.height / options.scale,
-                        width: options.bounds.width / options.scale
+                        left: Math.round(options.bounds.left / options.scale),
+                        top: Math.round(options.bounds.top / options.scale),
+                        height: Math.round(options.bounds.height / options.scale),
+                        width: Math.round(options.bounds.width / options.scale)
                     });
 
                     // Display mouse calculated position
                     options.wrapper.children(DOT + DEBUG_MOUSE_CLASS).css({
                         display: 'block',
-                        left: options.mouse.x / options.scale,
-                        top: options.mouse.y / options.scale
+                        left: Math.round(options.mouse.x / options.scale),
+                        top: Math.round(options.mouse.y / options.scale)
                     });
                 }
             },

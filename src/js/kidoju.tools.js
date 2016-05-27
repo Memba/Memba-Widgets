@@ -436,12 +436,11 @@
                 var rows = [];
 
                 // Add top, left, height, width, rotation
-                // rows.push(new adapters.NumberAdapter({attributes:{'data-min': 0}}).getRow('top'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.title }).getRow('top'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.left.title }).getRow('left'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.height.title }).getRow('height'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.width.title }).getRow('width'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.rotate.title }).getRow('rotate'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('top'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.left.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('left'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.height.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('height'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.width.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('width'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.rotate.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('rotate'));
 
                 // Add other attributes
                 for (var attr in this.attributes) {
@@ -1940,26 +1939,34 @@
                     var height = component.get('height');
                     var width = component.get('width');
                     var rectLimitedByHeight = {
-                        height: height,
-                        width: height * naturalWidth / naturalHeight
+                        height: Math.round(height),
+                        width: Math.round(height * naturalWidth / naturalHeight)
                     };
                     /*
-                    // Note: comparing rectLimitedBy Height and rectLimitedByWidth does not work because
-                    // we are using the component size and not the mouse position
-                    // therefore, we can only reduce the size proportionnaly, not increase it
-                    var rectLimitedByWidth = {
-                        height: width * naturalHeight / naturalWidth,
-                        width: width
-                    };
-                    // if (rectLimitedByHeight.height * rectLimitedByHeight.width <= rectLimitedByWidth.height * rectLimitedByWidth.width) {
-                    if (rectLimitedByHeight.width <= width) {
-                    */
-                    component.set('height', rectLimitedByHeight.height);
-                    component.set('width', rectLimitedByHeight.width);
+                     // Note: comparing rectLimitedByHeight and rectLimitedByWidth does not work because
+                     // we are using the component size and not the mouse position
+                     // therefore, we can only reduce the size proportionnaly, not increase it
+                     var rectLimitedByWidth = {
+                        height: Math.round(width * naturalHeight / naturalWidth),
+                        width: Math.round(width)
+                     };
+                     // if (rectLimitedByHeight.height * rectLimitedByHeight.width <= rectLimitedByWidth.height * rectLimitedByWidth.width) {
+                     if (rectLimitedByHeight.width <= width) {
+                     */
+                    if (height !== rectLimitedByHeight.height) { // avoids a stack overflow
+                        component.set('height', rectLimitedByHeight.height);
+                    }
+                    if (width !== rectLimitedByHeight.width) { // avoids a stack overflow
+                        component.set('width', rectLimitedByHeight.width);
+                    }
                     /*
                     } else if(rectLimitedByWidth.height <= height) {
-                        component.set('height', rectLimitedByWidth.height);
-                        component.set('width', rectLimitedByWidth.width);
+                         if (height !== rectLimitedByWidth.height) {
+                            component.set('height', rectLimitedByWidth.height);
+                         }
+                         if (width !== rectLimitedByWidth.width) {
+                            component.set('width', rectLimitedByWidth.width);
+                         }
                     }
                     */
                 }

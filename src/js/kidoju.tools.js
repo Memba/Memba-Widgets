@@ -908,7 +908,7 @@
                                 $.each(components.data(), function (index, component) {
                                     if (component.tool === 'connector' && component.uid !== uid) {
                                         var solution = component.get(options.field);
-                                        if ($.type(solution) === STRING && solutions.trim().length && solutions.indexOf(solution) === -1) {
+                                        if ($.type(solution) === STRING && solution.length && solutions.indexOf(solution) === -1) {
                                             solutions.push(solution);
                                         }
                                     }

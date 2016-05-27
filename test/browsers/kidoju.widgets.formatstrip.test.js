@@ -37,11 +37,11 @@
 
         });
 
-        describe('Style', function() {
+        describe('Style', function () {
 
             var Style = window.Style;
 
-            it ('Style', function () {
+            xit ('Style', function () {
                 var css = 'color: blue; font-family: verdana; font-size: 300%; border: solid 2px #000';
                 var style = new Style(css);
                 expect(style.toString()).to.equal(css.replace(/\s/g, ''));
@@ -72,99 +72,99 @@
 
             xit('from code with minimal options', function () {
                 var value = 2;
-                var element = $(RATING1).appendTo(FIXTURES);
+                var element = $(FORMATSTRIP1).appendTo(FIXTURES);
                 expect(element).to.match('input');
-                var rating = element.kendoRating({
+                var formatStrip = element.kendoFormatStrip({
                     value: value
-                }).data('kendoRating');
-                var min = rating.options.min;
-                var max = rating.options.max;
-                var step = rating.options.step;
+                }).data('kendoFormatStrip');
+                var min = formatStrip.options.min;
+                var max = formatStrip.options.max;
+                var step = formatStrip.options.step;
                 expect(min).to.equal(0);
                 expect(max).to.equal(5);
                 expect(step).to.equal(1);
-                expect(rating).to.be.an.instanceof(Rating);
-                var wrapper = rating.wrapper;
+                expect(formatStrip).to.be.an.instanceof(FormatStrip);
+                var wrapper = formatStrip.wrapper;
                 expect(wrapper).not.to.have.class('k-widget');
-                expect(wrapper).to.have.class('kj-rating');
+                expect(wrapper).to.have.class('kj-formatStrip');
                 expect(wrapper.find('input')).to.be.an.instanceof($).with.property('length', 1);
-                expect(wrapper.find('span.kj-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
-                expect(wrapper.find('span.kj-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
+                expect(wrapper.find('span.kj-formatStrip-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
+                expect(wrapper.find('span.kj-formatStrip-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
             });
 
             xit('from markup', function () {
                 var viewModel = kendo.observable({
-                    rating: undefined
+                    formatStrip: undefined
                 });
-                var element =  $(RATING2).appendTo(FIXTURES);
+                var element =  $(FORMATSTRIP2).appendTo(FIXTURES);
                 expect(element).to.match('input');
                 kendo.bind(FIXTURES, viewModel);
-                var rating = element.data('kendoRating');
-                expect(rating).to.be.an.instanceof(Rating);
-                var min = rating.options.min;
-                var max = rating.options.max;
-                var step = rating.options.step;
-                var value = rating.value();
+                var formatStrip = element.data('kendoFormatStrip');
+                expect(formatStrip).to.be.an.instanceof(FormatStrip);
+                var min = formatStrip.options.min;
+                var max = formatStrip.options.max;
+                var step = formatStrip.options.step;
+                var value = formatStrip.value();
                 expect(min).to.equal(0);
                 expect(max).to.equal(10);
                 expect(step).to.equal(1);
                 expect(value).to.equal(0);
-                var wrapper = rating.wrapper;
+                var wrapper = formatStrip.wrapper;
                 expect(wrapper).not.to.have.class('k-widget');
-                expect(wrapper).to.have.class('kj-rating');
+                expect(wrapper).to.have.class('kj-formatStrip');
                 expect(wrapper.find('input')).to.be.an.instanceof($).with.property('length', 1);
-                expect(wrapper.find('span.kj-rating-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
-                expect(wrapper.find('span.kj-rating-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
+                expect(wrapper.find('span.kj-formatStrip-star')).to.be.an.instanceof($).with.property('length', Math.round((max - min) / step));
+                expect(wrapper.find('span.kj-formatStrip-star.k-state-selected')).to.be.an.instanceof($).with.property('length', Math.round(value / step));
             });
         });
 
         xdescribe('Methods', function () {
 
             var element;
-            var rating;
+            var formatStrip;
             var value1 = 1;
             var value2 = 2;
 
             beforeEach(function () {
-                element = $(RATING1).appendTo(FIXTURES);
-                rating = element.kendoRating({
+                element = $(FORMATSTRIP1).appendTo(FIXTURES);
+                formatStrip = element.kendoFormatStrip({
                     value: value1
-                }).data('kendoRating');
+                }).data('kendoFormatStrip');
             });
 
             it('value (get)', function () {
-                expect(rating).to.be.an.instanceof(Rating);
-                expect(rating.value()).to.equal(value1);
-                expect(parseFloat(rating.element.val())).to.equal(value1);
+                expect(formatStrip).to.be.an.instanceof(FormatStrip);
+                expect(formatStrip.value()).to.equal(value1);
+                expect(parseFloat(formatStrip.element.val())).to.equal(value1);
             });
 
             it('value (set)', function () {
-                expect(rating).to.be.an.instanceof(Rating);
-                rating.value(value2);
-                expect(rating.value()).to.equal(value2);
-                expect(parseFloat(rating.element.val())).to.equal(value2);
+                expect(formatStrip).to.be.an.instanceof(FormatStrip);
+                formatStrip.value(value2);
+                expect(formatStrip.value()).to.equal(value2);
+                expect(parseFloat(formatStrip.element.val())).to.equal(value2);
             });
 
             it('value (range error)', function () {
                 var fn = function () {
-                    rating.value(100);
+                    formatStrip.value(100);
                 };
-                expect(rating).to.be.an.instanceof(Rating);
+                expect(formatStrip).to.be.an.instanceof(FormatStrip);
                 expect(fn).to.throw(RangeError);
             });
 
             it('enable/readonly', function () {
-                expect(rating).to.be.an.instanceof(Rating);
-                expect(rating.wrapper).to.be.an.instanceof($).with.property('length', 1);
-                rating.enable(false);
-                expect(rating.wrapper).to.have.class('k-state-disabled');
-                rating.enable(true);
-                expect(rating.wrapper).not.to.have.class('k-state-disabled');
+                expect(formatStrip).to.be.an.instanceof(FormatStrip);
+                expect(formatStrip.wrapper).to.be.an.instanceof($).with.property('length', 1);
+                formatStrip.enable(false);
+                expect(formatStrip.wrapper).to.have.class('k-state-disabled');
+                formatStrip.enable(true);
+                expect(formatStrip.wrapper).not.to.have.class('k-state-disabled');
             });
 
             // it('visible', function () {
-            // expect(rating).to.be.an.instanceof(Rating);
-            // expect(rating.wrapper).to.be.an.instanceof($).with.property('length', 1);
+            // expect(formatStrip).to.be.an.instanceof(FormatStrip);
+            // expect(formatStrip.wrapper).to.be.an.instanceof($).with.property('length', 1);
             // TODO
             // });
 
@@ -177,34 +177,34 @@
         xdescribe('MVVM', function () {
 
             var element;
-            var rating;
+            var formatStrip;
             var viewModel;
 
             /*
              // For obscure reasons, setting the viewModel here does not work
              viewModel = kendo.observable({
-             rating: undefined
+             formatStrip: undefined
              });
              */
 
             beforeEach(function () {
-                element = $(RATING2).appendTo(FIXTURES);
+                element = $(FORMATSTRIP2).appendTo(FIXTURES);
                 viewModel = kendo.observable({
                     current: undefined
                 });
                 kendo.bind(FIXTURES, viewModel);
-                rating = element.data('kendoRating');
+                formatStrip = element.data('kendoFormatStrip');
             });
 
             it('Changing the value in the viewModel changes the number of plain/selected stars', function () {
-                expect(rating).to.be.an.instanceof(Rating);
-                var min = rating.options.min;
-                var max = rating.options.max;
-                var step = rating.options.step;
+                expect(formatStrip).to.be.an.instanceof(FormatStrip);
+                var min = formatStrip.options.min;
+                var max = formatStrip.options.max;
+                var step = formatStrip.options.step;
                 var count = Math.round((max - min) / step);
-                var input = rating.wrapper.find('input');
+                var input = formatStrip.wrapper.find('input');
                 expect(input).to.be.an.instanceof($).with.property('length', 1);
-                var stars = rating.wrapper.find('span.kj-rating-star');
+                var stars = formatStrip.wrapper.find('span.kj-formatStrip-star');
                 expect(stars).to.be.an.instanceof($).with.property('length', count);
                 for (var value = min; value <= max; value += step) {
                     viewModel.set('current', value);
@@ -221,14 +221,14 @@
             });
 
             it('Clicking a star updates the value in the viewModel', function () {
-                expect(rating).to.be.an.instanceof(Rating);
-                var min = rating.options.min;
-                var max = rating.options.max;
-                var step = rating.options.step;
+                expect(formatStrip).to.be.an.instanceof(FormatStrip);
+                var min = formatStrip.options.min;
+                var max = formatStrip.options.max;
+                var step = formatStrip.options.step;
                 var count = Math.round((max - min) / step);
-                var input = rating.wrapper.find('input');
+                var input = formatStrip.wrapper.find('input');
                 expect(input).to.be.an.instanceof($).with.property('length', 1);
-                var stars = rating.wrapper.find('span.kj-rating-star');
+                var stars = formatStrip.wrapper.find('span.kj-formatStrip-star');
                 expect(stars).to.be.an.instanceof($).with.property('length', count);
                 for (var pos = 0; pos < count; pos++) {
                     $(stars.get(pos)).simulate('click');
@@ -248,20 +248,20 @@
         xdescribe('UI Interactions', function () {
 
             var element;
-            var rating;
+            var formatStrip;
 
             beforeEach(function () {
-                element = $(RATING1).appendTo(FIXTURES);
-                rating = element.kendoRating().data('kendoRating');
+                element = $(FORMATSTRIP1).appendTo(FIXTURES);
+                formatStrip = element.kendoFormatStrip().data('kendoFormatStrip');
             });
 
             it('mouseover', function () {
-                expect(rating).to.be.an.instanceof(Rating);
-                var min = rating.options.min;
-                var max = rating.options.max;
-                var step = rating.options.step;
+                expect(formatStrip).to.be.an.instanceof(FormatStrip);
+                var min = formatStrip.options.min;
+                var max = formatStrip.options.max;
+                var step = formatStrip.options.step;
                 var count = Math.round((max - min) / step);
-                var stars = rating.wrapper.find('span.kj-rating-star');
+                var stars = formatStrip.wrapper.find('span.kj-formatStrip-star');
                 expect(stars).to.be.an.instanceof($).with.property('length', count);
                 for (var pos = 0; pos < count; pos++) {
                     $(stars.get(pos)).simulate('mouseover');
@@ -280,29 +280,29 @@
         xdescribe('Events', function () {
 
             var element;
-            var rating;
+            var formatStrip;
 
             beforeEach(function () {
-                element = $(RATING1).appendTo(FIXTURES);
+                element = $(FORMATSTRIP1).appendTo(FIXTURES);
             });
 
             it('change', function () {
                 var change = sinon.spy();
-                rating = element.kendoRating({
+                formatStrip = element.kendoFormatStrip({
                     change: function (e) {
                         change(e.value);
                     }
-                }).data('kendoRating');
-                expect(rating).to.be.an.instanceof(Rating);
-                var min = rating.options.min;
-                var max = rating.options.max;
-                var step = rating.options.step;
-                var value = rating.value();
+                }).data('kendoFormatStrip');
+                expect(formatStrip).to.be.an.instanceof(FormatStrip);
+                var min = formatStrip.options.min;
+                var max = formatStrip.options.max;
+                var step = formatStrip.options.step;
+                var value = formatStrip.value();
                 expect(min).to.equal(0);
                 expect(max).to.equal(5);
                 expect(step).to.equal(1);
                 for (var i = min; i <= max; i += step) {
-                    rating.value(i);
+                    formatStrip.value(i);
                     expect(change).to.have.callCount(i + 1);
                     expect(change).to.have.been.calledWith(i);
                 }

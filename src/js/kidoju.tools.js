@@ -1080,7 +1080,7 @@
                          * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
                          * @param e
                          */
-                       open: function (e) {
+                        open: function (e) {
                             var data = options.model.get('attributes.data');
                             data = $.type(data) === STRING ? data.split('\n') : [];
                             data.sort();

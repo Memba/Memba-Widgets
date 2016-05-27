@@ -21,6 +21,9 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         // shorten references to variables for uglification
@@ -64,11 +67,17 @@
 
         var Style = kendo.Class.extend({
 
+            /* Blocks are nested too deeply. */
+            /* jshint -W073 */
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Converts an HTML style attribute into a Style class
              * @param style
              */
-            init: function(style) {
+            init: function (style) {
                 $.extend(this, this.defaults);
                 if ($.type(style) === STRING) {
                     var styles = style.split(SEMI_COLON);
@@ -100,6 +109,10 @@
                     }
                 }
             },
+
+            /* jshint +W073 */
+
+            /* jshint +W074 */
 
             /**
              * Default values
@@ -134,7 +147,7 @@
                 textAlign: null,
                 textDecoration: null, // underline
                 verticalAlign: null,
-                whiteSpace: null //nowrap
+                whiteSpace: null // nowrap
             },
 
             /**
@@ -142,7 +155,7 @@
              * @param value
              */
             equals: function (value) {
-                if ($.type(value) == STRING) {
+                if ($.type(value) === STRING) {
                     value = new Style(value);
                 }
                 return this.backgroundColor === value.backgroundColor &&
@@ -266,8 +279,8 @@
              */
             _FixBorderState: function () {
                 var that = this;
-                that.element.find('a' + kendo.format(ATTR_SELECTOR, kendo.attr('tool'), 'borders')).click(function(e) {
-                     that._enableBorderButtons(false);
+                that.element.find('a' + kendo.format(ATTR_SELECTOR, kendo.attr('tool'), 'borders')).click(function (e) {
+                    that._enableBorderButtons(false);
                 });
             },
 
@@ -278,7 +291,7 @@
             _enableBorderButtons: function (enable) {
                 enable = $.type(enable) === UNDEFINED ? true : enable;
                 var borderpalette = $(kendo.roleSelector('borderpalette'));
-                $.each(['allBorders', 'insideBorders', 'insideHorizontalBorders', 'insideVerticalBorders'], function(index, borderType) {
+                $.each(['allBorders', 'insideBorders', 'insideHorizontalBorders', 'insideVerticalBorders'], function (index, borderType) {
                     borderpalette.find(kendo.format(ATTR_SELECTOR, kendo.attr('border-type'), borderType)).toggleClass('k-state-disabled', !enable);
                 });
             },
@@ -301,13 +314,13 @@
              * @param args
              */
             _onDialog: function (e) {
-                 var dialog = kendo.spreadsheet.dialogs.create(e.name, e.options);
-                 if (dialog) {
-                     dialog.bind('action', this._onAction.bind(this));
-                     dialog.bind('deactivate', this._destroyDialog.bind(this));
-                     this._dialogs.push(dialog);
-                     dialog.open();
-                 }
+                var dialog = kendo.spreadsheet.dialogs.create(e.name, e.options);
+                if (dialog) {
+                    dialog.bind('action', this._onAction.bind(this));
+                    dialog.bind('deactivate', this._destroyDialog.bind(this));
+                    this._dialogs.push(dialog);
+                    dialog.open();
+                }
             },
 
             /**
@@ -317,6 +330,9 @@
             _destroyDialog: function () {
                 this._dialogs.pop();
             },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Action triggered when clicking a border button
@@ -372,6 +388,11 @@
                 // this._enableBorderButtons();
             },
 
+            /* jshint +W074 */
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * PropertyChangeCommand
              * @param options
@@ -410,6 +431,8 @@
                 }
             },
 
+            /* jshint +W074 */
+
             /**
              * TextWrapCommand
              * @param options
@@ -421,6 +444,9 @@
                 // this._value.wordBreak = options.value ? null : 'nowrap';
                 // this._value.textOverflow = options.value ? null : 'ellipsis';
             },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Get the tool value from its property
@@ -483,12 +509,14 @@
                     case 'alignment':
                         return {
                             textAlign: function () { return that._value.textAlign || TEXT_ALIGN_DEFAULT; },
-                            verticalAlign: function () { return that._value.verticalAlign || VERTICAL_ALIGN_DEFAULT }
+                            verticalAlign: function () { return that._value.verticalAlign || VERTICAL_ALIGN_DEFAULT; }
                         };
                     default:
                         return;
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * Refresh the toolbar when updating style value
@@ -536,6 +564,9 @@
                 }
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Enable/disable the toolbar
              * @param item
@@ -550,7 +581,7 @@
                     enabled = item;
                     var tools = that.element.find('[' + kendo.attr('uid') + ']');
                     $.each(tools, function (index, tool) {
-                       that.enable(tool, enabled);
+                        that.enable(tool, enabled);
                     });
                     var overflowTools = that.popup.element.find('[' + kendo.attr('uid') + ']');
                     $.each(overflowTools, function (index, tool) {
@@ -582,6 +613,8 @@
                     }
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * Destroy
@@ -674,7 +707,7 @@
              * Get an array of tabs
              * @private
              */
-            _tabs: function() {
+            _tabs: function () {
                 var that = this;
                 var tabs = [];
                 if (this._value instanceof PageComponent) {
@@ -764,6 +797,8 @@
         ui.plugin(FormatStrip);
 
     } (window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kendo;
 

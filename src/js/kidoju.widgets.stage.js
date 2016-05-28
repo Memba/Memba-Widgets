@@ -1403,46 +1403,43 @@
                         var stageElement = that.stage.children(kendo.format(ELEMENT_SELECTOR, component.uid));
                         var handleBox = that.wrapper.children(kendo.format(HANDLE_BOX_SELECTOR, component.uid));
                         if (stageElement.length) {
-                            var position = stageElement.position();
-                            position.height = stageElement.height();
-                            position.width = stageElement.width();
                             switch (e.field) {
                                 case LEFT:
-                                    if (Math.round(position.left) !== Math.round(component.left)) {
+                                    if (Math.round(stageElement.position().left) !== Math.round(component.left)) {
                                         stageElement.css(LEFT, component.left);
                                         handleBox.css(LEFT, component.left);
                                         stageElement.trigger(MOVE + NS, component);
                                     }
                                     break;
                                 case TOP:
-                                    if (Math.round(position.top) !== Math.round(component.top)) {
+                                    if (Math.round(stageElement.position().top) !== Math.round(component.top)) {
                                         stageElement.css(TOP, component.top);
                                         handleBox.css(TOP, component.top);
                                         stageElement.trigger(MOVE + NS, component);
                                     }
                                     break;
                                 case HEIGHT:
-                                    if (Math.round(position.height) !== Math.round(component.height)) {
+                                    if (Math.round(stageElement.height()) !== Math.round(component.height)) {
                                         stageElement.css(HEIGHT, component.height);
                                         handleBox.css(HEIGHT, component.height);
                                         stageElement.trigger(RESIZE + NS, component);
                                     }
                                     break;
                                 case WIDTH:
-                                    if (Math.round(position.width) !== Math.round(component.width)) {
+                                    if (Math.round(stageElement.width()) !== Math.round(component.width)) {
                                         stageElement.css(WIDTH, component.width);
                                         handleBox.css(WIDTH, component.width);
                                         stageElement.trigger(RESIZE + NS, component);
                                     }
                                     break;
                                 case ROTATE:
-                                    stageElement
-                                        .css(TRANSFORM, kendo.format(CSS_ROTATE, component.rotate));
-                                    handleBox
-                                        .css(TRANSFORM, kendo.format(CSS_ROTATE, component.rotate));
-                                    handleBox.children(DOT + HANDLE_CLASS)
-                                        .css(TRANSFORM, kendo.format(CSS_ROTATE, -component.rotate) + ' ' + kendo.format(CSS_SCALE, 1 / that.scale()));
-                                    stageElement.trigger(ROTATE + NS, component);
+                                    if (Math.round(util.getTransformRotation(stageElement)) !== Math.round(component.rotate)) {
+                                        stageElement.css(TRANSFORM, kendo.format(CSS_ROTATE, component.rotate));
+                                        handleBox.css(TRANSFORM, kendo.format(CSS_ROTATE, component.rotate));
+                                        handleBox.children(DOT + HANDLE_CLASS)
+                                            .css(TRANSFORM, kendo.format(CSS_ROTATE, -component.rotate) + ' ' + kendo.format(CSS_SCALE, 1 / that.scale()));
+                                        stageElement.trigger(ROTATE + NS, component);
+                                    }
                                     break;
                                 default:
                                     if (/^attributes/.test(e.field) || /^properties/.test(e.field)) {

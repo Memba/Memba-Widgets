@@ -1,7 +1,7 @@
 {
   "name": "Kidoju.Widgets",
   "filename": "kidoju.widgets",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Kendo UI Widgets for the Kidoju platform",
   "author": "Memba Sarl",
   "copyright": "Copyright ©2013-2016 Memba® Sarl. All rights reserved.",
@@ -60,10 +60,10 @@
     "sinon": "^1.17.4",
     "zombie": "^4.2.1"
   },
-    "engines": {
-      "node": ">=4"
-    },
-    "config": {
-      "msvs_version": "2015"
-    }
+  "engines": {
+    "node": ">=4"
+  },
+  "config": {
+    "msvs_version": "2015"
+  }
 }

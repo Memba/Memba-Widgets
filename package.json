@@ -59,5 +59,11 @@
     "phantomjs-prebuilt": "^2.1.7",
     "sinon": "^1.17.4",
     "zombie": "^4.2.1"
-  }
+  },
+    "engines": {
+      "node": ">=4"
+    },
+    "config": {
+      "msvs_version": "2015"
+    }
 }

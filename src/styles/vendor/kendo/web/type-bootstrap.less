@@ -2250,8 +2250,8 @@ html .km-pane-wrapper .km-widget,
 @import "themes/radiobutton.less";
 
 // Retina sprite
-@media only screen and (-webkit-min-device-pixel-ratio: 2),
-       only screen and (min-device-pixel-ratio: 2) {
+@media only screen and (-webkit-min-device-pixel-ratio: 1.2),
+       only screen and (min-device-pixel-ratio: 1.2) {
     .k-icon:not(.k-loading),
     .k-grouping-dropclue,
     .k-drop-hint,
@@ -2857,9 +2857,9 @@ td.k-state-focused.k-state-selected,
 }
 
 .k-state-focused,
-.k-button:focus,
+.k-button:focus:not(.k-state-disabled):not([disabled]),
 .k-button.k-state-focused,
-.k-button:focus:active
+.k-button:focus:active:not(.k-state-disabled):not([disabled])
 {
     .box-shadow(@focused-shadow);
 }
@@ -3013,6 +3013,10 @@ td.k-state-focused.k-state-selected,
     .k-ff,
     .k-ie11,
     .k-safari {    
+        .k-pager-wrap {
+            min-height: 2.4em;
+        }
+        
         .k-pager-wrap .k-pager-nav,
         .k-pager-input
         {
@@ -3023,14 +3027,19 @@ td.k-state-focused.k-state-selected,
         .k-pager-numbers,
         .k-grid .k-pager-numbers
         {
-            position: relative;
+            position: absolute;
             display: inline-flex;
             flex-direction: column-reverse;
-            margin-left: .3em;
+            left: 5.6em;
             overflow: visible;
             height: auto;
             transform: translatey(-100%);
             -webkit-transform: translatey(-100%);
+        }
+        
+        .k-pager-numbers:first-child,
+        .k-grid .k-pager-numbers:first-child { // move left when previousNext: false
+            left: .3em;
         }
         
         .km-pane-wrapper .k-pager-numbers .k-link,
@@ -3050,10 +3059,14 @@ td.k-state-focused.k-state-selected,
         .k-rtl .k-pager-numbers,
         .k-rtl .k-grid .k-pager-numbers
         {
-            right: 5.18em;
+            right: 5.68em;
             width: 4.45em;
         }
         
+        .k-rtl .k-pager-numbers:first-child,
+        .k-rtl .k-grid .k-pager-numbers:first-child { // move right when previousNext: false
+            right: .3em;
+        }
         
         .k-pager-numbers .k-current-page,
         .k-grid .k-pager-numbers .k-current-page
@@ -3234,7 +3247,7 @@ td.k-state-focused.k-state-selected,
     background-image: url("@{image-folder}/markers.png");
 }
 
-@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+@media only screen and (-webkit-min-device-pixel-ratio: 1.2), only screen and (min-device-pixel-ratio: 1.2) {
     .k-map .k-marker {
         background-image: url("@{image-folder}/markers_2x.png");
     }

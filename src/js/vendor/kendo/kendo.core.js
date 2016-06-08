@@ -963,7 +963,7 @@ function pad(number, digits, end) {
             }
 
             if (hasGroup) {
-                number = groupInteger(number, start, Math.max(end, (integerLength + start -1)), numberFormat);
+                number = groupInteger(number, start + (negative ? 1 : 0), Math.max(end, (integerLength + start)), numberFormat);
             }
 
             if (end >= start) {
@@ -1495,7 +1495,7 @@ function pad(number, digits, end) {
 
             idx = 0;
 
-            formats = [
+            formats = formats.concat([
                 "yyyy/MM/dd HH:mm:ss",
                 "yyyy/MM/dd HH:mm",
                 "yyyy/MM/dd",
@@ -1514,7 +1514,7 @@ function pad(number, digits, end) {
                 "yyyy-MM-dd",
                 "HH:mm:ss",
                 "HH:mm"
-            ].concat(formats);
+            ]);
         }
 
         formats = isArray(formats) ? formats: [formats];
@@ -3042,7 +3042,7 @@ function pad(number, digits, end) {
                     containerScrollLeft = container.scrollLeft();
                     webkitCorrection = browser.webkit ? (!isRtl ? 0 : container[0].scrollWidth - container.width() - 2 * containerScrollLeft) : 0;
 
-                    mask = $("<div class='k-loading-mask'><span class='k-loading-text'>Loading...</span><div class='k-loading-image'/><div class='k-loading-color'/></div>")
+                    mask = $("<div class='k-loading-mask'><span class='k-loading-text'>" + kendo.ui.progress.messages.loading + "</span><div class='k-loading-image'/><div class='k-loading-color'/></div>")
                         .width("100%").height("100%")
                         .css("top", container.scrollTop())
                         .css(leftRight, Math.abs(containerScrollLeft) + webkitCorrection)
@@ -3118,6 +3118,10 @@ function pad(number, digits, end) {
             };
         }
     });
+
+    kendo.ui.progress.messages = {
+        loading: "Loading..."
+    };
 
     var ContainerNullObject = { bind: function () { return this; }, nullObject: true, options: {} };
 
@@ -4229,7 +4233,9 @@ function pad(number, digits, end) {
                 0, 0, 0, 0, 0, false, false, false, false, 0, null);
 
             fileSaver.dispatchEvent(e);
-            URL.revokeObjectURL(dataURI);
+            setTimeout(function(){
+                URL.revokeObjectURL(dataURI);
+            });
         }
 
         kendo.saveAs = function(options) {

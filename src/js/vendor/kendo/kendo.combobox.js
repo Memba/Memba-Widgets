@@ -41,7 +41,6 @@ var __meta__ = { // jshint ignore:line
         FOCUSED = "k-state-focused",
         STATEDISABLED = "k-state-disabled",
         ARIA_DISABLED = "aria-disabled",
-        ARIA_READONLY = "aria-readonly",
         STATE_FILTER = "filter",
         STATE_ACCEPT = "accept",
         STATE_REBIND = "rebind",
@@ -168,6 +167,7 @@ var __meta__ = { // jshint ignore:line
             that.input.off(ns);
             that.element.off(ns);
             that._inputWrapper.off(ns);
+            clearTimeout(that._pasteTimeout);
 
             that._arrow.parent().off(CLICK + " " + MOUSEDOWN);
 
@@ -208,6 +208,16 @@ var __meta__ = { // jshint ignore:line
             that.element.blur();
         },
 
+        _inputPaste: function() {
+            var that = this;
+            clearTimeout(that._pasteTimeout);
+            that._pasteTimeout = null;
+
+            that._pasteTimeout = setTimeout(function() {
+                that.search();
+            });
+        },
+
         _editable: function(options) {
             var that = this,
                 disable = options.disable,
@@ -224,8 +234,7 @@ var __meta__ = { // jshint ignore:line
 
                 input.removeAttr(DISABLED)
                      .removeAttr(READONLY)
-                     .attr(ARIA_DISABLED, false)
-                     .attr(ARIA_READONLY, false);
+                     .attr(ARIA_DISABLED, false);
 
                 arrow.on(CLICK, proxy(that._arrowClick, that))
                      .on(MOUSEDOWN, function(e) { e.preventDefault(); });
@@ -233,7 +242,8 @@ var __meta__ = { // jshint ignore:line
                 that.input
                     .on("keydown" + ns, proxy(that._keydown, that))
                     .on("focus" + ns, proxy(that._inputFocus, that))
-                    .on("focusout" + ns, proxy(that._inputFocusout, that));
+                    .on("focusout" + ns, proxy(that._inputFocusout, that))
+                    .on("paste" + ns, proxy(that._inputPaste, that));
 
             } else {
                 wrapper
@@ -242,8 +252,7 @@ var __meta__ = { // jshint ignore:line
 
                 input.attr(DISABLED, disable)
                      .attr(READONLY, readonly)
-                     .attr(ARIA_DISABLED, disable)
-                     .attr(ARIA_READONLY, readonly);
+                     .attr(ARIA_DISABLED, disable);
             }
         },
 
@@ -365,8 +374,6 @@ var __meta__ = { // jshint ignore:line
             var data = that.dataSource.flatView();
             var skip = that.listView.skip();
             var isFirstPage = skip === undefined || skip === 0;
-
-            that._angularItems("compile");
 
             that._presetValue = false;
 
@@ -707,7 +714,8 @@ var __meta__ = { // jshint ignore:line
                 wrapper = that.wrapper,
                 SELECTOR = "input.k-input",
                 name = element.name || "",
-                input;
+                input,
+                maxLength;
 
             if (name) {
                 name = 'name="' + name + '_input" ';
@@ -725,8 +733,9 @@ var __meta__ = { // jshint ignore:line
             input[0].style.cssText = element.style.cssText;
             input[0].title = element.title;
 
-            if (element.maxLength > -1) {
-                input[0].maxLength = element.maxLength;
+            maxLength = parseInt(this.element.prop("maxlength") || this.element.attr("maxlength"), 10);
+            if (maxLength > -1) {
+                input[0].maxLength = maxLength;
             }
 
             input.addClass(element.className)

@@ -38,7 +38,6 @@ var __meta__ = { // jshint ignore:line
         DEFAULT = "k-state-default",
         STATEDISABLED = "k-state-disabled",
         ARIA_DISABLED = "aria-disabled",
-        ARIA_READONLY = "aria-readonly",
         HOVEREVENTS = "mouseenter" + ns + " mouseleave" + ns,
         TABINDEX = "tabindex",
         STATE_FILTER = "filter",
@@ -465,8 +464,6 @@ var __meta__ = { // jshint ignore:line
             var data = that.dataSource.flatView();
             var dataItem;
 
-            that._angularItems("compile");
-
             that._presetValue = false;
 
             that._resizePopup(true);
@@ -513,6 +510,10 @@ var __meta__ = { // jshint ignore:line
             if (this._presetValue || (this._old && this._oldIndex === -1)) {
                 this._oldIndex = this.selectedIndex;
             }
+        },
+
+        _filterPaste: function() {
+            this._search();
         },
 
         _focusHandler: function() {
@@ -580,11 +581,11 @@ var __meta__ = { // jshint ignore:line
                 wrapper
                     .attr(TABINDEX, wrapper.data(TABINDEX))
                     .attr(ARIA_DISABLED, false)
-                    .attr(ARIA_READONLY, false)
                     .on("keydown" + ns, proxy(that._keydown, that))
                     .on("focusin" + ns, proxy(that._focusinHandler, that))
                     .on("focusout" + ns, proxy(that._focusoutHandler, that))
-                    .on("mousedown" + ns, proxy(that._wrapperMousedown, that));
+                    .on("mousedown" + ns, proxy(that._wrapperMousedown, that))
+                    .on("paste" + ns, proxy(that._filterPaste, that));
 
                 that.wrapper.on("click" + ns, proxy(that._wrapperClick, that));
 
@@ -610,8 +611,7 @@ var __meta__ = { // jshint ignore:line
             element.attr(DISABLED, disable)
                    .attr(READONLY, readonly);
 
-            wrapper.attr(ARIA_DISABLED, disable)
-                   .attr(ARIA_READONLY, readonly);
+            wrapper.attr(ARIA_DISABLED, disable);
         },
 
         _keydown: function(e) {
@@ -657,6 +657,8 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (!isPopupVisible || !that.filterInput) {
+                var current = that._focus();
+
                 if (key === keys.HOME) {
                     handled = true;
                     that._firstItem();
@@ -666,8 +668,16 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (handled) {
-                    that._select(that._focus());
-                    e.preventDefault();
+                    if (that.trigger("select", { item: that._focus() })) {
+                        that._focus(current);
+                        return;
+                    }
+
+                    that._select(that._focus(), true);
+
+                    if (!isPopupVisible) {
+                        that._blur();
+                    }
                 }
             }
 
@@ -1088,7 +1098,6 @@ var __meta__ = { // jshint ignore:line
                                           "aria-haspopup": true,
                                           "aria-expanded": false
                                       });
-
                 this.list
                     .prepend($('<span class="k-list-filter" />')
                     .append(this.filterInput.add(icon)));

@@ -503,14 +503,18 @@ var __meta__ = { // jshint ignore:line
                 that.options.valueMapper({
                     value: (this.options.selectable === "multiple") ? value : value[0],
                     success: function(indexes) {
-                        that._values = [];
-                        that._selectedIndexes = [];
-                        that._selectedDataItems = [];
-
-                        indexes = toArray(indexes);
+                        if (indexes === undefined || indexes === -1 || indexes === null) {
+                            indexes = [];
+                        } else {
+                            indexes = toArray(indexes);
+                        }
 
                         if (!indexes.length) {
                             indexes = [-1];
+                        } else {
+                            that._values = [];
+                            that._selectedIndexes = [];
+                            that._selectedDataItems = [];
                         }
 
                         that.select(indexes);
@@ -1402,6 +1406,20 @@ var __meta__ = { // jshint ignore:line
 
             if (this.options.selectable !== "multiple" || !this.isFiltered()) {
                 return [];
+            }
+
+            if (indices[0] === -1) {
+                $(children).removeClass("k-state-selected");
+                removed = $.map(this._selectedDataItems.slice(0), function(dataItem, idx) {
+                   return {
+                      dataItem: dataItem,
+                      position: idx
+                   };
+                });
+                this._selectedIndexes = [];
+                this._selectedDataItems = [];
+                this._values = [];
+                return removed;
             }
 
             for (; idx < indices.length; idx++) {

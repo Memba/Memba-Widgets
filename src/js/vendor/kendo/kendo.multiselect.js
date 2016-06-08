@@ -40,7 +40,6 @@ var __meta__ = { // jshint ignore:line
         PROGRESS = "progress",
         SELECT = "select",
         ARIA_DISABLED = "aria-disabled",
-        ARIA_READONLY = "aria-readonly",
         FOCUSEDCLASS = "k-state-focused",
         HIDDENCLASS = "k-loading-hidden",
         HOVERCLASS = "k-state-hover",
@@ -257,9 +256,19 @@ var __meta__ = { // jshint ignore:line
         },
 
         _listChange: function(e) {
+            var data = this.dataSource.flatView();
+            var optionsMap = this._optionsMap;
+            var valueGetter = this._value;
+
             if (this._state === REBIND) {
                 this._state = "";
-                e.added = [];
+            }
+
+            for (var i = 0; i < e.added.length; i++) {
+                if (optionsMap[valueGetter(e.added[i])] === undefined) {
+                    this._render(data); //render select element <option> tags if the item does not persist in the current data view
+                    break;
+                }
             }
 
             this._selectValue(e.added, e.removed);
@@ -383,8 +392,7 @@ var __meta__ = { // jshint ignore:line
 
                 input.removeAttr(DISABLED)
                      .removeAttr(READONLY)
-                     .attr(ARIA_DISABLED, false)
-                     .attr(ARIA_READONLY, false);
+                     .attr(ARIA_DISABLED, false);
 
                 tagList
                     .on(MOUSEENTER, LI, function() { $(this).addClass(HOVERCLASS); })
@@ -399,8 +407,7 @@ var __meta__ = { // jshint ignore:line
 
                 input.attr(DISABLED, disable)
                      .attr(READONLY, readonly)
-                     .attr(ARIA_DISABLED, disable)
-                     .attr(ARIA_READONLY, readonly);
+                     .attr(ARIA_DISABLED, disable);
             }
         },
 
@@ -455,25 +462,11 @@ var __meta__ = { // jshint ignore:line
             this.listView.refresh();
         },
 
-        _angularItems: function(cmd) {
-            var that = this;
-            that.angular(cmd, function(){
-                return {
-                    elements: that.items(),
-                    data: $.map(that.dataSource.flatView(), function(dataItem){
-                        return { dataItem: dataItem };
-                    })
-                };
-            });
-        },
-
         _listBound: function() {
             var that = this;
             var data = that.dataSource.flatView();
             var skip = that.listView.skip();
             var length = data.length;
-
-            that._angularItems("compile");
 
             that._render(data);
 
@@ -800,6 +793,13 @@ var __meta__ = { // jshint ignore:line
                     }
                 }
             } else if ((key === keys.DELETE || key === keys.BACKSPACE) && !hasValue) {
+                if (that.options.tagMode === "single") {
+                    that.listView.value([]);
+                    that._change();
+                    that._close();
+                    return;
+                }
+
                 if (key === keys.BACKSPACE && !tag) {
                     tag = $(that.tagList[0].lastChild);
                 }

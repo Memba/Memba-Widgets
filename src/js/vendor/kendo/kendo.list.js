@@ -134,10 +134,8 @@ var __meta__ = { // jshint ignore:line
                 deactivate: proxy(that._deactivateItem, that),
                 dataBinding: function() {
                     that.trigger("dataBinding");
-                    that._angularItems("cleanup");
                 },
                 dataBound: listBoundHandler,
-                listBound: listBoundHandler,
                 height: currentOptions.height,
                 dataValueField: currentOptions.dataValueField,
                 dataTextField: currentOptions.dataTextField,
@@ -148,6 +146,10 @@ var __meta__ = { // jshint ignore:line
 
             if (!options.template) {
                 options.template = "#:" + kendo.expr(options.dataTextField, "data") + "#";
+            }
+
+            if (currentOptions.$angular) {
+                options.$angular = currentOptions.$angular;
             }
 
             return options;
@@ -165,6 +167,7 @@ var __meta__ = { // jshint ignore:line
                 that.listView = new kendo.ui.VirtualList(that.ul, listOptions);
             }
 
+            that.listView.bind("listBound", proxy(that._listBound, that));
             that._setListValue();
         },
 
@@ -1185,12 +1188,12 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var parent = that._parentWidget();
 
-            parent._focused.bind("focus", function() {
+            parent._focused.add(parent.filterInput).bind("focus", function() {
                 parent.unbind(CASCADE, that._cascadeHandlerProxy);
                 parent.first(CHANGE, that._cascadeHandlerProxy);
             });
 
-            parent._focused.bind("focusout", function() {
+            parent._focused.add(parent.filterInput).bind("focusout", function() {
                 parent.unbind(CHANGE, that._cascadeHandlerProxy);
                 parent.first(CASCADE, that._cascadeHandlerProxy);
             });
@@ -2047,6 +2050,7 @@ var __meta__ = { // jshint ignore:line
             var result;
 
             that.trigger("dataBinding");
+            this._angularItems("cleanup");
 
             that._fixedHeader();
 
@@ -2080,6 +2084,7 @@ var __meta__ = { // jshint ignore:line
                 that._valueDeferred.resolve();
             }
 
+            that._angularItems("compile");
             that.trigger("dataBound");
         },
 

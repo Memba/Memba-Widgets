@@ -530,9 +530,9 @@
             showResult: function () {
                 // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
                 return '<div class=".kj-element-result">' +
-                       '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.success + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
-                       '<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.failure + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
-                       '</div>';
+                    '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.success + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
+                    '<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.failure + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
+                    '</div>';
             },
 
             /**
@@ -1299,7 +1299,7 @@
                         })
                         .appendTo(table);
                     var input = $('<div data-role="codeinput" />') // TODO namespace???
-                        // Note: _library is added to the data bound PageComponent in its init method
+                    // Note: _library is added to the data bound PageComponent in its init method
                         .attr($.extend({}, options.attributes, { 'data-bind': 'value: ' + options.field + ', source: _library' })) // TODO namespace???
                         .appendTo(cell);
                     // We need a temporary textbox to calculate the height and align the button
@@ -1950,8 +1950,8 @@
                      // we are using the component size and not the mouse position
                      // therefore, we can only reduce the size proportionnaly, not increase it
                      var rectLimitedByWidth = {
-                        height: Math.round(width * naturalHeight / naturalWidth),
-                        width: Math.round(width)
+                     height: Math.round(width * naturalHeight / naturalWidth),
+                     width: Math.round(width)
                      };
                      // if (rectLimitedByHeight.height * rectLimitedByHeight.width <= rectLimitedByWidth.height * rectLimitedByWidth.width) {
                      if (rectLimitedByHeight.width <= width) {
@@ -1963,15 +1963,15 @@
                         component.set('width', rectLimitedByHeight.width);
                     }
                     /*
-                    } else if(rectLimitedByWidth.height <= height) {
-                         if (height !== rectLimitedByWidth.height) {
-                            component.set('height', rectLimitedByWidth.height);
-                         }
-                         if (width !== rectLimitedByWidth.width) {
-                            component.set('width', rectLimitedByWidth.width);
-                         }
-                    }
-                    */
+                     } else if(rectLimitedByWidth.height <= height) {
+                     if (height !== rectLimitedByWidth.height) {
+                     component.set('height', rectLimitedByWidth.height);
+                     }
+                     if (width !== rectLimitedByWidth.width) {
+                     component.set('width', rectLimitedByWidth.width);
+                     }
+                     }
+                     */
                 }
                 // Set content size
                 content.outerHeight(component.get('height'));
@@ -2193,25 +2193,25 @@
                     content.outerHeight(component.height);
                 }
                 /*
-                // Auto-resize algorithm is not great so let's wait until we find a better solution
-                var data = component.attributes.data;
-                var length = data.trim().split('\n').length || 1;
-                switch (component.attributes.mode) {
-                    case 'button':
-                        content.css('font-size', Math.floor(0.57 * component.height));
-                        break;
-                    case 'dropdown':
-                        content.css('font-size', Math.floor(0.5 * component.height));
-                        break;
-                    case 'radio':
-                        var h = component.height / (length || 1);
-                        content.css('font-size', Math.floor(0.9 * h));
-                        content.find('input')
-                            .height(0.6 * h)
-                            .width(0.6 * h);
-                        break;
-                }
-                */
+                 // Auto-resize algorithm is not great so let's wait until we find a better solution
+                 var data = component.attributes.data;
+                 var length = data.trim().split('\n').length || 1;
+                 switch (component.attributes.mode) {
+                 case 'button':
+                 content.css('font-size', Math.floor(0.57 * component.height));
+                 break;
+                 case 'dropdown':
+                 content.css('font-size', Math.floor(0.5 * component.height));
+                 break;
+                 case 'radio':
+                 var h = component.height / (length || 1);
+                 content.css('font-size', Math.floor(0.9 * h));
+                 content.find('input')
+                 .height(0.6 * h)
+                 .width(0.6 * h);
+                 break;
+                 }
+                 */
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage

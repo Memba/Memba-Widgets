@@ -12,7 +12,7 @@
         './window.assert',
         './window.logger',
         './kidoju.data'
-        // Note: The player does not need the assetmanager, the codeeditor and teh styleeditor
+        // Note: The player does not need the assetmanager, the codeeditor and the styleeditor
         // './kidoju.widgets.assetmanager',
         // './kidoju.widgets.chargrid',
         // './kidoju.widgets.codeeditor',
@@ -250,6 +250,7 @@
             textbox: {
                 description: 'TextBox',
                 attributes: {
+                    mask: { title: 'Mask' },
                     style: { title: 'Style' }
                 },
                 properties: {
@@ -2223,7 +2224,9 @@
         });
         tools.register(Quiz);
 
-        var TEXTBOX = '<input type="text" id="#: properties.name #" class="k-textbox" style="#: attributes.style #" {0}>';
+        // Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
+        // var TEXTBOX = '<input type="text" id="#: properties.name #" data-#= ns #role="maskedtextbox" data-#= ns #mask="#: attributes.mask #" style="#: attributes.style #" {0}>';
+        var TEXTBOX = '<input type="text" id="#: properties.name #" data-#= ns #role="maskedtextbox" data-#= ns #prompt-char="\u25CA" style="#: attributes.style #" {0}>';
         /**
          * @class Textbox tool
          * @type {void|*}
@@ -2241,6 +2244,7 @@
             height: 80,
             width: 300,
             attributes: {
+                mask: new adapters.StringAdapter({ title: i18n.textbox.attributes.mask.title }),
                 style: new adapters.StyleAdapter({ title: i18n.textbox.attributes.style.title })
             },
             properties: {
@@ -2291,6 +2295,14 @@
                     if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
                         content.css('font-size', Math.floor(0.65 * content.height()));
                     }
+                }
+                // This is a trick because of http://docs.telerik.com/kendo-ui/framework/mvvm/overview#important-notes
+                // In other words it is impossible to set a mask that only contains digits declaratively (data-mask attribute)
+                // See also http://docs.telerik.com/kendo-ui/api/javascript/ui/maskedtextbox#configuration-mask
+                var maskedTextBoxWidget = content.data('kendoMaskedTextBox');
+                if (kendo.ui.MaskedTextBox && maskedTextBoxWidget instanceof kendo.ui.MaskedTextBox &&
+                    maskedTextBoxWidget.options.mask !== component.attributes.mask) {
+                    maskedTextBoxWidget.setOptions({ mask: component.attributes.mask });
                 }
                 // prevent any side effect
                 e.preventDefault();

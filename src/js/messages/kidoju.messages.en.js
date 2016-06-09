@@ -415,6 +415,7 @@
                     tools.textbox.constructor.prototype.description = 'TextBox';
                     // Attributes
                     attributes = tools.textbox.constructor.prototype.attributes;
+                    attributes.mask.title = 'Mask';
                     attributes.style.title = 'Style';
                     // Properties
                     properties = tools.textbox.constructor.prototype.properties;

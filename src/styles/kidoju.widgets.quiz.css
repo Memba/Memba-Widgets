@@ -18,5 +18,12 @@
     left: 0.2em;
 }
 .kj-quiz[data-enable="false"] input.k-radio.k-state-disabled {
-    display:none;
+    display: none;
+}
+.km-nova .kj-quiz input[type=radio] {
+    opacity: 0;
+}
+.k-ff .kj-quiz input.k-button {
+    padding-bottom: initial;
+    padding-top: initial;
 }

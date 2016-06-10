@@ -34,3 +34,14 @@
         }
     }
 }
+// Fixes a .k-ff defect in Firefox
+// See https://github.com/kidoju/Kidoju-Widgets/issues/116
+// See https://github.com/jlchereau/Kidoju-Webapp/issues/164
+.k-ff {
+    .kj-quiz {
+        input.k-button {
+            padding-bottom: initial;
+            padding-top: initial;
+        }
+    }
+}

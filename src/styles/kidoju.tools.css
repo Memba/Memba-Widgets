@@ -4,6 +4,9 @@
 .k-popup-edit-form.no-padding .k-edit-form-container {
     width: 100%;
 }
+.k-popup-edit-form.no-padding .k-edit-form-container .kj-assetmanager {
+    border-style: none;
+}
 .k-popup-edit-form.no-padding .k-edit-form-container .kj-codeeditor {
     border-style: none;
 }

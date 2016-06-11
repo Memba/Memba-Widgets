@@ -37,6 +37,10 @@
                 },
                 tabs: {
                     default: 'Projet'
+                },
+                data: {
+                    defaultName: 'Chargement...',
+                    defaultImage: '' // TODO
                 }
             });
         }

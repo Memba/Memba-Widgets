@@ -37,6 +37,10 @@
                 },
                 tabs: {
                     default: 'Project'
+                },
+                data: {
+                    defaultName: 'Uploading...',
+                    defaultImage: '' // TODO
                 }
             });
         }

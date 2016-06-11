@@ -236,6 +236,10 @@
                     },
                     tabs: {
                         default: 'Project'
+                    },
+                    data: {
+                        defaultName: 'Uploading...',
+                        defaultImage: '' // TODO
                     }
                 }
             },
@@ -307,12 +311,8 @@
                 that._tabContent();
                 // Select the first tab, which triggers _onTabSelect
                 that.tabStrip.select(0);
-                // We need to let the UI refresh before we can update the height
-                // Without timer height === 14 in http://localhost:63342/Kidoju.Widgets/src/kidoju.integration.designmode.html
-                setTimeout(function () {
-                    var height = that.fileBrowser.outerHeight();
-                    that.tabStrip.contentHolder(0).height(height);
-                }, 0);
+                // Set the contentHolder height to 'auto' because tabStrip sets it to 0
+                that.tabStrip.contentHolder(0).height('auto');
             },
 
             /**
@@ -621,10 +621,14 @@
              */
             _resetTransport: function (colIndex, subIndex, all) {
 
+                // ATTENTION: If an index.json is downloaded but no image is displayed
+                // possibly index.json is downloaded with Content-Type = binary/octet-stream instead of application/json
+                // and data is therefore not parsed properly as a json stream
+
                 function getTransport(options) {
                     var transport;
                     if (options) {
-                        options.read = typeof options.read === STRING ? { url: options.read } : options.read;
+                        options.read = $.type(options.read) === STRING ? { url: options.read } : options.read;
                         transport = $.isFunction(options.read) ? options : new kendo.data.RemoteTransport(options);
                     } else {
                         transport = new kendo.data.LocalTransport({ data: [] });
@@ -700,8 +704,8 @@
                                 },
                                 name$: function () {
                                     var url = this.get('url');
-                                    if ($.type(url) === UNDEFINED) {
-                                        return 'Uploading...'; // TODO
+                                    if ($.type(url) !== STRING) {
+                                        return that.options.messages.data.defaultName;
                                     }
                                     return nameFormatter(url);
                                 },
@@ -717,8 +721,8 @@
                                 },
                                 url$: function () {
                                     var url = this.get('url');
-                                    if ($.type(url) === UNDEFINED) {
-                                        return 'a file image by default'; // TODO
+                                    if ($.type(url) !== STRING) {
+                                        return that.options.messages.data.defaultImage;
                                     }
                                     return urlFormatter(this.get('url'), that.options.schemes);
                                 }

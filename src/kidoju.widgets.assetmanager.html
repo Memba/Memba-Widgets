@@ -56,6 +56,16 @@
                     {
                         name: 'O-Collection',
                         transport: {
+                            read: 'https://cdn.kidoju.com/images/o_collection/svg/office/index.json'
+                        }
+                    }
+                ],
+                extensions: ['.svg'],
+                /*
+                collections: [
+                    {
+                        name: 'O-Collection',
+                        transport: {
                             read: function (options) {
                                 options.success({
                                     total: 1,
@@ -97,9 +107,10 @@
                     }
                 ],
                 extensions: ['.gif', '.jpg', '.png', '.svg'],
+                */
                 schemes: SCHEMES,
-                // transport: null
-
+                transport: null
+                /*
                 transport: {
                     read: function(options) {
                         options.success({
@@ -132,6 +143,7 @@
                     }
                     // update is same as create
                 }
+                */
 
             });
             kendo.bind('body', viewModel);

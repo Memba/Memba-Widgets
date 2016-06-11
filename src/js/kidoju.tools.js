@@ -812,12 +812,13 @@
                 dialog.content(content);
                 assert.instanceof(PageComponent, settings.model, kendo.format(assert.messages.instanceof.default, 'settings.model', 'kidoju.data.PageComponent'));
                 assert.instanceof(ToolAssets, assets[settings.model.tool], kendo.format(assert.messages.instanceof.default, 'assets[settings.model.tool]', 'kidoju.ToolAssets'));
-                dialog.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets[settings.model.tool]);
+                var assetManagerWidget = dialog.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets[settings.model.tool]).data('kendoAssetManager');
                 kendo.bind(dialog.element, dialog.viewModel);
                 dialog.element.addClass('no-padding');
                 // Bind click handler for edit buttons
                 dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, settings, dialog));
                 // Show dialog
+                assetManagerWidget.tabStrip.activateTab(0);
                 dialog.center().open();
             },
             closeDialog: function (options, dialog, e) {

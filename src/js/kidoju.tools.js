@@ -652,7 +652,6 @@
              * Get a dialog window
              */
             getDialog: function () {
-                var that = this;
                 var dialog = $(DIALOG_CLASS).data('kendoWindow');
                 // Find or create dialog frame
                 if (!(dialog instanceof kendo.ui.Window)) {
@@ -664,7 +663,15 @@
                             modal: true,
                             resizable: false,
                             visible: false,
-                            width: 860
+                            width: 860,
+                            close: function (e) {
+                                // This is a reusable dialog, so we need to make sure it is ready for the next content
+                                dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
+                                dialog.element.removeClass('no-padding');
+                                // The content method destroys widgets and unbinds data
+                                dialog.content('');
+                                dialog.viewModel = undefined;
+                            }
                         })
                         .data('kendoWindow');
                 }
@@ -820,14 +827,7 @@
                     if (command === 'ok') {
                         options.model.set(options.field, dialog.viewModel.get('url'));
                     }
-                    if (command === 'ok' || command === 'cancel') {
-                        dialog.close();
-                        dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
-                        dialog.element.removeClass('no-padding');
-                        // The content method destroys widgets and unbinds data
-                        dialog.content('');
-                        dialog.viewModel = undefined;
-                    }
+                    dialog.close();
                 }
             }
         });
@@ -1254,14 +1254,7 @@
                     if (command === 'ok') {
                         options.model.set(options.field, dialog.viewModel.get('style'));
                     }
-                    if (command === 'ok' || command === 'cancel') {
-                        dialog.close();
-                        dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
-                        dialog.element.removeClass('no-padding');
-                        // The content method destroys widgets and unbinds data
-                        dialog.content('');
-                        dialog.viewModel = undefined;
-                    }
+                    dialog.close();
                 }
             }
         });
@@ -1365,14 +1358,7 @@
                     if (command === 'ok') {
                         options.model.set(options.field, dialog.viewModel.get('code'));
                     }
-                    if (command === 'ok' || command === 'cancel') {
-                        dialog.close();
-                        dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
-                        dialog.element.removeClass('no-padding');
-                        // The content method destroys widgets and unbinds data
-                        dialog.content('');
-                        dialog.viewModel = undefined;
-                    }
+                    dialog.close();
                 }
             }
         });
@@ -1439,14 +1425,7 @@
          if (command === 'ok') {
          options.model.set(options.field, dialog.viewModel.get('chargrid'));
          }
-         if (command === 'ok' || command === 'cancel') {
          dialog.close();
-         dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
-         dialog.element.removeClass('no-padding');
-         // The content method destroys widgets and unbinds data
-         dialog.content('');
-         dialog.viewModel = undefined;
-         }
          }
          },
          library: [

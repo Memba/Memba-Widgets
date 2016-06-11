@@ -274,6 +274,15 @@
             },
 
             /**
+             * Check that we have defined a transport for default tab
+             * @returns {*|AssetManager.options.transport.read}
+             * @private
+             */
+            _hasTransport: function () {
+                return $.isPlainObject(this.options.transport) && $.type(this.options.transport.read) !== UNDEFINED;
+            },
+
+            /**
              * Select an item in the list view
              * @param index
              */
@@ -296,6 +305,14 @@
                 that.element.addClass(WIDGET_CLASS);
                 that._tabStrip();
                 that._tabContent();
+                // Select the first tab, which triggers _onTabSelect
+                that.tabStrip.select(0);
+                // We need to let the UI refresh before we can update the height
+                // Without timer height === 14 in http://localhost:63342/Kidoju.Widgets/src/kidoju.integration.designmode.html
+                setTimeout(function () {
+                    var height = that.fileBrowser.outerHeight();
+                    that.tabStrip.contentHolder(0).height(height);
+                }, 0);
             },
 
             /**
@@ -309,8 +326,10 @@
                 var ul = $('<ul></ul>').appendTo(div);
 
                 // Add default tab
-                ul.append('<li class="k-state-active">' + this.options.messages.tabs.default + '</li>');
-                div.append('<div></div>');
+                if ($.isPlainObject(this.options.transport) && this.options.transport.read) {
+                    ul.append('<li>' + this.options.messages.tabs.default + '</li>');
+                    div.append('<div></div>');
+                }
 
                 // Add a tab per collection
                 for (var i = 0; i < collections.length; i++) {
@@ -398,18 +417,20 @@
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
                 assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
                 assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.ok(that.tabStrip.select() === 0 && that._hasTransport(), 'The asset manager is expected to be configured with a transport with the default tab being activated');
                 var files = e.target.files;
                 if (files instanceof window.FileList && files.length) {
                     // that.trigger(UPLOAD, { files: files });
                     that.listView.element.addClass('k-loading');
-                    for (var i = 0; i < files.length; i++) {
-                        // TODO: Assert we are on the right tab !!!!!
-                        // TODO: Can we have several files???
+                    for (var i = 0; i < files.length; i++) { // How can we have several files???
+                        // TODO Search whether a file with the same name already exists
                         that.dataSource.add({
                             size: files[i].size,
                             file: files[i]
                         });
                     }
+                    // TODO Select the newly added file (possible page to the end of the dataSource)
+
                     // Note: syncing to the dataSource calls the create transport where you should actually upload your file,
                     // update the url and push to the dataSource using the options.success callback
                     // if there is an error, call options.error and cancel changes in the error event raised by the widget
@@ -444,7 +465,8 @@
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
                 assert.instanceof(DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
-                this._resetTransport(this.tabStrip.select().index() - 1, e.sender.selectedIndex /*, false*/);
+                var tabIndex = this.tabStrip.select().index();
+                this._resetTransport(this._hasTransport() ? tabIndex - 1 : tabIndex, e.sender.selectedIndex /*, false*/);
             },
 
             /**
@@ -579,12 +601,12 @@
                 this.fileBrowser.appendTo(this.tabStrip.contentHolder(tabIndex));
 
                 // Show/hide upload and delete buttons which are only available on the default Tab
-                this.fileBrowser.find('div.k-toolbar-wrap>.k-upload').toggle(tabIndex === 0);
-                this.fileBrowser.find('div.k-toolbar-wrap>.k-button').toggle(tabIndex === 0);
-                this.fileBrowser.find('div.k-toolbar-wrap>label').toggle(tabIndex !== 0);
+                this.fileBrowser.find('div.k-toolbar-wrap>.k-upload').toggle(tabIndex === 0 && this._hasTransport());
+                this.fileBrowser.find('div.k-toolbar-wrap>.k-button').toggle(tabIndex === 0 && this._hasTransport());
+                this.fileBrowser.find('div.k-toolbar-wrap>label').toggle(tabIndex > 0 || !this._hasTransport());
 
                 // Change data source transport
-                this._resetTransport(tabIndex - 1, 0, true);
+                this._resetTransport(this._hasTransport() ? tabIndex - 1 : tabIndex, 0, true);
 
                 // refresh pager
                 this.pager.refresh();

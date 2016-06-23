@@ -205,7 +205,7 @@
                         openUrl = 'https://www.facebook.com/dialog/feed' +
                             '?display=popup' +
                             '&app_id=' + facebookAppId +
-                            '&url=' + url +
+                            '&link=' + url +
                             '&picture=' + image +
                             '&name=' + title +
                             '&caption=' + title +

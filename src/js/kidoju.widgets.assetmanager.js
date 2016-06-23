@@ -417,7 +417,7 @@
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
                 assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
                 assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                assert.ok(that.tabStrip.select() === 0 && that._hasTransport(), 'The asset manager is expected to be configured with a transport with the default tab being activated');
+                assert.ok(that.tabStrip.select().index() === 0 && that._hasTransport(), 'The asset manager is expected to be configured with a transport with the default tab being activated');
                 var files = e.target.files;
                 if (files instanceof window.FileList && files.length) {
                     // that.trigger(UPLOAD, { files: files });

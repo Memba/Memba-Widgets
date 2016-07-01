@@ -982,7 +982,7 @@
                             // find all labels
                             var labels = stage.find('.kj-element[' + kendo.attr('tool') + '="label"]>div');
                             labels.each(function (index, label) {
-                                var text = $(label).text();
+                                var text = $(label).html().replace(/<br\/?>/g, ' ');
                                 if ($.type(text) === STRING && text.length) {
                                     texts.push(text);
                                 }
@@ -1975,7 +1975,7 @@
             description: i18n.label.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #">#: attributes.text #</div>'
+                default: '<div style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #">#= (kendo.htmlEncode(attributes.text) || "").replace(/\\n/g, "<br/>") #</div>'
             },
             height: 80,
             width: 300,

@@ -239,18 +239,17 @@
                     if (surfaceElement.length === 0) {
                         // assert.ok(this.element.hasClass(WIDGET_CLASS), 'this._layout should be called before this._ensureSurface');
                         var firstElementWithDraggable = container.children().has(DOT + DRAGGABLE_CLASS).first();
-                        if (firstElementWithDraggable.length) {
-                            surfaceElement = $(DIV)
-                                .addClass(SURFACE_CLASS)
-                                .css({ position: 'absolute', top: 0, left: 0 })
-                                .height(container.height())
-                                .width(container.width());
-                            surfaceElement.insertBefore(firstElementWithDraggable);
-                        }
+                        assert.hasLength(firstElementWithDraggable, kendo.format(assert.messages.hasLength.default, 'firstElementWithDraggable'));
+                        surfaceElement = $(DIV)
+                            .addClass(SURFACE_CLASS)
+                            .css({ position: 'absolute', top: 0, left: 0 })
+                            .height(container.height())
+                            .width(container.width());
+                        surfaceElement.insertBefore(firstElementWithDraggable);
+                        surfaceElement.empty();
+                        surface = kendo.drawing.Surface.create(surfaceElement);
+                        container.data(SURFACE, surface);
                     }
-                    surfaceElement.empty();
-                    surface = kendo.drawing.Surface.create(surfaceElement);
-                    container.data(SURFACE, surface);
                 }
             },
 

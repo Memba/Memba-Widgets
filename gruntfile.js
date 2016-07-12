@@ -40,9 +40,11 @@ module.exports = function (grunt) {
                 */
             }
         },
+        /*
         kendo_lint: {
             files: ['src/js/kidoju.*.js']
         },
+        */
         csslint: {
             strict: {
                 options: {
@@ -189,7 +191,7 @@ module.exports = function (grunt) {
     // Linting
     grunt.loadNpmTasks('grunt-jscs');
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-kendo-lint');
+    // grunt.loadNpmTasks('grunt-kendo-lint');
     grunt.loadNpmTasks('grunt-contrib-csslint');
 
     // Testing
@@ -206,7 +208,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jsdoc');
     // grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
-    grunt.registerTask('lint', ['jscs', 'jshint', 'kendo_lint', 'csslint']);
+    grunt.registerTask('lint', ['jscs', 'jshint', 'csslint']);
     grunt.registerTask('test', ['mocha', 'mochaTest']);
     grunt.registerTask('build', ['clean', 'copy', 'concat', 'uglify', 'cssmin', 'imagemin', 'jsdoc']);
     grunt.registerTask('default', ['lint', 'test', 'build']);

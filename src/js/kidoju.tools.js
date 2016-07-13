@@ -62,10 +62,11 @@
         var RX_HTTP_S = /^https?:\/\//;
         var RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
         var RX_AUDIO = /^(cdn|data):\/\/[\s\S]+.mp3$/i;
-        var RX_COLOR = /^#[0-9a-f]{6}$/i
+        var RX_COLOR = /^#[0-9a-f]{6}$/i;
         var RX_DATA = /\S+/i;
         var RX_DESCRIPTION = /\S+/i; // question
         var RX_DROPVALUE = /\S+/i;
+        var RX_FORMULA = /\S+/i;
         var RX_IMAGE = /^(cdn|data):\/\/[\s\S]+.(gif|jpe?g|png|svg)$/i;
         var RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
         var RX_SOLUTION = /\S+/i;
@@ -607,7 +608,7 @@
                     var messages = this.i18n.messages;
                     var name = properties.name;
                     // TODO: test name? note that all components do not necessarily have a name
-                    if (properties.draggable === true && !/\S+/.test(properties.dropValue)) {
+                    if (properties.draggable === true && !RX_DROPVALUE.test(properties.dropValue)) {
                         ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidDropValue, description, /*name,*/ pageIdx + 1) });
                     }
                     if ($.type(properties.description) === STRING && !RX_DESCRIPTION.test(properties.description)) {
@@ -2310,8 +2311,8 @@
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
                 if (component.attributes) {
-                    if (component.attributes.formula === i18n.mathexpression.attributes.formula.defaultValue) {
-                        // TODO: improve formula validation
+                    if ((component.attributes.formula === i18n.mathexpression.attributes.formula.defaultValue) || !RX_FORMULA.test(component.attributes.formula)) {
+                        // TODO: improve RX_FORMULA
                         ret.push({
                             type: WARNING,
                             index: pageIdx,

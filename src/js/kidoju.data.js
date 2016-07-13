@@ -1612,18 +1612,16 @@
                 }
                 // Validate toolset (which includes _total) to make sure questions are varied
                 var TYPE_VARIETY = 3;
-                if (Object.keys(questions).length <= TYPE_VARIETY + (questions.quiz && questions.checkbox ? 1 : 0)) {
-                    // TODO: Should be a warning
-                    ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.typeVariety, TYPE_VARIETY) });
+                if (Object.keys(questions).length <= TYPE_VARIETY) {
+                    ret.push({ type: WARNING, index: -1, message: kendo.format(this.messages.typeVariety, TYPE_VARIETY) });
                 }
                 var QTY_VARIETY = 0.5;
                 for (var prop in questions) {
                     if (questions.hasOwnProperty(prop) && prop !== '_total') {
                         var proportion =  questions[prop] / questions._total;
                         if (proportion > QTY_VARIETY) {
-                            // TODO: Should be a warning
                             assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
-                            ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.qtyVariety, proportion, kidoju.tools[prop].description) });
+                            ret.push({ type: WARNING, index: -1, message: kendo.format(this.messages.qtyVariety, proportion, kidoju.tools[prop].description) });
                         }
                     }
                 }

@@ -61,6 +61,17 @@
         var CLICK = 'click';
         var RX_HTTP_S = /^https?:\/\//;
         var RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
+        var RX_AUDIO = /^(cdn|data):\/\/[\s\S]+.mp3$/i;
+        var RX_COLOR = /^#[0-9a-f]{6}$/i
+        var RX_DATA = /\S+/i;
+        var RX_DESCRIPTION = /\S+/i; // question
+        var RX_DROPVALUE = /\S+/i;
+        var RX_IMAGE = /^(cdn|data):\/\/[\s\S]+.(gif|jpe?g|png|svg)$/i;
+        var RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
+        var RX_SOLUTION = /\S+/i;
+        var RX_TEXT = /\S+/i;
+        var RX_VALIDATION = /\S+/i;
+        var RX_VIDEO = /^(cdn|data):\/\/[\s\S]+.mp3$/i;
         var FORMULA = 'function validate(value, solution, all) {\n\t{0}\n}';
         var JS_COMMENT = '// ';
         var CUSTOM = {
@@ -101,12 +112,21 @@
             },
 
             messages: {
-                missingDropValue: 'A {0} on page {1} requires a drop value in test logic.',
-                missingDescription: 'A {0} named `{1}` on page {2} requires a question in test logic.',
-                missingSolution: 'A {0} named `{1}` on page {2} requires a solution in test logic.',
-                missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula in test logic.',
-                invalidFailure: 'A {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
-                invalidSuccess: 'A {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.'
+                invalidAltText: 'A(n) {0} on page {1} requires some alternate text in display attributes.',
+                invalidAudioFile: 'A(n) {0} on page {1} requires an mp3 file in display attributes.',
+                invalidColor: 'A(n) {0} on page {1} has an invalid color in display attributes.',
+                invalidData: 'A(n) {0} on page {1} requires values in display attributes.',
+                invalidDescription: 'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
+                invalidDropValue: 'A(n) {0} on page {1} requires a drop value in test logic.',
+                invalidFailure: 'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
+                invalidFormula: 'A(n) {0} on page {1} requires a formula in display attributes.',
+                invalidImageFile: 'A(n) {0} on page {1} requires an image file in display attributes.',
+                invalidSolution: 'A(n) {0} named `{1}` on page {2} requires a solution in test logic.',
+                invalidStyle: 'A(n) {0} on page {1} has an invalid style in display attributes.',
+                invalidSuccess: 'A(n) {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.',
+                invalidText: 'A(n) {0} on page {1} requires some text in display attributes.',
+                invalidValidation: 'A(n) {0} named `{1}` on page {2} requires a validation formula in test logic.',
+                invalidVideoFile: 'A(n) {0} on page {1} requires an mp4 file in display attributes.'
             },
 
             pointer: {
@@ -198,7 +218,7 @@
                 description: 'Image',
                 attributes: {
                     alt: { title: 'Text', defaultValue: 'Image' },
-                    src: { title: 'Source' },
+                    src: { title: 'Source', defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' },
                     style: { title: 'Style' }
                 },
                 properties: {
@@ -222,7 +242,7 @@
             mathexpression: {
                 description: 'Math Expression',
                 attributes: {
-                    formula: { title: 'Formula' },
+                    formula: { title: 'Formula', defaultValue: '#sum_(i=1)^n i^3=((n(n+1))/2)^2#' },
                     style: { title: 'Style' }
                 }
             },
@@ -379,12 +399,21 @@
                     cancel: { text: i18n.dialogs.cancel.text }
                 },
                 messages: {
-                    missingDropValue: i18n.messages.missingDropValue,
-                    missingDescription: i18n.messages.missingDescription,
-                    missingSolution: i18n.messages.missingSolution,
-                    missingValidation: i18n.messages.missingValidation,
+                    invalidAltText: i18n.messages.invalidAltText,
+                    invalidAudioFile: i18n.messages.invalidAudioFile,
+                    invalidColor: i18n.messages.invalidColor,
+                    invalidData: i18n.messages.invalidData,
+                    invalidDescription: i18n.messages.invalidDescription,
+                    invalidDropValue: i18n.messages.invalidDropValue,
                     invalidFailure: i18n.messages.invalidFailure,
-                    invalidSuccess: i18n.messages.invalidSuccess
+                    invalidFormula: i18n.messages.invalidFormula,
+                    invalidImageFile: i18n.messages.invalidImageFile,
+                    invalidSolution: i18n.messages.invalidSolution,
+                    invalidStyle: i18n.messages.invalidStyle,
+                    invalidSuccess: i18n.messages.invalidSuccess,
+                    invalidText: i18n.messages.invalidText,
+                    invalidValidation: i18n.messages.invalidValidation,
+                    invalidVideoFile: i18n.messages.invalidVideoFile
                 }
             },
 
@@ -579,18 +608,18 @@
                     var name = properties.name;
                     // TODO: test name? note that all components do not necessarily have a name
                     if (properties.draggable === true && !/\S+/.test(properties.dropValue)) {
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingDropValue, description, /*name,*/ pageIdx + 1) });
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidDropValue, description, /*name,*/ pageIdx + 1) });
                     }
-                    if ($.type(properties.description) === STRING && !/\S+/.test(properties.description)) {
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingDescription, description, name, pageIdx + 1) });
+                    if ($.type(properties.description) === STRING && !RX_DESCRIPTION.test(properties.description)) {
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidDescription, description, name, pageIdx + 1) });
                     }
-                    if ($.type(properties.solution) === STRING && !/\S+/.test(properties.solution)) {
+                    if ($.type(properties.solution) === STRING && RX_SOLUTION.test(properties.solution)) {
                         // TODO: what if solution is not a string but a number or something else ?
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingSolution, description, name, pageIdx + 1) });
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidSolution, description, name, pageIdx + 1) });
                     }
-                    if ($.type(properties.validation) === STRING && !/\S+/.test(properties.validation)) {
+                    if ($.type(properties.validation) === STRING && !RX_VALIDATION.test(properties.validation)) {
                         // TODO: There is room for better validation of the validation formula
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingValidation, description, name, pageIdx + 1) });
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidValidation, description, name, pageIdx + 1) });
                     }
                     if ($.type(properties.failure) === NUMBER && $.type(properties.omit) === NUMBER && properties.failure > Math.min(properties.omit, 0)) {
                         ret.push({ type: WARNING, index: pageIdx, message: kendo.format(messages.invalidFailure, description, name, pageIdx + 1) });
@@ -1543,7 +1572,30 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if (!RX_AUDIO.test(component.attributes.mp3)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidAudioFile, description, pageIdx + 1)
+                        });
+                    }
+                    // Note: we are not testing for an ogg file
+                }
+                return ret;
             }
+
         });
         tools.register(Audio);
 
@@ -1707,7 +1759,38 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if ((component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle)) ||
+                        (component.attributes.itemStyle && !RX_STYLE.test(component.attributes.itemStyle)) ||
+                        (component.attributes.selectedStyle && !RX_STYLE.test(component.attributes.selectedStyle))) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                    if (!RX_DATA.test(component.attributes.data)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidData, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
+
         });
         tools.register(CheckBox);
 
@@ -1767,6 +1850,27 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if (component.attributes.color && !RX_COLOR.test(component.attributes.color)) {
+                        ret.push({
+                            type: WARNING,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidColor, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
 
         });
@@ -1844,7 +1948,30 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    // Note: any text is acceptable
+                    if (component.attributes.style && !RX_STYLE.test(component.attributes.style)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
+
         });
         tools.register(DropZone);
 
@@ -1864,7 +1991,7 @@
             width: 250,
             attributes: {
                 alt: new adapters.StringAdapter({ title: i18n.image.attributes.alt.title, defaultValue: i18n.image.attributes.alt.defaultValue }),
-                src: new adapters.AssetAdapter({ title: i18n.image.attributes.src.title, defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' }),
+                src: new adapters.AssetAdapter({ title: i18n.image.attributes.src.title, defaultValue: i18n.image.attributes.src.defaultValue }),
                 style: new adapters.StyleAdapter({ title: i18n.image.attributes.style.title })
             },
             properties: {
@@ -1961,7 +2088,43 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if ((component.attributes.alt === i18n.image.attributes.alt.defaultValue) || !RX_TEXT.test(component.attributes.alt)) {
+                        ret.push({
+                            type: WARNING,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidAltText, description, pageIdx + 1)
+                        });
+                    }
+                    if ((component.attributes.src === i18n.image.attributes.src.defaultValue) || !RX_IMAGE.test(component.attributes.src)) {
+                        ret.push({
+                            type: (component.attributes.src === i18n.image.attributes.src.defaultValue) ? WARNING : ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidImageFile, description, pageIdx + 1)
+                        });
+                    }
+                    if (component.attributes.style && !RX_STYLE.test(component.attributes.style)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
+
         });
         tools.register(Image);
 
@@ -2058,6 +2221,35 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if ((component.attributes.text === i18n.label.attributes.text.defaultValue) || !RX_TEXT.test(component.attributes.text)) {
+                        ret.push({
+                            type: WARNING,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidText, description, pageIdx + 1)
+                        });
+                    }
+                    if (component.attributes.style && !RX_STYLE.test(component.attributes.style)) {
+                        // TODO: test small font-size incompatible with mobile devices
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
 
         });
@@ -2079,7 +2271,7 @@
             width: 480,
             attributes: {
                 formula: new adapters.TextAdapter(
-                    { title: i18n.mathexpression.attributes.formula.title, defaultValue: '#sum_(i=1)^n i^3=((n(n+1))/2)^2#' },
+                    { title: i18n.mathexpression.attributes.formula.title, defaultValue: i18n.mathexpression.attributes.formula.defaultValue },
                     { rows: 4, style: 'resize:vertical; width: 100%;' }
                 ),
                 style: new adapters.StyleAdapter({ title: i18n.mathexpression.attributes.style.title, defaultValue: 'font-size: 40px;' })
@@ -2106,6 +2298,35 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if (component.attributes.formula === i18n.mathexpression.attributes.formula.defaultValue) {
+                        // TODO: improve formula validation
+                        ret.push({
+                            type: WARNING,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidFormula, description, pageIdx + 1)
+                        });
+                    }
+                    if (component.attributes.style && !RX_STYLE.test(component.attributes.style)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
 
         });
@@ -2197,9 +2418,39 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
-            }
+            },
 
             /* jshint +W074 */
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if ((component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle)) ||
+                        (component.attributes.itemStyle && !RX_STYLE.test(component.attributes.itemStyle)) ||
+                        (component.attributes.selectedStyle && !RX_STYLE.test(component.attributes.selectedStyle))) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                    if (!RX_DATA.test(component.attributes.data)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidData, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
+            }
 
         });
         tools.register(Quiz);
@@ -2288,7 +2539,30 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    // Note: we are allowing any mask
+                    if ((component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
+
         });
         tools.register(Textbox);
 
@@ -2384,18 +2658,41 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if (!RX_VIDEO.test(component.attributes.mp4)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidVideoFile, description, pageIdx + 1)
+                        });
+                    }
+                    // Note: we are not testing for an ogv or wbem file
+                }
+                return ret;
             }
+
         });
         tools.register(Video);
 
         /**
          * We could also consider
-         * Better Textbox with masked inputs
-         * HTML
+         * HTML from Markdown (lists, tec)
          * Drawing surface
          * Shape
          * Clock
          * Text-to-Speech
+         * Geogebra
          * Spreadsheet
          * Charts
          */

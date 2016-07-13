@@ -253,12 +253,21 @@
                         cancel: { text: 'Annuler' }
                     },
                     messages: {
-                        missingDropValue: 'Une {0} en page {1} nécessite une valeur de dépôt dans la logique de test.',
-                        missingDescription: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une question dans la logique de test.',
-                        missingSolution: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une solution dans la logique de test.',
-                        missingValidation: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une formule de validation dans la logique de test.',
+                        invalidAltText: 'Un(e) {0} en page {1} nécessite un texte alternatif dans les attributs d\'affichage.',
+                        invalidAudioFile: 'Un(e) {0} en page {1} nécessite un fichier mp3 dans les attributs d\'affichage.',
+                        invalidColor: 'Un(e) {0} on page {1} a une couleur invalide dans les attributs d\'affichage.',
+                        invalidData: 'Un(e) {0} en page {1} nécessite des valeurs dans les attributs d\'affichage.',
+                        invalidDescription: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une question dans la logique de test.',
+                        invalidDropValue: 'Une {0} en page {1} nécessite une valeur de dépôt dans la logique de test.',
                         invalidFailure: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score d\'échec supérieur au score d\'omission ou zéro dans la logique de test.',
-                        invalidSuccess: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score de succès inférieur au score d\'omission ou zéro dans la logique de test.'
+                        invalidFormula: 'Un(e) {0} on page {1} nécessite une formule dans les attributs d\'affichage.',
+                        invalidImageFile: 'Un(e) {0} en page {1} nécessite un fichier image dans les attributs d\'affichage.',
+                        invalidSolution: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une solution dans la logique de test.',
+                        invalidStyle: 'Un(e) {0} en page {1} a un style invalide dans les attributs d\'affichage.',
+                        invalidSuccess: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score de succès inférieur au score d\'omission ou zéro dans la logique de test.',
+                        invalidText: 'Un(e) {0} en page {1} nécessite un texte dans les attributs d\'affichage.',
+                        invalidValidation: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une formule de validation dans la logique de test.',
+                        invalidVideoFile: 'Un(e) {0} en page {1} nécessite un fichier mp4 dans les attributs d\'affichage.'
                     }
                 });
             }
@@ -361,6 +370,7 @@
                     attributes.alt.title = 'Texte';
                     attributes.alt.defaultValue = 'Image';
                     attributes.src.title = 'Source';
+                    attributes.src.defaultValue = 'cdn://images/o_collection/svg/office/painting_landscape.svg';
                     attributes.style.title = 'Style';
                     // Properties
                     properties = tools.image.constructor.prototype.properties;
@@ -388,6 +398,7 @@
                     // Attributes
                     attributes = tools.mathexpression.constructor.prototype.attributes;
                     attributes.formula.title = 'Formule';
+                    attributes.formula.defaultValue = '#sum_(i=1)^n i^3=((n(n+1))/2)^2#';
                     attributes.style.title = 'Style';
                 }
 

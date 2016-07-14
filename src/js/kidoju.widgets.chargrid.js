@@ -35,7 +35,7 @@
         var NULL = 'null';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
-        var CLICK = 'click';
+        var MOUSEUP = 'mouseup';
         var KEYPRESS = 'keypress';
         var KEYDOWN = 'keydown';
         var BLUR = 'blur';
@@ -122,7 +122,6 @@
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
                 that._setValue(this.options.value);
-                that._addFocus();
                 that._layout();
                 // kendo.notify(that);
             },
@@ -139,7 +138,6 @@
                 rows: 4,
                 blank: '.',
                 whitelist: '1-9',
-                // TODO headings: false,
                 gridFill: '#cce6ff',
                 gridStroke: '#000000',
                 blankFill: '#000000',
@@ -147,7 +145,6 @@
                 lockedFill: '#e6e6e6',
                 lockedChar: '#9999b6',
                 valueChar: '#9999b6',
-                // successStroke and failureStroke in review mode ????
                 locked: [],
                 value: [],
                 enable: true
@@ -301,32 +298,6 @@
             },
 
             /**
-             * Add focus
-             * Note: this offers the ability to:
-             * 1. do that.element.focus() and that.element.blur()
-             * 2. capture keypress events
-             * @private
-             */
-            _addFocus: function () {
-                if ($.type(this.element.prop('tabindex')) === UNDEFINED) {
-                    this.element.prop('tabindex', 0);
-                }
-            },
-
-            /**
-             * Make sure to unselect the selected cell
-             * @param e
-             * @private
-             */
-            _onBlur: function (e) {
-                // relatedTarget is used to handle behaviour that is specific to IE and Edge
-                // In IE and edge, if relatedTarget is an SVG Element and if this SVG element is inside the widget element, the event should be discarded
-                if (!(e.relatedTarget instanceof window.SVGSVGElement) || this.element.has($(e.relatedTarget)).length === 0) {
-                    this.select(-1, -1);
-                }
-            },
-
-            /**
              * Builds the widget layout
              * @private
              */
@@ -337,6 +308,9 @@
                 that.wrapper = element;
                 element.addClass(WIDGET_CLASS);
                 that.surface = drawing.Surface.create(that.element);
+                // Note: we need an input to trigger the virtual keyboard on mobile devices
+                that.input = $('<input type="text" style="position:absolute;left:-5000px;">')
+                    .prependTo(that.element);
                 that.enable(options.enable);
                 that.refresh();
             },
@@ -348,11 +322,15 @@
             enable: function (enabled) {
                 var that = this;
                 var element = that.element;
+                var input = that.input;
                 element.off(NS);
+                input.off(NS);
                 if (enabled) {
-                    // Note: we handle the click on the DOM element, not the drawing surface
+                    // Note: we handle the mouseup on the DOM element, not the drawing surface
+                    // Note: We need mouseup to occur after the blur event herebelow when changing cells
                     element
-                        .on(CLICK + NS, $.proxy(that._onSurfaceClick, that))
+                        .on(MOUSEUP + NS, $.proxy(that._onMouseUp, that));
+                    input
                         .on(KEYDOWN + NS, $.proxy(that._onKeyDown, that))
                         .on(KEYPRESS + NS, $.proxy(that._onKeyPress, that))
                         .on(BLUR + NS, $.proxy(that._onBlur, that));
@@ -548,22 +526,23 @@
                 var columns = options.columns;
                 if ((col >= 0 && col < columns) && (row >= 0 && row < rows) && !that.isLocked(col, row)) {
                     that._selectedCell = { col: col, row: row };
-                    that.element.focus();
+                    that.input.focus();
                 } else {
                     that._selectedCell = undefined;
-                    if (that.element.is(':focus')) { // This test avoids a call stack size exceeded because of teh foucusout event handler
-                        that.element.blur();
+                    if (that.input.is(':focus')) { // This test avoids a call stack size exceeded because of the foucusout event handler
+                        that.input.blur();
                     }
                 }
                 that.refresh();
             },
 
             /**
-             * Click event handler
+             * MouseUp event handler
+             * Note: we need mouseup to occur after the blur event on the concealed input
              * @param e
              * @private
              */
-            _onSurfaceClick: function (e) {
+            _onMouseUp: function (e) {
                 var that = this;
                 var element = that.element;
                 var height = element.height();
@@ -577,7 +556,6 @@
                 var container = that.element.closest(options.container);
                 assert.hasLength(container, kendo.format(assert.messages.hasLength.default, 'container'));
                 var containerOffset = container.offset();
-                // TODO: consider headings a, b, c, 1, 2, 3 as in in Excel which add 1 row + 1 col
                 var mouse = util.getMousePosition(e, container);
                 var col = Math.floor((containerOffset.left + mouse.x - offset.left) * columns / width / scale);
                 var row = Math.floor((containerOffset.top + mouse.y - offset.top) * rows / height / scale);
@@ -588,7 +566,7 @@
             /* jshint -W073 */
 
             /**
-             * Key down event handler
+             * KeyDown event handler
              * Note: Delete and arrows only trigger the keydown event
              * @param e
              * @private
@@ -596,7 +574,7 @@
             _onKeyDown: function (e) {
                 /* jshint maxcomplexity: 10 */
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                assert.ok(this.element.is(':focus'), '`this.element` is expected to have focus');
+                assert.ok(this.input.is(':focus'), '`this.input` is expected to have focus');
                 var that = this;
                 var options = that.options;
                 var columns = options.columns;
@@ -605,24 +583,24 @@
                 var row = that._selectedCell && that._selectedCell.row;
                 if ($.type(col) === NUMBER && col >= 0 && col < columns &&
                     $.type(row) === NUMBER && row >= 0 && row < rows) {
-                    var done = false;
+                    var captured = false;
                     if (e.which === 37 && col > 0 && !that.isLocked(col - 1, row)) { // Arrow left
                         that.select(col - 1, row);
-                        done = true;
+                        captured = true;
                     } else if (e.which === 38 && row > 0 && !that.isLocked(col, row - 1)) { // Arrow up
                         that.select(col, row - 1);
-                        done = true;
+                        captured = true;
                     } else if (e.which === 39 && col < columns - 1 && !that.isLocked(col + 1, row)) { // Arrow right
                         that.select(col + 1, row);
-                        done = true;
+                        captured = true;
                     } else if (e.which === 40 && row < rows - 1 && !that.isLocked(col, row + 1)) { // Arrow down
                         that.select(col, row + 1);
-                        done = true;
+                        captured = true;
                     } else if ((e.which === 8 || e.which === 32 || e.which === 46) && !that.isLocked(col, row)) { // Backspace, Space or Delete
                         that.cellValue(col, row, null);
-                        done = true;
+                        captured = true;
                     }
-                    if (done) {
+                    if (captured) {
                         e.preventDefault();
                         e.stopPropagation();
                     }
@@ -632,13 +610,14 @@
             /* jshint +W073 */
 
             /**
-             * Key press event handler (required to get correct values from numeric keypad)
+             * KeyPress event handler
+             * Note: required to get correct values from numeric key pad
              * @param e
              * @private
              */
             _onKeyPress: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                // assert.ok(this.element.is(':focus'), '`this.element` is expected to have focus');
+                assert.ok(this.input.is(':focus'), '`this.input` is expected to have focus');
                 var that = this;
                 var options = that.options;
                 var columns = options.columns;
@@ -654,6 +633,24 @@
                         that.cellValue(col, row, char);
                     }
                 }
+                // No need to fill the input
+                e.preventDefault();
+                e.stopPropagation();
+            },
+
+            /**
+             * Make sure to unselect the selected cell
+             * @param e
+             * @private
+             */
+            _onBlur: function (e) {
+                // relatedTarget is used to handle behaviour that is specific to IE and Edge
+                // In IE and edge, if relatedTarget is an SVG Element and if this SVG element is inside the widget element, the event should be discarded
+                // See https://developer.mozilla.org/en/docs/Web/API/SVGSVGElement
+                // if (!(e.relatedTarget instanceof window.SVGSVGElement) || this.element.has($(e.relatedTarget)).length === 0) {
+
+                this.select(-1, -1);
+                // }
             },
 
             /**
@@ -664,12 +661,11 @@
                 var that = this;
                 var element = that.element;
                 Widget.fn.destroy.call(that);
+                // unbind events
+                that.enable(false);
                 // unbind and destroy all descendants
                 kendo.unbind(element);
                 kendo.destroy(element);
-                // unbind all other events (probably redundant)
-                element.find('*').off();
-                element.off();
                 // remove descendants
                 element.empty();
                 // remove widget class

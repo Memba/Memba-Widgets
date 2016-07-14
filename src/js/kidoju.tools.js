@@ -1397,77 +1397,75 @@
         /**
          * CharGrid adapter
          */
-        /*
-         adapters.CharGridAdapter = BaseAdapter.extend({
-         init: function (options) {
-         var that = this;
-         BaseAdapter.fn.init.call(that, options);
-         that.type = undefined;
-         that.editor = function (container, options) {
-         $('<button/>')
-         .text('...')
-         .addClass('k-button')
-         .css({ margin: 0, width: '100%' })
-         .appendTo(container)
-         .on(CLICK, $.proxy(that.showDialog, that, options));
-         };
-         },
-         showDialog: function (options/,evt/) {
-         var that = this;
-         var dialog = that.getDialog();
-         var model = options.model;
-         // Build data (resize array especially after changing rows and columns)
-         var columns = model.get('attributes.columns');
-         var rows = model.get('attributes.rows');
-         var whitelist = model.get('attributes.whitelist');
-         var layout = model.get('attributes.layout');
-         var data = model.get(options.field);
-         // Create viewModel (Cancel shall not save changes to main model)
-         dialog.viewModel = kendo.observable({
-         chargrid: kendo.ui.CharGrid._getCharGridArray(columns, rows, whitelist, layout, data)
-         });
-         // Prepare UI
-         dialog.title(options.title);
-         var content = '<div class="k-edit-form-container">' + // TODO namespace???
-         '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-edit-form-container" data-container=".k-edit-form-container" ' +
-         'data-columns="' + model.get('attributes.columns') + '" data-rows="' + model.get('attributes.rows') + '" ' +
-         'data-blank="' + model.get('attributes.blank') + '" ' +
-         'data-whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
-         (options.field === 'properties.solution' ? 'data-locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
-         // TODO Add colors
-         'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;"></div>' +
-         '<div class="k-edit-buttons k-state-default">' +
-         '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
-         '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
-         '</div></div>';
-         // TODO: Add user instructions
-         dialog.content(content);
-         kendo.bind(dialog.element, dialog.viewModel);
-         dialog.element.addClass('no-padding');
-         // Bind click handler for edit buttons
-         dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
-         // Show dialog
-         dialog.center().open();
-         },
-         closeDialog: function (options, dialog, e) {
-         var that = this;
-         if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
-         var command = $(e.target).attr(kendo.attr('command'));
-         if (command === 'ok') {
-         options.model.set(options.field, dialog.viewModel.get('chargrid'));
-         }
-         dialog.close();
-         }
-         },
-         library: [
-         {
-         name: 'equal',
-         formula: kendo.format(FORMULA, 'return value && typeof value.equals === "function" && value.equals(solution);')
-         }
-         ],
-         libraryDefault: 'equal'
-         });
-         */
+        adapters.CharGridAdapter = BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = undefined;
+                that.editor = function (container, options) {
+                    $('<button/>')
+                        .text('...')
+                        .addClass('k-button')
+                        .css({ margin: 0, width: '100%' })
+                        .appendTo(container)
+                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                };
+            },
+            showDialog: function (options, evt) {
+                var that = this;
+                var dialog = that.getDialog();
+                var model = options.model;
+                // Build data (resize array especially after changing rows and columns)
+                var columns = model.get('attributes.columns');
+                var rows = model.get('attributes.rows');
+                var whitelist = model.get('attributes.whitelist');
+                var layout = model.get('attributes.layout');
+                var data = model.get(options.field);
+                // Create viewModel (Cancel shall not save changes to main model)
+                dialog.viewModel = kendo.observable({
+                    chargrid: kendo.ui.CharGrid._getCharGridArray(columns, rows, whitelist, layout, data)
+                });
+                // Prepare UI
+                dialog.title(options.title);
+                var content = '<div class="k-edit-form-container">' + // TODO namespace???
+                    '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-edit-form-container" data-container=".k-edit-form-container" ' +
+                    'data-columns="' + model.get('attributes.columns') + '" data-rows="' + model.get('attributes.rows') + '" ' +
+                    'data-blank="' + model.get('attributes.blank') + '" ' +
+                    'data-whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
+                    (options.field === 'properties.solution' ? 'data-locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
+                    // TODO Add colors
+                    'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;"></div>' +
+                    '<div class="k-edit-buttons k-state-default">' +
+                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
+                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
+                    '</div></div>';
+                // TODO: Add user instructions
+                dialog.content(content);
+                kendo.bind(dialog.element, dialog.viewModel);
+                dialog.element.addClass('no-padding');
+                // Bind click handler for edit buttons
+                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                // Show dialog
+                dialog.center().open();
+            },
+            closeDialog: function (options, dialog, e) {
+                var that = this;
+                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
+                    var command = $(e.target).attr(kendo.attr('command'));
+                    if (command === 'ok') {
+                        options.model.set(options.field, dialog.viewModel.get('chargrid'));
+                    }
+                    dialog.close();
+                }
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(FORMULA, 'return value && typeof value.equals === "function" && value.equals(solution);')
+                }
+            ],
+            libraryDefault: 'equal'
+        });
 
         /*******************************************************************************************
          * Tool classes
@@ -1600,84 +1598,79 @@
         });
         tools.register(Audio);
 
-        // var CHARGRID = '<div data-#= ns #role="chargrid" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-role=stage]" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" {0}></div>';
+        var CHARGRID = '<div data-#= ns #role="chargrid" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-role=stage]" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" {0}></div>';
         /**
          * @class CharGrid tool
          * @type {void|*}
          */
-        /*
-         var CharGrid = Tool.extend({
-         id: 'chargrid',
-         icon: 'dot_matrix',
-         description: i18n.chargrid.description,
-         cursor: CURSOR_CROSSHAIR,
-         templates: {
-         design: kendo.format(CHARGRID, 'data-#= ns #value="#: JSON.stringify(attributes.layout) #" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'),
-         play: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #"'),
-         review: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"') + Tool.fn.showResult()
-         },
-         height: 100,
-         width: 100,
-         attributes: {
-         rows: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.rows.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
-         columns: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.columns.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
-         blank: new adapters.StringAdapter({ title: i18n.chargrid.attributes.blank.title, defaultValue: '.' }),
-         whitelist: new adapters.StringAdapter({ title: i18n.chargrid.attributes.whitelist.title, defaultValue: '1-9' }),
-         layout: new adapters.CharGridAdapter({ title: i18n.chargrid.attributes.layout.title, defaultValue: null }),
-         gridFill: new adapters.ColorAdapter({ title: 'color', defaultValue: '#000000' })
-         },
-         properties: {
-         name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
-         description: new adapters.DescriptionAdapter({ title: i18n.chargrid.properties.description.title }),
-         solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
-         validation: new adapters.ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
-         success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
-         failure: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.failure.title, defaultValue: 0 }),
-         omit: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.omit.title, defaultValue: 0 })
-         },
-         */
-        /**
-         * Get the default value when playing the component as part of a test
-         * @param component
-         */
-        /*
-         getTestDefaultValue: function (component) {
-         assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-         return component.attributes.layout && $.isFunction(component.attributes.layout.slice) ? component.attributes.layout.slice(0) : undefined;
-         },
-         */
+        var CharGrid = Tool.extend({
+            id: 'chargrid',
+            icon: 'dot_matrix',
+            description: i18n.chargrid.description,
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                design: kendo.format(CHARGRID, 'data-#= ns #value="#: JSON.stringify(attributes.layout) #" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'),
+                play: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #"'),
+                review: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"') + Tool.fn.showResult()
+            },
+            height: 400,
+            width: 400,
+            attributes: {
+                rows: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.rows.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
+                columns: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.columns.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
+                blank: new adapters.StringAdapter({ title: i18n.chargrid.attributes.blank.title, defaultValue: '.' }),
+                whitelist: new adapters.StringAdapter({ title: i18n.chargrid.attributes.whitelist.title, defaultValue: '1-9' }),
+                layout: new adapters.CharGridAdapter({ title: i18n.chargrid.attributes.layout.title, defaultValue: null }),
+                gridFill: new adapters.ColorAdapter({ title: 'color', defaultValue: '#000000' })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.chargrid.properties.description.title }),
+                solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.omit.title, defaultValue: 0 })
+            },
 
-        /**
-         * onResize Event Handler
-         * @method onResize
-         * @param e
-         * @param component
-         */
-        /*
-         onResize: function (e, component) {
-         var stageElement = $(e.currentTarget);
-         assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
-         assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-         var content = stageElement.children('div.kj-chargrid');
-         if ($.type(component.width) === NUMBER) {
-         content.outerWidth(component.width);
-         }
-         if ($.type(component.height) === NUMBER) {
-         content.outerHeight(component.height);
-         }
-         // Redraw the charGrid widget
-         var charGridWidget = content.data('kendoCharGrid');
-         assert.instanceof(kendo.ui.CharGrid, charGridWidget, kendo.format(assert.messages.instanceof.default, 'charGridWidget', 'kendo.ui.CharGrid'));
-         charGridWidget.refresh();
-         // prevent any side effect
-         e.preventDefault();
-         // prevent event to bubble on stage
-         e.stopPropagation();
-         }
+            /**
+             * Get the default value when playing the component as part of a test
+             * @param component
+             */
+            getTestDefaultValue: function (component) {
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                return component.attributes.layout && $.isFunction(component.attributes.layout.slice) ? component.attributes.layout.slice(0) : undefined;
+            },
 
-         });
-         tools.register(CharGrid);
-         */
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div.kj-chargrid');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                }
+                // Redraw the charGrid widget
+                var charGridWidget = content.data('kendoCharGrid');
+                assert.instanceof(kendo.ui.CharGrid, charGridWidget, kendo.format(assert.messages.instanceof.default, 'charGridWidget', 'kendo.ui.CharGrid'));
+                charGridWidget.refresh();
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            }
+
+        });
+        tools.register(CharGrid);
 
         var CHECKBOX = '<div data-#= ns #role="multicheckbox" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #"></div>';
         /**

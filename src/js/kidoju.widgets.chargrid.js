@@ -563,21 +563,28 @@
                 var options = that.options;
                 var rows = options.rows;
                 var columns = options.columns;
-                var scroll = {
-                    left: $(window).scrollLeft(),
-                    top: $(window).scrollTop()
-                };
                 if ((col >= 0 && col < columns) && (row >= 0 && row < rows) && !that.isLocked(col, row)) {
+                    var scroll = {
+                        left: $(window).scrollLeft(),
+                        top: $(window).scrollTop()
+                    };
                     that._selectedCell = { col: col, row: row };
                     that.input.focus();
-                } else {
+                    // that.input.select();
+                    // Note: that.input.focus() triggers a scroll, so we need to fix that
+                    // that.input.select() behaves like focus in Firefox and IE/Edge, so it also requires fixing scroll
+                    // TODO: This is not working properly in IE and Edge where scrolling occurs anyway - https://github.com/kidoju/Kidoju-Widgets/issues/119
+                    // Note: the scroll event is not cancelable with e.preventDefault()
+                    $(window).scrollLeft(scroll.left);
+                    $(window).scrollTop(scroll.top);
+                }
+                else {
                     that._selectedCell = undefined;
-                    if (that.input.is(':focus')) { // This test avoids a call stack size exceeded because of the foucusout event handler
+                    if (that.input.is(':focus')) {
+                        // This is called from _onBlur so we need to prevent a stack overflow
                         that.input.blur();
                     }
                 }
-                // Note: that.input.focus() triggers a scroll, so we need to fix that
-                window.scrollTo(scroll.left, scroll.top);
                 that.refresh();
             },
 

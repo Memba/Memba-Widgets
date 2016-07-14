@@ -182,8 +182,8 @@
                 blankFill: '#000000',
                 selectedFill: '#ffffcc',
                 lockedFill: '#e6e6e6',
-                lockedChar: '#9999b6',
-                valueChar: '#9999b6',
+                lockedColor: '#9999b6',
+                valueColor: '#9999b6',
                 locked: [],
                 value: [],
                 enable: true
@@ -481,7 +481,8 @@
                     var fontSize = Math.floor(0.75 * height / rows);
                     var params = {
                         font:  fontSize + 'px "Open Sans", sans-serif',
-                        stroke: that.isLocked(col, row) ? { color: options.lockedChar, width: 2 } : { color: options.valueChar, width: 2 }
+                        stroke: that.isLocked(col, row) ? { color: options.lockedColor, width: 1 } : { color: options.valueColor, width: 1 },
+                        fill: that.isLocked(col, row) ? { color: options.lockedColor } : { color: options.valueColor }
                     };
                     var text = new drawing.Text(char, new geometry.Point(0, 0), params);
                     var size = text.bbox().size;
@@ -619,7 +620,7 @@
                 };
                 // Project the mouse coordinates to annihilate the rotation and find col and row
                 var col = Math.floor((width / 2 + pos.x * Math.cos(rotate) + pos.y * Math.sin(rotate)) * columns / width);
-                var row = Math.floor((height / 2 - pos.x * Math.sin(rotate) + pos.y * Math.cos(rotate)) * rows / width);
+                var row = Math.floor((height / 2 - pos.x * Math.sin(rotate) + pos.y * Math.cos(rotate)) * rows / height);
                 that.select(col, row);
                 e.preventDefault();
                 e.stopPropagation();

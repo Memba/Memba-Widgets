@@ -150,7 +150,14 @@
                     columns: { title: 'Columns' },
                     layout: { title: 'Layout' },
                     rows: { title: 'Rows' },
-                    whitelist: { title: 'Whitelist' }
+                    whitelist: { title: 'Whitelist' },
+                    gridFill: { title: 'Grid Fill' },
+                    gridStroke: { title: 'Grid Stroke' },
+                    // blankFill = gridStroke
+                    selectedFill: { title: 'Selection Fill' },
+                    lockedFill: { title: 'Locked Fill' },
+                    // lockedColor = valueColor = fontColor
+                    fontColor: { title: 'Font Color' }
                 },
                 properties: {
                     name: { title: 'Name' },
@@ -551,7 +558,8 @@
              * @param component
              */
             getTestDefaultValue: function (component) {
-                return; // TODO: review - is this used anywhere?
+                // TODO: consider removing as it seems useless
+                return;
             },
 
             /**
@@ -1598,7 +1606,7 @@
         });
         tools.register(Audio);
 
-        var CHARGRID = '<div data-#= ns #role="chargrid" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-role=stage]" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" {0}></div>';
+        var CHARGRID = '<div data-#= ns #role="chargrid" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-role=stage]" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" data-#= ns #grid-fill="#: attributes.gridFill #" data-#= ns #grid-stroke="#: attributes.gridStroke #" data-#= ns #blank-fill="#: attributes.gridStroke #" data-#= ns #selected-fill="#: attributes.selectedFill #" data-#= ns #locked-fill="#: attributes.lockedFill #" data-#= ns #locked-color="#: attributes.fontColor #" data-#= ns #value-color="#: attributes.fontColor #" {0}></div>';
         /**
          * @class CharGrid tool
          * @type {void|*}
@@ -1621,7 +1629,13 @@
                 blank: new adapters.StringAdapter({ title: i18n.chargrid.attributes.blank.title, defaultValue: '.' }),
                 whitelist: new adapters.StringAdapter({ title: i18n.chargrid.attributes.whitelist.title, defaultValue: '1-9' }),
                 layout: new adapters.CharGridAdapter({ title: i18n.chargrid.attributes.layout.title, defaultValue: null }),
-                gridFill: new adapters.ColorAdapter({ title: 'color', defaultValue: '#000000' })
+                gridFill: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.gridFill.title, defaultValue: '#ffffff' }),
+                gridStroke: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.gridStroke.title, defaultValue: '#000000' }),
+                // blankFill = gridStroke
+                selectedFill: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.selectedFill.title, defaultValue: '#ffffcc' }),
+                lockedFill: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.lockedFill.title, defaultValue: '#e6e6e6' }),
+                // lockedColor = valueColor = fontColor
+                fontColor: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.fontColor.title, defaultValue: '#9999b6' })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
@@ -1631,15 +1645,6 @@
                 success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.omit.title, defaultValue: 0 })
-            },
-
-            /**
-             * Get the default value when playing the component as part of a test
-             * @param component
-             */
-            getTestDefaultValue: function (component) {
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                return component.attributes.layout && $.isFunction(component.attributes.layout.slice) ? component.attributes.layout.slice(0) : undefined;
             },
 
             /**

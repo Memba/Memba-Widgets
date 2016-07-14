@@ -295,6 +295,13 @@
                     attributes.layout.title = 'Layout';
                     attributes.rows.title = 'Rows';
                     attributes.whitelist.title = 'Whitelist';
+                    attributes.gridFill.title = 'Grid Fill';
+                    attributes.gridStroke.title = 'Grid Stroke';
+                    // blankFill = gridStroke
+                    attributes.selectedFill.title = 'Selection Fill';
+                    attributes.lockedFill.title = 'Locked Fill';
+                    // lockedColor = valueColor = fontColor
+                    attributes.fontColor.title = 'Font Color';
                     // Properties
                     properties = tools.chargrid.constructor.prototype.attributes;
                     properties.name.title = 'Name';

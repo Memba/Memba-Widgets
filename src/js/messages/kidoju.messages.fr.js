@@ -294,6 +294,13 @@
                     attributes.layout.title = 'Mise en Page';
                     attributes.rows.title = 'Lignes';
                     attributes.whitelist.title = 'Caractères';
+                    attributes.gridFill.title = 'Fond de Grille';
+                    attributes.gridStroke.title = 'Contour de Grille';
+                    // blankFill = gridStroke
+                    attributes.selectedFill.title = 'Fond Sélectionné';
+                    attributes.lockedFill.title = 'Fond Vérouillé';
+                    // lockedColor = valueColor = fontColor
+                    attributes.fontColor.title = 'Couleur Police';
                     // Properties
                     properties = tools.chargrid.constructor.prototype.attributes;
                     properties.name.title = 'Nom';

@@ -130,7 +130,7 @@
                 // $(element).css('transform') returns a matrix, so we have to read the style attribute
                 var match = (element.attr('style') || '').match(/rotate\([\s]*([0-9\.]+)[deg\s]*\)/);
                 return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 0 : 0;
-            },
+            }
 
         };
 
@@ -206,16 +206,20 @@
                 var options = this.options;
                 var columns = options.columns;
                 var rows = options.rows;
-                // var whitelist = (options.whitelist || '').trim();
-                // var rx = new RegExp(kendo.format(RX_WHITELIST, whitelist), 'i');
+                var locked = options.locked;
+                var blank = options.blank;
+                var whitelist = (options.whitelist || '').trim();
+                var rx = new RegExp(kendo.format(RX_WHITELIST, whitelist), 'i');
                 that._value = [];
                 for (var col = 0; col < columns; col++) {
                     that._value.push(new Array(rows));
                     for (var row = 0; row < rows; row++) {
-                        if (util.isArray(value) && util.isArray(value[col]) && value[col][row]) { // && (rx.test('' + value[prop][row]) || value[prop][row] === options.blank)) {
+                        if (util.isArray(locked) && util.isArray(locked[col]) && locked[col][row]) {
+                            that._value[col][row] = '' + locked[col][row];
+                        } else if (util.isArray(value) && util.isArray(value[col]) && rx.test('' + value[col][row])) {
                             that._value[col][row] = '' + value[col][row];
                         } else {
-                            that._value[col][row] = undefined;
+                            that._value[col][row] = null;
                         }
                     }
                 }
@@ -264,7 +268,7 @@
             value: function (value) {
                 var that = this;
                 if ($.type(value) === UNDEFINED) {
-                    return that._value;
+                    return that._compareValues(that._value, that.options.locked) ? null : that._value;
                 } else {
                     if (!that._compareValues(that._value, value)) {
                         that._setValue(value || '');

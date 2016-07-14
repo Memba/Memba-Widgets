@@ -67,19 +67,44 @@
              * @returns {{x: *, y: *}}
              */
             getMousePosition: function (e, stage) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($, stage, kendo.format(assert.messages.instanceof.default, 'stage', 'jQuery'));
                 // See http://www.jacklmoore.com/notes/mouse-position/
                 // See http://www.jqwidgets.com/community/topic/dragend-event-properties-clientx-and-clienty-are-undefined-on-ios/
                 // See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
                 // ATTENTION: e.originalEvent.changedTouches instanceof TouchList, not Array
-                var clientX = e.originalEvent && e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].clientX : e.clientX;
-                var clientY = e.originalEvent && e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].clientY : e.clientY;
+                var originalEvent = e.originalEvent;
+                var clientX = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientX : e.clientX;
+                var clientY = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientY : e.clientY;
                 // IMPORTANT: Position is relative to the stage and e.offsetX / e.offsetY do not work in Firefox
                 // var stage = $(e.target).closest('.kj-stage').find(kendo.roleSelector('stage'));
+                var ownerDocument = $(stage.get(0).ownerDocument);
+                var stageOffset = stage.offset();
                 var mouse = {
-                    x: clientX - stage.offset().left + $(stage.get(0).ownerDocument).scrollLeft(),
-                    y: clientY - stage.offset().top + $(stage.get(0).ownerDocument).scrollTop()
+                    x: clientX - stageOffset.left + ownerDocument.scrollLeft(),
+                    y: clientY - stageOffset.top + ownerDocument.scrollTop()
                 };
                 return mouse;
+            },
+
+            /**
+             * Get the position of the center of an element
+             * @param element
+             * @param stage
+             * @param scale
+             */
+            getElementCenter: function (element, stage, scale) {
+                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
+                assert.instanceof($, stage, kendo.format(assert.messages.instanceof.default, 'stage', 'jQuery'));
+                assert.type(NUMBER, scale, kendo.format(assert.messages.type.default, 'scale', NUMBER));
+                // We need getBoundingClientRect to especially account for rotation
+                var rect = element[0].getBoundingClientRect();
+                var ownerDocument = $(stage.get(0).ownerDocument);
+                var stageOffset = stage.offset();
+                return {
+                    left: (rect.left - stageOffset.left + rect.width / 2  + ownerDocument.scrollLeft()) / scale,
+                    top: (rect.top - stageOffset.top + rect.height / 2 + ownerDocument.scrollTop()) / scale
+                };
             },
 
             /**
@@ -89,10 +114,23 @@
              * @returns {Number|number}
              */
             getTransformScale: function (element) {
+                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
                 // $(element).css('transform') returns a matrix, so we have to read the style attribute
-                var match = ($(element).attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
+                var match = (element.attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
                 return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
-            }
+            },
+
+            /**
+             * Get the rotation angle (in degrees) of an element's CSS transformation
+             * @param element
+             * @returns {Number|number}
+             */
+            getTransformRotation: function (element) {
+                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
+                // $(element).css('transform') returns a matrix, so we have to read the style attribute
+                var match = (element.attr('style') || '').match(/rotate\([\s]*([0-9\.]+)[deg\s]*\)/);
+                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 0 : 0;
+            },
 
         };
 
@@ -134,6 +172,7 @@
                 name: 'CharGrid',
                 scaler: '.kj-stage',
                 container: '.kj-stage>div[data-role="stage"]',
+                rotator: '.kj-element',
                 columns: 6,
                 rows: 4,
                 blank: '.',
@@ -524,6 +563,10 @@
                 var options = that.options;
                 var rows = options.rows;
                 var columns = options.columns;
+                var scroll = {
+                    left: $(window).scrollLeft(),
+                    top: $(window).scrollTop()
+                };
                 if ((col >= 0 && col < columns) && (row >= 0 && row < rows) && !that.isLocked(col, row)) {
                     that._selectedCell = { col: col, row: row };
                     that.input.focus();
@@ -533,6 +576,8 @@
                         that.input.blur();
                     }
                 }
+                // Note: that.input.focus() triggers a scroll, so we need to fix that
+                window.scrollTo(scroll.left, scroll.top);
                 that.refresh();
             },
 
@@ -547,19 +592,31 @@
                 var element = that.element;
                 var height = element.height();
                 var width = element.width();
-                var offset = element.offset();
                 var options = that.options;
                 var rows = options.rows;
                 var columns = options.columns;
-                var scaler = that.element.closest(options.scaler);
-                var scale = scaler.length ? util.getTransformScale(scaler) : 1;
                 var container = that.element.closest(options.container);
                 assert.hasLength(container, kendo.format(assert.messages.hasLength.default, 'container'));
-                var containerOffset = container.offset();
+                var rotator = that.element.closest(options.rotator);
+                var rotate = util.getTransformRotation(rotator) * Math.PI / 180;
+                var scaler = that.element.closest(options.scaler);
+                var scale = scaler.length ? util.getTransformScale(scaler) : 1;
+                // Find the center of the chargrid, which is the center of rotation of the wrapping kj-element
+                var center = util.getElementCenter(element, container, scale);
+                // Get the mouse position
                 var mouse = util.getMousePosition(e, container);
-                var col = Math.floor((containerOffset.left + mouse.x - offset.left) * columns / width / scale);
-                var row = Math.floor((containerOffset.top + mouse.y - offset.top) * rows / height / scale);
+                // Find the mouse coordinates against the center
+                var pos = {
+                    x: mouse.x / scale - center.left,
+                    y: mouse.y / scale - center.top
+                };
+                // Project the mouse coordinates to annihilate the rotation and find col and row
+                var col = Math.floor((width / 2 + pos.x * Math.cos(rotate) + pos.y * Math.sin(rotate)) * columns / width);
+                var row = Math.floor((height / 2 - pos.x * Math.sin(rotate) + pos.y * Math.cos(rotate)) * rows / width);
                 that.select(col, row);
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
             },
 
             /*  This function's cyclomatic complexity is too high. */

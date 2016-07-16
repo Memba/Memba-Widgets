@@ -2089,12 +2089,16 @@
                 e.stopPropagation();
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Component validation
              * @param component
              * @param pageIdx
              */
             validate: function (component, pageIdx) {
+                /* jshint maxcomplexity: 8 */
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
@@ -2123,6 +2127,8 @@
                 }
                 return ret;
             }
+
+            /* jshint +W074 */
 
         });
         tools.register(Image);
@@ -2601,6 +2607,10 @@
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 assert.instanceof(ToolAssets, assets.video, kendo.format(assert.messages.instanceof.default, 'assets.video', 'kidoju.ToolAssets'));
                 var template = kendo.template(this.templates.default);
+
+                /* This function's cyclomatic complexity is too high. */
+                /* jshint -W074 */
+
                 // The files$ function resolves urls with schemes like cdn://video.mp4 and returns a stringified array
                 component.attributes.files$ = function () {
                     var mp4 = component.attributes.get('mp4');
@@ -2633,6 +2643,9 @@
                     }
                     return JSON.stringify(files);
                 };
+
+                /* jshint +W074 */
+
                 return template($.extend(component, { ns: kendo.ns }));
             },
 

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1092,6 +1092,7 @@
                 try {
                     range.link(null);
                     range.input(value);
+                    range._adjustRowHeight();
                     var validationState = range._getValidationState();
                     if (validationState) {
                         return this.rejectState(validationState);
@@ -1800,7 +1801,7 @@
                 this._formulaList();
                 this._popup();
                 this._tooltip();
-                element.on('keydown', this._keydown.bind(this)).on('keyup', this._keyup.bind(this)).on('blur', this._blur.bind(this)).on('input click', this._input.bind(this)).on('focus', this._focus.bind(this));
+                element.on('keydown', this._keydown.bind(this)).on('keyup', this._keyup.bind(this)).on('blur', this._blur.bind(this)).on('input click', this._input.bind(this)).on('focus', this._focus.bind(this)).on('paste', this._paste.bind(this));
             },
             options: {
                 name: 'FormulaInput',
@@ -2006,6 +2007,17 @@
             _focus: function () {
                 this._focusTimeout = setTimeout(this._syntaxHighlight.bind(this));
                 this.trigger('focus');
+            },
+            _paste: function (ev) {
+                ev.preventDefault();
+                var pos = this.getPos();
+                var clipboard = ev.originalEvent.clipboardData;
+                var text = clipboard.getData('text/plain');
+                var val = this.value();
+                val = val.substr(0, pos.begin) + text + val.substr(pos.end);
+                this.value(val);
+                this.setPos(pos.begin + text.length);
+                this.scale();
             },
             _move: function (key) {
                 var list = this.list;
@@ -2535,7 +2547,7 @@
             },
             handleEvent: function (e, name) {
                 var eventKey = '';
-                e.mod = Mac ? e.metaKey : e.ctrlKey;
+                e.mod = Mac ? e.metaKey : e.ctrlKey && !e.altKey;
                 if (e.altKey) {
                     eventKey += 'alt+';
                 }
@@ -4653,11 +4665,63 @@
                 this.forEachSelectedColumn(function (sheet, index) {
                     sheet.hideColumn(index);
                 });
+                var sheet = this._sheet;
+                var ref = sheet.select().toRangeRef();
+                var left = ref.topLeft.col;
+                var right = ref.bottomRight.col;
+                var sel = null;
+                while (true) {
+                    var hasRight = right < sheet._columns._count;
+                    var hasLeft = left >= 0;
+                    if (!hasLeft && !hasRight) {
+                        break;
+                    }
+                    if (hasRight && !sheet.isHiddenColumn(right)) {
+                        sel = right;
+                        break;
+                    }
+                    if (hasLeft && !sheet.isHiddenColumn(left)) {
+                        sel = left;
+                        break;
+                    }
+                    left--;
+                    right++;
+                }
+                if (sel !== null) {
+                    ref = new kendo.spreadsheet.RangeRef(new kendo.spreadsheet.CellRef(0, sel), new kendo.spreadsheet.CellRef(sheet._rows._count - 1, sel));
+                    sheet.range(ref).select();
+                }
             },
             hideSelectedRows: function () {
                 this.forEachSelectedRow(function (sheet, index) {
                     sheet.hideRow(index);
                 });
+                var sheet = this._sheet;
+                var ref = sheet.select().toRangeRef();
+                var top = ref.topLeft.row;
+                var bottom = ref.bottomRight.row;
+                var sel = null;
+                while (true) {
+                    var hasBottom = bottom < sheet._rows._count;
+                    var hasTop = top >= 0;
+                    if (!hasTop && !hasBottom) {
+                        break;
+                    }
+                    if (hasBottom && !sheet.isHiddenRow(bottom)) {
+                        sel = bottom;
+                        break;
+                    }
+                    if (hasTop && !sheet.isHiddenRow(top)) {
+                        sel = top;
+                        break;
+                    }
+                    top--;
+                    bottom++;
+                }
+                if (sel !== null) {
+                    ref = new kendo.spreadsheet.RangeRef(new kendo.spreadsheet.CellRef(sel, 0), new kendo.spreadsheet.CellRef(sel, sheet._columns._count - 1));
+                    sheet.range(ref).select();
+                }
             },
             unhideSelectedColumns: function () {
                 this.forEachSelectedColumn(function (sheet, index) {
@@ -4741,7 +4805,7 @@
                 var ref = this.pasteRef();
                 var status = { canPaste: true };
                 if (ref === kendo.spreadsheet.NULLREF) {
-                    var external = this._external.hasOwnProperty('html') || this._external.hasOwnProperty('plain');
+                    var external = this.isExternal();
                     status.pasteOnMerged = this.intersectsMerged();
                     status.canPaste = status.pasteOnMerged ? false : external;
                     return status;
@@ -4771,6 +4835,8 @@
                 var sheet = this.workbook.activeSheet();
                 this.origin = sheet.select();
                 this.contents = sheet.selection().getState();
+                delete this._external.html;
+                delete this._external.plain;
             },
             cut: function () {
                 var sheet = this.workbook.activeSheet();
@@ -4796,7 +4862,6 @@
                 } else {
                     state = this.parse(this._external);
                     this.origin = getSourceRef(state);
-                    sheet.range(this.pasteRef()).clear();
                 }
                 var pasteRef = this.pasteRef();
                 sheet.range(pasteRef).setState(state, this);
@@ -4811,6 +4876,9 @@
                 } else {
                     return this._external;
                 }
+            },
+            isExternal: function () {
+                return !this._isInternal();
             },
             parse: function (data) {
                 var state = newState();
@@ -5188,12 +5256,16 @@
                         var formula = null;
                         if (x.type == 'exp') {
                             formula = kendo.spreadsheet.calc.compile(x);
-                        } else if (x.type == 'date') {
-                            this.format(x.format || toExcelFormat(kendo.culture().calendar.patterns.d));
-                        } else if (x.type == 'percent') {
-                            this.format(x.value * 100 == (x.value * 100 | 0) ? '0%' : '0.00%');
-                        } else if (x.format && !existingFormat) {
-                            this.format(x.format);
+                        } else if (existingFormat != '@') {
+                            if (x.type == 'date') {
+                                this.format(x.format || toExcelFormat(kendo.culture().calendar.patterns.d));
+                            } else if (x.type == 'percent') {
+                                this.format(x.value * 100 == (x.value * 100 | 0) ? '0%' : '0.00%');
+                            } else if (x.format && !existingFormat) {
+                                this.format(x.format);
+                            }
+                        } else if (x.type != 'string') {
+                            x.value = value;
                         }
                         this.formula(formula);
                         if (!formula) {
@@ -5214,7 +5286,7 @@
                         value = '=' + formula;
                     } else
                         OUT: {
-                            if (existingFormat && typeof value == 'number') {
+                            if (existingFormat && type == 'date') {
                                 var t1 = kendo.spreadsheet.formatting.text(value, existingFormat);
                                 x = kendo.spreadsheet.calc.parse(null, null, null, t1);
                                 if (typeof x.value == 'number') {
@@ -5338,7 +5410,10 @@
                             }
                         }
                     }
-                    this._sheet.triggerChange({ recalc: true });
+                    this._sheet.triggerChange({
+                        recalc: true,
+                        ref: ref
+                    });
                     return this;
                 }
             },
@@ -5592,12 +5667,12 @@
                     }
                     var row = origin.row;
                     state.data.forEach(function (data, dr) {
-                        if (clipboard && sheet.isHiddenRow(state.ref.row + dr)) {
+                        if (clipboard && !clipboard.isExternal() && sheet.isHiddenRow(state.ref.row + dr)) {
                             return;
                         }
                         var col = origin.col;
                         data.forEach(function (cellState, dc) {
-                            if (clipboard && sheet.isHiddenColumn(state.ref.col + dc)) {
+                            if (clipboard && !clipboard.isExternal() && sheet.isHiddenColumn(state.ref.col + dc)) {
                                 return;
                             }
                             var range = clipboard ? sheet.range(row, col) : sheet.range(origin.row + dr, origin.col + dc);
@@ -5608,9 +5683,13 @@
                                     }
                                 }
                                 if (!cellState.formula) {
-                                    if (clipboard && clipboard.external()) {
+                                    if (clipboard && clipboard.isExternal()) {
                                         try {
-                                            range.input(cellState.value);
+                                            if (cellState.value == null) {
+                                                range._set('value', null);
+                                            } else {
+                                                range.input(cellState.value);
+                                            }
                                         } catch (ex) {
                                             range._set('value', cellState.value);
                                         }
@@ -6450,6 +6529,9 @@
             resolve += 'toResolve.push(args[i++]); ';
             return '($' + name + ' = this.force($' + name + '))';
         }
+        function forceNum() {
+            return '(' + '(typeof ' + force() + ' == \'number\') || ' + '(typeof $' + name + ' == \'boolean\') || ' + '(typeof $' + name + ' == \'string\' && !/^(?:=|true|false)/i.test($' + name + ') ? (' + 'tmp = kendo.spreadsheet.calc.parse(0, 0, 0, $' + name + '), ' + '/^date|number|percent$/.test(tmp.type) ? ($' + name + ' = +tmp.value, true) : false' + ') : false)' + ')';
+        }
         function typeCheck(type, allowError) {
             forced = false;
             var ret = 'if (!(' + cond(type) + ')) { ';
@@ -6504,32 +6586,26 @@
                 }
                 throw new Error('Unknown array type condition: ' + type[0]);
             }
-            if (type == 'number') {
-                return '(typeof ' + force() + ' == \'number\' || typeof $' + name + ' == \'boolean\')';
+            if (type == 'number' || type == 'datetime') {
+                return forceNum();
             }
-            if (type == 'integer') {
-                return '((typeof ' + force() + ' == \'number\' || typeof $' + name + ' == \'boolean\') ? ($' + name + ' |= 0, true) : false)';
-            }
-            if (type == 'date') {
-                return '((typeof ' + force() + ' == \'number\') ? ($' + name + ' |= 0, true) : false)';
-            }
-            if (type == 'datetime') {
-                return '(typeof ' + force() + ' == \'number\')';
+            if (type == 'integer' || type == 'date') {
+                return '(' + forceNum() + ' && (($' + name + ' |= 0), true))';
             }
             if (type == 'divisor') {
-                return '((typeof ' + force() + ' == \'number\' || typeof $' + name + ' == \'boolean\') && ' + '($' + name + ' == 0 ? ((err = \'DIV/0\'), false) : true))';
+                return '(' + forceNum() + ' && ($' + name + ' == 0 ? ((err = \'DIV/0\'), false) : true))';
             }
             if (type == 'number+') {
-                return '((typeof ' + force() + ' == \'number\' || typeof $' + name + ' == \'boolean\') && ($' + name + ' >= 0 ? true : ((err = \'NUM\'), false)))';
+                return '(' + forceNum() + ' && ($' + name + ' >= 0 ? true : ((err = \'NUM\'), false)))';
             }
             if (type == 'integer+') {
-                return '((typeof ' + force() + ' == \'number\' || typeof $' + name + ' == \'boolean\') && (($' + name + ' |= 0) >= 0 ? true : ((err = \'NUM\'), false)))';
+                return '(' + forceNum() + ' && (($' + name + ' |= 0) >= 0 ? true : ((err = \'NUM\'), false)))';
             }
             if (type == 'number++') {
-                return '((typeof ' + force() + ' == \'number\' || typeof $' + name + ' == \'boolean\') && ($' + name + ' > 0 ? true : ((err = \'NUM\'), false)))';
+                return '(' + forceNum() + ' && ($' + name + ' > 0 ? true : ((err = \'NUM\'), false)))';
             }
             if (type == 'integer++') {
-                return '((typeof ' + force() + ' == \'number\' || typeof $' + name + ' == \'boolean\') && (($' + name + ' |= 0 ) > 0) ? true : ((err = \'NUM\'), false))';
+                return '(' + forceNum() + ' && (($' + name + ' |= 0) > 0 ? true : ((err = \'NUM\'), false)))';
             }
             if (type == 'string') {
                 return '((typeof ' + force() + ' == \'string\' || typeof $' + name + ' == \'boolean\' || typeof $' + name + ' == \'number\') ? ($' + name + ' += \'\', true) : false)';
@@ -7696,12 +7772,7 @@
                     this.select(selection);
                 }
                 var axis = operation == 'col' ? this._columns : this._rows;
-                if (delta < 0) {
-                    axis.values.copy(start - delta, axis._count - 1, start);
-                } else {
-                    axis.values.copy(start, axis._count, start + delta);
-                    axis.values.value(start, start + delta - 1, axis._value);
-                }
+                axis.adjust(start, delta);
             },
             _forFormulas: function (callback) {
                 var props = this._properties;
@@ -8437,10 +8508,10 @@
                 return this._properties.get('validation', index);
             },
             _compileValidation: function (row, col, validation) {
-                if (validation.from !== null || validation.from !== undefined) {
+                if (validation.from != null) {
                     validation.from = (validation.from + '').replace(/^=/, '');
                 }
-                if (validation.to !== null || validation.to !== undefined) {
+                if (validation.to != null) {
                     validation.to = (validation.to + '').replace(/^=/, '');
                 }
                 return kendo.spreadsheet.validation.compile(this._name(), row, col, validation);
@@ -9783,6 +9854,9 @@
             }
         }
     }
+    function isWhitespace(ch) {
+        return ' \t\n\xA0\u200B'.indexOf(ch) >= 0;
+    }
     function RawTokenStream(input, options) {
         var tokens = [], index = 0;
         var readWhile = input.readWhile;
@@ -9808,9 +9882,6 @@
         }
         function isPunc(ch) {
             return '!;(){}[]'.indexOf(ch) >= 0;
-        }
-        function isWhitespace(ch) {
-            return ' \t\n\xA0\u200B'.indexOf(ch) >= 0;
         }
         function readNumber() {
             var has_dot = false;
@@ -10226,34 +10297,70 @@
         }
     });
     registerFormatParser(function (input) {
-        var m;
+        var m, n;
         var culture = kendo.culture();
         var comma = culture.numberFormat[','];
         var dot = culture.numberFormat['.'];
         var currency = culture.numberFormat.currency.symbol;
-        var rx = new RegExp('^(\\' + currency + '\\s*)?(\\d+(\\' + comma + '\\d{3})*(\\' + dot + '\\d+)?)(\\s*\\' + currency + ')?$');
-        if (m = rx.exec(input)) {
-            var value = m[2].replace(new RegExp('\\' + comma, 'g'), '').replace(dot, '.');
-            var format = '#';
-            if (m[1] || m[3] || m[5]) {
-                format += ',#';
-            }
-            if (m[4]) {
-                format += '.' + repeat('0', m[1] || m[5] ? 2 : m[4].length - 1);
-            }
-            if (m[1]) {
-                format = '"' + m[1] + '"' + format;
-            }
-            if (m[5]) {
-                format = format + '"' + m[5] + '"';
-            }
-            return {
-                type: 'number',
-                format: format == '#' ? null : format,
-                value: parseFloat(value)
-            };
+        var rxnum = getNumberRegexp(comma, dot);
+        var rxcur = new RegExp('^\\s*\\' + currency + '\\s*');
+        var sign = 1;
+        var format = '';
+        var suffix = '';
+        var has_currency = false;
+        input = InputStream(input.replace(/^\s+|\s+$/g, ''));
+        if (input.skip(/^-\s*/)) {
+            sign = -1;
         }
+        if (m = input.skip(rxcur)) {
+            has_currency = true;
+            format += '"' + m[0] + '"';
+        }
+        if (input.skip(/^-\s*/)) {
+            if (sign < 0) {
+                return null;
+            }
+            sign = -1;
+        }
+        if (!(n = input.skip(rxnum))) {
+            return null;
+        }
+        format += '#';
+        if (m = input.skip(rxcur)) {
+            if (has_currency) {
+                return null;
+            }
+            has_currency = true;
+            suffix = '"' + m[0] + '"';
+        }
+        if (!input.eof()) {
+            return null;
+        }
+        if (n[2] || has_currency) {
+            format += ',#';
+        }
+        if (n[3]) {
+            format += '.' + repeat('0', n[3].length - 1);
+        }
+        var value = n[0].replace(new RegExp('\\' + comma, 'g'), '').replace(new RegExp('\\' + dot, 'g'), '.');
+        return {
+            type: 'number',
+            format: format + suffix,
+            value: sign * parseFloat(value)
+        };
     });
+    var NUMBER_FORMAT_RX = {};
+    function getNumberRegexp(comma, dot) {
+        var id = comma + dot;
+        var rx = NUMBER_FORMAT_RX[id];
+        if (!rx) {
+            rx = '^(\\d+(COM\\d{3})*(DOT\\d+)?)';
+            rx = rx.replace(/DOT/g, '\\' + dot).replace(/COM/g, '\\' + comma);
+            rx = new RegExp(rx);
+            NUMBER_FORMAT_RX[id] = rx;
+        }
+        return rx;
+    }
     function repeat(str, len) {
         var out = '';
         while (len-- > 0) {
@@ -10519,22 +10626,28 @@
                 } else if (this.is(SEL_COL)) {
                     var start = integer(attrs.min) - 1;
                     var stop = Math.min(nCols, integer(attrs.max)) - 1;
+                    var width;
                     if (attrs.width) {
-                        var width = toColWidth(parseFloat(attrs.width));
-                        sheet._columns.values.value(start, stop, width);
+                        width = toColWidth(parseFloat(attrs.width));
+                        if (width !== 0) {
+                            sheet._columns.values.value(start, stop, width);
+                        }
                     }
-                    if (attrs.hidden === '1') {
+                    if (attrs.hidden === '1' || width === 0) {
                         for (var ci = start; ci <= stop; ci++) {
                             sheet.hideColumn(ci);
                         }
                     }
                 } else if (this.is(SEL_ROW)) {
                     var row = integer(attrs.r) - 1;
+                    var height;
                     if (attrs.ht) {
-                        var height = toRowHeight(parseFloat(attrs.ht));
-                        sheet._rows.values.value(row, row, height);
+                        height = toRowHeight(parseFloat(attrs.ht));
+                        if (height !== 0) {
+                            sheet._rows.values.value(row, row, height);
+                        }
                     }
-                    if (attrs.hidden === '1') {
+                    if (attrs.hidden === '1' || height === 0) {
                         sheet.hideRow(row);
                     }
                 } else if (this.is(SEL_SELECTION)) {
@@ -10581,7 +10694,9 @@
                             } else if (type == 'd') {
                                 value = kendo.parseDate(value);
                             }
-                            range.value(value);
+                            if (value != null) {
+                                range.value(value);
+                            }
                         }
                     }
                 } else if (tag == 'cols') {
@@ -10746,20 +10861,19 @@
     }
     function readStrings(zip) {
         var strings = [];
-        var current;
+        var current = null;
         parse(zip, 'xl/sharedStrings.xml', {
-            enter: function () {
-                if (this.is(SEL_SHARED_STRING)) {
-                    current = '';
-                }
-            },
             leave: function () {
                 if (this.is(SEL_SHARED_STRING)) {
                     strings.push(current);
+                    current = null;
                 }
             },
             text: function (text) {
                 if (this.is(SEL_TEXT)) {
+                    if (current == null) {
+                        current = '';
+                    }
                     current += text;
                 }
             }
@@ -11673,6 +11787,7 @@
             'shift+:alphanum': 'edit',
             ':alphanum': 'edit',
             'ctrl+:alphanum': 'ctrl',
+            'alt+ctrl+:alphanum': 'edit',
             ':edit': 'edit'
         };
         var CONTAINER_EVENTS = {
@@ -12025,7 +12140,7 @@
                 }
                 if (this.editor.canInsertRef(false) && object.ref) {
                     this._workbook.activeSheet()._setFormulaSelections(this.editor.highlightedRefs());
-                    this.navigator.startSelection(object.ref, this._selectionMode, this.appendSelection);
+                    this.navigator.startSelection(object.ref, this._selectionMode, this.appendSelection, event.shiftKey);
                     event.preventDefault();
                     return;
                 } else {
@@ -12513,6 +12628,7 @@
         var viewClassNames = {
             view: 'k-spreadsheet-view',
             fixedContainer: 'k-spreadsheet-fixed-container',
+            editContainer: 'k-spreadsheet-edit-container',
             scroller: 'k-spreadsheet-scroller',
             viewSize: 'k-spreadsheet-view-size',
             clipboard: 'k-spreadsheet-clipboard',
@@ -12523,6 +12639,8 @@
             filterRange: 'k-filter-range',
             filterButton: 'k-spreadsheet-filter',
             filterButtonActive: 'k-state-active',
+            horizontalResize: 'k-horizontal-resize',
+            verticalResize: 'k-vertical-resize',
             icon: 'k-icon k-font-icon',
             iconFilterDefault: 'k-i-arrow-s',
             sheetsBar: 'k-spreadsheet-sheets-bar',
@@ -12532,7 +12650,7 @@
             rowHeaderContextMenu: 'k-spreadsheet-row-header-context-menu',
             colHeaderContextMenu: 'k-spreadsheet-col-header-context-menu'
         };
-        var VIEW_MESAGES = kendo.spreadsheet.messages.view = {
+        kendo.spreadsheet.messages.view = {
             errors: {
                 openUnsupported: 'Unsupported format. Please select an .xlsx file.',
                 shiftingNonblankCells: 'Cannot insert cells due to data loss possibility. Select another insert location or delete the data from the end of your worksheet.',
@@ -12695,7 +12813,7 @@
             style.width = width + 'px';
             style.height = height + 'px';
             var data = cell.value, type = typeof data;
-            if (cell.format && data !== null) {
+            if (cell.format && data != null) {
                 data = kendo.spreadsheet.formatting.format(data, cell.format);
                 if (data.__dataType) {
                     type = data.__dataType;
@@ -12788,7 +12906,7 @@
                 style.borderBottomColor = cell.background;
             }
             var data = cell.value, type = typeof data;
-            if (cell.format && data !== null) {
+            if (cell.format && data != null) {
                 data = kendo.spreadsheet.formatting.format(data, cell.format);
                 if (data.__dataType) {
                     type = data.__dataType;
@@ -12914,7 +13032,7 @@
             init: function (element, options) {
                 var classNames = View.classNames;
                 this.element = element;
-                this.options = $.extend(true, {}, this.options, options);
+                this.options = $.extend(true, { messages: kendo.spreadsheet.messages.view }, this.options, options);
                 this._chrome();
                 this._dialogs = [];
                 element.append(VIEW_CONTENTS({ classNames: classNames }));
@@ -12976,7 +13094,7 @@
                 }
             },
             _tabstrip: function () {
-                var messages = VIEW_MESAGES.tabs;
+                var messages = this.options.messages.tabs;
                 var options = $.extend(true, {
                     home: true,
                     insert: true,
@@ -13212,7 +13330,7 @@
                 }
             },
             showError: function (options, callback) {
-                var errorMessages = VIEW_MESAGES.errors;
+                var errorMessages = this.options.messages.errors;
                 if (kendo.spreadsheet.dialogs.registered(options.type)) {
                     this.openDialog(options.type, { close: callback });
                 } else {
@@ -13254,6 +13372,8 @@
                 if (focus && this.scrollIntoView(focus)) {
                     return;
                 }
+                var resizeDirection = !sheet.resizingInProgress() ? 'none' : sheet.resizeHandlePosition().col === -Infinity ? 'column' : 'row';
+                this.wrapper.toggleClass(viewClassNames.editContainer, this.editor.isActive()).toggleClass(viewClassNames.horizontalResize, resizeDirection == 'row').toggleClass(viewClassNames.verticalResize, resizeDirection == 'column');
                 var grid = sheet._grid;
                 var scrollTop = this.scroller.scrollTop;
                 var scrollLeft = this.scroller.scrollLeft;
@@ -13391,6 +13511,8 @@
             bottom: 'k-bottom',
             left: 'k-left',
             resizeHandle: 'k-resize-handle',
+            columnResizeHandle: 'k-column-resize-handle',
+            rowResizeHandle: 'k-row-resize-handle',
             resizeHint: 'k-resize-hint',
             resizeHintHandle: 'k-resize-hint-handle',
             resizeHintMarker: 'k-resize-hint-marker',
@@ -13484,7 +13606,7 @@
                     var ref = sheet._grid.normalize(sheet.resizeHandlePosition());
                     if (view.ref.intersects(ref)) {
                         if (!sheet.resizeHintPosition()) {
-                            children.push(this.renderResizeHandler());
+                            children.push(this.renderResizeHandle());
                         }
                     }
                 }
@@ -13566,10 +13688,11 @@
                 });
                 return cont;
             },
-            renderResizeHandler: function () {
+            renderResizeHandle: function () {
                 var sheet = this._sheet;
                 var ref = sheet.resizeHandlePosition();
                 var rectangle = this._rectangle(ref);
+                var classNames = [Pane.classNames.resizeHandle];
                 var style;
                 if (ref.col !== -Infinity) {
                     style = {
@@ -13578,6 +13701,7 @@
                         left: rectangle.right - RESIZE_HANDLE_WIDTH / 2 + 'px',
                         top: '0px'
                     };
+                    classNames.push(viewClassNames.horizontalResize);
                 } else {
                     style = {
                         height: RESIZE_HANDLE_WIDTH + 'px',
@@ -13585,9 +13709,10 @@
                         top: rectangle.bottom - RESIZE_HANDLE_WIDTH / 2 + 'px',
                         left: '0px'
                     };
+                    classNames.push(viewClassNames.verticalResize);
                 }
                 return kendo.dom.element('div', {
-                    className: Pane.classNames.resizeHandle,
+                    className: classNames.join(' '),
                     style: style
                 });
             },
@@ -14009,6 +14134,17 @@
                 this._hidden = new kendo.spreadsheet.RangeList(0, count - 1, 0);
                 this.scrollBarSize = kendo.support.scrollbar();
                 this._refresh();
+            },
+            adjust: function (start, delta) {
+                if (delta < 0) {
+                    this.values.copy(start - delta, this._count - 1, start);
+                    this._hidden.copy(start - delta, this._count - 1, start);
+                } else {
+                    this.values.copy(start, this._count, start + delta);
+                    this._hidden.copy(start, this._count, start + delta);
+                    this.values.value(start, start + delta - 1, this._value);
+                    this._hidden.value(start, start + delta - 1, 0);
+                }
             },
             toJSON: function (field, positions) {
                 var values = [];
@@ -14771,44 +14907,35 @@
                 haveConditional = true;
             }
         }
-        function addPlainText() {
-            sections.push({
-                cond: 'text',
-                body: [{ type: 'text' }]
-            });
-        }
-        if (haveConditional) {
-            addPlainText();
-        } else if (sections.length == 1) {
-            sections[0].cond = 'num';
-            addPlainText();
-        } else if (sections.length == 2) {
-            sections[0].cond = {
-                op: '>=',
-                value: 0
-            };
-            sections[1].cond = {
-                op: '<',
-                value: 0
-            };
-            addPlainText();
-        } else if (sections.length >= 3) {
-            sections[0].cond = {
-                op: '>',
-                value: 0
-            };
-            sections[1].cond = {
-                op: '<',
-                value: 0
-            };
-            sections[2].cond = {
-                op: '=',
-                value: 0
-            };
-            addPlainText();
-            if (sections.length > 3) {
-                sections[3].cond = 'text';
-                sections = sections.slice(0, 4);
+        if (!haveConditional) {
+            if (sections.length == 1) {
+                sections[0].cond = 'num';
+            } else if (sections.length == 2) {
+                sections[0].cond = {
+                    op: '>=',
+                    value: 0
+                };
+                sections[1].cond = {
+                    op: '<',
+                    value: 0
+                };
+            } else if (sections.length >= 3) {
+                sections[0].cond = {
+                    op: '>',
+                    value: 0
+                };
+                sections[1].cond = {
+                    op: '<',
+                    value: 0
+                };
+                sections[2].cond = {
+                    op: '=',
+                    value: 0
+                };
+                if (sections.length > 3) {
+                    sections[3].cond = 'text';
+                    sections = sections.slice(0, 4);
+                }
             }
         }
         return sections;
@@ -15225,11 +15352,17 @@
         return code;
     }
     var CACHE = Object.create(null);
+    var TEXT = compileFormatPart({
+        cond: 'text',
+        body: [{ type: 'text' }]
+    });
     function compile(format) {
         var f = CACHE[format];
         if (!f) {
             var tree = parse(format);
-            var code = tree.map(compileFormatPart).join('\n');
+            var code = tree.map(compileFormatPart);
+            code.push(TEXT);
+            code = code.join('\n');
             code = '\'use strict\'; return function(value, culture){ ' + 'if (!culture) culture = kendo.culture(); ' + 'var output = \'\', type = null, result = { body: [] }; ' + code + '; return result; };';
             f = CACHE[format] = new Function('runtime', code)(runtime);
         }
@@ -15342,7 +15475,7 @@
             var result = [];
             var len = 0, str;
             function add(ch) {
-                if (sep && len && len % 3 === 0 && ch != ' ') {
+                if (sep && len && len % 3 === 0 && /^[0-9]$/.test(ch)) {
                     str = culture.numberFormat[','] + str;
                 }
                 str = ch + str;
@@ -26299,6 +26432,7 @@
                 kendo.Observable.fn.init.call(this);
                 this.view = view;
                 this.formulaBar = view.formulaBar;
+                this._active = false;
                 this.barInput = view.formulaBar.formulaInput;
                 this.cellInput = view.formulaInput;
                 this.barInput.syncWith(this.cellInput);
@@ -26818,13 +26952,15 @@
         sheet.forEach(range, function (row, col, cell) {
             var relrow = row - range.topLeft.row;
             var relcol = col - range.topLeft.col;
+            var rh = sheet.rowHeight(row);
+            var cw = sheet.columnWidth(col);
             if (!relcol) {
-                rowHeights.push(sheet.rowHeight(row));
+                rowHeights.push(rh);
             }
             if (!relrow) {
-                colWidths.push(sheet.columnWidth(col));
+                colWidths.push(cw);
             }
-            if (sheet.isHiddenColumn(col) || sheet.isHiddenRow(row)) {
+            if (sheet.isHiddenColumn(col) || sheet.isHiddenRow(row) || !rh || !cw) {
                 return;
             }
             var nonEmpty = options.forScreen || shouldDrawCell(cell);
@@ -26922,9 +27058,11 @@
                 }
                 cell.height = sheet._rows.sum(ref.topLeft.row, ref.bottomRight.row);
                 cell.width = sheet._columns.sum(ref.topLeft.col, ref.bottomRight.col);
-                cell.right = cell.left + cell.width;
-                cell.bottom = cell.top + cell.height;
-                cells.push(cell);
+                if (cell.height > 0 && cell.width > 0) {
+                    cell.right = cell.left + cell.width;
+                    cell.bottom = cell.top + cell.height;
+                    cells.push(cell);
+                }
             });
         });
         return {
@@ -27365,6 +27503,7 @@
                 Widget.fn.init.call(this, element, options);
                 this.element.addClass(Spreadsheet.classNames.wrapper);
                 this._view = new View(this.element, {
+                    messages: this.options.messages.view,
                     toolbar: this.options.toolbar,
                     sheetsbar: this.options.sheetsbar
                 });
@@ -27537,6 +27676,7 @@
                     proxyURL: '',
                     fileName: 'Workbook.xlsx'
                 },
+                messages: {},
                 pdf: {
                     area: 'workbook',
                     fileName: 'Workbook.pdf',

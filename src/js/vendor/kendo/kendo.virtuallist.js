@@ -535,7 +535,7 @@ var __meta__ = { // jshint ignore:line
             var low = Math.floor(index / take) * take;
             var high = Math.ceil(index / take) * take;
 
-            var pages = high  === low ? [ high ] : [ low, high ];
+            var pages = high === low ? [ high ] : [ low, high ];
 
             $.each(pages, function(_, skip) {
                 var end = skip + take;
@@ -575,6 +575,11 @@ var __meta__ = { // jshint ignore:line
 
             $.each(indexes, function(_, index) {
                 var rangeStart = Math.floor(index / take) * take;
+
+                if (index === rangeStart && rangeStart > take) {
+                    rangeStart -= take;
+                }
+
                 that._promisesList.push(that.deferredRange(rangeStart));
             });
 
@@ -1406,20 +1411,6 @@ var __meta__ = { // jshint ignore:line
 
             if (this.options.selectable !== "multiple" || !this.isFiltered()) {
                 return [];
-            }
-
-            if (indices[0] === -1) {
-                $(children).removeClass("k-state-selected");
-                removed = $.map(this._selectedDataItems.slice(0), function(dataItem, idx) {
-                   return {
-                      dataItem: dataItem,
-                      position: idx
-                   };
-                });
-                this._selectedIndexes = [];
-                this._selectedDataItems = [];
-                this._values = [];
-                return removed;
             }
 
             for (; idx < indices.length; idx++) {

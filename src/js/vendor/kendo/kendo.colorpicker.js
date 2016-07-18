@@ -862,7 +862,11 @@ var __meta__ = { // jshint ignore:line
                         that.wrapper.children(".k-picker-wrap").removeClass("k-state-focused");
                         var color = selector._selectOnHide();
                         if (!color) {
-                            that.wrapper.focus();
+                            setTimeout(function(){
+                                if (that.wrapper) {
+                                    that.wrapper.focus();
+                                }
+                            });
                             that._updateUI(that.color());
                         } else {
                             that._select(color);

@@ -21,6 +21,19 @@
     var DATA = { a: 1, b: 2, c: 3 };
     var ERROR = new SyntaxError('Bad syntax');
 
+    var LINEFEED = '\n';
+    var LINESEP = ', ';
+    var SPACES = /\s+/g;
+    var SPACE = ' ';
+    var EQ = ': ';
+    var FIRST = ' ';
+    var SEP = '; '; // '  |  ';
+
+    // Debug window.onerror
+    // app.DEBUG = true;
+    // app.level = 0;
+    // throw new Error('oops');
+
     describe('window.logger.test', function () {
 
         /*
@@ -39,8 +52,8 @@
 
             beforeEach(function () {
                 app.DEBUG = true;
+                app.level = 0;
                 logger = new window.Logger(MODULE);
-                logger.level = 0;
                 console = window.console = {
                     log: sinon.spy(),
                     error: sinon.spy()
@@ -57,19 +70,19 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(0);
-                expect(console.log).to.have.been.calledWith('[DEBUG]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
+                expect(console.log).to.have.been.calledWith('[DEBUG]' + FIRST + 'message'  + EQ + MESSAGE + SEP + 'module'  + EQ + MODULE + SEP + 'data'  + EQ + JSON.stringify(DATA));
                 // INFO
                 ret = logger.log('info', MESSAGE, DATA);
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(2);
                 expect(console.error).to.have.callCount(0);
-                expect(console.log).to.have.been.calledWith('[INFO ]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
+                expect(console.log).to.have.been.calledWith('[INFO ]' + FIRST + 'message'  + EQ + MESSAGE + SEP + 'module'  + EQ + MODULE + SEP + 'data'  + EQ + JSON.stringify(DATA));
                 // WARN
                 ret = logger.log('warn', MESSAGE, DATA);
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(3);
                 expect(console.error).to.have.callCount(0);
-                expect(console.log).to.have.been.calledWith('[WARN ]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
+                expect(console.log).to.have.been.calledWith('[WARN ]' + FIRST + 'message'  + EQ + MESSAGE + SEP + 'module'  + EQ + MODULE + SEP + 'data'  + EQ + JSON.stringify(DATA));
             });
 
             it('log errors', function () {
@@ -78,13 +91,13 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(1);
-                // expect(console.log).to.have.been.calledWith('[ERROR]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
+                // expect(console.log).to.have.been.calledWith('[ERROR]' + FIRST + 'message'  + EQ + MESSAGE + SEP + 'module'  + EQ + MODULE + SEP + 'data'  + EQ + JSON.stringify(DATA));
                 // CRIT
                 ret = logger.log('crit', ERROR);
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(2);
                 expect(console.error).to.have.callCount(2);
-                // expect(console.log).to.have.been.calledWith('[CRIT ]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
+                // expect(console.log).to.have.been.calledWith('[CRIT ]' + FIRST + 'message'  + EQ + MESSAGE + SEP + 'module'  + EQ + MODULE + SEP + 'data'  + EQ + JSON.stringify(DATA));
             });
 
             it('DEBUG should log', function () {
@@ -92,7 +105,7 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(0);
-                expect(console.log).to.have.been.calledWith('[DEBUG]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
+                expect(console.log).to.have.been.calledWith('[DEBUG]' + FIRST + 'message'  + EQ + MESSAGE + SEP + 'module'  + EQ + MODULE + SEP + 'data'  + EQ + JSON.stringify(DATA));
             });
 
             it('INFO should log', function () {
@@ -100,7 +113,7 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(0);
-                expect(console.log).to.have.been.calledWith('[INFO ]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
+                expect(console.log).to.have.been.calledWith('[INFO ]' + FIRST + 'message'  + EQ + MESSAGE + SEP + 'module'  + EQ + MODULE + SEP + 'data'  + EQ + JSON.stringify(DATA));
             });
 
             it('WARN should log', function () {
@@ -108,7 +121,7 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(0);
-                expect(console.log).to.have.been.calledWith('[WARN ]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(DATA));
+                expect(console.log).to.have.been.calledWith('[WARN ]' + FIRST + 'message'  + EQ + MESSAGE + SEP + 'module'  + EQ + MODULE + SEP + 'data'  + EQ + JSON.stringify(DATA));
             });
 
             it('ERROR should log', function () {
@@ -135,8 +148,8 @@
 
             beforeEach(function () {
                 app.DEBUG = true;
+                app.level = 2;
                 logger = new window.Logger(MODULE);
-                logger.level = 2;
                 console = window.console = {
                     log: sinon.spy(),
                     error: sinon.spy()
@@ -155,7 +168,7 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(0);
-                expect(console.log).to.have.been.calledWith('[INFO ]\tmodule = ' + MODULE);
+                expect(console.log).to.have.been.calledWith('[INFO ]' + FIRST + 'module'  + EQ + MODULE);
             });
 
             it('WARN should log', function () {
@@ -164,7 +177,7 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(0);
-                expect(console.log).to.have.been.calledWith('[WARN ]\tmodule = ' + MODULE + '\tdata = ' + JSON.stringify(NOW));
+                expect(console.log).to.have.been.calledWith('[WARN ]' + FIRST + 'module'  + EQ + MODULE + SEP + 'data'  + EQ + JSON.stringify(NOW));
             });
 
             it('ERROR should log', function () {
@@ -197,8 +210,8 @@
 
             beforeEach(function () {
                 app.DEBUG = true;
+                app.level = 4;
                 logger = new window.Logger(MODULE);
-                logger.level = 4;
                 console = window.console = {
                     log: sinon.spy(),
                     error: sinon.spy()
@@ -225,7 +238,7 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(0);
-                expect(console.log).to.have.been.calledWith('[WARN ]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\tmethod = ' + METHOD + '\tdata = ' + JSON.stringify(DATA));
+                expect(console.log).to.have.been.calledWith('[WARN ]' + FIRST + 'message'  + EQ + MESSAGE + SEP + 'module'  + EQ + MODULE + SEP + 'method'  + EQ + METHOD + SEP + 'data'  + EQ + JSON.stringify(DATA));
             });
 
             it('ERROR should log', function () {
@@ -258,8 +271,8 @@
 
             beforeEach(function () {
                 app.DEBUG = true;
+                app.level = 8;
                 logger = new window.Logger(MODULE);
-                logger.level = 8;
                 console = window.console = {
                     log: sinon.spy(),
                     error: sinon.spy()
@@ -315,8 +328,8 @@
 
             beforeEach(function () {
                 app.DEBUG = true;
+                app.level = 0;
                 logger = new window.Logger(MODULE);
-                logger.level = 0;
                 console = window.console = {
                     log: sinon.spy(),
                     error: sinon.spy()
@@ -332,7 +345,7 @@
                 expect(ret).to.be.true;
                 expect(console.log).to.have.callCount(1);
                 expect(console.error).to.have.callCount(0);
-                expect(console.log).to.have.been.calledWith('[DEBUG]\tmessage = ' + MESSAGE + '\tmodule = ' + MODULE + '\ttrace = ' + TRACE);
+                expect(console.log).to.have.been.calledWith('[DEBUG]' + FIRST + 'message' + EQ + MESSAGE + SEP + 'module'  + EQ + MODULE + SEP + 'trace'  + EQ + TRACE);
             });
 
             afterEach(function () {
@@ -349,6 +362,7 @@
 
             beforeEach(function () {
                 app.DEBUG = true;
+                app.level = 0;
                 app.logger = {
                     _debug: sinon.spy(),
                     _info: sinon.spy(),
@@ -357,7 +371,6 @@
                     _crit: sinon.spy()
                 };
                 logger = new window.Logger(MODULE);
-                logger.level = 0;
                 console = window.console = {
                     log: sinon.spy(),
                     error: sinon.spy()

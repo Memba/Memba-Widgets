@@ -20,7 +20,6 @@
         var FUNCTION = 'function';
         var UNDEFINED = 'undefined';
         var LEVELS = {
-            // See https://github.com/logentries/le_node#log-levels
             DEBUG: { NAME: 'DEBUG', VALUE: 1 },
             INFO: { NAME: 'INFO', VALUE: 2 },
             WARN: { NAME: 'WARN', VALUE: 4 },
@@ -28,96 +27,97 @@
             CRIT: { NAME: 'CRIT', VALUE: 6 }
         };
         var DEFAULT = LEVELS.INFO;
-        var LINEFEEDS = /\n/g;
-        var LINESEP = '; ';
-        var EQUAL = ' = ';
-        var FIRST = '\t';
-        var SEPARATOR = '\t'; // '  |  ';
+        var LINEFEED = '\n';
+        var LINESEP = ', ';
+        var SPACES = /\s+/g;
+        var SPACE = ' ';
+        var EQ = ': ';
+        var FIRST = ' ';
+        var SEP = '; '; // '  |  ';
 
         /**
          * Logger class
          * @class Logger
          */
         var Logger = window.Logger = function (module/*, appLogger*/) {
-
             this._module = module;
-            this.level = DEFAULT.VALUE;
+        };
 
-            /**
-             * Preprocess message + data
-             * @param message
-             * @param data
-             */
+        /**
+         * Log message
+         * @param level
+         * @param message
+         * @param data
+         * @returns {boolean}
+         */
+        Logger.prototype.log = function (level, message, data) {
+
+            // Preprocess message + data to return an object
             function preProcess(message, data) {
                 if (typeof message !== STRING && typeof data !== UNDEFINED) {
                     throw new TypeError('Unexpected data when message is not a string');
                 }
-                var logEntry;
+                var entry;
                 if (typeof message === STRING) {
-                    logEntry = { message: message, data: data };
+                    entry = { message: message, data: data };
                 } else if (message instanceof window.Error) {
-                    logEntry = {
+                    entry = {
                         message: message.message,
                         error: message
                     };
                 } else if (typeof window.ErrorEvent === FUNCTION && message instanceof window.ErrorEvent) {
                     // window.ErrorEvent does not exist in PhantomJS
-                    logEntry = {
+                    entry = {
                         message: message.message,
                         data: { filename: message.filename, lineno: message.lineno, colno: message.colno },
                         error: message.error
                     };
                 } else if (Object.prototype.toString.call(message) === '[object Object]') {
-                    logEntry = JSON.parse(JSON.stringify(message));
+                    entry = JSON.parse(JSON.stringify(message));
                     if (message.error instanceof Error) {
                         // We need to do that because JSON.stringify(new Error('Oops)) === {}
-                        logEntry.error = message.error;
+                        entry.error = message.error;
                     }
                 } else {
-                    logEntry = { data: message };
+                    entry = { data: message };
                 }
-                return logEntry;
+                return entry;
             }
 
-            /**
-             * Enhance a log entry
-             * @param logEntry
-             * @param module
-             * @param level
-             */
-            function enhance(logEntry, module, level) {
-                if (Object.prototype.toString.call(logEntry) !== '[object Object]') {
-                    throw new TypeError('logEntry is expected to be an object');
+            // Enhance a log entry
+            function enhance(entry, module, level) {
+                if (Object.prototype.toString.call(entry) !== '[object Object]') {
+                    throw new TypeError('entry is expected to be an object');
                 }
 
                 // Improve error logging
-                if (logEntry.error instanceof Error) {
-                    if (typeof logEntry.message === UNDEFINED) {
-                        logEntry.message = logEntry.error.message;
+                if (entry.error instanceof Error) {
+                    if (typeof entry.message === UNDEFINED) {
+                        entry.message = entry.error.message;
                     }
-                    if (logEntry.error.originalError instanceof window.Error) {
-                        logEntry.original = logEntry.error.originalError.message;
-                        if (typeof logEntry.error.originalError.stack === STRING) { // To care for an exception in PhantomJS
-                            logEntry.stack = logEntry.error.originalError.stack.replace(LINEFEEDS, LINESEP);
+                    if (entry.error.originalError instanceof window.Error) {
+                        entry.originalMessage = entry.error.originalError.message;
+                        if (typeof entry.error.originalError.stack === STRING) { // To care for an exception in PhantomJS
+                            entry.stack = entry.error.originalError.stack.split(LINEFEED).join(LINESEP).replace(SPACES, SPACE);
                         }
                     } else {
-                        if (typeof logEntry.error.stack === STRING) { // To care for an exception in PhantomJS
-                            logEntry.stack = logEntry.error.stack.replace(LINEFEEDS, LINESEP);
+                        if (typeof entry.error.stack === STRING) { // To care for an exception in PhantomJS
+                            entry.stack = entry.error.stack.split(LINEFEED).join(LINESEP).replace(SPACES, SPACE);
                         }
                     }
                 }
 
                 // Add module
-                logEntry.module = typeof module === STRING ? module : UNDEFINED;
+                entry.module = typeof module === STRING ? module : UNDEFINED;
 
                 // Add level
                 level = String(level).toUpperCase();
-                logEntry.level = Object.keys(LEVELS).indexOf(level) > -1 ? level : DEFAULT.NAME;
+                entry.level = Object.keys(LEVELS).indexOf(level) > -1 ? level : DEFAULT.NAME;
 
                 // If there is a hidden input field named `trace` on the page, read it and add it
                 var input = document.getElementById('trace');
                 if (input instanceof HTMLInputElement && input.type === 'hidden') {
-                    logEntry.trace = input.value;
+                    entry.trace = input.value;
                 }
             }
 
@@ -127,60 +127,56 @@
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
-            /**
-             * Print a formatted log entry to the console
-             * @param logEntry
-             * @private
-             */
-            function log2Console(logEntry) {
+            // Print a formatted log entry to the console
+            function log2Console(entry) {
                 /* jshint maxcomplexity: 24 */
                 /* jshint maxstatements: 34 */
                 var console = window.console;
-                if (app.DEBUG && console && typeof console.log === FUNCTION) {
-                    var message = '[' + logEntry.level + (logEntry.level.length === 4 ? ' ' : '') + ']';
+                if (console && typeof console.log === FUNCTION) {
+                    var message = '[' + entry.level + (entry.level.length === 4 ? ' ' : '') + ']';
                     var first = true;
-                    if (logEntry.message) {
-                        message += (first ? FIRST : SEPARATOR) + 'message' + EQUAL + logEntry.message;
+                    if (entry.message) {
+                        message += (first ? FIRST : SEP) + 'message' + EQ + entry.message;
                         first = false;
                     }
-                    if (logEntry.original) {
-                        message += (first ? FIRST : SEPARATOR) + 'original' + EQUAL + logEntry.original;
+                    if (entry.originalMessage) {
+                        message += (first ? FIRST : SEP) + 'originalMessage' + EQ + entry.originalMessage;
                         first = false;
                     }
-                    if (logEntry.module) {
-                        message += (first ? FIRST : SEPARATOR) + 'module' + EQUAL + logEntry.module;
+                    if (entry.module) {
+                        message += (first ? FIRST : SEP) + 'module' + EQ + entry.module;
                         first = false;
                     }
-                    if (logEntry.method) {
-                        message += (first ? FIRST : SEPARATOR) + 'method' + EQUAL + logEntry.method;
+                    if (entry.method) {
+                        message += (first ? FIRST : SEP) + 'method' + EQ + entry.method;
                         first = false;
                     }
-                    if (logEntry.stack) {
-                        message += (first ? FIRST : SEPARATOR) + 'stack' + EQUAL + logEntry.stack;
+                    if (entry.stack) {
+                        message += (first ? FIRST : SEP) + 'stack' + EQ + entry.stack;
                         first = false;
                     }
-                    if (logEntry.data) {
+                    if (entry.data) {
                         try {
-                            message += (first ? FIRST : SEPARATOR) + 'data' + EQUAL + JSON.stringify(logEntry.data);
+                            message += (first ? FIRST : SEP) + 'data' + EQ + JSON.stringify(entry.data);
                         } catch (exception) {
-                            if (typeof logEntry.data.toString === FUNCTION) {
-                                message += (first ? FIRST : SEPARATOR) + 'data' + EQUAL + logEntry.data.toString();
+                            if (typeof entry.data.toString === FUNCTION) {
+                                message += (first ? FIRST : SEP) + 'data' + EQ + entry.data.toString();
                             }
                         }
                     }
-                    if (logEntry.trace) {
-                        message += (first ? FIRST : SEPARATOR) + 'trace' + EQUAL + logEntry.trace;
+                    if (entry.trace) {
+                        message += (first ? FIRST : SEP) + 'trace' + EQ + entry.trace;
                         first = false;
                     }
                     console.log(message);
-                    if (logEntry.error instanceof Error) {
+                    if (entry.error instanceof Error) {
                         if (typeof window.console.error === FUNCTION) {
-                            window.console.error(logEntry.error);
+                            window.console.error(entry.error);
                         }
                     }
-                    if (logEntry.originalError instanceof Error) {
+                    if (entry.originalError instanceof Error) {
                         if (typeof window.console.error === FUNCTION) {
-                            window.console.error(logEntry.originalError);
+                            window.console.error(entry.originalError);
                         }
                     }
                 }
@@ -189,86 +185,87 @@
             /* jshint +W074 */
             /* jshint +W071 */
 
-            /**
-             * Log message
-             * @param level
-             * @param message
-             * @param data
-             */
-            this.log = function (level, message, data) {
-                level = String(level).toUpperCase();
-                if (Object.keys(LEVELS).indexOf(level) === -1) {
-                    throw new TypeError('level is either `debug`, `info`, `warn`, `error` or `crit`');
-                }
-                if (this.level > LEVELS[level].VALUE) {
-                    return false;
-                }
-                var logEntry = preProcess(message, data);
-                enhance(logEntry, this._module, level);
-                log2Console(logEntry, level);
-                var logger = app.logger;
-                if (logger && typeof logger['_' + level.toLowerCase()] === FUNCTION) {
-                    logger['_' + level.toLowerCase()](logEntry);
-                }
-                return true;
-            };
 
-            /**
-             * Debug message
-             * @param message
-             * @param data
-             */
-            this.debug = function (message, data) {
-                return this.log(LEVELS.DEBUG.NAME, message, data);
-            };
+            level = String(level).toUpperCase();
+            if (Object.keys(LEVELS).indexOf(level) === -1) {
+                throw new TypeError('level is either `debug`, `info`, `warn`, `error` or `crit`');
+            }
+            if (app.level > LEVELS[level].VALUE) {
+                return false;
+            }
+            var entry = preProcess(message, data);
+            enhance(entry, this._module, level);
+            if (app.DEBUG) {
+                log2Console(entry, level);
+            }
+            var logger = app.logger;
+            if (logger && typeof logger['_' + level.toLowerCase()] === FUNCTION) {
+                logger['_' + level.toLowerCase()](entry);
+            }
+            return true;
+        };
 
-            /**
-             * Info message
-             * @param message
-             * @param data
-             */
-            this.info = function (message, data) {
-                return this.log(LEVELS.INFO.NAME, message, data);
-            };
+        /**
+         * Debug message
+         * @param message
+         * @param data
+         */
+        Logger.prototype.debug = function (message, data) {
+            return this.log(LEVELS.DEBUG.NAME, message, data);
+        };
 
-            /**
-             * Warning message
-             * @param message
-             * @param data
-             */
-            this.warn = function (message, data) {
-                return this.log(LEVELS.WARN.NAME, message, data);
-            };
+        /**
+         * Info message
+         * @param message
+         * @param data
+         */
+        Logger.prototype.info = function (message, data) {
+            return this.log(LEVELS.INFO.NAME, message, data);
+        };
 
-            /**
-             * Error message
-             * @param message
-             * @param data
-             */
-            this.error = function (message, data) {
-                return this.log(LEVELS.ERROR.NAME, message, data);
-            };
+        /**
+         * Warning message
+         * @param message
+         * @param data
+         */
+        Logger.prototype.warn = function (message, data) {
+            return this.log(LEVELS.WARN.NAME, message, data);
+        };
 
-            /**
-             * Critical message
-             * @param message
-             * @param data
-             */
-            this.crit = function (message, data) {
-                return this.log(LEVELS.CRIT.NAME, message, data);
-            };
+        /**
+         * Error message
+         * @param message
+         * @param data
+         */
+        Logger.prototype.error = function (message, data) {
+            return this.log(LEVELS.ERROR.NAME, message, data);
+        };
 
+        /**
+         * Critical message
+         * @param message
+         * @param data
+         */
+        Logger.prototype.crit = Logger.prototype.critical = function (message, data) {
+            return this.log(LEVELS.CRIT.NAME, message, data);
         };
 
         /**
          * OnError global event handler
          * @see https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror
-         * @param e
+         * @param message
+         * @param source
+         * @param lineno
+         * @param colno
+         * @param error
          */
-        window.onerror = function (e) {
-            // TODO window.onerror = function (msg, url, line) {
-            var gl = new Logger('global');
-            gl.crit(e);
+        window.onerror = function (message, source, lineno, colno, error) {
+            var logger = new Logger('window.logger');
+            logger.crit({
+                data: { source: source, lineno: lineno, colno: colno },
+                error: error,
+                message: message
+            });
         };
 
     }());

@@ -302,7 +302,7 @@
                     // lockedColor = valueColor = fontColor
                     attributes.fontColor.title = 'Couleur Police';
                     // Properties
-                    properties = tools.chargrid.constructor.prototype.attributes;
+                    properties = tools.chargrid.constructor.prototype.properties;
                     properties.name.title = 'Nom';
                     properties.description.title = 'Question';
                     properties.solution.title = 'Solution';

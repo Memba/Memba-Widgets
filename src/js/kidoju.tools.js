@@ -622,7 +622,7 @@
                     if ($.type(properties.description) === STRING && !RX_DESCRIPTION.test(properties.description)) {
                         ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidDescription, description, name, pageIdx + 1) });
                     }
-                    if ($.type(properties.solution) === STRING && RX_SOLUTION.test(properties.solution)) {
+                    if ($.type(properties.solution) === STRING && !RX_SOLUTION.test(properties.solution)) {
                         // TODO: what if solution is not a string but a number or something else ?
                         ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidSolution, description, name, pageIdx + 1) });
                     }

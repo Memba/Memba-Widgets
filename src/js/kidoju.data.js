@@ -1563,11 +1563,11 @@
                 var names = {};
                 var questions = { _total: 0 };
                 // Minimum number of pages
-                var MIN_PAGES = 5;
+                // var MIN_PAGES = 5;
                 var pageTotal = this.pages.total();
-                if (pageTotal < MIN_PAGES) {
-                    ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minPages, MIN_PAGES) });
-                }
+                // if (pageTotal < MIN_PAGES) {
+                //    ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minPages, MIN_PAGES) });
+                // }
                 for (var i = 0; i < pageTotal; i++) {
                     var page = this.pages.at(i);
                     var componentTotal = page.components.total();
@@ -1606,20 +1606,21 @@
                     }
                 }
                 // Minimum number of questions
+                // TODO use weight instead
                 var MIN_QUESTIONS = 10;
                 if (questions._total < MIN_QUESTIONS) {
                     ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minQuestions, MIN_QUESTIONS) });
                 }
                 // Validate toolset (which includes _total) to make sure questions are varied
-                var TYPE_VARIETY = 3;
-                if (Object.keys(questions).length <= TYPE_VARIETY) {
-                    ret.push({ type: WARNING, index: -1, message: kendo.format(this.messages.typeVariety, TYPE_VARIETY) });
-                }
+                // var TYPE_VARIETY = 3;
+                // if (Object.keys(questions).length <= TYPE_VARIETY) {
+                //     ret.push({ type: WARNING, index: -1, message: kendo.format(this.messages.typeVariety, TYPE_VARIETY) });
+                // }
                 var QTY_VARIETY = 0.5;
                 for (var prop in questions) {
                     if (questions.hasOwnProperty(prop) && prop !== '_total') {
                         var proportion =  questions[prop] / questions._total;
-                        if (proportion > QTY_VARIETY) {
+                        if (proportion >= QTY_VARIETY) {
                             assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                             ret.push({ type: WARNING, index: -1, message: kendo.format(this.messages.qtyVariety, proportion, kidoju.tools[prop].description) });
                         }

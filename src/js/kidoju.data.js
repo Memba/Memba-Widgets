@@ -1561,18 +1561,18 @@
                 assert.instanceof (Stream, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Stream'));
                 var ret = [];
                 var names = {};
-                var questions = { _total: 0 };
+                var values = { _total: 0 };
                 // Minimum number of pages
                 // var MIN_PAGES = 5;
-                var pageTotal = this.pages.total();
+                // var pageTotal = this.pages.total();
                 // if (pageTotal < MIN_PAGES) {
                 //    ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minPages, MIN_PAGES) });
                 // }
-                for (var i = 0; i < pageTotal; i++) {
+                // for (var i = 0; i < pageTotal; i++) {
+                for (var i = 0, pageTotal = this.pages.total(); i < pageTotal; i++) {
                     var page = this.pages.at(i);
-                    var componentTotal = page.components.total();
                     // Count names and questions
-                    for (var j = 0; j < componentTotal; j++) {
+                    for (var j = 0, componentTotal = page.components.total(); j < componentTotal; j++) {
                         var component = page.components.at(j);
                         var properties = component.properties;
                         if (properties) {
@@ -1585,8 +1585,8 @@
                                 var tool = component.tool;
                                 // Connectors go in pairs but it would not make sense to only have 2 connectors or less on a page, you need at least 4 to make a question
                                 // Note: We are not checking here that these connectors are on the same page, which we do in page validation
-                                questions._total += (tool === 'connector' ? 0.25 : 1);
-                                questions[tool] = (questions[tool] || 0) + (tool === 'connector' ? 0.25 : 1);
+                                values._total += (tool === 'connector' ? 0.25 : 1);  // TODO use weight instead
+                                values[tool] = (values[tool] || 0) + (tool === 'connector' ? 0.25 : 1);
                             }
                         }
                     }
@@ -1606,9 +1606,8 @@
                     }
                 }
                 // Minimum number of questions
-                // TODO use weight instead
                 var MIN_QUESTIONS = 10;
-                if (questions._total < MIN_QUESTIONS) {
+                if (values._total < MIN_QUESTIONS) {
                     ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minQuestions, MIN_QUESTIONS) });
                 }
                 // Validate toolset (which includes _total) to make sure questions are varied
@@ -1617,9 +1616,9 @@
                 //     ret.push({ type: WARNING, index: -1, message: kendo.format(this.messages.typeVariety, TYPE_VARIETY) });
                 // }
                 var QTY_VARIETY = 0.5;
-                for (var prop in questions) {
-                    if (questions.hasOwnProperty(prop) && prop !== '_total') {
-                        var proportion =  questions[prop] / questions._total;
+                for (var prop in values) {
+                    if (values.hasOwnProperty(prop) && prop !== '_total') {
+                        var proportion =  values[prop] / values._total;
                         if (proportion >= QTY_VARIETY) {
                             assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                             ret.push({ type: WARNING, index: -1, message: kendo.format(this.messages.qtyVariety, proportion, kidoju.tools[prop].description) });

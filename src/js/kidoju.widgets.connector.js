@@ -29,7 +29,6 @@
         var data = kendo.data;
         var drawing = kendo.drawing;
         var geometry = kendo.geometry;
-        var ObservableArray = data.ObservableArray;
         var DataSource = data.DataSource;
         var Surface = drawing.Surface;
         var Widget = kendo.ui.Widget;
@@ -265,7 +264,7 @@
                 var element = that.element;
                 var x = element.width() / 2; // parseInt(options.width, 10) / 2;
                 var y = element.height() / 2; // parseInt(options.height, 10) / 2;
-                var radius = Math.min(x, y);
+                var radius = Math.max(0, Math.min(x, y) - 10); // Add some space around radius to make it easier to grab on mobile devices
                 var connector = new drawing.Group();
                 var outerCircleGeometry = new geometry.Circle([x, y], 0.8 * radius);
                 var outerCircle = new drawing.Circle(outerCircleGeometry).stroke(color, 0.2 * radius);

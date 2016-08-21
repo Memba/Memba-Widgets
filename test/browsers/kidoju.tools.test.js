@@ -354,8 +354,8 @@
                 expect(tool.id).to.equal('connector');
                 expect(tool.icon).to.equal('target');
                 expect(tool.cursor).to.equal('crosshair');
-                expect(tool.height).to.equal(50);
-                expect(tool.width).to.equal(50);
+                expect(tool.height).to.equal(70);
+                expect(tool.width).to.equal(70);
                 expect(tool.getHtmlContent).to.respond;
                 expect(tool.onMove).to.be.undefined;
                 expect(tool.onResize).to.respond;

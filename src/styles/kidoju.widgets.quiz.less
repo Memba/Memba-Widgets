@@ -1,40 +1,43 @@
 .kj-quiz {
     .kj-quiz-item {
         margin-bottom: 0.15em;
-    }
-    .k-radio-label {
-        vertical-align: initial;
-    }
-    .k-radio-label:before {
-        border-width: 0.05em;
-        top: 0.1em;
-        left: 0.1em;
-        width: 0.8em;
-        height: 0.8em;
-    }
-    .k-radio:checked+.k-radio-label:after {
-        width: 0.7em;
-        height: 0.7em;
-        top: 0.2em;
-        left: 0.2em;
+        input.k-radio {
+            display: none;
+        }
+        .k-radio-label {
+            vertical-align: initial;
+        }
+        .k-radio-label:before {
+            border-width: 0.05em;
+            top: 0.1em;
+            left: 0.1em;
+            width: 0.8em;
+            height: 0.8em;
+        }
+        .k-radio:checked+.k-radio-label:after {
+            width: 0.7em;
+            height: 0.7em;
+            top: 0.2em;
+            left: 0.2em;
+        }
     }
 }
 // Fixes a FF defect in design mode but does not seem to affect other browsers
 // The defect is the original radio input does not have a width of 0 and is shown alongside redesigned CCS checkbox
-.kj-quiz[data-enable="false"] {
-    input.k-radio.k-state-disabled {
-        display: none;
-    }
-}
+// .kj-quiz[data-enable="false"] {
+//     input.k-radio.k-state-disabled {
+//         display: none;
+//     }
+// }
 // Fixes a .km-nova defect in Kidoju-Mobile
 // See https://github.com/kidoju/Kidoju-Widgets/issues/117
-.km-nova {
-    .kj-quiz {
-        input.k-radio {
-            display: none;
-        }
-    }
-}
+// .km-nova {
+//    .kj-quiz {
+//        input.k-radio {
+//            display: none;
+//        }
+//    }
+// }
 // Fixes a .k-ff defect in Firefox
 // See https://github.com/kidoju/Kidoju-Widgets/issues/116
 // See https://github.com/jlchereau/Kidoju-Webapp/issues/164

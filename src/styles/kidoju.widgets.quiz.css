@@ -1,27 +1,24 @@
 .kj-quiz .kj-quiz-item {
     margin-bottom: 0.15em;
 }
-.kj-quiz .k-radio-label {
+.kj-quiz .kj-quiz-item input.k-radio {
+    display: none;
+}
+.kj-quiz .kj-quiz-item .k-radio-label {
     vertical-align: initial;
 }
-.kj-quiz .k-radio-label:before {
+.kj-quiz .kj-quiz-item .k-radio-label:before {
     border-width: 0.05em;
     top: 0.1em;
     left: 0.1em;
     width: 0.8em;
     height: 0.8em;
 }
-.kj-quiz .k-radio:checked + .k-radio-label:after {
+.kj-quiz .kj-quiz-item .k-radio:checked + .k-radio-label:after {
     width: 0.7em;
     height: 0.7em;
     top: 0.2em;
     left: 0.2em;
-}
-.kj-quiz[data-enable="false"] input.k-radio.k-state-disabled {
-    display: none;
-}
-.km-nova .kj-quiz input[type=radio] {
-    opacity: 0;
 }
 .k-ff .kj-quiz input.k-button {
     padding-bottom: initial;

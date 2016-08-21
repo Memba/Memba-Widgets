@@ -834,7 +834,7 @@
                 missingMultimedia: 'A multimedia element (Image, Audio, Video) is recommended on page {0}.',
                 missingQuestion: 'A question is recommended on page {0}.',
                 missingInstructions: 'Instructions are recommended on page {0}.',
-                missingExplanations: 'Explanations are missing on page {0}.'
+                missingExplanations: 'Explanations are recommended on page {0}.'
             },
 
             /* This function's cyclomatic complexity is too high. */
@@ -913,7 +913,7 @@
                 // Check explanations
                 var explanations = (this.get('explanations') || '').trim();
                 if (!explanations) {
-                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(this.messages.missingExplanations, pageIdx + 1) });
+                    ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.missingExplanations, pageIdx + 1) });
                 }
                 return ret;
             }
@@ -1606,7 +1606,7 @@
                     }
                 }
                 // Minimum number of questions
-                var MIN_QUESTIONS = 10;
+                var MIN_QUESTIONS = 10; // TODO use weight instead
                 if (values._total < MIN_QUESTIONS) {
                     ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minQuestions, MIN_QUESTIONS) });
                 }

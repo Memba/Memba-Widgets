@@ -224,7 +224,7 @@
                     missingMultimedia: 'Un élément multimédia (Image, Audio, Vidéo) est recommandé en page {0}.',
                     missingQuestion: 'Une question est recommandé en page {0}.',
                     missingInstructions: 'Des instructions sont recommandées en page {0}.',
-                    missingExplanations: 'Les explications manquent en page {0}.'
+                    missingExplanations: 'Des explications sont recommandées en page {0}.'
                 };
             }
 

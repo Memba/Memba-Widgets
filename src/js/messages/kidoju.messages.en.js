@@ -225,7 +225,7 @@
                     missingMultimedia: 'A multimedia element (Image, Audio, Video) is recommended on page {0}.',
                     missingQuestion: 'A question is recommended on page {0}.',
                     missingInstructions: 'Instructions are recommended on page {0}.',
-                    missingExplanations: 'Explanations are missing on page {0}.'
+                    missingExplanations: 'Explanations are recommended on page {0}.'
                 };
             }
 

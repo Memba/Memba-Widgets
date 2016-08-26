@@ -202,11 +202,19 @@
         if (window.kidoju) {
 
             var kidoju = window.kidoju;
+            var adapters = kidoju.adapters;
             var data = kidoju.data;
             var tools = kidoju.tools;
             var Tool = kidoju.Tool;
             var attributes;
             var properties;
+
+            if (adapters && adapters.CharGridAdapter) {
+                adapters.CharGridAdapter.prototype.messages = {
+                    layout: '<h3>Design the grid layout</h3><p>Any character you enter in the grid is locked and cannot be changed in play mode.</p><p>Use `{0}` to blank out empty cells.</p>',
+                    solution: '<h3>Enter the solution</h3><p>Use any whitelisted character, i.e. `{0}`.</p>'
+                }
+            }
 
             /*
              if (data && data.PageComponent) {

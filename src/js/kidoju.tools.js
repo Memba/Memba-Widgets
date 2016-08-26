@@ -170,6 +170,13 @@
                 }
             },
 
+            chargridadapter: {
+                messages: {
+                    layout: '<h3>Design the grid layout</h3><p>Any character you enter in the grid is locked and cannot be changed in play mode.</p><p>Use `{0}` to blank out cells.</p>',
+                    solution: '<h3>Enter the solution</h3><p>Use any whitelisted character, i.e. `{0}`.</p>'
+                }
+            },
+
             checkbox: {
                 description: 'CheckBox',
                 attributes: {
@@ -1436,18 +1443,22 @@
                 // Prepare UI
                 dialog.title(options.title);
                 var content = '<div class="k-edit-form-container">' + // TODO namespace???
-                    '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-edit-form-container" data-container=".k-edit-form-container" ' +
-                    'data-columns="' + model.get('attributes.columns') + '" data-rows="' + model.get('attributes.rows') + '" ' +
-                    'data-blank="' + model.get('attributes.blank') + '" ' +
-                    'data-whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
-                    (options.field === 'properties.solution' ? 'data-locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
-                    // TODO Add colors
-                    'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;"></div>' +
+                    '<div>' +
+                        '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-edit-form-container" data-container=".k-edit-form-container" ' +
+                        'data-columns="' + model.get('attributes.columns') + '" data-rows="' + model.get('attributes.rows') + '" ' +
+                        'data-blank="' + model.get('attributes.blank') + '" ' +
+                        'data-whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
+                        (options.field === 'properties.solution' ? 'data-locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
+                        // TODO Add colors
+                        'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;margin:20px;float:left;"></div>' +
+                        '<div style="max-width:400px;margin:20px 0;float:left;">' +
+                        (options.field === 'properties.solution' ? kendo.format(this.messages.solution, model.get('attributes.whitelist')) : kendo.format(this.messages.layout, model.get('attributes.blank'))) +
+                        '</div>' +
+                    '</div>' +
                     '<div class="k-edit-buttons k-state-default">' +
                     '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
                     '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
                     '</div></div>';
-                // TODO: Add user instructions
                 dialog.content(content);
                 kendo.bind(dialog.element, dialog.viewModel);
                 dialog.element.addClass('no-padding');
@@ -1472,7 +1483,11 @@
                     formula: kendo.format(FORMULA, 'return value && typeof value.equals === "function" && value.equals(solution);')
                 }
             ],
-            libraryDefault: 'equal'
+            libraryDefault: 'equal',
+            messages: {
+                layout: i18n.chargridadapter.messages.layout,
+                solution: i18n.chargridadapter.messages.solution
+            }
         });
 
         /*******************************************************************************************

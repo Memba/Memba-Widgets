@@ -38,6 +38,7 @@
         var kendo = window.kendo;
         var kidoju = window.kidoju = window.kidoju || {};
         var Model = kidoju.data.Model;
+        var ObservableArray = kendo.data.ObservableArray;
         var PageComponent = kidoju.data.PageComponent;
         var Page = kidoju.data.Page;
         var assert = window.assert;
@@ -1677,15 +1678,17 @@
             value$: function (value) {
                 // var ret = '<table>';
                 var ret = '';
-                for (var r = 0, rowTotal = value.length; r < rowTotal; r++) {
-                    var row = value[r];
-                    // ret += '<tr>';
-                    for (var c = 0, colTotal = row.length ; c < colTotal; c++) {
-                        // ret += '<td>' + kendo.htmlEncode(row[c] || '') + '</td>';
-                        ret += kendo.htmlEncode(row[c] || '') + (c === colTotal - 1 ? '' : ',');
+                if ($.isArray(value) || value instanceof ObservableArray) {
+                    for (var r = 0, rowTotal = value.length; r < rowTotal; r++) {
+                        var row = value[r];
+                        // ret += '<tr>';
+                        for (var c = 0, colTotal = row.length; c < colTotal; c++) {
+                            // ret += '<td>' + kendo.htmlEncode(row[c] || '') + '</td>';
+                            ret += kendo.htmlEncode(row[c] || '') + (c === colTotal - 1 ? '' : ',');
+                        }
+                        // ret += '</tr>';
+                        ret += '<br/>';
                     }
-                    // ret += '</tr>';
-                    ret += '<br/>';
                 }
                 // ret += '</table>';
                 return ret;
@@ -1698,15 +1701,17 @@
             solution$: function (solution) {
                 // var ret = '<table>';
                 var ret = '';
-                for (var r = 0, rowTotal = solution.length; r < rowTotal; r++) {
-                    var row = solution[r];
-                    // ret += '<tr>';
-                    for (var c = 0, colTotal = row.length ; c < colTotal; c++) {
-                        // ret += '<td>' + kendo.htmlEncode(row[c] || '') + '</td>';
-                        ret += kendo.htmlEncode(row[c] || '') + (c === colTotal - 1 ? '' : ',');
+                if ($.isArray(solution) || solution instanceof ObservableArray) {
+                    for (var r = 0, rowTotal = solution.length; r < rowTotal; r++) {
+                        var row = solution[r];
+                        // ret += '<tr>';
+                        for (var c = 0, colTotal = row.length; c < colTotal; c++) {
+                            // ret += '<td>' + kendo.htmlEncode(row[c] || '') + '</td>';
+                            ret += kendo.htmlEncode(row[c] || '') + (c === colTotal - 1 ? '' : ',');
+                        }
+                        // ret += '</tr>';
+                        ret += '<br/>';
                     }
-                    // ret += '</tr>';
-                    ret += '<br/>';
                 }
                 // ret += '</table>';
                 return ret;

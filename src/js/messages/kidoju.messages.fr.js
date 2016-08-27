@@ -212,7 +212,7 @@
                 adapters.CharGridAdapter.prototype.messages = {
                     layout: '<h3>Concevez la grille</h3><p>Chaque caractère saisi dans la grille est verrouillé et ne peut être modifié  en mode d\'exécution.</p><p>Utilisez le caractère `{0}` pour désigner les cellules vides.</p>',
                     solution: '<h3>Saisissez la solution</h3><p>Utilisez les caractères autorisés de la liste blanche, i.e. `{0}`.</p>'
-                }
+                };
             }
 
             /*

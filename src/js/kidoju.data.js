@@ -1550,6 +1550,9 @@
                 qtyVariety: 'More variety is recommended because {0:p0} of questions are of type {1}.'
             },
 
+            /* Blocks are nested too deeply. */
+            /* jshint -W073 */
+
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
@@ -1634,6 +1637,7 @@
             }
 
             /* jshint +W074 */
+            /* jshint +W073 */
 
         });
 

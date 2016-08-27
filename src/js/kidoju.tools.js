@@ -392,6 +392,7 @@
             icon: null,
             description: null,
             cursor: null,
+            weight: 0,
             height: 250,
             width: 250,
             attributes: {},
@@ -1637,6 +1638,7 @@
             icon: 'dot_matrix',
             description: i18n.chargrid.description,
             cursor: CURSOR_CROSSHAIR,
+            weight: 10,
             templates: {
                 design: kendo.format(CHARGRID, 'data-#= ns #value="#: JSON.stringify(attributes.layout) #" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'),
                 play: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #"'),
@@ -1751,6 +1753,7 @@
             icon: 'checkbox',
             description: i18n.checkbox.description,
             cursor: CURSOR_CROSSHAIR,
+            weight: 1,
             templates: {
                 design: kendo.format(CHECKBOX, 'data-#= ns #enable="false"'),
                 play: kendo.format(CHECKBOX, 'data-#= ns #bind="value: #: properties.name #.value"'),
@@ -1866,6 +1869,7 @@
             icon: 'target',
             description: i18n.connector.description,
             cursor: CURSOR_CROSSHAIR,
+            weight: 0.25,
             templates: {
                 design: kendo.format(CONNECTOR, 'data-#= ns #enable="false" data-#= ns #has-surface="false"'),
                 play: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: connections"'),
@@ -1948,6 +1952,7 @@
             icon: 'elements_selection',
             description: i18n.dropzone.description,
             cursor: CURSOR_CROSSHAIR,
+            weight: 1,
             templates: {
                 design: kendo.format(DROPZONE, 'data-#= ns #enable="false"'),
                 play: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggables"'),
@@ -2411,6 +2416,7 @@
             icon: 'radio_button_group',
             description: i18n.quiz.description,
             cursor: CURSOR_CROSSHAIR,
+            weight: 1,
             templates: {
                 design: kendo.format(QUIZ, 'data-#= ns #enable="false"'),
                 play: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value"'),
@@ -2535,6 +2541,7 @@
             icon: 'text_field',
             description: i18n.textbox.description,
             cursor: CURSOR_CROSSHAIR,
+            weight: 1,
             templates: {
                 design: kendo.format(TEXTBOX, ''),
                 play: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"'),

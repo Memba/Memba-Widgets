@@ -1561,7 +1561,7 @@
                 assert.instanceof (Stream, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Stream'));
                 var ret = [];
                 var names = {};
-                var values = { _total: 0 };
+                var values = { _total: 0, _weight: 0 };
                 // Minimum number of pages
                 // var MIN_PAGES = 5;
                 // var pageTotal = this.pages.total();
@@ -1571,6 +1571,7 @@
                 // for (var i = 0; i < pageTotal; i++) {
                 for (var i = 0, pageTotal = this.pages.total(); i < pageTotal; i++) {
                     var page = this.pages.at(i);
+                    var hasConnectors = false;
                     // Count names and questions
                     for (var j = 0, componentTotal = page.components.total(); j < componentTotal; j++) {
                         var component = page.components.at(j);
@@ -1583,10 +1584,14 @@
                             if ($.type(properties.validation) === STRING) {
                                 assert.type(STRING, component.tool, kendo.format(assert.messages.type.default, 'component.tool', STRING));
                                 var tool = component.tool;
-                                // Connectors go in pairs but it would not make sense to only have 2 connectors or less on a page, you need at least 4 to make a question
-                                // Note: We are not checking here that these connectors are on the same page, which we do in page validation
-                                values._total += (tool === 'connector' ? 0.25 : 1);  // TODO use weight instead
-                                values[tool] = (values[tool] || 0) + (tool === 'connector' ? 0.25 : 1);
+                                if (tool !== 'connector' || !hasConnectors) {
+                                    hasConnectors = (tool === 'connector');
+                                    // Connectors go in pairs but it would not make sense to only have 2 connectors or less on a page, you need at least 4 to make a question
+                                    // Accordingly, we count connectors only once per page
+                                    values._total += 1;
+                                    values[tool] = (values[tool] || 0) + 1;
+                                }
+                                values._weight += kidoju.tools[tool].weight;
                             }
                         }
                     }
@@ -1605,10 +1610,10 @@
                         }
                     }
                 }
-                // Minimum number of questions
-                var MIN_QUESTIONS = 10; // TODO use weight instead
-                if (values._total < MIN_QUESTIONS) {
-                    ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minQuestions, MIN_QUESTIONS) });
+                // Minimum number of questions (minimum weight)
+                var MIN_WEIGHT = 10;
+                if (values._weight < MIN_WEIGHT) {
+                    ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minQuestions, MIN_WEIGHT) });
                 }
                 // Validate toolset (which includes _total) to make sure questions are varied
                 // var TYPE_VARIETY = 3;
@@ -1617,7 +1622,7 @@
                 // }
                 var QTY_VARIETY = 0.5;
                 for (var prop in values) {
-                    if (values.hasOwnProperty(prop) && prop !== '_total') {
+                    if (values.hasOwnProperty(prop) && prop !== '_total' && prop !== '_weight') {
                         var proportion =  values[prop] / values._total;
                         if (proportion >= QTY_VARIETY) {
                             assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));

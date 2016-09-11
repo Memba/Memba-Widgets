@@ -2154,8 +2154,8 @@
                      */
                 }
                 // Set content size
-                content.outerHeight(component.get('height'));
-                content.outerWidth(component.get('width'));
+                content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+                content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage

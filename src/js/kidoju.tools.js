@@ -2212,7 +2212,7 @@
          */
         var Label = Tool.extend({
             id: 'label',
-            icon: 'document_orientation_landscape',
+            icon: 'font',
             description: i18n.label.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
@@ -2265,10 +2265,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
+                    content.outerWidth(component.width - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
+                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
                     // if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
                     /*
                      * We make a best guess for the number of lines as follows

@@ -2367,10 +2367,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
+                    content.outerWidth(component.width - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
+                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
                 }
                 // prevent any side effect
                 e.preventDefault();

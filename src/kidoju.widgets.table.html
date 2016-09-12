@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kidoju.widgets.table</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <script src="./js/vendor/kendo/jquery.min.js"></script>
+    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script>
+    <!-- table requirements -->
+    <link rel="stylesheet" href="./styles/kidoju.widgets.table.css">
+    <script src="./js/window.assert.js"></script>
+    <script src="./js/window.logger.js"></script>
+    <script src="./js/kidoju.widgets.table.js"></script>
+    <style>
+
+    </style>
+</head>
+<body>
+<h1>kidoju.widgets.table</h1>
+<div style="height:300px;">
+    <div data-role="table" data-columns="5" data-rows="8" data-bind="value: json, visible: visible, enabled: enabled"></div>
+</div>
+
+<div id="spreadsheet"></div>
+
+
+<pre>
+{
+    json:
+    <div data-bind="text: json$" style="margin-left:50px;"></div>
+    visible: <span data-bind="text: visible"></span>
+    enabled: <span data-bind="text: enabled"></span>
+}
+</pre>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />enabled
+</div>
+
+<script>
+    ;(function(window, $, undefined){
+
+        'use strict';
+
+        var kendo = window.kendo;
+        var viewModel = window.viewModel = new kendo.observable({
+            json: null,
+            json$: function () {
+                return JSON.stringify(this.get('json'));
+            },
+            visible: true,
+            enabled: true
+        });
+
+        $(document).ready(function() {
+            kendo.bind('body', viewModel);
+            $('#spreadsheet').kendoSpreadsheet({
+                sheets: [{}],
+                sheetsbar: false,
+                columns: 5,
+                rows: 8,
+                change: function (e) { // change is only triggered by cell data changes (not cell formatting changes)
+                    viewModel.set('json', e.sender.toJSON());
+                },
+                toolbar: {
+                    // TODO: merge not included in v1
+                    home: [['bold', 'italic', 'underline'], 'backgroundColor', 'textColor', 'borders', 'fontSize', 'fontFamily', 'alignment', 'textWrap', ['formatDecreaseDecimal', 'formatIncreateDecimal'], 'format'],
+                    insert: false,
+                    data: false
+                }
+            });
+        });
+
+    }(this, jQuery));
+</script>
+</body>
+</html>

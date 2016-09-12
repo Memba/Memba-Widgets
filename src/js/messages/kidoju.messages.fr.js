@@ -439,6 +439,23 @@
                     properties.omit.title = 'Omission';
                 }
 
+                if (tools.textarea instanceof Tool) {
+                    // Description
+                    tools.textarea.constructor.prototype.description = 'Aire de Texte';
+                    // Attributes
+                    attributes = tools.textarea.constructor.prototype.attributes;
+                    attributes.style.title = 'Style';
+                    // Properties
+                    properties = tools.textarea.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.description.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Échec';
+                    properties.omit.title = 'Omission';
+                }
+
                 if (tools.textbox instanceof Tool) {
                     // Description
                     tools.textbox.constructor.prototype.description = 'Boîte de Texte';

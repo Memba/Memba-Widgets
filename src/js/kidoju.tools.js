@@ -283,6 +283,23 @@
                 }
             },
 
+            textarea: {
+                description: 'TextArea',
+                attributes: {
+                    style: { title: 'Style' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    description: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
+                }
+            },
+
+
             textbox: {
                 description: 'TextBox',
                 attributes: {
@@ -1317,7 +1334,22 @@
                 this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 this.editor = 'textarea';
                 this.attributes = $.extend({}, this.attributes, attributes);
-            }
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
+                },
+                {
+                    name: 'noSpaceEqual',
+                    formula: kendo.format(FORMULA, 'return String(value).replace(/\s+/g, "") === String(solution).replace(/\s+/g, "");')
+                },
+                {
+                    name: 'noPunctiationEqual',
+                    formula: kendo.format(FORMULA, 'return String(value).replace(/[\.,;:\?!\'"\(\)\s]+/g, "") === String(solution).replace(/[\.,;:\?!\'"\(\)\s]+/g, "");')
+                }
+            ],
+            libraryDefault: 'equal'
         });
 
         /**
@@ -2534,8 +2566,104 @@
         });
         tools.register(Quiz);
 
+        var TEXTAREA = '<textarea id="#: properties.name #" class="k-textbox" style="#: attributes.style #" {0}>';
+        /**
+         * @class Textarea tool
+         * @type {void|*}
+         */
+        var Textarea = Tool.extend({
+            id: 'textarea',
+            icon: 'document_orientation_landscape',
+            description: i18n.textarea.description,
+            cursor: CURSOR_CROSSHAIR,
+            weight: 2,
+            templates: {
+                design: kendo.format(TEXTAREA, ''),
+                play: kendo.format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"'),
+                review: kendo.format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"') + Tool.fn.showResult()
+            },
+            height: 300,
+            width: 500,
+            attributes: {
+                style: new adapters.StyleAdapter({ title: i18n.textarea.attributes.style.title, defaultValue: 'font-size:40px; resize:none;' })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.textarea.properties.name.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.textarea.properties.description.title }),
+                solution: new adapters.TextAdapter({ title: i18n.textarea.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({ title: i18n.textarea.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.textarea.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.textarea.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.textarea.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * onEnable event handler
+             * @class Textarea
+             * @method onEnable
+             * @param e
+             * @param component
+             * @param enabled
+             */
+            onEnable: function (e, component, enabled) {
+                var stageElement = $(e.currentTarget);
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
+                    stageElement.children('textarea')
+                        .prop({
+                            // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
+                            readonly: !enabled
+                        });
+                }
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('textarea');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width - content.outerWidth(true) + content.outerWidth());
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if ((component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
+            }
+
+        });
+        tools.register(Textarea);
+
         // Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
-        // var TEXTBOX = '<input type="text" id="#: properties.name #" data-#= ns #role="maskedtextbox" data-#= ns #mask="#: attributes.mask #" style="#: attributes.style #" {0}>';
         var TEXTBOX = '<input type="text" id="#: properties.name #" data-#= ns #role="maskedtextbox" data-#= ns #prompt-char="\u25CA" style="#: attributes.style #" {0}>';
         /**
          * @class Textbox tool

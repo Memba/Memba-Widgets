@@ -171,8 +171,9 @@
                                     top: top,
                                     // verticalAlign: cellDefinition.verticalAlign === 'center' ? 'middle' : (cellDefinition.verticalAlign || 'bottom'),
                                     width: width,
-                                    whiteSpace: cellDefinition.wrap ? 'pre-wrap' : undefined,
-                                    wordBreak: cellDefinition.wrap ? 'break-all' : undefined
+                                    // we need to test true because when undefined cellDefinition.wrap is actually a function
+                                    whiteSpace: cellDefinition.wrap === true ? 'pre-wrap' : undefined,
+                                    wordBreak: cellDefinition.wrap === true ? 'break-all' : undefined
                                 },
                                 class: 'k-vertical-align-' + (cellDefinition.verticalAlign || 'bottom')
                             });
@@ -202,7 +203,7 @@
                         var cellContent = '<DIV class="' + cell.class + '">';
                         if ($.type(cell.value) === UNDEFINED) {
                             cellContent += '&nbsp';
-                        } else if (!isNaN(parseFloat(cell.value))) { // TODO dates
+                        } else if (!isNaN(parseFloat(cell.value))) {
                             cellContent += '<span>' + kendo.toString(cell.value, cell.format) + '</span>';
                         } else {
                             cellContent += cell.value;

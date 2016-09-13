@@ -62,21 +62,24 @@
 
         $(document).ready(function() {
             kendo.bind('body', viewModel);
-            $('#spreadsheet').kendoSpreadsheet({
+            var spreadsheetWidget = $('#spreadsheet').kendoSpreadsheet({
                 sheets: [{}],
                 sheetsbar: false,
                 columns: 5,
                 rows: 8,
-                change: function (e) { // change is only triggered by cell data changes (not cell formatting changes)
-                    viewModel.set('json', e.sender.toJSON());
+                render: function (e) { // render is triggered by cell data and formatting changes but it occurs too often to debug
+                // change: function (e) { // change is only triggered by cell data changes (not cell formatting changes)
+                        viewModel.set('json', e.sender.toJSON());
                 },
                 toolbar: {
-                    // TODO: merge not included in v1
+                    // TODO: merge and hide not included in v1
                     home: [['bold', 'italic', 'underline'], 'backgroundColor', 'textColor', 'borders', 'fontSize', 'fontFamily', 'alignment', 'textWrap', ['formatDecreaseDecimal', 'formatIncreateDecimal'], 'format'],
                     insert: false,
                     data: false
                 }
-            });
+            }).data('kendoSpreadsheet');
+            // Prevent other options to add/remove/hide/merge cells
+            $('#spreadsheet').find('.k-spreadsheet-fixed-container').off('contextmenu');
         });
 
     }(this, jQuery));

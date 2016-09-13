@@ -225,8 +225,8 @@
                 }
             },
 
-            /*  This function's cyclomatic complexity is too high. */
-            /* jshint -W073 */
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Compare values
@@ -258,7 +258,7 @@
                 return true;
             },
 
-            /* jshint +W073 */
+            /* jshint +W074 */
 
             /**
              * Value for MVVM binding
@@ -276,8 +276,8 @@
                 }
             },
 
-            /*  This function's cyclomatic complexity is too high. */
-            /* jshint -W073 */
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Get/set cell value
@@ -318,7 +318,7 @@
                 }
             },
 
-            /* jshint +W073 */
+            /* jshint +W074 */
 
             /**
              * Get cell locked state
@@ -502,8 +502,8 @@
                 }
             },
 
-            /*  This function's cyclomatic complexity is too high. */
-            /* jshint -W073 */
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Draw cell values
@@ -545,7 +545,7 @@
                 that.surface.draw(chars);
             },
 
-            /* jshint +W073 */
+            /* jshint +W074 */
 
             /**
              * Redraw everything
@@ -634,7 +634,7 @@
             },
 
             /*  This function's cyclomatic complexity is too high. */
-            /* jshint -W073 */
+            /* jshint -W074 */
 
             /**
              * KeyDown event handler
@@ -678,7 +678,7 @@
                 }
             },
 
-            /* jshint +W073 */
+            /* jshint +W074 */
 
             /**
              * KeyPress event handler

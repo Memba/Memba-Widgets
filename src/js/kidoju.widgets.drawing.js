@@ -34,11 +34,11 @@
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.drawing');
-        // var NUMBER = 'number';
-        // var STRING = 'string';
-        // var NULL = 'null';
+        var NUMBER = 'number';
+        var STRING = 'string';
+        var NULL = 'null';
         var UNDEFINED = 'undefined';
-        // var CHANGE = 'change';
+        var CHANGE = 'change';
         var DOT = '.';
         var WIDGET = 'kendoDrawing';
         var NS = DOT + WIDGET;
@@ -50,7 +50,7 @@
         var SURFACE_CLASS = WIDGET_CLASS + '-surface';
         var SURFACE = 'surface';
         // var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
-        // var ID = 'id';
+        var ID = 'id';
 
         /*********************************************************************************
          * Helpers
@@ -229,9 +229,9 @@
                             assert.instanceof(Surface, surface, kendo.format(assert.messages.instanceof.default, 'surface', 'kendo.drawing.Surface'));
                             path = new drawing.Path({
                                 stroke: {
-                                    color: elementWidget.options.color,
-                                    lineCap: PATH_LINECAP,
-                                    width: PATH_WIDTH
+                                    color: elementWidget.options.color
+                                    // lineCap: PATH_LINECAP,
+                                    // width: PATH_WIDTH
                                 }
                             });
                             path.moveTo(center.left, center.top);

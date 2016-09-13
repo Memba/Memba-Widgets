@@ -110,6 +110,9 @@
                     });
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Parse Kendo UI Spreadsheet JSON
              * @param value
@@ -125,13 +128,17 @@
                 var left = 0;
                 var top = 0;
                 var width;
-                for (var i = 0; i < rowTotal; i++) {
+                var rowIndex;
+                var columnIndex;
+                var rowFinder = function (item) { return item.index === rowIndex; };
+                var columnFinder = function (item) { return item.index === columnIndex; };
+                for (rowIndex = 0; rowIndex < rowTotal; rowIndex++) {
                     ret.push([]);
-                    var row = ret[i];
-                    var rowDefinition = rowDefinitions.find(function (item) { return item.index === i }) || { cells: [] };
-                    for (var j = 0; j < columnTotal; j++) {
-                        var cellDefinition = rowDefinition.cells.find(function (item) { return item.index === j });
-                        var columnDefinition = columnDefinitions.find(function (item) { return item.index === j });
+                    var row = ret[rowIndex];
+                    var rowDefinition = rowDefinitions.find(rowFinder) || { cells: [] };
+                    for (columnIndex = 0; columnIndex < columnTotal; columnIndex++) {
+                        var cellDefinition = rowDefinition.cells.find(columnFinder);
+                        var columnDefinition = columnDefinitions.find(columnFinder);
                         height = rowDefinition && rowDefinition.height || DEFAULTS.ROW_HEIGHT;
                         width = columnDefinition && columnDefinition.width || DEFAULTS.COLUMN_WIDTH;
                         if ($.type(cellDefinition) === UNDEFINED) {
@@ -179,6 +186,8 @@
                 }
                 return ret;
             },
+
+            /* jshint +W074 */
 
             /**
              * Widget rendering

@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  * Copyright (c) 2013-2016 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
@@ -1301,7 +1301,7 @@
                 // Prepare UI
                 dialog.title(options.title);
                 var content = '<div class="k-edit-form-container">' + // TODO namespace???
-                    '<div data-role="spreadsheet" style="width:' + (dialog.element.parent().width() -2) + 'px;"></div>' +
+                    '<div data-role="spreadsheet" style="width:' + (dialog.element.parent().width() - 2) + 'px;"></div>' +
                     '<div class="k-edit-buttons k-state-default">' +
                     '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
                     '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
@@ -1333,7 +1333,7 @@
                 spreadsheet.find('.k-spreadsheet-fixed-container').off('contextmenu');
                 // Set default font size
                 var activeSheet = spreadsheetWidget.activeSheet();
-                activeSheet.range('R1C1:R' + rows + 'C' + columns).forEachCell(function(rowIndex, columnIndex) {
+                activeSheet.range('R1C1:R' + rows + 'C' + columns).forEachCell(function (rowIndex, columnIndex) {
                     var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
                     range.fontSize(range.fontSize() || 36);
                 });

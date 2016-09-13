@@ -502,6 +502,9 @@
                 }
             },
 
+            /* Blocks are nested too deeply. */
+            /* jshint -W073 */
+
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
@@ -546,6 +549,7 @@
             },
 
             /* jshint +W074 */
+            /* jshint +W073 */
 
             /**
              * Redraw everything

@@ -1275,89 +1275,6 @@
         });
 
         /**
-         * Spreadsheet adapter
-         */
-        adapters.SpreadsheetAdapter = BaseAdapter.extend({
-            init: function (options) {
-                var that = this;
-                BaseAdapter.fn.init.call(that, options);
-                that.type = undefined;
-                // This is the inline editor with a [...] button which triggers this.showDialog
-                that.editor = function (container, options) {
-                    $('<button/>')
-                        .text('...')
-                        .addClass('k-button')
-                        .css({ margin: 0, width: '100%' })
-                        .appendTo(container)
-                        .on(CLICK, $.proxy(that.showDialog, that, options));
-                };
-            },
-            showDialog: function (options) {
-                var that = this;
-                var dialog = that.getDialog();
-                var model = options.model;
-                var columns = model.get('attributes.columns');
-                var rows = model.get('attributes.rows');
-                // Prepare UI
-                dialog.title(options.title);
-                var content = '<div class="k-edit-form-container">' + // TODO namespace???
-                    '<div data-role="spreadsheet" style="width:' + (dialog.element.parent().width() - 2) + 'px;"></div>' +
-                    '<div class="k-edit-buttons k-state-default">' +
-                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
-                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
-                    '</div></div>';
-                dialog.content(content);
-                var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
-                var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
-                    // sheets: [{}],
-                    columns: columns,
-                    rows: rows,
-                    columnWidth: 100,
-                    rowHeight: 45,
-                    sheetsbar: false,
-                    toolbar: {
-                        // TODO: merge and hide not included in v1
-                        home: [['bold', 'italic', 'underline'], 'backgroundColor', 'textColor', 'borders', 'fontSize', 'fontFamily', 'alignment', 'textWrap', ['formatDecreaseDecimal', 'formatIncreateDecimal'], 'format'],
-                        insert: false,
-                        data: false
-                    }
-                }).data('kendoSpreadsheet');
-                // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990
-                dialog.bind('activate', function () {
-                    kendo.resize(dialog.element);
-                    spreadsheetWidget.refresh();
-                });
-                // Load JSON
-                spreadsheetWidget.fromJSON(model.get('attributes.data'));
-                // Disable context menu
-                spreadsheet.find('.k-spreadsheet-fixed-container').off('contextmenu');
-                // Set default font size
-                var activeSheet = spreadsheetWidget.activeSheet();
-                activeSheet.range('R1C1:R' + rows + 'C' + columns).forEachCell(function (rowIndex, columnIndex) {
-                    var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
-                    range.fontSize(range.fontSize() || 36);
-                });
-                dialog.element.addClass('no-padding');
-                // Bind click handler for edit buttons
-                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
-                // Show dialog
-                dialog.center().open();
-            },
-            closeDialog: function (options, dialog, e) {
-                var that = this;
-                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
-                    var command = $(e.target).attr(kendo.attr('command'));
-                    if (command === 'ok') {
-                        var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
-                        var spreadsheetWidget = spreadsheet.data('kendoSpreadsheet');
-                        options.model.set(options.field, spreadsheetWidget.toJSON());
-                    }
-                    dialog.close();
-                }
-            }
-        });
-
-        /**
          * String adapter
          */
         adapters.StringAdapter = BaseAdapter.extend({
@@ -1497,6 +1414,89 @@
                     var command = $(e.target).attr(kendo.attr('command'));
                     if (command === 'ok') {
                         options.model.set(options.field, dialog.viewModel.get('style'));
+                    }
+                    dialog.close();
+                }
+            }
+        });
+
+        /**
+         * Table adapter
+         */
+        adapters.TableAdapter = BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = undefined;
+                // This is the inline editor with a [...] button which triggers this.showDialog
+                that.editor = function (container, options) {
+                    $('<button/>')
+                        .text('...')
+                        .addClass('k-button')
+                        .css({ margin: 0, width: '100%' })
+                        .appendTo(container)
+                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                };
+            },
+            showDialog: function (options) {
+                var that = this;
+                var dialog = that.getDialog();
+                var model = options.model;
+                var columns = model.get('attributes.columns');
+                var rows = model.get('attributes.rows');
+                // Prepare UI
+                dialog.title(options.title);
+                var content = '<div class="k-edit-form-container">' + // TODO namespace???
+                    '<div data-role="spreadsheet" style="width:' + (dialog.element.parent().width() - 2) + 'px;"></div>' +
+                    '<div class="k-edit-buttons k-state-default">' +
+                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
+                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
+                    '</div></div>';
+                dialog.content(content);
+                var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
+                var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
+                    // sheets: [{}],
+                    columns: columns,
+                    rows: rows,
+                    columnWidth: 100,
+                    rowHeight: 45,
+                    sheetsbar: false,
+                    toolbar: {
+                        // TODO: merge and hide not included in v1
+                        home: [['bold', 'italic', 'underline'], 'backgroundColor', 'textColor', 'borders', 'fontSize', 'fontFamily', 'alignment', 'textWrap', ['formatDecreaseDecimal', 'formatIncreateDecimal'], 'format'],
+                        insert: false,
+                        data: false
+                    }
+                }).data('kendoSpreadsheet');
+                // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990
+                dialog.bind('activate', function () {
+                    kendo.resize(dialog.element);
+                    spreadsheetWidget.refresh();
+                });
+                // Load JSON
+                spreadsheetWidget.fromJSON(model.get('attributes.data'));
+                // Disable context menu
+                spreadsheet.find('.k-spreadsheet-fixed-container').off('contextmenu');
+                // Set default font size
+                var activeSheet = spreadsheetWidget.activeSheet();
+                activeSheet.range('R1C1:R' + rows + 'C' + columns).forEachCell(function (rowIndex, columnIndex) {
+                    var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
+                    range.fontSize(range.fontSize() || 36);
+                });
+                dialog.element.addClass('no-padding');
+                // Bind click handler for edit buttons
+                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                // Show dialog
+                dialog.center().open();
+            },
+            closeDialog: function (options, dialog, e) {
+                var that = this;
+                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
+                    var command = $(e.target).attr(kendo.attr('command'));
+                    if (command === 'ok') {
+                        var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
+                        var spreadsheetWidget = spreadsheet.data('kendoSpreadsheet');
+                        options.model.set(options.field, spreadsheetWidget.toJSON());
                     }
                     dialog.close();
                 }
@@ -2676,7 +2676,7 @@
             attributes: {
                 columns: new adapters.NumberAdapter({ title: i18n.table.attributes.columns.title, defaultValue: 4 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
                 rows: new adapters.NumberAdapter({ title: i18n.table.attributes.rows.title, defaultValue: 6 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
-                data: new adapters.SpreadsheetAdapter({ title: i18n.table.attributes.data.title, defaultValue: [{}] }),
+                data: new adapters.TableAdapter({ title: i18n.table.attributes.data.title, defaultValue: [{}] }),
                 style: new adapters.StyleAdapter({ title: i18n.table.attributes.style.title })
             },
 

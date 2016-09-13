@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.connector</title>
+    <title>kidoju.widgets.drawing</title>
     <script>
         window.app = { DEBUG: true };
     </script>
@@ -16,39 +16,21 @@
     <script src="./js/vendor/kendo/kendo.binder.js"></script>
     <script src="./js/vendor/kendo/kendo.color.js"></script>
     <script src="./js/vendor/kendo/kendo.drawing.js"></script-->
-    <!-- connector requirements -->
-    <!--link rel="stylesheet" href="./styles/kidoju.widgets.connector.css"-->
+    <!-- drawing requirements -->
+    <!--link rel="stylesheet" href="./styles/kidoju.widgets.drawing.css"-->
     <script src="./js/window.assert.js"></script>
     <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.connector.js"></script>
+    <script src="./js/kidoju.widgets.drawing.js"></script>
     <style>
 
     </style>
 </head>
 <body>
-<h1>kidoju.widgets.connector</h1>
-<div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.75);">
-    <div data-role="stage" style="height:300px;width:300px;">
-        <div class="kj-element" style="position:absolute;top:10px;left:10px;height:20px;width:20px;">
-            <div data-role="connector" data-id="id-red" data-target-value="red" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FF0000" style="height:20px;width:20px;" data-bind="value: red, source: source, visible: visible, enabled: enabled"></div>
-        </div>
-        <div class="kj-element" style="position:absolute;top:10px;left:270px;height:20px;width:20px;">
-            <div data-role="connector" data-id="id-green" data-target-value="green" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#00FF00" style="height:20px;width:20px;" data-bind="value: green, source: source, visible: visible, enabled: enabled"></div>
-        </div>
-        <div class="kj-element" style="position:absolute;top:270px;left:270px;height:20px;width:20px;">
-            <div data-role="connector" data-id="id-blue" data-target-value="blue" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#0000FF" style="height:20px;width:20px;" data-bind="value: blue, source: source, visible: visible, enabled: enabled"></div>
-        </div>
-        <div class="kj-element" style="position:absolute;top:270px;left:10px;height:20px;width:20px;">
-            <div data-role="connector" data-id="id-yellow" data-target-value="yellow" data-container="div.kj-stage>div[data-role=stage]" data-scaler="div.kj-stage" data-color="#FFFF00" style="height:20px;width:20px;" data-bind="value: yellow, source: source, visible: visible, enabled: enabled"></div>
-        </div>
-    </div>
-</div>
+<h1>kidoju.widgets.drawing</h1>
+<div data-role="drawing" data-bind="source: source, visible: visible, enabled: enabled"></div>
+
 <pre>
 {
-    red: <span data-bind="text: red"></span>
-    green: <span data-bind="text: green"></span>
-    blue: <span data-bind="text: blue"></span>
-    yellow: <span data-bind="text: yellow"></span>
     source$:
     <div data-bind="text: source$" style="margin-left:50px;"></div>
     visible: <span data-bind="text: visible"></span>
@@ -67,10 +49,6 @@
 
         var kendo = window.kendo;
         var viewModel = window.viewModel = new kendo.observable({
-            red: undefined,
-            green: undefined,
-            blue: undefined,
-            yellow: undefined,
             source: [],
             source$: function() {
                 var ret = '';

@@ -31,9 +31,9 @@
         // var CHANGE = 'change';
         var WIDGET_CLASS = 'kj-table';
         var DEFAULTS = {
-            COLUMN_WIDTH: 100,
-            ROW_HEIGHT: 45,
-            FONT_SIZE: 12 // ATTENTION: We use 36, but the spreadsheet default is actually 12
+            COLUMN_WIDTH: 150,
+            ROW_HEIGHT: 58,
+            FONT_SIZE: 12 // ATTENTION: We use 48, but the spreadsheet default is actually 12
         };
 
         /*********************************************************************************

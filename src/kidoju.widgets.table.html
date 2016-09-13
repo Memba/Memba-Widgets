@@ -67,8 +67,8 @@
                 sheetsbar: false,
                 columns: 5,
                 rows: 8,
-                columnWidth: 100,
-                rowHeight: 45,
+                columnWidth: 150,
+                rowHeight: 58,
                 render: function (e) { // render is triggered by cell data and formatting changes but it occurs too often to debug
                 // change: function (e) { // change is only triggered by cell data changes (not cell formatting changes)
                     viewModel.set('json', e.sender.toJSON());
@@ -86,7 +86,7 @@
             var activeSheet = spreadsheetWidget.activeSheet();
             activeSheet.range('R1C1:R' + spreadsheetWidget.options.rows + 'C' + spreadsheetWidget.options.columns).forEachCell(function(rowIndex, columnIndex, cell) {
                 var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
-                range.fontSize(range.fontSize() || 36);
+                range.fontSize(range.fontSize() || 48);
             });
             spreadsheetWidget.refresh();
         });

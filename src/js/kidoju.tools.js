@@ -1458,8 +1458,8 @@
                     // sheets: [{}],
                     columns: columns,
                     rows: rows,
-                    columnWidth: 100,
-                    rowHeight: 45,
+                    columnWidth: 150,
+                    rowHeight: 58,
                     sheetsbar: false,
                     toolbar: {
                         // TODO: merge and hide not included in v1
@@ -1481,7 +1481,7 @@
                 var activeSheet = spreadsheetWidget.activeSheet();
                 activeSheet.range('R1C1:R' + rows + 'C' + columns).forEachCell(function (rowIndex, columnIndex) {
                     var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
-                    range.fontSize(range.fontSize() || 36);
+                    range.fontSize(range.fontSize() || 48);
                 });
                 dialog.element.addClass('no-padding');
                 // Bind click handler for edit buttons
@@ -2671,12 +2671,12 @@
             templates: {
                 default: '<div data-#= ns #role="table" style="#: attributes.style #" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #value="#: JSON.stringify(attributes.data) #"></div>'
             },
-            height: 300,
-            width: 500,
+            height: 350,
+            width: 600,
             attributes: {
                 columns: new adapters.NumberAdapter({ title: i18n.table.attributes.columns.title, defaultValue: 4 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
                 rows: new adapters.NumberAdapter({ title: i18n.table.attributes.rows.title, defaultValue: 6 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
-                data: new adapters.TableAdapter({ title: i18n.table.attributes.data.title, defaultValue: [{}] }),
+                data: new adapters.TableAdapter({ title: i18n.table.attributes.data.title, defaultValue: { sheets: [{ rows: [{ index:0, cells: [{ index:0, value: 'Table', fontSize: 48 }] }] }] } }),
                 style: new adapters.StyleAdapter({ title: i18n.table.attributes.style.title })
             },
 

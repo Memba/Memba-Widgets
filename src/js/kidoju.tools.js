@@ -1469,9 +1469,9 @@
                     }
                 }).data('kendoSpreadsheet');
                 // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990
-                dialog.bind('activate', function () {
-                    kendo.resize(dialog.element);
-                    spreadsheetWidget.refresh();
+                dialog.one('activate', function () {
+                    kendo.resize(dialog.element); // spreadsheetWidget.refresh();
+                    spreadsheetWidget.activeSheet().range('A1:A1').select();
                 });
                 // Load JSON
                 spreadsheetWidget.fromJSON(model.get('attributes.data'));
@@ -1595,8 +1595,8 @@
                 // Bind click handler for edit buttons
                 dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
                 // Bind window activate handler
-                dialog.bind('activate', function () {
-                    // IMPORTANT, we need to refresh codemirror here
+                dialog.one('activate', function () {
+                    // IMPORTANT, we need13 to refresh codemirror here
                     // otherwise the open animation messes with CodeMirror calculations
                     // and gutter and line numbers are displayed at the wrong coordinates
                     var codeEditor = dialog.element
@@ -1605,7 +1605,6 @@
                     if (codeEditor instanceof kendo.ui.CodeEditor && codeEditor.codeMirror && $.isFunction(codeEditor.codeMirror.refresh)) {
                         codeEditor.codeMirror.refresh();
                     }
-                    dialog.unbind('activate');
                 });
                 // Show dialog
                 dialog.center().open();

@@ -262,7 +262,6 @@
 
             /**
              * Value for MVVM binding
-             * Returns either a JS function as a string or a library formula name prefixed as a Javascript comment
              * @param value
              */
             value: function (value) {

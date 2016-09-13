@@ -409,7 +409,7 @@
 
                 if (tools.mathexpression instanceof Tool) {
                     // Description
-                    tools.mathexpression.constructor.prototype.description = 'Math Expression';
+                    tools.mathexpression.constructor.prototype.description = 'Mathematic Expression';
                     // Attributes
                     attributes = tools.mathexpression.constructor.prototype.attributes;
                     attributes.formula.title = 'Formula';
@@ -437,6 +437,17 @@
                     properties.success.title = 'Success';
                     properties.failure.title = 'Failure';
                     properties.omit.title = 'Omit';
+                }
+
+                if (tools.table instanceof Tool) {
+                    // Description
+                    tools.table.constructor.prototype.description = 'Static Table';
+                    // Attributes
+                    attributes = tools.table.constructor.prototype.attributes;
+                    attributes.columns.title = 'Columns';
+                    attributes.rows.title = 'Rows';
+                    attributes.data.title = 'Data';
+                    attributes.style.title = 'Style';
                 }
 
                 if (tools.textarea instanceof Tool) {

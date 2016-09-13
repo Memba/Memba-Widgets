@@ -439,6 +439,17 @@
                     properties.omit.title = 'Omission';
                 }
 
+                if (tools.table instanceof Tool) {
+                    // Description
+                    tools.table.constructor.prototype.description = 'Table Statique';
+                    // Attributes
+                    attributes = tools.table.constructor.prototype.attributes;
+                    attributes.columns.title = 'Colonnes';
+                    attributes.rows.title = 'Lignes';
+                    attributes.data.title = 'Données';
+                    attributes.style.title = 'Style';
+                }
+
                 if (tools.textarea instanceof Tool) {
                     // Description
                     tools.textarea.constructor.prototype.description = 'Aire de Texte';

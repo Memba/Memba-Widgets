@@ -27,18 +27,14 @@
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.table');
-        // var NUMBER = 'number';
-        var OBJECT = 'object';
-        var NULL = 'null';
         var UNDEFINED = 'undefined';
-        var CHANGE = 'change';
-        var DOT = '.';
-        var WIDGET = 'kendoTable';
-        var NS = DOT + WIDGET;
-        var TABLE = '<table/>';
+        // var CHANGE = 'change';
         var WIDGET_CLASS = 'kj-table';
-        // var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
-        // var ID = 'id';
+        var DEFAULTS = {
+            COLUMN_WIDTH: 100,
+            ROW_HEIGHT: 45,
+            FONT_SIZE: 12 // ATTENTION: We use 36, but the spreadsheet default is actually 12
+        };
 
         /*********************************************************************************
          * Widget
@@ -61,8 +57,8 @@
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
                 that._layout();
-                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
-                kendo.notify(that);
+                that.value(options.value);
+                // kendo.notify(that);
             },
 
             /**
@@ -73,7 +69,7 @@
                 name: 'Table',
                 columns: 5,
                 rows: 8,
-                enable: true
+                value: [{}]
             },
 
             // events: [
@@ -86,13 +82,11 @@
              */
             value: function (value) {
                 var that = this;
-                if ($.type(value) === OBJECT || $.type(value) === NULL) {
-                    that._value = that._parse(value);
-                    that.render();
-                } else if ($.type(value) === UNDEFINED) {
+                if ($.type(value) === UNDEFINED) {
                     return that._value;
                 } else {
-                    throw new TypeError('`value` is expected to be a nullable object if not undefined');
+                    that._value = that._parse(value);
+                    that.render();
                 }
             },
 
@@ -138,8 +132,8 @@
                     for (var j = 0; j < columnTotal; j++) {
                         var cellDefinition = rowDefinition.cells.find(function (item) { return item.index === j });
                         var columnDefinition = columnDefinitions.find(function (item) { return item.index === j });
-                        height = rowDefinition && rowDefinition.height || 19;
-                        width = columnDefinition && columnDefinition.width || 63;
+                        height = rowDefinition && rowDefinition.height || DEFAULTS.ROW_HEIGHT;
+                        width = columnDefinition && columnDefinition.width || DEFAULTS.COLUMN_WIDTH;
                         if ($.type(cellDefinition) === UNDEFINED) {
                             row.push({
                                 css: {
@@ -161,7 +155,7 @@
                                     borderTop: cellDefinition.borderTop ? 'solid ' + cellDefinition.borderTop.size + 'px ' + cellDefinition.borderTop.color : undefined,
                                     color: cellDefinition.color,
                                     fontFamily: cellDefinition.fontFamily || 'Arial',
-                                    fontSize: cellDefinition.fontSize || 12,
+                                    fontSize: cellDefinition.fontSize || DEFAULTS.FONT_SIZE,
                                     fontStyle: cellDefinition.italic ? 'italic' : 'normal',
                                     fontWeight: cellDefinition.bold ? 'bold' : 'normal',
                                     left: left,
@@ -172,8 +166,8 @@
                                     // verticalAlign: cellDefinition.verticalAlign === 'center' ? 'middle' : (cellDefinition.verticalAlign || 'bottom'),
                                     width: width,
                                     // we need to test true because when undefined cellDefinition.wrap is actually a function
-                                    whiteSpace: cellDefinition.wrap === true ? 'pre-wrap' : undefined,
-                                    wordBreak: cellDefinition.wrap === true ? 'break-all' : undefined
+                                    whiteSpace: cellDefinition.wrap === true ? 'pre-wrap' : 'pre',
+                                    wordBreak: cellDefinition.wrap === true ? 'break-all' : 'normal'
                                 },
                                 class: 'k-vertical-align-' + (cellDefinition.verticalAlign || 'bottom')
                             });

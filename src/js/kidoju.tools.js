@@ -2887,10 +2887,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('input');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
+                    content.outerWidth(component.width  - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
+                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
                     if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
                         content.css('font-size', Math.floor(0.65 * content.height()));
                     }

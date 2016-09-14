@@ -292,6 +292,20 @@
                     attributes.ogg.title = 'Fichier OGG';
                 }
 
+                if (tools.chart instanceof Tool) {
+                    // Description
+                    tools.chart.constructor.prototype.description = 'Diagramme';
+                    // Attributes
+                    attributes = tools.chart.constructor.prototype.attributes;
+                    attributes.type.title = 'Type';
+                    attributes.title.title = 'Titre';
+                    attributes.categories.title = 'Catégories';
+                    attributes.values.title = 'Valeurs';
+                    attributes.legend.title = 'Légende';
+                    attributes.data.title = 'Données';
+                    attributes.style.title = 'Style';
+                }
+
                 if (tools.chargrid instanceof Tool) {
                     // Description
                     tools.chargrid.constructor.prototype.description = 'Character Grid';

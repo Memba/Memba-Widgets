@@ -144,6 +144,19 @@
                 }
             },
 
+            chart: {
+                description: 'Chart',
+                attributes: {
+                    type: { title: 'Type' },
+                    title: { title: 'Title' },
+                    categories: { title: 'Categories' },
+                    values: { title: 'Values' },
+                    legend: { title: 'Legend' },
+                    data: { title: 'Data' },
+                    style: { title: 'Style' }
+                }
+            },
+
             chargrid: {
                 description: 'Character Grid',
                 attributes: {
@@ -1015,6 +1028,79 @@
         });
 
         /**
+         * Chart adapter
+         */
+        adapters.ChartAdapter = BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = undefined;
+                // This is the inline editor with a [...] button which triggers this.showDialog
+                that.editor = function (container, options) {
+                    $('<button/>')
+                        .text('...')
+                        .addClass('k-button')
+                        .css({ margin: 0, width: '100%' })
+                        .appendTo(container)
+                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                };
+            },
+            showDialog: function (options) {
+                var that = this;
+                var dialog = that.getDialog();
+                var model = options.model;
+                var columns = model.get('attributes.categories') + 1;
+                var rows = model.get('attributes.values') + 1;
+                debugger;
+                // Prepare UI
+                dialog.title(options.title);
+                var content = '<div class="k-edit-form-container">' + // TODO namespace???
+                    '<div data-role="spreadsheet" style="width:' + (dialog.element.parent().width() - 2) + 'px;"></div>' +
+                    '<div class="k-edit-buttons k-state-default">' +
+                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
+                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
+                    '</div></div>';
+                dialog.content(content);
+                var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
+                assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
+                var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
+                    columns: columns,
+                    rows: rows,
+                    sheetsbar: false,
+                    toolbar: false
+                }).data('kendoSpreadsheet');
+                assert.instanceof(kendo.ui.Spreadsheet, spreadsheetWidget, kendo.format(assert.messages.instanceof.default, 'spreadsheetWidget', 'kendo.ui.Spreadsheet'));
+                // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990
+                // TODO still a defect described at https://github.com/telerik/kendo-ui-core/issues/2156
+                dialog.one('activate', function () {
+                    kendo.resize(dialog.element); // spreadsheetWidget.refresh();
+                    spreadsheetWidget.activeSheet().range('A1:A1').select();
+                });
+                // Load JSON
+                spreadsheetWidget.fromJSON(model.get('attributes.data'));
+                // Disable context menu
+                spreadsheet.find('.k-spreadsheet-fixed-container').off('contextmenu');
+                dialog.element.addClass('no-padding');
+                // Bind click handler for edit buttons
+                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                // Show dialog
+                dialog.center().open();
+            },
+            closeDialog: function (options, dialog, e) {
+                var that = this;
+                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
+                    var command = $(e.target).attr(kendo.attr('command'));
+                    if (command === 'ok') {
+                        var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
+                        var spreadsheetWidget = spreadsheet.data('kendoSpreadsheet');
+                        options.model.set(options.field, spreadsheetWidget.toJSON());
+                    }
+                    dialog.close();
+                }
+            }
+        });
+
+        /**
          * Color adapter
          */
         adapters.ColorAdapter = BaseAdapter.extend({
@@ -1717,7 +1803,7 @@
                 var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
                 var widget = content.data('kendoMediaPlayer');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
+                    content.outerWidth(component.width - content.outerWidth(true));
                 }
                 if ($.type(component.height) === NUMBER) {
                     content.outerHeight(component.height);
@@ -1753,6 +1839,207 @@
 
         });
         tools.register(Audio);
+
+        var defaultChartData = function (categories, values) {
+            var YEAR = 1999;
+            var MAX_VALUE = 500;
+            var rowTotal = values + 1;
+            var columnTotal = categories + 1;
+            var rowIndex;
+            var columnIndex;
+            var data = { sheets: [{ name: 'Sheet1', rows: [] }] };
+            var rows = data.sheets[0].rows;
+            // Build the categories row
+            var row = { index: 0, cells: [] };
+            for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
+                row.cells.push({ index: columnIndex, value: YEAR + columnIndex })
+            }
+            rows.push(row);
+            // Build the values rows
+            for (rowIndex = 1; rowIndex < rowTotal; rowIndex++) {
+                row = { index: rowIndex, cells: [] };
+                row.cells.push({ index: 0, value: 'Series' + rowIndex});
+                for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
+                    row.cells.push({ index: columnIndex, value: Math.floor(MAX_VALUE * Math.random()) })
+                }
+                rows.push(row);
+            }
+            return data;
+        };
+
+        /**
+         * Chart tool
+         * @class Chart
+         */
+        var Chart = Tool.extend({
+            id: 'chart',
+            icon: 'chart_area',
+            description: i18n.chart.description,
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                default: '<div data-#= ns #role="chart" data-#= ns #series-defaults="#: attributes.seriesDefaults$() #" data-#= ns #title="#: attributes.title$() #" data-#= ns #legend="#: attributes.legend$() #" data-#= ns #series="#: attributes.series$() #" data-#= ns #category-axis="#: attributes.categoryAxis$() #" style="#: attributes.style #"></div>'
+            },
+            height: 400,
+            width: 400,
+            attributes: {
+                type: new adapters.EnumAdapter({title: i18n.chart.attributes.type.title, defaultValue: 'column', enum: ['bar', 'column', 'line'] }, { style: 'width: 100%;' }),
+                title: new adapters.StringAdapter({ title: i18n.chart.attributes.title.title }),
+                categories: new adapters.NumberAdapter({ title: i18n.chart.attributes.categories.title, defaultValue: 4 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 10 }),
+                values: new adapters.NumberAdapter({ title: i18n.chart.attributes.values.title, defaultValue: 2 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 10 }),
+                legend: new adapters.EnumAdapter({title: i18n.chart.attributes.legend.title, defaultValue: 'none', enum: ['none', 'top', 'bottom', 'left', 'right'] }, { style: 'width: 100%;' }),
+                data: new adapters.ChartAdapter({ title: i18n.chart.attributes.data.title, defaultValue: defaultChartData(10, 10) }),
+                style: new adapters.StyleAdapter({ title: i18n.chart.attributes.style.title })
+            },
+
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(Chart, that, kendo.format(assert.messages.instanceof.default, 'this', 'Chart'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var template = kendo.template(that.templates.default);
+                // The seriesDefaults$ function returns an object chart's data-series-defaults attribute binding
+                component.attributes.seriesDefaults$ = function () {
+                    return JSON.stringify({
+                        type: component.attributes.get('type')
+                        // stack: true
+                        // style: 'smooth'
+                    });
+                };
+                // The title$ function returns an object chart's data-title attribute binding
+                component.attributes.title$ = function () {
+                    var title = component.attributes.get('title');
+                    return JSON.stringify({
+                        text: title,
+                        visible: !!(title.trim())
+                    });
+                };
+                // The legend$ function returns an object chart's data-legend attribute binding
+                component.attributes.legend$ = function () {
+                    var legend = component.attributes.get('legend');
+                    return JSON.stringify({
+                        position: legend !== 'none' ? legend : 'right',
+                        visible: legend !== 'none'
+                    });
+                };
+                component.attributes.series$ = function () {
+                    var series = [];
+                    var rowTotal = component.attributes.get('values') + 1;
+                    var columnTotal = component.attributes.get('categories') + 1;
+                    var rowIndex;
+                    var columnIndex;
+                    var rowFinder = function (row) { return row.index === rowIndex; };
+                    var columnFinder = function (column) { return column.index === columnIndex; };
+                    var json = component.attributes.get('data');
+                    for (rowIndex = 1; rowIndex < rowTotal; rowIndex++) {
+                        var serie = { name: '', data: [] };
+                        var row = json.sheets[0].rows.find(rowFinder);
+                        if (row && row.cells) {
+                            columnIndex = 0;
+                            var cell = row.cells.find(columnFinder);
+                            if (cell && cell.value) {
+                                serie.name = cell.value;
+                            }
+                            for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
+                                var data = 0;
+                                cell = row.cells.find(columnFinder);
+                                if (cell && $.type(cell.value) === 'number') {
+                                    data = cell.value;
+                                }
+                                serie.data.push(data);
+                            }
+                        }
+                        series.push(serie);
+                    }
+                    /*
+                     return [
+                     { name: 'Series 1', data: [200, 450, 300, 125] },
+                     { name: 'Series 2', data: [200, 450, 300, 125] }
+                     ];
+                     */
+                    return JSON.stringify(series);
+                };
+                component.attributes.categoryAxis$ = function () {
+                    var categories = [];
+                    var columnTotal = component.attributes.get('categories') + 1;
+                    var rowIndex = 0;
+                    var columnIndex;
+                    var rowFinder = function (row) { return row.index === rowIndex; };
+                    var columnFinder = function (column) { return column.index === columnIndex; };
+                    var json = component.attributes.get('data');
+                    var row = json.sheets[0].rows.find(rowFinder);
+                    for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
+                        var category = '';
+                        if (row && row.cells) {
+                            var cell = row.cells.find(columnFinder);
+                            if (cell && cell.value) {
+                                category = cell.value;
+                            }
+                        }
+                        categories.push(category);
+                    }
+                    // return { categories: [2000, 2001, 2002, 2003] }
+                    return JSON.stringify({ categories: categories });
+                };
+                return template($.extend(component, { ns: kendo.ns }));
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div' + kendo.roleSelector('chart'));
+                var widget = content.data('kendoChart');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width - content.outerWidth(true) + content.outerWidth());
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
+                }
+                widget.resize();
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            }
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            /*
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if (!RX_AUDIO.test(component.attributes.mp3)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidAudioFile, description, pageIdx + 1)
+                        });
+                    }
+                    // Note: we are not testing for an ogg file
+                }
+                return ret;
+            }
+            */
+
+        });
+        tools.register(Chart);
 
         var CHARGRID = '<div data-#= ns #role="chargrid" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-role=stage]" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" data-#= ns #grid-fill="#: attributes.gridFill #" data-#= ns #grid-stroke="#: attributes.gridStroke #" data-#= ns #blank-fill="#: attributes.gridStroke #" data-#= ns #selected-fill="#: attributes.selectedFill #" data-#= ns #locked-fill="#: attributes.lockedFill #" data-#= ns #locked-color="#: attributes.fontColor #" data-#= ns #value-color="#: attributes.fontColor #" {0}></div>';
         /**

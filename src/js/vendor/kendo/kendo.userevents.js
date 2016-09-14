@@ -13,7 +13,6 @@ var __meta__ = { // jshint ignore:line
 (function ($, undefined) {
     var kendo = window.kendo,
         support = kendo.support,
-        document = window.document,
         Class = kendo.Class,
         Observable = kendo.Observable,
         now = $.now,
@@ -326,7 +325,7 @@ var __meta__ = { // jshint ignore:line
             extend(that, {
                 element: element,
                 // the touch events lock to the element anyway, so no need for the global setting
-                surface: options.global && ENABLE_GLOBAL_SURFACE ? $(document.documentElement) : $(options.surface || element),
+                surface: options.global && ENABLE_GLOBAL_SURFACE ? $(element[0].ownerDocument.documentElement) : $(options.surface || element),
                 stopPropagation: options.stopPropagation,
                 pressed: false
             });

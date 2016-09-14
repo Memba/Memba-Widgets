@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -185,7 +185,7 @@
                     $(this).addClass(KSTATEHOVER);
                 }).on('mouseleave' + NS, clickableItems, function () {
                     $(this).removeClass(KSTATEHOVER);
-                }).on(CLICK + NS, clickableItems, proxy(that._click, that)).on('dblclick' + NS, '.k-in:not(.k-state-disabled)', proxy(that._toggleButtonClick, that)).on(CLICK + NS, '.k-plus,.k-minus', proxy(that._toggleButtonClick, that)).on('keydown' + NS, proxy(that._keydown, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that)).on('mousedown' + NS, '.k-in,.k-checkbox-wrapper :checkbox,.k-plus,.k-minus', proxy(that._mousedown, that)).on('change' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxChange, that)).on('click' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxClick, that)).on('click' + NS, '.k-request-retry', proxy(that._retryRequest, that)).on('click' + NS, function (e) {
+                }).on(CLICK + NS, clickableItems, proxy(that._click, that)).on('dblclick' + NS, '.k-in:not(.k-state-disabled)', proxy(that._toggleButtonClick, that)).on(CLICK + NS, '.k-i-expand,.k-i-collapse', proxy(that._toggleButtonClick, that)).on('keydown' + NS, proxy(that._keydown, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that)).on('mousedown' + NS, '.k-in,.k-checkbox-wrapper :checkbox,.k-i-expand,.k-i-collapse', proxy(that._mousedown, that)).on('change' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxChange, that)).on('click' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxClick, that)).on('click' + NS, '.k-request-retry', proxy(that._retryRequest, that)).on('click' + NS, function (e) {
                     if (!$(e.target).is(':kendoFocusable')) {
                         that.focus();
                     }
@@ -377,12 +377,9 @@
                     toggleButtonClass: function (item) {
                         var result = 'k-icon';
                         if (item.expanded !== true) {
-                            result += ' k-plus';
+                            result += ' k-i-expand';
                         } else {
-                            result += ' k-minus';
-                        }
-                        if (item.enabled === false) {
-                            result += '-disabled';
+                            result += ' k-i-collapse';
                         }
                         return result;
                     },
@@ -403,9 +400,9 @@
                     dragClue: templateNoWith('#= data.treeview.template(data) #'),
                     group: templateNoWith('<ul class=\'#= data.r.groupCssClass(data.group) #\'#= data.r.groupAttributes(data.group) #>' + '#= data.renderItems(data) #' + '</ul>'),
                     itemContent: templateNoWith('# var imageUrl = ' + fieldAccessor('imageUrl') + '(data.item); #' + '# var spriteCssClass = ' + fieldAccessor('spriteCssClass') + '(data.item); #' + '# if (imageUrl) { #' + '<img class=\'k-image\' alt=\'\' src=\'#= imageUrl #\'>' + '# } #' + '# if (spriteCssClass) { #' + '<span class=\'k-sprite #= spriteCssClass #\' />' + '# } #' + '#= data.treeview.template(data) #'),
-                    itemElement: templateNoWith('# var item = data.item, r = data.r; #' + '# var url = ' + fieldAccessor('url') + '(item); #' + '<div class=\'#= r.cssClass(data.group, item) #\'>' + '# if (item.hasChildren) { #' + '<span class=\'#= r.toggleButtonClass(item) #\' role=\'presentation\' />' + '# } #' + '# if (data.treeview.checkboxes) { #' + '<span class=\'k-checkbox-wrapper\' role=\'presentation\'>' + '#= data.treeview.checkboxes.template(data) #' + '</span>' + '# } #' + '# var tag = url ? \'a\' : \'span\'; #' + '# var textAttr = url ? \' href=\\\'\' + url + \'\\\'\' : \'\'; #' + '<#=tag# class=\'#= r.textClass(item, !!url) #\'#= textAttr #>' + '#= r.itemContent(data) #' + '</#=tag#>' + '</div>'),
+                    itemElement: templateNoWith('# var item = data.item, r = data.r; #' + '# var url = ' + fieldAccessor('url') + '(item); #' + '<div class=\'#= r.cssClass(data.group, item) #\'>' + '# if (item.hasChildren) { #' + '<span class=\'#= r.toggleButtonClass(item) #\'/>' + '# } #' + '# if (data.treeview.checkboxes) { #' + '<span class=\'k-checkbox-wrapper\' role=\'presentation\'>' + '#= data.treeview.checkboxes.template(data) #' + '</span>' + '# } #' + '# var tag = url ? \'a\' : \'span\'; #' + '# var textAttr = url ? \' href=\\\'\' + url + \'\\\'\' : \'\'; #' + '<#=tag# class=\'#= r.textClass(item, !!url) #\'#= textAttr #>' + '#= r.itemContent(data) #' + '</#=tag#>' + '</div>'),
                     item: templateNoWith('# var item = data.item, r = data.r; #' + '<li role=\'treeitem\' class=\'#= r.wrapperCssClass(data.group, item) #\' ' + kendo.attr('uid') + '=\'#= item.uid #\' ' + 'aria-selected=\'#= item.selected ? "true" : "false " #\' ' + '#=item.enabled === false ? "aria-disabled=\'true\'" : \'\'#' + '# if (item.expanded) { #' + 'data-expanded=\'true\' aria-expanded=\'true\'' + '# } #' + '>' + '#= r.itemElement(data) #' + '</li>'),
-                    loading: templateNoWith('<div class=\'k-icon k-loading\' /> #: data.messages.loading #'),
+                    loading: templateNoWith('<div class=\'k-icon k-i-loading\' /> #: data.messages.loading #'),
                     retry: templateNoWith('#: data.messages.requestFailed # ' + '<button class=\'k-button k-request-retry\'>#: data.messages.retry #</button>')
                 };
             },
@@ -611,10 +608,17 @@
                 }
             },
             _toggleButtonClick: function (e) {
+                var node = $(e.currentTarget).closest(NODE);
+                if (node.is('[aria-disabled=\'true\']')) {
+                    return;
+                }
                 this.toggle($(e.target).closest(NODE));
             },
             _mousedown: function (e) {
                 var node = $(e.currentTarget).closest(NODE);
+                if (node.is('[aria-disabled=\'true\']')) {
+                    return;
+                }
                 this._clickTarget = node;
                 this.current(node);
             },
@@ -858,7 +862,7 @@
                 var isLink = textWrap[0] && textWrap[0].nodeName.toLowerCase() == 'a';
                 textWrap.removeClass('k-in k-link k-state-default k-state-disabled').addClass(templates.textClass(nodeData, isLink));
                 if (group.length || node.attr('data-hasChildren') == 'true') {
-                    wrapper.children('.k-icon').removeClass('k-plus k-minus k-plus-disabled k-minus-disabled').addClass(templates.toggleButtonClass(nodeData));
+                    wrapper.children('.k-icon').removeClass('k-i-expand k-i-collapse').addClass(templates.toggleButtonClass(nodeData));
                     group.addClass('k-group');
                 }
             },
@@ -1238,7 +1242,7 @@
             },
             toggle: function (node, expand) {
                 node = $(node);
-                if (!nodeIcon(node).is('.k-minus,.k-plus,.k-minus-disabled,.k-plus-disabled')) {
+                if (!nodeIcon(node).is('.k-i-expand, .k-i-collapse')) {
                     return;
                 }
                 if (arguments.length == 1) {
@@ -1290,7 +1294,7 @@
                         element.empty();
                     }
                 } else {
-                    nodeIcon(node).toggleClass('k-loading', showProgress).removeClass('k-i-refresh');
+                    nodeIcon(node).toggleClass('k-i-loading', showProgress).removeClass('k-i-refresh');
                 }
             },
             text: function (node, text) {

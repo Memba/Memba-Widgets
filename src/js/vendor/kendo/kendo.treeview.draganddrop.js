@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -109,12 +109,12 @@
                 var insertOnTop, insertOnBottom, addChild;
                 var itemData, position, status;
                 if (!container.length) {
-                    status = 'k-denied';
+                    status = 'k-i-denied';
                     this._removeTouchHover();
                 } else if (source[0] == target[0] || options.contains(source[0], target[0])) {
-                    status = 'k-denied';
+                    status = 'k-i-denied';
                 } else {
-                    status = 'k-insert-middle';
+                    status = 'k-i-insert-middle';
                     itemData = options.itemFromTarget(target);
                     hoveredItem = itemData.item;
                     if (hoveredItem.length) {
@@ -139,16 +139,16 @@
                         }
                         this._lastHover = itemContent.toggleClass(KSTATEHOVER, addChild);
                         if (addChild) {
-                            status = 'k-add';
+                            status = 'k-i-add';
                         } else {
                             position = hoveredItem.position();
                             position.top += insertOnTop ? 0 : itemHeight;
                             this.dropHint.css(position)[insertOnTop ? 'prependTo' : 'appendTo'](options.dropHintContainer(hoveredItem));
                             if (insertOnTop && itemData.first) {
-                                status = 'k-insert-top';
+                                status = 'k-i-insert-top';
                             }
                             if (insertOnBottom && itemData.last) {
-                                status = 'k-insert-bottom';
+                                status = 'k-i-insert-bottom';
                             }
                         }
                     } else if (target[0] != this.dropHint[0]) {
@@ -156,9 +156,9 @@
                             this._lastHover.removeClass(KSTATEHOVER);
                         }
                         if (!$.contains(this.element[0], container[0])) {
-                            status = 'k-add';
+                            status = 'k-i-add';
                         } else {
-                            status = 'k-denied';
+                            status = 'k-i-denied';
                         }
                     }
                 }
@@ -173,7 +173,7 @@
                         status = value;
                     }
                 });
-                if (status.indexOf('k-insert') !== 0) {
+                if (status.indexOf('k-i-insert') !== 0) {
                     this.dropHint.css(VISIBILITY, 'hidden');
                 }
                 this._hintStatus(status);
@@ -196,7 +196,7 @@
                     originalEvent: e.originalEvent,
                     source: source[0],
                     destination: destination[0],
-                    valid: this._hintStatus() != 'k-denied',
+                    valid: this._hintStatus() != 'k-i-denied',
                     setValid: function (newValid) {
                         this.valid = newValid;
                     },

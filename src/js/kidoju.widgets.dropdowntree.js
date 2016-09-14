@@ -250,14 +250,6 @@
             },
 
             /**
-             * Clear DOM
-             * @private
-             */
-            _clear: function () {
-                // TODO
-            },
-
-            /**
              * Destroy
              */
             destroy: function () {

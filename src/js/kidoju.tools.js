@@ -1454,8 +1454,8 @@
                     '</div></div>';
                 dialog.content(content);
                 var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
+                assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
                 var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
-                    // sheets: [{}],
                     columns: columns,
                     rows: rows,
                     columnWidth: 150,
@@ -1468,7 +1468,9 @@
                         data: false
                     }
                 }).data('kendoSpreadsheet');
+                assert.instanceof(kendo.ui.Spreadsheet, spreadsheetWidget, kendo.format(assert.messages.instanceof.default, 'spreadsheetWidget', 'kendo.ui.Spreadsheet'));
                 // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990
+                // TODO still a defect described at https://github.com/telerik/kendo-ui-core/issues/2156
                 dialog.one('activate', function () {
                     kendo.resize(dialog.element); // spreadsheetWidget.refresh();
                     spreadsheetWidget.activeSheet().range('A1:A1').select();

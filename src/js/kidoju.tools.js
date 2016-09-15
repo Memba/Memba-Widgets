@@ -1803,10 +1803,10 @@
                 var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
                 var widget = content.data('kendoMediaPlayer');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width - content.outerWidth(true));
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                 }
                 widget.resize();
                 // prevent any side effect
@@ -2002,10 +2002,10 @@
                 var content = stageElement.children('div' + kendo.roleSelector('chart'));
                 var widget = content.data('kendoChart');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width - content.outerWidth(true) + content.outerWidth());
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                 }
                 widget.resize();
                 // prevent any side effect
@@ -2141,10 +2141,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div.kj-chargrid');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                 }
                 // Redraw the charGrid widget
                 var charGridWidget = content.data('kendoCharGrid');
@@ -2229,10 +2229,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div').first();
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                     // if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
                     //     content.css('font-size', Math.floor(0.85 * content.height()));
                     // }
@@ -2319,10 +2319,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div[' + kendo.attr('role') + '="connector"]');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                 }
                 // Redraw the connector widget
                 var connectorWidget = content.data('kendoConnector');
@@ -2423,10 +2423,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                 }
                 // prevent any side effect
                 e.preventDefault();
@@ -2677,10 +2677,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width - content.outerWidth(true) + content.outerWidth());
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                     // if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
                     /*
                      * We make a best guess for the number of lines as follows
@@ -2779,10 +2779,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width - content.outerWidth(true) + content.outerWidth());
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                 }
                 // prevent any side effect
                 e.preventDefault();
@@ -2880,10 +2880,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('quiz'));
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                 }
                 /*
                  // Auto-resize algorithm is not great so let's wait until we find a better solution
@@ -2980,10 +2980,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children(kendo.roleSelector('table'));
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width - content.outerWidth(true) + content.outerWidth());
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                 }
                 // prevent any side effect
                 e.preventDefault();
@@ -3077,10 +3077,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('textarea');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width - content.outerWidth(true) + content.outerWidth());
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                 }
                 // prevent any side effect
                 e.preventDefault();
@@ -3176,10 +3176,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('input');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width  - content.outerWidth(true) + content.outerWidth());
+                    content.outerWidth(component.get('width')  - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
                     if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
                         content.css('font-size', Math.floor(0.65 * content.height()));
                     }
@@ -3312,8 +3312,12 @@
                 assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
-                content.outerHeight(component.get('height'));
-                content.outerWidth(component.get('width'));
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.get('width')  - content.outerWidth(true) + content.outerWidth());
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+                }
                 var widget = content.data('kendoMediaPlayer');
                 if (kendo.ui.MediaPlayer && widget instanceof kendo.ui.MediaPlayer) {
                     widget.resize();

@@ -1857,15 +1857,15 @@
             // Build the categories row
             var row = { index: 0, cells: [] };
             for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
-                row.cells.push({ index: columnIndex, value: YEAR + columnIndex })
+                row.cells.push({ index: columnIndex, value: YEAR + columnIndex });
             }
             rows.push(row);
             // Build the values rows
             for (rowIndex = 1; rowIndex < rowTotal; rowIndex++) {
                 row = { index: rowIndex, cells: [] };
-                row.cells.push({ index: 0, value: 'Series' + rowIndex});
+                row.cells.push({ index: 0, value: 'Series' + rowIndex });
                 for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
-                    row.cells.push({ index: columnIndex, value: Math.floor(MAX_VALUE * Math.random()) })
+                    row.cells.push({ index: columnIndex, value: Math.floor(MAX_VALUE * Math.random()) });
                 }
                 rows.push(row);
             }
@@ -1907,14 +1907,17 @@
             height: 400,
             width: 400,
             attributes: {
-                type: new adapters.EnumAdapter({title: i18n.chart.attributes.type.title, defaultValue: 'column', enum: ['area', 'bar', 'column', 'line', 'radarArea', 'radarColumn', 'radarLine', 'smoothLine', 'stackBar', 'waterfall', 'verticalArea', 'verticalLine'] }, { style: 'width: 100%;' }),
+                type: new adapters.EnumAdapter({ title: i18n.chart.attributes.type.title, defaultValue: 'column', enum: ['area', 'bar', 'column', 'line', 'radarArea', 'radarColumn', 'radarLine', 'smoothLine', 'stackBar', 'waterfall', 'verticalArea', 'verticalLine'] }, { style: 'width: 100%;' }),
                 title: new adapters.StringAdapter({ title: i18n.chart.attributes.title.title }),
                 categories: new adapters.NumberAdapter({ title: i18n.chart.attributes.categories.title, defaultValue: 4 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 10 }),
                 values: new adapters.NumberAdapter({ title: i18n.chart.attributes.values.title, defaultValue: 2 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 10 }),
-                legend: new adapters.EnumAdapter({title: i18n.chart.attributes.legend.title, defaultValue: 'none', enum: ['none', 'top', 'bottom', 'left', 'right'] }, { style: 'width: 100%;' }),
+                legend: new adapters.EnumAdapter({ title: i18n.chart.attributes.legend.title, defaultValue: 'none', enum: ['none', 'top', 'bottom', 'left', 'right'] }, { style: 'width: 100%;' }),
                 data: new adapters.ChartAdapter({ title: i18n.chart.attributes.data.title, defaultValue: util.defaultChartData(4, 2) }),
                 style: new adapters.StyleAdapter({ title: i18n.chart.attributes.style.title })
             },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Get Html or jQuery content
@@ -2094,6 +2097,8 @@
                 };
                 return template($.extend(component, { ns: kendo.ns }));
             },
+
+            /* jshint +W074 */
 
             /**
              * onResize Event Handler

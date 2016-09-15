@@ -229,8 +229,8 @@
                 this._dialogs = [];
                 this._value = new Style();
                 // this._FixBorderState();
-                this.bind('action', this._onAction);
-                this.bind('dialog', this._onDialog);
+                this.bind('action', $.proxy(this._onAction, this));
+                this.bind('dialog', $.proxy(this._onDialog, this));
                 this.enable(this.options.enabled);
             },
 
@@ -518,6 +518,16 @@
 
             /* jshint +W074 */
 
+            _tools: function () {
+                return this.element.find('[data-property]').toArray().map(function (element) {
+                    element = $(element);
+                    return {
+                        property: element.attr('data-property'),
+                        tool: this._getItem(element)
+                    };
+                }.bind(this));
+            },
+
             /**
              * Refresh the toolbar when updating style value
              * @param e
@@ -620,7 +630,10 @@
              * Destroy
              */
             destroy:  function () {
-                this.unbind('action', this._onAction);
+                this.unbind('action');
+                this.unbind('dialog');
+                kendo.unbind(this.wrapper);
+                this.wrapper.find('*').off();
                 ToolBar.fn.destroy.call(this);
             }
 
@@ -742,7 +755,8 @@
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
                 var that = this;
                 while (that.tabStrip.contentElements.length > 0) {
-                    kendo.destroy(that.tabStrip.contentElements[0]);
+                    kendo.destroy(that.tabStrip.contentHolder(0));
+                    that.tabStrip.contentHolder(0).empty();
                     that.tabStrip.remove(0);
                 }
             },
@@ -759,11 +773,14 @@
                 that._clearTabs();
                 // Add tabs
                 that.tabStrip.append(tabs);
+                // Initialize toolbars
+                var formatBars = that.tabStrip.wrapper.find(kendo.roleSelector('formatbar'));
                 if (that._value instanceof PageComponent) {
-                    kendo.bind(that.tabStrip.wrapper, that._value);
+                    kendo.bind(formatBars, that._value);
                 } else {
-                    kendo.init(that.tabStrip.contentElements[0]);
+                    kendo.init(formatBars);
                 }
+                // Select first tab
                 that.tabStrip.select(that.tabStrip.element.find('ul>li:first-child'));
             },
 

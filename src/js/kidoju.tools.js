@@ -3468,7 +3468,6 @@
          * Text-to-Speech
          * Geogebra
          * Spreadsheet
-         * Charts
          */
 
     }(window.jQuery));

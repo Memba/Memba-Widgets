@@ -633,7 +633,6 @@
                 this.unbind('action');
                 this.unbind('dialog');
                 kendo.unbind(this.wrapper);
-                this.wrapper.find('*').off();
                 ToolBar.fn.destroy.call(this);
             }
 

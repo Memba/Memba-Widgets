@@ -80,6 +80,7 @@
             name: 'custom',
             formula: kendo.format(FORMULA, '// Your code should return true when value is validated against solution.')
         };
+        var util = {};
 
         /*********************************************************************************
          * Helpers
@@ -1051,7 +1052,6 @@
                 var model = options.model;
                 var columns = model.get('attributes.categories') + 1;
                 var rows = model.get('attributes.values') + 1;
-                debugger;
                 // Prepare UI
                 dialog.title(options.title);
                 var content = '<div class="k-edit-form-container">' + // TODO namespace???
@@ -1071,13 +1071,12 @@
                 }).data('kendoSpreadsheet');
                 assert.instanceof(kendo.ui.Spreadsheet, spreadsheetWidget, kendo.format(assert.messages.instanceof.default, 'spreadsheetWidget', 'kendo.ui.Spreadsheet'));
                 // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990
-                // TODO still a defect described at https://github.com/telerik/kendo-ui-core/issues/2156
                 dialog.one('activate', function () {
                     kendo.resize(dialog.element); // spreadsheetWidget.refresh();
                     spreadsheetWidget.activeSheet().range('A1:A1').select();
                 });
-                // Load JSON
-                spreadsheetWidget.fromJSON(model.get('attributes.data'));
+                // Load JSON after resizing data to the predefined number of rows and columns
+                spreadsheetWidget.fromJSON(util.resizeSpreadsheetData(model.get('attributes.data'), rows, columns));
                 // Disable context menu
                 spreadsheet.find('.k-spreadsheet-fixed-container').off('contextmenu');
                 dialog.element.addClass('no-padding');
@@ -1561,8 +1560,8 @@
                     kendo.resize(dialog.element); // spreadsheetWidget.refresh();
                     spreadsheetWidget.activeSheet().range('A1:A1').select();
                 });
-                // Load JSON
-                spreadsheetWidget.fromJSON(model.get('attributes.data'));
+                // Load JSON after resizing data to the predefined number of rows and columns
+                spreadsheetWidget.fromJSON(util.resizeSpreadsheetData(model.get('attributes.data'), rows, columns));
                 // Disable context menu
                 spreadsheet.find('.k-spreadsheet-fixed-container').off('contextmenu');
                 // Set default font size
@@ -1840,7 +1839,13 @@
         });
         tools.register(Audio);
 
-        var defaultChartData = function (categories, values) {
+        /**
+         * Build default chart data
+         * @param categories
+         * @param values
+         * @returns {{sheets: *[]}}
+         */
+        util.defaultChartData = function (categories, values) {
             var YEAR = 1999;
             var MAX_VALUE = 500;
             var rowTotal = values + 1;
@@ -1868,6 +1873,26 @@
         };
 
         /**
+         * A utility function to resize spreadsheet data to a specified number of rows and columns
+         * @param json
+         * @param rowMax
+         * @param columnMax
+         */
+        util.resizeSpreadsheetData = function (json, rowMax, columnMax) {
+            var rows = json.sheets[0].rows;
+            var rowFilter = function (row) { return row.index < rowMax; };
+            var columnFilter = function (column) { return column.index < columnMax; };
+            rows = rows.filter(rowFilter);
+            for (var rowIndex = 0, rowTotal = rows.length; rowIndex < rowTotal; rowIndex++) {
+                var cells = rows[rowIndex].cells;
+                cells = cells.filter(columnFilter);
+                rows[rowIndex].cells = cells;
+            }
+            json.sheets[0].rows = rows;
+            return json;
+        };
+
+        /**
          * Chart tool
          * @class Chart
          */
@@ -1877,17 +1902,17 @@
             description: i18n.chart.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-#= ns #role="chart" data-#= ns #series-defaults="#: attributes.seriesDefaults$() #" data-#= ns #title="#: attributes.title$() #" data-#= ns #legend="#: attributes.legend$() #" data-#= ns #series="#: attributes.series$() #" data-#= ns #category-axis="#: attributes.categoryAxis$() #" style="#: attributes.style #"></div>'
+                default: '<div data-#= ns #role="chart" data-#= ns #chart-area="#: attributes.chartArea$() #" data-#= ns #series-defaults="#: attributes.seriesDefaults$() #" data-#= ns #title="#: attributes.title$() #" data-#= ns #legend="#: attributes.legend$() #" data-#= ns #series="#: attributes.series$() #" data-#= ns #category-axis="#: attributes.categoryAxis$() #" data-#= ns #value-axis="#: attributes.valueAxis$() #" style="#: attributes.style #"></div>'
             },
             height: 400,
             width: 400,
             attributes: {
-                type: new adapters.EnumAdapter({title: i18n.chart.attributes.type.title, defaultValue: 'column', enum: ['bar', 'column', 'line'] }, { style: 'width: 100%;' }),
+                type: new adapters.EnumAdapter({title: i18n.chart.attributes.type.title, defaultValue: 'column', enum: ['area', 'bar', 'column', 'line', 'radarArea', 'radarColumn', 'radarLine', 'smoothLine', 'stackBar', 'waterfall', 'verticalArea', 'verticalLine'] }, { style: 'width: 100%;' }),
                 title: new adapters.StringAdapter({ title: i18n.chart.attributes.title.title }),
                 categories: new adapters.NumberAdapter({ title: i18n.chart.attributes.categories.title, defaultValue: 4 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 10 }),
                 values: new adapters.NumberAdapter({ title: i18n.chart.attributes.values.title, defaultValue: 2 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 10 }),
                 legend: new adapters.EnumAdapter({title: i18n.chart.attributes.legend.title, defaultValue: 'none', enum: ['none', 'top', 'bottom', 'left', 'right'] }, { style: 'width: 100%;' }),
-                data: new adapters.ChartAdapter({ title: i18n.chart.attributes.data.title, defaultValue: defaultChartData(10, 10) }),
+                data: new adapters.ChartAdapter({ title: i18n.chart.attributes.data.title, defaultValue: util.defaultChartData(4, 2) }),
                 style: new adapters.StyleAdapter({ title: i18n.chart.attributes.style.title })
             },
 
@@ -1900,33 +1925,96 @@
              */
             getHtmlContent: function (component, mode) {
                 var that = this;
+                var types = {
+                    area : { type: 'area' },
+                    bar : { type: 'bar' },
+                    // bubble : { type: 'bubble' },
+                    // bullet : { type: 'bullet' },
+                    // candlestick : { type: 'candlestick' },
+                    column : { type: 'column' },
+                    // donut: { type: 'donut' },                 // <--- Could work with a little bit of work to display labels
+                    // funnel: { type: 'funnel' },
+                    line: { type: 'line' },
+                    // ohlc: { type: 'ohlc' },
+                    // pie: { type: 'pie' },                     // <--- Nice to have
+                    // polarArea: { type: 'polarArea' },
+                    // polarLine: { type: 'polarLine' },
+                    // polarScatter: { type: 'polarScatter' },
+                    radarArea : { type: 'radarArea' },
+                    radarColumn : { type: 'radarColumn' },
+                    radarLine: { type: 'radarLine' },
+                    smoothLine: { type: 'line', style: 'smooth' },
+                    // scatter: { type: 'scatter' },
+                    // scatterLine: { type: 'scatterLine' },     // <--- Nice to have
+                    stackBar: { type: 'bar', stack: 'true' },
+                    waterfall: { type: 'waterfall' },
+                    verticalArea: { type: 'verticalArea' },
+                    // verticalBullet: { type: 'verticalBullet' },
+                    verticalLine: { type: 'verticalLine' }
+                };
                 assert.instanceof(Chart, that, kendo.format(assert.messages.instanceof.default, 'this', 'Chart'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var template = kendo.template(that.templates.default);
-                // The seriesDefaults$ function returns an object chart's data-series-defaults attribute binding
-                component.attributes.seriesDefaults$ = function () {
+                var style = component.attributes.get('style');
+                // Get font from style - @see http://www.telerik.com/forums/charts---changing-the-default-font
+                var font = style.match(/font:([^;]+)/);
+                font = $.isArray(font) ? font[1] : font;
+                var fontSize = style.match(/font-size:([^;]+)/);
+                fontSize = $.isArray(fontSize) ? fontSize[1] : fontSize;
+                var fontFamily = style.match(/font-family:([^;]+)/);
+                fontFamily = $.isArray(fontFamily) ? fontFamily[1] : fontFamily;
+                // TODO: consider font-weight and font-style
+                font = font || ((fontSize || '50px') + ' ' + (fontFamily || 'Arial'));
+                var smallerFont = font;
+                var numbersInFont = font.match(/([0-9])+/g);
+                if ($.isArray(numbersInFont)) {
+                    for (var i = 0, length = numbersInFont.length; i < length; i++) {
+                        smallerFont = smallerFont.replace(numbersInFont[i], Math.ceil(0.6 * parseInt(numbersInFont[i], 10)));
+                    }
+                }
+                // Get colors from style (a null color is transparent, wheras undefined reverts to chart defaults)
+                var color = style.match(/color:([^;]+)/);
+                color = $.isArray(color) ? color[1] : color || undefined;
+                var background = style.match(/background-color:([^;]+)/);
+                background = $.isArray(background) ? background[1] : background || undefined;
+                // The chartArea$ function returns an object for chart's data-chart-area attribute binding
+                component.attributes.chartArea$ = function () {
                     return JSON.stringify({
-                        type: component.attributes.get('type')
-                        // stack: true
-                        // style: 'smooth'
+                        background: background
                     });
                 };
-                // The title$ function returns an object chart's data-title attribute binding
+                // The axisDefaults$ function returns an object chart's data-axis-defaults attribute binding
+                // component.attributes.axisDefaults$ = function () {
+                // We can't use axisDefaults, so we have categoryAxis$ and valueAxis$
+                // because of https://github.com/telerik/kendo-ui-core/issues/2165
+                // };
+                // The seriesDefaults$ function returns an object for chart's data-series-defaults attribute binding
+                component.attributes.seriesDefaults$ = function () {
+                    return JSON.stringify(types[component.attributes.get('type')]);
+                };
+                // The title$ function returns an object for chart's data-title attribute binding
                 component.attributes.title$ = function () {
                     var title = component.attributes.get('title');
                     return JSON.stringify({
                         text: title,
-                        visible: !!(title.trim())
+                        visible: !!(title.trim()),
+                        font: font,
+                        color: color
                     });
                 };
-                // The legend$ function returns an object chart's data-legend attribute binding
+                // The legend$ function returns an object for chart's data-legend attribute binding
                 component.attributes.legend$ = function () {
                     var legend = component.attributes.get('legend');
                     return JSON.stringify({
                         position: legend !== 'none' ? legend : 'right',
-                        visible: legend !== 'none'
+                        visible: legend !== 'none',
+                        labels: {
+                            font: smallerFont,
+                            color: color
+                        }
                     });
                 };
+                // The series$ function returns an object for chart's data-series attribute binding
                 component.attributes.series$ = function () {
                     var series = [];
                     var rowTotal = component.attributes.get('values') + 1;
@@ -1964,6 +2052,7 @@
                      */
                     return JSON.stringify(series);
                 };
+                // The categoryAxis$ function returns an object for chart's data-category-axis attribute binding
                 component.attributes.categoryAxis$ = function () {
                     var categories = [];
                     var columnTotal = component.attributes.get('categories') + 1;
@@ -1984,7 +2073,24 @@
                         categories.push(category);
                     }
                     // return { categories: [2000, 2001, 2002, 2003] }
-                    return JSON.stringify({ categories: categories });
+                    return JSON.stringify({
+                        categories: categories,
+                        color: color,
+                        labels: {
+                            font: smallerFont,
+                            color: color
+                        }
+                    });
+                };
+                // The valueAxis$ function returns an object for chart's data-value-axis attribute binding
+                component.attributes.valueAxis$ = function () {
+                    return JSON.stringify({
+                        color: color,
+                        labels: {
+                            font: smallerFont,
+                            color: color
+                        }
+                    });
                 };
                 return template($.extend(component, { ns: kendo.ns }));
             },

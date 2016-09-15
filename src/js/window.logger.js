@@ -119,6 +119,26 @@
                 if (input instanceof HTMLInputElement && input.type === 'hidden') {
                     entry.trace = input.value;
                 }
+
+                // Log the page url
+                entry.url = window.location.protocol + '//' + window.location.host + window.location.pathname;
+
+                // Log the query string
+                if (window.location.search || window.location.hash) {
+                    if (window.jQuery && typeof window.jQuery.deparam === 'function') {
+                        entry.query = {
+                            search: window.jQuery.deparam(window.location.search.substr(1)),
+                            hash: window.jQuery.deparam(window.location.hash)
+                        };
+                    } else {
+                        entry.query = {
+                            search: window.location.search.substr(1),
+                            hash: window.location.hash
+                        };
+                    }
+                } else {
+                    entry.query = {};
+                }
             }
 
             /* This function has too many statements. */

@@ -289,11 +289,14 @@
                 var fontSize = parseInt(that.element.css('font-size'), 10);
                 var popup = that.dropDownList.popup;
                 popup.element
-                    .css('font-size', Math.floor(fontSize * scale) + 'px')
-                    .width(width * scale);
+                    .css({
+                        fontSize: Math.floor(fontSize * scale) + 'px',
+                        minWidth: Math.floor(width * scale) + 'px',
+                        width: Math.floor(width * scale) + 'px'
+                    });
                 // And reposition the popup
-                // popup.one('open', function () { // the popup is already opened so the open evennt
-                // popup.one('activate', function () { // activate is only triggered at the end of the open animation which is too late
+                // popup.one('open', function () { // the popup is already opened so the open event won't fire
+                // popup.one('activate', function () { // activate is only triggered at the end of the open animation which flickers in FF
                 setTimeout(function () {
                     var element = that.element.closest('.kj-element');
                     if (scaler.length && element.length) {
@@ -303,8 +306,7 @@
                             popup.wrapper.css('top', popupTop + (scale - 1) * height);
                         }
                     }
-
-                }, 25);
+                }, 0);
             },
 
             /**

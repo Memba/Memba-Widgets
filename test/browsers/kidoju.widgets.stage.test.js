@@ -535,8 +535,8 @@
                         count++;
                         tools.active = tool.id;
                         stage.element.simulate('mousedown', {
-                            clientX: offset.left + 80 * count,
-                            clientY: offset.top + 60 * count
+                            clientX: offset.left + 20 * count,
+                            clientY: offset.top + 15 * count
                         });
                         expect(stage.dataSource.total()).to.equal(total + count);
                         var items = stage.items();
@@ -549,8 +549,8 @@
                         var item = items[total + count - 1];
                         expect(component).to.have.property('id', null);
                         expect(component).to.have.property('tool', tool.id);
-                        expect(component).to.have.property('top', 60 * count);
-                        expect(component).to.have.property('left', 80 * count);
+                        expect(component).to.have.property('top', 15 * count);
+                        expect(component).to.have.property('left', 20 * count);
                         expect(component).to.have.property('height', tool.height);
                         expect(component).to.have.property('width', tool.width);
                         expect(component).to.have.property('rotate', 0);

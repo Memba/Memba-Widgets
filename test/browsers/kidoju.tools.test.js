@@ -493,7 +493,7 @@
             it('Validate label properties', function () {
                 var tool = tools.label;
                 expect(tool.id).to.equal('label');
-                expect(tool.icon).to.equal('document_orientation_landscape');
+                expect(tool.icon).to.equal('font');
                 expect(tool.cursor).to.equal('crosshair');
                 expect(tool.height).to.equal(80);
                 expect(tool.width).to.equal(300);

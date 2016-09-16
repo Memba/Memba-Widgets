@@ -126,7 +126,7 @@
                 autoBind: true,
                 dataSource: [],
                 itemStyle: {},
-                activeStyle: {},
+                selectedStyle: {},
                 value: [],
                 enable: true
             },
@@ -141,7 +141,7 @@
                 options = that.options;
                 options.groupStyle = formatStyle(options.groupStyle);
                 options.itemStyle = formatStyle(options.itemStyle);
-                options.activeStyle = formatStyle(options.activeStyle);
+                options.selectedStyle = formatStyle(options.selectedStyle);
             },
 
             /**
@@ -229,7 +229,7 @@
                             .prop(CHECKED, true)
                             .parent()
                                 .attr('style', '')
-                                .css($.extend({}, that.options.itemStyle, that.options.activeStyle));
+                                .css($.extend({}, that.options.itemStyle, that.options.selectedStyle));
                     });
                 }
             },

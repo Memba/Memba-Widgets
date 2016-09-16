@@ -1607,12 +1607,12 @@
                     formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
                 },
                 {
-                    name: 'noSpaceEqual',
-                    formula: kendo.format(FORMULA, 'return String(value).replace(/\s+/g, "") === String(solution).replace(/\s+/g, "");')
+                    name: 'ignoreSpacesEqual',
+                    formula: kendo.format(FORMULA, 'return String(value).replace(/\s+/g, " ") === String(solution).replace(/\s+/g, " ");')
                 },
                 {
-                    name: 'noPunctiationEqual',
-                    formula: kendo.format(FORMULA, 'return String(value).replace(/[\.,;:\?!\'"\(\)\s]+/g, "") === String(solution).replace(/[\.,;:\?!\'"\(\)\s]+/g, "");')
+                    name: 'ignorePunctiationEqual',
+                    formula: kendo.format(FORMULA, 'return String(value).replace(/[\.,;:\?!\'"\(\)\s]+/g, " ") === String(solution).replace(/[\.,;:\?!\'"\(\)\s]+/g, " ");')
                 }
             ],
             libraryDefault: 'equal'

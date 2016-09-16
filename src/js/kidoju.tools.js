@@ -302,8 +302,7 @@
                 attributes: {
                     columns: { title: 'Columns' },
                     rows: { title: 'Rows' },
-                    data: { title: 'Data' },
-                    style: { title: 'Style' }
+                    data: { title: 'Data' }
                 }
             },
 

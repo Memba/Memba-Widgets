@@ -461,7 +461,6 @@
                     attributes.columns.title = 'Columns';
                     attributes.rows.title = 'Rows';
                     attributes.data.title = 'Data';
-                    attributes.style.title = 'Style';
                 }
 
                 if (tools.textarea instanceof Tool) {

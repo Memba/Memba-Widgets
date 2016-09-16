@@ -73,7 +73,7 @@
         var RX_SOLUTION = /\S+/i;
         var RX_TEXT = /\S+/i;
         var RX_VALIDATION = /\S+/i;
-        var RX_VIDEO = /^(cdn|data):\/\/[\s\S]+.mp3$/i;
+        var RX_VIDEO = /^(cdn|data):\/\/[\s\S]+.mp4$/i;
         var FORMULA = 'function validate(value, solution, all) {\n\t{0}\n}';
         var JS_COMMENT = '// ';
         var CUSTOM = {

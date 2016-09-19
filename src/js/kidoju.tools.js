@@ -2161,7 +2161,7 @@
             icon: 'dot_matrix',
             description: i18n.chargrid.description,
             cursor: CURSOR_CROSSHAIR,
-            weight: 10,
+            weight: 8,
             templates: {
                 design: kendo.format(CHARGRID, 'data-#= ns #value="#: JSON.stringify(attributes.layout) #" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'),
                 play: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #"'),
@@ -3065,7 +3065,6 @@
             icon: 'table',
             description: i18n.table.description,
             cursor: CURSOR_CROSSHAIR,
-            weight: 2,
             templates: {
                 default: '<div data-#= ns #role="table" style="#: attributes.style #" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #value="#: JSON.stringify(attributes.data) #"></div>'
             },

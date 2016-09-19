@@ -1614,7 +1614,7 @@
                     }
                 }
                 // Minimum number of questions (minimum weight)
-                var MIN_WEIGHT = 10;
+                var MIN_WEIGHT = 8;
                 if (values._weight < MIN_WEIGHT) {
                     ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minQuestions, MIN_WEIGHT) });
                 }

@@ -121,7 +121,8 @@
                 }
 
                 // Log the page url
-                entry.url = window.location.protocol + '//' + window.location.host + window.location.pathname;
+                var pos = (window.location.protocol + '//' + window.location.host).length;
+                entry.url = window.location.href.substr(pos);
 
                 // Log the query string
                 if (window.location.search || window.location.hash) {

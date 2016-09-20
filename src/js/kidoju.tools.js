@@ -9,6 +9,9 @@
 (function (f, define) {
     'use strict';
     define([
+        // './vendor/kendo/kendo.binder',
+        // './vendor/kendo/kendo.dialog',
+        // './vendor/kendo/kendo.spreadsheet',
         './window.assert',
         './window.logger',
         './kidoju.data'
@@ -57,8 +60,9 @@
         var ACTIVE = 'active';
         var POINTER = 'pointer';
         var ELEMENT_CLASS = '.kj-element';
-        var DIALOG_DIV = '<div class="k-popup-edit-form {0}"></div>';
-        var DIALOG_CLASS = '.kj-dialog';
+        var DIALOG_DIV = '<div {0}"></div>';
+        var DIALOG_SELECTOR = '.kj-dialog';
+        var NO_PADDING_CLASS = 'no-padding';
         var CLICK = 'click';
         var RX_HTTP_S = /^https?:\/\//;
         var RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
@@ -737,29 +741,35 @@
             /**
              * Get a dialog window
              */
-            getDialog: function () {
-                var dialog = $(DIALOG_CLASS).data('kendoWindow');
+            getDialog: function (options) {
+                var that = this;
+                var dialog = $(DIALOG_SELECTOR).data('kendoDialog');
+                assert.ok(kendo.ui.Dialog, '`kendo.dialog.js` is expected to be loaded');
                 // Find or create dialog frame
-                if (!(dialog instanceof kendo.ui.Window)) {
+                if (!(dialog instanceof kendo.ui.Dialog)) {
                     // Create dialog
-                    dialog = $(kendo.format(DIALOG_DIV, DIALOG_CLASS.substr(1)))
+                    dialog = $(kendo.format(DIALOG_DIV, DIALOG_SELECTOR.substr(1)))
                         .appendTo(document.body)
-                        .kendoWindow({
-                            actions: ['close'],
+                        .kendoDialog({
+                            actions: [
+                                // TODO: images
+                                { text: Tool.fn.i18n.dialogs.ok.text, primary: true, action: $.proxy(that.onOkAction, that, options) },
+                                { text: Tool.fn.i18n.dialogs.cancel.text }
+                            ],
+                            buttonLayout: 'normal',
                             modal: true,
-                            resizable: false,
+                            resizable: true,
                             visible: false,
                             width: 860,
                             close: function (e) {
                                 // This is a reusable dialog, so we need to make sure it is ready for the next content
-                                dialog.element.off(CLICK, '.k-edit-buttons>.k-button');
-                                dialog.element.removeClass('no-padding');
+                                dialog.element.removeClass(NO_PADDING_CLASS);
                                 // The content method destroys widgets and unbinds data
                                 dialog.content('');
                                 dialog.viewModel = undefined;
                             }
                         })
-                        .data('kendoWindow');
+                        .data('kendoDialog');
                 }
                 return dialog;
             },
@@ -880,42 +890,29 @@
                         .on(CLICK, $.proxy(that.showDialog, that, settings));
                 };
             },
-            showDialog: function (settings) {
+            showDialog: function (options/*, e*/) {
                 var that = this;
-                var dialog = that.getDialog();
+                var dialog = that.getDialog(options);
                 // Create viewModel (Cancel shall not save changes to main model)
                 dialog.viewModel = kendo.observable({
-                    url: settings.model.get(settings.field)
+                    url: options.model.get(options.field)
                 });
                 // Prepare UI
-                dialog.title(settings.title);
-                var content = '<div class="k-edit-form-container">' + // TODO namespace???
-                    '<div data-role="assetmanager" data-bind="value: url"></div>' +
-                    '<div class="k-edit-buttons k-state-default">' +
-                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
-                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
-                    '</div></div>';
-                dialog.content(content);
-                assert.instanceof(PageComponent, settings.model, kendo.format(assert.messages.instanceof.default, 'settings.model', 'kidoju.data.PageComponent'));
-                assert.instanceof(ToolAssets, assets[settings.model.tool], kendo.format(assert.messages.instanceof.default, 'assets[settings.model.tool]', 'kidoju.ToolAssets'));
-                var assetManagerWidget = dialog.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets[settings.model.tool]).data('kendoAssetManager');
+                dialog.title(options.title);
+                dialog.content('<div data-role="assetmanager" data-bind="value: url"></div>');
+                assert.instanceof(PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
+                assert.instanceof(ToolAssets, assets[options.model.tool], kendo.format(assert.messages.instanceof.default, 'assets[options.model.tool]', 'kidoju.ToolAssets'));
+                var assetManagerWidget = dialog.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets[options.model.tool]).data('kendoAssetManager');
                 kendo.bind(dialog.element, dialog.viewModel);
-                dialog.element.addClass('no-padding');
-                // Bind click handler for edit buttons
-                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, settings, dialog));
+                dialog.element.addClass(NO_PADDING_CLASS);
                 // Show dialog
                 assetManagerWidget.tabStrip.activateTab(0);
-                dialog.center().open();
+                dialog.open();
             },
-            closeDialog: function (options, dialog, e) {
-                var that = this;
-                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
-                    var command = $(e.target).attr(kendo.attr('command'));
-                    if (command === 'ok') {
-                        options.model.set(options.field, dialog.viewModel.get('url'));
-                    }
-                    dialog.close();
-                }
+            onOkAction: function (options, e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
+                options.model.set(options.field, e.sender.viewModel.get('url'));
             }
         });
 
@@ -948,18 +945,18 @@
                 var that = this;
                 BaseAdapter.fn.init.call(that, options);
                 that.type = undefined;
-                that.editor = function (container, options) {
+                that.editor = function (container, settings) {
                     $('<button/>')
                         .text('...')
                         .addClass('k-button')
                         .css({ margin: 0, width: '100%' })
                         .appendTo(container)
-                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                        .on(CLICK, $.proxy(that.showDialog, that, settings));
                 };
             },
             showDialog: function (options, evt) {
                 var that = this;
-                var dialog = that.getDialog();
+                var dialog = that.getDialog(options);
                 var model = options.model;
                 // Build data (resize array especially after changing rows and columns)
                 var columns = model.get('attributes.columns');
@@ -973,9 +970,9 @@
                 });
                 // Prepare UI
                 dialog.title(options.title);
-                var content = '<div class="k-edit-form-container">' + // TODO namespace???
-                    '<div>' +
-                    '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-edit-form-container" data-container=".k-edit-form-container" ' +
+                dialog.content('<div style="display:flex;flex-direction:row">' +
+                    // character grid
+                    '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-content" data-container=".k-content" ' +
                     'data-columns="' + model.get('attributes.columns') + '" data-rows="' + model.get('attributes.rows') + '" ' +
                     'data-blank="' + model.get('attributes.blank') + '" ' +
                     'data-whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
@@ -987,32 +984,22 @@
                     'data-locked-fill="' + model.get('attributes.lockedFill') + '" ' +
                     'data-locked-color="' + model.get('attributes.fontColor') + '" ' +
                     'data-value-color="' + model.get('attributes.fontColor') + '" ' +
-                    'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;margin:20px;float:left;"></div>' +
-                    '<div style="max-width:400px;margin:20px 0;float:left;">' +
+                    'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;padding:20px;"></div>' +
+                    // Explanations
+                    '<div style="padding:20px 0;">' +
                     (options.field === 'properties.solution' ? kendo.format(this.messages.solution, model.get('attributes.whitelist')) : kendo.format(this.messages.layout, model.get('attributes.blank'))) +
                     '</div>' +
-                    '</div>' +
-                    '<div class="k-edit-buttons k-state-default">' +
-                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
-                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
-                    '</div></div>';
-                dialog.content(content);
+                    // Close parent div
+                    '</div>');
                 kendo.bind(dialog.element, dialog.viewModel);
-                dialog.element.addClass('no-padding');
-                // Bind click handler for edit buttons
-                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                dialog.element.addClass(NO_PADDING_CLASS);
                 // Show dialog
-                dialog.center().open();
+                dialog.open();
             },
-            closeDialog: function (options, dialog, e) {
-                var that = this;
-                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
-                    var command = $(e.target).attr(kendo.attr('command'));
-                    if (command === 'ok') {
-                        options.model.set(options.field, dialog.viewModel.get('chargrid'));
-                    }
-                    dialog.close();
-                }
+            onOkAction: function (options, e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
+                options.model.set(options.field, e.sender.viewModel.get('chargrid'));
             },
             library: [
                 {
@@ -1036,30 +1023,24 @@
                 BaseAdapter.fn.init.call(that, options);
                 that.type = undefined;
                 // This is the inline editor with a [...] button which triggers this.showDialog
-                that.editor = function (container, options) {
+                that.editor = function (container, settings) {
                     $('<button/>')
                         .text('...')
                         .addClass('k-button')
                         .css({ margin: 0, width: '100%' })
                         .appendTo(container)
-                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                        .on(CLICK, $.proxy(that.showDialog, that, settings));
                 };
             },
-            showDialog: function (options) {
+            showDialog: function (options/*, e*/) {
                 var that = this;
-                var dialog = that.getDialog();
+                var dialog = that.getDialog(options);
                 var model = options.model;
                 var columns = model.get('attributes.categories') + 1;
                 var rows = model.get('attributes.values') + 1;
                 // Prepare UI
                 dialog.title(options.title);
-                var content = '<div class="k-edit-form-container">' + // TODO namespace???
-                    '<div data-role="spreadsheet" style="width:' + (dialog.element.parent().width() - 2) + 'px;"></div>' +
-                    '<div class="k-edit-buttons k-state-default">' +
-                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
-                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
-                    '</div></div>';
-                dialog.content(content);
+                dialog.content('<div data-role="spreadsheet"></div>');
                 var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
                 assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
                 var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
@@ -1069,8 +1050,8 @@
                     toolbar: false
                 }).data('kendoSpreadsheet');
                 assert.instanceof(kendo.ui.Spreadsheet, spreadsheetWidget, kendo.format(assert.messages.instanceof.default, 'spreadsheetWidget', 'kendo.ui.Spreadsheet'));
-                // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990
-                dialog.one('activate', function () {
+                // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990 and https://github.com/telerik/kendo-ui-core/issues/2156
+                dialog.one('show', function () {
                     kendo.resize(dialog.element); // spreadsheetWidget.refresh();
                     spreadsheetWidget.activeSheet().range('A1:A1').select();
                 });
@@ -1078,23 +1059,18 @@
                 spreadsheetWidget.fromJSON(util.resizeSpreadsheetData(model.get('attributes.data'), rows, columns));
                 // Disable context menu
                 spreadsheet.find('.k-spreadsheet-fixed-container').off('contextmenu');
-                dialog.element.addClass('no-padding');
-                // Bind click handler for edit buttons
-                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                dialog.element.addClass(NO_PADDING_CLASS);
                 // Show dialog
-                dialog.center().open();
+                dialog.open();
             },
-            closeDialog: function (options, dialog, e) {
-                var that = this;
-                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
-                    var command = $(e.target).attr(kendo.attr('command'));
-                    if (command === 'ok') {
-                        var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
-                        var spreadsheetWidget = spreadsheet.data('kendoSpreadsheet');
-                        options.model.set(options.field, spreadsheetWidget.toJSON());
-                    }
-                    dialog.close();
-                }
+            onOkAction: function (options, e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
+                var spreadsheet = e.sender.element.find(kendo.roleSelector('spreadsheet'));
+                assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
+                var spreadsheetWidget = spreadsheet.data('kendoSpreadsheet');
+                assert.instanceof(kendo.ui.Spreadsheet, spreadsheetWidget, kendo.format(assert.messages.instanceof.default, 'spreadsheetWidget', 'kendo.ui.Spreadsheet'));
+                options.model.set(options.field, spreadsheetWidget.toJSON());
             }
         });
 
@@ -1440,7 +1416,7 @@
                 that.type = STRING;
                 that.defaultValue = that.defaultValue || (that.nullable ? null : '');
                 // This is the inline editor with a [...] button which triggers this.showDialog
-                that.editor = function (container, options) {
+                that.editor = function (container, settings) {
                     var table = $('<div/>')
                         .css({ display: 'table' })
                         .appendTo(container);
@@ -1454,7 +1430,7 @@
                     var input = $('<input/>')
                         .addClass('k-textbox') // or k-input
                         .css({ width: '100%' })
-                        .attr($.extend({}, options.attributes, { 'data-bind': 'value: ' + options.field })) // TODO namespace?
+                        .attr($.extend({}, settings.attributes, { 'data-bind': 'value: ' + settings.field })) // TODO namespace?
                         .appendTo(cell);
                     $('<button/>')
                         .text('...')
@@ -1466,41 +1442,28 @@
                             margin: 0
                         })
                         .appendTo(table)
-                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                        .on(CLICK, $.proxy(that.showDialog, that, settings));
                 };
             },
-            showDialog: function (options) {
+            showDialog: function (options/*, e*/) {
                 var that = this;
-                var dialog = that.getDialog();
+                var dialog = that.getDialog(options);
                 // Create viewModel (Cancel shall not save changes to main model)
                 dialog.viewModel = kendo.observable({
                     style: options.model.get(options.field)
                 });
                 // Prepare UI
                 dialog.title(options.title);
-                var content = '<div class="k-edit-form-container">' + // TODO namespace???
-                    '<div data-role="styleeditor" data-bind="value: style"></div>' +
-                    '<div class="k-edit-buttons k-state-default">' +
-                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
-                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
-                    '</div></div>';
-                dialog.content(content);
+                dialog.content('<div data-role="styleeditor" data-bind="value: style"></div>');
                 kendo.bind(dialog.element, dialog.viewModel);
-                dialog.element.addClass('no-padding');
-                // Bind click handler for edit buttons
-                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                dialog.element.addClass(NO_PADDING_CLASS);
                 // Show dialog
-                dialog.center().open();
+                dialog.open();
             },
-            closeDialog: function (options, dialog, e) {
-                var that = this;
-                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
-                    var command = $(e.target).attr(kendo.attr('command'));
-                    if (command === 'ok') {
-                        options.model.set(options.field, dialog.viewModel.get('style'));
-                    }
-                    dialog.close();
-                }
+            onOkAction: function (options, e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
+                options.model.set(options.field, e.sender.viewModel.get('style'));
             }
         });
 
@@ -1513,30 +1476,24 @@
                 BaseAdapter.fn.init.call(that, options);
                 that.type = undefined;
                 // This is the inline editor with a [...] button which triggers this.showDialog
-                that.editor = function (container, options) {
+                that.editor = function (container, settings) {
                     $('<button/>')
                         .text('...')
                         .addClass('k-button')
                         .css({ margin: 0, width: '100%' })
                         .appendTo(container)
-                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                        .on(CLICK, $.proxy(that.showDialog, that, settings));
                 };
             },
-            showDialog: function (options) {
+            showDialog: function (options/*, e*/) {
                 var that = this;
-                var dialog = that.getDialog();
+                var dialog = that.getDialog(options);
                 var model = options.model;
                 var columns = model.get('attributes.columns');
                 var rows = model.get('attributes.rows');
                 // Prepare UI
                 dialog.title(options.title);
-                var content = '<div class="k-edit-form-container">' + // TODO namespace???
-                    '<div data-role="spreadsheet" style="width:' + (dialog.element.parent().width() - 2) + 'px;"></div>' +
-                    '<div class="k-edit-buttons k-state-default">' +
-                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
-                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
-                    '</div></div>';
-                dialog.content(content);
+                dialog.content('<div data-role="spreadsheet"></div>');
                 var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
                 assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
                 var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
@@ -1553,9 +1510,8 @@
                     }
                 }).data('kendoSpreadsheet');
                 assert.instanceof(kendo.ui.Spreadsheet, spreadsheetWidget, kendo.format(assert.messages.instanceof.default, 'spreadsheetWidget', 'kendo.ui.Spreadsheet'));
-                // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990
-                // TODO still a defect described at https://github.com/telerik/kendo-ui-core/issues/2156
-                dialog.one('activate', function () {
+                // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990 and https://github.com/telerik/kendo-ui-core/issues/2156
+                dialog.one('show', function () {
                     kendo.resize(dialog.element); // spreadsheetWidget.refresh();
                     spreadsheetWidget.activeSheet().range('A1:A1').select();
                 });
@@ -1569,23 +1525,18 @@
                     var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
                     range.fontSize(range.fontSize() || 48);
                 });
-                dialog.element.addClass('no-padding');
-                // Bind click handler for edit buttons
-                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                dialog.element.addClass(NO_PADDING_CLASS);
                 // Show dialog
-                dialog.center().open();
+                dialog.open();
             },
-            closeDialog: function (options, dialog, e) {
-                var that = this;
-                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
-                    var command = $(e.target).attr(kendo.attr('command'));
-                    if (command === 'ok') {
-                        var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
-                        var spreadsheetWidget = spreadsheet.data('kendoSpreadsheet');
-                        options.model.set(options.field, spreadsheetWidget.toJSON());
-                    }
-                    dialog.close();
-                }
+            onOkAction: function (options, e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
+                var spreadsheet = e.sender.element.find(kendo.roleSelector('spreadsheet'));
+                assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
+                var spreadsheetWidget = spreadsheet.data('kendoSpreadsheet');
+                assert.instanceof(kendo.ui.Spreadsheet, spreadsheetWidget, kendo.format(assert.messages.instanceof.default, 'spreadsheetWidget', 'kendo.ui.Spreadsheet'));
+                options.model.set(options.field, spreadsheetWidget.toJSON());
             }
         });
 
@@ -1626,7 +1577,7 @@
                 BaseAdapter.fn.init.call(that, options);
                 that.type = STRING;
                 // this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-                that.editor = function (container, options) {
+                that.editor = function (container, settings) {
                     var table = $('<div/>')
                         .css({ display: 'table' })
                         .appendTo(container);
@@ -1639,7 +1590,7 @@
                         .appendTo(table);
                     var input = $('<div data-role="codeinput" />') // TODO namespace???
                     // Note: _library is added to the data bound PageComponent in its init method
-                        .attr($.extend({}, options.attributes, { 'data-bind': 'value: ' + options.field + ', source: _library' })) // TODO namespace???
+                        .attr($.extend({}, settings.attributes, { 'data-bind': 'value: ' + settings.field + ', source: _library' })) // TODO namespace???
                         .appendTo(cell);
                     // We need a temporary textbox to calculate the height and align the button
                     var temp = $('<input type="text" class="k-textbox">')
@@ -1655,13 +1606,13 @@
                             margin: 0
                         })
                         .appendTo(table)
-                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                        .on(CLICK, $.proxy(that.showDialog, that, settings));
                     temp.remove();
                 };
             },
-            showDialog: function (options/*,evt*/) {
+            showDialog: function (options/*, e*/) {
                 var that = this;
-                var dialog = that.getDialog();
+                var dialog = that.getDialog(options);
                 // Create viewModel (Cancel shall not save changes to main model)
                 dialog.viewModel = kendo.observable({
                     code: options.model.get(options.field),
@@ -1669,19 +1620,11 @@
                 });
                 // Prepare UI
                 dialog.title(options.title);
-                var content = '<div class="k-edit-form-container">' + // TODO namespace???
-                    '<div data-role="codeeditor" data-bind="value: code, source: library" data-default="' + that.defaultValue + '" data-solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"></div>' +
-                    '<div class="k-edit-buttons k-state-default">' +
-                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
-                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
-                    '</div></div>';
-                dialog.content(content);
+                dialog.content('<div data-role="codeeditor" data-bind="value: code, source: library" data-default="' + that.defaultValue + '" data-solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"></div>');
                 kendo.bind(dialog.element, dialog.viewModel);
-                dialog.element.addClass('no-padding');
-                // Bind click handler for edit buttons
-                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                dialog.element.addClass(NO_PADDING_CLASS);
                 // Bind window activate handler
-                dialog.one('activate', function () {
+                dialog.one('show', function () {
                     // IMPORTANT, we need13 to refresh codemirror here
                     // otherwise the open animation messes with CodeMirror calculations
                     // and gutter and line numbers are displayed at the wrong coordinates
@@ -1693,17 +1636,12 @@
                     }
                 });
                 // Show dialog
-                dialog.center().open();
+                dialog.open();
             },
-            closeDialog: function (options, dialog, e) {
-                var that = this;
-                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
-                    var command = $(e.target).attr(kendo.attr('command'));
-                    if (command === 'ok') {
-                        options.model.set(options.field, dialog.viewModel.get('code'));
-                    }
-                    dialog.close();
-                }
+            onOkAction: function (options, e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
+                options.model.set(options.field, e.sender.viewModel.get('code'));
             }
         });
 

@@ -1,3 +1,9 @@
+.k-dialog .k-dialog-buttongroup .k-button .k-image {
+    height: 1.5em;
+    width: 1.5em;
+    margin-right: 0.25em;
+    vertical-align: middle;
+}
 .k-dialog .k-content.no-padding {
     padding: 0;
 }
@@ -11,4 +17,3 @@
     width: 100%;
     border-style: none;
 }
-

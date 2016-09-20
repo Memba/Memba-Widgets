@@ -183,6 +183,14 @@
                         kendo.ui.DropDownList.fn._closeHandler.call(this, e);
                     };
 
+                    // Bind treeview mousedown event
+                    // This captures the mousedown on the scroller that closes the popup in IE and Edge
+                    // If an element is selected, the select event of te treeview allows the popup to close
+                    // @see https://github.com/jlchereau/Kidoju-Webapp/issues/170
+                    popupTreeView.on('mousedown', function (e) {
+                        that.popup.canClose = false;
+                    });
+
                     // Bind popup open and close events
                     that.popup
                         .bind('open', function () {

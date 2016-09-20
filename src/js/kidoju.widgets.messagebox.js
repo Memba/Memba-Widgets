@@ -11,8 +11,7 @@
     define([
         './window.assert',
         './window.logger',
-        './vendor/kendo/kendo.button',
-        './vendor/kendo/kendo.window'
+        './vendor/kendo/kendo.dialog'
     ], f);
 })(function () {
 
@@ -22,15 +21,14 @@
 
         var kendo = window.kendo;
         var ui = kendo.ui;
-        var Button = ui.Button;
-        var Window = ui.Window;
+        var Dialog = ui.Dialog;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.messagebox');
-        var UNDEFINED = 'undefined';
+        var STRING = 'string';
         var NS = '.kendoMessageBox';
         var CLICK = 'click';
-        var CLOSE = 'close';
-        var COMMAND = 'command';
+        var KEYDOWN = 'keydown';
+        var ACTION = 'action';
         var HASH = '#';
         var TYPE = {
             ERROR: 'error',
@@ -40,11 +38,11 @@
         var CONTENT_TEMPLATE = '<div class="k-widget k-notification k-notification-#: type #" data-role="alert">' +
             '<div class="k-notification-wrap"><span class="k-icon k-i-note"></span>#: message #</div>' +
             '</div>';
-        var BUTTONS_TEMPLATE = '<div class="k-action-buttons">' +
-            '# for (var i = 0; i < buttons.length; i++) { #' +
-            '<button type="button" data-role="button" data-command="#: buttons[i].command #" class="#: buttons[i].class || \'\' #" data-image-url="#: buttons[i].imageUrl || \'\' #">#: buttons[i].text #</button>' +
-            '# } #' +
-            '</div>';
+        var ACTION_TEMPLATE = '<li class=\'k-button# if (data.primary) { # k-primary# } #\' role=\'button\'></li>';
+        var TEXT_TEMPLATE = '<img alt="#: data.text #" class="k-image" src="#: data.imageUrl #">#: data.text #';
+        var WIDTH = 'width';
+        var HUNDREDPERCENT = 100;
+
 
         /*********************************************************************************
          * Helpers
@@ -65,24 +63,114 @@
         }
 
         /*********************************************************************************
-         * Widget
+         * Widgets
          *********************************************************************************/
+
+        /**
+         * DialogEx Widget
+         */
+        var DialogEx = Dialog.extend({
+
+            options: {
+                name: 'DialogEx',
+                visible: false
+            },
+
+            /**
+             * Add click event to dialog events
+             */
+            events: Dialog.fn.events.push(CLICK),
+
+            /**
+             * Add buttons
+             * @param actionbar
+             * @private
+             */
+            _addButtons: function (actionbar) {
+                var that = this;
+                var options = that.options;
+                var actionClick = $.proxy(that._actionClick, that);
+                var actionKeyHandler = $.proxy(that._actionKeyHandler, that);
+                var actions = that.options.actions;
+                var length = actions.length;
+                var buttonSize = HUNDREDPERCENT / length;
+                var action;
+                var text;
+                for (var i = 0; i < length; i++) {
+                    action = actions[i];
+                    text = that._mergeTextWithOptions(action);
+                    // var btn = $(kendo.template(ACTION_TEMPLATE)(action)).autoApplyNS(NS).html(text).appendTo(actionbar)
+                    var btn = $(kendo.template(ACTION_TEMPLATE)(action)).html(text).appendTo(actionbar)
+                        .data(ACTION, action.action)
+                        .on(CLICK, actionClick)
+                        .on(KEYDOWN, actionKeyHandler);
+                    if (options.buttonLayout === 'stretched') {
+                        btn.css(WIDTH, buttonSize + '%');
+                    }
+                }
+            },
+
+            /**
+             *
+             * @param action
+             * @returns {string}
+             * @private
+             */
+            _mergeTextWithOptions: function (action) {
+                // var text = action.text;
+                // return text ? kendo.template(text)(this.options) : '';
+                return action.imageUrl ? kendo.template(TEXT_TEMPLATE)(action) : kendo.template(action.text || '')(this.options);
+            },
+
+            /**
+             * Execute button action
+             * @param target
+             * @private
+             */
+            _runActionBtn: function (target) {
+                var that = this;
+                if (that._closing) {
+                    return;
+                }
+                var action = $(target).data(ACTION);
+                var globalClick = that.options.click;
+                var preventClose = false;
+                if ($.isFunction(action)) {
+                    preventClose = action({ sender: that }) === false;
+                } else if ($.type(action) === STRING && $.isFunction(globalClick)) {
+                    preventClose = globalClick({ sender: that, action: action }) === false;
+                } else {
+                    preventClose = that.trigger(CLICK, { action: action });
+                }
+                if (!preventClose) {
+                    that.close();
+                }
+            },
+
+            /**
+             * Destroy method
+             */
+            destroy: function () {
+                this.unbind(CLICK);
+                Dialog.fn.destroy.call(this);
+            }
+
+        });
+
+        ui.plugin(DialogEx);
 
         /**
          * MessageBox Widget
          */
-        var MessageBox = Window.extend({
+        var MessageBox = DialogEx.extend({
 
             init: function (element, options) {
                 var that = this;
-                Window.fn.init.call(that, element, options);
+                DialogEx.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
-                // For an unexplained reason, buttons are not updated
-                that.options.buttons = $.isArray(options.buttons) ? options.buttons : that.options.buttons;
-                // We need the following statement otherwise $(element).data('kendoMessageBox') instanceof kendo.ui.Window (and not kendo.ui.MessageBox)
+                // We need the following statement otherwise $(element).data('kendoMessageBox') instanceof kendo.ui.Dialog (and not kendo.ui.MessageBox)
                 $(element).data('kendoMessageBox', that);
                 that._layout();
-                that._bindButtons(true);
             },
 
             /**
@@ -93,17 +181,11 @@
                 type: TYPE.INFO,
                 title: 'Information',
                 message: 'Hello World!',
-                buttons: [
-                    { command: 'ok', text: 'OK', class: 'k-primary', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg' },
-                    { command: 'cancel', text: 'Cancel' }
+                actions: [
+                    { action: 'ok', text: 'OK', class: 'k-primary', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg' },
+                    { action: 'cancel', text: 'Cancel' }
                 ],
-                buttonsTemplate: BUTTONS_TEMPLATE,
                 contentTemplate: CONTENT_TEMPLATE,
-                height: 125,
-                width: 400,
-                modal: true,
-                resizable: false,
-                visible: false,
                 messages: {
                     error: 'Error',
                     info: 'Information',
@@ -126,77 +208,17 @@
              */
             _layout: function () {
                 var that = this;
-                var element = that.element;
                 var options = that.options;
-                // Add message
-                element.append(kendo.template(options.contentTemplate)({ type: options.type, message: options.message }));
-                // Add buttons
-                element.append(kendo.template(options.buttonsTemplate)({ buttons: options.buttons }));
-                kendo.init(element); // required to display buttons with data-image-url
-                // Add widget class
-                element.addClass('k-action-window');
+                // Add content
+                that.content(kendo.template(options.contentTemplate)({ type: options.type, message: options.message }));
             },
 
-            /**
-             * Bind buttons
-             * @param enable
-             * @private
-             */
-            _bindButtons: function (enable) {
-                var that = this;
-                var buttons = that.element.find('button');
-                $.each(buttons, function (index, buttonElement) {
-                    var buttonWidget = $(buttonElement).data('kendoButton');
-                    // We should have Kendo UI Button widgets after calling the kendo.init method in this._layout
-                    assert.instanceof(Button, buttonWidget, kendo.format(assert.messages.instanceof.default, 'buttonWidget', 'kendo.ui.Button'));
-                    if (enable) {
-                        buttonWidget.unbind(CLICK);
-                        buttonWidget.bind(CLICK, $.proxy(that._onButtonClick, that));
-                    } else {
-                        buttonWidget.destroy();
-                    }
-                });
-            },
-
-            /**
-             * Button click handler
-             * @param e
-             * @private
-             */
-            _onButtonClick: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(Button, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Button'));
-                assert.instanceof(MessageBox, this, kendo.format(assert.messages.instanceof.default, 'this', 'MessageBox'));
-                var button = $(e.sender.element);
-                // Store the command which can be read in a close event handler
-                this.command = button.attr(kendo.attr(COMMAND));
-                this.close();
-            },
-
-            /**
-             * Open messagebox
-             */
-            open: function () {
-
-                // Erase the command before a new close
-                this.command = undefined;
-
-                // Center and open the message box
-                this.center();
-                Window.fn.open.call(this);
-
-            },
 
             /**
              * Destroy
              */
             destroy: function () {
-                var that = this;
-                var element = that.element;
-                that._bindButtons(false);
-                element.find('*').off();
-                element.off().empty();
-                Window.fn.destroy.call(that);
+                DialogEx.fn.destroy.call(this);
             }
 
         });
@@ -214,7 +236,7 @@
          * @param options
          * @returns {*}
          */
-        kendo.alert = function (options) {
+        kendo.alertEx = function (options) {
 
             var dfd = $.Deferred();
             var messageBox = null;
@@ -234,9 +256,9 @@
             // Create the message box
             messageBox = $(HASH + ID).kendoMessageBox(options).data('kendoMessageBox');
 
-            // Bind the close event
-            messageBox.bind(CLOSE, function (e) {
-                dfd.resolve({ command: this.command });
+            // Bind the click event
+            messageBox.bind(CLICK, function (e) {
+                dfd.resolve({ action: e.action });
             });
 
             // Display the message box

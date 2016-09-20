@@ -8,12 +8,12 @@
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
     <script src="./js/vendor/kendo/jquery.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
-    <script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
     <script src="./js/vendor/kendo/kendo.button.js"></script>
     <script src="./js/vendor/kendo/kendo.userevents.js"></script>
     <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
-    <script src="./js/vendor/kendo/kendo.window.js"></script>
+    <script src="./js/vendor/kendo/kendo.window.js"></script-->
     <!-- MessageBox requirements -->
     <link href="./styles/kidoju.widgets.messagebox.css" rel="stylesheet" />
     <script src="./js/window.assert.js"></script>
@@ -30,6 +30,7 @@
 </head>
 
 <body>
+
 <h1>kidoju.widgets.messagebox</h1>
 
 <h2>html declaration</h2>
@@ -47,8 +48,9 @@
         kendo.init('body');
 
         var messageBox = $('#messagebox1').data('kendoMessageBox');
-        messageBox.bind('close', function (e) {
-            $("#console1").append(kendo.format("<div>command `{0}` at {1}</div>", messageBox.command, new Date().toLocaleTimeString()));
+        messageBox.bind('click', function (e) {
+            $("#console1").append(kendo.format("<div>action `{0}` at {1}</div>", e.action, new Date().toLocaleTimeString()));
+            e.preventDefault();
         });
 
         $('#button1').click(function (e) {
@@ -56,8 +58,8 @@
         });
 
         $('#button2').click(function (e) {
-            kendo.alert({ type: 'error', title: 'Error', message: 'Hey Houston, we\'ve got a problem!', buttons: [{ command: 'ok', text: 'OK' }], width: 600 }).done(function(result) {
-                $("#console2").append(kendo.format("<div>command `{0}` at {1}</div>", result.command, new Date().toLocaleTimeString()));
+            kendo.alertEx({ type: 'error', title: 'Error', message: 'Hey Houston, we\'ve got a problem!', actions: [{ action: 'ok', text: 'OK', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg' }] }).done(function(result) {
+                $("#console2").append(kendo.format("<div>action `{0}` at {1}</div>", result.action, new Date().toLocaleTimeString()));
             });
         });
 

@@ -1,10 +1,9 @@
-.k-action-window {
-    overflow: hidden !important;
+.k-dialog .k-notification-wrap {
+    white-space: initial;
 }
-.k-action-window .k-action-buttons {
-    padding: 1em;
-}
-.k-action-window .k-action-buttons .k-image {
-    height: 1.5em;
-    width: 1.5em;
+.k-dialog .k-dialog-buttongroup .k-button .k-image {
+    height: 1.25em;
+    width: 1.25em;
+    margin-right: 0.25em;
+    vertical-align: middle;
 }

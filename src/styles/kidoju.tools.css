@@ -1,9 +1,6 @@
 .k-dialog .k-content.no-padding {
     padding: 0;
 }
-.k-dialog .k-spreadsheet {
-    width: 100%;
-}
 .k-dialog .k-spreadsheet .k-tabstrip .k-content {
     padding: 0;
 }
@@ -11,6 +8,7 @@
 .k-dialog .kj-assetmanager,
 .k-dialog .kj-codeeditor,
 .k-dialog .kj-styleeditor {
+    width: 100%;
     border-style: none;
 }
 

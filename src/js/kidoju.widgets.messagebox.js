@@ -180,9 +180,9 @@
                 name: 'MessageBox',
                 type: TYPE.INFO,
                 title: 'Information',
-                message: 'Hello World!',
+                message: 'Message!',
                 actions: [
-                    { action: 'ok', text: 'OK', class: 'k-primary', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg' },
+                    { action: 'ok', text: 'OK', class: 'k-primary' },
                     { action: 'cancel', text: 'Cancel' }
                 ],
                 contentTemplate: CONTENT_TEMPLATE,
@@ -219,6 +219,7 @@
              */
             destroy: function () {
                 DialogEx.fn.destroy.call(this);
+                this.element.empty();
             }
 
         });

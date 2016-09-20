@@ -114,8 +114,8 @@
             },
 
             dialogs: {
-                ok: { text: 'OK' },
-                cancel: { text: 'Cancel' }
+                ok: { text: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK' },
+                cancel: { text: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/cancel.svg" class="k-image">Cancel' }
             },
 
             messages: {
@@ -455,7 +455,7 @@
                     rotate: { title: i18n.tool.rotate.title }
                 },
                 dialogs: {
-                    ok: { text: i18n.dialogs.ok.text }, // TODO : icon?
+                    ok: { text: i18n.dialogs.ok.text },
                     cancel: { text: i18n.dialogs.cancel.text }
                 },
                 messages: {
@@ -752,7 +752,6 @@
                         .appendTo(document.body)
                         .kendoDialog({
                             actions: [
-                                // TODO: images
                                 { text: Tool.fn.i18n.dialogs.ok.text, primary: true, action: $.proxy(that.onOkAction, that, options) },
                                 { text: Tool.fn.i18n.dialogs.cancel.text }
                             ],
@@ -984,7 +983,7 @@
                     'data-locked-fill="' + model.get('attributes.lockedFill') + '" ' +
                     'data-locked-color="' + model.get('attributes.fontColor') + '" ' +
                     'data-value-color="' + model.get('attributes.fontColor') + '" ' +
-                    'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;padding:20px;"></div>' +
+                    'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;flex-shrink:0;padding:20px;"></div>' +
                     // Explanations
                     '<div style="padding:20px 0;">' +
                     (options.field === 'properties.solution' ? kendo.format(this.messages.solution, model.get('attributes.whitelist')) : kendo.format(this.messages.layout, model.get('attributes.blank'))) +

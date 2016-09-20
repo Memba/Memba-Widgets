@@ -73,7 +73,9 @@
 
             options: {
                 name: 'DialogEx',
-                visible: false
+                buttonLayout: 'normal',
+                visible: false,
+                minWidth: '320px' // iPhone 5 width in portrait mode
             },
 
             /**
@@ -180,11 +182,13 @@
                 name: 'MessageBox',
                 type: TYPE.INFO,
                 title: 'Information',
-                message: 'Message!',
+                message: '',
+                /*
                 actions: [
-                    { action: 'ok', text: 'OK', class: 'k-primary' },
+                    { action: 'ok', text: 'OK', primary: true },
                     { action: 'cancel', text: 'Cancel' }
                 ],
+                */
                 contentTemplate: CONTENT_TEMPLATE,
                 messages: {
                     error: 'Error',

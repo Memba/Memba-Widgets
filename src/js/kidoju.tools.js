@@ -743,12 +743,12 @@
              */
             getDialog: function (options) {
                 var that = this;
-                var dialog = $(DIALOG_SELECTOR).data('kendoDialog');
+                var dialogWidget = $(DIALOG_SELECTOR).data('kendoDialog');
                 assert.ok(kendo.ui.Dialog, '`kendo.dialog.js` is expected to be loaded');
                 // Find or create dialog frame
-                if (!(dialog instanceof kendo.ui.Dialog)) {
+                if (!(dialogWidget instanceof kendo.ui.Dialog)) {
                     // Create dialog
-                    dialog = $(kendo.format(DIALOG_DIV, DIALOG_SELECTOR.substr(1)))
+                    dialogWidget = $(kendo.format(DIALOG_DIV, DIALOG_SELECTOR.substr(1)))
                         .appendTo(document.body)
                         .kendoDialog({
                             actions: [
@@ -757,20 +757,21 @@
                             ],
                             buttonLayout: 'normal',
                             modal: true,
-                            resizable: true,
                             visible: false,
                             width: 860,
                             close: function (e) {
                                 // This is a reusable dialog, so we need to make sure it is ready for the next content
-                                dialog.element.removeClass(NO_PADDING_CLASS);
+                                dialogWidget.element.removeClass(NO_PADDING_CLASS);
                                 // The content method destroys widgets and unbinds data
-                                dialog.content('');
-                                dialog.viewModel = undefined;
+                                dialogWidget.content('');
+                                dialogWidget.viewModel = undefined;
                             }
                         })
                         .data('kendoDialog');
+                    // Hides the display of "Fermer" after the "X" icon in the window title bar
+                    dialogWidget.wrapper.find('.k-window-titlebar > .k-dialog-close > .k-font-icon.k-i-x').text('');
                 }
-                return dialog;
+                return dialogWidget;
             },
 
             /* This function's cyclomatic complexity is too high. */
@@ -891,22 +892,22 @@
             },
             showDialog: function (options/*, e*/) {
                 var that = this;
-                var dialog = that.getDialog(options);
+                var dialogWidget = that.getDialog(options);
                 // Create viewModel (Cancel shall not save changes to main model)
-                dialog.viewModel = kendo.observable({
+                dialogWidget.viewModel = kendo.observable({
                     url: options.model.get(options.field)
                 });
                 // Prepare UI
-                dialog.title(options.title);
-                dialog.content('<div data-role="assetmanager" data-bind="value: url"></div>');
+                dialogWidget.title(options.title);
+                dialogWidget.content('<div data-role="assetmanager" data-bind="value: url"></div>');
                 assert.instanceof(PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
                 assert.instanceof(ToolAssets, assets[options.model.tool], kendo.format(assert.messages.instanceof.default, 'assets[options.model.tool]', 'kidoju.ToolAssets'));
-                var assetManagerWidget = dialog.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets[options.model.tool]).data('kendoAssetManager');
-                kendo.bind(dialog.element, dialog.viewModel);
-                dialog.element.addClass(NO_PADDING_CLASS);
+                var assetManagerWidget = dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets[options.model.tool]).data('kendoAssetManager');
+                kendo.bind(dialogWidget.element, dialogWidget.viewModel);
+                dialogWidget.element.addClass(NO_PADDING_CLASS);
                 // Show dialog
                 assetManagerWidget.tabStrip.activateTab(0);
-                dialog.open();
+                dialogWidget.open();
             },
             onOkAction: function (options, e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
@@ -955,7 +956,7 @@
             },
             showDialog: function (options, evt) {
                 var that = this;
-                var dialog = that.getDialog(options);
+                var dialogWidget = that.getDialog(options);
                 var model = options.model;
                 // Build data (resize array especially after changing rows and columns)
                 var columns = model.get('attributes.columns');
@@ -964,12 +965,12 @@
                 var layout = model.get('attributes.layout');
                 var data = model.get(options.field);
                 // Create viewModel (Cancel shall not save changes to main model)
-                dialog.viewModel = kendo.observable({
+                dialogWidget.viewModel = kendo.observable({
                     chargrid: kendo.ui.CharGrid._getCharGridArray(rows, columns, whitelist, layout, data)
                 });
                 // Prepare UI
-                dialog.title(options.title);
-                dialog.content('<div style="display:flex;flex-direction:row">' +
+                dialogWidget.title(options.title);
+                dialogWidget.content('<div style="display:flex;flex-direction:row">' +
                     // character grid
                     '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-content" data-container=".k-content" ' +
                     'data-columns="' + model.get('attributes.columns') + '" data-rows="' + model.get('attributes.rows') + '" ' +
@@ -990,10 +991,10 @@
                     '</div>' +
                     // Close parent div
                     '</div>');
-                kendo.bind(dialog.element, dialog.viewModel);
-                dialog.element.addClass(NO_PADDING_CLASS);
+                kendo.bind(dialogWidget.element, dialogWidget.viewModel);
+                dialogWidget.element.addClass(NO_PADDING_CLASS);
                 // Show dialog
-                dialog.open();
+                dialogWidget.open();
             },
             onOkAction: function (options, e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
@@ -1033,14 +1034,14 @@
             },
             showDialog: function (options/*, e*/) {
                 var that = this;
-                var dialog = that.getDialog(options);
+                var dialogWidget = that.getDialog(options);
                 var model = options.model;
                 var columns = model.get('attributes.categories') + 1;
                 var rows = model.get('attributes.values') + 1;
                 // Prepare UI
-                dialog.title(options.title);
-                dialog.content('<div data-role="spreadsheet"></div>');
-                var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
+                dialogWidget.title(options.title);
+                dialogWidget.content('<div data-role="spreadsheet"></div>');
+                var spreadsheet = dialogWidget.element.find(kendo.roleSelector('spreadsheet'));
                 assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
                 var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
                     columns: columns,
@@ -1050,17 +1051,17 @@
                 }).data('kendoSpreadsheet');
                 assert.instanceof(kendo.ui.Spreadsheet, spreadsheetWidget, kendo.format(assert.messages.instanceof.default, 'spreadsheetWidget', 'kendo.ui.Spreadsheet'));
                 // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990 and https://github.com/telerik/kendo-ui-core/issues/2156
-                dialog.one('show', function () {
-                    kendo.resize(dialog.element); // spreadsheetWidget.refresh();
+                dialogWidget.one('show', function () {
+                    kendo.resize(dialogWidget.element); // spreadsheetWidget.refresh();
                     spreadsheetWidget.activeSheet().range('A1:A1').select();
                 });
                 // Load JSON after resizing data to the predefined number of rows and columns
                 spreadsheetWidget.fromJSON(util.resizeSpreadsheetData(model.get('attributes.data'), rows, columns));
                 // Disable context menu
                 spreadsheet.find('.k-spreadsheet-fixed-container').off('contextmenu');
-                dialog.element.addClass(NO_PADDING_CLASS);
+                dialogWidget.element.addClass(NO_PADDING_CLASS);
                 // Show dialog
-                dialog.open();
+                dialogWidget.open();
             },
             onOkAction: function (options, e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
@@ -1446,18 +1447,18 @@
             },
             showDialog: function (options/*, e*/) {
                 var that = this;
-                var dialog = that.getDialog(options);
+                var dialogWidget = that.getDialog(options);
                 // Create viewModel (Cancel shall not save changes to main model)
-                dialog.viewModel = kendo.observable({
+                dialogWidget.viewModel = kendo.observable({
                     style: options.model.get(options.field)
                 });
                 // Prepare UI
-                dialog.title(options.title);
-                dialog.content('<div data-role="styleeditor" data-bind="value: style"></div>');
-                kendo.bind(dialog.element, dialog.viewModel);
-                dialog.element.addClass(NO_PADDING_CLASS);
+                dialogWidget.title(options.title);
+                dialogWidget.content('<div data-role="styleeditor" data-bind="value: style"></div>');
+                kendo.bind(dialogWidget.element, dialogWidget.viewModel);
+                dialogWidget.element.addClass(NO_PADDING_CLASS);
                 // Show dialog
-                dialog.open();
+                dialogWidget.open();
             },
             onOkAction: function (options, e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
@@ -1486,14 +1487,14 @@
             },
             showDialog: function (options/*, e*/) {
                 var that = this;
-                var dialog = that.getDialog(options);
+                var dialogWidget = that.getDialog(options);
                 var model = options.model;
                 var columns = model.get('attributes.columns');
                 var rows = model.get('attributes.rows');
                 // Prepare UI
-                dialog.title(options.title);
-                dialog.content('<div data-role="spreadsheet"></div>');
-                var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
+                dialogWidget.title(options.title);
+                dialogWidget.content('<div data-role="spreadsheet"></div>');
+                var spreadsheet = dialogWidget.element.find(kendo.roleSelector('spreadsheet'));
                 assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
                 var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
                     columns: columns,
@@ -1510,8 +1511,8 @@
                 }).data('kendoSpreadsheet');
                 assert.instanceof(kendo.ui.Spreadsheet, spreadsheetWidget, kendo.format(assert.messages.instanceof.default, 'spreadsheetWidget', 'kendo.ui.Spreadsheet'));
                 // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990 and https://github.com/telerik/kendo-ui-core/issues/2156
-                dialog.one('show', function () {
-                    kendo.resize(dialog.element); // spreadsheetWidget.refresh();
+                dialogWidget.one('show', function () {
+                    kendo.resize(dialogWidget.element); // spreadsheetWidget.refresh();
                     spreadsheetWidget.activeSheet().range('A1:A1').select();
                 });
                 // Load JSON after resizing data to the predefined number of rows and columns
@@ -1524,9 +1525,9 @@
                     var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
                     range.fontSize(range.fontSize() || 48);
                 });
-                dialog.element.addClass(NO_PADDING_CLASS);
+                dialogWidget.element.addClass(NO_PADDING_CLASS);
                 // Show dialog
-                dialog.open();
+                dialogWidget.open();
             },
             onOkAction: function (options, e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
@@ -1611,23 +1612,23 @@
             },
             showDialog: function (options/*, e*/) {
                 var that = this;
-                var dialog = that.getDialog(options);
+                var dialogWidget = that.getDialog(options);
                 // Create viewModel (Cancel shall not save changes to main model)
-                dialog.viewModel = kendo.observable({
+                dialogWidget.viewModel = kendo.observable({
                     code: options.model.get(options.field),
                     library: [CUSTOM].concat(that.library)
                 });
                 // Prepare UI
-                dialog.title(options.title);
-                dialog.content('<div data-role="codeeditor" data-bind="value: code, source: library" data-default="' + that.defaultValue + '" data-solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"></div>');
-                kendo.bind(dialog.element, dialog.viewModel);
-                dialog.element.addClass(NO_PADDING_CLASS);
+                dialogWidget.title(options.title);
+                dialogWidget.content('<div data-role="codeeditor" data-bind="value: code, source: library" data-default="' + that.defaultValue + '" data-solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"></div>');
+                kendo.bind(dialogWidget.element, dialogWidget.viewModel);
+                dialogWidget.element.addClass(NO_PADDING_CLASS);
                 // Bind window activate handler
-                dialog.one('show', function () {
+                dialogWidget.one('show', function () {
                     // IMPORTANT, we need13 to refresh codemirror here
                     // otherwise the open animation messes with CodeMirror calculations
                     // and gutter and line numbers are displayed at the wrong coordinates
-                    var codeEditor = dialog.element
+                    var codeEditor = dialogWidget.element
                         .find('.kj-codeeditor')
                         .data('kendoCodeEditor');
                     if (codeEditor instanceof kendo.ui.CodeEditor && codeEditor.codeMirror && $.isFunction(codeEditor.codeMirror.refresh)) {
@@ -1635,7 +1636,7 @@
                     }
                 });
                 // Show dialog
-                dialog.open();
+                dialogWidget.open();
             },
             onOkAction: function (options, e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));

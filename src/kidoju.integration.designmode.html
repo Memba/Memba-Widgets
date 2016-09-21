@@ -210,7 +210,7 @@
                     },
                     load: function () {
                         var that = this,
-                            stream = $.parseJSON(localStorage.getItem(storageKey)) || {};
+                            stream = JSON.parse(localStorage.getItem(storageKey)) || {};
                         that.accept(stream);
                         return that._fetchAll();
                     },

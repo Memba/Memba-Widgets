@@ -144,7 +144,7 @@
                 var value = that.options.value || that.element.val();
                 if ($.type(value) === STRING && value.trim().length) {
                     try {
-                        value = $.parseJSON(value);
+                        value = JSON.parse(value);
                     } catch (ex) {
                         value = [value];
                     }

@@ -281,13 +281,13 @@
              */
             _onMouseDown: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                e.preventDefault(); // prevent text selection;
                 var that = this;
                 var container = that.container;
                 assert.instanceof($, container, kendo.format(assert.messages.instanceof.default, 'this.container', 'jQuery'));
                 assert.hasLength(container, kendo.format(assert.messages.hasLength.default, 'this.container'));
                 var stageElement = $(e.target).closest(this.options.draggable);
                 if (stageElement instanceof $ && stageElement.length) {
+                    e.preventDefault(); // prevent text selection;
                     var scaler = that.scaler;
                     assert.instanceof($, scaler, kendo.format(assert.messages.instanceof.default, 'this.scaler', 'jQuery'));
                     assert.hasLength(scaler, kendo.format(assert.messages.hasLength.default, 'this.scaler'));
@@ -335,13 +335,13 @@
              */
             _onMouseMove: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                e.preventDefault(); // prevent text selection;
                 var that = this;
                 var container = that.container;
                 assert.instanceof($, container, kendo.format(assert.messages.instanceof.default, 'this.container', 'jQuery'));
                 assert.hasLength(container, kendo.format(assert.messages.hasLength.default, 'this.container'));
                 var startState = container.data(STATE);
                 if ($.isPlainObject(startState)) {
+                    // e.preventDefault(); // prevent text selection;
                     var mouse = util.getMousePosition(e, container);
                     var boundaries = startState.boundaries;
                     var left = util.snap(startState.left + (mouse.x - startState.mouseX) / startState.scale, startState.snapGrid);
@@ -360,13 +360,13 @@
              */
             _onMouseUp: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                e.preventDefault(); // prevent text selection;
                 var that = this;
                 var container = that.container;
                 assert.instanceof($, container, kendo.format(assert.messages.instanceof.default, 'this.container', 'jQuery'));
                 assert.hasLength(container, kendo.format(assert.messages.hasLength.default, 'this.container'));
                 var startState = container.data(STATE);
                 if ($.isPlainObject(startState)) {
+                    // e.preventDefault(); // prevent text selection;
                     // Update position (same as _onMouseMove)
                     var mouse = util.getMousePosition(e, container);
                     var scale = startState.scale;

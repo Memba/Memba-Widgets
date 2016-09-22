@@ -15,6 +15,7 @@
     var ui = kendo.ui;
     var Social = ui.Social;
     var COMMAND = {
+        CLASSROOM: 'classroom',
         FACEBOOK: 'facebook',
         GOOGLE: 'google',
         LINKEDIN: 'linkedin',
@@ -78,7 +79,7 @@
                 expect(wrapper).not.to.have.class('k-widget');
                 expect(wrapper).to.have.class('kj-social');
                 expect(wrapper.find('a[role="button"]')).to.be.an.instanceof($).with.property('length', LENGTH);
-                expect(wrapper.find('svg')).to.be.an.instanceof($).with.property('length', LENGTH);
+                expect(wrapper.find('svg')).to.be.an.instanceof($).with.property('length', LENGTH - 1);
                 var options = social.options;
                 expect(options.description).to.equal(DESCRIPTION);
                 expect(options.disabled).to.be.false;
@@ -103,7 +104,7 @@
                 expect(wrapper).not.to.have.class('k-widget');
                 expect(wrapper).to.have.class('kj-social');
                 expect(wrapper.find('a[role="button"]')).to.be.an.instanceof($).with.property('length', LENGTH);
-                expect(wrapper.find('svg')).to.be.an.instanceof($).with.property('length', LENGTH);
+                expect(wrapper.find('svg')).to.be.an.instanceof($).with.property('length', LENGTH - 1);
                 var options = social.options;
                 expect(options.description).to.be.undefined;
                 expect(options.disabled).to.be.false;
@@ -139,7 +140,7 @@
                 expect(wrapper).not.to.have.class('k-widget');
                 expect(wrapper).to.have.class('kj-social');
                 expect(wrapper.find('a[role="button"]')).to.be.an.instanceof($).with.property('length', LENGTH);
-                expect(wrapper.find('svg')).to.be.an.instanceof($).with.property('length', LENGTH);
+                expect(wrapper.find('svg')).to.be.an.instanceof($).with.property('length', LENGTH - 1);
                 var options = social.options;
                 expect(options.description).to.equal(DESCRIPTION);
                 expect(options.disabled).to.be.false;

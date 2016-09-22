@@ -144,14 +144,19 @@
          */
 
         /* kidoju.widgets.social */
-        /*
-         if (ui.Social) {
+        if (ui.Social) {
             options = ui.Social.prototype.options;
             options.messages = $.extend(true, options.messages, {
-                // TODO
+                messages: {
+                    classroom: 'Partager sur Google Classroom',
+                    facebook: 'Partager sur Facebook',
+                    google: 'Partager sur Google+',
+                    linkedin: 'Partager sur LinkedIn',
+                    pinterest: 'Partager sur Pinterest',
+                    twitter: 'Partager sur Twitter'
+                }
             });
-         }
-         */
+        }
 
         /* kidoju.widgets.stage */
         if (ui.Stage) {

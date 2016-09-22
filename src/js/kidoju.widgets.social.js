@@ -70,8 +70,8 @@
         var GC_ID = '___gcfg';
         var WIDGET_CLASS = 'kj-social';
         var STATE_DISABLED = 'k-state-disabled';
-        var TEMPLATE = '<a role="button" href="#" data-command="{0}"></a>';
-        var BUTTON_SELECTOR = 'a[role="button"]:has(svg)';
+        var TEMPLATE = '<a role="button" href="#" data-command="{0}" title="{1}"></a>';
+        var BUTTON_SELECTOR = 'a[role="button"]'; // :has(svg)';
         var COMMAND = {
             CLASSROOM: 'classroom',
             FACEBOOK: 'facebook',
@@ -142,7 +142,15 @@
                 title: undefined,
                 description: undefined,
                 image: undefined,
-                source: undefined
+                source: undefined,
+                messages: {
+                    classroom: 'Share to Google Classroom',
+                    facebook: 'Share to Facebook',
+                    google: 'Share to Google+',
+                    linkedin: 'Share to LinkedIn',
+                    pinterest: 'Share to Pinterest',
+                    twitter: 'Share to Twitter'
+                }
             },
 
             /**
@@ -159,7 +167,7 @@
                 assert.type(NUMBER, options.size, kendo.format(assert.messages.type.default, 'options.size', NUMBER));
                 for (var network in COMMAND) {
                     if (COMMAND.hasOwnProperty(network) && IMAGES.hasOwnProperty(network)) {
-                        $(kendo.format(TEMPLATE, COMMAND[network]))
+                        $(kendo.format(TEMPLATE, COMMAND[network], options.messages[network.toLowerCase()]))
                             .append($(IMAGES[network]).height(options.size).width(options.size))
                             .appendTo(wrapper);
                     }
@@ -189,6 +197,11 @@
                 that._editable(options);
             },
 
+            /**
+             * Wait for Google Classroom API to load and return a promise
+             * @returns {*}
+             * @private
+             */
             _waitForGapi: function () {
                 var dfd = $.Deferred();
                 var count = 0;
@@ -202,7 +215,7 @@
                         clearInterval(wait);
                     }
                     count++;
-                }, 100);
+                }, 50);
                 return dfd.promise();
             },
 
@@ -269,6 +282,9 @@
                 var command = $(e.currentTarget).attr(kendo.attr('command'));
                 var openUrl;
                 switch (command) {
+                    case COMMAND.CLASSROOM:
+                        e.preventDefault();
+                        break;
                     case COMMAND.FACEBOOK:
                         // Facebook feed dialog (the share dialog uses open graph metadata)
                         // @ see https://developers.facebook.com/docs/sharing/web
@@ -325,13 +341,15 @@
                     //     openUrl = 'mailto:fastlec@memba.org?&subject=Shared Link&body=Hey%20loojk%20at%20that';
                     //     break;
                 }
-                if (that._window === null || that._window.closed || that._url !== openUrl) {
-                    // Most social share dialogs resize themselves from a smaller window (not from a larger one)
-                    // TODO: We might want to improve the (top, left) position
-                    that._window = window.open(openUrl, 'social', 'location=0,menubar=0,status=0,toolbar=0,height=450,width=600');
+                if (command !== COMMAND.CLASSROOM) {
+                    if (that._window === null || that._window.closed || that._url !== openUrl) {
+                        // Most social share dialogs resize themselves from a smaller window (not from a larger one)
+                        // TODO: We might want to improve the (top, left) position
+                        that._window = window.open(openUrl, 'social', 'location=0,menubar=0,status=0,toolbar=0,height=450,width=600');
+                    }
+                    that._url = openUrl;
+                    that._window.focus();
                 }
-                that._url = openUrl;
-                that._window.focus();
             },
 
             /* jshint -W074 */

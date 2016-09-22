@@ -111,11 +111,11 @@
                 CHANGE
             ],
 
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
-
             /* This function has too many statements. */
             /* jshint -W071 */
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Gets or sets the style value
@@ -179,8 +179,8 @@
                 }
             },
 
-            /* jshint +W071 */
             /* jshint +W074 */
+            /* jshint +W071 */
 
             /**
              * Sets the data source

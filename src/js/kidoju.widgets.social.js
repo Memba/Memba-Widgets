@@ -189,7 +189,7 @@
                                 title: options.title,
                                 url: options.url
                             }
-                        )
+                        );
                     }
                 });
 
@@ -248,6 +248,9 @@
                     disabled: !(enable = enable === undefined ? true : enable)
                 });
             },
+
+            /* This function has too many statements. */
+            /* jshint -W071 */
 
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
@@ -353,7 +356,8 @@
                 }
             },
 
-            /* jshint -W074 */
+            /* jshint +W074 */
+            /* jshint +W071 */
 
             /**
              * Clears the DOM from modifications made by the widget

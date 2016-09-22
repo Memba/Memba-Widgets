@@ -147,14 +147,12 @@
         if (ui.Social) {
             options = ui.Social.prototype.options;
             options.messages = $.extend(true, options.messages, {
-                messages: {
-                    classroom: 'Share to Google Classroom',
-                    facebook: 'Share to Facebook',
-                    google: 'Share to Google+',
-                    linkedin: 'Share to LinkedIn',
-                    pinterest: 'Share to Pinterest',
-                    twitter: 'Share to Twitter'
-                }
+                classroom: 'Share to Google Classroom',
+                facebook: 'Share to Facebook',
+                google: 'Share to Google+',
+                linkedin: 'Share to LinkedIn',
+                pinterest: 'Share to Pinterest',
+                twitter: 'Share to Twitter'
             });
         }
 

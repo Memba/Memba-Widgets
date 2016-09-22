@@ -228,6 +228,7 @@
                 var wrapper = that.wrapper;
                 var disabled = options.disabled;
                 wrapper.off(NS);
+                // TODO this is not sufficient for the Google Classrom button which is located in an iFrame. Maybe we should add/remove an overlay
                 if (disabled) {
                     wrapper.addClass(STATE_DISABLED);
                 } else {

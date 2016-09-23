@@ -108,9 +108,9 @@
                 page: 'Page',
                 of: 'de {0}',
                 first: 'Aller à la première page',
-                previous: 'Aller à la dernière page',
+                previous: 'Aller à la page précédente',
                 next: 'Aller à la prochaine page',
-                last: 'Aller à la page précédente',
+                last: 'Aller à la dernière page',
                 refresh: 'Rafraichîr',
                 morePages: 'Plus de pages'
             });

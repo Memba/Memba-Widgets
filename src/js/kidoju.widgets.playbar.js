@@ -498,9 +498,8 @@
                 // Update info
                 if (options.info) {
                     if (length > 0) {
-                        html = options.messages.page +
-                        ' ' + (index + 1) + ' ' +
-                        kendo.format(options.messages.of, length);
+                        html = '<span>' + options.messages.page + ' ' + '</span>'
+                            + '<span>' + (index + 1) + ' ' + kendo.format(options.messages.of, length); + '</span>'
                     } else {
                         html = options.messages.empty;
                     }

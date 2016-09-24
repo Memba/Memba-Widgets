@@ -145,7 +145,7 @@
              * @returns {*}
              */
             index: function (index) {
-                /* jshint: maxcomplexity: 8 */
+                /* jshint maxcomplexity: 8 */
                 var that = this;
                 var component;
                 if ($.type(index) === NUMBER) {

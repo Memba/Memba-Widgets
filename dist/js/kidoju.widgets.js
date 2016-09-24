@@ -170,7 +170,7 @@
                     }
                 }
             },
-            /* jshint: +W074 */
+            /* jshint +W074 */
 
             /**
              * Get the parent page

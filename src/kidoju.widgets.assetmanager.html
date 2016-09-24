@@ -47,7 +47,7 @@
             data: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/'
         };
 
-        $(document).ready(function(){
+        $(function(){
             $('#assets').kendoAssetManager({
                 change: function(e) {
                     viewModel.set('url', e.sender.value());

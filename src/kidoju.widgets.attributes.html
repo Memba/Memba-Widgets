@@ -83,7 +83,7 @@
                 }
             });
 
-        $(document).ready(function() {
+        $(function() {
             kendo.bind('body', viewModel);
             pageComponentCollectionDataSource.fetch(function() {
                 viewModel.set('current', pageComponentCollectionDataSource.at(1));

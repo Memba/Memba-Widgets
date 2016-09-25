@@ -265,6 +265,7 @@
                 var options = that.options;
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', '$.Event'));
                 assert.instanceof(window.HTMLAnchorElement, e.currentTarget, kendo.format(assert.messages.instanceof.default, 'e.currentTarget', 'window.HTMLAnchorElement'));
+                e.preventDefault();
 
                 // Read open graph metadata
                 assert.type(STRING, options.facebookAppId, kendo.format(assert.messages.type.default, 'options.facebookAppId', STRING));
@@ -282,13 +283,15 @@
                 assert.type(STRING, options.image, kendo.format(assert.messages.type.default, 'options.image', STRING));
                 var image = window.encodeURIComponent(options.image);
 
-                // Read command and build url
+                // Read command
                 var command = $(e.currentTarget).attr(kendo.attr('command'));
+                if (command === COMMAND.CLASSROOM) {
+                    return;
+                }
+
+                // If not Google Classroom, build url and open in new window
                 var openUrl;
                 switch (command) {
-                    case COMMAND.CLASSROOM:
-                        e.preventDefault();
-                        break;
                     case COMMAND.FACEBOOK:
                         // Facebook feed dialog (the share dialog uses open graph metadata)
                         // @ see https://developers.facebook.com/docs/sharing/web
@@ -345,15 +348,13 @@
                     //     openUrl = 'mailto:fastlec@memba.org?&subject=Shared Link&body=Hey%20loojk%20at%20that';
                     //     break;
                 }
-                if (command !== COMMAND.CLASSROOM) {
-                    if (that._window === null || that._window.closed || that._url !== openUrl) {
-                        // Most social share dialogs resize themselves from a smaller window (not from a larger one)
-                        // TODO: We might want to improve the (top, left) position
-                        that._window = window.open(openUrl, 'social', 'location=0,menubar=0,status=0,toolbar=0,height=450,width=600');
-                    }
-                    that._url = openUrl;
-                    that._window.focus();
+                if (that._window === null || that._window.closed || that._url !== openUrl) {
+                    // Most social share dialogs resize themselves from a smaller window (not from a larger one)
+                    // TODO: We might want to improve the (top, left) position
+                    that._window = window.open(openUrl, 'social', 'location=0,menubar=0,status=0,toolbar=0,height=450,width=600');
                 }
+                that._url = openUrl;
+                that._window.focus();
             },
 
             /* jshint +W074 */

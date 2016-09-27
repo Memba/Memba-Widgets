@@ -54,7 +54,7 @@
     "karma-safari-launcher": "^1.0.0",
     "karma-sauce-launcher": "^1.0.0",
     "karma-sinon": "^1.0.5",
-    "mocha": "^3.0.2",
+    "mocha": "^3.1.0",
     "phantomjs-prebuilt": "^2.1.12",
     "sinon": "^1.17.6",
     "zombie": "^4.2.1"

@@ -354,7 +354,11 @@
                     that._window = window.open(openUrl, 'social', 'location=0,menubar=0,status=0,toolbar=0,height=450,width=600');
                 }
                 that._url = openUrl;
-                that._window.focus();
+                if (that._window && $.isFunction(that._window.focus)) {
+                    // Note: that._window.focus is not available when the social link triggers the mobile app on iPhones and iPads
+                    // See https://github.com/kidoju/Kidoju-Widgets/issues/131
+                    that._window.focus();
+                }
             },
 
             /* jshint +W074 */

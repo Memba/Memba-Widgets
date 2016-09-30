@@ -342,6 +342,16 @@
             },
 
             /**
+             * Refreshed the grid
+             */
+            refresh: function () {
+                var that = this;
+                if  (that.grid instanceof kendo.ui.Grid) {
+                    that.grid.refresh();
+                }
+            },
+
+            /**
              * Add a click event handler for the destroy button
              * @private
              */

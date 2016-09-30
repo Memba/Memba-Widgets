@@ -1456,6 +1456,14 @@
                 dialogWidget.title(options.title);
                 dialogWidget.content('<div data-role="styleeditor" data-bind="value: style" data-height="400"></div>');
                 kendo.bind(dialogWidget.element, dialogWidget.viewModel);
+                var styleEditor = dialogWidget.element.find(kendo.roleSelector('styleeditor'));
+                assert.hasLength(styleEditor, kendo.format(assert.messages.hasLength.default, 'styleEditor'));
+                var styleEditorWidget = styleEditor.data('kendoStyleEditor');
+                assert.instanceof(kendo.ui.StyleEditor, styleEditorWidget, kendo.format(assert.messages.instanceof.default, 'styleEditorWidget', 'kendo.ui.StyleEditor'));
+                // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990 and https://github.com/telerik/kendo-ui-core/issues/2156
+                dialogWidget.one('show', function () {
+                    styleEditorWidget.refresh();
+                });
                 dialogWidget.element.addClass(NO_PADDING_CLASS);
                 // Show dialog
                 dialogWidget.open();

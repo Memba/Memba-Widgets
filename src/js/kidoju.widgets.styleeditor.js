@@ -329,6 +329,7 @@
                     editable: true,
                     height: that.options.height,
                     resizable: true,
+                    scrollable: true,
                     selectable: 'row',
                     sortable: true,
                     toolbar: [

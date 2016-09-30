@@ -1454,7 +1454,7 @@
                 });
                 // Prepare UI
                 dialogWidget.title(options.title);
-                dialogWidget.content('<div data-role="styleeditor" data-bind="value: style"></div>');
+                dialogWidget.content('<div data-role="styleeditor" data-bind="value: style" data-height="400"></div>');
                 kendo.bind(dialogWidget.element, dialogWidget.viewModel);
                 dialogWidget.element.addClass(NO_PADDING_CLASS);
                 // Show dialog

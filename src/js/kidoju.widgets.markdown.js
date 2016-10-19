@@ -20,7 +20,7 @@
 
     'use strict';
 
-    // Load MathJax 2.6 dynamically - see https://docs.mathjax.org/en/v2.6-latest/advanced/dynamic.html
+    // Load MathJax 2.7 dynamically - see https://docs.mathjax.org/en/v2.7-latest/advanced/dynamic.html
     // SSee configuration options - see http://mathjax.readthedocs.org/en/latest/configuration.html
     // And combined configuration options - see http://mathjax.readthedocs.org/en/latest/config-files.html
     (function () {
@@ -46,8 +46,8 @@
             head.appendChild(script);
             script = document.createElement('script');
             script.type = 'text/javascript';
-            // script.src  = 'https://cdn.mathjax.org/mathjax/2.6-latest/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
-            script.src = 'https://cdn.mathjax.org/mathjax/2.6-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+            // script.src  = 'https://cdn.mathjax.org/mathjax/2.7-latest/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+            script.src = 'https://cdn.mathjax.org/mathjax/2.7-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML';
             script.crossorigin = 'anonymous';
             head.appendChild(script);
         }

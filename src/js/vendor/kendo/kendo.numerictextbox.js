@@ -427,9 +427,10 @@ var __meta__ = { // jshint ignore:line
                 element.type = "text";
             }
 
+            that._initialTitle = element.title;
+            text[0].title = element.title;
             text[0].tabIndex = element.tabIndex;
             text[0].style.cssText = element.style.cssText;
-            text[0].title = element.title;
             text.prop("placeholder", options.placeholder);
 
             if (accessKey) {
@@ -665,8 +666,8 @@ var __meta__ = { // jshint ignore:line
                 input.val(this.options.placeholder);
             }
 
-            input.attr("title", input.attr("title") || input.val());
-            input.attr("aria-title", input.attr("title") || input.val());
+            input.attr("title", this._initialTitle || input.val());
+            input.attr("aria-title", this._initialTitle || input.val());
         },
 
         _wrapper: function() {
@@ -713,7 +714,11 @@ var __meta__ = { // jshint ignore:line
 
     function buttonHtml(direction, text) {
         var className = "k-i-arrow-" + (direction === "increase" ? "n" : "s");
-        return '<span unselectable="on" class="k-link k-link-' + direction + '" aria-label="' + text + '"><span unselectable="on" class="k-icon ' + className + '"></span></span>';
+        return (
+            '<span unselectable="on" class="k-link k-link-' + direction + '" aria-label="' + text + '" title="' + text + '">' +
+                '<span unselectable="on" class="k-icon ' + className + '"></span>' +
+            '</span>'
+        );
     }
 
     function truncate(value, precision) {

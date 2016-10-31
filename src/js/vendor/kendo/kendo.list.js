@@ -38,7 +38,8 @@ var __meta__ = { // jshint ignore:line
         proxy = $.proxy,
         isArray = $.isArray,
         browser = support.browser,
-        isIE8 = browser.msie && browser.version < 9,
+        isIE = browser.msie,
+        isIE8 = isIE && browser.version < 9,
         quotRegExp = /"/g,
         alternativeNames = {
             "ComboBox": "DropDownList",
@@ -248,6 +249,7 @@ var __meta__ = { // jshint ignore:line
             var options = that.options;
             var dataSource = that.dataSource;
             var expression = extend({}, dataSource.filter() || {});
+            var clearFilter = expression.filters && expression.filters.length && !filter;
 
             var removed = removeFiltersForField(expression, options.dataTextField);
 
@@ -268,11 +270,16 @@ var __meta__ = { // jshint ignore:line
                 this.listView.setDSFilter(expression);
             }
 
-            if (!force) {
-                dataSource.filter(expression);
-            } else {
-                dataSource.read(dataSource._mergeState({ filter: expression }));
-            }
+            var dataSourceState = extend({}, {
+                page: dataSource.page(),
+                pageSize: clearFilter ? dataSource.options.pageSize : dataSource.pageSize(),
+                sort: dataSource.sort(),
+                filter: dataSource.filter(),
+                group: dataSource.group(),
+                aggregate: dataSource.aggregate()
+            }, { filter: expression });
+
+            dataSource[force ? "read" : "query"](dataSource._mergeState(dataSourceState));
         },
 
         _angularElement: function(element, action) {
@@ -709,18 +716,16 @@ var __meta__ = { // jshint ignore:line
 
         _focusItem: function() {
             var listView = this.listView;
-            var focusedItem = listView.focus();
-            var index = listView.select();
+            var noFocusedItem = !listView.focus();
+            var index = last(listView.select());
 
-            index = index[index.length - 1];
-
-            if (index === undefined && this.options.highlightFirst && !focusedItem) {
+            if (index === undefined && this.options.highlightFirst && noFocusedItem) {
                 index = 0;
             }
 
             if (index !== undefined) {
                 listView.focus(index);
-            } else {
+            } else if (noFocusedItem) {
                 listView.scrollToIndex(0);
             }
         },
@@ -906,10 +911,10 @@ var __meta__ = { // jshint ignore:line
             if (candidate === undefined) {
                 return that.selectedIndex;
             } else {
-                that._select(candidate);
-
-                that._old = that._accessor();
-                that._oldIndex = that.selectedIndex;
+                return that._select(candidate).done(function() {
+                    that._old = that._accessor();
+                    that._oldIndex = that.selectedIndex;
+                });
             }
         },
 
@@ -1109,11 +1114,11 @@ var __meta__ = { // jshint ignore:line
                         return;
                     }
 
-                    that._select(that._focus(), true);
-
-                    if (!that.popup.visible()) {
-                        that._blur();
-                    }
+                    that._select(that._focus(), true).done(function() {
+                        if (!that.popup.visible()) {
+                            that._blur();
+                        }
+                    });
                 }
 
                 e.preventDefault();
@@ -1294,11 +1299,12 @@ var __meta__ = { // jshint ignore:line
             if (cascade) {
                 parent = that._parentWidget();
 
-                that._cascadeHandlerProxy = proxy(that._cascadeHandler, that);
-
                 if (!parent) {
                     return;
                 }
+
+                that._cascadeHandlerProxy = proxy(that._cascadeHandler, that);
+                that._cascadeFilterRequests = [];
 
                 options.autoBind = false;
 
@@ -1329,13 +1335,14 @@ var __meta__ = { // jshint ignore:line
         _toggleCascadeOnFocus: function() {
             var that = this;
             var parent = that._parentWidget();
+            var focusout = isIE ? "blur" : "focusout";
 
             parent._focused.add(parent.filterInput).bind("focus", function() {
                 parent.unbind(CASCADE, that._cascadeHandlerProxy);
                 parent.first(CHANGE, that._cascadeHandlerProxy);
             });
 
-            parent._focused.add(parent.filterInput).bind("focusout", function() {
+            parent._focused.add(parent.filterInput).bind(focusout, function() {
                 parent.unbind(CHANGE, that._cascadeHandlerProxy);
                 parent.first(CASCADE, that._cascadeHandlerProxy);
             });
@@ -1358,7 +1365,9 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var value = that._accessor() || that._selectedValue;
 
-            that._selectedValue = null;
+            if (!that._cascadeFilterRequests.length) {
+                that._selectedValue = null;
+            }
 
             if (that._userTriggered) {
                 that._clearSelection(parent, true);
@@ -1393,12 +1402,25 @@ var __meta__ = { // jshint ignore:line
                 expressions = that.dataSource.filter() || {};
                 removeFiltersForField(expressions, valueField);
 
-                var handler = function() {
-                    that.unbind("dataBound", handler);
+                var handler = function () {
+                    var currentHandler = that._cascadeFilterRequests.shift();
+                    if (currentHandler) {
+                        that.unbind('dataBound', currentHandler);
+                    }
+
+                    currentHandler = that._cascadeFilterRequests[0];
+                    if (currentHandler) {
+                        that.first('dataBound', currentHandler);
+                    }
+
                     that._cascadeChange(parent);
                 };
 
-                that.first("dataBound", handler);
+                that._cascadeFilterRequests.push(handler);
+
+                if (that._cascadeFilterRequests.length === 1) {
+                    that.first('dataBound', handler);
+                }
 
                 that._cascading = true;
                 that._filterSource({
@@ -1624,7 +1646,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         focusLast: function() {
-            this.focus(this.element[0].children[this.element[0].children.length - 1]);
+            this.focus(last(this.element[0].children));
         },
 
         focus: function(candidate) {
@@ -1636,8 +1658,7 @@ var __meta__ = { // jshint ignore:line
                 return that._current;
             }
 
-            candidate = that._get(candidate);
-            candidate = candidate[candidate.length - 1];
+            candidate = last(that._get(candidate));
             candidate = $(this.element[0].children[candidate]);
 
             if (that._current) {
@@ -1690,18 +1711,19 @@ var __meta__ = { // jshint ignore:line
                 indices = [];
             }
 
+            var deferred = $.Deferred().resolve();
             var filtered = that.isFiltered();
 
             if (filtered && !singleSelection && that._deselectFiltered(indices)) {
-                return;
+                return deferred;
             }
 
-            if (singleSelection && !filtered && $.inArray(indices[indices.length - 1], selectedIndices) !== -1) {
+            if (singleSelection && !filtered && $.inArray(last(indices), selectedIndices) !== -1) {
                 if (that._dataItems.length && that._view.length) {
                     that._dataItems = [that._view[selectedIndices[0]].item];
                 }
 
-                return;
+                return deferred;
             }
 
             result = that._deselect(indices);
@@ -1711,7 +1733,7 @@ var __meta__ = { // jshint ignore:line
 
             if (indices.length) {
                 if (singleSelection) {
-                    indices = [indices[indices.length - 1]];
+                    indices = [last(indices)];
                 }
 
                 added = that._select(indices);
@@ -1724,6 +1746,8 @@ var __meta__ = { // jshint ignore:line
                     removed: removed
                 });
             }
+
+            return deferred;
         },
 
         removeAt: function(position) {
@@ -1937,7 +1961,7 @@ var __meta__ = { // jshint ignore:line
             var added = [];
             var idx = 0;
 
-            if (indices[indices.length - 1] !== -1) {
+            if (last(indices) !== -1) {
                 that.focus(indices);
             }
 
@@ -2256,6 +2280,10 @@ var __meta__ = { // jshint ignore:line
     });
 
     ui.plugin(StaticList);
+
+    function last(list) {
+        return list[list.length - 1];
+    }
 
     function getSelectedOption(select) {
         var index = select.selectedIndex;

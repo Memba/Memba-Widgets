@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -328,10 +328,7 @@
                 for (var i = arguments.length; --i >= 0;) {
                     id += ':' + arguments[i];
                 }
-                if (id in cache) {
-                    return cache[id];
-                }
-                return f.apply(this, arguments);
+                return id in cache ? cache[id] : cache[id] = f.apply(this, arguments);
             };
         }
         function ucs2decode(string) {
@@ -2082,8 +2079,12 @@
             _paste: function (ev) {
                 ev.preventDefault();
                 var pos = this.getPos();
-                var clipboard = ev.originalEvent.clipboardData;
-                var text = clipboard.getData('text/plain');
+                var text;
+                if (kendo.support.browser.msie) {
+                    text = window.clipboardData.getData('Text');
+                } else {
+                    text = ev.originalEvent.clipboardData.getData('text/plain');
+                }
                 var val = this.value();
                 val = val.substr(0, pos.begin) + text + val.substr(pos.end);
                 this.value(val);
@@ -2092,38 +2093,42 @@
             },
             _move: function (key) {
                 var list = this.list;
-                var pressed = false;
                 var popup = this.popup;
-                if (key === keys.DOWN) {
-                    list.focusNext();
-                    if (!list.focus()) {
-                        list.focusFirst();
+                if (popup.visible()) {
+                    if (key === keys.DOWN) {
+                        list.focusNext();
+                        if (!list.focus()) {
+                            list.focusFirst();
+                        }
+                        return true;
                     }
-                    pressed = true;
-                } else if (key === keys.UP) {
-                    list.focusPrev();
-                    if (!list.focus()) {
-                        list.focusLast();
+                    if (key === keys.UP) {
+                        list.focusPrev();
+                        if (!list.focus()) {
+                            list.focusLast();
+                        }
+                        return true;
                     }
-                    pressed = true;
-                } else if (key === keys.ENTER) {
-                    if (popup.visible()) {
+                    if (key === keys.ENTER) {
                         list.select(list.focus());
+                        popup.close();
+                        return true;
                     }
-                    popup.close();
-                    pressed = true;
-                } else if (key === keys.TAB) {
-                    list.select(list.focus());
-                    popup.close();
-                    pressed = true;
-                } else if (key === keys.PAGEUP) {
-                    list.focusFirst();
-                    pressed = true;
-                } else if (key === keys.PAGEDOWN) {
-                    list.focusLast();
-                    pressed = true;
+                    if (key === keys.TAB) {
+                        list.select(list.focus());
+                        popup.close();
+                        return true;
+                    }
+                    if (key === keys.PAGEUP) {
+                        list.focusFirst();
+                        return true;
+                    }
+                    if (key === keys.PAGEDOWN) {
+                        list.focusLast();
+                        return true;
+                    }
                 }
-                return pressed;
+                return false;
             },
             _tokenContext: function () {
                 var point = this.getPos();
@@ -2559,9 +2564,13 @@
             }
             return false;
         };
-        var keyName = function (keyCode) {
+        var keyName = function (event) {
+            var keyCode = event.keyCode;
             var name = KEY_NAMES[keyCode];
             if (!name && isAlphaNum(keyCode)) {
+                name = ':alphanum';
+            }
+            if (!name && event.key && event.key.length == 1) {
                 name = ':alphanum';
             }
             return name;
@@ -2585,7 +2594,7 @@
                 }
             },
             keyDown: function (e) {
-                this.handleEvent(e, keyName(e.keyCode));
+                this.handleEvent(e, keyName(e.originalEvent));
             },
             mouse: function (e) {
                 var rightClick;
@@ -3874,10 +3883,17 @@
             return this;
         },
         toRow: function (row) {
-            return new RangeRef(new CellRef(this.topLeft.row + row, this.topLeft.col), new CellRef(this.topLeft.row + row, this.bottomRight.col));
+            row += Math.max(0, this.topLeft.row);
+            return new RangeRef(new CellRef(row, this.topLeft.col), new CellRef(row, this.bottomRight.col)).setSheet(this.sheet, this.hasSheet());
         },
         toColumn: function (col) {
-            return new RangeRef(new CellRef(this.topLeft.row, this.topLeft.col + col), new CellRef(this.bottomRight.row, this.topLeft.col + col));
+            col += Math.max(0, this.topLeft.col);
+            return new RangeRef(new CellRef(this.topLeft.row, col), new CellRef(this.bottomRight.row, col)).setSheet(this.sheet, this.hasSheet());
+        },
+        toCell: function (row, col) {
+            row += Math.max(0, this.topLeft.row);
+            col += Math.max(0, this.topLeft.col);
+            return new CellRef(row, col, 0).setSheet(this.sheet, this.hasSheet());
         },
         forEachRow: function (callback) {
             var startRow = this.topLeft.row;
@@ -5993,9 +6009,10 @@
         _resolve: function (val) {
             if (val === undefined) {
                 val = null;
-            }
-            if (Array.isArray(val)) {
+            } else if (Array.isArray(val)) {
                 val = this.asMatrix(val);
+            } else {
+                val = maybeRoundFloatErrors(val);
             }
             var f = this.formula;
             f.value = val;
@@ -6567,11 +6584,11 @@
         var f;
         if (haveForced) {
             resolve += 'this.resolveCells(toResolve, callback); } ';
-            f = new Function('CalcError', main + resolve + arrayArgs + ' return { resolve: resolve, check: check, arrayArgs: arrayArgs };');
+            f = new Function('CalcError', 'round', main + resolve + arrayArgs + ' return { resolve: resolve, check: check, arrayArgs: arrayArgs };');
         } else {
-            f = new Function('CalcError', main + ' return { check: check };');
+            f = new Function('CalcError', 'round', main + ' return { check: check };');
         }
-        f = f(CalcError);
+        f = f(CalcError, roundFloatErrors);
         if (!hasArrayArgs) {
             delete f.arrayArgs;
         }
@@ -6592,6 +6609,7 @@
             } else if (name == '+') {
                 arrayArgs += 'while (i < args.length) { ';
                 resolve += 'while (i < args.length) { ';
+                code += 'if (i >= args.length) return new CalcError(\'N/A\'); ';
                 code += 'xargs.push(tmp = []); stack.push(xargs); xargs = tmp; ';
                 code += 'do { ';
                 code += x.slice(1).map(comp).join('');
@@ -6652,8 +6670,8 @@
             resolve += 'toResolve.push(args[i++]); ';
             return '($' + name + ' = this.force($' + name + '))';
         }
-        function forceNum() {
-            return '(' + '(typeof ' + force() + ' == \'number\') || ' + '(typeof $' + name + ' == \'boolean\') || ' + '(typeof $' + name + ' == \'string\' && !/^(?:=|true|false)/i.test($' + name + ') ? (' + 'tmp = kendo.spreadsheet.calc.parse(0, 0, 0, $' + name + '), ' + '/^date|number|percent$/.test(tmp.type) ? ($' + name + ' = +tmp.value, true) : false' + ') : false)' + ')';
+        function forceNum(round) {
+            return '(' + (round ? '(typeof ' + force() + ' == \'number\' ? ($' + name + ' = round($' + name + '), true) : false) || ' : '(typeof ' + force() + ' == \'number\') || ') + '(typeof $' + name + ' == \'boolean\') || ' + '(typeof $' + name + ' == \'string\' && !/^(?:=|true|false)/i.test($' + name + ') ? (' + 'tmp = kendo.spreadsheet.calc.parse(0, 0, 0, $' + name + '), ' + '/^date|number|percent$/.test(tmp.type) ? ($' + name + ' = +tmp.value, true) : false' + ') : false)' + ')';
         }
         function typeCheck(type, allowError) {
             forced = false;
@@ -6710,28 +6728,28 @@
                 throw new Error('Unknown array type condition: ' + type[0]);
             }
             if (type == 'number' || type == 'datetime') {
-                return forceNum();
+                return forceNum(true);
             }
             if (type == 'integer' || type == 'date') {
                 return '(' + forceNum() + ' && (($' + name + ' |= 0), true))';
             }
             if (type == 'divisor') {
-                return '(' + forceNum() + ' && ($' + name + ' == 0 ? ((err = \'DIV/0\'), false) : true))';
+                return '(' + forceNum(true) + ' && ($' + name + ' == 0 ? ((err = \'DIV/0\'), false) : true))';
             }
             if (type == 'number+') {
-                return '(' + forceNum() + ' && ($' + name + ' >= 0 ? true : ((err = \'NUM\'), false)))';
+                return '(' + forceNum(true) + ' && ($' + name + ' >= 0 ? true : ((err = \'NUM\'), false)))';
             }
             if (type == 'integer+') {
                 return '(' + forceNum() + ' && (($' + name + ' |= 0) >= 0 ? true : ((err = \'NUM\'), false)))';
             }
             if (type == 'number++') {
-                return '(' + forceNum() + ' && ($' + name + ' > 0 ? true : ((err = \'NUM\'), false)))';
+                return '(' + forceNum(true) + ' && ($' + name + ' > 0 ? true : ((err = \'NUM\'), false)))';
             }
             if (type == 'integer++') {
                 return '(' + forceNum() + ' && (($' + name + ' |= 0) > 0 ? true : ((err = \'NUM\'), false)))';
             }
             if (type == 'string') {
-                return '((typeof ' + force() + ' == \'string\' || typeof $' + name + ' == \'boolean\' || typeof $' + name + ' == \'number\') ? ($' + name + ' += \'\', true) : false)';
+                return '((typeof ' + force() + ' == \'string\' || typeof $' + name + ' == \'boolean\' || typeof $' + name + ' == \'number\') ? ($' + name + ' += \'\', true) : ($' + name + ' === undefined ? (($' + name + ' = \'\'), true) : false))';
             }
             if (type == 'boolean') {
                 return '(typeof ' + force() + ' == \'boolean\')';
@@ -6771,6 +6789,16 @@
                 return '(' + force() + ' == null || $' + name + ' === \'\')';
             }
             throw new Error('Can\'t check for type: ' + type);
+        }
+    }
+    function roundFloatErrors(num) {
+        return Math.round(num * 1000000000000000) / 1000000000000000;
+    }
+    function maybeRoundFloatErrors(num) {
+        if (typeof num == 'number') {
+            return roundFloatErrors(num);
+        } else {
+            return num;
         }
     }
     function withErrorHandling(obj, f, args) {
@@ -8720,7 +8748,7 @@
                 var suspended = this.suspendChanges();
                 this.suspendChanges(true);
                 callback.call(this);
-                return this.suspendChanges(suspended).triggerChange(reason);
+                return this.suspendChanges(suspended).triggerChange(reason || { recalc: true });
             },
             _sortBy: function (ref, columns) {
                 var indices = null;
@@ -9453,7 +9481,7 @@
                 exp = {
                     type: 'prefix',
                     op: input.next().value,
-                    exp: parseExpression(commas)
+                    exp: parseAtom(commas)
                 };
             } else if (!input.peek()) {
                 input.croak('Incomplete expression');
@@ -10169,7 +10197,7 @@
             if (ch == '\'') {
                 return readSheetName();
             }
-            if (isDigit(ch)) {
+            if (isDigit(ch) || ch == '.') {
                 return readNumber();
             }
             if (isIdStart(ch)) {
@@ -13549,12 +13577,17 @@
                 return bottom - handleWidth <= y && y <= bottom + handleWidth;
             },
             isFilterIcon: function (x, y, pane, ref) {
+                var theGrid = pane._grid;
+                var scrollTop = theGrid.rows.frozen ? 0 : this.scroller.scrollTop;
+                var scrollLeft = theGrid.columns.frozen ? 0 : this.scroller.scrollLeft;
+                x -= this._sheet._grid._headerWidth - scrollLeft;
+                y -= this._sheet._grid._headerHeight - scrollTop;
                 var result = false;
-                x -= this._sheet._grid._headerWidth - this.scroller.scrollLeft;
-                y -= this._sheet._grid._headerHeight - this.scroller.scrollTop;
                 this._sheet.forEachFilterHeader(ref, function (ref) {
-                    var rect = this._rectangle(pane, ref);
-                    result = result || pane.filterIconRect(rect).intersects(x, y);
+                    if (!result) {
+                        var rect = this._rectangle(pane, ref);
+                        result = pane.filterIconRect(rect).intersects(x, y);
+                    }
                 }.bind(this));
                 return result;
             },
@@ -14407,6 +14440,9 @@
                     calendar.bind('change', function () {
                         popup.close();
                         var date = calendar.value();
+                        if (!context.range.format()) {
+                            context.range.format('yyyy-mm-dd');
+                        }
                         context.callback(kendo.spreadsheet.dateToNumber(date));
                     });
                 }
@@ -14420,20 +14456,21 @@
                 }
                 var val = context.validation;
                 if (val) {
-                    var min = null, max = null;
+                    var min = kendo.ui.Calendar.fn.options.min;
+                    var max = kendo.ui.Calendar.fn.options.max;
                     if (/^(?:greaterThan|between)/.test(val.comparerType)) {
                         min = kendo.spreadsheet.numberToDate(val.from.value);
                     }
                     if (val.comparerType == 'between') {
                         max = kendo.spreadsheet.numberToDate(val.to.value);
                     }
-                    if (val.comparerType == 'greaterThan') {
+                    if (val.comparerType == 'lessThan') {
                         max = kendo.spreadsheet.numberToDate(val.from.value);
                     }
                     calendar.setOptions({
                         disableDates: function (date) {
-                            var from = val.from.value | 0;
-                            var to = val.to.value | 0;
+                            var from = val.from ? val.from.value | 0 : 0;
+                            var to = val.to ? val.to.value | 0 : 0;
                             date = kendo.spreadsheet.dateToNumber(date) | 0;
                             return !kendo.spreadsheet.validation.validationComparers[val.comparerType](date, from, to);
                         },
@@ -14600,10 +14637,12 @@
                         return this.normalize(ref);
                     }, this);
                 }
-                var clone = ref.clone();
-                clone.col = Math.max(0, Math.min(this.columnCount - 1, ref.col));
-                clone.row = Math.max(0, Math.min(this.rowCount - 1, ref.row));
-                return clone;
+                if (ref instanceof CellRef) {
+                    ref = ref.clone();
+                    ref.col = Math.max(0, Math.min(this.columnCount - 1, ref.col));
+                    ref.row = Math.max(0, Math.min(this.rowCount - 1, ref.row));
+                }
+                return ref;
             },
             rectangle: function (ref) {
                 var topLeft = this.normalize(ref.topLeft);
@@ -17094,18 +17133,7 @@
         [
             [
                 'm2',
-                [
-                    'and',
-                    'matrix',
-                    [
-                        'assert',
-                        '$m1.width == $m2.width'
-                    ],
-                    [
-                        'assert',
-                        '$m1.height == $m2.height'
-                    ]
-                ]
+                'matrix'
             ],
             [
                 'c2',
@@ -18594,41 +18622,74 @@
             ]
         ]
     ]);
-    defineFunction('index', function (ref, row, col, areanum) {
-        var m = ref instanceof UnionRef ? ref.refs[areanum - 1] : ref;
-        if (!row && !col || !m) {
-            return new CalcError('N/A');
+    defineFunction('index', function (callback, ref, row, col, areanum) {
+        var self = this;
+        if (ref instanceof UnionRef) {
+            ref = ref.refs[areanum - 1];
         }
-        m = this.asMatrix(m);
-        if (m.width > 1 && m.height > 1) {
+        if (!row && !col || !ref) {
+            return callback(new CalcError('N/A'));
+        }
+        if (ref instanceof CellRef) {
+            ref = ref.toRangeRef();
+        }
+        if (ref instanceof RangeRef) {
             if (row && col) {
-                return m.get(row - 1, col - 1);
+                if (col > ref.width() || row > ref.height()) {
+                    return callback(new CalcError('REF'));
+                }
+                var cell = ref.toCell(row - 1, col - 1);
+                self.resolveCells([cell], function () {
+                    callback(self.getRefData(cell));
+                });
+                return;
             }
             if (!row) {
-                return m.mapRow(function (row) {
-                    return m.get(row, col - 1);
+                var colRange = ref.toColumn(col - 1);
+                self.resolveCells([colRange], function () {
+                    callback(self.asMatrix(colRange));
                 });
+                return;
             }
             if (!col) {
-                return m.mapCol(function (col) {
-                    return m.get(row - 1, col);
+                var rowRange = ref.toRow(row - 1);
+                self.resolveCells([rowRange], function () {
+                    callback(self.asMatrix(rowRange));
                 });
+                return;
             }
+        } else if (ref instanceof Matrix) {
+            if (ref.width > 1 && ref.height > 1) {
+                if (row && col) {
+                    return callback(ref.get(row - 1, col - 1));
+                }
+                if (!row) {
+                    return callback(ref.mapRow(function (row) {
+                        return ref.get(row, col - 1);
+                    }));
+                }
+                if (!col) {
+                    return callback(ref.mapCol(function (col) {
+                        return ref.get(row - 1, col);
+                    }));
+                }
+            }
+            if (ref.width == 1) {
+                return callback(ref.get(row - 1, 0));
+            }
+            if (ref.height == 1) {
+                return callback(ref.get(0, col - 1));
+            }
+        } else {
+            callback(new CalcError('REF'));
         }
-        if (m.width == 1) {
-            return m.get(row - 1, 0);
-        }
-        if (m.height == 1) {
-            return m.get(0, col - 1);
-        }
-        return new CalcError('REF');
-    }).args([
+    }).argsAsync([
         [
             'range',
             [
                 'or',
-                'matrix',
-                'ref'
+                'ref',
+                'matrix'
             ]
         ],
         [
@@ -19429,10 +19490,10 @@
         ]]);
     defineAlias('unichar', 'char');
     defineAlias('unicode', 'code');
-    defineFunction('concatenate', function () {
+    defineFunction('concatenate', function (args) {
         var out = '';
-        for (var i = 0; i < arguments.length; ++i) {
-            out += arguments[i];
+        for (var i = 0; i < args.length; ++i) {
+            out += args[i];
         }
         return out;
     }).args([[
@@ -19825,8 +19886,21 @@
             };
         }
         function lc(a) {
+            var num, str;
             if (typeof a == 'string') {
-                return a.toLowerCase();
+                a = a.toLowerCase();
+            }
+            if (/^[0-9.]+%$/.test(a)) {
+                str = a.substr(0, a.length - 1);
+                num = parseFloat(str);
+                if (!isNaN(num) && num == str) {
+                    a = num / 100;
+                }
+            } else if (/^[0-9.]+$/.test(a)) {
+                num = parseFloat(a);
+                if (!isNaN(num) && num == a) {
+                    a = num;
+                }
             }
             return a;
         }
@@ -19843,11 +19917,15 @@
             return lc(a) >= lc(b);
         }
         function compNE(a, b) {
-            return lc(a) != lc(b);
+            return !compEQ(a, b);
         }
         function compEQ(a, b) {
             if (b instanceof RegExp) {
                 return b.test(a);
+            }
+            if (typeof a == 'string' || typeof b == 'string') {
+                a = String(a);
+                b = String(b);
             }
             return lc(a) == lc(b);
         }
@@ -24121,7 +24199,7 @@
         var PopupTool = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
                 this.element = $('<a href=\'#\' class=\'k-button k-button-icon\'>' + '<span class=\'' + options.spriteCssClass + '\'>' + '</span><span class=\'k-icon k-i-arrow-s\'></span>' + '</a>');
-                this.element.on('click', this.open.bind(this)).attr('data-command', options.command);
+                this.element.on('click touchend', this.open.bind(this)).attr('data-command', options.command);
                 this.options = options;
                 this.toolbar = toolbar;
                 this.attributes();
@@ -24145,7 +24223,7 @@
             init: function (options, toolbar) {
                 kendo.toolbar.ToolBarButton.fn.init.call(this, options, toolbar);
                 this._dialogName = options.dialogName;
-                this.element.bind('click', this.open.bind(this)).data('instance', this);
+                this.element.bind('click touchend', this.open.bind(this)).data('instance', this);
             },
             open: function () {
                 this.toolbar.dialog({ name: this._dialogName });
@@ -24165,7 +24243,7 @@
         var OverflowDialogButton = kendo.toolbar.OverflowButton.extend({
             init: function (options, toolbar) {
                 kendo.toolbar.OverflowButton.fn.init.call(this, options, toolbar);
-                this.element.on('click', this._click.bind(this));
+                this.element.on('click touchend', this._click.bind(this));
                 this.message = this.options.text;
                 var instance = this.element.data('button');
                 this.element.data(this.options.type, instance);
@@ -26105,12 +26183,14 @@
                     apply: this.apply.bind(this),
                     close: this.close.bind(this)
                 });
+                var dialog = this.dialog();
                 this.viewModel.bind('change', function (e) {
                     if (e.field === 'extension') {
                         this.set('showPdfOptions', this.extension === '.pdf' ? true : false);
+                        dialog.center();
                     }
                 });
-                kendo.bind(this.dialog().element, this.viewModel);
+                kendo.bind(dialog.element, this.viewModel);
             },
             options: {
                 name: 'Workbook',
@@ -27965,14 +28045,17 @@
         var rect_width = cell.width - 4;
         var rect_height = cell.height - 4;
         var font = makeFontDef(cell);
-        var style = { font: font };
+        var style = {
+            font: font,
+            whiteSpace: 'pre'
+        };
         var props = {
             font: font,
             fill: { color: color }
         };
         var lines = [], text_height = 0, top = rect_top;
         if (cell.wrap) {
-            lineBreak(text, style, rect_width).forEach(function (line) {
+            paraBreak(text, style, rect_width).forEach(function (line) {
                 var tmp = new drawing.Text(line.text, [
                     rect_left,
                     top
@@ -28015,12 +28098,13 @@
         lines.forEach(function (line) {
             cont.append(line.el);
             var htrans = 0;
+            var text_width = line.box.width;
             switch (cell.textAlign) {
             case 'center':
-                htrans = rect_width - line.box.width >> 1;
+                htrans = (rect_width - text_width) / 2;
                 break;
             case 'right':
-                htrans = rect_width - line.box.width;
+                htrans = rect_width - text_width;
                 break;
             }
             if (htrans < 0) {
@@ -28029,16 +28113,28 @@
             if (htrans || vtrans) {
                 line.el.transform(geo.Matrix.translate(htrans, vtrans));
             }
+            if (cell.underline) {
+                var height = cell.fontSize || 12;
+                var width = height / 12;
+                var path = new drawing.Path({
+                    stroke: {
+                        width: width,
+                        color: color
+                    }
+                });
+                var pos = line.el.position();
+                var bottom = pos.y + height + vtrans + 2 * width;
+                path.moveTo(pos.x + htrans, bottom).lineTo(pos.x + htrans + text_width, bottom);
+                cont.append(path);
+            }
         });
     }
-    function lineBreak(text, style, width) {
-        var lines = [];
+    function lineBreak(text, style, width, lines) {
         var len = text.length;
         var start = 0;
         while (start < len) {
             split(start, len, len);
         }
-        return lines;
         function split(min, eol, max) {
             var sub = text.substring(start, eol).trim();
             var box = kendo.util.measureText(sub, style);
@@ -28056,6 +28152,14 @@
                 split(min, min + eol >> 1, eol);
             }
         }
+    }
+    function paraBreak(text, style, width) {
+        var a = text.split(/\r?\n/);
+        var lines = [];
+        a.forEach(function (text) {
+            lineBreak(text, style, width, lines);
+        });
+        return lines;
     }
     function makeFontDef(cell) {
         var font = [];

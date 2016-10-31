@@ -231,7 +231,7 @@
 }
 
 .k-popup.k-list-container {
-    padding: 0.286em 0;
+    padding: 11px;
 }
 
 .k-popup.k-calendar-containe {
@@ -248,8 +248,15 @@
     padding: 1px 11px;
 }
 
+.k-list-scroller,
+.k-virtual-wrap,
+.k-list-optionlabel,
+.k-popup > .k-group-header {
+    margin: 0 -11px;
+}
+
 .k-list-filter {
-    margin: 0 .29em .29em;
+    margin: 0 0 11px;
 }
 
 .k-button,
@@ -306,14 +313,21 @@
 }
 
 .k-multiselect-wrap .k-input {
-    height: @input-height;
+    font-size: inherit;
+    height: 2em;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .k-multiselect-wrap li {
     border-radius: 1.071em;
-    margin: 3px 0 3px 3px;
-    padding: 0 1.6em 0 .857em;
     line-height: 1.86em;
+    padding: 0 1.6em 0 .857em;
+}
+
+.k-multiselect-wrap .k-input,
+.k-multiselect-wrap li {
+    margin: .286em 0 .286em .286em;
 }
 
 .k-multiselect-wrap li span {
@@ -802,9 +816,26 @@ div.k-window-content {
     margin-right: 10px;
 }
 
+@checkbox-size: 16px;
+
+.k-checkbox-label,
+.k-radio-label {
+    line-height: 18px;
+}
+
+.k-radio-label:before {
+    width: 16px;
+    height: 16px;
+}
+
 .k-radio:checked + .k-radio-label:after {
   top: 4px;
   left: 4px
+}
+
+.k-checkbox:indeterminate + .k-checkbox-label:after {
+    left: 9px;
+    top: 9px;
 }
 
 //RTL

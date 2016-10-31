@@ -213,7 +213,9 @@ var __meta__ = { // jshint ignore:line
                 if (spriteCssClass || imageUrl || icon) {
                     isEmpty = true;
 
-                    element.contents().not("span.k-sprite,span." + ICON + ",img.k-image").each(function(idx, el){
+                    element.contents().filter(function() {
+                        return (!$(this).hasClass("k-sprite") && !$(this).hasClass(ICON) && !$(this).hasClass("k-image"));
+                    }).each(function(idx, el){                        
                         if (el.nodeType == 1 || el.nodeType == 3 && $.trim(el.nodeValue).length > 0) {
                             isEmpty = false;
                         }

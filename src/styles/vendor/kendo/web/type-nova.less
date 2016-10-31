@@ -702,19 +702,19 @@ input.k-textbox:active {
 
 /* Notification */
 .k-widget.k-notification.k-notification-info {
-    color: darken(@info, 25%);
+    color: darken(@info, 27%);
     background-color: @info;
     border-color: @info;
 }
 
 .k-widget.k-notification.k-notification-success {
-    color: darken(@success, 25%);
+    color: darken(@success, 27%);
     background-color: @success;
     border-color: @success;
 }
 
 .k-widget.k-notification.k-notification-warning {
-    color: darken(@warning, 25%);
+    color: darken(@warning, 27%);
     background-color: @warning;
     border-color: @warning;
 }
@@ -1069,6 +1069,7 @@ input.k-textbox:active {
     font-weight: bold;
 }
 
+.k-grid .k-filter-row:hover,
 .k-pivot-rowheaders .k-grid tr:hover {
     background: none;
 }
@@ -1334,6 +1335,14 @@ input.k-textbox:active {
     .k-overflow-anchor.k-state-border-up {
         background-color: @selected-background;
         border-color: @selected-background;
+    }
+
+    .k-button.k-state-disabled,
+    .k-button.k-state-disabled:hover,
+    .k-button.k-state-disabled:active {
+        color: @disabled-text-color;
+        border-color: lighten(@hover-text-color, 20%);
+        background-color: @widget-background-color;
     }
 }
 

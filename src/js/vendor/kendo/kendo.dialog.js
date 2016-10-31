@@ -76,6 +76,8 @@
                 var that = this,
                     wrapper;
 
+                that._centerCallback = proxy(that._center, that);
+
                 that.appendTo = $(BODY);
                 if (!defined(options.visible) || options.visible === null) {
                     options.visible = element.is(VISIBLE);
@@ -263,7 +265,8 @@
                 });
             },
 
-            _closeClick: function() {
+            _closeClick: function(e) {
+                e.preventDefault();
                 this.close();
             },
 
@@ -522,6 +525,7 @@
 
             close: function() {
                 this._close(true);
+                this._stopCenterOnResize();
                 return this;
             },
 
@@ -553,12 +557,8 @@
             },
 
             center: function() {
-                var browser = kendo.support.browser;
-
-                if (browser.msie && Math.floor(browser.version) <= 8) {
-                    this.wrapper.removeClass('k-dialog-centered');
-                    this._center();
-                }
+                this._center();
+                this._centerOnResize();
             },
 
             _center: function() {
@@ -576,6 +576,20 @@
                 });
 
                 return that;
+            },
+
+            _centerOnResize: function() {
+                if (this._trackResize) {
+                    return;
+                }
+
+                kendo.onResize(this._centerCallback);
+                this._trackResize = true;
+            },
+
+            _stopCenterOnResize: function() {
+                kendo.unbindResize(this._centerCallback);
+                this._trackResize = false;
             },
 
             _removeOverlay: function() {
@@ -637,6 +651,9 @@
             destroy: function() {
                 var that = this;
                 that._destroy();
+
+                Widget.fn.destroy.call(that);
+
                 that.wrapper.remove();
                 that.wrapper = that.element = $();
             },
@@ -648,7 +665,7 @@
                 that.wrapper.off(ns);
                 that.element.off(ns);
                 that.wrapper.find(KICONCLOSE + "," + KBUTTONGROUP + " > " + KBUTTON).off(ns);
-                Widget.fn.destroy.call(that);
+                that._stopCenterOnResize();
             },
 
             title: function(html) {
@@ -752,7 +769,7 @@
             options: {
                 name: "Dialog",
                 messages: {
-                    close: ""
+                    close: "Close"
                 }
             }
         });
@@ -923,14 +940,14 @@
         };
 
         templates = {
-            wrapper: template("<div class='k-widget k-dialog k-window k-dialog-centered' role='dialog' />"),
+            wrapper: template("<div class='k-widget k-dialog k-window' role='dialog' />"),
             action: template("<li class='k-button# if (data.primary) { # k-primary# } #' role='button'></li>"),
             titlebar: template(
                 "<div class='k-window-titlebar k-header'>" +
                     "<span class='k-dialog-title'>#= title #</span>" +
                 "</div>"
             ),
-            close: template("<a role='button' href='\\#' class='k-button-bare k-dialog-action k-dialog-close' aria-label='Close' tabindex='-1'><span class='k-font-icon k-i-x'>#= messages.close #</span></a>"),
+            close: template("<a role='button' href='\\#' class='k-button-bare k-dialog-action k-dialog-close' title='#= messages.close #' aria-label='#= messages.close #' tabindex='-1'><span class='k-font-icon k-i-x'></span></a>"),
             actionbar: template("<ul class='k-dialog-buttongroup k-dialog-button-layout-#= buttonLayout #' role='toolbar' />"),
             overlay: "<div class='k-overlay' />",
             alertWrapper: template("<div class='k-widget k-dialog k-window k-dialog-centered' role='alertdialog' />"),

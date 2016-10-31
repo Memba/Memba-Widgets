@@ -47,6 +47,7 @@ var __meta__ = { // jshint ignore:line
         REFRESH = "refresh",
         MINIMIZE = "minimize",
         MAXIMIZE = "maximize",
+        RESIZESTART = "resizeStart",
         RESIZE = "resize",
         RESIZEEND = "resizeEnd",
         DRAGSTART = "dragstart",
@@ -385,6 +386,7 @@ var __meta__ = { // jshint ignore:line
             MINIMIZE,
             MAXIMIZE,
             REFRESH,
+            RESIZESTART,
             RESIZE,
             RESIZEEND,
             DRAGSTART,
@@ -422,7 +424,9 @@ var __meta__ = { // jshint ignore:line
             visible: null,
             height: null,
             width: null,
-            appendTo: "body"
+            appendTo: "body",
+            isMaximized: false,
+            isMinimized: false
         },
 
         _closable: function() {
@@ -878,7 +882,7 @@ var __meta__ = { // jshint ignore:line
                 var scrollTop = $(window).scrollTop(),
                     windowTop = parseInt(wrapper.position().top, 10);
 
-                if (windowTop > 0 && windowTop < scrollTop) {
+                if (!that.options.pinned && windowTop > 0 && windowTop < scrollTop) {
                     if (scrollTop > 0) {
                         $(window).scrollTop(windowTop);
                     } else {
@@ -1007,6 +1011,10 @@ var __meta__ = { // jshint ignore:line
             return this;
         },
 
+        isMaximized: function() {
+            return this.options.isMaximized;
+        },
+
         minimize: function() {
             this._sizingAction("minimize", function() {
                 var that = this;
@@ -1023,6 +1031,10 @@ var __meta__ = { // jshint ignore:line
 
             return this;
         },
+
+        isMinimized: function() {
+            return this.options.isMinimized;
+        },        
 
         pin: function(force) {
             var that = this,
@@ -1286,6 +1298,7 @@ var __meta__ = { // jshint ignore:line
     function WindowResizing(wnd) {
         var that = this;
         that.owner = wnd;
+        that._preventDragging = false;
         that._draggable = new Draggable(wnd.wrapper, {
             filter: ">" + KWINDOWRESIZEHANDLES,
             group: wnd.wrapper.id + "-resizing",
@@ -1310,6 +1323,11 @@ var __meta__ = { // jshint ignore:line
             var wnd = that.owner;
             var wrapper = wnd.wrapper;
 
+            that._preventDragging = wnd.trigger(RESIZESTART);
+            if (that._preventDragging) {
+                return;
+            }            
+
             that.elementPadding = parseInt(wrapper.css("padding-top"), 10);
             that.initialPosition = kendo.getOffset(wrapper, "position");
 
@@ -1328,6 +1346,9 @@ var __meta__ = { // jshint ignore:line
             $(BODY).css(CURSOR, e.currentTarget.css(CURSOR));
         },
         drag: function (e) {
+            if (this._preventDragging) {
+                return;
+            }
             var that = this,
                 wnd = that.owner,
                 wrapper = wnd.wrapper,
@@ -1355,13 +1376,17 @@ var __meta__ = { // jshint ignore:line
                 });
             }
 
+            var newWindowTop = y;
+            if (wnd.options.pinned) {
+                newWindowTop -= $(window).scrollTop();
+            }
             if (direction.indexOf("s") >= 0) {
-                newHeight = y - initialPosition.top - that.elementPadding - containerOffset.top;
+                newHeight = newWindowTop - initialPosition.top - that.elementPadding - containerOffset.top;
 
                 wrapper.height(constrain(newHeight, options.minHeight, options.maxHeight));
             } else if (direction.indexOf("n") >= 0) {
                 windowBottom = initialPosition.top + initialSize.height + containerOffset.top;
-                newHeight = constrain(windowBottom - y, options.minHeight, options.maxHeight);
+                newHeight = constrain(windowBottom - newWindowTop, options.minHeight, options.maxHeight);
 
                 wrapper.css({
                     top: windowBottom - newHeight - containerOffset.top,
@@ -1379,6 +1404,9 @@ var __meta__ = { // jshint ignore:line
             wnd.resize();
         },
         dragend: function (e) {
+            if (this._preventDragging) {
+                return;
+            }
             var that = this,
                 wnd = that.owner,
                 wrapper = wnd.wrapper;
@@ -1413,6 +1441,7 @@ var __meta__ = { // jshint ignore:line
     function WindowDragging(wnd, dragHandle) {
         var that = this;
         that.owner = wnd;
+        that._preventDragging = false;
         that._draggable = new Draggable(wnd.wrapper, {
             filter: dragHandle,
             group: wnd.wrapper.id + "-moving",
@@ -1432,7 +1461,10 @@ var __meta__ = { // jshint ignore:line
                 actions = element.find(".k-window-actions"),
                 containerOffset = kendo.getOffset(wnd.appendTo);
 
-            wnd.trigger(DRAGSTART);
+            this._preventDragging = wnd.trigger(DRAGSTART);
+            if (this._preventDragging) {
+                return;
+            }
 
             wnd.initialWindowPosition = kendo.getOffset(wnd.wrapper, "position");
 
@@ -1463,6 +1495,9 @@ var __meta__ = { // jshint ignore:line
         },
 
         drag: function (e) {
+            if (this._preventDragging) {
+                 return;
+            }
             var wnd = this.owner;
             var position = wnd.options.position;
 
@@ -1492,12 +1527,18 @@ var __meta__ = { // jshint ignore:line
         },
 
         dragcancel: function (e) {
+            if (this._preventDragging) { 
+                return;
+            }
             this._finishDrag();
 
             e.currentTarget.closest(KWINDOW).css(this.owner.initialWindowPosition);
         },
 
         dragend: function () {
+            if (this._preventDragging) { 
+                return;
+            }
             $(this.owner.wrapper)
                 .css(this.owner.options.position)
                 .css("transform", "");

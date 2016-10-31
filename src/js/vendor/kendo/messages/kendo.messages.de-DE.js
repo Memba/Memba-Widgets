@@ -206,7 +206,44 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "formatting": "Format",
   "viewHtml": "View HTML",
   "dialogUpdate": "Aktualisieren",
-  "insertFile": "Datei einfügen"
+  "insertFile": "Datei einfügen",
+  "dialogOk": "OK",
+  "tableWizard": "Tabellen-Assistent",
+  "tableTab": "Tabelle",
+  "cellTab": "Tabellenzelle",
+  "accessibilityTab": "Zugänglichkeit",
+  "caption": "Erklärung",
+  "summary": "Zusammenfassung",
+  "width": "Breite",
+  "height": "Höhe",
+  "cellSpacing": "Zellabstand",
+  "cellPadding": "Zellauffüllung",
+  "cellMargin": "Zellenrand",
+  "alignment": "Ausrichtung",
+  "background": "Hintergrund",
+  "cssClass": "CSS Klasse",
+  "id": "Id",
+  "border": "Rahmen",
+  "borderStyle": "Rahmenstil",
+  "collapseBorders": "Collapse rahmen",
+  "wrapText": "Texthülle",
+  "associateCellsWithHeaders": "Zellen mit header verbinden",
+  "alignLeft": "Ausrichten links",
+  "alignCenter": "Ausrichten zentrum",
+  "alignRight": "Ausrichten recht",
+  "alignLeftTop": "Ausrichten links und oben",
+  "alignCenterTop": "Ausrichten zentrum und oben",
+  "alignRightTop": "Ausrichten recht und oben",
+  "alignLeftMiddle": "Ausrichten links und mittlere",
+  "alignCenterMiddle": "Ausrichten zentrum und mittlere",
+  "alignRightMiddle": "Ausrichten recht und mittlere",
+  "alignLeftBottom": "Ausrichten links und unten",
+  "alignCenterBottom": "Ausrichten zentrum und unten",
+  "alignRightBottom": "Ausrichten recht und unten",
+  "alignRemove": "Entfernen ausrichtung",
+  "columns": "Spalten",
+  "rows": "Reihen",
+  "selectAllCells": "Wählen alle tabellenzellen"
 });
 }
 
@@ -276,6 +313,46 @@ $.extend(true, kendo.ui.FilterMultiCheck.prototype.options.messages,{
   "clear": "Löschen",
   "filter": "Filtern",
   "search": "Suchen"
+});
+}
+  
+  /* Gantt messages */
+
+if (kendo.ui.Gantt) {
+kendo.ui.Gantt.prototype.options.messages =
+$.extend(true, kendo.ui.Gantt.prototype.options.messages,{
+  "actions": {
+    "addChild": "Unteraufgabe hinzufügen",
+    "append": "Aufgabe hinzufügen",
+    "insertAfter": "Unter einfügen",
+    "insertBefore": "Über einfügen",
+    "pdf": "Exportieren als PDF"
+  },
+  "cancel": "Abbrechen",
+  "deleteDependencyWindowTitle": "Beziehung löschen",
+  "deleteTaskWindowTitle": "Aufgabe löschen",
+  "destroy": "Löschen",
+  "editor": {
+    "assingButton": "Zuweisen",
+    "editorTitle": "Aufgabe",
+    "end": "Ende",
+    "percentComplete": "abgeschlossen",
+    "resources": "Ressourcen",
+    "resourcesEditorTitle": "Ressourcen",
+    "resourcesHeader": "Ressourcen",
+    "start": "Start",
+    "title": "Titel",
+    "unitsHeader": "Einheiten"
+  },
+  "save": "Speichern",
+  "views": {
+    "day": "Tag",
+    "end": "Ende",
+    "month": "Monat",
+    "start": "Start",
+    "week": "Woche",
+    "year": "Jahr"
+  }
 });
 }
 

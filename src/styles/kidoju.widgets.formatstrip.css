@@ -30,3 +30,12 @@
     background-color: transparent !important;
     background-image: none;
 }
+.kj-formatstrip .k-spreadsheet-toolbar .k-widget.k-state-disabled .k-icon:nth-child(2),
+.kj-formatstrip .k-spreadsheet-toolbar .k-widget.k-state-disabled:hover .k-icon:nth-child(2),
+.kj-formatstrip .k-spreadsheet-toolbar .k-button.k-state-disabled .k-icon:nth-child(2),
+.kj-formatstrip .k-spreadsheet-toolbar .k-button.k-state-disabled:hover .k-icon:nth-child(2),
+.kj-formatstrip .k-spreadsheet-toolbar .k-button-group.k-state-disabled .k-icon:nth-child(2),
+.kj-formatstrip .k-spreadsheet-toolbar .k-button-group.k-state-disabled:hover .k-icon:nth-child(2),
+.kj-formatstrip .k-spreadsheet-toolbar .k-dropdown-wrap.k-state-disabled .k-icon:nth-child(2) {
+    opacity: 0.2;
+}

@@ -1,6 +1,23 @@
 .kj-multicheckbox .kj-multicheckbox-item {
-    margin-bottom: 0.15em;
+    margin-bottom: 0.1em;
+}
+.kj-multicheckbox input.k-checkbox {
+    display: none;
 }
 .kj-multicheckbox .k-checkbox-label {
+    line-height: normal;
+    padding-left: 1.2em;
     vertical-align: initial;
+}
+.kj-multicheckbox .k-checkbox-label:before {
+    border-width: 0.05em;
+    font-size: inherit;
+    line-height: 0.9em;
+    top: 0.1em;
+    left: 0.1em;
+    width: 0.8em;
+    height: 0.8em;
+}
+.km-nova .kj-multicheckbox input[type=checkbox] {
+    opacity: 0;
 }

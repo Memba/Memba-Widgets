@@ -1,10 +1,12 @@
 .kj-quiz .kj-quiz-item {
-    margin-bottom: 0.15em;
+    margin-bottom: 0.1em;
 }
 .kj-quiz .kj-quiz-item input.k-radio {
     display: none;
 }
 .kj-quiz .kj-quiz-item .k-radio-label {
+    line-height: normal;
+    padding-left: 1.2em;
     vertical-align: initial;
 }
 .kj-quiz .kj-quiz-item .k-radio-label:before {

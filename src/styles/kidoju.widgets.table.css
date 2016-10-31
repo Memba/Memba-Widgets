@@ -1,5 +1,6 @@
 .kj-table {
     position: relative;
+    overflow: auto;
 }
 .kj-table .k-spreadsheet-cell {
     position: absolute;

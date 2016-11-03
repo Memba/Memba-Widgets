@@ -76,7 +76,7 @@ module.exports = function (grunt) {
                     timeout: 10000,
                     ui: 'bdd'
                 },
-                src: ['test/zombie/kidoju.*.test.js']
+                src: ['test/node/zombie/kidoju.*.test.js']
             }
         },
         clean: ['dist/', 'docs/'],
@@ -209,7 +209,7 @@ module.exports = function (grunt) {
     // grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
     grunt.registerTask('lint', ['jscs', 'jshint', 'csslint']);
-    grunt.registerTask('test', ['mocha', 'mochaTest']);
+    grunt.registerTask('test', ['mocha']); // , 'mochaTest']);
     grunt.registerTask('build', ['clean', 'copy', 'concat', 'uglify', 'cssmin', 'imagemin', 'jsdoc']);
     grunt.registerTask('default', ['lint', 'test', 'build']);
 };

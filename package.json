@@ -52,12 +52,12 @@
     "karma-opera-launcher": "^1.0.0",
     "karma-phantomjs-launcher": "^1.0.2",
     "karma-safari-launcher": "^1.0.0",
-    "karma-sauce-launcher": "^1.0.0",
+    "karma-sauce-launcher": "^1.1.0",
     "karma-sinon": "^1.0.5",
     "mocha": "^3.1.2",
     "phantomjs-prebuilt": "^2.1.13",
     "sinon": "^1.17.6",
-    "zombie": "^4.2.1"
+    "zombie": "^4.3.0"
   },
   "engines": {
     "node": ">=4"

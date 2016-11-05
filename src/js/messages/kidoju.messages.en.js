@@ -430,7 +430,7 @@
                     // Attributes
                     attributes = tools.mathexpression.constructor.prototype.attributes;
                     attributes.formula.title = 'Formula';
-                    attributes.formula.defaultValue = '#sum_(i=1)^n i^3=((n(n+1))/2)^2#';
+                    attributes.formula.defaultValue = '\\sum_{n=1}^{\\infty}2^{-n}=1';
                     attributes.style.title = 'Style';
                 }
 

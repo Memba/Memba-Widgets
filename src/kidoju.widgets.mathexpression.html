@@ -9,6 +9,7 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <link href="./styles/vendor/mathquill/mathquill.css" rel="stylesheet">
     <script src="./js/vendor/kendo/jquery.min.js"></script>
     <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
     <script src="./js/vendor/kendo/kendo.core.js"></script>
@@ -18,6 +19,7 @@
     <!--link rel="stylesheet" href="./styles/kidoju.widgets.mathexpression.css"-->
     <script src="./js/window.assert.js"></script>
     <script src="./js/window.logger.js"></script>
+    <script src="./js/vendor/mathquill/mathquill.js"></script>
     <script src="./js/kidoju.widgets.mathexpression.js"></script>
     <style>
     </style>
@@ -27,7 +29,7 @@
 <h2>Math expression set by code</h2>
 <div id="math1"></div>
 <h2>Math expression set declaratively</h2>
-<div id="math2" data-role="mathexpression" data-value="#sum_(i=1)^n i^3=((n(n+1))/2)^2#" style="font-size:200%;color:red;"></div>
+<div id="math2" data-role="mathexpression" data-value="\prod_{i=a}^{b} f(i)" style="font-size:200%;color:red;"></div>
 <h2>Math expression bound to observable</h2>
 <div id="math3" data-role="mathexpression" data-bind="value: formula, visible: visible"></div>
 <pre>
@@ -48,14 +50,14 @@
 
         var kendo = window.kendo;
         var viewModel = new kendo.observable({
-            formula: '#sum_(i=1)^n i^3=((n(n+1))/2)^2#',
+            formula: '\\int_{a}^{b}x^2dx',
             visible: true,
             enabled: true
         });
 
         $(function() {
             $('#math1').kendoMathExpression({
-                value: '#sum_(i=1)^n i^3=((n(n+1))/2)^2#'
+                value: '\\sum_{n=1}^{\\infty}2^{-n}=1'
             });
             kendo.bind('body', viewModel);
         });

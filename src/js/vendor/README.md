@@ -13,3 +13,22 @@
 2. Get minimized versions from http://cdn.kendostatic.com/<version>/js/kendo.all.min.js, respectively http://cdn.kendostatic.com/2015.2.624/styles/kendo.common.min.css
 
 Required files can be found at http://www.telerik.com/download/custom-download
+
+## MathQuill
+
+Building Mathquill requires ```make``` which is not available on Windows.
+
+On Windows 10, we now have **Bash on Unbuntu on Windows**. Only once:
+
+1. [Install Bash on Unbuntu on Windows](https://msdn.microsoft.com/en-gb/commandline/wsl/install_guide).
+2. Open Bash on Unbuntu on Windows, and if you get ```unable to resolve host (machine name)```, add your machine to ```/etc/hosts``` as explained here](http://askubuntu.com/questions/59458/error-message-when-i-run-sudo-unable-to-resolve-host-none).
+3. Run ```sudo apt-get -y update```.
+4. Run ```sudo apt-get -y autoremove```.
+5. Run ```sudo apt-get install -y build-essential```
+6. Run ```curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -``` (see [nodeJS install instructions](https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions))
+7. Run ```sudo apt-get install -y nodejs```
+
+Then each time you need to build MathQuill
+
+1. Go to your mathquill directory, e.g. ```cd /mnt/c/Users/<me>/Desktop/mathquill-0.10.1```
+2. Run ```make```.

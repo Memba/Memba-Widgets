@@ -17,6 +17,8 @@
     <!-- Markdown requirements -->
     <link href="./styles/vendor/highlight/codepen-embed.css" rel="stylesheet">
     <!--link href="./styles/kidoju.widgets.markdown.css" rel="stylesheet"-->
+    <script src="./js/vendor/mathquill/mathquill.js"></script>
+    <script src="./js/vendor/markdown-it/markdown-it-mathquill.js"></script>
     <script src="./js/vendor/markdown-it/markdown-it.js"></script>
     <script src="./js/vendor/highlight/highlight.pack.js"></script>
     <script src="./js/kidoju.widgets.markdown.js"></script>
@@ -49,25 +51,15 @@ kendo.bind($('body'), viewModel);
 
 ## Math Formulas
 
-### AsciiMath
+When $a != 0$, there are two solutions to $ax^2 + bx + c = 0$ and they are
 
-When #a != 0#, there are two solutions to #ax^2 + bx + c = 0# and they are
-
-#x = (-b +- sqrt(b^2-4ac))/(2a)#
-
-### (La)Tex
+$$x = (-b +- sqrt(b^2-4ac))/(2a)$$
 
 \begin{equation}
   x = a_0 + \cfrac{1}{a_1
           + \cfrac{1}{a_2
           + \cfrac{1}{a_3 + \cfrac{1}{a_4} } } }
 \end{equation}
-
-### MathML
-
-<math xmlns="http://www.w3.org/1998/Math/MathML">
-<infinity/>
-</math>
 
 ## Html
 
@@ -124,7 +116,7 @@ Including an *Image* and a [Link](http://www.theinquirer.net/IMG/945/270945/goog
         var kendo = window.kendo;
 
         var viewModel = window.viewModel = kendo.observable({
-            markdown: '## Markdown\nSome **Markdown**.\n## Math\n#x = (-b +- sqrt(b^2-4ac))/(2a)#',
+            markdown: '## Markdown\nSome **Markdown**.\n## Math\n$x = (-b +- sqrt(b^2-4ac))/(2a)$',
             visible: true,
             enabled: true
         });

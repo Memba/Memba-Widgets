@@ -23,7 +23,7 @@ describe('kidoju.integration.playmode.test.js', function () {
         // browser.features = 'scripts no-css no-img iframe'; //by default
         // browser.features = 'scripts css img iframe';
         // browser.visit('/src/kidoju.integration.designmode.html', done);  // Freezes
-        browser.visit('/src/kidoju.integration.playmode.html', done);    // Freezes
+        browser.visit('/src/kidoju.integration.playmode.html', done);       // Freezes
         // browser.visit('/src/kidoju.widgets.attributes.html', done);      // OK
         // browser.visit('/src/kidoju.widgets.explorer.html', done);        // OK
         // browser.visit('/src/kidoju.widgets.multiinput.html', done);      // JS error

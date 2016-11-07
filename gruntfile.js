@@ -209,7 +209,7 @@ module.exports = function (grunt) {
     // grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
     grunt.registerTask('lint', ['jscs', 'jshint', 'csslint']);
-    grunt.registerTask('test', ['mocha', 'mochaTest']);
+    grunt.registerTask('test', ['mocha']); // , 'mochaTest']);
     grunt.registerTask('build', ['clean', 'copy', 'concat', 'uglify', 'cssmin', 'imagemin', 'jsdoc']);
     grunt.registerTask('default', ['lint', 'test', 'build']);
 };

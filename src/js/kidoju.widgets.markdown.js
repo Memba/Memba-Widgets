@@ -13,45 +13,13 @@
         './window.logger',
         './vendor/kendo/kendo.binder',
         './vendor/markdown-it/markdown-it.js',
+        './vendor/markdown-it/markdown-it-mathquill.js',
         './vendor/highlight/highlight.pack.js'
         // './vendor/kendo/kendo.multiselect' // required because of a test in kendo.binder.js
     ], f);
 })(function (a, b, c, markdownit, highlight) {
 
     'use strict';
-
-    // Load MathJax 2.7 dynamically - see https://docs.mathjax.org/en/v2.7-latest/advanced/dynamic.html
-    // SSee configuration options - see http://mathjax.readthedocs.org/en/latest/configuration.html
-    // And combined configuration options - see http://mathjax.readthedocs.org/en/latest/config-files.html
-    (function () {
-        var TYPE = 'text/x-mathjax-config';
-        var head = document.getElementsByTagName('head')[0];
-        var scripts = head.getElementsByTagName('script');
-        var found = false;
-        for (var i = 0; i < scripts.length; i++) {
-            if (scripts[i].type === TYPE) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            var script = document.createElement('script');
-            script.type = TYPE;
-            // TODO OPTIMIZE without MathML input
-            script[(window.opera ? 'innerHTML' : 'text')] =
-                'MathJax.Hub.Config({\n' +
-                '  showMathMenu: false,\n' + // Hide contextual menu
-                '  asciimath2jax: { delimiters: [["#","#"], ["`","`"]] }\n' +
-                '});';
-            head.appendChild(script);
-            script = document.createElement('script');
-            script.type = 'text/javascript';
-            // script.src  = 'https://cdn.mathjax.org/mathjax/2.7-latest/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
-            script.src = 'https://cdn.mathjax.org/mathjax/2.7-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML';
-            script.crossorigin = 'anonymous';
-            head.appendChild(script);
-        }
-    })();
 
     (function ($, undefined) {
 
@@ -185,22 +153,123 @@
              */
             _initMarkdownIt: function () {
                 var that = this;
+
+                // Initialize MarkdownIt
                 that.md = new MarkdownIt({
                     html: false,
                     linkify: true,
                     typographer: true,
                     // See https://github.com/markdown-it/markdown-it#syntax-highlighting
                     highlight: function (code, lang) {
-                        if (lang && hljs.getLanguage(lang)) {
-                            try {
-                                return '<pre class="hljs"><code>' +
-                                    hljs.highlight(lang, code, true).value +
-                                    '</code></pre>';
-                            } catch (ex) {}
+                        try {
+                            return hljs.highlight(lang, code).value;
+                        } catch (err) {
+                            return hljs.highlightAuto(code).value;
                         }
-                        return '<pre class="hljs"><code>' + that.md.utils.escapeHtml(code) + '</code></pre>';
                     }
                 });
+
+                // Initialize renderers
+                that._initHljs();
+                that._initLinkOpener();
+                that._initImageRule();
+                // that._initMathQuill();
+                that._initKatex();
+            },
+
+            /**
+             * Init Highligh.js
+             * Adds hljs class to the pre tag
+             * @see https://github.com/markdown-it/markdown-it/blob/88c6e0f8e6fd567c70ffabbc1e9ce7b980d2e3a9/support/demo_template/index.js#L94
+             * @private
+             */
+            _initHljs: function () {
+                var that = this;
+                that.md.renderer.rules.fence = function (tokens, idx, options, env, self) {
+                    var escapeHtml = that.md.utils.escapeHtml;
+                    var unescapeAll = that.md.utils.unescapeAll;
+                    var token = tokens[idx];
+                    var info = token.info ? unescapeAll(token.info).trim() : '';
+                    var langName = '';
+                    var highlighted;
+                    if (info) {
+                        langName = info.split(/\s+/g)[0];
+                        token.attrPush(['class', options.langPrefix + langName]);
+                    }
+                    if (options.highlight) {
+                        highlighted = options.highlight(token.content, langName) || escapeHtml(token.content);
+                    } else {
+                        highlighted = escapeHtml(token.content);
+                    }
+                    return '<pre class="hljs"><code' + self.renderAttrs(token) + '>' + highlighted  + '</code></pre>\n';
+                };
+            },
+
+            /**
+             * Initialize link opener to open links in new window
+             * @see https://github.com/markdown-it/markdown-it/blob/master/docs/architecture.md#renderer
+             * @private
+             */
+            _initLinkOpener: function () {
+                var that = this;
+                var defaultRender = that.md.renderer.rules.link_open || function(tokens, idx, options, env, self) {
+                        return self.renderToken(tokens, idx, options);
+                    };
+                that.md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
+                    // If you are sure other plugins can't add `target` - drop check below
+                    var targetIndex = tokens[idx].attrIndex('target');
+                    if (targetIndex < 0) {
+                        tokens[idx].attrPush(['target', '_blank']); // add new attribute
+                    } else {
+                        tokens[idx].attrs[targetIndex][1] = '_blank'; // replace value of existing attr
+                    }
+                    // same with rel - see https://mathiasbynens.github.io/rel-noopener/
+                    var relIndex = tokens[idx].attrIndex('rel');
+                    if (relIndex < 0) {
+                        tokens[idx].attrPush(['rel', 'noopener']); // add new attribute
+                    } else {
+                        tokens[idx].attrs[relIndex][1] = 'noopener'; // replace value of existing attr
+                    }
+                    // pass token to default renderer.
+                    return defaultRender(tokens, idx, options, env, self);
+                };
+            },
+
+            /**
+             * Init the image rule
+             * Adds the .img-responsive class to all images
+             * @see https://github.com/markdown-it/markdown-it/blob/master/docs/architecture.md
+             * @private
+             */
+            _initImageRule: function () {
+                var that = this;
+                var defaultRender = that.md.renderer.rules.image || function(tokens, idx, options, env, self) {
+                        return self.renderToken(tokens, idx, options);
+                    };
+                that.md.renderer.rules.image = function (tokens, idx, options, env, slf) {
+                    tokens[idx].attrPush(['class', 'img-responsive']);
+                    return defaultRender(tokens, idx, options, env, slf);
+                };
+            },
+
+            /**
+             * Init MathQuill
+             * @private
+             */
+            _initMathQuill: function () {
+                if (window.markdownItMathQuill) {
+                    this.md.use(window.markdownItMathQuill);
+                }
+            },
+
+            /**
+             * Init Katex
+             * @private
+             */
+            _initKatex: function () {
+                if (window.markdownItKatex) {
+                    this.md.use(window.markdownItKatex);
+                }
             },
 
             /**
@@ -285,12 +354,6 @@
                     script = $(SCRIPT_TAG).text(inline.text()).wrapAll(WRAP_TAG).parent().html();
                 }
                 element.html(script + that.html());
-                // If MathJax is not yet loaded it will parse the page anyway
-                var MathJax = window.MathJax;
-                if (MathJax) {
-                    // See http://mathjax.readthedocs.org/en/latest/advanced/typeset.html
-                    MathJax.Hub.Queue(['Typeset', MathJax.Hub, element[0]]);
-                }
             },
 
             /**

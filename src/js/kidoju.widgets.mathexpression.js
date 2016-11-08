@@ -9,14 +9,14 @@
 (function (f, define) {
     'use strict';
     define([
+        './vendor/katex/katex', // Keep at the top considering function parameter below
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.userevents',
-        './vendor/kendo/kendo.draganddrop',
-        './vendor/katex/katex'
+        './vendor/kendo/kendo.draganddrop'
     ], f);
-})(function () {
+})(function (katX) {
 
     'use strict';
 
@@ -26,7 +26,7 @@
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.mathexpression');
-        var katex = window.katex;
+        var katex = window.katex || katX;
         var FUNCTION = 'function';
         var STRING = 'string';
         var NULL = 'null';

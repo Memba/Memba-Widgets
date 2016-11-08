@@ -9,15 +9,14 @@
 (function (f, define) {
     'use strict';
     define([
+        './vendor/markdown-it/markdown-it',
+        './vendor/markdown-it/markdown-it-katex',
+        './vendor/highlight/highlight.pack', // Keep at the top considering function parameters below
         './window.assert',
         './window.logger',
-        './vendor/kendo/kendo.binder',
-        './vendor/katex',
-        './vendor/markdown-it/markdown-it.js',
-        './vendor/markdown-it/markdown-it-katex.js',
-        './vendor/highlight/highlight.pack.js'
+        './vendor/kendo/kendo.binder'
     ], f);
-})(function (a, b, c, markdownit, highlight) {
+})(function (markdownit, katexRendered, highlight) {
 
     'use strict';
 
@@ -26,6 +25,7 @@
         var kendo = window.kendo;
         var Widget = kendo.ui.Widget;
         var MarkdownIt = window.markdownit || markdownit;
+        var markdownItKatex = window.markdownItKatex || katexRendered;
         var hljs = window.hljs || highlight;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.markdown');
@@ -118,10 +118,10 @@
              * @property events
              */
             /*
-            events: [
-                CHANGE
-            ],
-            */
+             events: [
+             CHANGE
+             ],
+             */
 
             /**
              * Value for MVVM binding
@@ -173,7 +173,6 @@
                 that._initHljs();
                 that._initLinkOpener();
                 that._initImageRule();
-                // that._initMathQuill();
                 that._initKatex();
             },
 
@@ -255,22 +254,12 @@
             },
 
             /**
-             * Init MathQuill
-             * @private
-             */
-            _initMathQuill: function () {
-                if (window.markdownItMathQuill) {
-                    this.md.use(window.markdownItMathQuill);
-                }
-            },
-
-            /**
              * Init Katex
              * @private
              */
             _initKatex: function () {
-                if (window.markdownItKatex) {
-                    this.md.use(window.markdownItKatex);
+                if (markdownItKatex) {
+                    this.md.use(markdownItKatex);
                 }
             },
 

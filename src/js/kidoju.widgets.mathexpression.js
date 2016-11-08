@@ -14,7 +14,7 @@
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.userevents',
         './vendor/kendo/kendo.draganddrop',
-        './vendor/mathquill/mathquill'
+        './vendor/katex/katex'
     ], f);
 })(function () {
 
@@ -26,6 +26,8 @@
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.mathexpression');
+        var katex = window.katex;
+        var FUNCTION = 'function';
         var STRING = 'string';
         var NULL = 'null';
         var UNDEFINED = 'undefined';
@@ -34,19 +36,12 @@
         var WIDGET_CLASS = 'kj-mathexpression'; // 'k-widget kj-mathexpression';
 
         /*********************************************************************************
-         * Initialize MathQuill (considering it might have been initialized elsewhere)
-         *********************************************************************************/
-        if (!window.MQ) {
-            window.MQ = window.MathQuill.getInterface(window.MathQuill.getInterface.MAX);
-        }
-
-        /*********************************************************************************
          * Widget
          *********************************************************************************/
 
         /**
          * MathExpression
-         * @class MathExpression Widget (kendoDropZone)
+         * @class MathExpression Widget (kendoMathExpression)
          */
         var MathExpression = Widget.extend({
 
@@ -73,7 +68,9 @@
              */
             options: {
                 name: 'MathExpression',
-                value: null
+                value: null,
+                errorColor: '#cc0000',
+                displayMode: false
             },
 
             /**
@@ -116,9 +113,16 @@
              * Refresh the widget
              */
             refresh: function () {
-                var element = this.element;
-                element.text(this.value() || '');
-                window.MQ.StaticMath(element[0]);
+                assert.type(FUNCTION, katex.render, 'Make sure KaTeX is available.');
+                var that = this;
+                var element = that.element;
+                var options = that.options;
+                // KaTeX option { throwOnError: false } is not equivalent to the following which is required to display an error
+                try {
+                    katex.render(that.value() || '', element[0], { displayMode: options.displayMode });
+                } catch (ex) {
+                    element.html('<span style="color:' + options.errorColor + '">' + kendo.htmlEncode(ex.message) + '</span>')
+                }
                 logger.debug('widget refreshed');
             },
 
@@ -129,15 +133,16 @@
              */
             _clear: function () {
                 var that = this;
+                var element = that.element;
                 // unbind kendo
-                // kendo.unbind($(that.element));
+                kendo.unbind(element);
                 // unbind all other events
-                $(that.element).find('*').off();
-                $(that.element).off();
+                element.find('*').off();
+                element.off();
                 // remove descendants
-                $(that.element).empty();
+                element.empty();
                 // remove element classes
-                // $(that.element).removeClass(WIDGET_CLASS);
+                element.removeClass(WIDGET_CLASS);
             },
 
             /**

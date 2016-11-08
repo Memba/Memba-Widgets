@@ -2813,8 +2813,8 @@
             templates: {
                 default: '<div data-#= ns #role="mathexpression" style="#: attributes.style #" data-#= ns #value="#: attributes.formula #"></div>'
             },
-            height: 150,
-            width: 350,
+            height: 80,
+            width: 370,
             attributes: {
                 formula: new adapters.TextAdapter(
                     { title: i18n.mathexpression.attributes.formula.title, defaultValue: i18n.mathexpression.attributes.formula.defaultValue },

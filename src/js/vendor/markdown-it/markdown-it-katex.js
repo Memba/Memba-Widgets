@@ -1,10 +1,22 @@
 ;(function (root, factory) {
-    if (typeof exports === 'object') {
-        module.exports = factory()
+    // See template at https://github.com/umdjs/umd/blob/master/templates/amdWebGlobal.js
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define([
+            '../katex/katex'
+        ], function (katex) {
+            return (root.markdownItKatex = factory(katex));
+        });
+    } else if (typeof module === 'object' && module.exports) {
+        // Node. Does not work with strict CommonJS, but
+        // only CommonJS-like environments that support module.exports,
+        // like Node.
+        module.exports = factory(require('../katex/katex'));
     } else {
-        root.markdownItKatex = factory()
+        // Browser globals
+        root.markdownItKatex = factory(root.katex);
     }
-})(this, function () {
+})(this, function (katex) {
 
     /**
      * Backslash rule

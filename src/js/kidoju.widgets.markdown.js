@@ -212,7 +212,8 @@
              */
             _initLinkOpener: function () {
                 var that = this;
-                var defaultRender = that.md.renderer.rules.link_open || function(tokens, idx, options, env, self) {
+                /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
+                var defaultRender = that.md.renderer.rules.link_open || function (tokens, idx, options, env, self) {
                         return self.renderToken(tokens, idx, options);
                     };
                 that.md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
@@ -233,6 +234,7 @@
                     // pass token to default renderer.
                     return defaultRender(tokens, idx, options, env, self);
                 };
+                /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
             },
 
             /**
@@ -243,7 +245,7 @@
              */
             _initImageRule: function () {
                 var that = this;
-                var defaultRender = that.md.renderer.rules.image || function(tokens, idx, options, env, self) {
+                var defaultRender = that.md.renderer.rules.image || function (tokens, idx, options, env, self) {
                         return self.renderToken(tokens, idx, options);
                     };
                 that.md.renderer.rules.image = function (tokens, idx, options, env, slf) {

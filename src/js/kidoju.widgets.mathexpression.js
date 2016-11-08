@@ -121,7 +121,7 @@
                 try {
                     katex.render(that.value() || '', element[0], { displayMode: options.displayMode });
                 } catch (ex) {
-                    element.html('<span style="color:' + options.errorColor + '">' + kendo.htmlEncode(ex.message) + '</span>')
+                    element.html('<span style="color:' + options.errorColor + '">' + kendo.htmlEncode(ex.message) + '</span>');
                 }
                 logger.debug('widget refreshed');
             },

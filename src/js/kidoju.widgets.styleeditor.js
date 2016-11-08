@@ -346,7 +346,7 @@
              */
             refresh: function () {
                 var that = this;
-                if  (that.grid instanceof kendo.ui.Grid) {
+                if (that.grid instanceof kendo.ui.Grid) {
                     that.grid.refresh();
                 }
             },

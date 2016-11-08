@@ -12,10 +12,10 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
+        './vendor/katex',
         './vendor/markdown-it/markdown-it.js',
-        './vendor/markdown-it/markdown-it-mathquill.js',
+        './vendor/markdown-it/markdown-it-katex.js',
         './vendor/highlight/highlight.pack.js'
-        // './vendor/kendo/kendo.multiselect' // required because of a test in kendo.binder.js
     ], f);
 })(function (a, b, c, markdownit, highlight) {
 
@@ -365,15 +365,16 @@
              */
             _clear: function () {
                 var that = this;
+                var element = that.element;
                 // unbind kendo
-                // kendo.unbind($(that.element));
+                // kendo.unbind(element);
                 // unbind all other events
-                $(that.element).find('*').off();
-                $(that.element).off();
+                element.find('*').off();
+                element.off();
                 // remove descendants
-                $(that.element).empty();
+                element.empty();
                 // remove element classes
-                // $(that.element).removeClass(WIDGET_CLASS);
+                element.removeClass(WIDGET_CLASS);
             },
 
             /**

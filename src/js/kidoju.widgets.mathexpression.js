@@ -135,7 +135,7 @@
                 var that = this;
                 var element = that.element;
                 // unbind kendo
-                kendo.unbind(element);
+                // kendo.unbind(element);
                 // unbind all other events
                 element.find('*').off();
                 element.off();

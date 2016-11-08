@@ -28,7 +28,6 @@
      * \end{equation}
      */
     function backslash(state, silent) {
-        debugger;
         var beginPos = state.pos;
         if (state.src.charCodeAt(beginPos) !== 0x5C /* \ */) {
             return false

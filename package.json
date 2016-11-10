@@ -48,7 +48,7 @@
     "karma-coverage": "^1.1.1",
     "karma-firefox-launcher": "^1.0.0",
     "karma-ie-launcher": "^1.0.0",
-    "karma-mocha": "^1.2.0",
+    "karma-mocha": "^1.3.0",
     "karma-opera-launcher": "^1.0.0",
     "karma-phantomjs-launcher": "^1.0.2",
     "karma-safari-launcher": "^1.0.0",
@@ -57,7 +57,7 @@
     "mocha": "^3.1.2",
     "phantomjs-prebuilt": "^2.1.13",
     "sinon": "^1.17.6",
-    "zombie": "^5.0.1"
+    "zombie": "^5.0.4"
   },
   "engines": {
     "node": ">=4"

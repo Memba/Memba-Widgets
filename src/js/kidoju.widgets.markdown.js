@@ -248,7 +248,14 @@
                         return self.renderToken(tokens, idx, options);
                     };
                 that.md.renderer.rules.image = function (tokens, idx, options, env, slf) {
-                    tokens[idx].attrPush(['class', 'img-responsive']);
+                    var relIndex = tokens[idx].attrIndex('class');
+                    // If you are sure other plugins can't add `class` - drop check below
+                    if (relIndex < 0) {
+                        tokens[idx].attrPush(['class', 'img-responsive']); // add new attribute
+                    } else {
+                        tokens[idx].attrs[relIndex][1] = 'img-responsive'; // replace value of existing attr
+                    }
+                    // pass token to default renderer.
                     return defaultRender(tokens, idx, options, env, slf);
                 };
             },

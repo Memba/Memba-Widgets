@@ -201,6 +201,18 @@
             }
         };
 
+        /**
+         * Assert typeOrUndef
+         * @param type
+         * @param value
+         * @param message
+         */
+        assert.typeOrUndef = function (type, value, message) {
+            if ($.type(value) !== UNDEFINED && $.type(value) !== type) {
+                throw new TypeError(message);
+            }
+        };
+
         assert.messages = {
             enum: {
                 default: '`{0}` is expected to be any of `{1}`'
@@ -231,6 +243,9 @@
             },
             type: {
                 default: '`{0}` is expected to have type `{1}`'
+            },
+            typeOrUndef: {
+                default: '`{0}` is expected to have type `{1}` or be undefined'
             }
         };
 

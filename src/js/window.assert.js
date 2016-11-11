@@ -135,6 +135,17 @@
         };
 
         /**
+         * Assert isArray
+         * @param value
+         * @param message
+         */
+        assert.isArray = function (value, message) {
+            if (!$.isArray(value)) {
+                throw new TypeError(message);
+            }
+        };
+
+        /**
          * Assert optional object (can be undefined but mot an empty object, i.e. {})
          * @param value
          * @param message
@@ -225,6 +236,9 @@
             },
             instanceof: {
                 default: '`{0}` is expected to be an instance of `{1}`'
+            },
+            isArray: {
+                default: '`{0}` is expected to be an array'
             },
             isOptionalObject: {
                 default: '`{0}` is expected to be undefined or a plain object'

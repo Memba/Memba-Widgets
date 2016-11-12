@@ -83,6 +83,11 @@
                 expect(assert.equal('a', 'a', ERR_MSG)).to.be.undefined;
             });
 
+            it('format', function () {
+                expect(assert.format('{0}', 1)).to.equal('1');
+                expect(assert.format('{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j')).to.equal('a,b,c,d,e,f,g,h,i,j');
+            });
+
             it('hasLength', function () {
                 expect(assert.messages.hasLength.default).to.be.a(STRING);
                 function fn1() {
@@ -126,6 +131,27 @@
                 expect(assert.instanceof($, el, ERR_MSG)).to.be.undefined;
                 expect(assert.instanceof(Person, p, ERR_MSG)).to.be.undefined;
                 expect(assert.instanceof(Company, c, ERR_MSG)).to.be.undefined;
+            });
+
+            it('isArray', function () {
+                expect(assert.messages.isArray.default).to.be.a(STRING);
+                var a = ['a', 'b', 'c'];
+                var c = new Company('ACME');
+                var el = $('<div>');
+                var n = 3;
+                function fn1() {
+                    assert.isArray(c, ERR_MSG);
+                }
+                function fn2() {
+                    assert.isArray(el, ERR_MSG);
+                }
+                function fn3() {
+                    assert.isArray(n, ERR_MSG);
+                }
+                expect(fn1).to.throw(TypeError, ERR_MSG);
+                expect(fn2).to.throw(TypeError, ERR_MSG);
+                expect(fn3).to.throw(TypeError, ERR_MSG);
+                expect(assert.isArray(a, ERR_MSG)).to.be.undefined;
             });
 
             it('isOptionalObject', function () {
@@ -269,6 +295,50 @@
                 expect(assert.type('string', 'a', ERR_MSG)).to.be.undefined;
                 expect(assert.type('object', {}, ERR_MSG)).to.be.undefined;
                 expect(assert.type('array', [], ERR_MSG)).to.be.undefined;
+            });
+
+            it('typeOrUndef', function () {
+                expect(assert.messages.typeOrUndef.default).to.be.a(STRING);
+                function fn1() {
+                    assert.typeOrUndef('undefined', null, ERR_MSG);
+                }
+                function fn2() {
+                    assert.typeOrUndef('null', true, ERR_MSG);
+                }
+                function fn3() {
+                    assert.typeOrUndef('boolean', 10, ERR_MSG);
+                }
+                function fn4() {
+                    assert.typeOrUndef('number', 'a', ERR_MSG);
+                }
+                function fn5() {
+                    assert.typeOrUndef('string', {}, ERR_MSG);
+                }
+                function fn6() {
+                    assert.typeOrUndef('object', [], ERR_MSG);
+                }
+                function fn7() {
+                    assert.typeOrUndef('array', new Company('World'), ERR_MSG);
+                }
+                expect(fn1).to.throw(Error, ERR_MSG);
+                expect(fn2).to.throw(Error, ERR_MSG);
+                expect(fn3).to.throw(Error, ERR_MSG);
+                expect(fn4).to.throw(Error, ERR_MSG);
+                expect(fn5).to.throw(Error, ERR_MSG);
+                expect(fn6).to.throw(Error, ERR_MSG);
+                expect(fn7).to.throw(Error, ERR_MSG);
+                expect(assert.typeOrUndef('undefined', undefined, ERR_MSG)).to.be.undefined;
+                expect(assert.typeOrUndef('null', null, ERR_MSG)).to.be.undefined;
+                expect(assert.typeOrUndef('boolean', true, ERR_MSG)).to.be.undefined;
+                expect(assert.typeOrUndef('boolean', undefined, ERR_MSG)).to.be.undefined;
+                expect(assert.typeOrUndef('number', 10, ERR_MSG)).to.be.undefined;
+                expect(assert.typeOrUndef('number', undefined, ERR_MSG)).to.be.undefined;
+                expect(assert.typeOrUndef('string', 'a', ERR_MSG)).to.be.undefined;
+                expect(assert.typeOrUndef('string', undefined, ERR_MSG)).to.be.undefined;
+                expect(assert.typeOrUndef('object', {}, ERR_MSG)).to.be.undefined;
+                expect(assert.typeOrUndef('object', undefined, ERR_MSG)).to.be.undefined;
+                expect(assert.typeOrUndef('array', [], ERR_MSG)).to.be.undefined;
+                expect(assert.typeOrUndef('array', undefined, ERR_MSG)).to.be.undefined;
             });
 
         });

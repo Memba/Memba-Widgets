@@ -112,6 +112,18 @@
         };
 
         /**
+         * Assert format (note: prefer kendo.format when available)
+         * @param message
+         */
+        assert.format = function (message) {
+            var values = arguments;
+            return message.replace(/\{(\d+)\}/g, function (match, index) {
+                var value = values[parseInt(index, 10) + 1];
+                return value + '';
+            });
+        };
+
+        /**
          * Assert the length property (for Arrays and jQuery)
          * @param el
          * @param message

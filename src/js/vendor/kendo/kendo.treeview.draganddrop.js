@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -119,7 +119,7 @@
                     hoveredItem = itemData.item;
                     if (hoveredItem.length) {
                         this._removeTouchHover();
-                        itemHeight = hoveredItem.outerHeight();
+                        itemHeight = kendo._outerHeight(hoveredItem);
                         itemContent = itemData.content;
                         if (options.reorderable) {
                             delta = itemHeight / (itemContent.length > 0 ? 4 : 2);

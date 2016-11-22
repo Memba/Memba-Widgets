@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1377,7 +1377,7 @@
                         var data = dataSource.data(), index = Math.max(data.length, 0);
                         return that._insert(data, model, index);
                     }
-                    loadModel.then(function () {
+                    loadModel.done(function () {
                         inserted = add();
                         success = success || $.noop;
                         success(inserted);

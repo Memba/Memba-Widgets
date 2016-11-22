@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1118,6 +1118,12 @@
             },
             exec: function () {
                 var range = this.range();
+                if (!range.enable()) {
+                    return {
+                        reason: 'error',
+                        type: 'rangeDisabled'
+                    };
+                }
                 var value = this._value;
                 this.getState();
                 if (this._property == 'value') {
@@ -1479,14 +1485,21 @@
                 this._origin = origin;
             },
             exec: function () {
+                var range = this.range();
+                if (!range.enable()) {
+                    return {
+                        reason: 'error',
+                        type: 'rangeDisabled'
+                    };
+                }
                 this.getState();
                 try {
-                    this.range().fillFrom(this._origin);
+                    range.fillFrom(this._origin);
                 } catch (ex) {
                     if (ex instanceof kendo.spreadsheet.Range.FillError) {
                         return {
                             reason: 'error',
-                            body: ex + ''
+                            type: ex.code
                         };
                     }
                     throw ex;
@@ -2128,7 +2141,7 @@
                         return true;
                     }
                 }
-                return false;
+                return key === keys.ENTER;
             },
             _tokenContext: function () {
                 var point = this.getPos();
@@ -5009,7 +5022,7 @@
                     doc.close();
                     var table = $(doc).find('table:first');
                     if (table.length) {
-                        state = parseHTML(table.find('tbody:first'));
+                        state = parseHTML(table);
                     } else if (!data.plain) {
                         var element = $(doc.body).find(':not(style)');
                         setStateData(state, 0, 0, cellState(element.text()));
@@ -5113,10 +5126,10 @@
             }
             return state;
         }
-        function parseHTML(tbody) {
+        function parseHTML(table) {
             var state = newState();
-            tbody.find('tr').each(function (rowIndex, tr) {
-                $(tr).find('td').each(function (colIndex, td) {
+            table.find('>tr, >tbody>tr').each(function (rowIndex, tr) {
+                $(tr).find('>td, >th').each(function (colIndex, td) {
                     var rowspan = parseInt($(td).attr('rowspan'), 10) - 1 || 0;
                     var colspan = parseInt($(td).attr('colspan'), 10) - 1 || 0;
                     var blankCell = '<td/>';
@@ -5124,7 +5137,7 @@
                     if (rowspan) {
                         var endRow = rowIndex + rowspan;
                         for (var ri = rowIndex; ri <= endRow; ri++) {
-                            var row = tbody.find('tr').eq(ri);
+                            var row = table.find('tr').eq(ri);
                             if (ri > rowIndex) {
                                 blankCell = '<td class=\'rowspan\'></td>';
                                 if (colIndex === 0) {
@@ -5151,8 +5164,8 @@
                     }
                 });
             });
-            tbody.find('tr').each(function (rowIndex, tr) {
-                $(tr).find('td').each(function (colIndex, td) {
+            table.find('>tr, >tbody>tr').each(function (rowIndex, tr) {
+                $(tr).find('>td, >th').each(function (colIndex, td) {
                     var rowspan = parseInt($(td).attr('rowspan'), 10) - 1 || 0;
                     var colspan = parseInt($(td).attr('colspan'), 10) - 1 || 0;
                     setStateData(state, rowIndex, colIndex, cellState($(td)));
@@ -5439,7 +5452,7 @@
                     });
                     return value;
                 }
-                this._property('enable', value);
+                return this._property('enable', value);
             },
             formula: function (value) {
                 if (value === undefined) {
@@ -8334,6 +8347,7 @@
                 var expandedRef;
                 if (ref) {
                     ref = this._ref(ref);
+                    ref = this._grid.normalize(ref);
                     expandedRef = this._grid.isAxis(ref) ? ref : this.unionWithMerged(ref);
                 }
                 return selectionState.select(ref, expandedRef, changeActiveCell);
@@ -8403,14 +8417,16 @@
                 var cols = {};
                 var allCols = false;
                 var allRows = false;
+                var maxRow = this._grid.rowCount - 1;
+                var maxCol = this._grid.columnCount - 1;
                 selection.forEach(function (ref) {
                     var i;
                     var rowState = 'partial';
                     var colState = 'partial';
                     ref = ref.toRangeRef();
                     var bottomRight = ref.bottomRight;
-                    var rowSelection = bottomRight.col === Infinity;
-                    var colSelection = bottomRight.row === Infinity;
+                    var rowSelection = bottomRight.col >= maxCol;
+                    var colSelection = bottomRight.row >= maxRow;
                     if (colSelection) {
                         allRows = true;
                         colState = 'full';
@@ -8691,6 +8707,9 @@
                 return this._properties.get('validation', index);
             },
             _compileValidation: function (row, col, validation) {
+                if (validation instanceof kendo.spreadsheet.validation.Validation) {
+                    return validation.clone(this._name(), row, col);
+                }
                 if (validation.from != null) {
                     validation.from = (validation.from + '').replace(/^=/, '');
                 }
@@ -8910,6 +8929,7 @@
             return;
         }
         var $ = kendo.jQuery;
+        var outerWidth = kendo._outerWidth;
         var DOT = '.';
         var EMPTYCHAR = ' ';
         var sheetsBarClassNames = {
@@ -9007,8 +9027,8 @@
                 var scrollNextButton = sheetsWrapper.children(DOT + classNames.sheetsBarNext);
                 var gapWidth = 2;
                 var addButton = that.element.find(DOT + classNames.sheetsBarAdd);
-                var addButtonWidth = addButton.outerWidth() + addButton.position().left + gapWidth;
-                var scrollPrevButtonWidth = scrollPrevButton.outerWidth() + gapWidth;
+                var addButtonWidth = outerWidth(addButton) + addButton.position().left + gapWidth;
+                var scrollPrevButtonWidth = outerWidth(scrollPrevButton) + gapWidth;
                 var sheetsGroup = that._sheetsGroup();
                 scrollPrevButton.css({ left: addButtonWidth });
                 sheetsWrapper.addClass(classNames.sheetsBarScrollable + EMPTYCHAR + classNames.sheetsBarSheetsWrapper);
@@ -9023,7 +9043,7 @@
                     }
                     sheetsGroup.css({
                         marginLeft: scrollPrevButtonWidth + addButtonWidth,
-                        marginRight: scrollNextButton.outerWidth() + scrollNextButtonRight + gapWidth
+                        marginRight: outerWidth(scrollNextButton) + scrollNextButtonRight + gapWidth
                     });
                 } else {
                     if (that._scrollableModeActive && sheetsGroupScrollWidth <= wrapperOffsetWidth) {
@@ -9227,7 +9247,7 @@
                 }
                 var sheetsGroup = that._sheetsGroup();
                 var currentScrollOffset = sheetsGroup.scrollLeft();
-                var itemWidth = item.outerWidth();
+                var itemWidth = outerWidth(item);
                 var itemOffset = that._isRtl ? item.position().left : item.position().left - sheetsGroup.children().first().position().left;
                 var sheetsGroupWidth = sheetsGroup[0].offsetWidth;
                 var sheetsGroupPadding = Math.ceil(parseFloat(sheetsGroup.css('padding-left')));
@@ -9432,19 +9452,20 @@
             fname = fname.value;
             skip('punc', '(');
             var args = [];
-            if (!is('punc', ')')) {
-                while (1) {
-                    if (is('op', ',')) {
-                        args.push({ type: 'null' });
-                        input.next();
-                        continue;
-                    }
-                    args.push(parseExpression(false));
-                    if (input.eof() || is('punc', ')')) {
-                        break;
-                    }
-                    skip('op', ',');
+            while (1) {
+                if (is('punc', ')')) {
+                    break;
                 }
+                if (is('op', ',')) {
+                    args.push({ type: 'null' });
+                    input.next();
+                    continue;
+                }
+                args.push(parseExpression(false));
+                if (input.eof() || is('punc', ')')) {
+                    break;
+                }
+                skip('op', ',');
             }
             skip('punc', ')', true);
             return {
@@ -10566,9 +10587,13 @@
             format += '.' + repeat('0', n[3].length - 1);
         }
         var value = n[0].replace(new RegExp('\\' + comma, 'g'), '').replace(new RegExp('\\' + dot, 'g'), '.');
+        format += suffix;
+        if (has_currency) {
+            format += ';-' + format;
+        }
         return {
             type: 'number',
-            format: format + suffix,
+            format: format,
             value: sign * parseFloat(value)
         };
     });
@@ -11608,7 +11633,7 @@
             },
             renameSheet: function (sheet, newSheetName) {
                 var oldSheetName = sheet.name().toLowerCase();
-                if (!newSheetName || oldSheetName === newSheetName.toLowerCase()) {
+                if (!newSheetName || oldSheetName === newSheetName.toLowerCase() || this.sheetByName(newSheetName)) {
                     return;
                 }
                 sheet = this.sheetByName(oldSheetName);
@@ -12067,6 +12092,9 @@
                 if (Array.isArray(value)) {
                     value = value[0];
                 }
+                if (value === undefined) {
+                    value = null;
+                }
             }
             if (value instanceof kendo.spreadsheet.calc.runtime.Matrix) {
                 value.each(function (value, r, c) {
@@ -12370,6 +12398,13 @@
             },
             onSheetBarRename: function (e) {
                 var sheet = this._workbook.sheetByIndex(e.sheetIndex);
+                if (this._workbook.sheetByName(e.name)) {
+                    this.view.showError({
+                        reason: 'error',
+                        type: 'duplicateSheetName'
+                    });
+                    return;
+                }
                 this._workbook.renameSheet(sheet, e.name);
                 this.clipboardElement.focus();
             },
@@ -13488,9 +13523,10 @@
                 }
             },
             _resize: function () {
-                var tabstripHeight = this.tabstrip ? this.tabstrip.element.outerHeight() : 0;
-                var formulaBarHeight = this.formulaBar ? this.formulaBar.element.outerHeight() : 0;
-                var sheetsBarHeight = this.sheetsbar ? this.sheetsbar.element.outerHeight() : 0;
+                var outerHeight = kendo._outerHeight;
+                var tabstripHeight = this.tabstrip ? outerHeight(this.tabstrip.element) : 0;
+                var formulaBarHeight = this.formulaBar ? outerHeight(this.formulaBar.element) : 0;
+                var sheetsBarHeight = this.sheetsbar ? outerHeight(this.sheetsbar.element) : 0;
                 this.wrapper.height(this.element.height() - (tabstripHeight + formulaBarHeight + sheetsBarHeight));
                 if (this.tabstrip) {
                     this.tabstrip.quickAccessAdjust();
@@ -13547,7 +13583,7 @@
                 this.tabstrip.select(0);
             },
             _executeCommand: function (e) {
-                this._workbook.execute(e);
+                this._sheet.trigger('commandRequest', e);
             },
             workbook: function (workbook) {
                 this._workbook = workbook;
@@ -14414,19 +14450,21 @@
         };
         kendo.spreadsheet.Sheet.prototype.activeCellCustomEditor = function () {
             var cell = this.activeCell().first();
-            var val = this.validation(cell);
-            var key = this._properties.get('editor', this._grid.cellRefIndex(cell));
-            var editor;
-            if (key != null) {
-                editor = EDITORS[key];
-            } else if (val && val.showButton) {
-                key = '_validation_' + val.dataType;
-                editor = EDITORS[key];
+            if (this.range(cell).enable()) {
+                var val = this.validation(cell);
+                var key = this._properties.get('editor', this._grid.cellRefIndex(cell));
+                var editor;
+                if (key != null) {
+                    editor = EDITORS[key];
+                } else if (val && val.showButton) {
+                    key = '_validation_' + val.dataType;
+                    editor = EDITORS[key];
+                }
+                if (typeof editor == 'function') {
+                    editor = EDITORS[key] = editor();
+                }
+                return editor;
             }
-            if (typeof editor == 'function') {
-                editor = EDITORS[key] = editor();
-            }
-            return editor;
         };
         registerEditor('_validation_date', function () {
             var context, calendar, popup;
@@ -18860,6 +18898,12 @@
         ]]);
     defineFunction('vlookup', function (value, m, col, approx) {
         var resultRow = null;
+        if (typeof value != 'number') {
+            approx = false;
+        }
+        if (typeof value == 'string') {
+            value = value.toLowerCase();
+        }
         m.eachRow(function (row) {
             var data = m.get(row, 0);
             if (approx) {
@@ -18867,9 +18911,14 @@
                     return true;
                 }
                 resultRow = row;
-            } else if (data === value) {
-                resultRow = row;
-                return true;
+            } else {
+                if (typeof data == 'string') {
+                    data = data.toLowerCase();
+                }
+                if (data === value) {
+                    resultRow = row;
+                    return true;
+                }
             }
         });
         if (resultRow == null) {
@@ -24945,7 +24994,7 @@
                 this.quickAccessAdjust();
             },
             quickAccessAdjust: function () {
-                this.tabGroup.css('padding-left', this.quickAccessToolBar.outerWidth());
+                this.tabGroup.css('padding-left', kendo._outerWidth(this.quickAccessToolBar));
             },
             _toolbar: function (container, name, tools) {
                 var element;
@@ -25107,6 +25156,10 @@
                 }
             },
             modifyMergedDialog: { errorMessage: 'Cannot change part of a merged cell.' },
+            rangeDisabledDialog: { errorMessage: 'Destination range contains disabled cells.' },
+            incompatibleRangesDialog: { errorMessage: 'Incompatible ranges' },
+            noFillDirectionDialog: { errorMessage: 'Cannot determine fill direction' },
+            duplicateSheetNameDialog: { errorMessage: 'Duplicate sheet name' },
             overflowDialog: { errorMessage: 'Cannot paste, because the copy area and the paste area are not the same size and shape.' },
             useKeyboardDialog: {
                 title: 'Copying and pasting',
@@ -26325,10 +26378,16 @@
             }
         });
         kendo.spreadsheet.dialogs.register('exportAs', ExportAsDialog);
-        var ModifyMergedDialog = MessageDialog.extend({ options: { messageId: 'modifyMergedDialog.errorMessage' } });
-        kendo.spreadsheet.dialogs.register('modifyMerged', ModifyMergedDialog);
-        var OverflowDialog = MessageDialog.extend({ options: { messageId: 'overflowDialog.errorMessage' } });
-        kendo.spreadsheet.dialogs.register('overflow', OverflowDialog);
+        function basicErrorDialog(id, msg) {
+            kendo.spreadsheet.dialogs.register(id, MessageDialog.extend({ options: { messageId: msg } }));
+        }
+        basicErrorDialog('modifyMerged', 'modifyMergedDialog.errorMessage');
+        basicErrorDialog('rangeDisabled', 'rangeDisabledDialog.errorMessage');
+        basicErrorDialog('overflow', 'overflowDialog.errorMessage');
+        basicErrorDialog('unsupportedSelection', 'unsupportedSelectionDialog.errorMessage');
+        basicErrorDialog('incompatibleRanges', 'incompatibleRangesDialog.errorMessage');
+        basicErrorDialog('noFillDirection', 'noFillDirectionDialog.errorMessage');
+        basicErrorDialog('duplicateSheetName', 'duplicateSheetNameDialog.errorMessage');
         var UseKeyboardDialog = MessageDialog.extend({
             init: function (options) {
                 var messages = kendo.spreadsheet.messages.dialogs.useKeyboardDialog || MESSAGES;
@@ -26337,8 +26396,6 @@
             options: { template: '#: messages.useKeyboardDialog.errorMessage #' + '<div>Ctrl+C #: messages.useKeyboardDialog.labels.forCopy #</div>' + '<div>Ctrl+X #: messages.useKeyboardDialog.labels.forCut #</div>' + '<div>Ctrl+V #: messages.useKeyboardDialog.labels.forPaste #</div>' + '<div class="k-action-buttons">' + '<button class=\'k-button k-primary\' data-bind=\'click: close\'>' + '#= messages.okText #' + '</button>' + '</div>' }
         });
         kendo.spreadsheet.dialogs.register('useKeyboard', UseKeyboardDialog);
-        var UnsupportedSelectionDialog = MessageDialog.extend({ options: { messageId: 'unsupportedSelectionDialog.errorMessage' } });
-        kendo.spreadsheet.dialogs.register('unsupportedSelection', UnsupportedSelectionDialog);
         var HyperlinkDialog = SpreadsheetDialog.extend({
             options: {
                 template: '<div class=\'k-edit-label\'><label>#: messages.linkDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button style=\'float: left\' class=\'k-button\' data-bind=\'click: remove\'>#= messages.linkDialog.labels.removeLink #</button>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
@@ -27300,14 +27357,10 @@
     var Range = spreadsheet.Range;
     var runtime = spreadsheet.calc.runtime;
     var Formula = runtime.Formula;
-    var MSG_INCOMPATIBLE = 'Incompatible ranges in fillFrom';
-    var MSG_NO_DIRECTION = 'Cannot determine fill direction';
-    var MSG_READ_ONLY = 'Destination range contains disabled cells';
+    var ERR_INCOMPATIBLE = 'incompatibleRanges';
+    var ERR_NO_DIRECTION = 'noFillDirection';
     var FillError = Range.FillError = function (msg) {
-        this.msg = msg;
-    };
-    FillError.prototype.toString = function () {
-        return this.msg;
+        this.code = msg;
     };
     Range.prototype._previewFillFrom = function (srcRange, direction) {
         var destRange = this, sheet = destRange._sheet;
@@ -27329,7 +27382,7 @@
                     dest.topLeft.col += src.width();
                     direction = 1;
                 } else {
-                    throw new FillError(MSG_INCOMPATIBLE);
+                    throw new FillError(ERR_INCOMPATIBLE);
                 }
             } else if (src.bottomRight.eq(dest.bottomRight)) {
                 if (src.width() == dest.width()) {
@@ -27339,10 +27392,10 @@
                     dest.bottomRight.col -= src.width();
                     direction = 3;
                 } else {
-                    throw new FillError(MSG_INCOMPATIBLE);
+                    throw new FillError(ERR_INCOMPATIBLE);
                 }
             } else {
-                throw new FillError(MSG_INCOMPATIBLE);
+                throw new FillError(ERR_INCOMPATIBLE);
             }
             return sheet.range(dest)._previewFillFrom(srcRange, direction);
         }
@@ -27352,13 +27405,13 @@
             } else if (src.topLeft.row == dest.topLeft.row) {
                 direction = src.topLeft.col < dest.topLeft.col ? 1 : 3;
             } else {
-                throw new FillError(MSG_NO_DIRECTION);
+                throw new FillError(ERR_NO_DIRECTION);
             }
         }
         var horizontal = direction & 1;
         var descending = direction & 2;
         if (horizontal && src.height() != dest.height() || !horizontal && src.width() != dest.width()) {
-            throw new FillError(MSG_INCOMPATIBLE);
+            throw new FillError(ERR_INCOMPATIBLE);
         }
         var data = srcRange._properties(), n;
         if (!horizontal) {
@@ -27389,9 +27442,6 @@
     };
     Range.prototype.fillFrom = function (srcRange, direction) {
         var x = this._previewFillFrom(srcRange, direction);
-        if (!x.dest.enable()) {
-            throw new FillError(MSG_READ_ONLY);
-        }
         x.dest._properties(x.props);
         return x.dest;
     };
@@ -28552,6 +28602,7 @@
         kendo.ui.plugin(Spreadsheet);
         $.extend(true, Spreadsheet, { classNames: classNames });
     }(window.kendo));
+    return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));

@@ -366,13 +366,13 @@
              * @private
              */
             /*
-            _attachBubbleHandlers: function () {
-                var that = this;
-                that._data.bind(ERROR, function (e) {
-                    that.trigger(ERROR, e);
-                });
-            },
-            */
+             _attachBubbleHandlers: function () {
+             var that = this;
+             that._data.bind(ERROR, function (e) {
+             that.trigger(ERROR, e);
+             });
+             },
+             */
 
             /**
              * @method toJSON
@@ -706,16 +706,16 @@
                 var components = that.components;
 
                 /*
-                var transport = components.transport,
-                    parameterMap = transport.parameterMap;
-                transport.parameterMap = function (data, type) {
-                    data[that.idField || 'id'] = that.id;
-                    if (parameterMap) {
-                        data = parameterMap(data, type);
-                    }
-                    return data;
-                };
-                */
+                 var transport = components.transport,
+                 parameterMap = transport.parameterMap;
+                 transport.parameterMap = function (data, type) {
+                 data[that.idField || 'id'] = that.id;
+                 if (parameterMap) {
+                 data = parameterMap(data, type);
+                 }
+                 return data;
+                 };
+                 */
 
                 if (components instanceof PageComponentCollectionDataSource) {
 
@@ -727,19 +727,19 @@
                     // Bind the change and error events
                     // to propagate them from the components collection to the page node
                     /*
-                    components
-                        .bind(CHANGE, function (e) {
-                            e.page = e.page || that;
-                            that.trigger(CHANGE, e);
-                        })
-                        .bind(ERROR, function (e) {
-                            var pageCollection = that.parent();
-                            if (pageCollection) {
-                                e.page = e.page || that;
-                                pageCollection.trigger(ERROR, e);
-                            }
-                        });
-                        */
+                     components
+                     .bind(CHANGE, function (e) {
+                     e.page = e.page || that;
+                     that.trigger(CHANGE, e);
+                     })
+                     .bind(ERROR, function (e) {
+                     var pageCollection = that.parent();
+                     if (pageCollection) {
+                     e.page = e.page || that;
+                     pageCollection.trigger(ERROR, e);
+                     }
+                     });
+                     */
                 }
 
                 that._loaded = !!(value && (value.components || value._loaded));
@@ -945,7 +945,10 @@
              * @param thread
              */
             function runNextTask(thread) {
-                // console.log('run next task');
+                logger.debug({
+                    message: 'Run next workerpool task on thread ' + thread,
+                    method: 'WorkerPool.runNextTask'
+                });
                 if (tasks.length > 0) {
                     var task = tasks.shift();
                     workers[thread] = new Worker(task.script);
@@ -1024,19 +1027,19 @@
          * ValidatedTest model
          */
         /*
-        var ValidatedTest = models.ValidatedTest = Model.define({
-            fields: {
-                max: {
-                    type: 'number',
-                    nullable: false
-                },
-                score: {
-                    type: 'number',
-                    nullable: false
-                }
-            }
-        });
-        */
+         var ValidatedTest = models.ValidatedTest = Model.define({
+         fields: {
+         max: {
+         type: 'number',
+         nullable: false
+         },
+         score: {
+         type: 'number',
+         nullable: false
+         }
+         }
+         });
+         */
 
 
         /**
@@ -1138,124 +1141,124 @@
                 var workerPool = new WorkerPool(window.navigator.hardwareConcurrency || 4, workerTimeout);
                 // TODO: use an app.model and define a submodel with each field - see ValidatedTest above
                 var result = {
-                        connections: test.connections,
-                        draggables: test.draggables,
-                        score: function () {
-                            var score = 0;
-                            assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
-                            for (var name in this) {
-                                if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name)) {
-                                    score += this.get(name + '.score');
-                                }
+                    connections: test.connections,
+                    draggables: test.draggables,
+                    score: function () {
+                        var score = 0;
+                        assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                        for (var name in this) {
+                            if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name)) {
+                                score += this.get(name + '.score');
                             }
-                            return score;
-                        },
-                        max: function () {
-                            var max = 0;
-                            assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
-                            for (var name in this) {
-                                if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name)) {
-                                    max += this.get(name + '.success');
-                                }
+                        }
+                        return score;
+                    },
+                    max: function () {
+                        var max = 0;
+                        assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                        for (var name in this) {
+                            if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name)) {
+                                max += this.get(name + '.success');
                             }
-                            return max;
-                        },
-                        percent: function () {
-                            assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
-                            var max = this.max();
-                            var score = this.score();
-                            return score === 0 || max === 0 ?  0 : 100 * score / max;
-                        },
-                        getScoreArray: function () {
-                            function matchPageConnectors (pageIdx) {
-                                // Connectors are a match if they have the same solution
-                                var ret = {};
-                                var connectors = pageCollectionDataSource.at(pageIdx).components.data().filter(function (component) {
-                                    return component.tool === 'connector';
-                                });
-                                for (var i = 0, length = connectors.length; i < length; i++) {
-                                    var connector = connectors[i];
-                                    var name = connector.properties.name;
-                                    assert.match(RX_VALID_NAME, name, kendo.format(assert.messages.match.default, 'name', RX_VALID_NAME));
-                                    var solution = connector.properties.solution;
-                                    var found = false;
-                                    for (var prop in ret) {
-                                        if (ret.hasOwnProperty(prop)) {
-                                            if (prop === name) {
-                                                // already processed
-                                                found = true;
-                                                break;
-                                            } else if (ret[prop] === solution) {
-                                                // found matching connector, point to name
-                                                ret[prop] = name;
-                                                found = true;
-                                                break;
-                                            }
+                        }
+                        return max;
+                    },
+                    percent: function () {
+                        assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                        var max = this.max();
+                        var score = this.score();
+                        return score === 0 || max === 0 ?  0 : 100 * score / max;
+                    },
+                    getScoreArray: function () {
+                        function matchPageConnectors (pageIdx) {
+                            // Connectors are a match if they have the same solution
+                            var ret = {};
+                            var connectors = pageCollectionDataSource.at(pageIdx).components.data().filter(function (component) {
+                                return component.tool === 'connector';
+                            });
+                            for (var i = 0, length = connectors.length; i < length; i++) {
+                                var connector = connectors[i];
+                                var name = connector.properties.name;
+                                assert.match(RX_VALID_NAME, name, kendo.format(assert.messages.match.default, 'name', RX_VALID_NAME));
+                                var solution = connector.properties.solution;
+                                var found = false;
+                                for (var prop in ret) {
+                                    if (ret.hasOwnProperty(prop)) {
+                                        if (prop === name) {
+                                            // already processed
+                                            found = true;
+                                            break;
+                                        } else if (ret[prop] === solution) {
+                                            // found matching connector, point to name
+                                            ret[prop] = name;
+                                            found = true;
+                                            break;
                                         }
                                     }
-                                    if (!found) {
-                                        // Add first connector, waiting to find a matching one
-                                        ret[name] = solution;
-                                    }
                                 }
-                                return ret;
-                            }
-                            function matchConnectors () {
-                                // We need a separate function because matching connectors neded to have the same solution on the same page (not a different page)
-                                var ret = {};
-                                for (var pageIdx = 0, pageTotal = pageCollectionDataSource.total(); pageIdx < pageTotal; pageIdx++) {
-                                    ret = $.extend(ret, matchPageConnectors(pageIdx));
-                                }
-                                return ret;
-                            }
-                            assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
-                            var that = this; // this is variable `result`
-                            var matchingConnectors = matchConnectors();
-                            var redundantConnectors = {};
-                            var scoreArray = [];
-                            for (var name in that) {
-                                // Only display valid names in the form val_xxxxxx that are not redundant connectors
-                                if (that.hasOwnProperty(name) && RX_VALID_NAME.test(name) && !redundantConnectors.hasOwnProperty(name)) {
-                                    var testItem = that.get(name);
-                                    var scoreItem = testItem.toJSON();
-                                    // Improved display of values in score grids
-                                    scoreItem.value = testItem.value$();
-                                    scoreItem.solution = testItem.solution$();
-                                    // Aggregate score of redundant items (connectors)
-                                    var redundantName = matchingConnectors[name];
-                                    if (that.hasOwnProperty(redundantName) && RX_VALID_NAME.test(redundantName)) {
-                                        // If there is a redundancy, adjust scores
-                                        var redundantItem = that.get(redundantName);
-                                        scoreItem.failure += redundantItem.failure;
-                                        scoreItem.omit += redundantItem.omit;
-                                        scoreItem.score += redundantItem.score;
-                                        scoreItem.success += redundantItem.success;
-                                        redundantConnectors[redundantName] = true;
-                                    }
-                                    scoreArray.push(scoreItem);
+                                if (!found) {
+                                    // Add first connector, waiting to find a matching one
+                                    ret[name] = solution;
                                 }
                             }
-                            return scoreArray;
-                        },
-                        toJSON: function () {
-                            var json = {};
-                            assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
-                            for (var name in this) {
-                                if (this.hasOwnProperty(name)) {
-                                    if (RX_VALID_NAME.test(name)) {
-                                        json[name] = {
-                                            result: this.get(name + '.result'),
-                                            score: this.get(name + '.score'),
-                                            value: this.get(name + '.value')
-                                        };
-                                    } else if (name === 'connections' || name === 'draggables') {
-                                        json[name] = this.get(name).slice();
-                                    }
-                                }
-                            }
-                            return json;
+                            return ret;
                         }
-                    };
+                        function matchConnectors () {
+                            // We need a separate function because matching connectors neded to have the same solution on the same page (not a different page)
+                            var ret = {};
+                            for (var pageIdx = 0, pageTotal = pageCollectionDataSource.total(); pageIdx < pageTotal; pageIdx++) {
+                                ret = $.extend(ret, matchPageConnectors(pageIdx));
+                            }
+                            return ret;
+                        }
+                        assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                        var that = this; // this is variable `result`
+                        var matchingConnectors = matchConnectors();
+                        var redundantConnectors = {};
+                        var scoreArray = [];
+                        for (var name in that) {
+                            // Only display valid names in the form val_xxxxxx that are not redundant connectors
+                            if (that.hasOwnProperty(name) && RX_VALID_NAME.test(name) && !redundantConnectors.hasOwnProperty(name)) {
+                                var testItem = that.get(name);
+                                var scoreItem = testItem.toJSON();
+                                // Improved display of values in score grids
+                                scoreItem.value = testItem.value$();
+                                scoreItem.solution = testItem.solution$();
+                                // Aggregate score of redundant items (connectors)
+                                var redundantName = matchingConnectors[name];
+                                if (that.hasOwnProperty(redundantName) && RX_VALID_NAME.test(redundantName)) {
+                                    // If there is a redundancy, adjust scores
+                                    var redundantItem = that.get(redundantName);
+                                    scoreItem.failure += redundantItem.failure;
+                                    scoreItem.omit += redundantItem.omit;
+                                    scoreItem.score += redundantItem.score;
+                                    scoreItem.success += redundantItem.success;
+                                    redundantConnectors[redundantName] = true;
+                                }
+                                scoreArray.push(scoreItem);
+                            }
+                        }
+                        return scoreArray;
+                    },
+                    toJSON: function () {
+                        var json = {};
+                        assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                        for (var name in this) {
+                            if (this.hasOwnProperty(name)) {
+                                if (RX_VALID_NAME.test(name)) {
+                                    json[name] = {
+                                        result: this.get(name + '.result'),
+                                        score: this.get(name + '.score'),
+                                        value: this.get(name + '.value')
+                                    };
+                                } else if (name === 'connections' || name === 'draggables') {
+                                    json[name] = this.get(name).slice();
+                                }
+                            }
+                        }
+                        return json;
+                    }
+                };
 
                 // Flatten test for validation formulas
                 var all = test.toJSON();
@@ -1274,9 +1277,16 @@
 
                 // TODO we might even consider storing workerLib in session storage considering https://addyosmani.com/basket.js/
                 var app = window.app;
+                // Loading workerLib via $.ajax fails in Cordova applications
+                // See: https://www.scirra.com/blog/ashley/25/hacking-something-useful-out-of-wkwebview
+                // See: http://stackoverflow.com/questions/39527101/wkwebview-web-worker-throws-error-dom-exception-18-returns-an-error
                 $.ajax({ url: (app && app.uris && app.uris.webapp && app.uris.webapp.workerlib) || workerLibPath, cache: true, dataType: 'text' })
                     .done(function (workerLib) {
-
+                        logger.debug({
+                            message: 'workerLib downloaded',
+                            method: 'PageCollectionDataSource.validateTestFromProperties',
+                            data: { path: (app && app.uris && app.uris.webapp && app.uris.webapp.workerlib) || workerLibPath }
+                        });
                         // Add tasks to the worker pool
                         // Iterate through pages
                         $.each(pageCollectionDataSource.data(), function (pageIdx, page) {
@@ -1312,6 +1322,12 @@
                                         'self.onmessage = function (e) {\n' + code + '\nvar data=JSON.parse(e.data);\nif (typeof data.value === "undefined") { self.postMessage(undefined); } else { self.postMessage(validate(data.value, data.solution, data.all)); } self.close(); };'
                                     ]);
                                     var blobURL = window.URL.createObjectURL(blob);
+
+                                    logger.debug({
+                                        message: 'blob created for ' + properties.name,
+                                        method: 'PageCollectionDataSource.validateTestFromProperties',
+                                        data: { blobURL: blobURL, property: properties.name }
+                                    });
 
                                     // Queue task into worker pool with name, script, and value to be posted to script
                                     workerPool.add(
@@ -1352,9 +1368,18 @@
                                         }
                                     };
 
-                                    logger.debug({ message: properties.name + ' added to the worker pool', data: blobURL });
+                                    logger.debug({
+                                        message: properties.name + ' added to the worker pool',
+                                        method: 'PageCollectionDataSource.validateTestFromProperties',
+                                        data: { blobURL: blobURL, property: properties.name }
+                                    });
                                 }
                             });
+                        });
+
+                        logger.debug({
+                            message: 'Run the worker pool',
+                            method: 'PageCollectionDataSource.validateTestFromProperties'
                         });
 
                         // Run the worker pool
@@ -1472,16 +1497,16 @@
                 var pages = that.pages;
 
                 /*
-                var transport = pages.transport,
-                    parameterMap = transport.parameterMap;
-                transport.parameterMap = function (data, type) {
-                    data[that.idField || 'id'] = that.id;
-                    if (parameterMap) {
-                        data = parameterMap(data, type);
-                    }
-                    return data;
-                };
-                */
+                 var transport = pages.transport,
+                 parameterMap = transport.parameterMap;
+                 transport.parameterMap = function (data, type) {
+                 data[that.idField || 'id'] = that.id;
+                 if (parameterMap) {
+                 data = parameterMap(data, type);
+                 }
+                 return data;
+                 };
+                 */
 
                 if (pages instanceof PageCollectionDataSource) {
 

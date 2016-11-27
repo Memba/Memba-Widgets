@@ -953,12 +953,11 @@
                     var task = tasks.shift();
                     workers[thread] = new Worker(task.script);
                     workers[thread].onmessage = function (e) {
-                        workers[thread].terminate();
                         deferreds[task.id].resolve({ name: task.name, value: e.data });
+                        workers[thread].terminate();
                         runNextTask(thread);
                     };
                     workers[thread].onerror = function (e) {
-                        workers[thread].terminate();
                         // e is an ErrorEvent and e.error is null
                         var error = new Error(e.message || 'Unknown error');
                         error.taskname = task.name;
@@ -966,6 +965,7 @@
                         error.colno = e.colno;
                         error.lineno = e.lineno;
                         deferreds[task.id].reject(error);
+                        workers[thread].terminate();
                         logger.crit(error);
                         // No need to run next task because $.when fails on the first failing deferred
                         // runNextTask(thread);
@@ -975,12 +975,12 @@
                     if ($.type(timeOut) === 'number') {
                         setTimeout(function () {
                             if (deferreds[task.id].state() === 'pending') {
-                                workers[thread].terminate();
                                 var error = new Error('The execution of a web worker has timed out');
                                 error.taskname = task.name;
                                 error.filename = task.script;
                                 error.timeout = true;
                                 deferreds[task.id].reject(error);
+                                workers[thread].terminate();
                                 logger.crit(error);
                                 // No need to run next task because $.when fails on the first failing deferred
                                 // runNextTask(thread);

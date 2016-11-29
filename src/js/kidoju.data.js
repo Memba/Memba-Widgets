@@ -42,7 +42,7 @@
         var location = window.location;
         var workerLibPath = location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js';
         // var workerLibPath = location.protocol + '//' + location.host + '/src/js/kidoju.data.workerlib.js'; // for WEINRE
-        var workerTimeout = 250;
+        var workerTimeout = window.cordova ? 500 : 250;
 
         /*********************************************************************************
          * Base Model

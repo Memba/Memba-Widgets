@@ -31,7 +31,7 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
-        var ACTIVE = 'k-state-active';
+        // var ACTIVE = 'k-state-active';
         var DISABLE = 'k-state-disabled';
         var WIDGET_CLASS = 'kj-multicheckbox'; // 'k-widget kj-multicheckbox',
         var CHECKBOX = '<div class="kj-multicheckbox-item"><input id="{1}_{2}" name="{1}" type="checkbox" class="k-checkbox" value="{0}"><label class="k-checkbox-label" for="{1}_{2}">{0}</label></div>';
@@ -320,7 +320,8 @@
                 if (enable) {
                     element.on(CLICK + NS, CHECKBOX_SELECTOR, $.proxy(that._onClick, that));
                 } else {
-                    // Because input are readonly and not disabled, we need to prevent default (checking checkbox) and let it bubble to the stage element to display the handle box
+                    // Because input are readonly and not disabled, we need to prevent default (checking checkbox)
+                    // and let it bubble to the stage element to display the handle box
                     element.on(CLICK + NS, CHECKBOX_SELECTOR, function (e) {
                         e.preventDefault();
                     });

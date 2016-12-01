@@ -469,12 +469,24 @@
                 } else {
                     element.off(NS);
                     if (enable) {
-                        element.on(CLICK + NS, INPUT_SELECTOR, $.proxy(that._onClick, that));
+                        element
+                            .on(CLICK + NS, INPUT_SELECTOR, $.proxy(that._onClick, that));
                     } else {
-                        // Because input are readonly and not disabled, we need to prevent default (checking checkbox) and let it bubble to the stage element to display the handle box
-                        element.on(CLICK + NS, INPUT_SELECTOR, function (e) {
-                            e.preventDefault();
-                        });
+                        // Because input are readonly and not disabled, we need to prevent default (checking options)
+                        // and let it bubble to the stage element to display the handle box
+                        element
+                            .on(CLICK + NS, INPUT_SELECTOR, function (e) {
+                                e.preventDefault();
+                            })
+                            .on(CHANGE + NS, INPUT_SELECTOR, function (e) {
+                                // In the very specific case of iOS and only when all radio buttons are unchecked
+                                // a change event is triggered before the click event and the radio clicked is checked
+                                // like if iOS wanted one radio to always be checked
+                                // When one radio is checked, the click event handler above does the job
+                                // and the change event is not raised
+                                // This issue does not occur with checkboxes
+                                $(e.target).prop('checked', false);
+                            });
                     }
                     element.find(INPUT_SELECTOR)
                         .toggleClass(DISABLE, !enable)

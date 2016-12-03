@@ -955,6 +955,7 @@
                     workers[thread].onmessage = function (e) {
                         deferreds[task.id].resolve({ name: task.name, value: e.data });
                         workers[thread].terminate();
+                        window.URL.revokeObjectURL(task.script);
                         runNextTask(thread);
                     };
                     workers[thread].onerror = function (e) {
@@ -966,6 +967,7 @@
                         error.lineno = e.lineno;
                         deferreds[task.id].reject(error);
                         workers[thread].terminate();
+                        window.URL.revokeObjectURL(task.script);
                         logger.crit(error);
                         // No need to run next task because $.when fails on the first failing deferred
                         // runNextTask(thread);
@@ -981,6 +983,7 @@
                                 error.timeout = true;
                                 deferreds[task.id].reject(error);
                                 workers[thread].terminate();
+                                window.URL.revokeObjectURL(task.script);
                                 logger.crit(error);
                                 // No need to run next task because $.when fails on the first failing deferred
                                 // runNextTask(thread);
@@ -1138,7 +1141,7 @@
 
                 var pageCollectionDataSource = this; // don't use that which is used below
                 var deferred = $.Deferred();
-                var workerPool = new WorkerPool(window.navigator.hardwareConcurrency || 4, workerTimeout);
+                var workerPool = new WorkerPool((window.navigator.hardwareConcurrency || 2) - 1, workerTimeout);
                 // TODO: use an app.model and define a submodel with each field - see ValidatedTest above
                 var result = {
                     connections: test.connections,

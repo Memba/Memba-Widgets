@@ -1255,7 +1255,7 @@
                                         value: this.get(name + '.value')
                                     };
                                 } else if (name === 'connections' || name === 'draggables') {
-                                    json[name] = this.get(name).slice();
+                                    json[name] = this.get(name).toJSON(); //.slice();
                                 }
                             }
                         }

@@ -219,9 +219,10 @@
                     // If you are sure other plugins can't add `target` - drop check below
                     var targetIndex = tokens[idx].attrIndex('target');
                     if (targetIndex < 0) {
-                        tokens[idx].attrPush(['target', '_blank']); // add new attribute
+                        // @see https://cordova.apache.org/docs/en/3.1.0/cordova/inappbrowser/window.open.html
+                        tokens[idx].attrPush(['target', window.cordova ? '_system' : '_blank']); // add new attribute
                     } else {
-                        tokens[idx].attrs[targetIndex][1] = '_blank'; // replace value of existing attr
+                        tokens[idx].attrs[targetIndex][1] = window.cordova ? '_system' : '_blank'; // replace value of existing attr
                     }
                     // same with rel - see https://mathiasbynens.github.io/rel-noopener/
                     var relIndex = tokens[idx].attrIndex('rel');

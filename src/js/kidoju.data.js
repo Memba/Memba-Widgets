@@ -42,7 +42,18 @@
         var location = window.location;
         var workerLibPath = location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js';
         // var workerLibPath = location.protocol + '//' + location.host + '/src/js/kidoju.data.workerlib.js'; // for WEINRE
-        var workerTimeout = window.cordova ? 600 : 300;
+
+        function workerTimeout() {
+            var start = Date.now();
+            var rnd;
+            // This would take about 10 ms on an iPad Pro
+            // This would take about 100 ms on a Nexus 7 2012
+            for (var i = 0; i < 1000000; i++) {
+                rnd = Math.floor (100 * Math.random());
+            }
+            var end = Date.now();
+            return Math.min(150, 10 * (end - start));
+        }
 
         /*********************************************************************************
          * Base Model
@@ -1141,7 +1152,7 @@
 
                 var pageCollectionDataSource = this; // don't use that which is used below
                 var deferred = $.Deferred();
-                var workerPool = new WorkerPool((window.navigator.hardwareConcurrency || 2) - 1, workerTimeout);
+                var workerPool = new WorkerPool((window.navigator.hardwareConcurrency || 2) - 1, workerTimeout());
                 // TODO: use an app.model and define a submodel with each field - see ValidatedTest above
                 var result = {
                     connections: test.connections,

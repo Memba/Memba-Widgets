@@ -36,8 +36,10 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var MOUSEUP = 'mouseup';
+        var TOUCHEND = 'touchend';
         var KEYPRESS = 'keypress';
         var KEYDOWN = 'keydown';
+        var INPUT = 'input';
         var BLUR = 'blur';
         var NS = '.kendoCharGrid';
         var WIDGET_CLASS = 'kj-chargrid'; // 'k-widget kj-chargrid';
@@ -371,10 +373,11 @@
                     // Note: we handle the mouseup on the DOM element, not the drawing surface
                     // Note: We need mouseup to occur after the blur event herebelow when changing cells
                     element
-                        .on(MOUSEUP + NS, $.proxy(that._onMouseUp, that));
+                        .on(MOUSEUP + NS + ' ' + TOUCHEND + NS, $.proxy(that._onMouseUp, that));
                     input
                         .on(KEYDOWN + NS, $.proxy(that._onKeyDown, that))
                         .on(KEYPRESS + NS, $.proxy(that._onKeyPress, that))
+                        .on(INPUT + NS, $.proxy(that._onInput, that))
                         .on(BLUR + NS, $.proxy(that._onBlur, that));
                 }
             },
@@ -650,6 +653,7 @@
                 /* jshint maxcomplexity: 10 */
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 assert.ok(this.input.is(':focus'), '`this.input` is expected to have focus');
+                // Note: on Android devices most keys would send keyCode 229, but backspace sends 8 as expected
                 var that = this;
                 var options = that.options;
                 var colTotal = options.columns;
@@ -708,9 +712,27 @@
                         that.cellValue(r, c, char);
                     }
                 }
-                // No need to fill the input
+                // No need to fill the input and KeyUp won't fire
                 e.preventDefault();
                 e.stopPropagation();
+            },
+
+            /**
+             * Input event handler
+             * Note: the keypress event is not fired on Android devices and both keydown and keyup receive keyCode 229
+             * Our workaround uses the input event
+             * @param e
+             * @private
+             */
+            _onInput: function (e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.ok(this.input.is(':focus'), '`this.input` is expected to have focus');
+                var value = $(e.currentTarget).val();
+                if (value.length) {
+                    e.which = value.charCodeAt(0);
+                    this._onKeyPress(e);
+                    $(e.currentTarget).val('');
+                }
             },
 
             /**

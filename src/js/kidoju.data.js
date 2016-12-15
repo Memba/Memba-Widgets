@@ -52,7 +52,8 @@
                 rnd = Math.floor (100 * Math.random());
             }
             var end = Date.now();
-            return Math.min(150, 10 * (end - start));
+            // A minimum of 150 is too low
+            return Math.min(250, 10 * (end - start));
         }
 
         /*********************************************************************************

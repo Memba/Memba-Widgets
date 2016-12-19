@@ -1,0 +1,10 @@
+.km-content .kj-markdown p,
+.km-content .kj-markdown h1,
+.km-content .kj-markdown h2,
+.km-content .kj-markdown h3,
+.km-content .kj-markdown h4,
+.km-content .kj-markdown h5,
+.km-content .kj-markdown h6 {
+    margin-left: 0;
+    margin-right: 0;
+}

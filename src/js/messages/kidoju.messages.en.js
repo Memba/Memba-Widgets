@@ -431,6 +431,8 @@
                     attributes = tools.mathexpression.constructor.prototype.attributes;
                     attributes.formula.title = 'Formula';
                     attributes.formula.defaultValue = '\\sum_{n=1}^{\\infty}2^{-n}=1';
+                    attributes.inline.title = 'Inline';
+                    attributes.inline.defaultValue = false;
                     attributes.style.title = 'Style';
                 }
 

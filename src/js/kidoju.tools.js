@@ -277,7 +277,12 @@
                 description: 'Mathematic Expression',
                 attributes: {
                     formula: { title: 'Formula', defaultValue: '\\sum_{n=1}^{\\infty}2^{-n}=1' },
+                    inline: { title: 'Inline', defaultValue: false },
                     style: { title: 'Style' }
+                },
+                properties: {
+                    draggable: { title: 'Draggable' },
+                    dropValue: { title: 'Value' }
                 }
             },
 
@@ -2811,16 +2816,43 @@
             description: i18n.mathexpression.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-#= ns #role="mathexpression" style="#: attributes.style #" data-#= ns #value="#: attributes.formula #"></div>'
+                default: '<div data-#= ns #role="mathexpression" style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #" data-#= ns #inline="#: attributes.inline #" data-#= ns #value="#: attributes.formula #" ></div>'
             },
-            height: 80,
+            height: 180,
             width: 370,
             attributes: {
                 formula: new adapters.TextAdapter(
                     { title: i18n.mathexpression.attributes.formula.title, defaultValue: i18n.mathexpression.attributes.formula.defaultValue },
                     { rows: 4, style: 'resize:vertical; width: 100%;' }
                 ),
+                inline: new adapters.BooleanAdapter (
+                    { title: i18n.mathexpression.attributes.inline.title, defaultValue: i18n.mathexpression.attributes.inline.defaultValue }
+                ),
                 style: new adapters.StyleAdapter({ title: i18n.mathexpression.attributes.style.title, defaultValue: 'font-size: 50px;' })
+            },
+            properties: {
+                draggable: new adapters.BooleanAdapter({ title: i18n.image.properties.draggable.title, defaultValue: false }),
+                dropValue: new adapters.StringAdapter({ title: i18n.image.properties.dropValue.title })
+            },
+
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(MathExpression, that, kendo.format(assert.messages.instanceof.default, 'this', 'MathExpression'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                var template = kendo.template(that.templates.default);
+                // The id$ function returns the component id for draggable components
+                component.properties.id$ = function () {
+                    return component.properties.draggable && $.type(component.id) === STRING && component.id.length ? component.id : '';
+                };
+                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /**

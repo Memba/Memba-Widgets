@@ -70,7 +70,7 @@
                 name: 'MathExpression',
                 value: null,
                 errorColor: '#cc0000',
-                displayMode: false
+                inline: false
             },
 
             /**
@@ -119,7 +119,7 @@
                 var options = that.options;
                 // KaTeX option { throwOnError: false } is not equivalent to the following which is required to display an error
                 try {
-                    katex.render(that.value() || '', element[0], { displayMode: options.displayMode });
+                    katex.render(that.value() || '', element[0], { displayMode: !options.inline });
                 } catch (ex) {
                     element.html('<span style="color:' + options.errorColor + '">' + kendo.htmlEncode(ex.message) + '</span>');
                 }

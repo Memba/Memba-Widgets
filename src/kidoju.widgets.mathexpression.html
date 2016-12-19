@@ -57,7 +57,8 @@
 
         $(function() {
             $('#math1').kendoMathExpression({
-                value: '\\sum_{n=1}^{\\infty}2^{-n}=1'
+                value: '\\sum_{n=1}^{\\infty}2^{-n}=1',
+                inlineMode: true
             });
             kendo.bind('body', viewModel);
         });

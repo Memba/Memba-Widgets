@@ -181,6 +181,7 @@
                 scaler: 'div.kj-stage', // that.wrapper in kidoju.widgets.stage
                 container: 'div.kj-stage>div[data-role="stage"]', // that.stage in kidoju.widgets.stage
                 draggable: 'div.kj-element:has([data-draggable="true"])', // a stageElement in kidoju.widgets.stage
+                center: false,
                 enable: true
             },
 
@@ -236,7 +237,7 @@
                 var that = this;
                 assert.type(BOOLEAN, enable, kendo.format(assert.messages.type.default, 'enable', BOOLEAN));
                 that._enabled = enable;
-                // Yield some time for all drop zones to get enabled/disabled befor we init event handlers
+                // Yield some time for all drop zones to get enabled/disabled before we init event handlers
                 setTimeout(function () {
                     $.proxy(that._initDragEventHandlers, that)();
                 }, 100);
@@ -251,7 +252,7 @@
                 var options = that.options;
                 var container = that.container;
                 var dropZoneCollection = container.find(kendo.roleSelector('dropzone'));
-                //
+
                 // Event handlers should remain active if there is at least one active dropzone
                 var enable = that._enabled;
                 $.each(dropZoneCollection, function (index, otherDropZone) {
@@ -260,6 +261,7 @@
                         enable = enable || otherDropZoneWidget._enabled;
                     }
                 });
+
                 // find stageElements containing images or labels with attribute [data-draggable=true]
                 container.children(options.draggable)
                     .css({ cursor: 'default' }); // or ''?
@@ -377,46 +379,59 @@
                     that._setDataItem(startState.id, left, top);
 
                     // Check drop zone hits
-                    var stageElement = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), startState.id)).closest(that.options.draggable);
-                    assert.hasLength(stageElement, kendo.format(assert.messages.hasLength.default, 'stageElement'));
-                    var center = util.getElementCenter(stageElement, container, scale);
+                    var draggableStageElement = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), startState.id)).closest(that.options.draggable);
+                    assert.hasLength(draggableStageElement, kendo.format(assert.messages.hasLength.default, 'draggableStageElement'));
+                    var draggableStageElementCenter = util.getElementCenter(draggableStageElement, container, scale);
                     var id = startState.id;
                     var dropZoneCollection = container.find(kendo.roleSelector('dropzone'));
-                    $.each(dropZoneCollection, function (index, htmlElement) {
-                        var anyDropZone = $(htmlElement);
-                        var anyDropZoneWidget = anyDropZone.data('kendoDropZone');
-                        assert.instanceof(DropZone, anyDropZoneWidget, kendo.format(assert.messages.instanceof.default, 'anyDropZoneWidget', 'kendo.ui.DropZone'));
-                        var parent = anyDropZone.parent(); // The parent .kj-element
-                        // TODO: in order for the implementation to be more flexible, we should search for the closest absolutely positioned parent
-                        // TODO: also consider rotation
-                        var position = parent.position();
-                        var rect = {
+                    // There might be several drop zones on the stage
+                    dropZoneCollection.each(function (index, htmlElement) {
+                        var dropZoneElement = $(htmlElement);
+                        var dropZoneWidget = dropZoneElement.data('kendoDropZone');
+                        assert.instanceof(DropZone, dropZoneWidget, kendo.format(assert.messages.instanceof.default, 'dropZoneWidget', 'kendo.ui.DropZone'));
+                        var dropZoneStageElement = dropZoneElement.closest('.kj-element'); // Avoid hard coding .kj-element
+                        // TODO: we should also consider rotation of the dropzone which is not taken into account here
+                        // It is a bit complicated because the bounding box rect is much larger than the rotated square drop zone contained within
+                        var dropZonePosition = dropZoneStageElement.position();
+                        var dropZoneRect = {
                             left: {
-                                min: position.left / scale,
-                                max: position.left / scale + parent.width()
+                                min: dropZonePosition.left / scale,
+                                max: dropZonePosition.left / scale + dropZoneStageElement.width()
                             },
                             top: {
-                                min: position.top / scale,
-                                max: position.top / scale + parent.height()
+                                min: dropZonePosition.top / scale,
+                                max: dropZonePosition.top / scale + dropZoneStageElement.height()
                             }
                         };
                         var _ids;
-                        if (center.left >= rect.left.min && center.left <= rect.left.max &&
-                            center.top >= rect.top.min && center.top <= rect.top.max) {
-                            _ids = anyDropZoneWidget._ids = anyDropZoneWidget._ids || [];
+                        if (draggableStageElementCenter.left >= dropZoneRect.left.min && draggableStageElementCenter.left <= dropZoneRect.left.max &&
+                            draggableStageElementCenter.top >= dropZoneRect.top.min && draggableStageElementCenter.top <= dropZoneRect.top.max) {
+                            // if the stageElementCenter option is enabled, move the draggable to the stageElementCenter of the drop zone
+                            if (dropZoneWidget.options.center) {
+                                var dropZoneStageElementCenter = util.getElementCenter(dropZoneStageElement, container, scale);
+                                // Set the data source and let the refresh method position the element
+                                // TODO: not sure this works when the stage element is rotated
+                                that._setDataItem(
+                                    startState.id,
+                                    left + dropZoneStageElementCenter.left - draggableStageElementCenter.left,
+                                    top + dropZoneStageElementCenter.top - draggableStageElementCenter.top
+                                );
+                            }
+                            // If the draggable enters the drop zone, add the value
+                            _ids = dropZoneWidget._ids = dropZoneWidget._ids || [];
                             if (_ids.indexOf(id) === -1) {
                                 _ids.push(id);
                                 logger.info({ message: 'id added', method: '_onMouseUp', data: { id: id } });
-                                anyDropZoneWidget.trigger(CHANGE);
+                                dropZoneWidget.trigger(CHANGE);
                             }
                         } else {
-                            // Remove the value
-                            _ids = anyDropZoneWidget._ids = anyDropZoneWidget._ids || [];
+                            // If the draggable exits the drop zone, remove the value
+                            _ids = dropZoneWidget._ids = dropZoneWidget._ids || [];
                             var pos = _ids.indexOf(id);
                             if (pos >= 0) {
                                 _ids.splice(pos, 1);
                                 logger.info({ message: 'id removed', method: '_onMouseUp', data: { id: id } });
-                                anyDropZoneWidget.trigger(CHANGE);
+                                dropZoneWidget.trigger(CHANGE);
                             }
                         }
                     });

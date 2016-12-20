@@ -380,6 +380,8 @@
                     tools.dropzone.constructor.prototype.description = 'Zone de Dépot';
                     // Attributes
                     attributes = tools.dropzone.constructor.prototype.attributes;
+                    attributes.center.title = 'Centrer';
+                    attributes.text.defaultValue = false;
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Texte';
                     attributes.text.defaultValue = 'Veuillez déposer ici.';

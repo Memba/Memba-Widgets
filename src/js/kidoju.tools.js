@@ -234,6 +234,7 @@
             dropzone: {
                 description: 'Drop Zone',
                 attributes: {
+                    center: { title: 'Centre', defaultValue: false },
                     style: { title: 'Style' },
                     text: { title: 'Text', defaultValue: 'Please drop here.' }
                 },
@@ -2420,7 +2421,7 @@
         });
         tools.register(Connector);
 
-        var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-role=stage]" data-#= ns #draggable=".kj-element:has([data-draggable=true])" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>';
+        var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-role=stage]" data-#= ns #draggable=".kj-element:has([data-draggable=true])" data-#= ns #center="#: attributes.center #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>';
         /**
          * @class Connector tool
          * @type {void|*}
@@ -2439,6 +2440,7 @@
             height: 250,
             width: 250,
             attributes: {
+                center: new adapters.BooleanAdapter({ title: i18n.dropzone.attributes.center.title, defaultValue: i18n.dropzone.attributes.center.defaultValue }),
                 text: new adapters.StringAdapter({ title: i18n.dropzone.attributes.text.title, defaultValue: i18n.dropzone.attributes.text.defaultValue }),
                 style: new adapters.StyleAdapter({ title: i18n.dropzone.attributes.style.title, defaultValue: 'font-size: 30px; border: dashed 3px #e1e1e1;' })
             },

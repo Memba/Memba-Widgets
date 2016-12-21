@@ -542,7 +542,7 @@
                 expect(tool.id).to.equal('mathexpression');
                 expect(tool.icon).to.equal('formula');
                 expect(tool.cursor).to.equal('crosshair');
-                expect(tool.height).to.equal(80);
+                expect(tool.height).to.equal(180);
                 expect(tool.width).to.equal(370);
                 expect(tool.getHtmlContent).to.respond;
                 expect(tool.onMove).to.be.undefined;

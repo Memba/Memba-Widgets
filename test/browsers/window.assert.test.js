@@ -297,6 +297,9 @@
                 expect(assert.type('array', [], ERR_MSG)).to.be.undefined;
             });
 
+            /* This function has too many statements. */
+            /* jshint -W071 */
+
             it('typeOrUndef', function () {
                 expect(assert.messages.typeOrUndef.default).to.be.a(STRING);
                 function fn1() {
@@ -340,6 +343,8 @@
                 expect(assert.typeOrUndef('array', [], ERR_MSG)).to.be.undefined;
                 expect(assert.typeOrUndef('array', undefined, ERR_MSG)).to.be.undefined;
             });
+
+            /* jshint +W071 */
 
         });
 

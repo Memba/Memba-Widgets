@@ -1,23 +1,26 @@
-#Kidoju-Widgets
+# Kidoju-Widgets
 
-[![Build Status](https://travis-ci.org/kidoju/kidoju-Widgets.svg?branch=master)](https://travis-ci.org/kidoju/Kidoju-Widgets)
+[![Join the chat at https://gitter.im/Kidoju/Kidoju-Widgets](https://badges.gitter.im/Kidoju/Kidoju-Widgets.svg)](https://gitter.im/Kidoju/Kidoju-Widgets?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/kidoju/Kidoju-Widgets.svg?branch=master)](https://travis-ci.org/kidoju/Kidoju-Widgets)
+[![Dependency Status](https://david-dm.org/kidoju/Kidoju-Widgets/status.svg)](https://david-dm.org/kidoju/Kidoju-Widgets#info=dependencies)
 [![devDependency Status](https://david-dm.org/kidoju/Kidoju-Widgets/dev-status.svg)](https://david-dm.org/kidoju/Kidoju-Widgets#info=devDependencies)
 
-> Widgets for the Kidoju platform.
+> UI Widgets for the Kidoju platform.
 
-##Architecture and design
+## Architecture and design
 
 These widgets are architectured and designed in compliance with the [Kendo UI framework documentation](http://docs.telerik.com/kendo-ui/howto/create-custom-kendo-widget).
 Refer to [our wiki](https://github.com/kidoju/Kidoju-Widgets/wiki) for more information.
 
-##Requirements
+## Requirements
 
-These widgets are built upon [jQuery](http://jquery.com/) and [Kendo UI framework](http://www.telerik.com/kendo-ui).
+These widgets require [jQuery](http://jquery.com/) and [Kendo UI framework](http://www.telerik.com/kendo-ui).
 
-##Execution and tests
+## Execution and tests
 
-TODO
+1. Run ```setup.cmd``` to install nodeJS modules,
+2. Then run ```npm test``` to execute unit tests.
 
-##Copyright
+## Copyright
 
-Copyright (c) 2013-2016 Memba Sarl. All rights reserved.
+Copyright (c) 2013-2017 Memba Sarl. All rights reserved.

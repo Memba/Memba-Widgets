@@ -2,8 +2,9 @@
 
 [![Join the chat at https://gitter.im/Kidoju/Kidoju-Widgets](https://badges.gitter.im/Kidoju/Kidoju-Widgets.svg)](https://gitter.im/Kidoju/Kidoju-Widgets?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/kidoju/Kidoju-Widgets.svg?branch=master)](https://travis-ci.org/kidoju/Kidoju-Widgets)
-[![Dependency Status](https://david-dm.org/kidoju/Kidoju-Widgets/status.svg)](https://david-dm.org/kidoju/Kidoju-Widgets#info=dependencies)
-[![devDependency Status](https://david-dm.org/kidoju/Kidoju-Widgets/dev-status.svg)](https://david-dm.org/kidoju/Kidoju-Widgets#info=devDependencies)
+[![dependencies Status](https://david-dm.org/kidoju/Kidoju-Widgets/status.svg)](https://david-dm.org/kidoju/Kidoju-Widgets)
+[![devDependencies Status](https://david-dm.org/kidoju/Kidoju-Widgets/dev-status.svg)](https://david-dm.org/kidoju/Kidoju-Widgets?type=dev)
+
 
 > UI Widgets for the Kidoju platform.
 

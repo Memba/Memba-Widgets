@@ -55,7 +55,7 @@
     "karma-sinon": "^1.0.5",
     "mocha": "^3.2.0",
     "phantomjs-prebuilt": "^2.1.14",
-    "sinon": "^1.17.6",
+    "sinon": "^1.17.7",
     "zombie": "^5.0.5"
   },
   "engines": {

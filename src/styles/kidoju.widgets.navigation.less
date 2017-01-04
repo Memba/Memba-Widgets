@@ -3,12 +3,15 @@
     overflow-x: hidden;
     overflow-y: scroll;
     border: none;
-    .kj-placeholder {
-        opacity: 0.2;
-        filter: alpha(opacity=20); // For IE8 and earlier
+    .k-list {
+        .kj-placeholder {
+            opacity: 0.2;
+            filter: alpha(opacity=20); // For IE8 and earlier
+        }
     }
 }
 // drag and drop hints are not embedded in .kj-navigation
 .kj-item {
     cursor: pointer;
+    user-select: none;
 }

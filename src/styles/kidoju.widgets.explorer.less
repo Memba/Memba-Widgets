@@ -1,23 +1,25 @@
 .kj-explorer {
-    .kj-placeholder {
-        opacity: 0.2;
-        filter: alpha(opacity=20); // For IE8 and earlier
+    .k-list {
+        .kj-placeholder {
+            opacity: 0.2;
+            filter: alpha(opacity=20); // For IE8 and earlier
+        }
     }
+
 }
 // drag and drop hints are not embedded in .kj-explorer
-.k-list {
-    .kj-item {
-        height: 32px;
-        cursor: pointer;
-        .k-in {
-            line-height: 30px;
-            .kj-image {
-                height: 24px;
-                width: 24px;
-                vertical-align: middle;
-                margin-left: 5px;
-                margin-right: 10px;
-            }
+.kj-item {
+    height: 32px;
+    cursor: pointer;
+    user-select: none;
+    .k-in {
+        line-height: 30px;
+        .kj-image {
+            height: 24px;
+            width: 24px;
+            vertical-align: middle;
+            margin-left: 5px;
+            margin-right: 10px;
         }
     }
 }

@@ -28,7 +28,7 @@ var renderMathInText = function(text, delimiters) {
             var math = data[i].data;
             try {
                 katex.render(math, span, {
-                    displayMode: data[i].display,
+                    displayMode: data[i].display
                 });
             } catch (e) {
                 if (!(e instanceof katex.ParseError)) {
@@ -74,14 +74,14 @@ var defaultOptions = {
     delimiters: [
         {left: "$$", right: "$$", display: true},
         {left: "\\[", right: "\\]", display: true},
-        {left: "\\(", right: "\\)", display: false},
+        {left: "\\(", right: "\\)", display: false}
         // LaTeX uses this, but it ruins the display of normal `$` in text:
         // {left: "$", right: "$", display: false},
     ],
 
     ignoredTags: [
-        "script", "noscript", "style", "textarea", "pre", "code",
-    ],
+        "script", "noscript", "style", "textarea", "pre", "code"
+    ]
 };
 
 var extend = function(obj) {
@@ -157,7 +157,7 @@ var splitAtDelimiters = function(startData, leftDelim, rightDelim, display) {
                 currIndex = nextIndex;
                 finalData.push({
                     type: "text",
-                    data: text.slice(0, currIndex),
+                    data: text.slice(0, currIndex)
                 });
                 lookingForLeft = false;
             }
@@ -171,7 +171,7 @@ var splitAtDelimiters = function(startData, leftDelim, rightDelim, display) {
 
                     finalData.push({
                         type: "text",
-                        data: text.slice(currIndex, nextIndex),
+                        data: text.slice(currIndex, nextIndex)
                     });
 
                     currIndex = nextIndex;
@@ -192,7 +192,7 @@ var splitAtDelimiters = function(startData, leftDelim, rightDelim, display) {
                         rawData: text.slice(
                             currIndex,
                             nextIndex + rightDelim.length),
-                        display: display,
+                        display: display
                     });
 
                     currIndex = nextIndex + rightDelim.length;
@@ -203,7 +203,7 @@ var splitAtDelimiters = function(startData, leftDelim, rightDelim, display) {
 
             finalData.push({
                 type: "text",
-                data: text.slice(currIndex),
+                data: text.slice(currIndex)
             });
         } else {
             finalData.push(startData[i]);

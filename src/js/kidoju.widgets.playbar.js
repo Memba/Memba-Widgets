@@ -139,7 +139,7 @@
                 name: 'PlayBar',
                 // dataSource: undefined, // Important undefined is required for _setDataSource to initialize a dataSource
                 // value: undefined
-                iconTemplate: '<a href="\\#" title="#:text#" class="k-link k-pager-nav #= wrapClassName #"><span class="k-icon #= className #">#:text#</span></a>',
+                iconTemplate: '<a href="\\#" aria-label="#:text#" title="#:text#" class="k-link k-pager-nav #= wrapClassName #"><span class="k-icon #= className #"></span></a>',
                 selectTemplate: '<li><span class="k-state-selected">#: text #</span></li>',
                 currentPageTemplate: '<li class="k-current-page"><span class="k-link k-pager-nav">#=text#</span></li>',
                 linkTemplate: '<li><a tabindex="-1" href="\\#" class="k-link" data-#=ns#index="#=idx#" #if (title !== "") {# title="#=title#" #}#>#:text#</a></li>',
@@ -410,8 +410,8 @@
                 // Add refresh button
                 if (options.refresh) {
                     if (!playbar.find('.k-pager-refresh').length) {
-                        playbar.append('<a href="#" class="k-pager-refresh k-link" title="' + options.messages.refresh +
-                        '"><span class="k-icon k-i-refresh">' + options.messages.refresh + '</span></a>');
+                        playbar.append('<a href="#" class="k-pager-refresh k-link" aria-label="' + options.messages.refresh + '" title="' + options.messages.refresh +
+                        '"><span class="k-icon k-i-refresh"></span></a>');
                     }
                     playbar.on(CLICK + NS, '.k-pager-refresh', $.proxy(that._refreshClick, that));
                 }

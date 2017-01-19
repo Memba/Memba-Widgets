@@ -15,7 +15,7 @@
 > Attention! Kidoju Widgets use open source Kendo UI Core, not commercial Kendo UI
 
 1. Get Kendo UI Core from https://github.com/telerik/kendo-ui-core
-2. Get minimized versions from http://cdn.kendostatic.com/<version>/js/kendo.all.min.js, respectively http://cdn.kendostatic.com/2015.2.624/styles/kendo.common.min.css
+2. Get minimized versions from http://cdn.kendostatic.com/<version>/js/kendo.all.min.js, respectively http://cdn.kendostatic.com/2017.1.118/styles/kendo.common.min.css
 
 Required files can be found at http://www.telerik.com/download/custom-download
 
@@ -32,12 +32,12 @@ Requirements can be installed (only once):
 3. Run ```sudo apt-get -y update```.
 4. Run ```sudo apt-get -y autoremove```.
 5. Run ```sudo apt-get install -y build-essential```
-6. Run ```curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -``` (see [nodeJS install instructions](https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions))
+6. Run ```curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -``` (see [nodeJS install instructions](https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions))
 7. Run ```sudo apt-get install -y nodejs```
 
 Then each time you need to build KaTeX
 
-1. Go to your katex directory, e.g. ```cd /mnt/c/Users/<me>/Desktop/katex-0.6.0```
+1. Go to your katex directory, e.g. ```cd /mnt/c/Users/<me>/Desktop/katex-0.7.0```
 2. Run ```make dist```.
 
 And each time you need to build MathQuill

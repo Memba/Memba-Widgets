@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -38,7 +38,9 @@
         }
         Node.prototype = {
             remove: function () {
-                this.node.parentNode.removeChild(this.node);
+                if (this.node.parentNode) {
+                    this.node.parentNode.removeChild(this.node);
+                }
                 this.attr = {};
             },
             attr: {},
@@ -174,7 +176,7 @@
             return str;
         };
         function TextNode(nodeValue) {
-            this.nodeValue = nodeValue;
+            this.nodeValue = String(nodeValue);
         }
         TextNode.prototype = new Node();
         TextNode.prototype.nodeName = '#text';
@@ -187,7 +189,9 @@
             } else {
                 node = cached.node;
                 if (this.nodeValue !== cached.nodeValue) {
-                    node.nodeValue = this.nodeValue;
+                    if (node.parentNode) {
+                        node.nodeValue = this.nodeValue;
+                    }
                 }
             }
             this.node = node;
@@ -203,7 +207,10 @@
             attr: {},
             remove: function () {
                 for (var index = 0; index < this.nodes.length; index++) {
-                    this.nodes[index].parentNode.removeChild(this.nodes[index]);
+                    var el = this.nodes[index];
+                    if (el.parentNode) {
+                        el.parentNode.removeChild(el);
+                    }
                 }
             },
             render: function (parent, cached) {
@@ -249,7 +256,14 @@
                 var index;
                 var length;
                 for (index = 0, length = children.length; index < length; index++) {
-                    children[index].render(this.root, cachedChildren[index] || NULL_NODE);
+                    var cached = cachedChildren[index];
+                    if (!cached) {
+                        cached = NULL_NODE;
+                    } else if (!cached.node || !cached.node.parentNode) {
+                        cached.remove();
+                        cached = NULL_NODE;
+                    }
+                    children[index].render(this.root, cached);
                 }
                 for (index = length; index < cachedChildren.length; index++) {
                     cachedChildren[index].remove();

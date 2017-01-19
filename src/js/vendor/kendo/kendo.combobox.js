@@ -142,7 +142,8 @@ var __meta__ = { // jshint ignore:line
             template: null,
             groupTemplate: "#:data#",
             fixedGroupTemplate: "#:data#",
-            clearButton: true
+            clearButton: true,
+            syncValueAndText: true
         },
 
         events:[
@@ -178,6 +179,31 @@ var __meta__ = { // jshint ignore:line
             that._clear.off(CLICK + " " + MOUSEDOWN);
 
             Select.fn.destroy.call(that);
+        },
+
+        _change: function() {
+            var that = this;
+            var text = that.text();
+            var hasText = text && text !== that._oldText && text !== that.options.placeholder;
+            var index = that.selectedIndex;
+            var isCustom = index === -1;
+
+            if (!that.options.syncValueAndText && !that.value() && isCustom && hasText) {
+                that._old = "";
+                that._oldIndex = index;
+                that._oldText = text;
+
+                if (!that._typing) {
+                    // trigger the DOM change event so any subscriber gets notified
+                    that.element.trigger(CHANGE);
+                }
+
+                that.trigger(CHANGE);
+                that._typing = false;
+                return;
+            }
+
+            Select.fn._change.call(that);
         },
 
         _focusHandler: function() {
@@ -503,7 +529,11 @@ var __meta__ = { // jshint ignore:line
             this.selectedIndex = idx;
 
             if (idx === -1 && !dataItem) {
-                value = text = this.input[0].value;
+                text = this.input[0].value;
+                if (this.options.syncValueAndText) {
+                    value = text;
+                }
+
                 this.listView.focus(-1);
             } else {
                 if (dataItem) {
@@ -616,8 +646,11 @@ var __meta__ = { // jshint ignore:line
                 return data === loweredText;
             }).done(function() {
                 if (that.selectedIndex < 0) {
-                    that._accessor(text);
                     input.value = text;
+
+                    if (that.options.syncValueAndText) {
+                        that._accessor(text);
+                    }
 
                     that._triggerCascade();
                 }
@@ -767,7 +800,7 @@ var __meta__ = { // jshint ignore:line
             input = wrapper.find(SELECTOR);
 
             if (!input[0]) {
-                wrapper.append('<span tabindex="-1" unselectable="on" class="k-dropdown-wrap k-state-default"><input ' + name + 'class="k-input" type="text" autocomplete="off"/><span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-s"></span></span></span>')
+                wrapper.append('<span tabindex="-1" unselectable="on" class="k-dropdown-wrap k-state-default"><input ' + name + 'class="k-input" type="text" autocomplete="off"/><span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-60-down"></span></span></span>')
                     .append(that.element);
 
                 input = wrapper.find(SELECTOR);
@@ -815,7 +848,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _clearButton: function() {
-            this._clear = $('<span unselectable="on" class="k-icon k-i-close" title="clear"></span>').attr({
+            this._clear = $('<span unselectable="on" class="k-icon k-clear-value k-i-close" title="clear"></span>').attr({
                 "role": "button",
                 "tabIndex": -1
             });

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -45,7 +45,7 @@
         var extend = $.extend;
         var VISIBILITY = 'visibility';
         var KSTATEHOVER = 'k-state-hover';
-        var INPUTSELECTOR = 'input,a,textarea,.k-multiselect-wrap,select,button,a.k-button>.k-icon,button.k-button>.k-icon,span.k-icon.k-i-expand,span.k-icon.k-i-collapse';
+        var INPUTSELECTOR = 'input,a,textarea,.k-multiselect-wrap,select,button,a.k-button>.k-icon,button.k-button>.k-icon,span.k-icon.k-i-arrow-60-right,span.k-icon.k-i-arrow-45-down-right';
         ui.HierarchicalDragAndDrop = kendo.Class.extend({
             init: function (element, options) {
                 this.element = element;
@@ -86,7 +86,7 @@
                 if (newStatus) {
                     statusElement.className = 'k-icon k-drag-status ' + newStatus;
                 } else {
-                    return $.trim(statusElement.className.replace(/k-(icon|drag-status)/g, ''));
+                    return $.trim(statusElement.className.replace(/(p|k)-(icon|drag-status)/g, ''));
                 }
             },
             dragstart: function (e) {
@@ -95,7 +95,7 @@
                     e.preventDefault();
                 }
                 if (this.options.reorderable) {
-                    this.dropHint = $('<div class=\'k-drop-hint\' />').css(VISIBILITY, 'hidden').appendTo(this.element);
+                    this.dropHint = $('<div class=\'k-i-drag-and-drop\' />').css(VISIBILITY, 'hidden').appendTo(this.element);
                 } else {
                     this.dropHint = $();
                 }
@@ -109,10 +109,10 @@
                 var insertOnTop, insertOnBottom, addChild;
                 var itemData, position, status;
                 if (!container.length) {
-                    status = 'k-i-denied';
+                    status = 'k-i-cancel';
                     this._removeTouchHover();
                 } else if (source[0] == target[0] || options.contains(source[0], target[0])) {
-                    status = 'k-i-denied';
+                    status = 'k-i-cancel';
                 } else {
                     status = 'k-i-insert-middle';
                     itemData = options.itemFromTarget(target);
@@ -139,16 +139,16 @@
                         }
                         this._lastHover = itemContent.toggleClass(KSTATEHOVER, addChild);
                         if (addChild) {
-                            status = 'k-i-add';
+                            status = 'k-i-plus';
                         } else {
                             position = hoveredItem.position();
                             position.top += insertOnTop ? 0 : itemHeight;
                             this.dropHint.css(position)[insertOnTop ? 'prependTo' : 'appendTo'](options.dropHintContainer(hoveredItem));
                             if (insertOnTop && itemData.first) {
-                                status = 'k-i-insert-top';
+                                status = 'k-i-insert-up';
                             }
                             if (insertOnBottom && itemData.last) {
-                                status = 'k-i-insert-bottom';
+                                status = 'k-i-insert-down';
                             }
                         }
                     } else if (target[0] != this.dropHint[0]) {
@@ -156,9 +156,9 @@
                             this._lastHover.removeClass(KSTATEHOVER);
                         }
                         if (!$.contains(this.element[0], container[0])) {
-                            status = 'k-i-add';
+                            status = 'k-i-plus';
                         } else {
-                            status = 'k-i-denied';
+                            status = 'k-i-cancel';
                         }
                     }
                 }
@@ -196,7 +196,7 @@
                     originalEvent: e.originalEvent,
                     source: source[0],
                     destination: destination[0],
-                    valid: this._hintStatus() != 'k-i-denied',
+                    valid: this._hintStatus() != 'k-i-cancel',
                     setValid: function (newValid) {
                         this.valid = newValid;
                     },

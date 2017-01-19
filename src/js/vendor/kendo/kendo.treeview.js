@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1136,7 +1136,7 @@
                 if (node) {
                     this._progress(node, false);
                     this._expanded(node, false);
-                    nodeIcon(node).addClass('k-i-refresh');
+                    nodeIcon(node).addClass('k-i-reload');
                     e.node.loaded(false);
                 } else {
                     this._progress(false);
@@ -1294,7 +1294,7 @@
                         element.empty();
                     }
                 } else {
-                    nodeIcon(node).toggleClass('k-i-loading', showProgress).removeClass('k-i-refresh');
+                    nodeIcon(node).toggleClass('k-i-loading', showProgress).removeClass('k-i-reload');
                 }
             },
             text: function (node, text) {

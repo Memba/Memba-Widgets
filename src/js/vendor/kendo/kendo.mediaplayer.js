@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -43,13 +43,13 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, END = 'end', PAUSE = 'pause', PLAY = 'play', READY = 'ready', TIMECHANGE = 'timeChange', VOLUMECHANGE = 'volumeChange', FULLSCREEN_ENTER = 'k-i-fullscreen-enter', FULLSCREEN_EXIT = 'k-i-fullscreen-exit', MUTE = 'k-i-volume-mute', LOW_VOLUME = 'k-i-volume-low', HIGH_VOLUME = 'k-i-volume-high', VIDEO_QUALITY = 'k-mediaplayer-quality', STATE_PLAY = 'k-i-play', STATE_PAUSE = 'k-i-pause', TITLEBAR = 'k-mediaplayer-titlebar', TITLE = 'k-title', TOOLBAR = 'k-mediaplayer-toolbar', SLIDER = 'k-mediaplayer-seekbar', VOLUME_SLIDER = 'k-mediaplayer-volume', MEDIA = 'k-mediaplayer-media', OVERLAY = 'k-mediaplayer-overlay', YTPLAYER = 'k-mediaplayer-yt', DOT = '.', ui = kendo.ui, ns = '.kendoMediaPlayer', baseTime = new Date(1970, 0, 1), timeZoneSec = baseTime.getTimezoneOffset() * 60, Widget = kendo.ui.Widget, isArray = $.isArray, timeFormats = {
+        var kendo = window.kendo, END = 'end', PAUSE = 'pause', PLAY = 'play', READY = 'ready', TIMECHANGE = 'timeChange', VOLUMECHANGE = 'volumeChange', FULLSCREEN_ENTER = 'k-i-full-screen', FULLSCREEN_EXIT = 'k-i-full-screen-exit', MUTE = 'k-i-volume-off', LOW_VOLUME = 'k-i-volume-down', HIGH_VOLUME = 'k-i-volume-up', VIDEO_QUALITY = 'k-mediaplayer-quality', STATE_PLAY = 'k-i-play', STATE_PAUSE = 'k-i-pause', TITLEBAR = 'k-mediaplayer-titlebar', TITLE = 'k-title', TOOLBARWRAP = 'k-mediaplayer-toolbar-wrap', TOOLBAR = 'k-mediaplayer-toolbar', SLIDER = 'k-mediaplayer-seekbar', VOLUME_SLIDER = 'k-mediaplayer-volume', MEDIA = 'k-mediaplayer-media', OVERLAY = 'k-mediaplayer-overlay', YTPLAYER = 'k-mediaplayer-yt', DOT = '.', ui = kendo.ui, ns = '.kendoMediaPlayer', baseTime = new Date(1970, 0, 1), timeZoneSec = baseTime.getTimezoneOffset() * 60, Widget = kendo.ui.Widget, isArray = $.isArray, timeFormats = {
                 shortTime: 'mm:ss',
                 longTime: 'HH:mm:ss'
             }, template = kendo.template, proxy = $.proxy, keys = kendo.keys, templates = {
                 htmlPlayer: '<video class=\'' + MEDIA + '\'> </video>',
                 titleBar: template('<div class=\'' + TITLEBAR + '\' role=\'heading\'><span class=\'' + TITLE + '\'>Video Title</span></div>'),
-                toolBar: '<div class=\'' + TOOLBAR + '\'> </div>',
+                toolBar: '<div class=\'' + TOOLBARWRAP + '\'><div class=\'' + TOOLBAR + '\'></div></div>',
                 youtubePlayer: '<div class=\'' + YTPLAYER + '\'> </div>',
                 toolBarTime: '<span class=\'k-mediaplayer-currenttime\'>00:00:00</span> / <span class=\'k-mediaplayer-duration\'>00:00:00</span>',
                 slider: '<input class=\'' + SLIDER + '\' value=\'0\' title=\'seekbar\' />',
@@ -116,7 +116,6 @@
             _createTitlebar: function () {
                 this._titleBar = this.wrapper.find(DOT + TITLEBAR);
                 if (this._titleBar.length === 0) {
-                    this._titleBar = this.wrapper.find(DOT + TITLEBAR);
                     this.wrapper.append(templates.titleBar);
                     this._titleBar = this.wrapper.find(DOT + TITLEBAR);
                 }
@@ -143,7 +142,6 @@
                 if (!this._volumeSlider) {
                     this._volumeDraggingHandler = proxy(this._volumeDragging, this);
                     this._volumeChangeHandler = proxy(this._volumeChange, this);
-                    volumeSliderElement = $(DOT + VOLUME_SLIDER);
                     volumeSliderElement.width(87);
                     this._volumeSlider = new ui.Slider(volumeSliderElement[0], {
                         smallStep: 1,
@@ -216,34 +214,48 @@
                 if (toolBarElement.length === 0) {
                     this._toolbarClickHandler = proxy(this._toolbarClick, this);
                     this.wrapper.append(templates.toolBar);
-                    toolBarElement = $(DOT + TOOLBAR);
-                    toolBarElement.width($(DOT + MEDIA).width());
+                    toolBarElement = this.wrapper.find(DOT + TOOLBAR);
+                    toolBarElement.width(this.wrapper.find(DOT + MEDIA).width());
                     this._toolBar = new ui.ToolBar(toolBarElement, {
                         click: this._toolbarClickHandler,
                         resizable: false,
                         items: [
-                            { template: templates.slider },
                             {
                                 type: 'button',
-                                spriteCssClass: 'k-icon k-font-icon k-i-play'
+                                attributes: { 'class': 'k-play-button' },
+                                icon: 'play'
                             },
-                            { template: templates.toolBarTime },
                             {
-                                type: 'button',
-                                spriteCssClass: 'k-icon k-font-icon k-i-volume-high'
+                                template: templates.toolBarTime,
+                                attributes: { 'class': 'k-mediaplayer-currenttime-wrap' }
                             },
-                            { template: templates.volumeSlider },
-                            { template: templates.qualityDropDown },
+                            {
+                                type: 'separator',
+                                attributes: { 'class': 'k-toolbar-spacer' }
+                            },
                             {
                                 type: 'button',
-                                spriteCssClass: 'k-icon k-font-icon k-i-fullscreen-enter'
+                                attributes: { 'class': 'k-volume-button' },
+                                icon: 'volume-up'
+                            },
+                            {
+                                template: templates.volumeSlider,
+                                attributes: { 'class': 'k-mediaplayer-volume-wrap' }
+                            },
+                            {
+                                template: templates.qualityDropDown,
+                                attributes: { 'class': 'k-mediaplayer-quality-wrap' }
+                            },
+                            {
+                                type: 'button',
+                                attributes: { 'class': 'k-fullscreen-button' },
+                                icon: 'full-screen'
                             }
                         ]
                     });
-                    var volumeSpan = toolBarElement.find('span[class*="k-i-volume"]');
-                    this._volumeButton = volumeSpan.parent('a');
-                    var fullScreenSpan = toolBarElement.find('span[class*="k-i-fullscreen"]');
-                    this._fullscreenButton = fullScreenSpan.parent('a');
+                    toolBarElement.before(templates.slider);
+                    this._volumeButton = toolBarElement.find('.k-volume-button');
+                    this._fullscreenButton = toolBarElement.find('.k-fullscreen-button');
                     this._volumeButton.attr('title', this.options.mute ? this.options.messages.unmute : this.options.messages.mute);
                     this._volumeButton.attr('aria-label', this.options.mute ? this.options.messages.unmute : this.options.messages.mute);
                     this._fullscreenButton.attr('title', this.options.messages.fullscreen);
@@ -251,18 +263,18 @@
                     toolBarElement.width('auto');
                     this._currentTimeElement = toolBarElement.find('.k-mediaplayer-currenttime');
                     this._durationElement = toolBarElement.find('.k-mediaplayer-duration');
-                    this._playButtonSpan = toolBarElement.find('span[class*="k-i-play"]');
-                    this._playButton = this._playButtonSpan.parent('a');
+                    this._playButton = toolBarElement.find('.k-play-button');
+                    this._playButtonSpan = this._playButton.find('.k-i-play');
                     if (this.options.autoPlay) {
                         this._playStateToggle(true);
                     }
                     $([
                         this._volumeButton[0],
-                        toolBarElement.find('.k-mediaplayer-volume').parent()[0],
-                        toolBarElement.find('.k-mediaplayer-quality').parent()[0],
+                        toolBarElement.find('.k-mediaplayer-volume-wrap')[0],
+                        toolBarElement.find('.k-mediaplayer-quality-wrap')[0],
                         this._fullscreenButton[0]
                     ]).wrapAll('<div class=\'k-align-right\' />');
-                    $('.k-button', toolBarElement).addClass('k-button-bare');
+                    toolBarElement.find('.k-button').addClass('k-button-bare');
                 }
             },
             _createDropDown: function () {
@@ -292,7 +304,7 @@
                     }
                     this._dropDown.wrapper.addClass('k-button k-button-bare');
                     this._dropDown.wrapper.attr('title', this.options.messages.quality).hide();
-                    this._dropDown.wrapper.find('span.k-i-arrow-s').removeClass('k-i-arrow-s').addClass('k-font-icon k-i-HD');
+                    this._dropDown.wrapper.find('span.k-i-arrow-60-down').removeClass('k-i-arrow-60-down').addClass('k-icon k-i-hd');
                     this._dropDown.list.addClass('k-quality-list');
                 }
             },
@@ -452,9 +464,20 @@
                     height: this.wrapper.height()
                 });
                 if (!window.YT || !window.YT.Player) {
-                    $.getScript('https://www.youtube.com/iframe_api');
-                    this._youtubeApiReadyHandler = proxy(this._youtubeApiReady, this);
-                    window.onYouTubeIframeAPIReady = this._youtubeApiReadyHandler;
+                    if (!window.onYouTubeIframeAPIReadyRegister) {
+                        window.onYouTubeIframeAPIReadyRegister = [];
+                        $.getScript('https://www.youtube.com/iframe_api');
+                        window.onYouTubeIframeAPIReady = function () {
+                            if (window.onYouTubeIframeAPIReadyRegister) {
+                                for (var i = 0; i < window.onYouTubeIframeAPIReadyRegister.length; i++) {
+                                    window.onYouTubeIframeAPIReadyRegister[i]._youtubeApiReady();
+                                }
+                            }
+                            window.onYouTubeIframeAPIReadyRegister.length = 0;
+                            window.onYouTubeIframeAPIReadyRegister = undefined;
+                        };
+                    }
+                    window.onYouTubeIframeAPIReadyRegister[window.onYouTubeIframeAPIReadyRegister.length] = this;
                 } else {
                     this._configurePlayer();
                 }
@@ -529,6 +552,7 @@
                         this.play();
                     }
                 } else if (event.data === 1) {
+                    this._mediaDurationChange();
                     this._ytmedia.setVolume(this.volume());
                     if (this._sliderChangeFired) {
                         this._sliderChangeFired = false;
@@ -621,7 +645,7 @@
             },
             _uiDisplay: function (state) {
                 var animationSpeed = 'slow';
-                var uiElements = this._titleBar.add(this._toolBar.element).add(this._slider.wrapper);
+                var uiElements = this._titleBar.add(this._toolBar.element.parent());
                 if (state) {
                     uiElements.fadeIn(animationSpeed);
                 } else {
@@ -735,13 +759,7 @@
                 }
                 var element = this.element.get(0);
                 if (enterFullScreen) {
-                    this._width = this.element.width();
-                    this._height = this.element.height();
-                    this.element.width('100%').height('100%').css({
-                        position: 'fixed',
-                        top: 0,
-                        left: 0
-                    });
+                    this.element.addClass('k-mediaplayer-fullscreen');
                     if (element.requestFullscreen) {
                         element.requestFullscreen();
                     } else if (element.webkitRequestFullscreen) {
@@ -766,15 +784,10 @@
                     } else if (document.msExitFullscreen) {
                         document.msExitFullscreen();
                     }
-                    this.element.css({
-                        position: 'relative',
-                        top: null,
-                        left: null
-                    });
-                    this.element.width(this._width);
-                    this.element.height(this._height);
+                    this.element.removeClass('k-mediaplayer-fullscreen');
                     this._isInFullScreen = false;
                 }
+                this._slider.resize();
             },
             volume: function (value) {
                 if (typeof value === 'undefined') {
@@ -790,8 +803,9 @@
                 this._volumeSlider.value(value);
             },
             mute: function (muted) {
-                if (typeof muted === 'undefined') {
-                    return this._youTubeVideo ? this._ytmedia && this._ytmedia.isMuted() : this._media && this._media.muted;
+                var currentState = this._youTubeVideo ? this._ytmedia && this._ytmedia.isMuted() : this._media && this._media.muted;
+                if (typeof muted === 'undefined' || muted === currentState) {
+                    return currentState;
                 }
                 if (this._youTubeVideo) {
                     if (muted) {
@@ -849,8 +863,6 @@
                     this._keyDownHandler = proxy(this._keyDown, this);
                     this.wrapper.on('keydown' + ns, this._keyDownHandler);
                 }
-                this._fullscreenHandler = proxy(this._fullscreen, this);
-                $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange' + ns, this._fullscreenHandler);
             },
             _fullscreen: function () {
                 var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
@@ -863,20 +875,22 @@
             },
             _keyDown: function (e) {
                 e.preventDefault();
+                var fsButton = this.wrapper.find('span[class*="k-i-fullscreen"]');
                 if (e.keyCode === keys.SPACEBAR) {
                     if (this.isPlaying()) {
                         this.pause();
                     } else {
                         this.play();
                     }
-                }
-                if (e.keyCode === keys.ENTER) {
-                    this.wrapper.find('span[class*="k-i-fullscreen"]').removeClass(FULLSCREEN_ENTER).addClass(FULLSCREEN_EXIT);
+                } else if (e.keyCode === keys.ENTER && !this._isInFullScreen) {
+                    fsButton.removeClass(FULLSCREEN_ENTER).addClass(FULLSCREEN_EXIT);
                     this.fullScreen(true);
-                }
-                if (e.keyCode === 77) {
+                } else if (e.keyCode === 77) {
                     var muted = this.mute();
                     this.mute(!muted);
+                } else if (e.keyCode === keys.ESC && this._isInFullScreen) {
+                    fsButton.removeClass(FULLSCREEN_EXIT).addClass(FULLSCREEN_ENTER);
+                    this.fullScreen(false);
                 }
             },
             _error: function () {

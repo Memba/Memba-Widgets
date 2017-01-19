@@ -69,9 +69,7 @@ var __meta__ = { // jshint ignore:line
         unshift = [].unshift,
         toString = {}.toString,
         stableSort = kendo.support.stableSort,
-        dateRegExp = /^\/Date\((.*?)\)\/$/,
-        newLineRegExp = /(\r+|\n+)/g,
-        quoteRegExp = /(?=['\\])/g;
+        dateRegExp = /^\/Date\((.*?)\)\/$/;
 
     var ObservableArray = Observable.extend({
         init: function(array, type) {
@@ -1015,24 +1013,35 @@ var __meta__ = { // jshint ignore:line
 
     var operators = (function(){
 
-        function quote(value) {
-            return value.replace(quoteRegExp, "\\").replace(newLineRegExp, "");
+        function quote(str) {
+            if (typeof str == "string") {
+                str = str.replace(/[\r\n]+/g, "");
+            }
+            return JSON.stringify(str);
+        }
+
+        function textOp(impl) {
+            return function(a, b, ignore) {
+                b += "";
+                if (ignore) {
+                    a = "(" + a + " || '').toLowerCase()";
+                    b = b.toLowerCase();
+                }
+                return impl(a, quote(b), ignore);
+            };
         }
 
         function operator(op, a, b, ignore) {
-            var date;
-
             if (b != null) {
                 if (typeof b === STRING) {
-                    b = quote(b);
-                    date = dateRegExp.exec(b);
+                    var date = dateRegExp.exec(b);
                     if (date) {
                         b = new Date(+date[1]);
                     } else if (ignore) {
-                        b = "'" + b.toLowerCase() + "'";
+                        b = quote(b.toLowerCase());
                         a = "((" + a + " || '')+'').toLowerCase()";
                     } else {
-                        b = "'" + b + "'";
+                        b = quote(b);
                     }
                 }
 
@@ -1046,17 +1055,42 @@ var __meta__ = { // jshint ignore:line
             return a + " " + op + " " + b;
         }
 
+        function getMatchRegexp(pattern) {
+            // take a pattern, as supported by Excel match filter, and
+            // convert it to the equivalent JS regular expression.
+            // Excel patterns support:
+            //
+            //   * - match any sequence of characters
+            //   ? - match a single character
+            //
+            // to match a literal * or ?, they must be prefixed by a tilde (~)
+            for (var rx = "/^", esc = false, i = 0; i < pattern.length; ++i) {
+                var ch = pattern.charAt(i);
+                if (esc) {
+                    rx += "\\" + ch;
+                } else if (ch == "~") {
+                    esc = true;
+                    continue;
+                } else if (ch == "*") {
+                    rx += ".*";
+                } else if (ch == "?") {
+                    rx += ".";
+                } else if (".+^$()[]{}|\\/\n\r\u2028\u2029\xA0".indexOf(ch) >= 0) {
+                    rx += "\\" + ch;
+                } else {
+                    rx += ch;
+                }
+                esc = false;
+            }
+            return rx + "$/";
+        }
+
         return {
             quote: function(value) {
                 if (value && value.getTime) {
                     return "new Date(" + value.getTime() + ")";
                 }
-
-                if (typeof value == "string") {
-                    return "'" + quote(value) + "'";
-                }
-
-                return "" + value;
+                return quote(value);
             },
             eq: function(a, b, ignore) {
                 return operator("==", a, b, ignore);
@@ -1076,90 +1110,34 @@ var __meta__ = { // jshint ignore:line
             lte: function(a, b, ignore) {
                 return operator("<=", a, b, ignore);
             },
-            startswith: function(a, b, ignore) {
-                if (ignore) {
-                    a = "(" + a + " || '').toLowerCase()";
-                    if (b) {
-                        b = b.toLowerCase();
-                    }
-                }
-
-                if (b) {
-                    b = quote(b);
-                }
-
-                return a + ".lastIndexOf('" + b + "', 0) == 0";
-            },
-            doesnotstartwith: function(a, b, ignore) {
-                if (ignore) {
-                    a = "(" + a + " || '').toLowerCase()";
-                    if (b) {
-                        b = b.toLowerCase();
-                    }
-                }
-
-                if (b) {
-                    b = quote(b);
-                }
-
-                return a + ".lastIndexOf('" + b + "', 0) == -1";
-            },
-            endswith: function(a, b, ignore) {
-                if (ignore) {
-                    a = "(" + a + " || '').toLowerCase()";
-                    if (b) {
-                        b = b.toLowerCase();
-                    }
-                }
-
-                if (b) {
-                    b = quote(b);
-                }
-
-                return a + ".indexOf('" + b + "', " + a + ".length - " + (b || "").length + ") >= 0";
-            },
-            doesnotendwith: function(a, b, ignore) {
-                if (ignore) {
-                    a = "(" + a + " || '').toLowerCase()";
-                    if (b) {
-                        b = b.toLowerCase();
-                    }
-                }
-
-                if (b) {
-                    b = quote(b);
-                }
-
-                return a + ".indexOf('" + b + "', " + a + ".length - " + (b || "").length + ") < 0";
-            },
-            contains: function(a, b, ignore) {
-                if (ignore) {
-                    a = "(" + a + " || '').toLowerCase()";
-                    if (b) {
-                        b = b.toLowerCase();
-                    }
-                }
-
-                if (b) {
-                    b = quote(b);
-                }
-
-                return a + ".indexOf('" + b + "') >= 0";
-            },
-            doesnotcontain: function(a, b, ignore) {
-                if (ignore) {
-                    a = "(" + a + " || '').toLowerCase()";
-                    if (b) {
-                        b = b.toLowerCase();
-                    }
-                }
-
-                if (b) {
-                    b = quote(b);
-                }
-
-                return a + ".indexOf('" + b + "') == -1";
-            },
+            startswith: textOp(function(a, b) {
+                return a + ".lastIndexOf(" + b + ", 0) == 0";
+            }),
+            doesnotstartwith: textOp(function(a, b) {
+                return a + ".lastIndexOf(" + b + ", 0) == -1";
+            }),
+            endswith: textOp(function(a, b) {
+                var n = b ? b.length - 2 : 0;
+                return a + ".indexOf(" + b + ", " + a + ".length - " + n + ") >= 0";
+            }),
+            doesnotendwith: textOp(function(a, b) {
+                var n = b ? b.length - 2 : 0;
+                return a + ".indexOf(" + b + ", " + a + ".length - " + n + ") < 0";
+            }),
+            contains: textOp(function(a, b) {
+                return a + ".indexOf(" + b + ") >= 0";
+            }),
+            doesnotcontain: textOp(function(a, b) {
+                return a + ".indexOf(" + b + ") == -1";
+            }),
+            matches: textOp(function(a, b){
+                b = b.substring(1, b.length - 1);
+                return getMatchRegexp(b) + ".test(" + a + ")";
+            }),
+            doesnotmatch: textOp(function(a, b){
+                b = b.substring(1, b.length - 1);
+                return "!" + getMatchRegexp(b) + ".test(" + a + ")";
+            }),
             isempty: function(a) {
                 return a + " === ''";
             },
@@ -1167,10 +1145,10 @@ var __meta__ = { // jshint ignore:line
                 return a + " !== ''";
             },
             isnull: function(a) {
-                return "(" + a + " === null || " + a + " === undefined)";
+                return "(" + a + " == null)";
             },
             isnotnull: function(a) {
-                return "(" + a + " !== null && " + a + " !== undefined)";
+                return "(" + a + " != null)";
             }
         };
     })();

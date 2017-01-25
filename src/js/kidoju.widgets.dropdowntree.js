@@ -42,19 +42,21 @@
         /**
          * Processes a table (dropDownList dataSource) with dataParentField into a hierarchy (Hierarchical dataSOurce for treeView)
          * Note: see also app.cache.getCategoryHierarchy
-         * @param data
+         * @param dataSource
          * @param idField
          * @param dataParentField
          * @returns {*}
          */
-        function processTable(data, idField, dataParentField) {
+        function hierarchize(dataSource, idField, dataParentField) {
             var hash = {};
-            for (var i = 0; i < data.length; i++) {
-                var item = data[i];
-                var id = item[idField];
-                var parentId = item[dataParentField] || 'root';
+            for (var i = 0, total = dataSource.total(); i < total; i++) {
+                var item = dataSource.at(i);
+                var id = item.get(idField);
+                var parentId = ($.isFunction(item[dataParentField]) ? item[dataParentField]() : item.get(dataParentField)) || 'root';
                 hash[id] = hash[id] || [];
                 hash[parentId] = hash[parentId] || [];
+                // We need a bare item that can be converted into kendo.data.Node in a kendo.data.HierarchyDataSource
+                item = item.toJSON();
                 item.items = hash[id];
                 hash[parentId].push(item);
             }
@@ -86,7 +88,7 @@
             options: {
                 name: 'DropDownTree',
                 dataParentField: 'parentId',
-                dataImageUrlField: 'icon',
+                // imageUrlField: 'icon',
                 treeTemplate: '' // tree template uses item instead of data
             },
 
@@ -253,7 +255,8 @@
                 var options = that.options;
                 DropDownList.fn.refresh.call(that, e);
                 if (this.treeView instanceof TreeView) {
-                    this.treeView.setDataSource(processTable(that.dataSource._pristineData, options.dataValueField, options.dataParentField));
+                    // this.treeView.setDataSource(hierarchize(that.dataSource._pristineData, options.dataValueField, options.dataParentField));
+                    this.treeView.setDataSource(hierarchize(that.dataSource, options.dataValueField, options.dataParentField));
                 }
             },
 

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kidoju.widgets.circling</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <script src="./js/vendor/kendo/jquery.min.js"></script>
+    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script>
+    <script src="./js/vendor/kendo/kendo.color.js"></script>
+    <script src="./js/vendor/kendo/kendo.drawing.js"></script-->
+    <!-- drawing requirements -->
+    <!--link rel="stylesheet" href="./styles/kidoju.widgets.drawing.css"-->
+    <script src="./js/window.assert.js"></script>
+    <script src="./js/window.logger.js"></script>
+    <script src="./js/kidoju.widgets.circling.js"></script>
+    <style>
+
+    </style>
+</head>
+<body>
+<h1>kidoju.widgets.circling</h1>
+<div data-role="circling" data-bind="source: source, visible: visible, enabled: enabled"></div>
+
+<pre>
+{
+    source$:
+    <div data-bind="text: source$" style="margin-left:50px;"></div>
+    visible: <span data-bind="text: visible"></span>
+    enabled: <span data-bind="text: enabled"></span>
+}
+</pre>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />enabled
+</div>
+
+<script>
+    ;(function(window, $, undefined){
+
+        'use strict';
+
+        var kendo = window.kendo;
+        var viewModel = window.viewModel = new kendo.observable({
+            source: [],
+            source$: function() {
+                var ret = '';
+                this.get('source').forEach(function(item) {
+                    ret += kendo.format('{0} --> {1} ({2})\n', item.originId, item.destinationId, item.color);
+                });
+                return ret;
+            },
+            visible: true,
+            enabled: true
+        });
+
+        $(function() {
+            kendo.bind('body', viewModel);
+        });
+
+    }(this, jQuery));
+</script>
+</body>
+</html>

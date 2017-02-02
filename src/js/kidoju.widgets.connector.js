@@ -159,7 +159,7 @@
                 that._ensureSurface();
                 that._dataSource();
                 that._drawConnector();
-                that._addDragAndDrop();
+                that._addMouseHandlers();
                 that.value(that.options.value);
                 that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 kendo.notify(that);
@@ -277,10 +277,10 @@
             },
 
             /**
-             * Add drag and drop handlers
+             * Add mouse event handlers
              * @private
              */
-            _addDragAndDrop: function () {
+            _addMouseHandlers: function () {
                 // IMPORTANT
                 // We can have several containers containing connectors on a page
                 // But we only have on set of event handlers shared across all containers
@@ -557,7 +557,7 @@
              * Enable/disable user interactivity on connector
              */
             enable: function (enabled) {
-                // this._enabled is checked in _addDragAndDrop
+                // this._enabled is checked in _addMouseHandlers
                 this._enabled = enabled;
             },
 

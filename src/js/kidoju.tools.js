@@ -2350,7 +2350,7 @@
             cursor: CURSOR_CROSSHAIR,
             weight: 0.25,
             templates: {
-                design: kendo.format(CONNECTOR, 'data-#= ns #enable="false" data-#= ns #has-surface="false"'),
+                design: kendo.format(CONNECTOR, 'data-#= ns #enable="false" data-#= ns #show-surface="false"'),
                 play: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: connections"'),
                 review: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: connections" data-#= ns #enable="false"') + Tool.fn.showResult()
             },

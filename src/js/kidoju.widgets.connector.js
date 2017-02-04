@@ -179,7 +179,10 @@
                 scaler: 'div.kj-stage',
                 container: 'div.kj-stage>div[data-role="stage"]',
                 color: '#FF0000',
-                hasSurface: true,
+                // in design mode: showSurface = false, enable = false
+                // in play mode: showSurface = true, enabled = true
+                // in review mode: showSurface = true, enable = false
+                showSurface: true,
                 enable: true
             },
 
@@ -233,7 +236,7 @@
                 assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
                 // ensure surface
                 var surface = container.data(SURFACE);
-                if (options.hasSurface && !(surface instanceof Surface)) {
+                if (options.showSurface && !(surface instanceof Surface)) {
                     var surfaceElement = container.find(DOT + SURFACE_CLASS);
                     if (surfaceElement.length === 0) {
                         // assert.ok(this.element.hasClass(WIDGET_CLASS), 'this._layout should be called before this._ensureSurface');
@@ -253,7 +256,7 @@
             },
 
             /**
-             * Draw the connector circle
+             * Draw the connector circle that begins or ends a connection
              * @private
              */
             _drawConnector: function () {
@@ -265,15 +268,15 @@
                 var x = element.width() / 2; // parseInt(options.width, 10) / 2;
                 var y = element.height() / 2; // parseInt(options.height, 10) / 2;
                 var radius = Math.max(0, Math.min(x, y) - 10); // Add some space around radius to make it easier to grab on mobile devices
-                var connector = new drawing.Group();
+                var group = new drawing.Group();
                 var outerCircleGeometry = new geometry.Circle([x, y], 0.8 * radius);
                 var outerCircle = new drawing.Circle(outerCircleGeometry).stroke(color, 0.2 * radius);
-                connector.append(outerCircle);
+                group.append(outerCircle);
                 var innerCircleGeometry = new geometry.Circle([x, y], 0.5 * radius);
                 var innerCircle = new drawing.Circle(innerCircleGeometry).stroke(color, 0.1 * radius).fill(color);
-                connector.append(innerCircle);
+                group.append(innerCircle);
                 that.surface.clear();
-                that.surface.draw(connector);
+                that.surface.draw(group);
             },
 
             /**

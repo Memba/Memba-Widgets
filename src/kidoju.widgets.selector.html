@@ -2,31 +2,35 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.selection</title>
+    <title>kidoju.widgets.selector</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/kendo/jquery.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/jquery/jquery-2.2.4.min.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
+    <script src="./js/vendor/kendo/kendo.core.js"></script>
     <script src="./js/vendor/kendo/kendo.data.js"></script>
     <script src="./js/vendor/kendo/kendo.binder.js"></script>
     <script src="./js/vendor/kendo/kendo.color.js"></script>
-    <script src="./js/vendor/kendo/kendo.drawing.js"></script-->
-    <!-- drawing requirements -->
-    <link rel="stylesheet" href="./styles/kidoju.widgets.selection.css">
+    <script src="./js/vendor/kendo/kendo.drawing.js"></script>
+    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
+    <script src="./js/vendor/kendo/kendo.popup.js"></script>
+    <script src="./js/vendor/kendo/kendo.toolbar.js"></script>
+    <!-- selector requirements -->
+    <!--link rel="stylesheet" href="./styles/kidoju.widgets.selector.css"-->
     <script src="./js/window.assert.js"></script>
     <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.selection.js"></script>
+    <script src="./js/kidoju.widgets.selector.js"></script>
     <style>
 
     </style>
+
 </head>
 <body>
-<h1>kidoju.widgets.selection</h1>
+<h1>kidoju.widgets.selector</h1>
 <ul data-role="buttongroup" data-index="0" data-select="onSelect">
     <li>Red</li>
     <li>Green</li>
@@ -36,19 +40,19 @@
 <div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.75);">
     <div data-role="stage" style="height:300px;width:300px;">
         <div class="kj-element" style="position:absolute;top:10px;left:10px;height:50px;width:100px;">
-            <div data-role="selection" data-id="id-red" data-color="#FF0000" style="height:50px;width:100px;" data-bind="value: red, source: source, visible: visible, enabled: enabled"></div>
+            <div data-role="selector" data-shape="line" data-color="#FF0000" style="height:50px;width:100px;" data-bind="value: red, source: source, visible: visible, enabled: enabled"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:10px;left:190px;height:50px;width:100px;">
-            <div data-role="selection" data-id="id-green" data-color="#00FF00" style="height:50px;width:100px;" data-bind="value: green, source: source, visible: visible, enabled: enabled"></div>
+            <div data-role="selector" data-shape="cross" data-color="#00FF00" style="height:50px;width:100px;" data-bind="value: green, source: source, visible: visible, enabled: enabled"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:240px;left:190px;height:50px;width:100px;">
-            <div data-role="selection" data-id="id-blue" data-color="#0000FF" style="height:50px;width:100px;" data-bind="value: blue, source: source, visible: visible, enabled: enabled"></div>
+            <div data-role="selector" data-color="#0000FF" style="height:50px;width:100px;" data-bind="value: blue, source: source, visible: visible, enabled: enabled"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:240px;left:10px;height:50px;width:100px;">
-            <div data-role="selection" data-id="id-magenta1" data-color="#FF00FF" style="height:50px;width:100px;" data-bind="value: magenta1, source: source, visible: visible, enabled: enabled"></div>
+            <div data-role="selector" data-color="#FF00FF" style="height:50px;width:100px;" data-bind="value: magenta1, source: source, visible: visible, enabled: enabled"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:125px;left:100px;height:50px;width:100px;">
-            <div data-role="selection" data-id="id-magenta2" data-color="#FF00FF" style="height:50px;width:100px;" data-bind="value: magenta2, source: source, visible: visible, enabled: enabled"></div>
+            <div data-role="selector" data-color="#FF00FF" style="height:50px;width:100px;" data-bind="value: magenta2, source: source, visible: visible, enabled: enabled"></div>
         </div>
     </div>
 </div>
@@ -72,22 +76,22 @@
 </div>
 
 <h2>Check a second widget on the same page</h2>
-<div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.9);">
+<!--div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.9);">
     <div data-role="stage" style="height:300px;width:300px;">
         <div class="kj-element" style="position:absolute;top:10px;left:10px;height:50px;width:100px;">
-            <div data-role="selection" data-id="id-red" data-target-value="red" data-color="#FF0000" style="height:50px;width:100px;" data-bind="source: source2"></div>
+            <div data-role="selector" data-color="#FF0000" style="height:50px;width:100px;" data-bind="source: source2"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:10px;left:190px;height:50px;width:100px;">
-            <div data-role="selection" data-id="id-green" data-target-value="green" data-color="#00FF00" style="height:50px;width:100px;" data-bind="source: source2"></div>
+            <div data-role="selector" data-color="#00FF00" style="height:50px;width:100px;" data-bind="source: source2"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:240px;left:190px;height:50px;width:100px;">
-            <div data-role="selection" data-id="id-blue" data-target-value="blue" data-color="#0000FF" style="height:50px;width:100px;" data-bind="source: source2"></div>
+            <div data-role="selector" data-color="#0000FF" style="height:50px;width:100px;" data-bind="source: source2"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:240px;left:10px;height:50px;width:100px;">
-            <div data-role="selection" data-id="id-magenta" data-target-value="yellow" data-color="#FF00FF" style="height:50px;width:100px;" data-bind="source: source2"></div>
+            <div data-role="selector" data-color="#FF00FF" style="height:50px;width:100px;" data-bind="source: source2"></div>
         </div>
     </div>
-</div>
+</div-->
 
 <script>
     ;(function(window, $, undefined){
@@ -95,7 +99,7 @@
         'use strict';
 
         window.onSelect = function(e) {
-            var EVT = 'color.kendoSelection';
+            var EVT = 'color.kendoSelector';
             switch(e.index) {
                 case 0:
                     $(document).trigger(EVT, ['#FF0000']);
@@ -118,13 +122,24 @@
             green: undefined,
             blue: undefined,
             magenta: undefined,
-            source: [],
-            source2: [],
+            source: [
+                // Test type filtering
+                { type: 'dummy', data: { a: 1, b: new Date(), c: 'foo'} }
+            ],
+            source2: [
+                // Test type filtering
+                { type: 'dummy', data: { a: 2, b: new Date(), c: 'bar'} }
+            ],
             source$: function() {
                 var ret = '';
                 this.get('source').forEach(function(item) {
-                    var bbox = item.data;
-                    ret += kendo.format('{0} --> at ({1},{2})\n', bbox.color, bbox.origin.x, bbox.origin.y);
+                    switch(item.type) {
+                        case 'selection':
+                            ret += kendo.format('{0}({1}) --> at ({2},{3})\n', item.data.shape, item.data.color, item.data.origin.x, item.data.origin.y);
+                            break;
+                        default:
+                            ret += 'A dummy type which should not break kendo.ui.Selector\n'
+                    }
                 });
                 return ret;
             },

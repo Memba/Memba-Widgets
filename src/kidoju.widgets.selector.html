@@ -16,6 +16,7 @@
     <script src="./js/vendor/kendo/kendo.binder.js"></script>
     <script src="./js/vendor/kendo/kendo.color.js"></script>
     <script src="./js/vendor/kendo/kendo.drawing.js"></script>
+    <script src="./js/vendor/kendo/kendo.mobile.buttongroup.js"></script>
     <script src="./js/vendor/kendo/kendo.userevents.js"></script>
     <script src="./js/vendor/kendo/kendo.popup.js"></script>
     <script src="./js/vendor/kendo/kendo.toolbar.js"></script>
@@ -31,28 +32,23 @@
 </head>
 <body>
 <h1>kidoju.widgets.selector</h1>
-<ul data-role="buttongroup" data-index="0" data-select="onSelect">
-    <li>Red</li>
-    <li>Green</li>
-    <li>Blue</li>
-    <li>Magenta</li>
-</ul>
+<div id="toolbar1"></div>
 <div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.75);">
     <div data-role="stage" style="height:300px;width:300px;">
         <div class="kj-element" style="position:absolute;top:10px;left:10px;height:50px;width:100px;">
-            <div data-role="selector" data-shape="line" data-color="#FF0000" style="height:50px;width:100px;" data-bind="value: red, source: source, visible: visible, enabled: enabled"></div>
+            <div data-role="selector" data-shape="line" data-shape-stroke="{ color: '#FF0000', width: 4 }" data-toolbar="#toolbar1" style="height:50px;width:100px;" data-bind="value: red, source: source, visible: visible, enabled: enabled"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:10px;left:190px;height:50px;width:100px;">
-            <div data-role="selector" data-shape="cross" data-color="#00FF00" style="height:50px;width:100px;" data-bind="value: green, source: source, visible: visible, enabled: enabled"></div>
+            <div data-role="selector" data-shape="cross" data-shape-stroke="{ color: '#00FF00', width: 4 }" data-toolbar="#toolbar1" style="height:50px;width:100px;" data-bind="value: green, source: source, visible: visible, enabled: enabled"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:240px;left:190px;height:50px;width:100px;">
-            <div data-role="selector" data-color="#0000FF" style="height:50px;width:100px;" data-bind="value: blue, source: source, visible: visible, enabled: enabled"></div>
+            <div data-role="selector" data-shape-stroke="{ color: '#0000FF', width: 4 }" data-toolbar="#toolbar1" style="height:50px;width:100px;" data-bind="value: blue, source: source, visible: visible, enabled: enabled"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:240px;left:10px;height:50px;width:100px;">
-            <div data-role="selector" data-color="#FF00FF" style="height:50px;width:100px;" data-bind="value: magenta1, source: source, visible: visible, enabled: enabled"></div>
+            <div data-role="selector" data-shape-stroke="{ color: '#FF00FF', width: 4 }" data-toolbar="#toolbar1" style="height:50px;width:100px;" data-bind="value: magenta1, source: source, visible: visible, enabled: enabled"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:125px;left:100px;height:50px;width:100px;">
-            <div data-role="selector" data-color="#FF00FF" style="height:50px;width:100px;" data-bind="value: magenta2, source: source, visible: visible, enabled: enabled"></div>
+            <div data-role="selector" data-shape-stroke="{ color: '#FF00FF', width: 4 }" data-toolbar="#toolbar1" style="height:50px;width:100px;" data-bind="value: magenta2, source: source, visible: visible, enabled: enabled"></div>
         </div>
     </div>
 </div>
@@ -76,22 +72,23 @@
 </div>
 
 <h2>Check a second widget on the same page</h2>
-<!--div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.9);">
+<div id="toolbar2"></div>
+<div class="kj-stage" style="position:relative;height:300px;width:300px;border:solid 1px black;transform: scale(0.9);">
     <div data-role="stage" style="height:300px;width:300px;">
         <div class="kj-element" style="position:absolute;top:10px;left:10px;height:50px;width:100px;">
-            <div data-role="selector" data-color="#FF0000" style="height:50px;width:100px;" data-bind="source: source2"></div>
+            <div data-role="selector" data-shape-stroke="{ color: '#FF0000', width: 4 }" data-toolbar="#toolbar2" style="height:50px;width:100px;" data-bind="source: source2"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:10px;left:190px;height:50px;width:100px;">
-            <div data-role="selector" data-color="#00FF00" style="height:50px;width:100px;" data-bind="source: source2"></div>
+            <div data-role="selector" data-shape-stroke="{ color: '#00FF00', width: 4 }" data-toolbar="#toolbar2" style="height:50px;width:100px;" data-bind="source: source2"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:240px;left:190px;height:50px;width:100px;">
-            <div data-role="selector" data-color="#0000FF" style="height:50px;width:100px;" data-bind="source: source2"></div>
+            <div data-role="selector" data-shape-stroke="{ color: '#0000FF', width: 4 }" data-toolbar="#toolbar2" style="height:50px;width:100px;" data-bind="source: source2"></div>
         </div>
         <div class="kj-element" style="position:absolute;top:240px;left:10px;height:50px;width:100px;">
-            <div data-role="selector" data-color="#FF00FF" style="height:50px;width:100px;" data-bind="source: source2"></div>
+            <div data-role="selector" data-shape-stroke="{ color: '#FF00FF', width: 4 }" data-toolbar="#toolbar2" style="height:50px;width:100px;" data-bind="source: source2"></div>
         </div>
     </div>
-</div-->
+</div>
 
 <script>
     ;(function(window, $, undefined){
@@ -122,14 +119,8 @@
             green: undefined,
             blue: undefined,
             magenta: undefined,
-            source: [
-                // Test type filtering
-                { type: 'dummy', data: { a: 1, b: new Date(), c: 'foo'} }
-            ],
-            source2: [
-                // Test type filtering
-                { type: 'dummy', data: { a: 2, b: new Date(), c: 'bar'} }
-            ],
+            source: [{ type: 'dummy', data: { a: 1, b: new Date(), c: 'foo'} }], // Test type filtering
+            source2: new kendo.data.DataSource([{ type: 'dummy', data: { a: 2, b: new Date(), c: 'bar'} }]),
             source$: function() {
                 var ret = '';
                 this.get('source').forEach(function(item) {

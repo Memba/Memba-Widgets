@@ -124,7 +124,7 @@
                 options = options || {};
                 // base call to widget initialization
                 Widget.fn.init.call(that, element, options);
-                logger.debug('widget initialized');
+                logger.debug({method: 'init', message: 'widget initialized'});
                 // TODO: review how index is set
                 that._selectedIndex = that.options.index || 0;
                 that._templates();

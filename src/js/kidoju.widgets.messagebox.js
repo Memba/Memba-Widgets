@@ -169,7 +169,7 @@
             init: function (element, options) {
                 var that = this;
                 DialogEx.fn.init.call(that, element, options);
-                logger.debug('widget initialized');
+                logger.debug({method: 'init', message: 'widget initialized'});
                 // We need the following statement otherwise $(element).data('kendoMessageBox') instanceof kendo.ui.Dialog (and not kendo.ui.MessageBox)
                 $(element).data('kendoMessageBox', that);
                 that._layout();

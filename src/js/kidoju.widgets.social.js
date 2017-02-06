@@ -110,7 +110,7 @@
                 that.ns = NS;
                 that._window = null;
                 Widget.fn.init.call(that, element, options);
-                logger.debug('widget initialized');
+                logger.debug({method: 'init', message: 'widget initialized'});
                 that.options = $.extend({
                     language: $('html').attr('lang') || 'en',
                     facebookAppId: $('meta[property="fb:app_id"]').attr(CONTENT),

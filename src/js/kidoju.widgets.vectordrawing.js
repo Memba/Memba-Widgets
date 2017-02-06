@@ -477,9 +477,9 @@
                     if (type == 'splitButton') {
                         tool.menuButtons = tool.menuButtons.map(expandTool);
                     }
-                    tool.attributes['data-tool'] = toolName;
+                    tool.attributes[kendo.attr('tool')] = toolName;
                     if (options.property) {
-                        tool.attributes['data-property'] = options.property;
+                        tool.attributes[kendo.attr('property')] = options.property;
                     }
                     return tool;
                 }
@@ -496,7 +496,7 @@
                 }, []);
             },
             _click: function (e) {
-                var toolName = e.target.attr('data-tool');
+                var toolName = e.target.attr(kendo.attr('tool'));
                 var tool = toolDefaults[toolName] || {};
                 var commandType = tool.command;
                 if (!commandType) {
@@ -581,7 +581,7 @@
                 }
             },
             _tools: function () {
-                return this.element.find('[data-property]').toArray().map(function (element) {
+                return this.element.find('[' + kendo.attr('property') + ']').toArray().map(function (element) {
                     element = $(element);
                     return {
                         property: element.attr('data-property'),
@@ -1409,7 +1409,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                logger.debug('widget initialized');
+                logger.debug({method: 'init', message: 'widget initialized'});
                 that._layout();
                 that._dataSource();
                 that._enabled = that.element.prop('disabled') ? false : that.options.enable;

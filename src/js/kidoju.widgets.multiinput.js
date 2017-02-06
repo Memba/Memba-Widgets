@@ -102,7 +102,7 @@
                 var that = this;
                 that.ns = NS;
                 Widget.fn.init.call(that, element, options);
-                logger.debug('widget initialized');
+                logger.debug({method: 'init', message: 'widget initialized'});
                 options = $.extend(options, that.options);
                 that._initValue();
                 that._layout();

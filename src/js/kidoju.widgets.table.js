@@ -55,7 +55,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                logger.debug('widget initialized');
+                logger.debug({method: 'init', message: 'widget initialized'});
                 that._layout();
                 that.value(options.value);
                 // kendo.notify(that);

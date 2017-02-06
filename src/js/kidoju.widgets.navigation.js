@@ -89,7 +89,7 @@
                 var that = this;
                 // base call to widget initialization
                 Widget.fn.init.call(this, element, options);
-                logger.debug('widget initialized');
+                logger.debug({method: 'init', message: 'widget initialized'});
                 // By default, no page is selected
                 that._selectedUid = NULL;
                 that._templates();

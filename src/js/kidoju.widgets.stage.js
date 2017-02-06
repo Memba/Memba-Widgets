@@ -159,7 +159,7 @@
             init: function (element, options) {
                 var that = this;
                 Widget.fn.init.call(that, element, options);
-                logger.debug('widget initialized');
+                logger.debug({method: 'init', message: 'widget initialized'});
                 // TODO: we need to read scale, height and width both from styles and options and decide which wins
                 this._mode = this.options.mode;
                 this._scale = this.options.scale;

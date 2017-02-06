@@ -160,7 +160,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                logger.debug('widget initialized');
+                logger.debug({method: 'init', message: 'widget initialized'});
                 that._setValue(this.options.value);
                 that._layout();
                 // kendo.notify(that);
@@ -173,7 +173,7 @@
             options: {
                 name: 'CharGrid',
                 scaler: '.kj-stage',
-                container: '.kj-stage>div[data-role="stage"]',
+                container: '.kj-stage>div[data-' + kendo.ns + 'role="stage"]',
                 rotator: '.kj-element',
                 columns: 6,
                 rows: 4,

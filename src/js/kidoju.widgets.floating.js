@@ -1,0 +1,168 @@
+/**
+ * Copyright (c) 2013-2016 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/* jshint browser: true, jquery: true */
+/* globals define: false */
+
+(function (f, define) {
+    'use strict';
+    define([
+        './window.assert',
+        './window.logger',
+        './vendor/kendo/kendo.draggable',
+        './vendor/kendo/kendo.window'
+    ], f);
+})(function () {
+
+    'use strict';
+
+    (function ($, undefined) {
+
+        var kendo = window.kendo;
+        var Widget = kendo.ui.Widget;
+        var assert = window.assert;
+        var logger = new window.Logger('kidoju.widgets.floating');
+        // var UNDEFINED = 'undefined';
+        var WIDGET_CLASS = 'k-toolbar kj-floating';
+
+        /*********************************************************************************
+         * Widget
+         *********************************************************************************/
+
+        /**
+         * Floating
+         * @class Floating Widget (kendoFloating)
+         */
+        var Floating = Widget.extend({
+
+            /**
+             * Initializes the widget
+             * @param element
+             * @param options
+             */
+            init: function (element, options) {
+                var that = this;
+                options = options || {};
+                Widget.fn.init.call(that, element, options);
+                logger.debug({method: 'init', message: 'widget initialized'});
+                that._layout();
+                kendo.notify(that);
+            },
+
+            /**
+             * Widget options
+             * @property options
+             */
+            options: {
+                name: 'Floating'
+            },
+
+            /**
+             * Widget layout
+             * @private
+             */
+            _layout: function () {
+                var that = this;
+                var element = this.element;
+                element.addClass(WIDGET_CLASS);
+                // Add drag handle
+                element.append('<div class="kj-floating-handle"><span class="k-icon k-i-handler-drag"></span></div>');
+                element.append('<div class="kj-floating-content"></div>');
+                // Create titleless window
+                element.kendoWindow({
+                    title: false
+                });
+                that.window = element.data('kendoWindow');
+                that.wrapper = that.window.wrapper;
+                // Add draggable
+                element.kendoDraggable({
+                    group: 'kidoju.widgets.floating',
+                    ignore: '.kj-floating-content, .kj-floating-content *',
+                    hint: $.proxy(that._hint, that),
+                    dragstart: $.proxy(that._onDragStart, that),
+                    dragend: $.proxy(that._onDragEnd, that)
+                });
+                that.draggable = element.data('kendoDraggable');
+            },
+
+            /**
+             * Get dragging hint
+             * @private
+             */
+            _hint: function () {
+                // el.clone() always get top=0, left=0 which cannot be updated until the clone is added to the document body
+                return this.window.wrapper.clone();
+            },
+
+            /**
+             * Drag start event handler
+             * @private
+             */
+            _onDragStart: function () {
+                // hint (the clone) is now added to the document body and its position can be set
+                var hint = this.draggable.hint;
+                var wrapper = this.window.wrapper;
+                var position = wrapper.position();
+                wrapper.hide();
+                hint.css({
+                    // position: 'absolute',
+                    // zIndex: 15000,
+                    top: position.top,
+                    left: position.left
+                });
+                hint.show();
+            },
+
+            /**
+             * Drag end event handler
+             * @private
+             */
+            _onDragEnd: function () {
+                var hint = this.draggable.hint;
+                var wrapper = this.window.wrapper;
+                var position = hint.position();
+                hint.hide();
+                wrapper.css({
+                    position: 'absolute',
+                    zIndex: 15000,
+                    top: position.top,
+                    left: position.left
+                });
+                wrapper.show();
+            },
+
+            /**
+             * Show
+             */
+            show: function () {
+                this.wrapper.show();
+            },
+
+            /**
+             * Hide
+             */
+            hide: function () {
+                this.wrapper.hide();
+            },
+
+            /**
+             * Destroys the widget including all DOM modifications
+             * @method destroy
+             */
+            destroy: function () {
+                var that = this;
+                Widget.fn.destroy.call(that);
+                kendo.destroy(that.element);
+            }
+
+        });
+
+        kendo.ui.plugin(Floating);
+
+    }(window.jQuery));
+
+    return window.kendo;
+
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

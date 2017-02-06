@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kidoju.widgets.floating</title>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <script src="./js/vendor/jquery/jquery-2.2.4.min.js"></script>
+    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.button.js"></script>
+    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
+    <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
+    <script src="./js/vendor/kendo/kendo.draggable.js"></script>
+    <script src="./js/vendor/kendo/kendo.window.js"></script-->
+    <!-- PlayTools requirements -->
+    <link href="./styles/kidoju.widgets.floating.css" rel="stylesheet" />
+    <script src="./js/window.assert.js"></script>
+    <script src="./js/window.logger.js"></script>
+    <script src="./js/kidoju.widgets.floating.js"></script>
+</head>
+
+<body>
+
+<h1>kidoju.widgets.floating</h1>
+<div data-role="floating"></div>
+
+
+<script>
+    $(function () {
+        kendo.init('body');
+
+        // toolbar 1
+        var toolbarElement1 = $('<div/>');
+        toolbarElement1.appendTo($('[data-role="floating"]>.kj-floating-content'));
+        toolbarElement1.kendoToolBar({
+            items: [
+                { type: "button", text: "Foo" },
+                { type: "button", text: "Bar" }
+            ],
+            resizable: false
+        });
+
+        // toolbar 2
+        var toolbarElement2 = $('<div/>');
+        toolbarElement2.appendTo($('[data-role="floating"]>.kj-floating-content'));
+        toolbarElement2.kendoToolBar({
+            items: [
+                { type: "button", text: "Foo" },
+                { type: "button", text: "Bar" }
+            ],
+            resizable: false
+        });
+    });
+</script>
+</body>
+</html>

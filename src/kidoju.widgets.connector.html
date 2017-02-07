@@ -89,12 +89,12 @@
             green: undefined,
             blue: undefined,
             yellow: undefined,
-            source: [],
-            source2: [],
+            source: [{ type: 'dummy', id: 'val_0000000', data: { a: 1, b: new Date(), c: 'foo'} }], // Test type filtering
+            source2: new kendo.data.DataSource([{ type: 'dummy',  id: 'val_0000000', data: { a: 2, b: new Date(), c: 'bar'} }]),
             source$: function() {
                 var ret = '';
                 this.get('source').forEach(function(item) {
-                    ret += kendo.format('{0} --> {1} ({2})\n', item.originId, item.destinationId, item.color);
+                    ret += kendo.format('{0} {1} --> {2} ({3})\n', item.type, item.id, item.data.target, item.data.color);
                 });
                 return ret;
             },

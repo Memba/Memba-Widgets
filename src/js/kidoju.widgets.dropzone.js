@@ -39,10 +39,10 @@
         var MOUSEDOWN = 'mousedown' + NS + ' ' + 'touchstart' + NS;
         var MOUSEMOVE = 'mousemove' + NS + ' ' + 'touchmove' + NS;
         var MOUSEUP = 'mouseup' + NS + ' ' + 'touchend' + NS;
+        var DATA_TYPE = 'draggable';
         var TOP = 'top';
         var LEFT = 'left';
         var WIDGET_CLASS = 'kj-dropzone'; // 'k-widget kj-dropzone';
-        // TODO var DRAGGABLE_CLASS = 'kj-draggable';
         var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
         var STATE = 'state';
         var ID = 'id';
@@ -162,7 +162,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                logger.debug('widget initialized');
+                logger.debug({method: 'init', message: 'widget initialized'});
                 that._dataSource();
                 that._layout();
                 that.enable(that.options.enable);
@@ -179,8 +179,8 @@
                 dataSource: [],
                 value: [],
                 scaler: 'div.kj-stage', // that.wrapper in kidoju.widgets.stage
-                container: 'div.kj-stage>div[data-role="stage"]', // that.stage in kidoju.widgets.stage
-                draggable: 'div.kj-element:has([data-draggable="true"])', // a stageElement in kidoju.widgets.stage
+                container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]', // that.stage in kidoju.widgets.stage
+                draggable: 'div.kj-element:has([data-' + kendo.ns + 'draggable="true"])', // a stageElement in kidoju.widgets.stage
                 center: false,
                 enable: true
             },
@@ -454,13 +454,16 @@
                 assert.instanceof(DataSource, dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 var dataItem = dataSource.get(id);
                 if (dataItem) {
-                    dataItem.set(LEFT, left);
-                    dataItem.set(TOP, top);
+                    dataItem.set('data.' + LEFT, left);
+                    dataItem.set('data.' + TOP, top);
                 } else {
                     dataSource.add({
+                        type: DATA_TYPE,
                         id: id,
-                        left: left,
-                        top: top
+                        data: {
+                            left: left,
+                            top: top
+                        }
                     });
                 }
             },
@@ -481,6 +484,9 @@
                 }
                 that._refreshHandler = $.proxy(that.refresh, that);
                 that.dataSource.bind(CHANGE, that._refreshHandler);
+
+                // Filter dataSource
+                that.dataSource.filter({ field: 'type', operator: 'eq', value: DATA_TYPE });
 
                 // trigger a read on the dataSource if one hasn't happened yet
                 if (that.options.autoBind) {
@@ -506,15 +512,15 @@
             refresh: function (e) {
                 var that = this;
                 var container = that.container;
-                var items = that.dataSource.data();
+                var items = that.dataSource.view(); // dataSource is filtered
                 if ($.isPlainObject(e) && $.isArray(e.items)) {
                     items = e.items;
                 }
                 $.each(items, function (index, item) {
                     var stageElement = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), item.id)).closest(that.options.draggable);
                     stageElement.css({
-                        left: item.left,
-                        top: item.top
+                        left: item.data.left,
+                        top: item.data.top
                     });
                 });
             },
@@ -526,17 +532,17 @@
             destroy: function () {
                 var that = this;
                 var element = that.element;
+                // Unbind mouse events
                 that.enable(false);
                 Widget.fn.destroy.call(that);
-                // unbind and destroy kendo
-                kendo.unbind(element);
+                // unbind datasource
+                that.dataSource.bind(CHANGE, that._refreshHandler);
+                // destroy other elements
                 kendo.destroy(element);
-                // unbind all other events
-                that.element.find('*').off();
                 // remove descendants
-                that.element.empty();
+                element.empty();
                 // remove element classes
-                that.element.removeClass(WIDGET_CLASS);
+                element.removeClass(WIDGET_CLASS);
             }
 
         });

@@ -73,11 +73,12 @@
         var viewModel = new kendo.observable({
             value1: undefined,
             value2: undefined,
-            source: [],
+            source: [{ type: 'dummy', id: 'val_0000000', data: { a: 1, b: new Date(), c: 'foo'} }], // Test type filtering
+            // source2: new kendo.data.DataSource([{ type: 'dummy',  id: 'val_0000000', data: { a: 2, b: new Date(), c: 'bar'} }]),
             source$: function() {
                 var ret = '';
                 this.get('source').forEach(function(item) {
-                    ret += item.id + kendo.format(' ({0}, {1})\n', item.top, item.left);
+                    ret += kendo.format('{0} {1} at ({2}, {3})\n', item.type, item.id, item.data.top, item.data.left);
                 });
                 return ret;
             },

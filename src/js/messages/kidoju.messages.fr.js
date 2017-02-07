@@ -373,6 +373,7 @@
                     properties.success.title = 'Succès';
                     properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
+                    properties.hide.title = 'Cacher';
                 }
 
                 if (tools.dropzone instanceof Tool) {
@@ -458,6 +459,25 @@
                     properties.success.title = 'Succès';
                     properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
+                }
+
+                if (tools.selector instanceof Tool) {
+                    // Description
+                    tools.selector.constructor.prototype.description = 'Selecteur';
+                    // Attributes
+                    attributes = tools.selector.constructor.prototype.attributes;
+                    attributes.color.title = 'Couleur';
+                    attributes.shape.title = 'Forme';
+                    // Properties
+                    properties = tools.selector.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.description.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Échec';
+                    properties.omit.title = 'Omission';
+                    properties.hide.title = 'Cacher';
                 }
 
                 if (tools.table instanceof Tool) {

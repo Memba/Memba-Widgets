@@ -54,7 +54,7 @@
         var ROLE = 'selector';
         var WIDGET_CLASS = 'kj-selector';
         var SURFACE_CLASS = WIDGET_CLASS + '-surface';
-        var DRAGGABLE_CLASS = 'kj-draggable';
+        var INTERACTIVE_CLASS = 'kj-interactive';
         var DATA_TYPE = 'selection';
         var MIN_DIAGONAL = 30;
         var LINE_HW_PROPORTION = 0.2;
@@ -428,7 +428,7 @@
              * @param enabled
              */
             enable: function (enabled) {
-
+                // TODO
             },
 
             /**
@@ -473,7 +473,7 @@
              */
             options: {
                 name: 'SelectorSurface',
-                container: 'div.kj-stage>div[data-role="stage"]',
+                container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]',
                 scaler: 'div.kj-stage',
                 stroke: {
                     width: 4
@@ -595,7 +595,7 @@
                 var surfaceElement = container.find(DOT + SURFACE_CLASS);
                 assert.hasLength(surfaceElement, kendo.format(assert.messages.hasLength.default, surfaceElement));
                 var surfaceWidget = surfaceElement.data('kendoSelectorSurface');
-                assert.instanceof(SelectorSurface, surfaceWidget, kendo.format(assert.messages.instanceof.default, 'this.surfaceWidget', 'kendo.ui.SelectorSurface'));
+                assert.instanceof(SelectorSurface, surfaceWidget, kendo.format(assert.messages.instanceof.default, 'surfaceWidget', 'kendo.ui.SelectorSurface'));
                 var scaler = container.closest(surfaceWidget.options.scaler);
                 var scale = scaler.length ? util.getTransformScale(scaler) : 1;
                 var mouse = util.getMousePosition(e, container);
@@ -643,7 +643,7 @@
                     var surfaceElement = container.find(DOT + SURFACE_CLASS);
                     assert.hasLength(surfaceElement, kendo.format(assert.messages.hasLength.default, surfaceElement));
                     var surfaceWidget = surfaceElement.data('kendoSelectorSurface');
-                    assert.instanceof(SelectorSurface, surfaceWidget, kendo.format(assert.messages.instanceof.default, 'this.surfaceWidget', 'kendo.ui.SelectorSurface'));
+                    assert.instanceof(SelectorSurface, surfaceWidget, kendo.format(assert.messages.instanceof.default, 'surfaceWidget', 'kendo.ui.SelectorSurface'));
                     var scaler = container.closest(surfaceWidget.options.scaler);
                     var scale = scaler.length ? util.getTransformScale(scaler) : 1;
                     var mouse = util.getMousePosition(e, container);
@@ -665,7 +665,7 @@
                     var surfaceElement = container.find(DOT + SURFACE_CLASS);
                     assert.hasLength(surfaceElement, kendo.format(assert.messages.hasLength.default, surfaceElement));
                     var surfaceWidget = surfaceElement.data('kendoSelectorSurface');
-                    assert.instanceof(SelectorSurface, surfaceWidget, kendo.format(assert.messages.instanceof.default, 'this.surfaceWidget', 'kendo.ui.SelectorSurface'));
+                    assert.instanceof(SelectorSurface, surfaceWidget, kendo.format(assert.messages.instanceof.default, 'surfaceWidget', 'kendo.ui.SelectorSurface'));
                     var dataSource = surfaceWidget.dataSource;
                     if (dataSource instanceof kendo.data.DataSource) {
                         var dataItem = util.getDataItem(path, surfaceWidget.color(), surfaceWidget.getSelectorShapes());
@@ -740,7 +740,6 @@
                 assert.instanceof(DataSource, dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 assert.instanceof(Surface, surface, kendo.format(assert.messages.instanceof.default, 'this.surface', 'kendo.data.Surface'));
                 var dataView = dataSource.view(); // This is filtered
-                // TODO showSurface????
                 if (surface instanceof kendo.drawing.Surface) {
                     // Clear surface
                     surface.clear();
@@ -756,7 +755,11 @@
                 if ($.isArray(selectors)) {
                     for (i = 0, length = selectors.length; i < length; i++) {
                         assert.instanceof(Selector, selectors[i], kendo.format(assert.messages.instanceof.default, 'selectors[i]', 'kendo.ui.Selector'));
-                        selectors[i].trigger(CHANGE);
+                        try {
+                            // We might get `Uncaught TypeError: Cannot read property 'value' of undefined`
+                            // because a refresh is triggered before test is added to the viewModel in play mode
+                            selectors[i].trigger(CHANGE);
+                        } catch (ex) {}
                     }
                 }
             },
@@ -805,20 +808,29 @@
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroy the widget
              * @method destroy
              */
             destroy: function () {
                 var that = this;
                 var options = that.options;
-                that.toolbar = undefined;
-                that.selectors = undefined;
                 Widget.fn.destroy.call(that);
                 // unbind document events
                 $(document)
                     .off(NS, options.container);
                 // unbind dataSource
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
+                // destroy toolbar
+                if (that.toolbar instanceof SelectorToolBar) {
+                    that.toolbar.destroy();
+                    that.toolbar.wrapper.remove();
+                    that.toolbar = undefined;
+                }
+                // Dereference objects
+                that.surface = undefined;
+                that.selectors = undefined;
+                // Remove class
+                // that.element.removeClass(WIDGET_CLASS);
                 kendo.destroy(that.element);
             }
         });
@@ -844,7 +856,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                logger.debug('widget initialized');
+                logger.debug({method: 'init', message: 'widget initialized'});
                 that._layout();
                 that._ensureSurface();
                 that._dataSource();
@@ -863,7 +875,7 @@
                 autoBind: true,
                 dataSource: null,
                 scaler: 'div.kj-stage',
-                container: 'div.kj-stage>div[data-role="stage"]',
+                container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]',
                 toolbar: '', // This points to a container div for including the toolbar
                 shape: 'circle',
                 color: '#FF0000',
@@ -875,15 +887,15 @@
                 },
                 shapeStroke: { // strokeOptions
                     color: '#FF0000',
-                    dashType: 'longDashDot',
-                    width: 4,
+                    width: 8,
                     opacity: 0.6
                 },
-                // in design mode: showPlaceholder = true, enable = false
-                // in play mode: showPlaceholder = false, enabled = true
-                // in review mode: showPlaceholder = true, enable = false
-                showPlaceholder: true,
-                showSurface: true, // TODO
+                // in design mode: drawPlaceholder = true, createSurface = false, enable = false
+                // in play mode: drawPlaceholder = false, createSurface = true, enabled = true
+                // in review mode: drawPlaceholder = true, createSurface = true, enable = false
+                drawPlaceholder: true,
+                createSurface: true,
+                // showToolBar === enable
                 enable: true
             },
 
@@ -897,9 +909,10 @@
 
             /**
              * Value for MVVM binding
-             * - If there is no selection of the corresponding options.color, value returns undefined
-             * - If there are more selections than the number of widgets of the same color, value returns 0
-             * -
+             * - If there is no selection of the corresponding options.shapeStroke.color, value returns undefined
+             * - If there are more selections than the number of widgets of the same shape and color, value returns 0
+             * - If there is no selection of corresponding shape and color within the widget placeholder, value returns 0
+             * - If there is a selection of corresponding shape and color within the widget placeholder, value returns 1
              * @param value
              */
             value: function () {
@@ -971,10 +984,10 @@
                 var element = that.element;
                 that.wrapper = element;
                 // touch-action: 'none' is for Internet Explorer - https://github.com/jquery/jquery/issues/2987
-                // DRAGGABLE_WIDGET (which might be shared with other widgets) is used to position the drawing surface below draggable elements
+                // INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
                 element
                     .addClass(WIDGET_CLASS)
-                    // .addClass(DRAGGABLE_CLASS) // Contrary to connectors, selections are not draggables
+                    // .addClass(INTERACTIVE_CLASS) // Contrary to connectors, selectors are not interactive (only the surface is)
                     .css({ touchAction: 'none' });
                 that.surface = drawing.Surface.create(element);
             },
@@ -987,7 +1000,7 @@
                 assert.instanceof(Surface, this.surface, kendo.format(assert.messages.instanceof.default, 'this.surface', 'kendo.drawing.Surface'));
                 var that = this; // this is the selection widget
                 var options = that.options;
-                if (options.showPlaceholder) {
+                if (options.drawPlaceholder) {
                     var element = that.element;
                     var shape = options.shape;
                     var frameOptions = { stroke: options.frameStroke };
@@ -1018,36 +1031,38 @@
              */
             _ensureSurface: function () {
                 var that = this;
-                var element = that.element;
                 var options = that.options;
-                var container = element.closest(options.container);
-                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
-                var surfaceElement = container.find(DOT + SURFACE_CLASS);
-                if (options.showSurface && !surfaceElement.length) {
-                    assert.isUndefined(that.surfaceWidget, kendo.format(assert.messages.isUndefined.default, 'this.surfaceWidget'));
-                    var firstElementWithDraggable = container.children().has(DOT + DRAGGABLE_CLASS).first();
-                    surfaceElement = $(DIV)
-                        .addClass(SURFACE_CLASS)
-                        .css({ position: 'absolute', top: 0, left: 0 })
-                        .height(container.height())
-                        .width(container.width());
-                    // Selections are not draggables so we have to consider that there might be no firstElementWithDraggable
-                    if (firstElementWithDraggable.length) {
-                        surfaceElement.insertBefore(firstElementWithDraggable);
-                    } else {
-                        surfaceElement.appendTo(container);
+                if (options.createSurface) {
+                    var element = that.element;
+                    var container = element.closest(options.container);
+                    assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
+                    var surfaceElement = container.find(DOT + SURFACE_CLASS);
+                    if (!surfaceElement.length) {
+                        assert.isUndefined(that.selectorSurface, kendo.format(assert.messages.isUndefined.default, 'this.selectorSurface'));
+                        var firstElementWithDraggable = container.children().has(DOT + INTERACTIVE_CLASS).first();
+                        surfaceElement = $(DIV)
+                            .addClass(SURFACE_CLASS)
+                            .css({position: 'absolute', top: 0, left: 0})
+                            .height(container.height())
+                            .width(container.width());
+                        // Selections are not draggables so we have to consider that there might be no firstElementWithDraggable
+                        if (firstElementWithDraggable.length) {
+                            surfaceElement.insertBefore(firstElementWithDraggable);
+                        } else {
+                            surfaceElement.appendTo(container);
+                        }
+                        surfaceElement.kendoSelectorSurface({
+                            container: options.container,
+                            dataSource: options.dataSource,
+                            scaler: options.scaler,
+                            toolbar: options.toolbar
+                        });
                     }
-                    surfaceElement.kendoSelectorSurface({
-                        container: options.container,
-                        dataSource: options.dataSource,
-                        scaler: options.scaler,
-                        toolbar: options.toolbar
-                    });
+                    var surfaceWidget = surfaceElement.data('kendoSelectorSurface');
+                    assert.instanceof(SelectorSurface, surfaceWidget, kendo.format(assert.messages.instanceof.default, 'surfaceWidget', 'kendo.ui.SelectorSurface'));
+                    surfaceWidget.registerSelector(that);
+                    that.selectorSurface = surfaceWidget;
                 }
-                var surfaceWidget = surfaceElement.data('kendoSelectorSurface');
-                assert.instanceof(SelectorSurface, surfaceWidget, kendo.format(assert.messages.instanceof.default, 'surfaceWidget', 'kendo.ui.SelectorSurface'));
-                surfaceWidget.registerSelector(that);
-                that.surfaceWidget = surfaceWidget;
             },
 
             /**
@@ -1093,9 +1108,8 @@
             refresh: function (e) {
                 if (e && $.type(e.action) === UNDEFINED) {
                     // When resetting the dataSource, set the new dataSource on the selectorSurface widget
-                    var surfaceWidget = this.surfaceWidget;
-                    assert.instanceof(SelectorSurface, surfaceWidget, kendo.format(assert.messages.instanceof.default, 'this.surfaceWidget', 'kendo.ui.SelectorSurface'));
-                    if (surfaceWidget.dataSource !== e.sender) {
+                    var surfaceWidget = this.selectorSurface;
+                    if (surfaceWidget instanceof SelectorSurface && surfaceWidget.dataSource !== e.sender) {
                         surfaceWidget.setDataSource(e.sender);
                         logger.debug({
                             method: 'refresh',
@@ -1110,11 +1124,11 @@
              */
             enable: function (enabled) {
                 this._enabled = enabled;
-                // TODO this.surfaceWidget.checkEnable();
+                // TODO this.selectorSurface.checkEnable();
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroys the widget
              * @method destroy
              */
             destroy: function () {
@@ -1123,9 +1137,22 @@
                 Widget.fn.destroy.call(that);
                 // unbind dataSource
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
+                // dereference selectors
+                if (that.selectorSurface instanceof SelectorSurface && $.isArray(that.selectorSurface.selectors)) {
+                    // unregister this selector
+                    if (that.selectorSurface.selectors.length > 0) {
+                        var index = that.selectorSurface.selectors.indexOf(that);
+                        that.selectorSurface.selectors.splice(index, 1);
+                    }
+                    // if all selectors are unregistered, destroy selector surface (which should destroy the toolbar)
+                    if (that.selectorSurface.selectors.length === 0) {
+                        that.selectorSurface.destroy();
+                        that.selectorSurface.wrapper.remove();
+                    }
+                    that.selectorSurface = undefined;
+                }
                 kendo.destroy(that.element);
             }
-
         });
 
         kendo.ui.plugin(Selector);

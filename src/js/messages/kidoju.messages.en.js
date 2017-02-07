@@ -373,6 +373,7 @@
                     properties.success.title = 'Success';
                     properties.failure.title = 'Failure';
                     properties.omit.title = 'Omit';
+                    properties.hide.title = 'Hide';
                 }
 
                 if (tools.dropzone instanceof Tool) {
@@ -458,6 +459,26 @@
                     properties.success.title = 'Success';
                     properties.failure.title = 'Failure';
                     properties.omit.title = 'Omit';
+                }
+
+
+                if (tools.selector instanceof Tool) {
+                    // Description
+                    tools.selector.constructor.prototype.description = 'Selector';
+                    // Attributes
+                    attributes = tools.selector.constructor.prototype.attributes;
+                    attributes.color.title = 'Color';
+                    attributes.shape.title = 'Shape';
+                    // Properties
+                    properties = tools.selector.constructor.prototype.properties;
+                    properties.name.title = 'Name';
+                    properties.description.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Success';
+                    properties.failure.title = 'Failure';
+                    properties.omit.title = 'Omit';
+                    properties.omit.title = 'Hide';
                 }
 
                 if (tools.table instanceof Tool) {

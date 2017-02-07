@@ -1,6 +1,7 @@
 .kj-floating {
     display: flex;
     flex-flow: row nowrap;
+    cursor: move;
 }
 .kj-floating .kj-floating-handle {
     width: 1em;

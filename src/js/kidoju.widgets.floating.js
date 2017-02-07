@@ -11,7 +11,7 @@
     define([
         './window.assert',
         './window.logger',
-        './vendor/kendo/kendo.draggable',
+        './vendor/kendo/kendo.draganddrop',
         './vendor/kendo/kendo.window'
     ], f);
 })(function () {

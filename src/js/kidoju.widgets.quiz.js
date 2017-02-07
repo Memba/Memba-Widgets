@@ -36,6 +36,7 @@
         var ACTIVE = 'k-state-active';
         var DISABLE = 'k-state-disabled';
         var WIDGET_CLASS = 'kj-quiz'; // 'k-widget kj-quiz',
+        var INTERACTIVE_CLASS = 'kj-interactive';
         var BUTTON = '<input type="button" class="k-button kj-quiz-item" value="{0}">';
         var RADIO = '<div class="kj-quiz-item"><input id="{1}_{2}" name="{1}" type="radio" class="k-radio" value="{0}"><label class="k-radio-label" for="{1}_{2}">{0}</label></div>';
         var MARGIN = '0.2em';
@@ -228,8 +229,10 @@
             _layout: function () {
                 var that = this;
                 that.wrapper = that.element;
+                // INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
                 that.element
-                    .addClass(WIDGET_CLASS);
+                    .addClass(WIDGET_CLASS)
+                    .addClass(INTERACTIVE_CLASS);
                 if (that.options.mode === MODES.DROPDOWN) {
                     that._layoutDropDown();
                 }

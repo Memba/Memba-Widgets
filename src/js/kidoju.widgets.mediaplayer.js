@@ -35,6 +35,7 @@
         var NUMBER = 'number';
         var UNDEFINED = 'undefined';
         var WIDGET_CLASS = 'kj-mediaplayer';
+        var INTERACTIVE_CLASS = 'kj-interactive';
         var TOOLBAR_CLASS = 'k-widget k-toolbar kj-mediaplayer-toolbar';
         var BUTTON_CLASS = 'k-button kj-mediaplayer-button';
         var COMMAND = 'command';
@@ -211,8 +212,10 @@
             _layout: function () {
                 var that = this;
                 that.wrapper = that.element;
+                // INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
                 that.element
                     .addClass(WIDGET_CLASS)
+                    .addClass(INTERACTIVE_CLASS)
                     .css({ position: 'relative' });
                 that._media();
                 that._toolbar();

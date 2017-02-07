@@ -34,6 +34,7 @@
         // var ACTIVE = 'k-state-active';
         var DISABLE = 'k-state-disabled';
         var WIDGET_CLASS = 'kj-multicheckbox'; // 'k-widget kj-multicheckbox',
+        var INTERACTIVE_CLASS = 'kj-interactive';
         var CHECKBOX = '<div class="kj-multicheckbox-item"><input id="{1}_{2}" name="{1}" type="checkbox" class="k-checkbox" value="{0}"><label class="k-checkbox-label" for="{1}_{2}">{0}</label></div>';
         var CHECKBOX_SELECTOR = 'input[type="checkbox"]';
         var CHECKED = 'checked';
@@ -178,8 +179,10 @@
             _layout: function () {
                 var that = this;
                 that.wrapper = that.element;
+                // INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
                 that.element
-                    .addClass(WIDGET_CLASS);
+                    .addClass(WIDGET_CLASS)
+                    .addClass(INTERACTIVE_CLASS);
                 // refresh updates checkboxes
             },
 

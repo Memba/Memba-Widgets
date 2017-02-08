@@ -228,7 +228,7 @@
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
                     omit: { title: 'Omit' },
-                    disable: { title: 'Disable' }
+                    disabled: { title: 'Disable' }
                 }
             },
 
@@ -322,7 +322,7 @@
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
                     omit: { title: 'Omit' },
-                    disable: { title: 'Disable' }
+                    disabled: { title: 'Disabled' }
                 }
             },
 
@@ -645,7 +645,7 @@
              */
             showResult: function () {
                 // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
-                return '<div class=".kj-element-result">' +
+                return '<div class=".kj-element-result" data-#= ns #bind="invisible: #: properties.name #.disabled">' +
                     '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.success + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
                     '<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.failure + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
                     '</div>';
@@ -654,19 +654,19 @@
             /**
              * Improved display of value in score grid
              * Note: search for getScoreArray in kidoju.data
-             * @param value
+             * @param testItem
              */
-            value$: function (value) {
-                return kendo.htmlEncode(value || '');
+            value$: function (testItem) {
+                return kendo.htmlEncode(testItem.value || '');
             },
 
             /**
              * Improved display of solution in score grid
              * Note: search for getScoreArray in kidoju.data
-             * @param solution
+             * @param testItem
              */
-            solution$: function (solution) {
-                return kendo.htmlEncode(solution || '');
+            solution$: function (testItem) {
+                return kendo.htmlEncode(testItem.solution || '');
             },
 
             // onEnable: function (e, component, enabled) {},
@@ -2200,15 +2200,16 @@
             },
 
             /**
-             * Improved display of value in score grid
-             * @param value
+             * Pretiffy array for results grid
+             * @param arr
+             * @private
              */
-            value$: function (value) {
+            _prettify: function (arr) {
                 // var ret = '<table>';
                 var ret = '';
-                if ($.isArray(value) || value instanceof ObservableArray) {
-                    for (var r = 0, rowTotal = value.length; r < rowTotal; r++) {
-                        var row = value[r];
+                if ($.isArray(arr) || arr instanceof ObservableArray) {
+                    for (var r = 0, rowTotal = arr.length; r < rowTotal; r++) {
+                        var row = arr[r];
                         // ret += '<tr>';
                         for (var c = 0, colTotal = row.length; c < colTotal; c++) {
                             // ret += '<td>' + kendo.htmlEncode(row[c] || '') + '</td>';
@@ -2219,30 +2220,22 @@
                     }
                 }
                 // ret += '</table>';
-                return ret;
+            },
+
+            /**
+             * Improved display of value in score grid
+             * @param testItem
+             */
+            value$: function (testItem) {
+                return this._prettify(testItem.value);
             },
 
             /**
              * Improved display of solution in score grid
-             * @param solution
+             * @param testItem
              */
-            solution$: function (solution) {
-                // var ret = '<table>';
-                var ret = '';
-                if ($.isArray(solution) || solution instanceof ObservableArray) {
-                    for (var r = 0, rowTotal = solution.length; r < rowTotal; r++) {
-                        var row = solution[r];
-                        // ret += '<tr>';
-                        for (var c = 0, colTotal = row.length; c < colTotal; c++) {
-                            // ret += '<td>' + kendo.htmlEncode(row[c] || '') + '</td>';
-                            ret += kendo.htmlEncode(row[c] || '') + (c === colTotal - 1 ? '' : ',');
-                        }
-                        // ret += '</tr>';
-                        ret += '<br/>';
-                    }
-                }
-                // ret += '</table>';
-                return ret;
+            solution$: function (testItem) {
+                return this._prettify(testItem.solution);
             },
 
             /**
@@ -2315,10 +2308,10 @@
 
             /**
              * Improved display of value in score grid
-             * @param value
+             * @param testItem
              */
-            value$: function (value) {
-                var ret = (value || []).slice();
+            value$: function (testItem) {
+                var ret = (testItem.value || []).slice();
                 for (var i = 0; i < ret.length; i++) {
                     ret[i] = kendo.htmlEncode(ret[i]);
                 }
@@ -2327,10 +2320,10 @@
 
             /**
              * Improved display of solution in score grid
-             * @param solution
+             * @param testItem
              */
-            solution$: function (solution) {
-                return kendo.htmlEncode(solution || '').split('\n').join('<br/>');
+            solution$: function (testItem) {
+                return kendo.htmlEncode(testItem.solution || '').split('\n').join('<br/>');
             },
 
             /**
@@ -2511,10 +2504,10 @@
 
             /**
              * Improved display of value in score grid
-             * @param value
+             * @param testItem
              */
-            value$: function (value) {
-                var ret = (value || []).slice();
+            value$: function (testItem) {
+                var ret = (testItem.value || []).slice();
                 for (var i = 0; i < ret.length; i++) {
                     ret[i] = kendo.htmlEncode(ret[i]);
                 }
@@ -2523,10 +2516,10 @@
 
             /**
              * Improved display of solution in score grid
-             * @param solution
+             * @param testItem
              */
-            solution$: function (solution) {
-                return kendo.htmlEncode(solution || '').split('\n').join('<br/>');
+            solution$: function (testItem) {
+                return kendo.htmlEncode(testItem.solution || '').split('\n').join('<br/>');
             },
 
             /**
@@ -3153,6 +3146,28 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Improved display of value in score grid
+             * Note: search for getScoreArray in kidoju.data
+             * @param testItem
+             */
+            value$: function (testItem) {
+                if (testItem.result) {
+                    return kendo.htmlEncode(testItem.solution || '');
+                } else {
+                    return 'N/A'; // TODO translate
+                }
+            },
+
+            /**
+             * Improved display of solution in score grid
+             * Note: search for getScoreArray in kidoju.data
+             * @param testItem
+             */
+            solution$: function (testItem) {
+                return kendo.htmlEncode(testItem.solution || '');
             },
 
             /**

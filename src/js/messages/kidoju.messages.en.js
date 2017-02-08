@@ -373,7 +373,7 @@
                     properties.success.title = 'Success';
                     properties.failure.title = 'Failure';
                     properties.omit.title = 'Omit';
-                    properties.disable.title = 'Disable';
+                    properties.disabled.title = 'Disable';
                 }
 
                 if (tools.dropzone instanceof Tool) {
@@ -478,7 +478,7 @@
                     properties.success.title = 'Success';
                     properties.failure.title = 'Failure';
                     properties.omit.title = 'Omit';
-                    properties.disable.title = 'Disable';
+                    properties.disabled.title = 'Disable';
                 }
 
                 if (tools.table instanceof Tool) {

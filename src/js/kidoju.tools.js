@@ -228,7 +228,7 @@
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
                     omit: { title: 'Omit' },
-                    hide: { title: 'Hide' }
+                    disable: { title: 'Disable' }
                 }
             },
 
@@ -322,7 +322,7 @@
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
                     omit: { title: 'Omit' },
-                    hide: { title: 'Hide' }
+                    disable: { title: 'Disable' }
                 }
             },
 
@@ -1237,6 +1237,21 @@
                         }
                     });
                 };
+            }
+        });
+
+        /**
+         * Disabled adapter
+         */
+        adapters.DisabledAdapter = BaseAdapter.extend({
+            init: function (options, attributes) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = BOOLEAN;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : false);
+                this.editor = 'input';
+                this.attributes = $.extend({}, this.attributes, attributes);
+                this.attributes[kendo.attr('role')] = 'switch';
+                // TODO: set scores at 0 and disable test logic
             }
         });
 
@@ -2406,7 +2421,7 @@
                 success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 0.5 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.connector.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.connector.properties.omit.title, defaultValue: 0 }),
-                hide: new adapters.BooleanAdapter({ title: i18n.connector.properties.hide.title, defaultValue: false })
+                disabled: new adapters.DisabledAdapter({ title: i18n.connector.properties.disabled.title, defaultValue: false })
             },
 
             /**
@@ -3109,7 +3124,7 @@
                 success: new adapters.ScoreAdapter({ title: i18n.selector.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.selector.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.selector.properties.omit.title, defaultValue: 0 }),
-                hide: new adapters.BooleanAdapter({ title: i18n.selector.properties.hide.title, defaultValue: false })
+                disabled: new adapters.DisabledAdapter({ title: i18n.selector.properties.disabled.title, defaultValue: false })
             },
 
             /**

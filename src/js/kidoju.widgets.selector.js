@@ -73,7 +73,7 @@
              * @param length
              * @returns {string}
              */
-             randomString: function(length) {
+            randomString: function(length) {
                 var s = new Array(length + 1).join('x');
                 return s.replace(/x/g, function (c) {
                     /* jshint -W016 */
@@ -541,10 +541,10 @@
                     that.selectors.push(selector);
                     // Set the prefix for dataSource ids (so as to only draw selections for the current page when played)
                     var selectorId = selector.element.attr(kendo.attr(ID)) || '';
-                    if ($.type(that._prefix) === UNDEFINED) {
-                        that._prefix = selectorId;
-                    } else if (that._prefix > selectorId) {
-                        that._prefix = selectorId;
+                    if ($.type(that._selectorId) === UNDEFINED) {
+                        that._selectorId = selectorId;
+                    } else if (that._selectorId > selectorId) {
+                        that._selectorId = selectorId;
                     }
                     // Add selector color to toolbar
                     if (that.toolbar instanceof SelectorToolBar) {
@@ -676,8 +676,10 @@
                     if (dataSource instanceof kendo.data.DataSource) {
                         var dataItem = util.getDataItem(path, surfaceWidget.color(), surfaceWidget.getSelectorShapes());
                         if ($.isPlainObject(dataItem)) {
-                            // Add an id using a _prefix which ensures we can filter selections by page when played
-                            dataItem.id = surfaceWidget._prefix + '_' + util.randomString(4);
+                            // Add random Object Id
+                            dataItem.id = util.randomString(24);
+                            // Designate a selector to identify the page
+                            dataItem.data.selector = surfaceWidget._selectorId;
                             dataSource.add(dataItem);
                         } else {
                             // Refresh (to remove the failed attempt at drawing a selection)
@@ -755,7 +757,7 @@
                     for (var i = 0, total = dataView.length; i < total; i++) {
                         var dataItem = dataView[i];
                         // Draw the item only if it relates to the prefix
-                        if (dataItem.type === DATA_TYPE && dataItem.id.startsWith(that._prefix + '_')) {
+                        if (dataItem.type === DATA_TYPE && dataItem.data.selector === that._selectorId) {
                             surface.draw(util.getSelectionDrawing(dataItem, $.extend({}, options.penStroke)));
                         }
                     }

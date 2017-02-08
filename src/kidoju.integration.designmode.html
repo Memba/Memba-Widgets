@@ -74,6 +74,7 @@
     <script src="./js/kidoju.widgets.chargrid.js"></script>
     <script src="./js/kidoju.widgets.connector.js"></script>
     <script src="./js/kidoju.widgets.dropzone.js"></script>
+    <script src="./js/kidoju.widgets.selector.js"></script>
     <script src="./js/kidoju.widgets.quiz.js"></script>
     <script src="./js/kidoju.widgets.table.js"></script>
     <script src="./js/kidoju.widgets.multicheckbox.js"></script>
@@ -711,7 +712,7 @@
                 //Load stream
                 viewModel.stream.load().then(function() {
                     viewModel.set('selectedPage', viewModel.stream.pages.at(0));
-                    kendo.bind('body', viewModel);
+                    kendo.bind('body', viewModel, kendo.ui, kendo.mobile.ui, kendo.dataviz.ui);
 
                     // Init sliders
                     $('#snap-angle').data('kendoSlider').bind('change', function (e) {

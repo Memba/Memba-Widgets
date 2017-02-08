@@ -30,13 +30,14 @@
     <link rel="stylesheet" type="text/css" href="../src/styles/vendor/katex/katex.css">
     <script src="../src/js/vendor/katex/katex.js"></script>
     <!-- Play mode requirements -->
-    <link rel="stylesheet" href="./styles/kidoju.widgets.playbar.css">
-    <link rel="stylesheet" href="./styles/kidoju.widgets.stage.css">
+    <link rel="stylesheet" href="./styles/kidoju.widgets.floating.css">
     <link rel="stylesheet" href="./styles/kidoju.widgets.mathexpression.css">
     <link rel="stylesheet" href="./styles/kidoju.widgets.mediaplayer.css">
-    <link rel="stylesheet" href="./styles/kidoju.widgets.quiz.css">
-    <link rel="stylesheet" href="./styles/kidoju.widgets.table.css">
     <link rel="stylesheet" href="./styles/kidoju.widgets.multicheckbox.css">
+    <link rel="stylesheet" href="./styles/kidoju.widgets.playbar.css">
+    <link rel="stylesheet" href="./styles/kidoju.widgets.quiz.css">
+    <link rel="stylesheet" href="./styles/kidoju.widgets.stage.css">
+    <link rel="stylesheet" href="./styles/kidoju.widgets.table.css">
     <script src="./js/window.assert.js"></script>
     <script src="./js/window.logger.js"></script>
     <script src="./js/kidoju.data.js"></script>
@@ -46,9 +47,11 @@
     <script src="./js/kidoju.widgets.chargrid.js"></script>
     <script src="./js/kidoju.widgets.connector.js"></script>
     <script src="./js/kidoju.widgets.dropzone.js"></script>
+    <script src="./js/kidoju.widgets.floating.js"></script>
     <script src="./js/kidoju.widgets.mathexpression.js"></script>
     <script src="./js/kidoju.widgets.mediaplayer.js"></script>
     <script src="./js/kidoju.widgets.quiz.js"></script>
+    <script src="./js/kidoju.widgets.selector.js"></script>
     <script src="./js/kidoju.widgets.table.js"></script>
     <script src="./js/kidoju.widgets.multicheckbox.js"></script>
     <style>
@@ -103,6 +106,7 @@
 </header>
 <main>
     <div id="toolbar"></div>
+    <div id="floating" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
     <div id="wrapper" class="k-content">
         <div class="centered">
             <div data-role="stage" data-bind="source: selectedPage.components, properties: test" data-mode="play"></div>
@@ -124,15 +128,15 @@
 
         'use strict';
 
-        var kendo = window.kendo,
-            kidoju = window.kidoju,
-            tools = kidoju.tools,
-            Tool = kidoju.Tool,
-            Stream = kidoju.data.Stream,
-            Page = kidoju.data.Page,
-            PageComponent = kidoju.data.PageComponent,
-            PageCollectionDataSource = kidoju.data.PageCollectionDataSource,
-            PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
+        var kendo = window.kendo;
+        var kidoju = window.kidoju;
+        // var tools = kidoju.tools;
+        // var Tool = kidoju.Tool;
+        var Stream = kidoju.data.Stream;
+        // var Page = kidoju.data.Page;
+        // var PageComponent = kidoju.data.PageComponent;
+        // var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+        // var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
 
         //LocalStream with localStorage methods
         var storageKey = 'kidoju.integration';
@@ -627,7 +631,7 @@
             viewModel.stream.load().then(function() {
                 viewModel.set('selectedPage', viewModel.stream.pages.at(0));
                 viewModel.set('test', viewModel.stream.pages.getTestFromProperties());
-                kendo.bind('body', viewModel);
+                kendo.bind('body', viewModel, kendo.ui, kendo.mobile.ui, kendo.dataviz.ui);
                 onResize();
             });
         });

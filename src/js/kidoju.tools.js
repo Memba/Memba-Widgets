@@ -2390,8 +2390,8 @@
             weight: 0.25,
             templates: {
                 design: kendo.format(CONNECTOR, 'data-#= ns #enable="false" data-#= ns #create-surface="false"'),
-                play: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: connections"'),
-                review: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: connections" data-#= ns #enable="false"') + Tool.fn.showResult()
+                play: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
+                review: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
             height: 70,
             width: 70,
@@ -2474,8 +2474,8 @@
             weight: 1,
             templates: {
                 design: kendo.format(DROPZONE, 'data-#= ns #enable="false"'),
-                play: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggables"'),
-                review: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggables" data-#= ns #enable="false"') + Tool.fn.showResult()
+                play: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
+                review: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
             height: 250,
             width: 250,
@@ -3076,7 +3076,7 @@
         });
         tools.register(Quiz);
 
-        var SELECTOR = '<div data-#= ns #role="selector" data-#= ns #shape="#: attributes.shape #" data-#= ns #shape-stroke="{ color: \'#: attributes.color #\', opacity: 0.6, width: 8 }" {0}></div>';
+        var SELECTOR = '<div data-#= ns #role="selector" data-#= ns #id="#: properties.name #" data-#= ns #shape="#: attributes.shape #" data-#= ns #shape-stroke="{ color: \'#: attributes.color #\', dashType: \'dot\', opacity: 0.6, width: 8 }" {0}></div>';
         /**
          * @class Connector tool
          * @type {void|*}
@@ -3089,8 +3089,8 @@
             weight: 1,
             templates: {
                 design: kendo.format(SELECTOR, 'data-#= ns #enable="false" data-#= ns #create-surface="false"'),
-                play: kendo.format(SELECTOR, 'data-#= ns #toolbar="\\#floating .kj-floating-content" data-#= ns #draw-placeholder="false" data-#= ns #bind="value: #: properties.name #.value, source: connections"'),
-                review: kendo.format(SELECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: connections" data-#= ns #enable="false"') + Tool.fn.showResult()
+                play: kendo.format(SELECTOR, 'data-#= ns #toolbar="\\#floating .kj-floating-content" data-#= ns #draw-placeholder="false" data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
+                review: kendo.format(SELECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
             height: 150,
             width: 250,

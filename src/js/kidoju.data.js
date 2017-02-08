@@ -1120,10 +1120,8 @@
                 var that = this;
                 var tools = kidoju.tools;
                 var test = {
-                    // Store for connections
-                    connections: [],
-                    // Store for positioning draggable items
-                    draggables: []
+                    // Store for interactions
+                    interactions: []
                 };
                 $.each(that.data(), function (pageIdx, page) {
                     $.each(page.components.data(), function (componentIdx, component) {
@@ -1156,8 +1154,7 @@
                 var workerPool = new WorkerPool((window.navigator.hardwareConcurrency || 2) - 1, workerTimeout());
                 // TODO: use an app.model and define a submodel with each field - see ValidatedTest above
                 var result = {
-                    connections: test.connections,
-                    draggables: test.draggables,
+                    interactions: test.interactions,
                     score: function () {
                         var score = 0;
                         assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
@@ -1266,7 +1263,7 @@
                                         score: this.get(name + '.score'),
                                         value: this.get(name + '.value')
                                     };
-                                } else if (name === 'connections' || name === 'draggables') {
+                                } else if (name === 'interactions') {
                                     json[name] = this.get(name).toJSON(); // .slice();
                                 }
                             }
@@ -1277,8 +1274,7 @@
 
                 // Flatten test for validation formulas
                 var all = test.toJSON();
-                delete all.connections;
-                delete all.draggables;
+                delete all.interactions;
                 for (var prop in all) {
                     if (all.hasOwnProperty(prop) && $.type(all[prop]) === OBJECT) {
                         if (all[prop].value === null) {

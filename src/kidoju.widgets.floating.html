@@ -25,10 +25,14 @@
 <body>
 
 <h1>kidoju.widgets.floating</h1>
+<div>
+    <input type="checkbox" checked />Toolbar 1,&nbsp;
+    <input type="checkbox" checked />Toolbar 2
+</div>
 <!-- first one has toolbars with buttons and should show -->
-<div id="floating1" data-role="floating" data-content=".k-toolbar [data-uid]"></div>
+<div id="floating1" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
 <!-- second one has no toolbar and should be hidden -->
-<div id="floating2" data-role="floating" data-content=".k-toolbar [data-uid]"></div>
+<div id="floating2" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
 
 <script>
     $(function () {
@@ -39,21 +43,29 @@
         toolbarElement1.appendTo($('#floating1>.kj-floating-content'));
         toolbarElement1.kendoToolBar({
             items: [
-                { type: "button", text: "Foo" },
-                { type: "button", text: "Bar" }
+                { type: "button", text: "Foo1" },
+                { type: "button", text: "Bar1" }
             ],
             resizable: false
         });
+        // toolbarElement1.hide();
 
         // floating1 > toolbar 2
         var toolbarElement2 = $('<div/>');
         toolbarElement2.appendTo($('#floating1>.kj-floating-content'));
         toolbarElement2.kendoToolBar({
             items: [
-                { type: "button", text: "Foo" },
-                { type: "button", text: "Bar" }
+                { type: "button", text: "Foo2" },
+                { type: "button", text: "Bar2" }
             ],
             resizable: false
+        });
+        // toolbarElement2.hide();
+
+        $('input[type="checkbox"]').on('change', function (e) {
+            var index = $('input[type="checkbox"]').index(e.currentTarget);
+            var toolbar = $($('.kj-floating-content>.k-toolbar').get(index));
+            toolbar.toggle(!toolbar.is(':visible'));
         });
     });
 </script>

@@ -58,7 +58,8 @@
              */
             options: {
                 name: 'Floating',
-                content: '' // '.k-toolbar:visible [data-uid]'
+                observed: '', // '.k-toolbar:not([style*='display: none']) [data-uid]'
+                attributeFilter: [], // ['style']
             },
 
             /**
@@ -151,21 +152,35 @@
              */
             _setMutationObserver: function () {
                 var that = this;
-                var container = that.element.children('.kj-floating-content');
-                var content = that.options.content;
-                if (content) {
-                    that.hide();
-                    // create an observer instance (show only if there is content)
+                var wrapper = that.wrapper;
+                var content = wrapper.find('.kj-floating-content');
+                var options = that.options;
+                var observed = options.observed;
+                var attributeFilter = options.attributeFilter;
+                if (observed) {
+                    wrapper.hide();
+                    // create an observer instance (show only if there are observed nodes)
                     that.observer = new window.MutationObserver(function () {
-                        that.wrapper.toggle(!!container.find(content).length);
+                        // that.wrapper.toggle(!!content.find(observed).length);
+                        // creates an infinite loop because display attribute is always modified
+                        // so we need to only apply if there is a change
+                        if (wrapper.is(':visible') && !content.find(observed).length) {
+                            wrapper.hide();
+                        } else if (wrapper.is(':not(:visible)') && content.find(observed).length) {
+                            wrapper.show();
+                        }
                     });
-                    // pass in the target node, as well as the observer configuration
-                    that.observer.observe(
-                        container.get(0),
-                        {childList: true, subtree: true}
-                    );
+                    // To observe node additions and removals (e.g. toolbar buttons)
+                    var config = { childList: true, subtree: true };
+                    // To also observe attributes (e.g. toolbar visibility)
+                    if ($.isArray(attributeFilter) && attributeFilter.length) {
+                        config.attributes = true;
+                        config.attributeFilter = attributeFilter;
+                    }
+                    // pass in the content node to observe, as well as the observer configuration
+                    that.observer.observe(content.get(0), config);
                 } else {
-                    that.show();
+                    wrapper.show();
                 }
             },
 

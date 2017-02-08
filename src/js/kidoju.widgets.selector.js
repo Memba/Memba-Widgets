@@ -52,6 +52,7 @@
         var TOGGLE = 'toggle';
         var DIV = '<div/>';
         var ROLE = 'selector';
+        var ID = 'id';
         var WIDGET_CLASS = 'kj-selector';
         var SURFACE_CLASS = WIDGET_CLASS + '-surface';
         var INTERACTIVE_CLASS = 'kj-interactive';
@@ -66,6 +67,20 @@
          *********************************************************************************/
 
         var util = {
+
+            /**
+             * Build a random hex string of length characters
+             * @param length
+             * @returns {string}
+             */
+             randomString: function(length) {
+                var s = new Array(length + 1).join('x');
+                return s.replace(/x/g, function (c) {
+                    /* jshint -W016 */
+                    return (Math.random() * 16|0).toString(16);
+                    /* jshint +W016 */
+                });
+            },
 
             /**
              * Get the mouse (or touch) position
@@ -378,6 +393,7 @@
                     that.toggle(HASH + buttons[0].id, true);
                     that._onToggle({ id: buttons[0].id });
                 }
+                that.wrapper.toggle(buttons.length > 1);
             },
 
             /**
@@ -424,14 +440,6 @@
             },
 
             /**
-             * Enable/disable widget
-             * @param enabled
-             */
-            enable: function (enabled) {
-                // TODO
-            },
-
-            /**
              * Destroy widget
              */
             destroy: function () {
@@ -462,9 +470,6 @@
                 that._layout();
                 that._createToolBar();
                 that._dataSource();
-                that._addMouseHandlers();
-                $(document).on('color.kendoSelector', that._onColorChange);
-                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 kendo.notify(that);
             },
 
@@ -475,8 +480,8 @@
                 name: 'SelectorSurface',
                 container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]',
                 scaler: 'div.kj-stage',
-                stroke: {
-                    width: 4
+                penStroke: {
+                    width: 8
                 },
                 toolbar: ''
             },
@@ -501,17 +506,6 @@
                 element
                     .addClass(SURFACE_CLASS);
                 that.surface = drawing.Surface.create(element);
-
-                // initialize pen color
-                /*
-                var colorHandler = container.data(COLOR_HANDLER);
-                if ($.type(colorHandler) === UNDEFINED) {
-                    colorHandler = $.proxy(this._onColorChange, container);
-                    $(document).on(COLOR, colorHandler);
-                    container.data(COLOR_HANDLER, colorHandler);
-                    container.data(DATA_COLOR, DEFAULT_STROKE.COLOR);
-                }
-                */
             },
 
             /**
@@ -519,11 +513,12 @@
              * @private
              */
             _createToolBar: function () {
-                var toolbarContainer = $(this.options.toolbar);
+                var that = this;
+                var toolbarContainer = $(that.options.toolbar);
                 if (toolbarContainer.length) {
                     var toolbarElement = $(DIV).appendTo(toolbarContainer);
-                    this.toolbar = toolbarElement.kendoSelectorToolBar().data('kendoSelectorToolBar');
-                    this.toolbar.registerSelectorSurface(this);
+                    that.toolbar = toolbarElement.kendoSelectorToolBar().data('kendoSelectorToolBar');
+                    that.toolbar.registerSelectorSurface(this);
                 }
             },
 
@@ -544,7 +539,19 @@
                 }
                 if (that.selectors.indexOf(selector) === -1) {
                     that.selectors.push(selector);
-                    that.toolbar.addColor(selector.options.shapeStroke.color);
+                    // Set the prefix for dataSource ids (so as to only draw selections for the current page when played)
+                    var selectorId = selector.element.attr(kendo.attr(ID)) || '';
+                    if ($.type(that._prefix) === UNDEFINED) {
+                        that._prefix = selectorId;
+                    } else if (that._prefix > selectorId) {
+                        that._prefix = selectorId;
+                    }
+                    // Add selector color to toolbar
+                    if (that.toolbar instanceof SelectorToolBar) {
+                        that.toolbar.addColor(selector.options.shapeStroke.color);
+                    }
+                    // Reset mouse handlers
+                    that._resetMouseHandlers();
                 }
             },
 
@@ -561,10 +568,10 @@
             },
 
             /**
-             * Add mouse event handlers to draw on surface
+             * Reset mouse event handlers to draw on surface
              * @private
              */
-            _addMouseHandlers: function () {
+            _resetMouseHandlers: function () {
                 // IMPORTANT
                 // We can have several widgets for selections on a page
                 // But we only have one set of event handlers shared across all selections
@@ -573,13 +580,12 @@
                 var data = {}; // We need an object so that data is passed by reference between handlers
                 $(document)
                     .off(NS, options.container);
-
-                // TODO enabled
-
-                $(document)
-                    .on(MOUSEDOWN, options.container, data, this._onMouseDown)
-                    .on(MOUSEMOVE, options.container, data, this._onMouseMove)
-                    .on(MOUSEUP, options.container, data, this._onMouseUp);
+                if (this.enable()) {
+                    $(document)
+                        .on(MOUSEDOWN, options.container, data, this._onMouseDown)
+                        .on(MOUSEMOVE, options.container, data, this._onMouseMove)
+                        .on(MOUSEUP, options.container, data, this._onMouseUp);
+                }
             },
 
             /**
@@ -591,7 +597,7 @@
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 e.preventDefault(); // prevents from selecting the div
                 var container = $(e.currentTarget);
-                // Although this is unavailable, surfaceElement and surfaceWidget give us the drawing surface and dataSoruce
+                // Although `this` is unavailable, surfaceElement and surfaceWidget give us the drawing surface and dataSource
                 var surfaceElement = container.find(DOT + SURFACE_CLASS);
                 assert.hasLength(surfaceElement, kendo.format(assert.messages.hasLength.default, surfaceElement));
                 var surfaceWidget = surfaceElement.data('kendoSelectorSurface');
@@ -616,7 +622,7 @@
                         dataSource.remove(dataItem);
                     });
                 } else {
-                    var strokeOptions = $.extend({}, surfaceWidget.options.stroke, { color: surfaceWidget.color() });
+                    var strokeOptions = $.extend({}, surfaceWidget.options.penStroke, { color: surfaceWidget.color() });
                     var path = new drawing.Path({ stroke: strokeOptions });
                     path.moveTo(mousePoint);
                     surface.draw(path);
@@ -639,7 +645,7 @@
                 var path = e.data.path;
                 if (path instanceof kendo.drawing.Path) {
                     var container = $(e.currentTarget);
-                    // Although this is unavailable, surfaceElement and surfaceWidget give us the drawing surface and dataSoruce
+                    // Although `this` is unavailable, surfaceElement and surfaceWidget give us the drawing surface and dataSource
                     var surfaceElement = container.find(DOT + SURFACE_CLASS);
                     assert.hasLength(surfaceElement, kendo.format(assert.messages.hasLength.default, surfaceElement));
                     var surfaceWidget = surfaceElement.data('kendoSelectorSurface');
@@ -661,7 +667,7 @@
                 var path = e.data.path;
                 if (path instanceof drawing.Path) {
                     var container = $(e.currentTarget);
-                    // Although this is unavailable, surfaceElement and surfaceWidget give us the drawing surface and dataSoruce
+                    // Although `this` is unavailable, surfaceElement and surfaceWidget give us the drawing surface and dataSouce
                     var surfaceElement = container.find(DOT + SURFACE_CLASS);
                     assert.hasLength(surfaceElement, kendo.format(assert.messages.hasLength.default, surfaceElement));
                     var surfaceWidget = surfaceElement.data('kendoSelectorSurface');
@@ -670,6 +676,8 @@
                     if (dataSource instanceof kendo.data.DataSource) {
                         var dataItem = util.getDataItem(path, surfaceWidget.color(), surfaceWidget.getSelectorShapes());
                         if ($.isPlainObject(dataItem)) {
+                            // Add an id using a _prefix which ensures we can filter selections by page when played
+                            dataItem.id = surfaceWidget._prefix + '_' + util.randomString(4);
                             dataSource.add(dataItem);
                         } else {
                             // Refresh (to remove the failed attempt at drawing a selection)
@@ -746,8 +754,9 @@
                     // Draw
                     for (var i = 0, total = dataView.length; i < total; i++) {
                         var dataItem = dataView[i];
-                        if (dataItem.type === DATA_TYPE) {
-                            surface.draw(util.getSelectionDrawing(dataItem, $.extend({}, options.stroke)));
+                        // Draw the item only if it relates to the prefix
+                        if (dataItem.type === DATA_TYPE && dataItem.id.startsWith(that._prefix + '_')) {
+                            surface.draw(util.getSelectionDrawing(dataItem, $.extend({}, options.penStroke)));
                         }
                     }
                 }
@@ -799,12 +808,17 @@
             },
 
             /**
-             * Enable/disable user interactivity on container
+             * Return true if any selector is enabled, false if all selectors are disabled
              */
-            enable: function (enabled) {
-                // this._enabled is checked in _addMouseHandlers
-                // use a variable on container
-                this._enabled = enabled;
+            enable: function () {
+                var selectors = this.selectors;
+                var enabled = false;
+                if ($.isArray(selectors)) {
+                    for (var i = 0, length = selectors.length; i < length; i++) {
+                        enabled = enabled || selectors[i]._enabled;
+                    }
+                }
+                return enabled;
             },
 
             /**
@@ -857,11 +871,11 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug({method: 'init', message: 'widget initialized'});
+                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 that._layout();
                 that._ensureSurface();
                 that._dataSource();
                 that._drawPlaceholder();
-                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 kendo.notify(that);
             },
 
@@ -882,13 +896,14 @@
                 frameStroke: { // strokeOptions
                     color: '#8a8a8a',
                     dashType: 'dot',
-                    width: 2,
-                    opacity: 0.4
+                    opacity: 0.6,
+                    width: 2
                 },
                 shapeStroke: { // strokeOptions
                     color: '#FF0000',
-                    width: 8,
-                    opacity: 0.6
+                    dashType: 'dot',
+                    opacity: 0.6,
+                    width: 8
                 },
                 // in design mode: drawPlaceholder = true, createSurface = false, enable = false
                 // in play mode: drawPlaceholder = false, createSurface = true, enabled = true
@@ -987,7 +1002,7 @@
                 // INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
                 element
                     .addClass(WIDGET_CLASS)
-                    // .addClass(INTERACTIVE_CLASS) // Contrary to connectors, selectors are not interactive (only the surface is)
+                    .addClass(INTERACTIVE_CLASS)
                     .css({ touchAction: 'none' });
                 that.surface = drawing.Surface.create(element);
             },
@@ -1006,8 +1021,9 @@
                     var frameOptions = { stroke: options.frameStroke };
                     var shapeOptions = { stroke: options.shapeStroke };
                     var group = new drawing.Group();
-                    var bbox = new geometry.Rect([0, 0], [element.width(), element.height()]);
-                    var center = new geometry.Point(bbox.origin.x + bbox.size.width / 2, bbox.origin.y + bbox.size.height / 2);
+                    var bbox = new geometry.Rect(
+                        [options.shapeStroke.width / 2, options.shapeStroke.width / 2],
+                        [element.width() - options.shapeStroke.width, element.height() - options.shapeStroke.width]);
                     var outerRect = new drawing.Rect(bbox, frameOptions);
                     group.append(outerRect);
                     if (shape === SelectorSurface.fn.shapes.line) {
@@ -1017,9 +1033,22 @@
                     } else {
                         group.append(util.getCrossDrawing(bbox, shapeOptions));
                     }
-                    var innerCircleGeometry = new geometry.Circle(center, MIN_DIAGONAL / 2);
-                    var innerCircle = new drawing.Circle(innerCircleGeometry, frameOptions);
-                    group.append(innerCircle);
+                    var center = new geometry.Point(bbox.origin.x + bbox.size.width / 2, bbox.origin.y + bbox.size.height / 2);
+                    var centerShapeOptions = $.extend(true, {}, shapeOptions, { stroke: { dashType: 'solid', width: 2 } });
+                    // Add vertical ligne
+                    var verticalLine = new drawing.Path(centerShapeOptions)
+                        .moveTo(center.x, center.y - MIN_DIAGONAL / 2)
+                        .lineTo(center.x, center.y + MIN_DIAGONAL / 2);
+                    group.append(verticalLine);
+                    // Add horixontal line
+                    var horizontalLine = new drawing.Path(centerShapeOptions)
+                        .moveTo(center.x - MIN_DIAGONAL / 2, center.y)
+                        .lineTo(center.x + MIN_DIAGONAL / 2, center.y);
+                    group.append(horizontalLine);
+                    // Add inner circle
+                    // var innerCircleGeometry = new geometry.Circle(center, MIN_DIAGONAL / 2);
+                    // var innerCircle = new drawing.Circle(innerCircleGeometry, centerShapeOptions);
+                    // group.append(innerCircle);
                     that.surface.clear();
                     that.surface.draw(group);
                 }
@@ -1039,15 +1068,15 @@
                     var surfaceElement = container.find(DOT + SURFACE_CLASS);
                     if (!surfaceElement.length) {
                         assert.isUndefined(that.selectorSurface, kendo.format(assert.messages.isUndefined.default, 'this.selectorSurface'));
-                        var firstElementWithDraggable = container.children().has(DOT + INTERACTIVE_CLASS).first();
+                        var firstInteractiveElement = container.children().has(DOT + INTERACTIVE_CLASS).first();
                         surfaceElement = $(DIV)
                             .addClass(SURFACE_CLASS)
                             .css({position: 'absolute', top: 0, left: 0})
                             .height(container.height())
                             .width(container.width());
-                        // Selections are not draggables so we have to consider that there might be no firstElementWithDraggable
-                        if (firstElementWithDraggable.length) {
-                            surfaceElement.insertBefore(firstElementWithDraggable);
+                        // Selections are not draggables so we have to consider that there might be no firstInteractiveElement
+                        if (firstInteractiveElement.length) {
+                            surfaceElement.insertBefore(firstInteractiveElement);
                         } else {
                             surfaceElement.appendTo(container);
                         }
@@ -1123,8 +1152,11 @@
              * Enable/disable user interactivity on container
              */
             enable: function (enabled) {
+                var selectorSurface = this.selectorSurface;
                 this._enabled = enabled;
-                // TODO this.selectorSurface.checkEnable();
+                if (selectorSurface instanceof SelectorSurface) {
+                    selectorSurface._resetMouseHandlers();
+                }
             },
 
             /**

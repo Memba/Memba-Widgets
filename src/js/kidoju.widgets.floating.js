@@ -48,6 +48,7 @@
                 Widget.fn.init.call(that, element, options);
                 logger.debug({method: 'init', message: 'widget initialized'});
                 that._layout();
+                that._setMutationObserver();
                 kendo.notify(that);
             },
 
@@ -56,7 +57,8 @@
              * @property options
              */
             options: {
-                name: 'Floating'
+                name: 'Floating',
+                content: '' // '.k-toolbar:visible [data-uid]'
             },
 
             /**
@@ -88,11 +90,13 @@
             },
 
             /**
-             * Get dragging hint
+             * Get dragging hint (the thing that moves around on top of everything thanks to a high zIndex)
+             * Note: The original element is not modified and should be hidden or displayed with a low opacity
              * @private
              */
             _hint: function () {
-                // el.clone() always get top=0, left=0 which cannot be updated until the clone is added to the document body
+                // element.clone() always sets top=0, left=0 which cannot be updated until the clone is added to the document body
+                // which occurs in kendoDraggable before calling _onDragStart
                 return this.window.wrapper.clone();
             },
 
@@ -101,17 +105,20 @@
              * @private
              */
             _onDragStart: function () {
-                // hint (the clone) is now added to the document body and its position can be set
+                // hint (the clone) is now added to the document body and its position can be set via CSS
                 var hint = this.draggable.hint;
                 var wrapper = this.window.wrapper;
                 var position = wrapper.position();
+                // hide the original element
                 wrapper.hide();
+                // position the hint on top of the original element
                 hint.css({
                     // position: 'absolute',
                     // zIndex: 15000,
                     top: position.top,
                     left: position.left
                 });
+                // show the hint
                 hint.show();
             },
 
@@ -123,14 +130,43 @@
                 var hint = this.draggable.hint;
                 var wrapper = this.window.wrapper;
                 var position = hint.position();
+                // hide the hint which has been moved around
                 hint.hide();
+                // set the position of the original element to the position of the hint
                 wrapper.css({
                     position: 'absolute',
                     zIndex: 15000,
                     top: position.top,
                     left: position.left
                 });
+                // show the original element
                 wrapper.show();
+            },
+
+            /**
+             * Set Mutation Observer
+             * to show/hide the floating whether there is relevant content
+             * @see https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
+             * @private
+             */
+            _setMutationObserver: function () {
+                var that = this;
+                var container = that.element.children('.kj-floating-content');
+                var content = that.options.content;
+                if (content) {
+                    that.hide();
+                    // create an observer instance (show only if there is content)
+                    that.observer = new window.MutationObserver(function () {
+                        that.wrapper.toggle(!!container.find(content).length);
+                    });
+                    // pass in the target node, as well as the observer configuration
+                    that.observer.observe(
+                        container.get(0),
+                        {childList: true, subtree: true}
+                    );
+                } else {
+                    that.show();
+                }
             },
 
             /**
@@ -155,6 +191,10 @@
                 var that = this;
                 Widget.fn.destroy.call(that);
                 kendo.destroy(that.element);
+                // disconnect the mutation observer
+                if (that.observer instanceof window.MutationObserver) {
+                    that.observer.disconnect();
+                }
             }
 
         });

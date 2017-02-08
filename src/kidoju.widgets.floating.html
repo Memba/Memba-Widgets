@@ -25,16 +25,18 @@
 <body>
 
 <h1>kidoju.widgets.floating</h1>
-<div data-role="floating"></div>
-
+<!-- first one has toolbars with buttons and should show -->
+<div id="floating1" data-role="floating" data-content=".k-toolbar [data-uid]"></div>
+<!-- second one has no toolbar and should be hidden -->
+<div id="floating2" data-role="floating" data-content=".k-toolbar [data-uid]"></div>
 
 <script>
     $(function () {
         kendo.init('body');
 
-        // toolbar 1
+        // floating1 > toolbar 1
         var toolbarElement1 = $('<div/>');
-        toolbarElement1.appendTo($('[data-role="floating"]>.kj-floating-content'));
+        toolbarElement1.appendTo($('#floating1>.kj-floating-content'));
         toolbarElement1.kendoToolBar({
             items: [
                 { type: "button", text: "Foo" },
@@ -43,9 +45,9 @@
             resizable: false
         });
 
-        // toolbar 2
+        // floating1 > toolbar 2
         var toolbarElement2 = $('<div/>');
-        toolbarElement2.appendTo($('[data-role="floating"]>.kj-floating-content'));
+        toolbarElement2.appendTo($('#floating1>.kj-floating-content'));
         toolbarElement2.kendoToolBar({
             items: [
                 { type: "button", text: "Foo" },

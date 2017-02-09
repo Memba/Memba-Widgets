@@ -350,7 +350,8 @@
              */
             addColor: function (color) {
                 var that = this;
-                var buttonGroup = this.element.children('.k-button-group');
+                // k-button-group in kendo.ui & km-buttongroup (wo second -) in kendo.mobile.ui
+                var buttonGroup = this.element.children('.k-button-group, .km-buttongroup');
                 var toolBarColors = buttonGroup.children('.k-toggle-button').map(function () {
                     return HASH + $(this).attr('id');
                 });

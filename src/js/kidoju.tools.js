@@ -59,9 +59,10 @@
         var REGISTER = 'register';
         var ACTIVE = 'active';
         var POINTER = 'pointer';
-        var ELEMENT_CLASS = '.kj-element';
+        var ELEMENT_SELECTOR = '.kj-element';
         var DIALOG_DIV = '<div {0}"></div>';
         var DIALOG_SELECTOR = '.kj-dialog';
+        var INTERACTIVE_CLASS = 'kj-interactive';
         var NO_PADDING_CLASS = 'no-padding';
         var CLICK = 'click';
         var RX_HTTP_S = /^https?:\/\//;
@@ -71,18 +72,20 @@
         var RX_DATA = /\S+/i;
         var RX_DESCRIPTION = /\S+/i; // question
         var RX_DROPVALUE = /\S+/i;
-        var RX_FORMULA = /\S+/i;
+        var RX_FORMULA = /\S+/i; // Math expression
         var RX_IMAGE = /^(cdn|data):\/\/[\s\S]+.(gif|jpe?g|png|svg)$/i;
+        var RX_NAME = /val_[0-9a-f]{6}/;
         var RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
         var RX_SOLUTION = /\S+/i;
         var RX_TEXT = /\S+/i;
-        var RX_VALIDATION = /\S+/i;
+        var RX_VALIDATION_LIBRARY = /^\/\/ \w+$/i;
+        var RX_VALIDATION_CUSTOM = /^function validate\(value, solution, all\) {[\s\S]+}$/;
         var RX_VIDEO = /^(cdn|data):\/\/[\s\S]+.mp4$/i;
-        var FORMULA = 'function validate(value, solution, all) {\n\t{0}\n}';
+        var VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
         var JS_COMMENT = '// ';
         var CUSTOM = {
             name: 'custom',
-            formula: kendo.format(FORMULA, '// Your code should return true when value is validated against solution.')
+            formula: kendo.format(VALIDATION_CUSTOM, '// Your code should return true when value is validated against solution.')
         };
         var util = {};
 
@@ -128,6 +131,7 @@
                 invalidFailure: 'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
                 invalidFormula: 'A(n) {0} on page {1} requires a formula in display attributes.',
                 invalidImageFile: 'A(n) {0} on page {1} requires an image file in display attributes.',
+                invalidName: 'A(n) {0} named `{1}` on page {2} has an invalid name.',
                 invalidSolution: 'A(n) {0} named `{1}` on page {2} requires a solution in test logic.',
                 invalidStyle: 'A(n) {0} on page {1} has an invalid style in display attributes.',
                 invalidSuccess: 'A(n) {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.',
@@ -493,6 +497,7 @@
                     invalidFailure: i18n.messages.invalidFailure,
                     invalidFormula: i18n.messages.invalidFormula,
                     invalidImageFile: i18n.messages.invalidImageFile,
+                    invalidName: i18n.messages.invalidName,
                     invalidSolution: i18n.messages.invalidSolution,
                     invalidStyle: i18n.messages.invalidStyle,
                     invalidSuccess: i18n.messages.invalidSuccess,
@@ -687,31 +692,35 @@
                 assert.instanceof (PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.type(NUMBER, pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', NUMBER));
                 var ret = [];
-                if (component.properties) {
+                if (component.properties && !component.properties.disabled) {
                     var properties = component.properties;
-                    var description = this.description; // tool description
                     var messages = this.i18n.messages;
-                    var name = properties.name;
-                    // TODO: test name? note that all components do not necessarily have a name
-                    if (properties.draggable === true && !RX_DROPVALUE.test(properties.dropValue)) {
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidDropValue, description, /*name,*/ pageIdx + 1) });
-                    }
-                    if ($.type(properties.description) === STRING && !RX_DESCRIPTION.test(properties.description)) {
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidDescription, description, name, pageIdx + 1) });
-                    }
-                    if ($.type(properties.solution) === STRING && !RX_SOLUTION.test(properties.solution)) {
-                        // TODO: what if solution is not a string but a number or something else ?
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidSolution, description, name, pageIdx + 1) });
-                    }
-                    if ($.type(properties.validation) === STRING && !RX_VALIDATION.test(properties.validation)) {
-                        // TODO: There is room for better validation of the validation formula
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidValidation, description, name, pageIdx + 1) });
-                    }
-                    if ($.type(properties.failure) === NUMBER && $.type(properties.omit) === NUMBER && properties.failure > Math.min(properties.omit, 0)) {
-                        ret.push({ type: WARNING, index: pageIdx, message: kendo.format(messages.invalidFailure, description, name, pageIdx + 1) });
-                    }
-                    if ($.type(properties.success) === NUMBER && $.type(properties.omit) === NUMBER && properties.success < Math.max(properties.omit, 0)) {
-                        ret.push({ type: WARNING, index: pageIdx, message: kendo.format(messages.invalidSuccess, description, name, pageIdx + 1) });
+                    if (properties.draggable === true) {
+                        // Note: This test might be better suited to inherited tools (labels, images and math expressions)
+                        if (!properties.dropValue || !RX_DROPVALUE.test(properties.dropValue)) {
+                            ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidDropValue, description, /*name,*/ pageIdx + 1) });
+                        }
+                    } else if ($.type(component.properties.name) === STRING) {
+                        var name = properties.name;
+                        var description = this.description; // tool description
+                        if (!RX_NAME.test(name)) {
+                            ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidName, description, name, pageIdx + 1) });
+                        }
+                        if (!properties.description || !RX_DESCRIPTION.test(properties.description)) {
+                            ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidDescription, description, name, pageIdx + 1) });
+                        }
+                        if (!properties.solution || !RX_SOLUTION.test(properties.solution)) { // What if properties.solution is a number or a date?
+                            ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidSolution, description, name, pageIdx + 1) });
+                        }
+                        if (!RX_VALIDATION_LIBRARY.test(properties.validation) && !RX_VALIDATION_CUSTOM.test(properties.validation)) {
+                            ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidValidation, description, name, pageIdx + 1) });
+                        }
+                        if ($.type(properties.failure) === NUMBER && $.type(properties.omit) === NUMBER && properties.failure > Math.min(properties.omit, 0)) {
+                            ret.push({ type: WARNING, index: pageIdx, message: kendo.format(messages.invalidFailure, description, name, pageIdx + 1) });
+                        }
+                        if ($.type(properties.success) === NUMBER && $.type(properties.omit) === NUMBER && properties.success < Math.max(properties.omit, 0)) {
+                            ret.push({ type: WARNING, index: pageIdx, message: kendo.format(messages.invalidSuccess, description, name, pageIdx + 1) });
+                        }
                     }
                 }
                 return ret;
@@ -956,7 +965,7 @@
             library: [
                 {
                     name: 'equal',
-                    formula: kendo.format(FORMULA, 'return String(value).toLowerCase() === String(solution).toLowerCase();')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).toLowerCase() === String(solution).toLowerCase();')
                 }
             ],
             libraryDefault: 'equal'
@@ -1029,7 +1038,7 @@
             library: [
                 {
                     name: 'equal',
-                    formula: kendo.format(FORMULA, 'return value && typeof value.equals === "function" && value.equals(solution);')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return value && typeof value.equals === "function" && value.equals(solution);')
                 }
             ],
             libraryDefault: 'equal',
@@ -1114,7 +1123,7 @@
             library: [
                 {
                     name: 'equal',
-                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).trim() === String(solution).trim();')
                 }
             ],
             libraryDefault: 'equal'
@@ -1170,7 +1179,7 @@
             library: [
                 {
                     name: 'equal',
-                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).trim() === String(solution).trim();')
                 }
             ],
             libraryDefault: 'equal'
@@ -1193,7 +1202,7 @@
                     name: 'equal',
                     // TODO: parsing raises a culture issue with MM/DD/YYYY in english and DD/MM/YYYY in french
                     // Note: new Date(1994,1,1) !== new Date(1994,1,1) as they are two different objects
-                    formula: kendo.format(FORMULA, 'return new Date(value) - new Date(solution) === 0;')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return new Date(value) - new Date(solution) === 0;')
                 }
             ],
             libraryDefault: 'equal'
@@ -1299,23 +1308,23 @@
                 {
                     name: 'equal',
                     // TODO: parsing raises a culture issue with 5.3 in english and 5,3 in french
-                    formula: kendo.format(FORMULA, 'return Number(value) === Number(solution);')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return Number(value) === Number(solution);')
                 },
                 {
                     name: 'greaterThan',
-                    formula: kendo.format(FORMULA, 'return Number(value) > Number(solution);')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return Number(value) > Number(solution);')
                 },
                 {
                     name: 'greaterThanOrEqual',
-                    formula: kendo.format(FORMULA, 'return Number(value) >= Number(solution);')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return Number(value) >= Number(solution);')
                 },
                 {
                     name: 'lowerThan',
-                    formula: kendo.format(FORMULA, 'return Number(value) < Number(solution);')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return Number(value) < Number(solution);')
                 },
                 {
                     name: 'lowerThanOrEqual',
-                    formula: kendo.format(FORMULA, 'return Number(value) <= Number(solution);')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return Number(value) <= Number(solution);')
                 }
             ],
             libraryDefault: 'equal'
@@ -1354,7 +1363,7 @@
             library: [
                 {
                     name: 'equal',
-                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).trim() === String(solution).trim();')
                 }
             ],
             libraryDefault: 'equal'
@@ -1388,7 +1397,7 @@
             library: [
                 {
                     name: 'hit',
-                    formula: kendo.format(FORMULA, 'return parseInt(value, 10) === 1;')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return parseInt(value, 10) === 1;')
                 }
             ],
             libraryDefault: 'hit'
@@ -1408,31 +1417,31 @@
             library: [
                 {
                     name: 'equal',
-                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).trim() === String(solution).trim();')
                 },
                 {
                     name: 'ignoreCaseEqual',
-                    formula: kendo.format(FORMULA, 'return String(value).trim().toUpperCase() === String(solution).trim().toUpperCase();')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).trim().toUpperCase() === String(solution).trim().toUpperCase();')
                 },
                 {
                     name: 'ignoreCaseMatch',
-                    formula: kendo.format(FORMULA, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\', \'i\')).test(String(value).trim());')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\', \'i\')).test(String(value).trim());')
                 },
                 {
                     name: 'ignoreDiacriticsEqual',
-                    formula: kendo.format(FORMULA, 'return removeDiacritics(String(value).trim().toUpperCase()) === removeDiacritics(String(solution).trim().toUpperCase());')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return removeDiacritics(String(value).trim().toUpperCase()) === removeDiacritics(String(solution).trim().toUpperCase());')
                 },
                 {
                     name: 'match',
-                    formula: kendo.format(FORMULA, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\')).test(String(value).trim());')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\')).test(String(value).trim());')
                 },
                 {
                     name: 'metaphone',
-                    formula: kendo.format(FORMULA, 'return metaphone(removeDiacritics(String(value).trim().toUpperCase())) === metaphone(removeDiacritics(String(solution).trim().toUpperCase()));')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return metaphone(removeDiacritics(String(value).trim().toUpperCase())) === metaphone(removeDiacritics(String(solution).trim().toUpperCase()));')
                 },
                 {
                     name: 'soundex',
-                    formula: kendo.format(FORMULA, 'return soundex(removeDiacritics(String(value).trim().toUpperCase())) === soundex(removeDiacritics(String(solution).trim().toUpperCase()));')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return soundex(removeDiacritics(String(value).trim().toUpperCase())) === soundex(removeDiacritics(String(solution).trim().toUpperCase()));')
                 }
             ],
             libraryDefault: 'equal'
@@ -1452,12 +1461,12 @@
             library: [
                 {
                     name: 'equal',
-                    formula: kendo.format(FORMULA, '// Note: value is an array and solution is a multiline string\n\t' +
+                    formula: kendo.format(VALIDATION_CUSTOM, '// Note: value is an array and solution is a multiline string\n\t' +
                         'return String(value.sort()) === String(solution.trim().split("\\n").sort());')
                 },
                 {
                     name: 'sumEqual',
-                    formula: kendo.format(FORMULA, '// Note: value is an array and solution is a multiline string\n\t' +
+                    formula: kendo.format(VALIDATION_CUSTOM, '// Note: value is an array and solution is a multiline string\n\t' +
                         'var ret = 0;\t' +
                         'value.forEach(function(val){ ret += parseFloat((val || "").trim() || 0); });\t' +
                         'return ret === parseFloat(solution.trim());')
@@ -1622,15 +1631,15 @@
             library: [
                 {
                     name: 'equal',
-                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).trim() === String(solution).trim();')
                 },
                 {
                     name: 'ignoreSpacesEqual',
-                    formula: kendo.format(FORMULA, 'return String(value).replace(/\\s+/g, " ").trim() === String(solution).replace(/\\s+/g, " ").trim();')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).replace(/\\s+/g, " ").trim() === String(solution).replace(/\\s+/g, " ").trim();')
                 },
                 {
                     name: 'ignorePunctiationEqual',
-                    formula: kendo.format(FORMULA, 'return String(value).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim() === String(solution).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim();')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim() === String(solution).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim();')
                 }
             ],
             libraryDefault: 'equal'
@@ -1742,7 +1751,7 @@
             description: i18n.audio.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-#= ns #role="mediaplayer" data-#= ns #mode="audio" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #files="#: attributes.files$() #"></div>'
+                default: '<div data-#= ns #role="mediaplayer" data-#= ns #mode="audio" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #files="#: files$() #"></div>'
             },
             height: 100,
             width: 400,
@@ -1767,7 +1776,7 @@
                 assert.instanceof(ToolAssets, assets.audio, kendo.format(assert.messages.instanceof.default, 'assets.audio', 'kidoju.ToolAssets'));
                 var template = kendo.template(that.templates.default);
                 // The files$ function resolves urls with schemes like cdn://audio.mp3 and returns a stringified array
-                component.attributes.files$ = function () {
+                component.files$ = function () {
                     var mp3 = component.attributes.get('mp3');
                     var ogg = component.attributes.get('ogg');
                     var schemes = assets.audio.schemes;
@@ -1802,7 +1811,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
                 var widget = content.data('kendoMediaPlayer');
@@ -1828,16 +1837,15 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
-                if (component.attributes) {
-                    if (!RX_AUDIO.test(component.attributes.mp3)) {
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidAudioFile, description, pageIdx + 1)
-                        });
-                    }
-                    // Note: we are not testing for an ogg file
+                if (!component.attributes ||
+                    !RX_AUDIO.test(component.attributes.mp3)) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidAudioFile, description, pageIdx + 1)
+                    });
                 }
+                // Note: we are not testing for an ogg file
                 return ret;
             }
 
@@ -1907,7 +1915,7 @@
             description: i18n.chart.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-#= ns #role="chart" data-#= ns #chart-area="#: attributes.chartArea$() #" data-#= ns #series-defaults="#: attributes.seriesDefaults$() #" data-#= ns #title="#: attributes.title$() #" data-#= ns #legend="#: attributes.legend$() #" data-#= ns #series="#: attributes.series$() #" data-#= ns #category-axis="#: attributes.categoryAxis$() #" data-#= ns #value-axis="#: attributes.valueAxis$() #" style="#: attributes.style #"></div>'
+                default: '<div data-#= ns #role="chart" data-#= ns #chart-area="#: chartArea$() #" data-#= ns #series-defaults="#: seriesDefaults$() #" data-#= ns #title="#: title$() #" data-#= ns #legend="#: legend$() #" data-#= ns #series="#: series$() #" data-#= ns #category-axis="#: categoryAxis$() #" data-#= ns #value-axis="#: valueAxis$() #" style="#: attributes.style #"></div>'
             },
             height: 400,
             width: 400,
@@ -1985,33 +1993,19 @@
                 color = $.isArray(color) ? color[1] : color || undefined;
                 var background = style.match(/background-color:([^;]+)/);
                 background = $.isArray(background) ? background[1] : background || undefined;
-                // The chartArea$ function returns an object for chart's data-chart-area attribute binding
-                component.attributes.chartArea$ = function () {
-                    return JSON.stringify({
-                        background: background
-                    });
-                };
                 // The axisDefaults$ function returns an object chart's data-axis-defaults attribute binding
                 // component.attributes.axisDefaults$ = function () {
                 // We can't use axisDefaults, so we have categoryAxis$ and valueAxis$
                 // because of https://github.com/telerik/kendo-ui-core/issues/2165
-                // };
-                // The seriesDefaults$ function returns an object for chart's data-series-defaults attribute binding
-                component.attributes.seriesDefaults$ = function () {
-                    return JSON.stringify(types[component.attributes.get('type')]);
-                };
-                // The title$ function returns an object for chart's data-title attribute binding
-                component.attributes.title$ = function () {
-                    var title = component.attributes.get('title');
+                //
+                // The chartArea$ function returns an object for chart's data-chart-area attribute binding
+                component.chartArea$ = function () {
                     return JSON.stringify({
-                        text: title,
-                        visible: !!(title.trim()),
-                        font: font,
-                        color: color
+                        background: background
                     });
                 };
                 // The legend$ function returns an object for chart's data-legend attribute binding
-                component.attributes.legend$ = function () {
+                component.legend$ = function () {
                     var legend = component.attributes.get('legend');
                     return JSON.stringify({
                         position: legend !== 'none' ? legend : 'right',
@@ -2022,8 +2016,38 @@
                         }
                     });
                 };
+                // The categoryAxis$ function returns an object for chart's data-category-axis attribute binding
+                component.categoryAxis$ = function () {
+                    var categories = [];
+                    var columnTotal = component.attributes.get('categories') + 1;
+                    var rowIndex = 0;
+                    var columnIndex;
+                    var rowFinder = function (row) { return row.index === rowIndex; };
+                    var columnFinder = function (column) { return column.index === columnIndex; };
+                    var json = component.attributes.get('data');
+                    var row = json.sheets[0].rows.find(rowFinder);
+                    for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
+                        var category = '';
+                        if (row && row.cells) {
+                            var cell = row.cells.find(columnFinder);
+                            if (cell && cell.value) {
+                                category = cell.value;
+                            }
+                        }
+                        categories.push(category);
+                    }
+                    // return { categories: [2000, 2001, 2002, 2003] }
+                    return JSON.stringify({
+                        categories: categories,
+                        color: color,
+                        labels: {
+                            font: smallerFont,
+                            color: color
+                        }
+                    });
+                };
                 // The series$ function returns an object for chart's data-series attribute binding
-                component.attributes.series$ = function () {
+                component.series$ = function () {
                     var series = [];
                     var rowTotal = component.attributes.get('values') + 1;
                     var columnTotal = component.attributes.get('categories') + 1;
@@ -2060,38 +2084,22 @@
                      */
                     return JSON.stringify(series);
                 };
-                // The categoryAxis$ function returns an object for chart's data-category-axis attribute binding
-                component.attributes.categoryAxis$ = function () {
-                    var categories = [];
-                    var columnTotal = component.attributes.get('categories') + 1;
-                    var rowIndex = 0;
-                    var columnIndex;
-                    var rowFinder = function (row) { return row.index === rowIndex; };
-                    var columnFinder = function (column) { return column.index === columnIndex; };
-                    var json = component.attributes.get('data');
-                    var row = json.sheets[0].rows.find(rowFinder);
-                    for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
-                        var category = '';
-                        if (row && row.cells) {
-                            var cell = row.cells.find(columnFinder);
-                            if (cell && cell.value) {
-                                category = cell.value;
-                            }
-                        }
-                        categories.push(category);
-                    }
-                    // return { categories: [2000, 2001, 2002, 2003] }
+                // The seriesDefaults$ function returns an object for chart's data-series-defaults attribute binding
+                component.seriesDefaults$ = function () {
+                    return JSON.stringify(types[component.attributes.get('type')]);
+                };
+                // The title$ function returns an object for chart's data-title attribute binding
+                component.title$ = function () {
+                    var title = component.attributes.get('title');
                     return JSON.stringify({
-                        categories: categories,
-                        color: color,
-                        labels: {
-                            font: smallerFont,
-                            color: color
-                        }
+                        text: title,
+                        visible: !!(title.trim()),
+                        font: font,
+                        color: color
                     });
                 };
                 // The valueAxis$ function returns an object for chart's data-value-axis attribute binding
-                component.attributes.valueAxis$ = function () {
+                component.valueAxis$ = function () {
                     return JSON.stringify({
                         color: color,
                         labels: {
@@ -2113,7 +2121,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('chart'));
                 var widget = content.data('kendoChart');
@@ -2141,14 +2149,7 @@
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
                 if (component.attributes) {
-                    if (!RX_AUDIO.test(component.attributes.mp3)) {
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidAudioFile, description, pageIdx + 1)
-                        });
-                    }
-                    // Note: we are not testing for an ogg file
+                    // TODO
                 }
                 return ret;
             }
@@ -2246,7 +2247,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div.kj-chargrid');
                 if ($.type(component.width) === NUMBER) {
@@ -2264,6 +2265,23 @@
                 // prevent event to bubble on stage
                 e.stopPropagation();
             }
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            /*
+             validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    // TODO
+                }
+                return ret;
+             }
+             */
 
         });
         tools.register(CharGrid);
@@ -2334,7 +2352,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div').first();
                 if ($.type(component.width) === NUMBER) {
@@ -2361,23 +2379,25 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
-                if (component.attributes) {
-                    if ((component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle)) ||
-                        (component.attributes.itemStyle && !RX_STYLE.test(component.attributes.itemStyle)) ||
-                        (component.attributes.selectedStyle && !RX_STYLE.test(component.attributes.selectedStyle))) {
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
-                        });
-                    }
-                    if (!RX_DATA.test(component.attributes.data)) {
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidData, description, pageIdx + 1)
-                        });
-                    }
+                if (!component.attributes ||
+                   // Styles are only checked if there is any (optional)
+                   (component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle)) ||
+                   (component.attributes.itemStyle && !RX_STYLE.test(component.attributes.itemStyle)) ||
+                   (component.attributes.selectedStyle && !RX_STYLE.test(component.attributes.selectedStyle))) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
+                }
+                if (!component.attributes ||
+                    !component.attributes.data ||
+                    !RX_DATA.test(component.attributes.data)) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidData, description, pageIdx + 1)
+                    });
                 }
                 return ret;
             }
@@ -2425,7 +2445,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div[' + kendo.attr('role') + '="connector"]');
                 if ($.type(component.width) === NUMBER) {
@@ -2454,15 +2474,23 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
-                if (component.attributes) {
-                    if (component.attributes.color && !RX_COLOR.test(component.attributes.color)) {
-                        ret.push({
-                            type: WARNING,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidColor, description, pageIdx + 1)
-                        });
-                    }
+                if (!component.attributes ||
+                    !RX_COLOR.test(component.attributes.color)) {
+                    ret.push({
+                        type: WARNING,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidColor, description, pageIdx + 1)
+                    });
                 }
+                if (component.properties && component.properties.disabled && !RX_SOLUTION.test(component.properties.solution)) {
+                    // component.properties.disabled === false is already tested in Tool.fn.validate.call(this, component, pageIdx)
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidSolution, description, component.properties.name, pageIdx + 1)
+                    });
+                }
+                // TODO: We should also check that there is a matching connector on the page
                 return ret;
             }
 
@@ -2530,7 +2558,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
@@ -2554,17 +2582,18 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
-                if (component.attributes) {
-                    // Note: any text is acceptable
-                    if (component.attributes.style && !RX_STYLE.test(component.attributes.style)) {
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
-                        });
-                    }
+                // Note: any text is acceptable
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
                 }
                 return ret;
+                // TODO: we dhould also check that there are draggable components on the page
             }
 
         });
@@ -2580,7 +2609,7 @@
             description: i18n.image.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<img src="#: attributes.src$() #" alt="#: attributes.alt #" style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #">'
+                default: '<img src="#: src$() #" alt="#: attributes.alt #" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #">'
             },
             height: 250,
             width: 250,
@@ -2608,8 +2637,16 @@
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
                 var template = kendo.template(that.templates.default);
+                // The class$ function adds the kj-interactive class to draggables
+                component.class$ = function () {
+                    return component.properties.draggable ? INTERACTIVE_CLASS : '';
+                };
+                // The id$ function returns the component id for draggable components
+                component.id$ = function () {
+                    return component.properties.draggable && $.type(component.id) === STRING && component.id.length ? component.id : '';
+                };
                 // The src$ function resolves urls with schemes like cdn://sample.jpg
-                component.attributes.src$ = function () {
+                component.src$ = function () {
                     var src = component.attributes.get('src');
                     var schemes = assets.image.schemes;
                     for (var scheme in schemes) {
@@ -2619,10 +2656,6 @@
                         }
                     }
                     return src;
-                };
-                // The id$ function returns the component id for draggable components
-                component.properties.id$ = function () {
-                    return component.properties.draggable && $.type(component.id) === STRING && component.id.length ? component.id : '';
                 };
                 return template($.extend(component, { ns: kendo.ns }));
             },
@@ -2635,7 +2668,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('img');
                 // Assuming we can get the natural size of the image, we shall keep proportions
@@ -2698,29 +2731,36 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
-                if (component.attributes) {
-                    if ((component.attributes.alt === i18n.image.attributes.alt.defaultValue) || !RX_TEXT.test(component.attributes.alt)) {
-                        ret.push({
-                            type: WARNING,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidAltText, description, pageIdx + 1)
-                        });
-                    }
-                    if ((component.attributes.src === i18n.image.attributes.src.defaultValue) || !RX_IMAGE.test(component.attributes.src)) {
-                        ret.push({
-                            type: (component.attributes.src === i18n.image.attributes.src.defaultValue) ? WARNING : ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidImageFile, description, pageIdx + 1)
-                        });
-                    }
-                    if (component.attributes.style && !RX_STYLE.test(component.attributes.style)) {
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
-                        });
-                    }
+                if (!component.attributes ||
+                    !component.attributes.alt ||
+                    (component.attributes.alt === i18n.image.attributes.alt.defaultValue) ||
+                    !RX_TEXT.test(component.attributes.alt)) {
+                    ret.push({
+                        type: WARNING,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidAltText, description, pageIdx + 1)
+                    });
                 }
+                if (!component.attributes ||
+                    !component.attributes.src ||
+                    (component.attributes.src === i18n.image.attributes.src.defaultValue)
+                    || !RX_IMAGE.test(component.attributes.src)) {
+                    ret.push({
+                        type: (component.attributes.src === i18n.image.attributes.src.defaultValue) ? WARNING : ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidImageFile, description, pageIdx + 1)
+                    });
+                }
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
+                }
+                // TODO: We should also check that there is a dropZone on the page if draggable
                 return ret;
             }
 
@@ -2739,7 +2779,7 @@
             description: i18n.label.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #">#= (kendo.htmlEncode(attributes.text) || "").replace(/\\n/g, "<br/>") #</div>'
+                default: '<div class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #">#= (kendo.htmlEncode(attributes.text) || "").replace(/\\n/g, "<br/>") #</div>'
             },
             height: 80,
             width: 300,
@@ -2769,6 +2809,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(that.templates.default);
+                // The class$ function adds the kj-interactive class to draggables
+                component.class$ = function () {
+                    return component.properties.draggable ? INTERACTIVE_CLASS : '';
+                };
                 // The id$ function returns the component id for draggable components
                 component.properties.id$ = function () {
                     return component.properties.draggable && $.type(component.id) === STRING && component.id.length ? component.id : '';
@@ -2784,7 +2828,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
@@ -2833,23 +2877,27 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
-                if (component.attributes) {
-                    if ((component.attributes.text === i18n.label.attributes.text.defaultValue) || !RX_TEXT.test(component.attributes.text)) {
-                        ret.push({
-                            type: WARNING,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidText, description, pageIdx + 1)
-                        });
-                    }
-                    if (component.attributes.style && !RX_STYLE.test(component.attributes.style)) {
-                        // TODO: test small font-size incompatible with mobile devices
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
-                        });
-                    }
+                if (!component.attributes ||
+                    !component.attributes.text ||
+                    (component.attributes.text === i18n.label.attributes.text.defaultValue) ||
+                    !RX_TEXT.test(component.attributes.text)) {
+                    ret.push({
+                        type: WARNING,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidText, description, pageIdx + 1)
+                    });
                 }
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                    // TODO: test small font-size incompatible with mobile devices
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
+                }
+                // TODO: We should also check that there is a dropZone on the page if draggable
                 return ret;
             }
 
@@ -2866,7 +2914,7 @@
             description: i18n.mathexpression.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-#= ns #role="mathexpression" style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #" data-#= ns #inline="#: attributes.inline #" data-#= ns #value="#: attributes.formula #" ></div>'
+                default: '<div data-#= ns #role="mathexpression" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #" data-#= ns #inline="#: attributes.inline #" data-#= ns #value="#: attributes.formula #" ></div>'
             },
             height: 180,
             width: 370,
@@ -2898,8 +2946,12 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(that.templates.default);
+                // The class$ function adds the kj-interactive class to draggables
+                component.class$ = function () {
+                    return component.properties.draggable ? INTERACTIVE_CLASS : '';
+                };
                 // The id$ function returns the component id for draggable components
-                component.properties.id$ = function () {
+                component.id$ = function () {
                     return component.properties.draggable && $.type(component.id) === STRING && component.id.length ? component.id : '';
                 };
                 return template($.extend(component, { ns: kendo.ns }));
@@ -2913,7 +2965,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
@@ -2937,23 +2989,27 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
-                if (component.attributes) {
-                    if ((component.attributes.formula === i18n.mathexpression.attributes.formula.defaultValue) || !RX_FORMULA.test(component.attributes.formula)) {
-                        // TODO: improve RX_FORMULA
-                        ret.push({
-                            type: WARNING,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidFormula, description, pageIdx + 1)
-                        });
-                    }
-                    if (component.attributes.style && !RX_STYLE.test(component.attributes.style)) {
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
-                        });
-                    }
+                if (!component.attributes ||
+                    !component.attributes.formula ||
+                    (component.attributes.formula === i18n.mathexpression.attributes.formula.defaultValue) ||
+                    !RX_FORMULA.test(component.attributes.formula)) {
+                    // TODO: replace RX_FORMULA with a LaTeX synthax checker
+                    ret.push({
+                        type: WARNING,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidFormula, description, pageIdx + 1)
+                    });
                 }
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
+                }
+                // TODO: We should also check that there is a dropZone on the page if draggable
                 return ret;
             }
 
@@ -3014,7 +3070,7 @@
             onResize: function (e, component) {
                 /* jshint maxcomplexity: 8 */
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('quiz'));
                 if ($.type(component.width) === NUMBER) {
@@ -3060,23 +3116,25 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
-                if (component.attributes) {
-                    if ((component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle)) ||
-                        (component.attributes.itemStyle && !RX_STYLE.test(component.attributes.itemStyle)) ||
-                        (component.attributes.selectedStyle && !RX_STYLE.test(component.attributes.selectedStyle))) {
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
-                        });
-                    }
-                    if (!RX_DATA.test(component.attributes.data)) {
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidData, description, pageIdx + 1)
-                        });
-                    }
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle)) ||
+                    (component.attributes.itemStyle && !RX_STYLE.test(component.attributes.itemStyle)) ||
+                    (component.attributes.selectedStyle && !RX_STYLE.test(component.attributes.selectedStyle))) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
+                }
+                if (!component.attributes ||
+                    !component.attributes.data ||
+                    !RX_DATA.test(component.attributes.data)) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidData, description, pageIdx + 1)
+                    });
                 }
                 return ret;
             }
@@ -3128,7 +3186,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div[' + kendo.attr('role') + '="selector"]');
                 if ($.type(component.width) === NUMBER) {
@@ -3179,14 +3237,20 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
-                if (component.attributes) {
-                    if (component.attributes.color && !RX_COLOR.test(component.attributes.color)) {
-                        ret.push({
-                            type: WARNING,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidColor, description, pageIdx + 1)
-                        });
-                    }
+                if (!component.attributes ||
+                    !RX_COLOR.test(component.attributes.color)) {
+                    ret.push({
+                        type: WARNING,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidColor, description, pageIdx + 1)
+                    });
+                }
+                if (!component.attributes || ['circle', 'cross', 'line'].indexOf(component.attributes.shape) === -1) {
+                    ret.push({
+                        type: WARNING,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidShape, description, pageIdx + 1)
+                    });
                 }
                 return ret;
             }
@@ -3222,7 +3286,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children(kendo.roleSelector('table'));
                 if ($.type(component.width) === NUMBER) {
@@ -3246,14 +3310,15 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
-                if (component.attributes) {
-                    if ((component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
-                        });
-                    }
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
+                    // TODO validate columns, rows and data
                 }
                 return ret;
             }
@@ -3302,7 +3367,7 @@
              */
             onEnable: function (e, component, enabled) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
+                if (stageElement.is(ELEMENT_SELECTOR) && component instanceof PageComponent) {
                     stageElement.children('textarea')
                         .prop({
                             // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
@@ -3319,7 +3384,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('textarea');
                 if ($.type(component.width) === NUMBER) {
@@ -3343,14 +3408,14 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
-                if (component.attributes) {
-                    if ((component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
-                        });
-                    }
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
                 }
                 return ret;
             }
@@ -3401,7 +3466,7 @@
              */
             onEnable: function (e, component, enabled) {
                 var stageElement = $(e.currentTarget);
-                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
+                if (stageElement.is(ELEMENT_SELECTOR) && component instanceof PageComponent) {
                     stageElement.children('input')
                         .prop({
                             // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
@@ -3418,7 +3483,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('input');
                 if ($.type(component.width) === NUMBER) {
@@ -3453,15 +3518,15 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
-                if (component.attributes) {
-                    // Note: we are allowing any mask
-                    if ((component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
-                        });
-                    }
+                // TODO: validate mask
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
                 }
                 return ret;
             }
@@ -3479,7 +3544,7 @@
             description: i18n.video.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
-                default: '<div data-#= ns #role="mediaplayer" data-#= ns #mode="video" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #files="#: attributes.files$() #" data-#= ns #toolbar-height="#: attributes.toolbarHeight #"></div>'
+                default: '<div data-#= ns #role="mediaplayer" data-#= ns #mode="video" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #files="#: files$() #" data-#= ns #toolbar-height="#: attributes.toolbarHeight #"></div>'
             },
             height: 300,
             width: 600,
@@ -3510,7 +3575,7 @@
                 /* jshint -W074 */
 
                 // The files$ function resolves urls with schemes like cdn://video.mp4 and returns a stringified array
-                component.attributes.files$ = function () {
+                component.files$ = function () {
                     var mp4 = component.attributes.get('mp4');
                     var ogv = component.attributes.get('ogv');
                     var wbem = component.attributes.get('wbem');
@@ -3555,7 +3620,7 @@
              */
             onResize: function (e, component) {
                 var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div' + kendo.roleSelector('mediaplayer'));
                 if ($.type(component.width) === NUMBER) {
@@ -3583,16 +3648,15 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
-                if (component.attributes) {
-                    if (!RX_VIDEO.test(component.attributes.mp4)) {
-                        ret.push({
-                            type: ERROR,
-                            index: pageIdx,
-                            message: kendo.format(messages.invalidVideoFile, description, pageIdx + 1)
-                        });
-                    }
-                    // Note: we are not testing for an ogv or wbem file
+                if (!component.attributes ||
+                    !RX_VIDEO.test(component.attributes.mp4)) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidVideoFile, description, pageIdx + 1)
+                    });
                 }
+                // Note: we are not testing for an ogv or wbem file
                 return ret;
             }
 

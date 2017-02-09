@@ -273,6 +273,7 @@
                         invalidFailure: 'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
                         invalidFormula: 'A(n) {0} on page {1} requires a formula in display attributes.',
                         invalidImageFile: 'A(n) {0} on page {1} requires an image file in display attributes.',
+                        invalidName: 'A(n) {0} named `{1}` on page {2} has an invalid name.',
                         invalidSolution: 'A(n) {0} named `{1}` on page {2} requires a solution in test logic.',
                         invalidStyle: 'A(n) {0} on page {1} has an invalid style in display attributes.',
                         invalidSuccess: 'A(n) {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.',

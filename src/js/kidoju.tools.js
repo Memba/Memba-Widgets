@@ -2814,7 +2814,7 @@
                     return component.properties.draggable ? INTERACTIVE_CLASS : '';
                 };
                 // The id$ function returns the component id for draggable components
-                component.properties.id$ = function () {
+                component.id$ = function () {
                     return component.properties.draggable && $.type(component.id) === STRING && component.id.length ? component.id : '';
                 };
                 return template($.extend(component, { ns: kendo.ns }));

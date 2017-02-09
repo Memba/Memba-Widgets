@@ -899,9 +899,11 @@
                     ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.missingLabel, pageIdx + 1) });
                 }
                 // Check a multimedia element
+                /*
                 if (componentTotal > 0 && !hasMultimedia) {
                     ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.missingMultimedia, pageIdx + 1) });
                 }
+                */
                 // Check a question
                 if (componentTotal > 0 && !hasQuestion) {
                     ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.missingQuestion, pageIdx + 1) });

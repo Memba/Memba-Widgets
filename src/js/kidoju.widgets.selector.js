@@ -73,7 +73,7 @@
              * @param length
              * @returns {string}
              */
-            randomString: function(length) {
+            randomString: function (length) {
                 var s = new Array(length + 1).join('x');
                 return s.replace(/x/g, function (c) {
                     /* jshint -W016 */
@@ -142,6 +142,9 @@
                 return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Detect the shape of a path (circle, cross, line) among a list of shapes
              * @param path
@@ -159,8 +162,8 @@
                 var y = Math.floor(bbox.origin.y);
                 var height = Math.floor(bbox.size.height);
                 var width = Math.floor(bbox.size.width);
-                // Detect a line (height/width ratio)
-                if (height/width < LINE_HW_PROPORTION && shapes.indexOf(SelectorSurface.fn.shapes.line) > -1) {
+                // Detect a line (height / width ratio)
+                if (height / width < LINE_HW_PROPORTION && shapes.indexOf(SelectorSurface.fn.shapes.line) > -1) {
                     return SelectorSurface.fn.shapes.line;
                 }
                 if (shapes.indexOf(SelectorSurface.fn.shapes.circle) === -1 && shapes.indexOf(SelectorSurface.fn.shapes.cross) > -1) {
@@ -203,6 +206,8 @@
                     }
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * Get a selection data item for dataSource from a user-drawn path
@@ -307,7 +312,7 @@
                 if (shape === SelectorSurface.fn.shapes.line) {
                     return util.getHorizontalLineDrawing(rect, options);
                 } else if (shape === SelectorSurface.fn.shapes.circle) {
-                    return util.getCircleDrawing(rect, options)
+                    return util.getCircleDrawing(rect, options);
                 } else {
                     return util.getCrossDrawing(rect, options);
                 }
@@ -369,7 +374,7 @@
                     });
                 }
                 // Parse color for what is actually a color
-                var color = kendo.parseColor(color).toCss(); // might raise an exception
+                color = kendo.parseColor(color).toCss(); // might raise an exception
                 // Do not add a color that already exists
                 var found = buttons.find(function (button) {
                     return button.text === color;
@@ -619,7 +624,7 @@
                     mousePoint.y <= selectionBox.origin.y + selectionBox.size.height);
                 });
                 if ($.isArray(dataItems2Delete) && dataItems2Delete.length) {
-                    dataItems2Delete.forEach(function(dataItem) {
+                    dataItems2Delete.forEach(function (dataItem) {
                         dataSource.remove(dataItem);
                     });
                 } else {
@@ -765,12 +770,13 @@
                 }
                 // Trigger a change on all selector widgets to recalculate databound values
                 if ($.isArray(selectors)) {
-                    for (i = 0, length = selectors.length; i < length; i++) {
-                        assert.instanceof(Selector, selectors[i], kendo.format(assert.messages.instanceof.default, 'selectors[i]', 'kendo.ui.Selector'));
+                    for (var j = 0, length = selectors.length; j < length; j++) {
+                        var selector = selectors[j];
+                        assert.instanceof(Selector, selector, kendo.format(assert.messages.instanceof.default, 'selector', 'kendo.ui.Selector'));
                         try {
                             // We might get `Uncaught TypeError: Cannot read property 'value' of undefined`
                             // because a refresh is triggered before test is added to the viewModel in play mode
-                            selectors[i].trigger(CHANGE);
+                            selector.trigger(CHANGE);
                         } catch (ex) {}
                     }
                 }
@@ -873,7 +879,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                logger.debug({method: 'init', message: 'widget initialized'});
+                logger.debug({ method: 'init', message: 'widget initialized' });
                 that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 that._layout();
                 that._ensureSurface();
@@ -953,7 +959,7 @@
                         kendo.parseColor(selection.data.color).equals(options.shapeStroke.color);
                 });
                 if ($.isArray(matchingSelections) && matchingSelections.length) {
-                    var similarSelectorElements = container.find(kendo.roleSelector(ROLE)).filter(function(index, element) {
+                    var similarSelectorElements = container.find(kendo.roleSelector(ROLE)).filter(function (index, element) {
                         var selectorWidget = $(element).data('kendoSelector');
                         if (selectorWidget instanceof kendo.ui.Selector) {
                             return selectorWidget.options.shape === options.shape &&
@@ -1074,7 +1080,7 @@
                         var firstInteractiveElement = container.children().has(DOT + INTERACTIVE_CLASS).first();
                         surfaceElement = $(DIV)
                             .addClass(SURFACE_CLASS)
-                            .css({position: 'absolute', top: 0, left: 0})
+                            .css({ position: 'absolute', top: 0, left: 0 })
                             .height(container.height())
                             .width(container.width());
                         // Selections are not draggables so we have to consider that there might be no firstInteractiveElement

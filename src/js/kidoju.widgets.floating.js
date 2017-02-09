@@ -46,7 +46,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                logger.debug({method: 'init', message: 'widget initialized'});
+                logger.debug({ method: 'init', message: 'widget initialized' });
                 that._layout();
                 that._setMutationObserver();
                 kendo.notify(that);
@@ -59,7 +59,7 @@
             options: {
                 name: 'Floating',
                 observed: '', // '.k-toolbar:not([style*='display: none']) [data-uid]'
-                attributeFilter: [], // ['style']
+                attributeFilter: [] // ['style']
             },
 
             /**

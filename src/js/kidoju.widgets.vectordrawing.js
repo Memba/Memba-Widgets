@@ -444,7 +444,7 @@
         var VectorDrawingToolBar = ToolBar.extend({
             init: function (element, options) {
                 options = options || {};
-                options.items = this._expandTools(options.tools || MiniToolBar.prototype.options.tools[options.toolbarName]);
+                options.items = this._expandTools(options.tools || ToolBar.prototype.options.tools[options.toolbarName]);
                 ToolBar.fn.init.call(this, element, options);
                 var handleClick = this._click.bind(this);
                 this.element.addClass('k-spreadsheet-toolbar');
@@ -458,6 +458,10 @@
                 var groups = element.children('.k-widget, a.k-button, .k-button-group');
                 groups.before('<span class=\'k-separator\' />');
             },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             _expandTools: function (tools) {
                 function expandTool(toolName) {
                     var options = $.isPlainObject(toolName) ? toolName : toolDefaults[toolName] || {};
@@ -474,7 +478,7 @@
                         spriteCssClass: spriteCssClass,
                         attributes: { title: MESSAGES[options.name || toolName] }
                     }, typeDefaults[type], options);
-                    if (type == 'splitButton') {
+                    if (type === 'splitButton') {
                         tool.menuButtons = tool.menuButtons.map(expandTool);
                     }
                     tool.attributes[kendo.attr('tool')] = toolName;
@@ -495,6 +499,9 @@
                     return tools;
                 }, []);
             },
+
+            /* jshint +W074 */
+
             _click: function (e) {
                 var toolName = e.target.attr(kendo.attr('tool'));
                 var tool = toolDefaults[toolName] || {};
@@ -570,7 +577,7 @@
                     var property = tools[i].property;
                     var tool = tools[i].tool;
                     var value = kendo.isFunction(range[property]) ? range[property]() : range;
-                    if (property == 'gridLines') {
+                    if (property === 'gridLines') {
                         value = range.sheet().showGridLines();
                     }
                     if (tool.type === 'button') {
@@ -649,7 +656,7 @@
                         command: 'PropertyChangeCommand',
                         options: {
                             property: this.options.property,
-                            value: value == 'null' ? null : value
+                            value: value === 'null' ? null : value
                         }
                     });
                 }
@@ -1409,7 +1416,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                logger.debug({method: 'init', message: 'widget initialized'});
+                logger.debug({ method: 'init', message: 'widget initialized' });
                 that._layout();
                 that._dataSource();
                 that._enabled = that.element.prop('disabled') ? false : that.options.enable;

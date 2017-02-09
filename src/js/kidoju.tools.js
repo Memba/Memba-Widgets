@@ -688,13 +688,14 @@
              * @param pageIdx
              */
             validate: function (component, pageIdx) {
-                /* jshint maxcomplexity: 8 */
+                /* jshint maxcomplexity: 14 */
                 assert.instanceof (PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.type(NUMBER, pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', NUMBER));
                 var ret = [];
                 if (component.properties && !component.properties.disabled) {
                     var properties = component.properties;
                     var messages = this.i18n.messages;
+                    var description = this.description; // tool description
                     if (properties.draggable === true) {
                         // Note: This test might be better suited to inherited tools (labels, images and math expressions)
                         if (!properties.dropValue || !RX_DROPVALUE.test(properties.dropValue)) {
@@ -702,7 +703,6 @@
                         }
                     } else if ($.type(component.properties.name) === STRING) {
                         var name = properties.name;
-                        var description = this.description; // tool description
                         if (!RX_NAME.test(name)) {
                             ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidName, description, name, pageIdx + 1) });
                         }
@@ -2370,12 +2370,16 @@
                 e.stopPropagation();
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Component validation
              * @param component
              * @param pageIdx
              */
             validate: function (component, pageIdx) {
+                /* jshint maxcomplexity: 8 */
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
@@ -2401,6 +2405,8 @@
                 }
                 return ret;
             }
+
+            /* jshint +W074 */
 
         });
         tools.register(CheckBox);
@@ -2730,7 +2736,7 @@
              * @param pageIdx
              */
             validate: function (component, pageIdx) {
-                /* jshint maxcomplexity: 8 */
+                /* jshint maxcomplexity: 12 */
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
@@ -2746,8 +2752,8 @@
                 }
                 if (!component.attributes ||
                     !component.attributes.src ||
-                    (component.attributes.src === i18n.image.attributes.src.defaultValue)
-                    || !RX_IMAGE.test(component.attributes.src)) {
+                    (component.attributes.src === i18n.image.attributes.src.defaultValue) ||
+                    !RX_IMAGE.test(component.attributes.src)) {
                     ret.push({
                         type: (component.attributes.src === i18n.image.attributes.src.defaultValue) ? WARNING : ERROR,
                         index: pageIdx,
@@ -3110,12 +3116,16 @@
 
             /* jshint +W074 */
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Component validation
              * @param component
              * @param pageIdx
              */
             validate: function (component, pageIdx) {
+                /* jshint maxcomplexity: 8 */
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
@@ -3141,6 +3151,8 @@
                 }
                 return ret;
             }
+
+            /* jshint +W074 */
 
         });
         tools.register(Quiz);

@@ -63,7 +63,7 @@
 
                 // base call to widget initialization
                 Widget.fn.init.call(this, element, options);
-                logger.debug({method: 'init', message: 'widget initialized'});
+                logger.debug({ method: 'init', message: 'widget initialized' });
 
                 // Add property grid frame
                 that.wrapper = that.element;

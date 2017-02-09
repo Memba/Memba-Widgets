@@ -90,7 +90,7 @@
                 var that = this;
                 // Base call to widget initialization
                 Widget.fn.init.call(this, element, options);
-                logger.debug({method: 'init', message: 'widget initialized'});
+                logger.debug({ method: 'init', message: 'widget initialized' });
                 that._templates();
                 that._layout();
                 that._addSorting();

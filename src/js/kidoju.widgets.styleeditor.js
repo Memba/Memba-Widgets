@@ -68,7 +68,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                logger.debug({method: 'init', message: 'widget initialized'});
+                logger.debug({ method: 'init', message: 'widget initialized' });
                 // if ($.isFunction($.fn.kendoGrid)) {
                 that._setDataSource();
                 that.value(that.options.value);

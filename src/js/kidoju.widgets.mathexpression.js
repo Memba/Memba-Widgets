@@ -54,7 +54,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                logger.debug({method: 'init', message: 'widget initialized'});
+                logger.debug({ method: 'init', message: 'widget initialized' });
                 that.bind(CHANGE, $.proxy(that.refresh, that));
                 that._layout();
                 that.value(that.options.value);

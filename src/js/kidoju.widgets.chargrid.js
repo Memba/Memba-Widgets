@@ -20,6 +20,9 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -161,7 +164,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                logger.debug({method: 'init', message: 'widget initialized'});
+                logger.debug({ method: 'init', message: 'widget initialized' });
                 that._setValue(this.options.value);
                 that._layout();
                 // kendo.notify(that);
@@ -810,6 +813,8 @@
         kendo.ui.plugin(CharGrid);
 
     }(window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kendo;
 

@@ -461,8 +461,8 @@
                 }
             },
 
-            /* jshint -W074 */
             /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Constructor

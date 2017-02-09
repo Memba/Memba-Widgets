@@ -110,7 +110,7 @@
             init: function (element, options) {
                 var that = this;
                 Widget.fn.init.call(that, element, options);
-                logger.debug({method: 'init', message: 'widget initialized'});
+                logger.debug({ method: 'init', message: 'widget initialized' });
                 that._value = that.options.value;
                 that._randomId = randomId();
                 that.setOptions(that.options);

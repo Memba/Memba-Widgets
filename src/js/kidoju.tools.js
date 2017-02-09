@@ -2491,6 +2491,7 @@
                     });
                 }
                 // TODO: We should also check that there is a matching connector on the page
+                // TODO: Check connectors on top of static images and labels
                 return ret;
             }
 
@@ -2498,8 +2499,9 @@
         tools.register(Connector);
 
         var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-#= ns #role=stage]" data-#= ns #draggable=".kj-element:has([data-draggable=true])" data-#= ns #center="#: attributes.center #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>';
+        // TODO: Check whether DROPZONE requires class="kj-interactive"
         /**
-         * @class Connector tool
+         * @class DropZone tool
          * @type {void|*}
          */
         var DropZone = Tool.extend({
@@ -2593,7 +2595,8 @@
                     });
                 }
                 return ret;
-                // TODO: we dhould also check that there are draggable components on the page
+                // TODO: we should also check that there are draggable components on the page
+                // TODO: Check order of draggables 'on top' of drop zone
             }
 
         });
@@ -3144,7 +3147,7 @@
 
         var SELECTOR = '<div data-#= ns #role="selector" data-#= ns #id="#: properties.name #" data-#= ns #shape="#: attributes.shape #" data-#= ns #shape-stroke="{ color: \'#: attributes.color #\', dashType: \'dot\', opacity: 0.6, width: 8 }" {0}></div>';
         /**
-         * @class Connector tool
+         * @class Selector tool
          * @type {void|*}
          */
         var Selector = Tool.extend({
@@ -3252,6 +3255,7 @@
                         message: kendo.format(messages.invalidShape, description, pageIdx + 1)
                     });
                 }
+                // TODO: Check selectors on top of static images and labels
                 return ret;
             }
 
@@ -3666,9 +3670,7 @@
         /**
          * We could also consider
          * HTML from Markdown (lists, tec)
-         * Drawing surface
-         * Shape
-         * Clock
+         * Vector drawing (shapes)
          * Text-to-Speech
          * Geogebra
          * Spreadsheet

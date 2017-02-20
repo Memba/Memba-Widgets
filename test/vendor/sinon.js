@@ -1,5 +1,5 @@
 /**
- * Sinon.JS 1.17.6, 2016/09/19
+ * Sinon.JS 1.17.7, 2017/02/15
  *
  * @author Christian Johansen (christian@cjohansen.no)
  * @author Contributors: https://github.com/cjohansen/Sinon.JS/blob/master/AUTHORS
@@ -179,6 +179,33 @@
         }
     }
 
+    function isSet(val) {
+        if (typeof Set !== 'undefined' && val instanceof Set) {
+            return true;
+        }
+    }
+
+    function isSubset(s1, s2, compare) {
+        var values1 = Array.from(s1);
+        var values2 = Array.from(s2);
+
+        for (var i = 0; i < values1.length; i++) {
+            var includes = false;
+
+            for (var j = 0; j < values2.length; j++) {
+                if (compare(values2[j], values1[i])) {
+                    includes = true;
+                    break;
+                }
+            }
+
+            if (!includes) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /**
      * @name samsam.deepEqual
@@ -289,6 +316,14 @@
                 }
             }
 
+            if (isSet(obj1) || isSet(obj2)) {
+                if (!isSet(obj1) || !isSet(obj2) || obj1.size !== obj2.size) {
+                    return false;
+                }
+
+                return isSubset(obj1, obj2, deepEqual);
+            }
+
             var key, i, l,
                 // following vars are used for the cyclic logic
                 value1, value2,
@@ -361,15 +396,14 @@
         }(obj1, obj2, '$1', '$2'));
     }
 
-    var match;
-
-    function arrayContains(array, subset) {
+    function arrayContains(array, subset, compare) {
         if (subset.length === 0) { return true; }
         var i, l, j, k;
         for (i = 0, l = array.length; i < l; ++i) {
-            if (match(array[i], subset[0])) {
+            if (compare(array[i], subset[0])) {
                 for (j = 0, k = subset.length; j < k; ++j) {
-                    if (!match(array[i + j], subset[j])) { return false; }
+                    if ((i + j) >= l) { return false; }
+                    if (!compare(array[i + j], subset[j])) { return false; }
                 }
                 return true;
             }
@@ -384,7 +418,7 @@
      *
      * Compare arbitrary value ``object`` with matcher.
      */
-    match = function match(object, matcher) {
+    function match(object, matcher) {
         if (matcher && typeof matcher.test === "function") {
             return matcher.test(object);
         }
@@ -416,8 +450,12 @@
             return object === null;
         }
 
+        if (isSet(object)) {
+            return isSubset(matcher, object, match);
+        }
+
         if (getClass(object) === "Array" && getClass(matcher) === "Array") {
-            return arrayContains(object, matcher);
+            return arrayContains(object, matcher, match);
         }
 
         if (matcher && typeof matcher === "object") {
@@ -444,7 +482,7 @@
 
         throw new Error("Matcher was not a string, a number, a " +
                         "function, a boolean or an object");
-    };
+    }
 
     return {
         isArguments: isArguments,
@@ -669,34 +707,28 @@
 
     return Formatio.prototype;
 });
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.lolex=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.lolex = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-/*global global, window*/
-/**
- * @author Christian Johansen (christian@cjohansen.no) and contributors
- * @license BSD
- *
- * Copyright (c) 2010-2014 Christian Johansen
- */
-
 (function (global) {
     
+    var userAgent = global.navigator && global.navigator.userAgent;
+    var isRunningInIE = userAgent && userAgent.indexOf("MSIE ") > -1;
+
     // Make properties writable in IE, as per
     // http://www.adequatelygood.com/Replacing-setTimeout-Globally.html
-    // JSLint being anal
-    var glbl = global;
-
-    global.setTimeout = glbl.setTimeout;
-    global.clearTimeout = glbl.clearTimeout;
-    global.setInterval = glbl.setInterval;
-    global.clearInterval = glbl.clearInterval;
-    global.Date = glbl.Date;
+    if (isRunningInIE) {
+        global.setTimeout = global.setTimeout;
+        global.clearTimeout = global.clearTimeout;
+        global.setInterval = global.setInterval;
+        global.clearInterval = global.clearInterval;
+        global.Date = global.Date;
+    }
 
     // setImmediate is not a standard function
     // avoid adding the prop to the window object if not present
-    if('setImmediate' in global) {
-        global.setImmediate = glbl.setImmediate;
-        global.clearImmediate = glbl.clearImmediate;
+    if (global.setImmediate !== undefined) {
+        global.setImmediate = global.setImmediate;
+        global.clearImmediate = global.clearImmediate;
     }
 
     // node expects setTimeout/setInterval to return a fn object w/ .ref()/.unref()
@@ -706,6 +738,7 @@
     var NOOP = function () { return undefined; };
     var timeoutResult = setTimeout(NOOP, 0);
     var addTimerReturnsObject = typeof timeoutResult === "object";
+    var hrtimePresent = (global.process && typeof global.process.hrtime === "function");
     clearTimeout(timeoutResult);
 
     var NativeDate = Date;
@@ -726,7 +759,7 @@
         var ms = 0, parsed;
 
         if (l > 3 || !/^(\d\d:){0,2}\d\d?$/.test(str)) {
-            throw new Error("tick only understands numbers and 'h:m:s'");
+            throw new Error("tick only understands numbers, 'm:s' and 'h:m:s'. Each part must be two digits");
         }
 
         while (i--) {
@@ -740,6 +773,20 @@
         }
 
         return ms * 1000;
+    }
+
+    /**
+     * Floor function that also works for negative numbers
+     */
+    function fixedFloor(n) {
+        return (n >= 0 ? Math.floor(n) : Math.ceil(n));
+    }
+
+    /**
+     * % operator that also works for negative numbers
+     */
+    function fixedModulo(n, m) {
+        return ((n % m) + m) % m;
     }
 
     /**
@@ -800,22 +847,22 @@
             // Defensive and verbose to avoid potential harm in passing
             // explicit undefined when user does not pass argument
             switch (arguments.length) {
-            case 0:
-                return new NativeDate(ClockDate.clock.now);
-            case 1:
-                return new NativeDate(year);
-            case 2:
-                return new NativeDate(year, month);
-            case 3:
-                return new NativeDate(year, month, date);
-            case 4:
-                return new NativeDate(year, month, date, hour);
-            case 5:
-                return new NativeDate(year, month, date, hour, minute);
-            case 6:
-                return new NativeDate(year, month, date, hour, minute, second);
-            default:
-                return new NativeDate(year, month, date, hour, minute, second, ms);
+                case 0:
+                    return new NativeDate(ClockDate.clock.now);
+                case 1:
+                    return new NativeDate(year);
+                case 2:
+                    return new NativeDate(year, month);
+                case 3:
+                    return new NativeDate(year, month, date);
+                case 4:
+                    return new NativeDate(year, month, date, hour);
+                case 5:
+                    return new NativeDate(year, month, date, hour, minute);
+                case 6:
+                    return new NativeDate(year, month, date, hour, minute, second);
+                default:
+                    return new NativeDate(year, month, date, hour, minute, second, ms);
             }
         }
 
@@ -833,7 +880,7 @@
 
         timer.id = uniqueTimerId++;
         timer.createdAt = clock.now;
-        timer.callAt = clock.now + (timer.delay || (clock.duringTick ? 1 : 0));
+        timer.callAt = clock.now + (parseInt(timer.delay) || (clock.duringTick ? 1 : 0));
 
         clock.timers[timer.id] = timer;
 
@@ -849,6 +896,7 @@
     }
 
 
+    /* eslint consistent-return: "off" */
     function compareTimers(a, b) {
         // Sort first by absolute timing
         if (a.callAt < b.callAt) {
@@ -904,6 +952,38 @@
         return timer;
     }
 
+    function firstTimer(clock) {
+        var timers = clock.timers,
+            timer = null,
+            id;
+
+        for (id in timers) {
+            if (timers.hasOwnProperty(id)) {
+                if (!timer || compareTimers(timer, timers[id]) === 1) {
+                    timer = timers[id];
+                }
+            }
+        }
+
+        return timer;
+    }
+
+    function lastTimer(clock) {
+        var timers = clock.timers,
+            timer = null,
+            id;
+
+        for (id in timers) {
+            if (timers.hasOwnProperty(id)) {
+                if (!timer || compareTimers(timer, timers[id]) === -1) {
+                    timer = timers[id];
+                }
+            }
+        }
+
+        return timer;
+    }
+
     function callTimer(clock, timer) {
         var exception;
 
@@ -917,6 +997,7 @@
             if (typeof timer.func === "function") {
                 timer.func.apply(null, timer.args);
             } else {
+                /* eslint no-eval: "off" */
                 eval(timer.func);
             }
         } catch (e) {
@@ -938,11 +1019,11 @@
     function timerType(timer) {
         if (timer.immediate) {
             return "Immediate";
-        } else if (typeof timer.interval !== "undefined") {
-            return "Interval";
-        } else {
-            return "Timeout";
         }
+        if (timer.interval !== undefined) {
+            return "Interval";
+        }
+        return "Timeout";
     }
 
     function clearTimer(clock, timerId, ttype) {
@@ -968,8 +1049,9 @@
             if (timerType(timer) === ttype) {
                 delete clock.timers[timerId];
             } else {
-				throw new Error("Cannot clear timer: timer created with set" + ttype + "() but cleared with clear" + timerType(timer) + "()");
-			}
+                throw new Error("Cannot clear timer: timer created with set" + timerType(timer)
+                                + "() but cleared with clear" + ttype + "()");
+            }
         }
     }
 
@@ -977,16 +1059,20 @@
         var method,
             i,
             l;
+        var installedHrTime = "_hrtime";
 
         for (i = 0, l = clock.methods.length; i < l; i++) {
             method = clock.methods[i];
-
-            if (target[method].hadOwnProperty) {
-                target[method] = clock["_" + method];
+            if (method === "hrtime" && target.process) {
+                target.process.hrtime = clock[installedHrTime];
             } else {
-                try {
-                    delete target[method];
-                } catch (ignore) {}
+                if (target[method] && target[method].hadOwnProperty) {
+                    target[method] = clock["_" + method];
+                } else {
+                    try {
+                        delete target[method];
+                    } catch (ignore) { /* eslint empty-block: "off" */ }
+                }
             }
         }
 
@@ -1028,6 +1114,10 @@
         Date: Date
     };
 
+    if (hrtimePresent) {
+        timers.hrtime = global.process.hrtime;
+    }
+
     var keys = Object.keys || function (obj) {
         var ks = [],
             key;
@@ -1043,11 +1133,15 @@
 
     exports.timers = timers;
 
-    function createClock(now) {
+    function createClock(now, loopLimit) {
+        loopLimit = loopLimit || 1000;
+
         var clock = {
             now: getEpoch(now),
+            hrNow: 0,
             timeouts: {},
-            Date: createDate()
+            Date: createDate(),
+            loopLimit: loopLimit
         };
 
         clock.Date.clock = clock;
@@ -1097,10 +1191,16 @@
 
             clock.duringTick = true;
 
+            function updateHrTime(newNow) {
+                clock.hrNow += (newNow - clock.now);
+            }
+
             var firstException;
             while (timer && tickFrom <= tickTo) {
                 if (clock.timers[timer.id]) {
-                    tickFrom = clock.now = timer.callAt;
+                    updateHrTime(timer.callAt);
+                    tickFrom = timer.callAt;
+                    clock.now = timer.callAt;
                     try {
                         oldNow = clock.now;
                         callTimer(clock, timer);
@@ -1120,6 +1220,7 @@
             }
 
             clock.duringTick = false;
+            updateHrTime(tickTo);
             clock.now = tickTo;
 
             if (firstException) {
@@ -1127,6 +1228,49 @@
             }
 
             return clock.now;
+        };
+
+        clock.next = function next() {
+            var timer = firstTimer(clock);
+            if (!timer) {
+                return clock.now;
+            }
+
+            clock.duringTick = true;
+            try {
+                clock.now = timer.callAt;
+                callTimer(clock, timer);
+                return clock.now;
+            } finally {
+                clock.duringTick = false;
+            }
+        };
+
+        clock.runAll = function runAll() {
+            var numTimers, i;
+            for (i = 0; i < clock.loopLimit; i++) {
+                if (!clock.timers) {
+                    return clock.now;
+                }
+
+                numTimers = Object.keys(clock.timers).length;
+                if (numTimers === 0) {
+                    return clock.now;
+                }
+
+                clock.next();
+            }
+
+            throw new Error("Aborting after running " + clock.loopLimit + "timers, assuming an infinite loop!");
+        };
+
+        clock.runToLast = function runToLast() {
+            var timer = lastTimer(clock);
+            if (!timer) {
+                return clock.now;
+            }
+
+            return clock.tick(timer.callAt);
         };
 
         clock.reset = function reset() {
@@ -1137,25 +1281,46 @@
             // determine time difference
             var newNow = getEpoch(now);
             var difference = newNow - clock.now;
+            var id, timer;
 
             // update 'system clock'
             clock.now = newNow;
 
             // update timers and intervals to keep them stable
-            for (var id in clock.timers) {
+            for (id in clock.timers) {
                 if (clock.timers.hasOwnProperty(id)) {
-                    var timer = clock.timers[id];
+                    timer = clock.timers[id];
                     timer.createdAt += difference;
                     timer.callAt += difference;
                 }
             }
         };
 
+        if (hrtimePresent) {
+            clock.hrtime = function (prev) {
+                if (Array.isArray(prev)) {
+                    var oldSecs = (prev[0] + prev[1] / 1e9);
+                    var newSecs = (clock.hrNow / 1000);
+                    var difference = (newSecs - oldSecs);
+                    var secs = fixedFloor(difference);
+                    var nanosecs = fixedModulo(difference * 1e9, 1e9);
+                    return [
+                        secs,
+                        nanosecs
+                    ];
+                }
+                return [
+                    fixedFloor(clock.hrNow / 1000),
+                    fixedModulo(clock.hrNow * 1e6, 1e9)
+                ];
+            };
+        }
+
         return clock;
     }
     exports.createClock = createClock;
 
-    exports.install = function install(target, now, toFake) {
+    exports.install = function install(target, now, toFake, loopLimit) {
         var i,
             l;
 
@@ -1169,7 +1334,7 @@
             target = global;
         }
 
-        var clock = createClock(now);
+        var clock = createClock(now, loopLimit);
 
         clock.uninstall = function () {
             uninstall(clock, target);
@@ -1182,7 +1347,13 @@
         }
 
         for (i = 0, l = clock.methods.length; i < l; i++) {
-            hijackMethod(target, clock.methods[i], clock);
+            if (clock.methods[i] === "hrtime") {
+                if (target.process && typeof target.process.hrtime === "function") {
+                    hijackMethod(target.process, clock.methods[i], clock);
+                }
+            } else {
+                hijackMethod(target, clock.methods[i], clock);
+            }
         }
 
         return clock;
@@ -1348,7 +1519,8 @@ var sinon = (function () {
 
             // IE 8 does not support hasOwnProperty on the window object and Firefox has a problem
             // when using hasOwn.call on objects from other frames.
-            var owned = object.hasOwnProperty ? object.hasOwnProperty(property) : hasOwn.call(object, property);
+            var owned = (object.hasOwnProperty && object.hasOwnProperty === hasOwn) ?
+                object.hasOwnProperty(property) : hasOwn.call(object, property);
 
             if (hasES5Support) {
                 var methodDesc = (typeof method === "function") ? {value: method} : method;
@@ -1412,9 +1584,17 @@ var sinon = (function () {
                     Object.defineProperty(object, property, wrappedMethodDesc);
                 }
 
+                // this only supports ES5 getter/setter, for ES3.1 and lower
+                // __lookupSetter__ / __lookupGetter__ should be integrated
+                if (hasES5Support) {
+                    var checkDesc = sinon.getPropertyDescriptor(object, property);
+                    if (checkDesc.value === method) {
+                        object[property] = wrappedMethod;
+                    }
+
                 // Use strict equality comparison to check failures then force a reset
                 // via direct assignment.
-                if (object[property] === method) {
+                } else if (object[property] === method) {
                     object[property] = wrappedMethod;
                 }
             };
@@ -2497,11 +2677,15 @@ var sinon = (function () {
             }
 
             if (types) {
+                // A new descriptor is needed here because we can only wrap functions
+                // By passing the original descriptor we would end up trying to spy non-function properties
+                var descriptor = {};
                 var methodDesc = sinon.getPropertyDescriptor(object, property);
+
                 for (var i = 0; i < types.length; i++) {
-                    methodDesc[types[i]] = spy.create(methodDesc[types[i]]);
+                    descriptor[types[i]] = spy.create(methodDesc[types[i]]);
                 }
-                return sinon.wrapMethod(object, property, methodDesc);
+                return sinon.wrapMethod(object, property, descriptor);
             }
 
             return sinon.wrapMethod(object, property, spy.create(object[property]));
@@ -3321,7 +3505,7 @@ var sinon = (function () {
             }
 
             Object.getOwnPropertyNames(obj).forEach(function (k) {
-                if (!seen[k]) {
+                if (seen[k] !== true) {
                     seen[k] = true;
                     var target = typeof Object.getOwnPropertyDescriptor(obj, k).get === "function" ?
                         originalObj : obj;

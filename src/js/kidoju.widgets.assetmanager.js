@@ -51,7 +51,7 @@
         var WIDGET_CLASS = 'k-widget kj-assetmanager';
         var TOOLBAR_TMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
                 '<div class="k-toolbar-wrap">' +
-                    '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button"><span class="k-icon k-i-plus"></span>#=messages.toolbar.upload#<input type="file" name="file" accept="#=accept#" /></div></div>' +
+                    '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button"><span class="k-icon k-i-plus"></span>#=messages.toolbar.upload#<input type="file" name="file" accept="#=accept#" multiple /></div></div>' +
                     '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-i-close" /></button>&nbsp;' +
                     '<label style="display:none">#=messages.toolbar.filter#<select /></label>' +
                 '</div>' +

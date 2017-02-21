@@ -34,10 +34,8 @@
     ];
 
     function findCenter(elem) {
-        var offset;
-        var document = $(elem.ownerDocument);
-        elem = $(elem);
-        offset = elem.offset();
+        var document = $(elem.get(0).ownerDocument);
+        var offset = elem.offset();
         return {
             x: offset.left + elem.outerWidth() / 2 - document.scrollLeft(),
             y: offset.top + elem.outerHeight() / 2 - document.scrollTop()
@@ -594,11 +592,11 @@
                     // check move handle and calculate center
                     expect(handle).to.be.an.instanceof($).with.property('length', 1);
                     var center = findCenter(handle);
+                    var x = center.x;
+                    var y = center.y;
                     var moves = 10;
                     var dx = 100;
                     var dy = 50;
-                    var x = center.x;
-                    var y = center.y;
 
                     function drag() {
                         // initiate drag with mousedown event

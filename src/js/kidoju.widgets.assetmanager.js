@@ -44,10 +44,11 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
-        // var DELETE = 'delete';
         var ERROR = 'error';
-        // var UPLOAD = 'upload';
         var NS = '.kendoAssetManager';
+        var DRAGENTER = 'dragenter' + NS;
+        var DRAGOVER = 'dragover' + NS;
+        var DROP = 'drop' + NS;
         var WIDGET_CLASS = 'k-widget kj-assetmanager';
         var TOOLBAR_TMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
                 '<div class="k-toolbar-wrap">' +
@@ -192,6 +193,44 @@
             return ret;
         }
 
+        /**
+         * Detects file drag and drop
+         * @see https://github.com/Modernizr/Modernizr/issues/57
+         * @returns {boolean}
+         */
+        function supportsFileDrop() {
+            var userAgent = navigator.userAgent.toLowerCase();
+            var isChrome = /chrome/.test(userAgent);
+            var isSafari = !isChrome && /safari/.test(userAgent);
+            var isWindowsSafari = isSafari && /windows/.test(userAgent);
+            return !isWindowsSafari && !!window.FileList;
+        }
+
+        /**
+         * Helper copied from kendo.upload.js
+         * @param element
+         * @param onDragEnter
+         * @param onDragLeave
+         */
+        function bindDragEventWrappers(element, onDragEnter, onDragLeave) {
+            var hideInterval, lastDrag;
+            element.on(DRAGENTER, function (e) {
+                onDragEnter(e);
+                lastDrag = new Date();
+                if (!hideInterval) {
+                    hideInterval = setInterval(function () {
+                        var sinceLastDrag = new Date() - lastDrag;
+                        if (sinceLastDrag > 100) {
+                            onDragLeave();
+                            clearInterval(hideInterval);
+                            hideInterval = null;
+                        }
+                    }, 100);
+                }
+            }).on(DRAGOVER, function () {
+                lastDrag = new Date();
+            });
+        }
 
         /*********************************************************************************
          * Widget
@@ -295,9 +334,7 @@
              */
             events: [
                 CHANGE,
-                // DELETE,
                 ERROR
-                // UPLOAD
             ],
 
             /**
@@ -313,12 +350,12 @@
             },
 
             /**
-             * Check that we have defined a transport for default tab
-             * @returns {*|AssetManager.options.transport.read}
+             * Check that we have defined a transport for the Project tab
+             * @returns {*|boolean}
              * @private
              */
-            _hasTransport: function () {
-                return $.isPlainObject(this.options.transport) && $.type(this.options.transport.read) !== UNDEFINED;
+            _hasProjectTransport: function () {
+                return $.isPlainObject(this.options.transport) && $.type(this.options.transport.read) !== UNDEFINED && $.type(this.options.transport.create) !== UNDEFINED;
             },
 
             /**
@@ -344,6 +381,7 @@
                 that.element.addClass(WIDGET_CLASS);
                 that._tabStrip();
                 that._tabContent();
+                that._dropZone();
                 // Select the first tab, which triggers _onTabSelect
                 that.tabStrip.select(0);
                 // Set the contentHolder height to 'auto' because tabStrip sets it to 0
@@ -392,7 +430,7 @@
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
 
                 // Add the file browser wrapping div
-                this.fileBrowser = $('<div class="k-filebrowser"></div>')
+                this.fileBrowser = $('<div class="k-filebrowser k-dropzone"></div>')
                     .appendTo(this.tabStrip.contentHolder(0));
 
                 // Add the toolbar
@@ -438,8 +476,6 @@
                     .on(CLICK + NS, 'button:not(.k-state-disabled):has(.k-i-close)', $.proxy(that._onDeleteButtonClick, that))
                     .on(CHANGE + NS, 'input.k-input', $.proxy(that._onSearchInputChange, that))
                     .on(CLICK + NS, 'a.k-i-close', $.proxy(that._onSearchClearClick, that));
-
-                // TODO that._attachDropzoneEvents();
             },
 
             /**
@@ -451,15 +487,23 @@
                 var that = this;
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
                 assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
+                this._uploadFiles(files);
+            },
+
+            /**
+             * Upload files
+             * @param files
+             * @private
+             */
+            _uploadFiles: function (files) {
                 assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                assert.ok(that.tabStrip.select().index() === 0 && that._hasTransport(), 'The asset manager is expected to be configured with a transport with the default tab being activated');
-                var files = e.target.files;
+                assert.ok(this.tabStrip.select().index() === 0 && this._hasProjectTransport(), 'The asset manager is expected to be configured with a transport for the project tab');
+                var that = this;
                 if (files instanceof window.FileList && files.length) {
-                    // that.trigger(UPLOAD, { files: files });
                     that.listView.element.addClass('k-loading');
                     // Add multiple attribute to html file input for multiple uploads
                     for (var i = 0, length = files.length; i < length; i++) {
-                        // Identify duplicate
+                        // Find possible duplicate
                         var duplicate = that.dataSource.data().find(function (dataItem) {
                             return new RegExp('/' + files[i].name + '$').test(dataItem.url);
                         });
@@ -490,7 +534,6 @@
              */
             _onDeleteButtonClick: function () {
                 var that = this;
-                // that.trigger(DELETE, { value: that.value() });
                 var file = that.dataSource.get(that.value());
                 if (file instanceof kendo.data.Model) {
                     that.dataSource.remove(file);
@@ -508,7 +551,8 @@
                 assert.instanceof(DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
                 var tabIndex = this.tabStrip.select().index();
-                this._resetTransport(this._hasTransport() ? tabIndex - 1 : tabIndex, e.sender.selectedIndex /*, false*/);
+                // If we have a project transport, we have a project tab otherwise we don't and we substract 1
+                this._resetTransport(this._hasProjectTransport() ? tabIndex - 1 : tabIndex, e.sender.selectedIndex /*, false*/);
             },
 
             /**
@@ -634,7 +678,6 @@
              */
             _selectedItem: function () {
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
-
                 var listView = this.listView; // this.listView might not have yet been assigned
                 if (listView instanceof kendo.ui.ListView) {
                     var selected = listView.select();
@@ -666,12 +709,16 @@
                 this.fileBrowser.appendTo(this.tabStrip.contentHolder(tabIndex));
 
                 // Show/hide upload and delete buttons which are only available on the default Tab
-                this.fileBrowser.find('div.k-toolbar-wrap>.k-upload').toggle(tabIndex === 0 && this._hasTransport());
-                this.fileBrowser.find('div.k-toolbar-wrap>.k-button').toggle(tabIndex === 0 && this._hasTransport());
-                this.fileBrowser.find('div.k-toolbar-wrap>label').toggle(tabIndex > 0 || !this._hasTransport());
+                this.fileBrowser.find('div.k-toolbar-wrap>.k-upload').toggle(tabIndex === 0 && this._hasProjectTransport());
+                this.fileBrowser.find('div.k-toolbar-wrap>.k-button').toggle(tabIndex === 0 && this._hasProjectTransport());
+                this.fileBrowser.find('div.k-toolbar-wrap>label').toggle(tabIndex > 0 || !this._hasProjectTransport());
 
                 // Change data source transport
-                this._resetTransport(this._hasTransport() ? tabIndex - 1 : tabIndex, 0, true);
+                // If we have a project transport, we have a project tab otherwise we don't and we substract 1
+                this._resetTransport(this._hasProjectTransport() ? tabIndex - 1 : tabIndex, 0, true);
+
+                // add/remove k-state-nodrop to dropZone
+                $('.k-dropzone', this.wrapper).toggleClass('k-state-nodrop', tabIndex !== 0 || !this._hasProjectTransport());
 
                 // refresh pager
                 this.pager.refresh();
@@ -827,6 +874,63 @@
                     }
                     */
                     that.dataSource.cancelChanges();
+                }
+            },
+
+            /**
+             * Setup drop zone
+             * @private
+             */
+            _dropZone: function () {
+                var that = this;
+                if (supportsFileDrop()) {
+                    var dropZone = $('.k-dropzone', that.wrapper)
+                        .on(DRAGENTER, function (e) {
+                            e.stopPropagation();
+                            e.preventDefault();
+                        })
+                        .on(DRAGOVER, function (e) {
+                            e.preventDefault();
+                        })
+                        .on(DROP, $.proxy(that._onDrop, that));
+                    // The following add/remove classes used by kendo.upload.js that we match for a consistent UI
+                    bindDragEventWrappers(
+                        dropZone,
+                        function () {
+                            if (!that.wrapper.hasClass('k-state-disabled') && !dropZone.hasClass('k-state-nodrop')) {
+                                dropZone.addClass('k-dropzone-hovered');
+                            }
+                        },
+                        function () {
+                            dropZone.removeClass('k-dropzone-hovered');
+                        }
+                    );
+                    bindDragEventWrappers(
+                        $(document),
+                        function () {
+                            if (!that.wrapper.hasClass('k-state-disabled') && !dropZone.hasClass('k-state-nodrop')) {
+                                dropZone.addClass('k-dropzone-active');
+                            }
+                        },
+                        function () {
+                            dropZone.removeClass('k-dropzone-active');
+                        }
+                    );
+                }
+            },
+
+            /**
+             * Event handler for the drop event
+             * @param e
+             * @private
+             */
+            _onDrop: function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                if (!$('.k-dropzone', this.wrapper).hasClass('.k-state-nodrop')) {
+                    var dt = e.originalEvent.dataTransfer;
+                    var files = dt.files;
+                    this._uploadFiles(files);
                 }
             },
 

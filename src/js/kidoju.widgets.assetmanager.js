@@ -533,6 +533,7 @@
                 this.pager = $('<div class="k-pager-wrap"></div>')
                     .appendTo(this.fileBrowser)
                     .kendoPager({
+                        autoBind: false, // dataSource has already been read by this.listView
                         dataSource: this.dataSource
                     })
                     .data('kendoPager');

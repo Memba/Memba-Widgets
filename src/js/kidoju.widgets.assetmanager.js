@@ -606,15 +606,17 @@
              * @private
              */
             _onListViewDataBound: function (e) {
-                var that = this;
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(ListView, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.ListView'));
+                var listView = e.sender; // Do not use this.listView because it might not yet have been assigned.
                 if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
-                    that._dataBoundUid = e.items[e.items.length - 1].uid;
-                } else if (e.action === 'sync' && $.type(that._dataBoundUid) === STRING) {
+                    listView._dataBoundUid = e.items[e.items.length - 1].uid;
+                } else if (e.action === 'sync' && $.type(listView._dataBoundUid) === STRING) {
                     // action 'add' is followed by action 'sync'
-                    that.select(that.element.children('[' + kendo.attr('uid') + '="' + that._dataBoundUid + '"]'));
-                    that._dataBoundUid = undefined;
+                    listView.select(listView.element.children('[' + kendo.attr('uid') + '="' + listView._dataBoundUid + '"]'));
+                    listView._dataBoundUid = undefined;
                 } else {
-                    that.select(that.element.children().first());
+                    listView.select(listView.element.children().first());
                 }
             },
 

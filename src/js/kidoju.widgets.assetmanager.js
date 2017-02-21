@@ -457,15 +457,22 @@
                 if (files instanceof window.FileList && files.length) {
                     // that.trigger(UPLOAD, { files: files });
                     that.listView.element.addClass('k-loading');
-                    for (var i = 0; i < files.length; i++) { // How can we have several files???
-                        // TODO Search whether a file with the same name already exists
+                    // Add multiple attribute to html file input for multiple uploads
+                    for (var i = 0, length = files.length; i < length; i++) {
+                        // Identify duplicate
+                        var duplicate = that.dataSource.data().find(function (dataItem) {
+                            return new RegExp('/' + files[i].name + '$').test(dataItem.url);
+                        });
+                        // Remove duplicate
+                        if (duplicate instanceof kendo.data.ObservableObject) {
+                            that.dataSource.remove(duplicate);
+                        }
+                        // Add new asset
                         that.dataSource.add({
                             size: files[i].size,
                             file: files[i]
                         });
                     }
-                    // TODO Select the newly added file (possible page to the end of the dataSource)
-
                     // Note: syncing to the dataSource calls the create transport where you should actually upload your file,
                     // update the url and push to the dataSource using the options.success callback
                     // if there is an error, call options.error and cancel changes in the error event raised by the widget

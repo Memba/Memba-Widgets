@@ -626,14 +626,14 @@
              * @private
              */
             _selectedItem: function () {
-                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
 
-                var listView = this.listView;
-                var selected = listView.select();
-
-                if (selected instanceof $ && selected.length) {
-                    return this.dataSource.getByUid(selected.attr(kendo.attr('uid')));
+                var listView = this.listView; // this.listView might not have yet been assigned
+                if (listView instanceof kendo.ui.ListView) {
+                    var selected = listView.select();
+                    if (selected instanceof $ && selected.length) {
+                        return this.dataSource.getByUid(selected.attr(kendo.attr('uid')));
+                    }
                 }
             },
 

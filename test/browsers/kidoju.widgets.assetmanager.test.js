@@ -274,8 +274,12 @@
             var options = {
                 change: function (e) {
                     var url = e.sender.value();
-                    viewModel.set('url', url);
-                    change(url);
+                    if (viewModel instanceof kendo.Observable) {
+                        viewModel.set('url', url);
+                    }
+                    if ($.isFunction(change)) {
+                        change(url);
+                    }
                 },
                 collections: [
                     {
@@ -339,7 +343,7 @@
                 expect(assetManager.dropDownList).to.be.an.instanceof(kendo.ui.DropDownList);
                 expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
                 expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
-                expect(assetManager.value()).to.be.undefined;
+                expect(assetManager.value()).to.equal('data://Elvis.jpg');
                 assetManager.listView.bind('dataBound', function (e) {
                     setTimeout(function () {
                         if (assetManager.dropDownList.text() === 'Dark Grey') {
@@ -367,7 +371,7 @@
                 expect(assetManager.dropDownList).to.be.an.instanceof(kendo.ui.DropDownList);
                 expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
                 expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
-                expect(assetManager.value()).to.be.undefined;
+                expect(assetManager.value()).to.equal('data://Elvis.jpg');
                 assetManager.dropDownList.bind('dataBound', function (e) {
                     // 2) Second, select `White` in the subcollection drop down list
                     if (e.sender.dataSource.total() > 0 && e.sender.text() !== 'White') {
@@ -410,7 +414,7 @@
                 expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
                 expect(assetManager.searchInput).to.be.an.instanceof($);
                 expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
-                expect(assetManager.value()).to.be.undefined;
+                expect(assetManager.value()).to.equal('data://Elvis.jpg');
                 assetManager.listView.bind('dataBound', function (e) {
                     if (assetManager.dropDownList.text() === 'Dark Grey') {
                         if (assetManager.searchInput.val() === '') {
@@ -448,15 +452,15 @@
                 expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
                 expect(assetManager.searchInput).to.be.an.instanceof($);
                 expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
-                expect(assetManager.value()).to.be.undefined;
+                expect(assetManager.value()).to.equal('data://Elvis.jpg');
                 assetManager.listView.bind('dataBound', function (e) {
                     // setTimeout(function () {
                     var list = $('div.k-filebrowser ul.k-tiles');
                     for (var i = 0; i < assetManager.listView.dataSource.total(); i++) {
                         var item = list.children('li.k-tile:nth-child(' + (i + 1) + ')');
                         expect(item).to.be.an.instanceof($).with.property('length', 1);
-                        if (kendo.support.click === 'click') {
-                            item.simulate('click');
+                        if (kendo.support.click === CLICK) {
+                            item.simulate(CLICK);
                             // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
                             // item.simulate('mousedown');
                             // item.simulate('mouseup');
@@ -487,19 +491,25 @@
                 assetManager.listView.bind('dataBound', function (e) {
                     var list = $('div.k-filebrowser ul.k-tiles');
                     if (assetManager.listView.dataSource.total() > 0) {
-                        var deleteButton = $('button.k-button span.k-delete').parent();
-                        expect(deleteButton).to.be.hidden;
+                        var deleteButton = $('button.k-button span.k-i-close').parent();
+                        // expect(deleteButton).to.be.hidden;
+                        expect(deleteButton).to.be.visible;
                         var item = list.children('li.k-tile:first');
                         expect(item).to.be.an.instanceof($).with.property('length', 1);
-                        expect(assetManager.value()).to.be.undefined;
-                        if (kendo.support.click === 'click') {
-                            item.simulate('click');
+                        var src = item.find('img').attr('src');
+                        var url = assetManager.value();
+                        var scheme = /^(\w+):\/\//.exec(assetManager.value());
+                        expect(assetManager.value().replace(scheme[0], options.schemes[scheme[1]])).to.equal(src);
+                        if (kendo.support.click === CLICK) {
+                            item.simulate(CLICK);
                             // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
                             // item.simulate('mousedown');
                             // item.simulate('mouseup');
                             expect(assetManager.value()).to.equal(assetManager.listView.dataSource.at(0).id);
                             expect(deleteButton).to.be.visible;
-                            setTimeout(function () { deleteButton.simulate(CLICK); }, 0);
+                            setTimeout(function () {
+                                deleteButton.simulate(CLICK);
+                            }, 0);
                             // Deleting a dataSource item causes a refresh which triggers the dataBound event
                             // so we are deleting all items until dataSource.total() === 0
                             // but to avoid nesting delete events into delete events we need to call setTimout to trigger the next delete event on its own timer
@@ -540,7 +550,9 @@
             var options = {
                 change: function (e) {
                     var url = e.sender.value();
-                    change(url);
+                    if ($.isFunction(change)) {
+                        change(url);
+                    }
                 },
                 error: function (e) {
                     error(e.xhr.message);
@@ -588,7 +600,7 @@
                 expect(assetManager).to.be.an.instanceof(AssetManager);
                 expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
                 expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
-                expect(assetManager.value()).to.be.undefined;
+                expect(assetManager.value()).to.equal('data://Elvis.jpg');
                 assetManager.listView.bind('dataBound', function (e) {
                     assetManager.select(0);
                     expect(assetManager.value()).to.equal(assetManager.dataSource.at(0).id);
@@ -603,7 +615,7 @@
                 expect(assetManager).to.be.an.instanceof(AssetManager);
                 expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
                 expect(assetManager.listView).to.be.an.instanceof(kendo.ui.ListView);
-                expect(assetManager.value()).to.be.undefined;
+                expect(assetManager.value()).to.equal('data://Elvis.jpg');
                 assetManager.listView.bind('dataBound', function (e) {
                     if (error.callCount > 0) {
                         expect(error).to.have.been.calledWith(OOPS);

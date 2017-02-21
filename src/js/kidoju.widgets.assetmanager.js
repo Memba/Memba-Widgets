@@ -197,6 +197,40 @@
          * Widget
          *********************************************************************************/
 
+        /*
+
+         TODO: remove if https://github.com/telerik/kendo-ui-core/pull/2802 is accepted
+         See also https://github.com/telerik/kendo-ui-core/issues/2799
+         Otherwise replace _onListViewDataBound with this
+
+         var AssetListView = ListView.extend({
+            options: $.extend(ListView.fn.options, { name: 'AssetListView'}),
+             refresh: function (e) {
+                 var that = this;
+                 ListView.fn.refresh.call(that, e);
+                 // the dataBinding event knows which data items have been added but occurs before the corresponding html list items are created
+                 // whereas the select method expects a jQuery element as parameter.
+                 // Unfortunately the dataBound event occurs after the html list itens are ccreated but does not know which data item have been added to the listview
+                 // so we need to to specialize the listview to override the refresh method and select the last item added
+                 // Monitor that.trigger(DATABINDING, ...) and that.trigger(DATABOUND) at
+                 // https://github.com/telerik/kendo-ui-core/blob/master/src/kendo.listview.js#L232, and
+                 // https://github.com/telerik/kendo-ui-core/blob/master/src/kendo.listview.js#L263
+                 // until they both match as in that.trigger(DATABOUND, { action: e.action || "rebind", items: e.items, index: e.index });
+                 if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
+                    that._uid = e.items[e.items.length - 1].uid;
+                 } else if (e.action === 'sync' && $.type(that._uid) === STRING) {
+                    // 'add' is followed by 'sync'
+                    that.select(that.element.children('[' + kendo.attr('uid') + '="' + that._uid + '"]'));
+                    that._uid = undefined;
+                 } else {
+                    that.select(that.element.children().first());
+                 }
+             }
+         });
+
+         kendo.ui.plugin(AssetListView);
+         */
+
         /**
          * @class AssetManager Widget (kendoAssetManager)
          */
@@ -525,6 +559,7 @@
                         // autoBind: false,
                         change: $.proxy(this._onListViewChange, this),
                         dataBinding: $.proxy(this._onListViewDataBinding, this),
+                        dataBound: $.proxy(this._onListViewDataBound, this),
                         dataSource: this.dataSource,
                         selectable: true,
                         template: kendo.template(this.options.itemTemplate)
@@ -533,7 +568,7 @@
                 this.pager = $('<div class="k-pager-wrap"></div>')
                     .appendTo(this.fileBrowser)
                     .kendoPager({
-                        autoBind: false, // dataSource has already been read by this.listView
+                        autoBind: false, // dataSource has already been bound/read by this.listView
                         dataSource: this.dataSource
                     })
                     .data('kendoPager');
@@ -566,6 +601,24 @@
             },
 
             /**
+             * Event handler triggered after data binding a new collection
+             * @param e
+             * @private
+             */
+            _onListViewDataBound: function (e) {
+                var that = this;
+                if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
+                    that._dataBoundUid = e.items[e.items.length - 1].uid;
+                } else if (e.action === 'sync' && $.type(that._dataBoundUid) === STRING) {
+                    // action 'add' is followed by action 'sync'
+                    that.select(that.element.children('[' + kendo.attr('uid') + '="' + that._dataBoundUid + '"]'));
+                    that._dataBoundUid = undefined;
+                } else {
+                    that.select(that.element.children().first());
+                }
+            },
+
+            /**
              * Returns the selected item (a data source item) from the list view
              * @returns {*}
              * @private
@@ -584,6 +637,7 @@
 
             /**
              * Event handler triggered when selecting a tab
+             * @param e
              * @private
              */
             _onTabSelect: function (e) {

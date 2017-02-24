@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -126,7 +126,7 @@
                     viewHtml: 'html',
                     foreColor: 'foreground-color',
                     backColor: 'paint',
-                    createTable: 'table',
+                    createTable: 'table-insert',
                     addColumnLeft: 'table-column-insert-left',
                     addColumnRight: 'table-column-insert-right',
                     addRowAbove: 'table-row-insert-above',
@@ -1044,6 +1044,11 @@
                     range.collapse(true);
                 }
                 return range;
+            },
+            _containsRange: function (range) {
+                var dom = kendo.ui.editor.Dom;
+                var body = this.body;
+                return range && dom.isAncestorOrSelf(body, range.startContainer) && dom.isAncestorOrSelf(body, range.endContainer);
             },
             selectedHtml: function () {
                 return kendo.ui.editor.Serializer.domToXhtml(this.getRange().cloneContents());
@@ -2567,14 +2572,15 @@
                     return false;
                 }
                 function child(node, skip, skipEncoding) {
-                    var nodeType = node.nodeType, tagName, mapper, parent, value, previous;
-                    if ($(node).hasClass('k-table-resize-handle') || $(node).hasClass('k-column-resize-handle') || $(node).hasClass('k-row-resize-handle')) {
-                        return;
-                    }
+                    var nodeType = node.nodeType, tagName, mapper, parent, value, previous, jqNode;
                     if (immutables && Editor.Immutables.immutable(node)) {
                         result.push(immutables.serialize(node));
                     } else if (nodeType == 1) {
                         tagName = dom.name(node);
+                        jqNode = $(node);
+                        if (jqNode.hasClass('k-table-resize-handle-wrapper') || jqNode.hasClass('k-column-resize-handle-wrapper') || jqNode.hasClass('k-row-resize-handle-wrapper')) {
+                            return;
+                        }
                         if (!tagName || dom.insignificant(node)) {
                             return;
                         }
@@ -5302,7 +5308,7 @@
     (function ($) {
         var kendo = window.kendo, Class = kendo.Class, Editor = kendo.ui.editor, formats = kendo.ui.Editor.fn.options.formats, EditorUtils = Editor.EditorUtils, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, FormatTool = Editor.FormatTool, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, extend = $.extend, registerTool = Editor.EditorUtils.registerTool, registerFormat = Editor.EditorUtils.registerFormat, preventDefault = function (ev) {
                 ev.preventDefault();
-            }, MOUSEDOWN_NS = 'mousedown.kendoEditor', KMARKER = 'k-marker';
+            }, MOUSEDOWN_NS = 'mousedown.kendoEditor', KEYDOWN_NS = 'keydown.kendoEditor', KMARKER = 'k-marker';
         var InlineFormatFinder = Class.extend({
             init: function (format) {
                 this.format = format;
@@ -5619,8 +5625,13 @@
                 ui.closest('.k-widget').removeClass('k-' + toolName).find('*').addBack().attr('unselectable', 'on');
                 var widget = ui.data(this.type);
                 widget.value('inherit');
-                widget.wrapper.on(MOUSEDOWN_NS, '.k-select', function () {
-                    range = editor.getRange();
+                widget.wrapper.on(MOUSEDOWN_NS, '.k-select,.k-input', function () {
+                    var newRange = editor.getRange();
+                    range = editor._containsRange(newRange) ? newRange : range;
+                }).on(KEYDOWN_NS, function (e) {
+                    if (e.keyCode === kendo.keys.ENTER) {
+                        e.preventDefault();
+                    }
                 });
             }
         });
@@ -8234,7 +8245,7 @@
             'k-i-html': 'viewHtml',
             'k-i-foreground-color': 'foreColor',
             'k-i-paint': 'backColor',
-            'k-i-table': 'createTable',
+            'k-i-table-insert': 'createTable',
             'k-i-table-column-insert-left': 'addColumnLeft',
             'k-i-table-column-insert-right': 'addColumnRight',
             'k-i-table-row-insert-above': 'addRowAbove',
@@ -8703,11 +8714,10 @@
                 that.attachToolsEvents(that.element.add(popupElement));
             },
             attachToolsEvents: function (element) {
-                var that = this, buttons = '[role=button].k-tool', enabledButtons = buttons + ':not(.k-state-disabled)', disabledButtons = buttons + '.k-state-disabled', dropdown = '.k-dropdown', colorpicker = '.k-colorpicker', combobox = '.k-combobox', editorTools = [
+                var that = this, buttons = '[role=button].k-tool', enabledButtons = buttons + ':not(.k-state-disabled)', disabledButtons = buttons + '.k-state-disabled', dropdown = '.k-dropdown', colorpicker = '.k-colorpicker', editorTools = [
                         buttons,
                         dropdown,
-                        colorpicker,
-                        combobox
+                        colorpicker
                     ].join(',');
                 element.off(NS).on('mouseenter' + NS, enabledButtons, function () {
                     $(this).addClass('k-state-hover');

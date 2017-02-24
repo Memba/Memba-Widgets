@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -177,9 +177,9 @@
                 }
             },
             _clearValue: function () {
-                this.listView.value([]);
                 this._clearText();
                 this._accessor('');
+                this.listView.value([]);
                 if (this._isFilterEnabled()) {
                     this._filter({
                         word: '',
@@ -762,7 +762,7 @@
             _hideBusy: function () {
                 var that = this;
                 clearTimeout(that._busy);
-                that._arrow.removeClass(LOADING);
+                that._arrowIcon.removeClass(LOADING);
                 that._focused.attr('aria-busy', false);
                 that._busy = null;
                 that._showClear();
@@ -774,9 +774,9 @@
                     return;
                 }
                 that._busy = setTimeout(function () {
-                    if (that._arrow) {
+                    if (that._arrowIcon) {
                         that._focused.attr('aria-busy', true);
-                        that._arrow.addClass(LOADING);
+                        that._arrowIcon.addClass(LOADING);
                         that._hideClear();
                     }
                 }, 100);
@@ -886,7 +886,8 @@
                     var activeFilter = that.filterInput && that.filterInput[0] === activeElement();
                     if (current) {
                         dataItem = listView.dataItemByIndex(listView.getElementIndex(current));
-                        if (that.trigger(SELECT, {
+                        var shouldTrigger = that._value(dataItem) !== List.unifyType(that.value(), typeof that._value(dataItem));
+                        if (shouldTrigger && that.trigger(SELECT, {
                                 dataItem: dataItem,
                                 item: current
                             })) {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2106,10 +2106,7 @@
             value: function (value) {
                 if (value === undefined) {
                     var txt = this.element[0].innerText;
-                    if (kendo.support.browser.mozilla) {
-                        txt = txt.replace(/\n$/, '');
-                    }
-                    return txt;
+                    return txt.replace(/\n$/, '');
                 }
                 this._value(value);
                 this._syntaxHighlight();
@@ -5101,9 +5098,10 @@
                         if (x.type == 'exp') {
                             formula = kendo.spreadsheet.calc.compile(x);
                         } else if (existingFormat != '@') {
-                            if (x.type == 'date') {
+                            var existingFormatType = existingFormat && kendo.spreadsheet.formatting.type(x.value, existingFormat);
+                            if (x.type == 'date' && existingFormatType != 'date') {
                                 this.format(x.format || toExcelFormat(kendo.culture().calendar.patterns.d));
-                            } else if (x.type == 'percent') {
+                            } else if (x.type == 'percent' && existingFormatType != 'percent') {
                                 this.format(x.value * 100 == (x.value * 100 | 0) ? '0%' : '0.00%');
                             } else if (x.format && !existingFormat) {
                                 this.format(x.format);
@@ -6578,7 +6576,9 @@
         }
     }
     function roundFloatErrors(num) {
-        return Math.round(num * 1000000000000000) / 1000000000000000;
+        var integer = Math.floor(num);
+        var decimal = num - integer;
+        return integer + Math.round(decimal * 1000000000000000) / 1000000000000000;
     }
     function maybeRoundFloatErrors(num) {
         if (typeof num == 'number') {
@@ -10059,22 +10059,15 @@
         }
         function getRC(a, b, c) {
             if (!a && !b && !c) {
-                return 0;
+                return null;
             }
             if (!a && !c || a && c) {
-                var negative = a && /-$/.test(a);
-                var num = parseInt(b, 10);
-                if (negative) {
-                    num = -num;
-                }
-                if (!a) {
-                    num--;
-                }
-                return num;
+                var num = b ? parseInt(b, 10) : 0;
+                return a ? num : num - 1;
             }
         }
         function readSymbol() {
-            var m = input.lookingAt(/^R(\[-?)?([0-9]+)?(\])?C(\[-?)?([0-9]+)?(\])?/i);
+            var m = input.lookingAt(/^R(\[)?(-?[0-9]+)?(\])?C(\[)?(-?[0-9]+)?(\])?/i);
             if (m) {
                 var row = getRC(m[1], m[2], m[3]);
                 var col = getRC(m[4], m[5], m[6]);
@@ -10808,9 +10801,17 @@
         var relsFile = file.replace(/worksheets\//, 'worksheets/_rels/');
         var relationships = readRelationships(zip, relsFile);
         var formula1, formula2;
+        var filterRef;
+        var filterColumn;
+        var customFilterLogic;
+        var customFilterCriteria;
+        var valueFilterBlanks;
+        var valueFilterValues;
+        var filters = [];
         ERROR_LOG = sheet._workbook.excelImportErrors;
         parse(zip, xl(file), {
             enter: function (tag, attrs) {
+                var tmp;
                 if (this.is(SEL_CELL)) {
                     value = null;
                     formula = null;
@@ -10881,10 +10882,46 @@
                     if (target) {
                         sheet.range(attrs.ref).link(target);
                     }
+                } else if (this.is(['autoFilter'])) {
+                    filterRef = attrs.ref;
+                } else if (filterRef) {
+                    if (this.is(['filterColumn'])) {
+                        filterColumn = parseInt(attrs.colId, 10);
+                    } else if (this.is(['customFilters'])) {
+                        customFilterLogic = bool(attrs.and) ? 'and' : 'or';
+                        customFilterCriteria = [];
+                    } else if (this.is(['customFilter'])) {
+                        tmp = getCustomFilter(attrs.operator, attrs.val);
+                        if (tmp) {
+                            customFilterCriteria.push({
+                                operator: tmp.operator,
+                                value: tmp.value
+                            });
+                        }
+                    } else if (this.is(['dynamicFilter'])) {
+                        filters.push({
+                            column: filterColumn,
+                            filter: new kendo.spreadsheet.DynamicFilter({ type: dynamicFilterType(attrs.type) })
+                        });
+                    } else if (this.is(['top10'])) {
+                        filters.push({
+                            column: filterColumn,
+                            filter: new kendo.spreadsheet.TopFilter({
+                                value: getFilterVal(attrs.val),
+                                type: function (percent, top) {
+                                    return percent && top ? 'topPercent' : top ? 'topNumber' : percent ? 'bottomPercent' : 'bottomNumber';
+                                }(bool(attrs.percent), bool(attrs.top))
+                            })
+                        });
+                    } else if (this.is(['filters'])) {
+                        valueFilterBlanks = bool(attrs.blank);
+                        valueFilterValues = [];
+                    } else if (this.is(['filter'])) {
+                        valueFilterValues.push(getFilterVal(attrs.val));
+                    }
                 }
             },
-            leave: function (tag) {
-                var attrs;
+            leave: function (tag, attrs) {
                 if (this.is(SEL_CELL)) {
                     if (formula != null) {
                         var failed = withErrorLog(sheet, formulaRange || ref, function () {
@@ -10910,7 +10947,7 @@
                             }
                         }
                     }
-                } else if (attrs = this.is(SEL_VALIDATION)) {
+                } else if (this.is(SEL_VALIDATION)) {
                     (function () {
                         var refs = kendo.spreadsheet.calc.parseSqref(attrs.sqref);
                         var type = attrs.type.toLowerCase();
@@ -10943,6 +10980,27 @@
                     sheet._columns._refresh();
                 } else if (tag == 'sheetData') {
                     sheet._rows._refresh();
+                } else if (tag == 'autoFilter') {
+                    sheet.range(filterRef).filter(filters);
+                    filterRef = null;
+                } else if (filterRef) {
+                    if (tag == 'customFilters') {
+                        filters.push({
+                            column: filterColumn,
+                            filter: new kendo.spreadsheet.CustomFilter({
+                                logic: customFilterLogic,
+                                criteria: customFilterCriteria
+                            })
+                        });
+                    } else if (tag == 'filters') {
+                        filters.push({
+                            column: filterColumn,
+                            filter: new kendo.spreadsheet.ValueFilter({
+                                values: valueFilterValues,
+                                blanks: valueFilterBlanks
+                            })
+                        });
+                    }
                 }
             },
             text: function (text) {
@@ -10961,6 +11019,56 @@
                 }
             }
         });
+    }
+    function getCustomFilter(op, value) {
+        var ourOp = {
+            equal: 'eq',
+            notEqual: 'ne',
+            greaterThan: 'gt',
+            greaterThanOrEqual: 'gte',
+            lessThan: 'lt',
+            lessThanOrEqual: 'lte'
+        }[op];
+        value = getFilterVal(value);
+        if (ourOp && typeof value == 'number') {
+            return {
+                operator: ourOp,
+                value: value
+            };
+        }
+        if ((op == 'notEqual' || !op) && typeof value == 'string') {
+            return {
+                operator: op ? 'doesnotmatch' : 'matches',
+                value: value
+            };
+        }
+    }
+    function dynamicFilterType(type) {
+        return {
+            Q1: 'quarter1',
+            Q2: 'quarter2',
+            Q3: 'quarter3',
+            Q4: 'quarter4',
+            M1: 'january',
+            M2: 'february',
+            M3: 'march',
+            M4: 'april',
+            M5: 'may',
+            M6: 'june',
+            M7: 'july',
+            M8: 'august',
+            M9: 'september',
+            M10: 'october',
+            M11: 'november',
+            M12: 'december'
+        }[type.toUpperCase()] || type;
+    }
+    function getFilterVal(val) {
+        var tmp = parseFloat(val);
+        if (!isNaN(tmp) && tmp == val) {
+            return tmp;
+        }
+        return val;
     }
     function withErrorLog(sheet, ref, func, context) {
         try {
@@ -15236,7 +15344,7 @@
             _values: [],
             _dates: [],
             _blanks: false,
-            init: function (options) {
+            init: function ValueFilter(options) {
                 if (options.values !== undefined) {
                     this._values = options.values;
                 }
@@ -15271,13 +15379,14 @@
             toJSON: function () {
                 return {
                     filter: 'value',
+                    blanks: this._blanks,
                     values: this._values.slice(0)
                 };
             }
         });
         kendo.spreadsheet.CustomFilter = Filter.extend({
             _logic: 'and',
-            init: function (options) {
+            init: function CustomFilter(options) {
                 if (options.logic !== undefined) {
                     this._logic = options.logic;
                 }
@@ -15326,7 +15435,7 @@
             }
         });
         kendo.spreadsheet.TopFilter = Filter.extend({
-            init: function (options) {
+            init: function TopFilter(options) {
                 this._type = options.type;
                 this._value = options.value;
                 this._values = [];
@@ -15362,7 +15471,7 @@
             }
         });
         kendo.spreadsheet.DynamicFilter = Filter.extend({
-            init: function (options) {
+            init: function DynamicFilter(options) {
                 this._type = options.type;
                 this._predicate = this[options.type];
                 if (typeof this._predicate !== 'function') {
@@ -26830,7 +26939,9 @@
                     contains: 'Text contains',
                     doesnotcontain: 'Text does not contain',
                     startswith: 'Text starts with',
-                    endswith: 'Text ends with'
+                    endswith: 'Text ends with',
+                    matches: 'Text matches',
+                    doesnotmatch: 'Text does not match'
                 },
                 date: {
                     eq: 'Date is',
@@ -27167,7 +27278,9 @@
                         contains: 'Text contains',
                         doesnotcontain: 'Text does not contain',
                         startswith: 'Text starts with',
-                        endswith: 'Text ends with'
+                        endswith: 'Text ends with',
+                        matches: 'Text matches',
+                        doesnotmatch: 'Text does not match'
                     },
                     date: {
                         eq: 'Date is',

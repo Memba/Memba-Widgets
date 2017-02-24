@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -30,7 +30,10 @@
         name: 'PanelBar',
         category: 'web',
         description: 'The PanelBar widget displays hierarchical data as a multi-level expandable panel bar.',
-        depends: ['core']
+        depends: [
+            'core',
+            'data.odata'
+        ]
     };
     (function ($, undefined) {
         var kendo = window.kendo, ui = kendo.ui, keys = kendo.keys, extend = $.extend, proxy = $.proxy, each = $.each, isArray = $.isArray, template = kendo.template, Widget = ui.Widget, HierarchicalDataSource = kendo.data.HierarchicalDataSource, excludedNodesRegExp = /^(ul|a|div)$/i, NS = '.kendoPanelBar', IMG = 'img', HREF = 'href', LAST = 'k-last', LINK = 'k-link', LINKSELECTOR = '.' + LINK, ERROR = 'error', ITEM = '.k-item', GROUP = '.k-group', VISIBLEGROUP = GROUP + ':visible', IMAGE = 'k-image', FIRST = 'k-first', CHANGE = 'change', EXPAND = 'expand', SELECT = 'select', CONTENT = 'k-content', ACTIVATE = 'activate', COLLAPSE = 'collapse', DATABOUND = 'dataBound', MOUSEENTER = 'mouseenter', MOUSELEAVE = 'mouseleave', CONTENTLOAD = 'contentLoad', UNDEFINED = 'undefined', ACTIVECLASS = 'k-state-active', GROUPS = '> .k-panel', CONTENTS = '> .k-content', STRING = 'string', FOCUSEDCLASS = 'k-state-focused', DISABLEDCLASS = 'k-state-disabled', SELECTEDCLASS = 'k-state-selected', SELECTEDSELECTOR = '.' + SELECTEDCLASS, HIGHLIGHTCLASS = 'k-state-highlight', ACTIVEITEMSELECTOR = ITEM + ':not(.k-state-disabled)', clickableItems = '> ' + ACTIVEITEMSELECTOR + ' > ' + LINKSELECTOR + ', .k-panel > ' + ACTIVEITEMSELECTOR + ' > ' + LINKSELECTOR, disabledItems = ITEM + '.k-state-disabled > .k-link', selectableItems = '> li > ' + SELECTEDSELECTOR + ', .k-panel > li > ' + SELECTEDSELECTOR, defaultState = 'k-state-default', ARIA_DISABLED = 'aria-disabled', ARIA_EXPANDED = 'aria-expanded', ARIA_HIDDEN = 'aria-hidden', ARIA_SELECTED = 'aria-selected', VISIBLE = ':visible', EMPTY = ':empty', SINGLE = 'single', bindings = {
@@ -247,7 +250,7 @@
                     content: template('<div role=\'region\' class=\'k-content\'#= contentAttributes(data) #>#= content(item) #</div>'),
                     group: template('<ul role=\'group\' aria-hidden=\'true\' class=\'#= groupCssClass(group) #\'#= groupAttributes(group) #>' + '#= renderItems(data) #' + '</ul>'),
                     itemWrapper: template('# var url = ' + fieldAccessor('url') + '(item); #' + '# var imageUrl = ' + fieldAccessor('imageUrl') + '(item); #' + '# var spriteCssClass = ' + fieldAccessor('spriteCssClass') + '(item); #' + '# var contentUrl = contentUrl(item); #' + '# var tag = url||contentUrl ? \'a\' : \'span\'; #' + '<#= tag # class=\'#= textClass(item, group) #\' #= contentUrl ##= textAttributes(url) #>' + '# if (imageUrl) { #' + '<img class=\'k-image\' alt=\'\' src=\'#= imageUrl #\' />' + '# } #' + '# if (spriteCssClass) { #' + '<span class=\'k-sprite #= spriteCssClass #\'></span>' + '# } #' + '#= data.panelBar.options.template(data) #' + '#= arrow(data) #' + '</#= tag #>'),
-                    item: template('<li role=\'menuitem\' #=aria(item)#class=\'#= wrapperCssClass(group, item) #\'' + kendo.attr('uid') + '=\'#= item.uid #\'>' + '#= itemWrapper(data) #' + '# if (item.items) { #' + '#= subGroup({ items: item.items, panelBar: panelBar, group: { expanded: item.expanded } }) #' + '# } else if (item.content || item.contentUrl) { #' + '#= renderContent(data) #' + '# } #' + '</li>'),
+                    item: template('<li role=\'menuitem\' #=aria(item)#class=\'#= wrapperCssClass(group, item) #\'' + kendo.attr('uid') + '=\'#= item.uid #\'>' + '#= itemWrapper(data) #' + '# if (item.items && item.items.length > 0) { #' + '#= subGroup({ items: item.items, panelBar: panelBar, group: { expanded: item.expanded } }) #' + '# } else if (item.content || item.contentUrl) { #' + '#= renderContent(data) #' + '# } #' + '</li>'),
                     loading: template('<div class=\'k-item\'><span class=\'k-icon k-i-loading\'></span> #: data.messages.loading #</div>'),
                     retry: template('#: data.messages.requestFailed # ' + '<button class=\'k-button k-request-retry\'>#: data.messages.retry #</button>'),
                     arrow: template('<span class=\'#= arrowClass(item) #\'></span>'),
@@ -278,7 +281,11 @@
                 useAnimation = useAnimation !== false;
                 element.each(function (index, item) {
                     item = $(item);
-                    var groups = item.find(GROUPS).add(item.find(CONTENTS));
+                    var wrapper = element.children('.k-group,.k-content');
+                    if (!wrapper.length) {
+                        wrapper = that._addGroupElement(element);
+                    }
+                    var groups = wrapper.add(item.find(CONTENTS));
                     if (!item.hasClass(DISABLEDCLASS) && groups.length > 0) {
                         if (that.options.expandMode == SINGLE && that._collapseAllExpanded(item)) {
                             return that;
@@ -414,6 +421,9 @@
                     this._angularCompileElements(children, items);
                 } else {
                     this.append(item.children, parentNode);
+                    if (this.options.loadOnDemand) {
+                        this._toggleGroup(parentNode.children('.k-group'), false);
+                    }
                     children = parentNode.children('.k-group').children('li');
                     for (i = 0; i < children.length; i++) {
                         child = children.eq(i);
@@ -469,7 +479,7 @@
                     for (var k = 0; k < items.length; k++) {
                         if (!loadOnDemand || items[k].expanded) {
                             var tempItem = items[k];
-                            if (tempItem.hasChildren && tempItem.items && tempItem.items.length === 0) {
+                            if (this._hasChildItems(tempItem)) {
                                 tempItem.load();
                             }
                         }
@@ -552,16 +562,14 @@
                 that._bindDataSource();
             },
             _appendItems: function (index, items, parentNode) {
-                var that = this, children, wrapper, group;
+                var that = this, children, wrapper;
                 if (parentNode.hasClass('k-panelbar')) {
                     children = parentNode.children('li');
                     wrapper = parentNode;
                 } else {
                     wrapper = parentNode.children('.k-group');
                     if (!wrapper.length) {
-                        group = $('<ul role="group" aria-hidden="true" class="k-group k-panel" style="display:none"></ul>');
-                        parentNode.append(group);
-                        wrapper = group;
+                        wrapper = that._addGroupElement(parentNode);
                     }
                     children = wrapper.children('li');
                 }
@@ -609,7 +617,7 @@
                     if (items[0][field]) {
                         var currentNode = that.findByUid(items[0].uid);
                         if (!currentNode.hasClass(DISABLEDCLASS)) {
-                            that.select(currentNode);
+                            that.select(currentNode, true);
                         }
                     } else {
                         that.clearSelection();
@@ -675,7 +683,7 @@
                 var uid = $(item).closest(ITEM).attr(kendo.attr('uid')), dataSource = this.dataSource;
                 return dataSource && dataSource.getByUid(uid);
             },
-            select: function (element) {
+            select: function (element, skipChange) {
                 var that = this;
                 if (element === undefined) {
                     return that.element.find(selectableItems).parent();
@@ -689,9 +697,7 @@
                         if (item.hasClass(DISABLEDCLASS)) {
                             return that;
                         }
-                        if (!that._triggerEvent(SELECT, item)) {
-                            that._updateSelected(link);
-                        }
+                        that._updateSelected(link, skipChange);
                     });
                 }
                 return that;
@@ -980,6 +986,11 @@
                 }
                 var link = target.closest(LINKSELECTOR), item = link.closest(ITEM);
                 that._updateSelected(link);
+                var wrapper = item.children('.k-group,.k-content');
+                var dataItem = this.dataItem(item);
+                if (!wrapper.length && (that.options.loadOnDemand && dataItem && dataItem.hasChildren || this._hasChildItems(item) || item.content || item.contentUrl)) {
+                    wrapper = that._addGroupElement(item);
+                }
                 contents = item.find(GROUPS).add(item.find(CONTENTS));
                 href = link.attr(HREF);
                 isAnchor = href && (href.charAt(href.length - 1) == '#' || href.indexOf('#' + that.element[0].id + '-') != -1);
@@ -1006,19 +1017,21 @@
                 }
                 return prevent;
             },
+            _hasChildItems: function (item) {
+                return item.items && item.items.length > 0 || item.hasChildren;
+            },
             _toggleItem: function (element, isVisible, expanded) {
                 var that = this, childGroup = element.find(GROUPS), link = element.find(LINKSELECTOR), url = link.attr(HREF), prevent, content, dataItem = that.dataItem(element);
                 var loaded = dataItem && dataItem.loaded();
                 if (dataItem && !expanded) {
                     dataItem.set('expanded', !isVisible);
-                    prevent = dataItem.hasChildren;
+                    prevent = dataItem.hasChildren || !!dataItem.content || !!dataItem.contentUrl;
                     return prevent;
                 }
-                if (dataItem && (!expanded || expanded === 'true') && !loaded) {
+                if (dataItem && (!expanded || expanded === 'true') && !loaded && !dataItem.content && !dataItem.contentUrl) {
                     if (that.options.loadOnDemand) {
                         this._progress(element, true);
                     }
-                    this._toggleGroup(childGroup, isVisible);
                     element.children('.k-group,.k-content').remove();
                     prevent = dataItem.hasChildren;
                     dataItem.load();
@@ -1067,6 +1080,11 @@
                 that.trigger('complete');
                 that._animating = false;
             },
+            _addGroupElement: function (element) {
+                var group = $('<ul role="group" aria-hidden="true" class="k-group k-panel" style="display:none"></ul>');
+                element.append(group);
+                return group;
+            },
             _collapseAllExpanded: function (item) {
                 var that = this, children, stopExpand = false;
                 var groups = item.find(GROUPS).add(item.find(CONTENTS));
@@ -1083,6 +1101,16 @@
                         if (!stopExpand) {
                             that._toggleGroup(content, true);
                         }
+                    });
+                    that.one('complete', function () {
+                        setTimeout(function () {
+                            children.each(function (index, child) {
+                                var dataItem = that.dataItem(child);
+                                if (dataItem) {
+                                    dataItem.set('expanded', false);
+                                }
+                            });
+                        });
                     });
                 }
                 return stopExpand;
@@ -1137,7 +1165,7 @@
                 var that = this;
                 return that.trigger(eventName, { item: element[0] });
             },
-            _updateSelected: function (link) {
+            _updateSelected: function (link, skipChange) {
                 var that = this, element = that.element, item = link.parent(ITEM), selected = that._selected, dataItem = that.dataItem(item);
                 if (selected) {
                     selected.removeAttr(ARIA_SELECTED);
@@ -1151,7 +1179,9 @@
                 if (dataItem) {
                     dataItem.set('selected', true);
                 }
-                that.trigger(CHANGE);
+                if (!skipChange) {
+                    that.trigger(CHANGE);
+                }
             },
             _animations: function (options) {
                 if (options && 'animation' in options && !options.animation) {
@@ -1174,7 +1204,7 @@
                 return that.templates.item(extend(options, {
                     itemWrapper: that.templates.itemWrapper,
                     renderContent: that.renderContent,
-                    arrow: item.items && item.items.length > 0 || item.hasChildren || item.content || item.contentUrl ? that.templates.arrow : empty,
+                    arrow: that._hasChildItems(item) || item.content || item.contentUrl ? that.templates.arrow : empty,
                     subGroup: !options.loadOnDemand || item.expanded ? that.renderGroup : empty
                 }, rendering));
             },

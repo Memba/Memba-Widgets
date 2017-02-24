@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -181,7 +181,9 @@
         var Circle = geometry.Circle;
         var geometryTransform = geometry.transform;
         var Segment = geometry.Segment;
+        var dataviz = kendo.dataviz;
         var deepExtend = kendo.deepExtend;
+        var __common_getter_js = kendo.getter;
         var X = 'x';
         var Y = 'y';
         var TOP = 'top';
@@ -337,28 +339,6 @@
                 spacing[LEFT] = value[LEFT] || defaultSpacing;
             }
             return spacing;
-        }
-        var FIELD_REGEX = /\[(\d+)\]|([^\.]+)/g;
-        var getterCache = {};
-        getterCache['undefined'] = function (obj) {
-            return obj;
-        };
-        function getter(field) {
-            if (getterCache[field]) {
-                return getterCache[field];
-            }
-            var fields = [];
-            field.replace(FIELD_REGEX, function (match, index, field) {
-                fields.push(kendo.drawing.util.defined(index) ? index : field);
-            });
-            getterCache[field] = function (obj) {
-                var result = obj;
-                for (var idx = 0; idx < fields.length && result; idx++) {
-                    result = result[fields[idx]];
-                }
-                return result;
-            };
-            return getterCache[field];
         }
         function grep(array, callback) {
             var length = array.length;
@@ -3771,10 +3751,7 @@
                 var options = this.options;
                 var categories = options.categories;
                 var baseUnit = options.baseUnit;
-                var baseUnitStep = options.baseUnitStep;
-                if (baseUnitStep === void 0) {
-                    baseUnitStep = 1;
-                }
+                var baseUnitStep = options.baseUnitStep || 1;
                 var categoryLimits = this.categoriesRange();
                 var min = toDate(options.min || categoryLimits.min);
                 var max = toDate(options.max || categoryLimits.max);
@@ -3882,10 +3859,7 @@
                 var totalLimits = this.totalLimits();
                 var weekStartDay = options.weekStartDay;
                 var baseUnit = options.baseUnit;
-                var baseUnitStep = options.baseUnitStep;
-                if (baseUnitStep === void 0) {
-                    baseUnitStep = 1;
-                }
+                var baseUnitStep = options.baseUnitStep || 1;
                 var ref = this.currentRange();
                 var rangeMin = ref.min;
                 var rangeMax = ref.max;
@@ -4006,10 +3980,7 @@
             groupCategories: function (options) {
                 var categories = options.categories;
                 var baseUnit = options.baseUnit;
-                var baseUnitStep = options.baseUnitStep;
-                if (baseUnitStep === void 0) {
-                    baseUnitStep = 1;
-                }
+                var baseUnitStep = options.baseUnitStep || 1;
                 var maxCategory = toDate(sparseArrayLimits(categories).max);
                 var ref = this.range(options);
                 var min = ref.min;
@@ -4029,10 +4000,7 @@
             _roundToTotalStep: function (value, axisOptions, upper, roundToNext) {
                 var options = axisOptions || this.options;
                 var baseUnit = options.baseUnit;
-                var baseUnitStep = options.baseUnitStep;
-                if (baseUnitStep === void 0) {
-                    baseUnitStep = 1;
-                }
+                var baseUnitStep = options.baseUnitStep || 1;
                 var start = this._groupsStart;
                 if (start) {
                     var step = dateIndex(value, start, baseUnit, baseUnitStep);
@@ -5123,15 +5091,9 @@
                 var this$1 = this;
                 var ref = this;
                 var labels = ref.labels;
-                var ref_options_labels = ref.options.labels;
-                var skip = ref_options_labels.skip;
-                if (skip === void 0) {
-                    skip = 0;
-                }
-                var step = ref_options_labels.step;
-                if (step === void 0) {
-                    step = 1;
-                }
+                var labelOptions = ref.options.labels;
+                var skip = labelOptions.skip || 0;
+                var step = labelOptions.step || 1;
                 var measureBox = new Box();
                 for (var i = 0; i < labels.length; i++) {
                     labels[i].reflow(measureBox);
@@ -5139,13 +5101,7 @@
                     labels[i].reflow(this$1.getSlot(skip + i * step).adjacentBox(0, labelBox.width(), labelBox.height()));
                 }
             },
-            intervals: function (size, skip, step, skipAngles) {
-                if (skip === void 0) {
-                    skip = 0;
-                }
-                if (step === void 0) {
-                    step = 1;
-                }
+            intervals: function (size, skipOption, stepOption, skipAngles) {
                 if (skipAngles === void 0) {
                     skipAngles = false;
                 }
@@ -5153,6 +5109,8 @@
                 var categories = options.categories.length;
                 var divCount = categories / size || 1;
                 var divAngle = 360 / divCount;
+                var skip = skipOption || 0;
+                var step = stepOption || 1;
                 var divs = [];
                 var angle = 0;
                 for (var i = skip; i < divCount; i += step) {
@@ -5314,15 +5272,9 @@
                 var ref = this;
                 var options = ref.options;
                 var labels = ref.labels;
-                var ref_options_labels = ref.options.labels;
-                var skip = ref_options_labels.skip;
-                if (skip === void 0) {
-                    skip = 0;
-                }
-                var step = ref_options_labels.step;
-                if (step === void 0) {
-                    step = 1;
-                }
+                var labelOptions = ref.options.labels;
+                var skip = labelOptions.skip || 0;
+                var step = labelOptions.step || 1;
                 var measureBox = new Box();
                 var divs = this.intervals(options.majorUnit, skip, step);
                 for (var i = 0; i < labels.length; i++) {
@@ -5334,19 +5286,15 @@
             lineBox: function () {
                 return this.box;
             },
-            intervals: function (size, skip, step, skipAngles) {
-                if (skip === void 0) {
-                    skip = 0;
-                }
-                if (step === void 0) {
-                    step = 1;
-                }
+            intervals: function (size, skipOption, stepOption, skipAngles) {
                 if (skipAngles === void 0) {
                     skipAngles = false;
                 }
                 var min = this.options.min;
                 var divisions = this.getDivisions(size);
                 var divs = [];
+                var skip = skipOption || 0;
+                var step = stepOption || 1;
                 for (var i = skip; i < divisions; i += step) {
                     var current = (360 + min + i * size) % 360;
                     if (!(skipAngles && inArray(current, skipAngles))) {
@@ -5867,6 +5815,7 @@
         function numberSign(value) {
             return value <= 0 ? -1 : 1;
         }
+        dataviz.Gradients = GRADIENTS;
         kendo.deepExtend(kendo.dataviz, {
             constants: constants,
             services: services,
@@ -5897,7 +5846,6 @@
             RadarNumericAxis: RadarNumericAxis,
             RadarLogarithmicAxis: RadarLogarithmicAxis,
             CurveProcessor: CurveProcessor,
-            Gradients: GRADIENTS,
             rectToBox: rectToBox,
             addClass: addClass,
             removeClass: removeClass,
@@ -5906,7 +5854,7 @@
             deepExtend: deepExtend,
             elementStyles: elementStyles,
             getSpacing: getSpacing,
-            getter: getter,
+            getter: __common_getter_js,
             grep: grep,
             hasClasses: hasClasses,
             inArray: inArray,

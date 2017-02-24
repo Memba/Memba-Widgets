@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -38,7 +38,7 @@
         var APP = kendo.template('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">' + '<Application>Microsoft Excel</Application>' + '<DocSecurity>0</DocSecurity>' + '<ScaleCrop>false</ScaleCrop>' + '<HeadingPairs>' + '<vt:vector size="2" baseType="variant">' + '<vt:variant>' + '<vt:lpstr>Worksheets</vt:lpstr>' + '</vt:variant>' + '<vt:variant>' + '<vt:i4>${sheets.length}</vt:i4>' + '</vt:variant>' + '</vt:vector>' + '</HeadingPairs>' + '<TitlesOfParts>' + '<vt:vector size="${sheets.length}" baseType="lpstr">' + '# for (var idx = 0; idx < sheets.length; idx++) { #' + '# if (sheets[idx].options.title) { #' + '<vt:lpstr>${sheets[idx].options.title}</vt:lpstr>' + '# } else { #' + '<vt:lpstr>Sheet${idx+1}</vt:lpstr>' + '# } #' + '# } #' + '</vt:vector>' + '</TitlesOfParts>' + '<LinksUpToDate>false</LinksUpToDate>' + '<SharedDoc>false</SharedDoc>' + '<HyperlinksChanged>false</HyperlinksChanged>' + '<AppVersion>14.0300</AppVersion>' + '</Properties>');
         var CONTENT_TYPES = kendo.template('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />' + '<Default Extension="xml" ContentType="application/xml" />' + '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" />' + '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' + '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>' + '# for (var idx = 1; idx <= count; idx++) { #' + '<Override PartName="/xl/worksheets/sheet${idx}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" />' + '# } #' + '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml" />' + '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml" />' + '</Types>');
         var WORKBOOK = kendo.template('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' + '<fileVersion appName="xl" lastEdited="5" lowestEdited="5" rupBuild="9303" />' + '<workbookPr defaultThemeVersion="124226" />' + '<bookViews>' + '<workbookView xWindow="240" yWindow="45" windowWidth="18195" windowHeight="7995" />' + '</bookViews>' + '<sheets>' + '# for (var idx = 0; idx < sheets.length; idx++) { #' + '# var options = sheets[idx].options; #' + '# var name = options.name || options.title #' + '# if (name) { #' + '<sheet name="${name}" sheetId="${idx+1}" r:id="rId${idx+1}" />' + '# } else { #' + '<sheet name="Sheet${idx+1}" sheetId="${idx+1}" r:id="rId${idx+1}" />' + '# } #' + '# } #' + '</sheets>' + '# if (filterNames.length || userNames.length) { #' + '<definedNames>' + ' # for (var di = 0; di < filterNames.length; di++) { #' + '<definedName name="_xlnm._FilterDatabase" hidden="1" localSheetId="${filterNames[di].localSheetId}">' + '${filterNames[di].name}!$${filterNames[di].from}:$${filterNames[di].to}' + '</definedName>' + ' # } #' + ' # for (var i = 0; i < userNames.length; ++i) { #' + '<definedName name="${userNames[i].name}" hidden="${userNames[i].hidden ? 1 : 0}"' + ' # if (userNames[i].localSheetId != null) { # localSheetId="${userNames[i].localSheetId}" # } #' + '>${userNames[i].value}</definedName>' + ' # } #' + '</definedNames>' + '# } #' + '<calcPr fullCalcOnLoad="1" calcId="145621" />' + '</workbook>');
-        var WORKSHEET = kendo.template('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" mc:Ignorable="x14ac">' + '<dimension ref="A1" />' + '<sheetViews>' + '<sheetView #if(index==0) {# tabSelected="1" #}# workbookViewId="0" #if (showGridLines === false) {# showGridLines="0" #}#>' + '# if (frozenRows || frozenColumns) { #' + '<pane state="frozen"' + '# if (frozenColumns) { #' + ' xSplit="${frozenColumns}"' + '# } #' + '# if (frozenRows) { #' + ' ySplit="${frozenRows}"' + '# } #' + ' topLeftCell="${String.fromCharCode(65 + (frozenColumns || 0))}${(frozenRows || 0)+1}"' + '/>' + '# } #' + '</sheetView>' + '</sheetViews>' + '<sheetFormatPr x14ac:dyDescent="0.25" defaultRowHeight="#= defaults.rowHeight ? defaults.rowHeight * 0.75 : 15 #" ' + '# if (defaults.columnWidth) { # defaultColWidth="#= kendo.ooxml.toWidth(defaults.columnWidth) #" # } #' + ' />' + '# if (defaultCellStyleId != null || (columns && columns.length > 0)) { #' + '<cols>' + '# if (!columns || !columns.length) { #' + '<col min="1" max="16384" style="${defaultCellStyleId}" ' + '# if (defaults.columnWidth) { # width="#= kendo.ooxml.toWidth(defaults.columnWidth) #" # } #' + ' />' + '# } #' + '# for (var ci = 0; ci < columns.length; ci++) { #' + '# var column = columns[ci]; #' + '# var columnIndex = typeof column.index === "number" ? column.index + 1 : (ci + 1); #' + '# if (column.width === 0) { #' + '<col #if(defaultCellStyleId!=null){# style="${defaultCellStyleId}" #}#' + 'min="${columnIndex}" max="${columnIndex}" hidden="1" customWidth="1" />' + '# } else if (column.width) { #' + '<col #if(defaultCellStyleId!=null){# style="${defaultCellStyleId}" #}#' + 'min="${columnIndex}" max="${columnIndex}" customWidth="1"' + '# if (column.autoWidth) { #' + ' width="${((column.width*7+5)/7*256)/256}" bestFit="1"' + '# } else { #' + ' width="#= kendo.ooxml.toWidth(column.width) #" ' + '# } #' + '/>' + '# } #' + '# } #' + '</cols>' + '# } #' + '<sheetData>' + '# for (var ri = 0; ri < data.length; ri++) { #' + '# var row = data[ri]; #' + '# var rowIndex = typeof row.index === "number" ? row.index + 1 : (ri + 1); #' + '<row r="${rowIndex}" x14ac:dyDescent="0.25" ' + '# if (row.height === 0) { # hidden="1" # } ' + '  else if (row.height) { # ht="#= kendo.ooxml.toHeight(row.height) #" customHeight="1" # } #' + ' >' + '# for (var ci = 0; ci < row.data.length; ci++) { #' + '# var cell = row.data[ci];#' + '<c r="#=cell.ref#"# if (cell.style) { # s="#=cell.style#" # } ## if (cell.type) { # t="#=cell.type#"# } #>' + '# if (cell.formula != null) { #' + '<f>${cell.formula}</f>' + '# } #' + '# if (cell.value != null) { #' + '<v>${cell.value}</v>' + '# } #' + '</c>' + '# } #' + '</row>' + '# } #' + '</sheetData>' + '# if (filter) { #' + '<autoFilter ref="${filter.from}:${filter.to}"/>' + '# } #' + '# if (mergeCells.length) { #' + '<mergeCells count="${mergeCells.length}">' + '# for (var ci = 0; ci < mergeCells.length; ci++) { #' + '<mergeCell ref="${mergeCells[ci]}"/>' + '# } #' + '</mergeCells>' + '# } #' + '# if (validations.length) { #' + '<dataValidations>' + '# for (var vi = 0; vi < validations.length; vi++) { #' + '# var val = validations[vi]; #' + '<dataValidation sqref="#= val.sqref.join(" ") #"' + ' showErrorMessage="#= val.showErrorMessage #"' + ' type="#= val.type #"' + '# if (val.type != "list") {# operator="#= val.operator #" # } #' + ' allowBlank="#= val.allowBlank #"' + ' showDropDown="#= val.showDropDown #"' + '# if (val.error) {# error="#= val.error #" # } #' + '# if (val.errorTitle) {# errorTitle="#= val.errorTitle #" # } #' + '>' + '# if (val.formula1) { #' + '<formula1>#= val.formula1 #</formula1>' + '# } #' + '# if (val.formula2) { #' + '<formula2>#= val.formula2 #</formula2>' + '# } #' + '</dataValidation>' + '# } #' + '</dataValidations>' + '# } #' + '# if (hyperlinks.length) { #' + '<hyperlinks>' + '# for (var hi = 0; hi < hyperlinks.length; hi++) { #' + '<hyperlink ref="${hyperlinks[hi].ref}" r:id="rId${hi}"/>' + '# } #' + '</hyperlinks>' + '# } #' + '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3" />' + '</worksheet>');
+        var WORKSHEET = kendo.template('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" mc:Ignorable="x14ac">' + '<dimension ref="A1" />' + '<sheetViews>' + '<sheetView #if(index==0) {# tabSelected="1" #}# workbookViewId="0" #if (showGridLines === false) {# showGridLines="0" #}#>' + '# if (frozenRows || frozenColumns) { #' + '<pane state="frozen"' + '# if (frozenColumns) { #' + ' xSplit="${frozenColumns}"' + '# } #' + '# if (frozenRows) { #' + ' ySplit="${frozenRows}"' + '# } #' + ' topLeftCell="${String.fromCharCode(65 + (frozenColumns || 0))}${(frozenRows || 0)+1}"' + '/>' + '# } #' + '</sheetView>' + '</sheetViews>' + '<sheetFormatPr x14ac:dyDescent="0.25" defaultRowHeight="#= defaults.rowHeight ? defaults.rowHeight * 0.75 : 15 #" ' + '# if (defaults.columnWidth) { # defaultColWidth="#= kendo.ooxml.toWidth(defaults.columnWidth) #" # } #' + ' />' + '# if (defaultCellStyleId != null || (columns && columns.length > 0)) { #' + '<cols>' + '# if (!columns || !columns.length) { #' + '<col min="1" max="16384" style="${defaultCellStyleId}" ' + '# if (defaults.columnWidth) { # width="#= kendo.ooxml.toWidth(defaults.columnWidth) #" # } #' + ' />' + '# } #' + '# for (var ci = 0; ci < columns.length; ci++) { #' + '# var column = columns[ci]; #' + '# var columnIndex = typeof column.index === "number" ? column.index + 1 : (ci + 1); #' + '# if (column.width === 0) { #' + '<col #if(defaultCellStyleId!=null){# style="${defaultCellStyleId}" #}#' + 'min="${columnIndex}" max="${columnIndex}" hidden="1" customWidth="1" />' + '# } else if (column.width) { #' + '<col #if(defaultCellStyleId!=null){# style="${defaultCellStyleId}" #}#' + 'min="${columnIndex}" max="${columnIndex}" customWidth="1"' + '# if (column.autoWidth) { #' + ' width="${((column.width*7+5)/7*256)/256}" bestFit="1"' + '# } else { #' + ' width="#= kendo.ooxml.toWidth(column.width) #" ' + '# } #' + '/>' + '# } #' + '# } #' + '</cols>' + '# } #' + '<sheetData>' + '# for (var ri = 0; ri < data.length; ri++) { #' + '# var row = data[ri]; #' + '# var rowIndex = typeof row.index === "number" ? row.index + 1 : (ri + 1); #' + '<row r="${rowIndex}" x14ac:dyDescent="0.25" ' + '# if (row.height === 0) { # hidden="1" # } ' + '  else if (row.height) { # ht="#= kendo.ooxml.toHeight(row.height) #" customHeight="1" # } #' + ' >' + '# for (var ci = 0; ci < row.data.length; ci++) { #' + '# var cell = row.data[ci];#' + '<c r="#=cell.ref#"# if (cell.style) { # s="#=cell.style#" # } ## if (cell.type) { # t="#=cell.type#"# } #>' + '# if (cell.formula != null) { #' + '<f>${cell.formula}</f>' + '# } #' + '# if (cell.value != null) { #' + '<v>${cell.value}</v>' + '# } #' + '</c>' + '# } #' + '</row>' + '# } #' + '</sheetData>' + '# if (autoFilter) { #' + '<autoFilter ref="${autoFilter.from}:${autoFilter.to}"/>' + '# } else if (filter) { #' + '#= kendo.ooxml.spreadsheetFilters(filter) #' + '# } #' + '# if (mergeCells.length) { #' + '<mergeCells count="${mergeCells.length}">' + '# for (var ci = 0; ci < mergeCells.length; ci++) { #' + '<mergeCell ref="${mergeCells[ci]}"/>' + '# } #' + '</mergeCells>' + '# } #' + '# if (validations.length) { #' + '<dataValidations>' + '# for (var vi = 0; vi < validations.length; vi++) { #' + '# var val = validations[vi]; #' + '<dataValidation sqref="#= val.sqref.join(" ") #"' + ' showErrorMessage="#= val.showErrorMessage #"' + ' type="#= val.type #"' + '# if (val.type != "list") {# operator="#= val.operator #" # } #' + ' allowBlank="#= val.allowBlank #"' + ' showDropDown="#= val.showDropDown #"' + '# if (val.error) {# error="#= val.error #" # } #' + '# if (val.errorTitle) {# errorTitle="#= val.errorTitle #" # } #' + '>' + '# if (val.formula1) { #' + '<formula1>#= val.formula1 #</formula1>' + '# } #' + '# if (val.formula2) { #' + '<formula2>#= val.formula2 #</formula2>' + '# } #' + '</dataValidation>' + '# } #' + '</dataValidations>' + '# } #' + '# if (hyperlinks.length) { #' + '<hyperlinks>' + '# for (var hi = 0; hi < hyperlinks.length; hi++) { #' + '<hyperlink ref="${hyperlinks[hi].ref}" r:id="rId${hi}"/>' + '# } #' + '</hyperlinks>' + '# } #' + '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3" />' + '</worksheet>');
         var WORKBOOK_RELS = kendo.template('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + '# for (var idx = 1; idx <= count; idx++) { #' + '<Relationship Id="rId${idx}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${idx}.xml" />' + '# } #' + '<Relationship Id="rId${count+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml" />' + '<Relationship Id="rId${count+2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml" />' + '</Relationships>');
         var WORKSHEET_RELS = kendo.template('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + '# for (var i = 0; i < hyperlinks.length; i++) { #' + '<Relationship Id="rId${i}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${hyperlinks[i].target}" TargetMode="External" />' + '# } #' + '</Relationships>');
         var SHARED_STRINGS = kendo.template('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${count}" uniqueCount="${uniqueCount}">' + '# for (var index in indexes) { #' + '<si><t>${index.substring(1)}</t></si>' + '# } #' + '</sst>');
@@ -87,12 +87,16 @@
                 var rows = this.options.rows || [];
                 var data = inflate(rows, mergeCells);
                 this._readCells(data);
-                var filter = this.options.filter;
-                if (filter && typeof filter.from === 'number' && typeof filter.to === 'number') {
-                    filter = {
-                        from: ref(filterRowIndex(this.options), filter.from),
-                        to: ref(filterRowIndex(this.options), filter.to)
+                var autoFilter = this.options.filter;
+                var filter;
+                if (autoFilter && typeof autoFilter.from === 'number' && typeof autoFilter.to === 'number') {
+                    autoFilter = {
+                        from: ref(filterRowIndex(this.options), autoFilter.from),
+                        to: ref(filterRowIndex(this.options), autoFilter.to)
                     };
+                } else if (autoFilter && autoFilter.ref && autoFilter.columns) {
+                    filter = autoFilter;
+                    autoFilter = null;
                 }
                 var validations = [];
                 for (var i in this._validations) {
@@ -113,6 +117,7 @@
                     data: data,
                     index: index,
                     mergeCells: mergeCells,
+                    autoFilter: autoFilter,
                     filter: filter,
                     showGridLines: this.options.showGridLines,
                     hyperlinks: this.options.hyperlinks || [],
@@ -597,12 +602,81 @@
                 insertCellAt(row, tmp, startIndex + i);
             }
         }
+        var SPREADSHEET_FILTERS = kendo.template('<autoFilter ref="${ref}">' + '# for (var i = 0; i < columns.length; ++i) { #' + '# var col = columns[i]; #' + '<filterColumn colId="${col.index}">' + '#= generators[col.filter](col) #' + '</filterColumn>' + '# } #' + '</autoFilter>');
+        var SPREADSHEET_CUSTOM_FILTER = kendo.template('<customFilters# if (logic == "and") {# and="1"# } #>' + '# for (var i = 0; i < criteria.length; ++i) { #' + '# var f = criteria[i]; #' + '# var op = kendo.ooxml.spreadsheetFilters.customOperator(f); #' + '# var val = kendo.ooxml.spreadsheetFilters.customValue(f); #' + '<customFilter# if (op) {# operator="${op}"#}# val="${val}"/>' + '# } #' + '</customFilters>');
+        var SPREADSHEET_DYNAMIC_FILTER = kendo.template('<dynamicFilter type="${kendo.ooxml.spreadsheetFilters.dynamicFilterType(type)}" />');
+        var SPREADSHEET_TOP_FILTER = kendo.template('<top10 percent="#= /percent$/i.test(type) ? 1 : 0 #"' + ' top="#= /^top/i.test(type) ? 1 : 0 #" ' + ' val="#: value #" />');
+        var SPREADSHEET_VALUE_FILTER = kendo.template('<filters# if (blanks) {# blank="1"#}#>' + '# for (var i = 0; i < values.length; ++i) { #' + '<filter val="${values[i]}" />' + '# } #' + '</filters>');
+        function spreadsheetFilters(filter) {
+            return SPREADSHEET_FILTERS({
+                ref: filter.ref,
+                columns: filter.columns,
+                generators: {
+                    custom: SPREADSHEET_CUSTOM_FILTER,
+                    dynamic: SPREADSHEET_DYNAMIC_FILTER,
+                    top: SPREADSHEET_TOP_FILTER,
+                    value: SPREADSHEET_VALUE_FILTER
+                }
+            });
+        }
+        spreadsheetFilters.customOperator = function (f) {
+            return {
+                eq: 'equal',
+                gt: 'greaterThan',
+                gte: 'greaterThanOrEqual',
+                lt: 'lessThan',
+                lte: 'lessThanOrEqual',
+                ne: 'notEqual',
+                doesnotstartwith: 'notEqual',
+                doesnotendwith: 'notEqual',
+                doesnotcontain: 'notEqual',
+                doesnotmatch: 'notEqual'
+            }[f.operator.toLowerCase()];
+        };
+        spreadsheetFilters.customValue = function (f) {
+            function esc(str) {
+                return str.replace(/([*?])/g, '~$1');
+            }
+            switch (f.operator.toLowerCase()) {
+            case 'startswith':
+            case 'doesnotstartwith':
+                return esc(f.value) + '*';
+            case 'endswith':
+            case 'doesnotendwith':
+                return '*' + esc(f.value);
+            case 'contains':
+            case 'doesnotcontain':
+                return '*' + esc(f.value) + '*';
+            }
+            return f.value;
+        };
+        spreadsheetFilters.dynamicFilterType = function (type) {
+            return {
+                quarter1: 'Q1',
+                quarter2: 'Q2',
+                quarter3: 'Q3',
+                quarter4: 'Q4',
+                january: 'M1',
+                february: 'M2',
+                march: 'M3',
+                april: 'M4',
+                may: 'M5',
+                june: 'M6',
+                july: 'M7',
+                august: 'M8',
+                september: 'M9',
+                october: 'M10',
+                november: 'M11',
+                december: 'M12'
+            }[type.toLowerCase()] || type;
+        };
         kendo.ooxml = {
             Workbook: Workbook,
             Worksheet: Worksheet,
             toWidth: toWidth,
             toHeight: toHeight,
-            borderTemplate: borderTemplate
+            borderTemplate: borderTemplate,
+            spreadsheetFilters: spreadsheetFilters
         };
     }(kendo.jQuery, kendo));
     return kendo;

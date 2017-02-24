@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2093,14 +2093,11 @@
             this.value = value;
         }, {
             render: function (out) {
-                var txt = '', esc = this.escape();
-                for (var i = 0; i < esc.length; ++i) {
-                    txt += String.fromCharCode(esc.charCodeAt(i) & 255);
+                var txt = '', val = this.value;
+                for (var i = 0; i < val.length; ++i) {
+                    txt += String.fromCharCode(val.charCodeAt(i) & 255);
                 }
-                out('(', txt, ')');
-            },
-            escape: function () {
-                return this.value.replace(/([\(\)\\])/g, '\\$1');
+                out('(', txt.replace(/([\(\)\\])/g, '\\$1'), ')');
             },
             toString: function () {
                 return this.value;

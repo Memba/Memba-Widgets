@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -639,6 +639,7 @@
                     'role': 'button',
                     'tabIndex': -1
                 });
+                that._arrowIcon = that._arrow.find('.k-icon');
                 if (element.id) {
                     that._arrow.attr('aria-controls', that.ul[0].id);
                 }

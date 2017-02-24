@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -409,6 +409,9 @@
             };
         }
         function eventElement(e) {
+            if (e === void 0) {
+                e = {};
+            }
             return e.touch ? e.touch.initialTouch : e.target;
         }
         function isTransparent(color) {
@@ -5703,47 +5706,103 @@
             }
         });
         function addClass(el, cls) {
-            el.classList.add(cls);
+            if (el.classList) {
+                el.classList.add(cls);
+            } else {
+                el.className += ' ' + cls;
+            }
         }
         function removeClass(el, cls) {
-            el.classList.remove(cls);
+            if (el.classList) {
+                el.classList.remove(cls);
+            } else {
+                el.className = el.className.split(/\s+/).reduce(function (a, word) {
+                    if (word != cls) {
+                        a.push(word);
+                    }
+                    return a;
+                }, []).join(' ');
+            }
         }
         function setCSS(el, styles) {
             Object.keys(styles).forEach(function (key) {
                 el.style[key] = styles[key];
             });
         }
-        function matches(el, selector) {
-            var p = Element.prototype;
-            var f = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || function (s) {
+        var matches = typeof Element !== 'undefined' && Element.prototype && function (p) {
+            if (p.matches) {
+                return function (el, selector) {
+                    return el.matches(selector);
+                };
+            }
+            if (p.webkitMatchesSelector) {
+                return function (el, selector) {
+                    return el.webkitMatchesSelector(selector);
+                };
+            }
+            if (p.mozMatchesSelector) {
+                return function (el, selector) {
+                    return el.mozMatchesSelector(selector);
+                };
+            }
+            if (p.msMatchesSelector) {
+                return function (el, selector) {
+                    return el.msMatchesSelector(selector);
+                };
+            }
+            return function (s) {
                 return [].indexOf.call(document.querySelectorAll(s), this) !== -1;
             };
-            return f.call(el, selector);
-        }
+        }(Element.prototype);
         function closest(el, selector) {
             if (el.closest) {
                 return el.closest(selector);
             }
-            while (el) {
+            while (el && el !== document) {
                 if (matches(el, selector)) {
                     return el;
                 }
                 el = el.parentNode;
             }
         }
-        function cloneNodes(el) {
-            var clone = el.cloneNode(true);
-            var canvases = el.querySelectorAll('canvas');
-            if (canvases.length) {
-                slice$1(clone.querySelectorAll('canvas')).forEach(function (canvas$$1, i) {
-                    canvas$$1.getContext('2d').drawImage(canvases[i], 0, 0);
-                });
+        var cloneNodes = function ($) {
+            if ($) {
+                return function cloneNodes(el) {
+                    var clone = el.cloneNode(false);
+                    if (el.nodeType == 1) {
+                        var $el = $(el), $clone = $(clone), i;
+                        var data = $el.data();
+                        for (i in data) {
+                            $clone.data(i, data[i]);
+                        }
+                        if (/^canvas$/i.test(el.tagName)) {
+                            clone.getContext('2d').drawImage(el, 0, 0);
+                        } else if (/^input$/i.test(el.tagName)) {
+                            el.removeAttribute('name');
+                        } else {
+                            for (i = el.firstChild; i; i = i.nextSibling) {
+                                clone.appendChild(cloneNodes(i));
+                            }
+                        }
+                    }
+                    return clone;
+                };
+            } else {
+                return function cloneNodes(el) {
+                    var clone = el.cloneNode(true);
+                    var canvases = el.querySelectorAll('canvas');
+                    if (canvases.length) {
+                        slice$1(clone.querySelectorAll('canvas')).forEach(function (canvas$$1, i) {
+                            canvas$$1.getContext('2d').drawImage(canvases[i], 0, 0);
+                        });
+                    }
+                    slice$1(clone.querySelectorAll('input')).forEach(function (input) {
+                        input.removeAttribute('name');
+                    });
+                    return clone;
+                };
             }
-            slice$1(clone.querySelectorAll('input')).forEach(function (input) {
-                input.removeAttribute('name');
-            });
-            return clone;
-        }
+        }(typeof window !== 'undefined' && window.kendo && window.kendo.jQuery);
         function getXY(thing) {
             if (typeof thing == 'number') {
                 return {
@@ -6059,6 +6118,7 @@
                     range.setEndBefore(el);
                     page.appendChild(range.extractContents());
                     copy.parentNode.insertBefore(page, copy);
+                    preventBulletOnListItem(el.parentNode);
                     if (table) {
                         table = closest(el, 'table');
                         if (options.repeatHeaders && thead) {
@@ -6138,9 +6198,17 @@
                             range.setStartBefore(copy);
                             page.appendChild(range.extractContents());
                             copy.parentNode.insertBefore(page, copy);
+                            preventBulletOnListItem(nextnode.parentNode);
                         }
                     }
                     splitText(nextnode);
+                }
+                function preventBulletOnListItem(el) {
+                    var li = closest(el, 'li');
+                    if (li) {
+                        li.setAttribute('kendo-no-bullet', '1');
+                        preventBulletOnListItem(li.parentNode);
+                    }
                 }
             }
             return promise;
@@ -7042,7 +7110,7 @@
             for (i = 0; i < boxes.length; ++i) {
                 drawOneBox(boxes[i], i === 0, i == boxes.length - 1);
             }
-            if (boxes.length > 0 && display == 'list-item') {
+            if (boxes.length > 0 && display == 'list-item' && !element.getAttribute('kendo-no-bullet')) {
                 drawBullet(boxes[0]);
             }
             (function () {
@@ -7245,7 +7313,25 @@
                             }
                         }
                     }
-                    var pos = String(backgroundPosition).split(/\s+/);
+                    var pos = String(backgroundPosition);
+                    switch (pos) {
+                    case 'bottom':
+                        pos = '50% 100%';
+                        break;
+                    case 'top':
+                        pos = '50% 0';
+                        break;
+                    case 'left':
+                        pos = '0 50%';
+                        break;
+                    case 'right':
+                        pos = '100% 50%';
+                        break;
+                    case 'center':
+                        pos = '50% 50%';
+                        break;
+                    }
+                    pos = pos.split(/\s+/);
                     if (pos.length == 1) {
                         pos[1] = '50%';
                     }
@@ -7614,8 +7700,8 @@
             };
         }
         function maybeRenderWidget(element, group) {
-            if (window.kendo && window.$ && element.getAttribute(window.kendo.attr('role'))) {
-                var widget = window.kendo.widgetInstance(window.$(element));
+            if (window.kendo && window.kendo.jQuery && element.getAttribute(window.kendo.attr('role'))) {
+                var widget = window.kendo.widgetInstance(window.kendo.jQuery(element));
                 if (widget && (widget.exportDOMVisual || widget.exportVisual)) {
                     var visual;
                     if (widget.exportDOMVisual) {
@@ -7861,10 +7947,18 @@
                 estimateLineLength = 500;
             }
             var prevLineBottom = null;
+            var underline = nodeInfo['underline'];
+            var lineThrough = nodeInfo['line-through'];
+            var overline = nodeInfo['overline'];
+            var hasDecoration = underline || lineThrough || overline;
             while (!doChunk()) {
             }
             if (browser.msie && textOverflow == 'ellipsis') {
                 element.style.textOverflow = saveTextOverflow;
+            }
+            if (hasDecoration) {
+                range.selectNode(node);
+                slice$1(range.getClientRects()).forEach(decorate);
             }
             return;
             function actuallyGetRangeBoundingRect(range) {
@@ -7996,12 +8090,11 @@
                     fill: { color: color }
                 });
                 group.append(text);
-                decorate(box);
             }
             function decorate(box) {
-                line(nodeInfo['underline'], box.bottom);
-                line(nodeInfo['line-through'], box.bottom - box.height / 2.7);
-                line(nodeInfo['overline'], box.top);
+                line(underline, box.bottom);
+                line(lineThrough, box.bottom - box.height / 2.7);
+                line(overline, box.top);
                 function line(color, ypos) {
                     if (color) {
                         var width = fontSize / 12;
@@ -8175,6 +8268,7 @@
         kendo.drawing.util.measureText = kendo.util.measureText;
         kendo.drawing.util.objectKey = kendo.util.objectKey;
         kendo.drawing.Color = kendo.Color;
+        kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2017.1.118'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2017.1.223'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -746,7 +746,7 @@
                         }
                     }
                     if (hasGroup) {
-                        number = groupInteger(number, start + (negative ? 1 : 0), Math.max(end, integerLength + start), numberFormat);
+                        number = groupInteger(number, start + (negative && !hasNegativeFormat ? 1 : 0), Math.max(end, integerLength + start), numberFormat);
                     }
                     if (end >= start) {
                         number += format.substring(end + 1);
@@ -14580,6 +14580,9 @@
             };
         }
         function eventElement(e) {
+            if (e === void 0) {
+                e = {};
+            }
             return e.touch ? e.touch.initialTouch : e.target;
         }
         function isTransparent(color) {
@@ -19874,47 +19877,103 @@
             }
         });
         function addClass(el, cls) {
-            el.classList.add(cls);
+            if (el.classList) {
+                el.classList.add(cls);
+            } else {
+                el.className += ' ' + cls;
+            }
         }
         function removeClass(el, cls) {
-            el.classList.remove(cls);
+            if (el.classList) {
+                el.classList.remove(cls);
+            } else {
+                el.className = el.className.split(/\s+/).reduce(function (a, word) {
+                    if (word != cls) {
+                        a.push(word);
+                    }
+                    return a;
+                }, []).join(' ');
+            }
         }
         function setCSS(el, styles) {
             Object.keys(styles).forEach(function (key) {
                 el.style[key] = styles[key];
             });
         }
-        function matches(el, selector) {
-            var p = Element.prototype;
-            var f = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || function (s) {
+        var matches = typeof Element !== 'undefined' && Element.prototype && function (p) {
+            if (p.matches) {
+                return function (el, selector) {
+                    return el.matches(selector);
+                };
+            }
+            if (p.webkitMatchesSelector) {
+                return function (el, selector) {
+                    return el.webkitMatchesSelector(selector);
+                };
+            }
+            if (p.mozMatchesSelector) {
+                return function (el, selector) {
+                    return el.mozMatchesSelector(selector);
+                };
+            }
+            if (p.msMatchesSelector) {
+                return function (el, selector) {
+                    return el.msMatchesSelector(selector);
+                };
+            }
+            return function (s) {
                 return [].indexOf.call(document.querySelectorAll(s), this) !== -1;
             };
-            return f.call(el, selector);
-        }
+        }(Element.prototype);
         function closest(el, selector) {
             if (el.closest) {
                 return el.closest(selector);
             }
-            while (el) {
+            while (el && el !== document) {
                 if (matches(el, selector)) {
                     return el;
                 }
                 el = el.parentNode;
             }
         }
-        function cloneNodes(el) {
-            var clone = el.cloneNode(true);
-            var canvases = el.querySelectorAll('canvas');
-            if (canvases.length) {
-                slice$1(clone.querySelectorAll('canvas')).forEach(function (canvas$$1, i) {
-                    canvas$$1.getContext('2d').drawImage(canvases[i], 0, 0);
-                });
+        var cloneNodes = function ($) {
+            if ($) {
+                return function cloneNodes(el) {
+                    var clone = el.cloneNode(false);
+                    if (el.nodeType == 1) {
+                        var $el = $(el), $clone = $(clone), i;
+                        var data = $el.data();
+                        for (i in data) {
+                            $clone.data(i, data[i]);
+                        }
+                        if (/^canvas$/i.test(el.tagName)) {
+                            clone.getContext('2d').drawImage(el, 0, 0);
+                        } else if (/^input$/i.test(el.tagName)) {
+                            el.removeAttribute('name');
+                        } else {
+                            for (i = el.firstChild; i; i = i.nextSibling) {
+                                clone.appendChild(cloneNodes(i));
+                            }
+                        }
+                    }
+                    return clone;
+                };
+            } else {
+                return function cloneNodes(el) {
+                    var clone = el.cloneNode(true);
+                    var canvases = el.querySelectorAll('canvas');
+                    if (canvases.length) {
+                        slice$1(clone.querySelectorAll('canvas')).forEach(function (canvas$$1, i) {
+                            canvas$$1.getContext('2d').drawImage(canvases[i], 0, 0);
+                        });
+                    }
+                    slice$1(clone.querySelectorAll('input')).forEach(function (input) {
+                        input.removeAttribute('name');
+                    });
+                    return clone;
+                };
             }
-            slice$1(clone.querySelectorAll('input')).forEach(function (input) {
-                input.removeAttribute('name');
-            });
-            return clone;
-        }
+        }(typeof window !== 'undefined' && window.kendo && window.kendo.jQuery);
         function getXY(thing) {
             if (typeof thing == 'number') {
                 return {
@@ -20230,6 +20289,7 @@
                     range.setEndBefore(el);
                     page.appendChild(range.extractContents());
                     copy.parentNode.insertBefore(page, copy);
+                    preventBulletOnListItem(el.parentNode);
                     if (table) {
                         table = closest(el, 'table');
                         if (options.repeatHeaders && thead) {
@@ -20309,9 +20369,17 @@
                             range.setStartBefore(copy);
                             page.appendChild(range.extractContents());
                             copy.parentNode.insertBefore(page, copy);
+                            preventBulletOnListItem(nextnode.parentNode);
                         }
                     }
                     splitText(nextnode);
+                }
+                function preventBulletOnListItem(el) {
+                    var li = closest(el, 'li');
+                    if (li) {
+                        li.setAttribute('kendo-no-bullet', '1');
+                        preventBulletOnListItem(li.parentNode);
+                    }
                 }
             }
             return promise;
@@ -21213,7 +21281,7 @@
             for (i = 0; i < boxes.length; ++i) {
                 drawOneBox(boxes[i], i === 0, i == boxes.length - 1);
             }
-            if (boxes.length > 0 && display == 'list-item') {
+            if (boxes.length > 0 && display == 'list-item' && !element.getAttribute('kendo-no-bullet')) {
                 drawBullet(boxes[0]);
             }
             (function () {
@@ -21416,7 +21484,25 @@
                             }
                         }
                     }
-                    var pos = String(backgroundPosition).split(/\s+/);
+                    var pos = String(backgroundPosition);
+                    switch (pos) {
+                    case 'bottom':
+                        pos = '50% 100%';
+                        break;
+                    case 'top':
+                        pos = '50% 0';
+                        break;
+                    case 'left':
+                        pos = '0 50%';
+                        break;
+                    case 'right':
+                        pos = '100% 50%';
+                        break;
+                    case 'center':
+                        pos = '50% 50%';
+                        break;
+                    }
+                    pos = pos.split(/\s+/);
                     if (pos.length == 1) {
                         pos[1] = '50%';
                     }
@@ -21785,8 +21871,8 @@
             };
         }
         function maybeRenderWidget(element, group) {
-            if (window.kendo && window.$ && element.getAttribute(window.kendo.attr('role'))) {
-                var widget = window.kendo.widgetInstance(window.$(element));
+            if (window.kendo && window.kendo.jQuery && element.getAttribute(window.kendo.attr('role'))) {
+                var widget = window.kendo.widgetInstance(window.kendo.jQuery(element));
                 if (widget && (widget.exportDOMVisual || widget.exportVisual)) {
                     var visual;
                     if (widget.exportDOMVisual) {
@@ -22032,10 +22118,18 @@
                 estimateLineLength = 500;
             }
             var prevLineBottom = null;
+            var underline = nodeInfo['underline'];
+            var lineThrough = nodeInfo['line-through'];
+            var overline = nodeInfo['overline'];
+            var hasDecoration = underline || lineThrough || overline;
             while (!doChunk()) {
             }
             if (browser.msie && textOverflow == 'ellipsis') {
                 element.style.textOverflow = saveTextOverflow;
+            }
+            if (hasDecoration) {
+                range.selectNode(node);
+                slice$1(range.getClientRects()).forEach(decorate);
             }
             return;
             function actuallyGetRangeBoundingRect(range) {
@@ -22167,12 +22261,11 @@
                     fill: { color: color }
                 });
                 group.append(text);
-                decorate(box);
             }
             function decorate(box) {
-                line(nodeInfo['underline'], box.bottom);
-                line(nodeInfo['line-through'], box.bottom - box.height / 2.7);
-                line(nodeInfo['overline'], box.top);
+                line(underline, box.bottom);
+                line(lineThrough, box.bottom - box.height / 2.7);
+                line(overline, box.top);
                 function line(color, ypos) {
                     if (color) {
                         var width = fontSize / 12;
@@ -22346,6 +22439,7 @@
         kendo.drawing.util.measureText = kendo.util.measureText;
         kendo.drawing.util.objectKey = kendo.util.objectKey;
         kendo.drawing.Color = kendo.Color;
+        kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
@@ -22829,7 +22923,9 @@
         var Circle = geometry.Circle;
         var geometryTransform = geometry.transform;
         var Segment = geometry.Segment;
+        var dataviz = kendo.dataviz;
         var deepExtend = kendo.deepExtend;
+        var __common_getter_js = kendo.getter;
         var X = 'x';
         var Y = 'y';
         var TOP = 'top';
@@ -22985,28 +23081,6 @@
                 spacing[LEFT] = value[LEFT] || defaultSpacing;
             }
             return spacing;
-        }
-        var FIELD_REGEX = /\[(\d+)\]|([^\.]+)/g;
-        var getterCache = {};
-        getterCache['undefined'] = function (obj) {
-            return obj;
-        };
-        function getter(field) {
-            if (getterCache[field]) {
-                return getterCache[field];
-            }
-            var fields = [];
-            field.replace(FIELD_REGEX, function (match, index, field) {
-                fields.push(kendo.drawing.util.defined(index) ? index : field);
-            });
-            getterCache[field] = function (obj) {
-                var result = obj;
-                for (var idx = 0; idx < fields.length && result; idx++) {
-                    result = result[fields[idx]];
-                }
-                return result;
-            };
-            return getterCache[field];
         }
         function grep(array, callback) {
             var length = array.length;
@@ -26419,10 +26493,7 @@
                 var options = this.options;
                 var categories = options.categories;
                 var baseUnit = options.baseUnit;
-                var baseUnitStep = options.baseUnitStep;
-                if (baseUnitStep === void 0) {
-                    baseUnitStep = 1;
-                }
+                var baseUnitStep = options.baseUnitStep || 1;
                 var categoryLimits = this.categoriesRange();
                 var min = toDate(options.min || categoryLimits.min);
                 var max = toDate(options.max || categoryLimits.max);
@@ -26530,10 +26601,7 @@
                 var totalLimits = this.totalLimits();
                 var weekStartDay = options.weekStartDay;
                 var baseUnit = options.baseUnit;
-                var baseUnitStep = options.baseUnitStep;
-                if (baseUnitStep === void 0) {
-                    baseUnitStep = 1;
-                }
+                var baseUnitStep = options.baseUnitStep || 1;
                 var ref = this.currentRange();
                 var rangeMin = ref.min;
                 var rangeMax = ref.max;
@@ -26654,10 +26722,7 @@
             groupCategories: function (options) {
                 var categories = options.categories;
                 var baseUnit = options.baseUnit;
-                var baseUnitStep = options.baseUnitStep;
-                if (baseUnitStep === void 0) {
-                    baseUnitStep = 1;
-                }
+                var baseUnitStep = options.baseUnitStep || 1;
                 var maxCategory = toDate(sparseArrayLimits(categories).max);
                 var ref = this.range(options);
                 var min = ref.min;
@@ -26677,10 +26742,7 @@
             _roundToTotalStep: function (value, axisOptions, upper, roundToNext) {
                 var options = axisOptions || this.options;
                 var baseUnit = options.baseUnit;
-                var baseUnitStep = options.baseUnitStep;
-                if (baseUnitStep === void 0) {
-                    baseUnitStep = 1;
-                }
+                var baseUnitStep = options.baseUnitStep || 1;
                 var start = this._groupsStart;
                 if (start) {
                     var step = dateIndex(value, start, baseUnit, baseUnitStep);
@@ -27771,15 +27833,9 @@
                 var this$1 = this;
                 var ref = this;
                 var labels = ref.labels;
-                var ref_options_labels = ref.options.labels;
-                var skip = ref_options_labels.skip;
-                if (skip === void 0) {
-                    skip = 0;
-                }
-                var step = ref_options_labels.step;
-                if (step === void 0) {
-                    step = 1;
-                }
+                var labelOptions = ref.options.labels;
+                var skip = labelOptions.skip || 0;
+                var step = labelOptions.step || 1;
                 var measureBox = new Box();
                 for (var i = 0; i < labels.length; i++) {
                     labels[i].reflow(measureBox);
@@ -27787,13 +27843,7 @@
                     labels[i].reflow(this$1.getSlot(skip + i * step).adjacentBox(0, labelBox.width(), labelBox.height()));
                 }
             },
-            intervals: function (size, skip, step, skipAngles) {
-                if (skip === void 0) {
-                    skip = 0;
-                }
-                if (step === void 0) {
-                    step = 1;
-                }
+            intervals: function (size, skipOption, stepOption, skipAngles) {
                 if (skipAngles === void 0) {
                     skipAngles = false;
                 }
@@ -27801,6 +27851,8 @@
                 var categories = options.categories.length;
                 var divCount = categories / size || 1;
                 var divAngle = 360 / divCount;
+                var skip = skipOption || 0;
+                var step = stepOption || 1;
                 var divs = [];
                 var angle = 0;
                 for (var i = skip; i < divCount; i += step) {
@@ -27962,15 +28014,9 @@
                 var ref = this;
                 var options = ref.options;
                 var labels = ref.labels;
-                var ref_options_labels = ref.options.labels;
-                var skip = ref_options_labels.skip;
-                if (skip === void 0) {
-                    skip = 0;
-                }
-                var step = ref_options_labels.step;
-                if (step === void 0) {
-                    step = 1;
-                }
+                var labelOptions = ref.options.labels;
+                var skip = labelOptions.skip || 0;
+                var step = labelOptions.step || 1;
                 var measureBox = new Box();
                 var divs = this.intervals(options.majorUnit, skip, step);
                 for (var i = 0; i < labels.length; i++) {
@@ -27982,19 +28028,15 @@
             lineBox: function () {
                 return this.box;
             },
-            intervals: function (size, skip, step, skipAngles) {
-                if (skip === void 0) {
-                    skip = 0;
-                }
-                if (step === void 0) {
-                    step = 1;
-                }
+            intervals: function (size, skipOption, stepOption, skipAngles) {
                 if (skipAngles === void 0) {
                     skipAngles = false;
                 }
                 var min = this.options.min;
                 var divisions = this.getDivisions(size);
                 var divs = [];
+                var skip = skipOption || 0;
+                var step = stepOption || 1;
                 for (var i = skip; i < divisions; i += step) {
                     var current = (360 + min + i * size) % 360;
                     if (!(skipAngles && inArray(current, skipAngles))) {
@@ -28515,6 +28557,7 @@
         function numberSign(value) {
             return value <= 0 ? -1 : 1;
         }
+        dataviz.Gradients = GRADIENTS;
         kendo.deepExtend(kendo.dataviz, {
             constants: constants,
             services: services,
@@ -28545,7 +28588,6 @@
             RadarNumericAxis: RadarNumericAxis,
             RadarLogarithmicAxis: RadarLogarithmicAxis,
             CurveProcessor: CurveProcessor,
-            Gradients: GRADIENTS,
             rectToBox: rectToBox,
             addClass: addClass,
             removeClass: removeClass,
@@ -28554,7 +28596,7 @@
             deepExtend: deepExtend,
             elementStyles: elementStyles,
             getSpacing: getSpacing,
-            getter: getter,
+            getter: __common_getter_js,
             grep: grep,
             hasClasses: hasClasses,
             inArray: inArray,
@@ -28936,7 +28978,6 @@
                     funnel: funnelSeries(),
                     horizontalWaterfall: waterfallSeries(),
                     line: lineSeries(),
-                    verticalLine: lineSeries(),
                     notes: notes(),
                     ohlc: ohlcSeries(),
                     radarArea: radarAreaSeries(),
@@ -28947,7 +28988,9 @@
                     rangeColumn: rangeColumnSeries(),
                     scatterLine: scatterLineSeries(),
                     verticalArea: areaSeries(),
+                    verticalBoxPlot: boxPlotSeries(),
                     verticalBullet: bulletSeries(),
+                    verticalLine: lineSeries(),
                     waterfall: waterfallSeries()
                 };
             };
@@ -28978,6 +29021,107 @@
             kendo.deepExtend(exports, { chartBaseTheme: baseTheme });
         }(this.kendo.dataviz = this.kendo.dataviz || {}));
     }());
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('dataviz/themes/auto-theme', ['kendo.dataviz.core'], f);
+}(function () {
+    var cache;
+    function autoTheme(force) {
+        if (!force && cache) {
+            return cache;
+        }
+        var theme = { chart: kendo.dataviz.chartBaseTheme() };
+        var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-widget">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series">' + '    <div class="k-var--series-a"></div>' + '    <div class="k-var--series-b"></div>' + '    <div class="k-var--series-c"></div>' + '    <div class="k-var--series-d"></div>' + '    <div class="k-var--series-e"></div>' + '    <div class="k-var--series-f"></div>' + '  </div>' + '</div>').appendTo(document.body);
+        function mapColor(key, varName) {
+            set(key, queryStyle(varName, 'backgroundColor'));
+        }
+        function queryStyle(varName, prop) {
+            return hook.find('.k-var--' + varName).css(prop);
+        }
+        function set(path, value) {
+            var store = theme;
+            var parts = path.split('.');
+            var key = parts.shift();
+            while (parts.length > 0) {
+                store = store[key] = store[key] || {};
+                key = parts.shift();
+            }
+            store[key] = value;
+        }
+        (function setColors() {
+            mapColor('chart.axisDefaults.crosshair.color', 'chart-crosshair-background');
+            mapColor('chart.axisDefaults.labels.color', 'normal-text-color');
+            mapColor('chart.axisDefaults.line.color', 'chart-major-lines');
+            mapColor('chart.axisDefaults.majorGridLines.color', 'chart-major-lines');
+            mapColor('chart.axisDefaults.minorGridLines.color', 'chart-minor-lines');
+            mapColor('chart.axisDefaults.notes.icon.background', 'chart-notes-background');
+            mapColor('chart.axisDefaults.notes.icon.border.color', 'chart-notes-border');
+            mapColor('chart.axisDefaults.notes.line.color', 'chart-notes-lines');
+            mapColor('chart.axisDefaults.title.color', 'normal-text-color');
+            mapColor('chart.legend.inactiveItems.labels.color', 'chart-inactive');
+            mapColor('chart.legend.inactiveItems.markers.color', 'chart-inactive');
+            mapColor('chart.legend.labels.color', 'normal-text-color');
+            mapColor('chart.seriesDefaults.boxPlot.downColor', 'chart-major-lines');
+            mapColor('chart.seriesDefaults.boxPlot.mean.color', 'base');
+            mapColor('chart.seriesDefaults.boxPlot.median.color', 'base');
+            mapColor('chart.seriesDefaults.boxPlot.whiskers.color', 'accent');
+            mapColor('chart.seriesDefaults.bullet.target.color', 'accent');
+            mapColor('chart.seriesDefaults.candlestick.downColor', 'normal-text-color');
+            mapColor('chart.seriesDefaults.candlestick.line.color', 'normal-text-color');
+            mapColor('chart.seriesDefaults.errorBars.color', 'chart-error-bars-background');
+            mapColor('chart.seriesDefaults.horizontalWaterfall.line.color', 'chart-major-lines');
+            mapColor('chart.seriesDefaults.icon.border.color', 'chart-major-lines');
+            mapColor('chart.seriesDefaults.labels.background', 'background');
+            mapColor('chart.seriesDefaults.labels.color', 'normal-text-color');
+            mapColor('chart.seriesDefaults.notes.icon.background', 'chart-notes-background');
+            mapColor('chart.seriesDefaults.notes.icon.border.color', 'chart-notes-border');
+            mapColor('chart.seriesDefaults.notes.line.color', 'chart-notes-lines');
+            mapColor('chart.seriesDefaults.verticalBoxPlot.downColor', 'chart-major-lines');
+            mapColor('chart.seriesDefaults.verticalBoxPlot.mean.color', 'base');
+            mapColor('chart.seriesDefaults.verticalBoxPlot.median.color', 'base');
+            mapColor('chart.seriesDefaults.verticalBoxPlot.whiskers.color', 'accent');
+            mapColor('chart.seriesDefaults.verticalBullet.target.color', 'accent');
+            mapColor('chart.seriesDefaults.waterfall.line.color', 'chart-major-lines');
+            mapColor('chart.title.color', 'normal-text-color');
+            set('chart.seriesDefaults.labels.opacity', queryStyle('chart-area-opacity', 'opacity'));
+        }());
+        (function setFonts() {
+            function font(varName) {
+                return queryStyle(varName, 'fontSize') + ' ' + queryStyle(varName, 'fontFamily');
+            }
+            var defaultFont = font('chart-font');
+            var titleFont = font('chart-title-font');
+            var labelFont = font('chart-label-font');
+            set('chart.axisDefaults.labels.font', labelFont);
+            set('chart.axisDefaults.notes.label.font', defaultFont);
+            set('chart.axisDefaults.title.font', defaultFont);
+            set('chart.legend.labels.font', defaultFont);
+            set('chart.seriesDefaults.labels.font', labelFont);
+            set('chart.seriesDefaults.notes.label.font', defaultFont);
+            set('chart.title.font', titleFont);
+        }());
+        (function setSeriesColors() {
+            function letterPos(letter) {
+                return letter.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0);
+            }
+            function seriesPos(name) {
+                return letterPos(name.match(/series-([a-z])$/)[1]);
+            }
+            var series = $('.k-var--series div').toArray();
+            var seriesColors = series.reduce(function (arr, el) {
+                var pos = seriesPos(el.className);
+                arr[pos] = $(el).css('backgroundColor');
+                return arr;
+            }, []);
+            set('chart.seriesColors', seriesColors);
+        }());
+        hook.remove();
+        cache = theme;
+        return theme;
+    }
+    kendo.dataviz.autoTheme = autoTheme;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));
@@ -31355,10 +31499,8 @@
         }());
         (function () {
             var TEXT = '#656565';
-            var INACTIVE = 'rgba( 255, 255, 255, .5 )';
             var INACTIVE_SHAPE = '#bdbdbd';
             var AXIS = 'rgba(0, 0, 0, .04)';
-            var AXIS_MINOR = 'rgba(0, 0, 0, .08)';
             var SERIES = [
                 '#ff6358',
                 '#ffd246',
@@ -31377,51 +31519,8 @@
             ];
             var PRIMARY = SERIES[0];
             var DIAGRAM_HOVER = WHITE;
-            function noteStyle() {
-                return {
-                    icon: {
-                        background: '#007cc0',
-                        border: { color: '#007cc0' }
-                    },
-                    label: { color: '#ffffff' },
-                    line: { color: AXIS }
-                };
-            }
             registerTheme('default-v2', {
-                chart: {
-                    title: { color: TEXT },
-                    legend: {
-                        labels: { color: TEXT },
-                        inactiveItems: {
-                            labels: { color: INACTIVE },
-                            markers: { color: INACTIVE }
-                        }
-                    },
-                    seriesDefaults: {
-                        labels: { color: TEXT },
-                        errorBars: { color: TEXT },
-                        notes: noteStyle(),
-                        candlestick: {
-                            downColor: AXIS,
-                            line: { color: INACTIVE_SHAPE }
-                        },
-                        area: { opacity: 0.8 },
-                        waterfall: { line: { color: AXIS } },
-                        horizontalWaterfall: { line: { color: AXIS } },
-                        overlay: { gradient: 'none' },
-                        border: { _brightness: 1 }
-                    },
-                    seriesColors: SERIES,
-                    axisDefaults: {
-                        line: { color: AXIS },
-                        labels: { color: TEXT },
-                        minorGridLines: { color: AXIS_MINOR },
-                        majorGridLines: { color: AXIS },
-                        title: { color: TEXT },
-                        crosshair: { color: TEXT },
-                        notes: noteStyle()
-                    }
-                },
+                chart: {},
                 gauge: {
                     pointer: { color: PRIMARY },
                     scale: {
@@ -31478,6 +31577,7 @@
                 },
                 treeMap: { colors: fuse(SERIES, SERIES_LIGHT) }
             });
+            themes.sass = themes['default-v2'];
         }());
         function fuse(arr1, arr2) {
             return $.map(arr1, function (item, index) {
@@ -31496,6 +31596,7 @@
     define('kendo.dataviz.themes', [
         'kendo.dataviz.core',
         'dataviz/themes/chart-base-theme',
+        'dataviz/themes/auto-theme',
         'dataviz/themes/themes'
     ], f);
 }(function () {
@@ -42813,6 +42914,9 @@
             },
             _getThemeOptions: function (userOptions) {
                 var themeName = (userOptions || {}).theme;
+                if (themeName === 'sass' || themeName === 'default-v2') {
+                    return dataviz.autoTheme().chart;
+                }
                 if (defined(themeName)) {
                     var themes = dataviz.ui.themes || {};
                     var theme = themes[themeName] || themes[themeName.toLowerCase()] || {};
@@ -42887,6 +42991,7 @@
                 }
             },
             _copyMembers: function (instance) {
+                this._instance = instance;
                 this.options = instance.options;
                 this._originalOptions = instance._originalOptions;
                 this.surface = instance.surface;
@@ -65142,7 +65247,7 @@
                         }
                     });
                 }
-                element.attr('aria-valuemin', options.min).attr('aria-valuemax', options.max);
+                element.attr('aria-valuemin', options.min !== NULL ? options.min * options.factor : options.min).attr('aria-valuemax', options.max !== NULL ? options.max * options.factor : options.max);
                 options.format = extractFormat(options.format);
                 value = options.value;
                 that.value(value !== NULL ? value : element.val());
@@ -65167,6 +65272,7 @@
                 format: 'n',
                 spinners: true,
                 placeholder: '',
+                factor: 1,
                 upArrowText: 'Increase value',
                 downArrowText: 'Decrease value'
             },
@@ -65278,9 +65384,15 @@
                 that._downArrowEventHandler = new kendo.UserEvents(that._downArrow, { release: _release });
             },
             _blur: function () {
-                var that = this;
+                var that = this, factor = that.options.factor, curreValue = that.element.val();
                 that._toggleText(true);
-                that._change(that.element.val());
+                if (factor && factor !== 1) {
+                    curreValue = parseFloat(curreValue);
+                    if (curreValue !== null) {
+                        curreValue = curreValue / factor;
+                    }
+                }
+                that._change(curreValue);
             },
             _click: function (e) {
                 var that = this;
@@ -65364,8 +65476,8 @@
                 }
                 that._text = text.addClass(element.className).attr({
                     'role': 'spinbutton',
-                    'aria-valuemin': options.min,
-                    'aria-valuemax': options.max
+                    'aria-valuemin': options.min !== NULL ? options.min * options.factor : options.min,
+                    'aria-valuemax': options.max !== NULL ? options.max * options.factor : options.max
                 });
             },
             _keydown: function (e) {
@@ -65473,6 +65585,9 @@
                 if (activeElement() != element[0]) {
                     that._focusin();
                 }
+                if (that.options.factor && value) {
+                    value = value / that.options.factor;
+                }
                 value += that.options.step * step;
                 that._update(that._adjust(value));
                 that._typing = false;
@@ -65494,7 +65609,7 @@
                 return rounder(value, precision);
             },
             _update: function (value) {
-                var that = this, options = that.options, format = options.format, decimals = options.decimals, culture = that._culture(), numberFormat = that._format(format, culture), isNotNull;
+                var that = this, options = that.options, factor = options.factor, format = options.format, decimals = options.decimals, culture = that._culture(), numberFormat = that._format(format, culture), isNotNull;
                 if (decimals === NULL) {
                     decimals = numberFormat.decimals;
                 }
@@ -65506,6 +65621,9 @@
                 that._value = value = that._adjust(value);
                 that._placeholder(kendo.toString(value, format, culture));
                 if (isNotNull) {
+                    if (factor) {
+                        value = parseFloat(that._round(value * factor, decimals), 10);
+                    }
                     value = value.toString();
                     if (value.indexOf('e') !== -1) {
                         value = that._round(+value, decimals);
@@ -67378,9 +67496,9 @@
                 }
             },
             _clearValue: function () {
-                this.listView.value([]);
                 this._clearText();
                 this._accessor('');
+                this.listView.value([]);
                 if (this._isFilterEnabled()) {
                     this._filter({
                         word: '',
@@ -67963,7 +68081,7 @@
             _hideBusy: function () {
                 var that = this;
                 clearTimeout(that._busy);
-                that._arrow.removeClass(LOADING);
+                that._arrowIcon.removeClass(LOADING);
                 that._focused.attr('aria-busy', false);
                 that._busy = null;
                 that._showClear();
@@ -67975,9 +68093,9 @@
                     return;
                 }
                 that._busy = setTimeout(function () {
-                    if (that._arrow) {
+                    if (that._arrowIcon) {
                         that._focused.attr('aria-busy', true);
-                        that._arrow.addClass(LOADING);
+                        that._arrowIcon.addClass(LOADING);
                         that._hideClear();
                     }
                 }, 100);
@@ -68087,7 +68205,8 @@
                     var activeFilter = that.filterInput && that.filterInput[0] === activeElement();
                     if (current) {
                         dataItem = listView.dataItemByIndex(listView.getElementIndex(current));
-                        if (that.trigger(SELECT, {
+                        var shouldTrigger = that._value(dataItem) !== List.unifyType(that.value(), typeof that._value(dataItem));
+                        if (shouldTrigger && that.trigger(SELECT, {
                                 dataItem: dataItem,
                                 item: current
                             })) {
@@ -69164,6 +69283,7 @@
                 that._inputWrapper.off(ns);
                 that._arrow.off();
                 that._arrow = null;
+                that._arrowIcon = null;
                 that.optionLabel.off();
             },
             open: function () {
@@ -69450,33 +69570,18 @@
             },
             _focusoutHandler: function () {
                 var that = this;
-                var filtered = that._state === STATE_FILTER;
                 var isIFrame = window.self !== window.top;
-                var focusedItem = that._focus();
-                var dataItem = that._getElementDataItem(focusedItem);
-                var shouldTrigger;
                 if (!that._prevent) {
                     clearTimeout(that._typingTimeout);
-                    var done = function () {
-                        if (support.mobileOS.ios && isIFrame) {
-                            that._change();
-                        } else {
-                            that._blur();
-                        }
-                        that._inputWrapper.removeClass(FOCUSED);
-                        that._prevent = true;
-                        that._open = false;
-                        that.element.blur();
-                    };
-                    shouldTrigger = !filtered && focusedItem && that._value(dataItem) !== that.value();
-                    if (shouldTrigger && !that.trigger('select', {
-                            dataItem: dataItem,
-                            item: focusedItem
-                        })) {
-                        that._select(focusedItem, !that.dataSource.view().length).done(done);
+                    if (support.mobileOS.ios && isIFrame) {
+                        that._change();
                     } else {
-                        done();
+                        that._blur();
                     }
+                    that._inputWrapper.removeClass(FOCUSED);
+                    that._prevent = true;
+                    that._open = false;
+                    that.element.blur();
                 }
             },
             _wrapperMousedown: function () {
@@ -69924,7 +70029,8 @@
                 }
                 that.span = span;
                 that._inputWrapper = $(wrapper[0].firstChild);
-                that._arrow = wrapper.find('.k-icon');
+                that._arrow = wrapper.find('.k-select');
+                that._arrowIcon = that._arrow.find('.k-icon');
             },
             _wrapper: function () {
                 var that = this, element = that.element, DOMelement = element[0], wrapper;

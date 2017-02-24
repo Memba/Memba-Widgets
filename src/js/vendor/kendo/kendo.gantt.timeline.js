@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -345,8 +345,9 @@
                     position = this._taskPosition(task);
                     position.borderWidth = taskBorderWidth;
                     row = kendoDomElement('tr', null);
+                    cell = kendoDomElement('td');
                     if (task.start <= this.end && task.end >= this.start) {
-                        cell = kendoDomElement('td', null, [this._renderTask(tasks[i], position)]);
+                        cell.children.push(this._renderTask(tasks[i], position));
                         if (task[resourcesField] && task[resourcesField].length) {
                             if (isRtl) {
                                 resourcesPosition = this._tableWidth - position.left;
@@ -363,9 +364,9 @@
                                 style: resourceStyle
                             }, this._renderResources(task[resourcesField], className[i % 2])));
                         }
-                        row.children.push(cell);
                         addCoordinates(i);
                     }
+                    row.children.push(cell);
                     rows.push(row);
                 }
                 return this._createTable(1, rows, { className: GanttView.styles.tasksTable });

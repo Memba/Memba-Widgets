@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -168,6 +168,7 @@
                 that._inputWrapper.off(ns);
                 that._arrow.off();
                 that._arrow = null;
+                that._arrowIcon = null;
                 that.optionLabel.off();
             },
             open: function () {
@@ -454,33 +455,18 @@
             },
             _focusoutHandler: function () {
                 var that = this;
-                var filtered = that._state === STATE_FILTER;
                 var isIFrame = window.self !== window.top;
-                var focusedItem = that._focus();
-                var dataItem = that._getElementDataItem(focusedItem);
-                var shouldTrigger;
                 if (!that._prevent) {
                     clearTimeout(that._typingTimeout);
-                    var done = function () {
-                        if (support.mobileOS.ios && isIFrame) {
-                            that._change();
-                        } else {
-                            that._blur();
-                        }
-                        that._inputWrapper.removeClass(FOCUSED);
-                        that._prevent = true;
-                        that._open = false;
-                        that.element.blur();
-                    };
-                    shouldTrigger = !filtered && focusedItem && that._value(dataItem) !== that.value();
-                    if (shouldTrigger && !that.trigger('select', {
-                            dataItem: dataItem,
-                            item: focusedItem
-                        })) {
-                        that._select(focusedItem, !that.dataSource.view().length).done(done);
+                    if (support.mobileOS.ios && isIFrame) {
+                        that._change();
                     } else {
-                        done();
+                        that._blur();
                     }
+                    that._inputWrapper.removeClass(FOCUSED);
+                    that._prevent = true;
+                    that._open = false;
+                    that.element.blur();
                 }
             },
             _wrapperMousedown: function () {
@@ -928,7 +914,8 @@
                 }
                 that.span = span;
                 that._inputWrapper = $(wrapper[0].firstChild);
-                that._arrow = wrapper.find('.k-icon');
+                that._arrow = wrapper.find('.k-select');
+                that._arrowIcon = that._arrow.find('.k-icon');
             },
             _wrapper: function () {
                 var that = this, element = that.element, DOMelement = element[0], wrapper;

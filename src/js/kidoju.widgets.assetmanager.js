@@ -460,12 +460,13 @@
              */
             _toolbar: function () {
                 var that = this;
-                var template = kendo.template(that.options.toolbarTemplate);
+                var options = that.options;
+                var template = kendo.template(options.toolbarTemplate);
 
                 // Add template
                 that.toolbar = $(template({
-                    accept: (that.options.extensions || []).join(','), // @see http://www.w3schools.com/tags/att_input_accept.asp
-                    messages: that.options.messages
+                    accept: (options.extensions || []).join(','), // @see http://www.w3schools.com/tags/att_input_accept.asp
+                    messages: options.messages
                 })).appendTo(that.fileBrowser);
                 assert.instanceof($, that.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'window.jQuery'));
 

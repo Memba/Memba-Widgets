@@ -63,7 +63,7 @@
         var DIALOG_DIV = '<div {0}"></div>';
         var DIALOG_SELECTOR = '.kj-dialog';
         var INTERACTIVE_CLASS = 'kj-interactive';
-        var NO_PADDING_CLASS = 'no-padding';
+        var NO_PADDING_CLASS = 'kj-no-padding';
         var CLICK = 'click';
         var RX_HTTP_S = /^https?:\/\//;
         var RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;

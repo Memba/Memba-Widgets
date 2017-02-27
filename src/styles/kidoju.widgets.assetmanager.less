@@ -6,18 +6,32 @@
         padding: 0.5em;
         .k-filebrowser-toolbar {
             margin: 0;
-            .k-upload {
-                margin-right: .3em;
-                .k-icon {
-                    vertical-align: middle;
+            // left
+            .k-toolbar-wrap {
+                .k-upload {
+                    margin-right: .5em;
+                    .k-icon {
+                        vertical-align: middle;
+                    }
                 }
             }
-            .k-textbox {
-                width:100%;
-                .k-search {
-                    // Enforce values of .k-textbox .k-icon
-                    top: 50%;
-                    margin: -8px 0 0;
+            // right
+            .k-tiles-arrange {
+                .k-progressbar {
+                    color: inherit;
+                    width: 100px;
+                    margin-right: .5em;
+                }
+                .k-textbox {
+                    width: 150px;
+                    .k-icon {
+                        color: inherit;
+                    }
+                    .k-search {
+                        // Enforce values of .k-textbox .k-icon
+                        top: 50%;
+                        margin: -8px 0 0;
+                    }
                 }
             }
         }

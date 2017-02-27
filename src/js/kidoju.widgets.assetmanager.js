@@ -14,9 +14,10 @@
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.pager',
+        './vendor/kendo/kendo.progressbar',
         './vendor/kendo/kendo.listview',
-        './vendor/kendo/kendo.tabstrip',
-        './vendor/kendo/kendo.upload'
+        './vendor/kendo/kendo.tabstrip'
+        // './vendor/kendo/kendo.upload'
     ], f);
 })(function () {
 
@@ -49,15 +50,17 @@
         var DRAGENTER = 'dragenter' + NS;
         var DRAGOVER = 'dragover' + NS;
         var DROP = 'drop' + NS;
+        var PROGRESS = 'progress' + NS;
         var WIDGET_CLASS = 'k-widget kj-assetmanager';
         var TOOLBAR_TMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
                 '<div class="k-toolbar-wrap">' +
                     '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button"><span class="k-icon k-i-plus"></span>#=messages.toolbar.upload#<input type="file" name="file" accept="#=accept#" multiple /></div></div>' +
-                    '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-i-close" /></button>&nbsp;' +
+                    '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-i-close" /></button>' +
                     '<label style="display:none">#=messages.toolbar.filter#<select /></label>' +
                 '</div>' +
                 '<div class="k-tiles-arrange">' +
-                    '<div class="k-widget k-search-wrap k-textbox"><input placeholder="#=messages.toolbar.search#" class="k-input"><a href="\\#" class="k-icon k-i-close k-search"></a></div>' +
+                    '<div class="k-progressbar"></div>' +
+                    '<div class="k-widget k-search-wrap k-textbox"><input placeholder="#=messages.toolbar.search#" class="k-input"><a href="\\#" class="k-icon k-i-zoom k-search"></a></div>' +
                 '</div>' +
             '</div>';
         var ITEM_TMPL = '<li class="k-tile" ' + kendo.attr('uid') + '="#=uid#">' + // ' + kendo.attr('type') + '="#=type$()#">' +
@@ -350,6 +353,16 @@
             },
 
             /**
+             * Gets/Sets the value of the progress bar
+             * @returns {*}
+             */
+            progress: function (progress) {
+                if (this.progressBar instanceof kendo.ui.ProgressBar) {
+                    return this.progressBar.value(progress);
+                }
+            },
+
+            /**
              * Check that we have defined a transport for the Project tab
              * @returns {*|boolean}
              * @private
@@ -465,12 +478,35 @@
                     .data('kendoDropDownList');
                 assert.instanceof(DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
 
+                // Progress bar
+                that.progressBar = that.toolbar.find('div.k-tiles-arrange .k-progressbar')
+                    .kendoProgressBar({
+                        type: 'percent',
+                        min: 0,
+                        max: 1,
+                        animation: {
+                            duration: 600
+                        }
+                    })
+                    .data('kendoProgressBar');
+                assert.instanceof(kendo.ui.ProgressBar, that.progressBar, kendo.format(assert.messages.instanceof.default, 'this.progressBar', 'kendo.ui.ProgressBar'));
+                // Event handler used to report upload transport progress in app.assets.js
+                $(document).on(PROGRESS, function (e, value, status) {
+                    that.progressBar.value(value);
+                    if (status === 'complete') {
+                        // TODO: display/limit total storage
+                        setTimeout(function () {
+                            that.progressBar.value(0);
+                        }, 100);
+                    }
+                });
+
                 // Search
                 that.searchInput = that.toolbar
                     .find('input.k-input');
                 assert.instanceof($, that.searchInput, kendo.format(assert.messages.instanceof.default, 'this.searchInput', 'window.jQuery'));
 
-                // Events
+                // Other events
                 that.toolbar
                     .on(CHANGE + NS, '.k-upload input[type=file]', $.proxy(that._onFileInputChange, that))
                     .on(CLICK + NS, 'button:not(.k-state-disabled):has(.k-i-close)', $.proxy(that._onDeleteButtonClick, that))

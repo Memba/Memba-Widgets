@@ -1,5 +1,62 @@
+/*******************
+ * Drop Down List
+ ******************/
+.kj-quiz .k-dropdown .kj-quiz-item > .k-image,
+.k-animation-container .k-list .kj-quiz-item > .k-image {
+    background-size: cover;
+    background-position: center;
+    display: inline-block;
+    vertical-align: text-bottom;
+    width: 1.1em;
+    height: 1.1em;
+    margin-right: 0.25em;
+}
 .kj-quiz .kj-quiz-item {
-    margin-bottom: 0.1em;
+    box-sizing: border-box !important;
+    /*******************
+           * Buttons
+           ******************/
+    /*******************
+           * Images TODO
+           ******************/
+    /*
+          .k-image {
+              position: absolute;
+              top: 0;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              width: auto;
+              height: auto;
+          }
+          .k-text {
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              width: auto;
+          }
+          */
+    /*******************
+           * Radios
+           ******************/
+}
+.kj-quiz .kj-quiz-item.k-button {
+    margin-bottom: 0.2em;
+    margin-right: 0.2em;
+    padding: 2px 7px 2px;
+    text-transform: none;
+    font-family: inherit;
+    line-height: 1.72em;
+}
+.kj-quiz .kj-quiz-item.k-button > .k-image {
+    background-size: cover;
+    background-position: center;
+    display: inline-block;
+    vertical-align: text-bottom;
+    width: 1.1em;
+    height: 1.1em;
+    margin-right: 0.25em;
 }
 .kj-quiz .kj-quiz-item input.k-radio {
     display: none;
@@ -8,6 +65,15 @@
     line-height: normal;
     padding-left: 1.2em;
     vertical-align: initial;
+}
+.kj-quiz .kj-quiz-item .k-radio-label > .k-image {
+    background-size: cover;
+    background-position: center;
+    display: inline-block;
+    vertical-align: text-bottom;
+    width: 1.1em;
+    height: 1.1em;
+    margin-right: 0.25em;
 }
 .kj-quiz .kj-quiz-item .k-radio-label:before {
     border-width: 0.05em;

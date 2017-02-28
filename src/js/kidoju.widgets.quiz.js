@@ -26,6 +26,7 @@
         var kendo = window.kendo;
         var ui = kendo.ui;
         var Widget = ui.Widget;
+        var DropDownList = ui.DropDownList;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.quiz');
         var NS = '.kendoQuiz';
@@ -37,18 +38,19 @@
         var DISABLE = 'k-state-disabled';
         var WIDGET_CLASS = 'kj-quiz'; // 'k-widget kj-quiz',
         var INTERACTIVE_CLASS = 'kj-interactive';
-        var BUTTON = '<input type="button" class="k-button kj-quiz-item" value="{0}">';
-        var RADIO = '<div class="kj-quiz-item"><input id="{1}_{2}" name="{1}" type="radio" class="k-radio" value="{0}"><label class="k-radio-label" for="{1}_{2}">{0}</label></div>';
-        var MARGIN = '0.2em';
+        var DROPDOWNLIST_TMPL = '<span class="kj-quiz-item"><span class="k-image" style="background-image:url(#:data.{1}#);"></span><span class="k-text">#:data.{0}#</span></span>';
+        var BUTTON = '<button class="k-button kj-quiz-item" data-' + kendo.ns +'uid="{2}" value="{0}"><span class="k-image" style="background-image:url({1});"></span><span class="k-text">{0}</span></button>';
+        var RADIO = '<div class="kj-quiz-item" + data-' + kendo.ns + 'uid="{2}"><input id="{3}_{4}" name="{3}" type="radio" class="k-radio" value="{0}"><label class="k-radio-label" for="{3}_{4}"><span class="k-image" style="background-image:url({1});"></span><span class="k-text">{0}</span></label></div>';
+        var IMAGE = '<div class="kj-quiz-item" + data-' + kendo.ns + 'uid="{2}"><div class="k-image" style="background:url({1})"></div><div class="k-text">{0}</div></div>';
         var MODES = {
                 BUTTON: 'button',
                 DROPDOWN: 'dropdown',
+                IMAGE: 'image',
                 RADIO: 'radio'
             };
         var CHECKED = 'checked';
-        var INPUT_SELECTOR = 'input';
         var RADIO_SELECTOR = 'input[type="radio"]';
-        var BUTTON_SELECTOR = 'input[type="button"]';
+        var BUTTON_SELECTOR = 'button.k-button';
 
         /*********************************************************************************
          * Helpers
@@ -107,6 +109,30 @@
             },
 
             /**
+             * Fisher-Yates shuffle
+             * @see https://bost.ocks.org/mike/shuffle/
+             * @param array
+             * @returns {*}
+             */
+            shuffle: function(array) {
+                var m = array.length, t, i;
+
+                // While there remain elements to shuffle…
+                while (m) {
+
+                    // Pick a remaining element…
+                    i = Math.floor(Math.random() * m--);
+
+                    // And swap it with the current element.
+                    t = array[m];
+                    array[m] = array[i];
+                    array[i] = t;
+                }
+
+                return array;
+            },
+
+            /**
              * Get the scale of an element's CSS transformation
              * Note: the same function is used in kidoju.widgets.stage
              * @param element
@@ -152,6 +178,8 @@
             modes: {
                 button: MODES.BUTTON,
                 dropdown: MODES.DROPDOWN,
+                // TODO: link
+                image: MODES.IMAGE,
                 radio: MODES.RADIO
             },
 
@@ -163,6 +191,9 @@
                 autoBind: true,
                 dataSource: [],
                 mode: MODES.BUTTON,
+                shuffle: false,
+                textField: 'text',
+                imageField: 'image',
                 itemStyle: {},
                 selectedStyle: {},
                 value: null,
@@ -182,10 +213,6 @@
                 options = that.options;
                 options.groupStyle = util.formatStyle(options.groupStyle);
                 options.itemStyle = util.formatStyle(options.itemStyle);
-                if (options.mode === MODES.BUTTON) {
-                    // Add default space between buttons
-                    options.itemStyle = $.extend({ marginRight: MARGIN, marginBottom: MARGIN }, options.itemStyle);
-                }
                 options.selectedStyle = util.formatStyle(options.selectedStyle);
             },
 
@@ -202,18 +229,17 @@
              */
             value: function (value) {
                 var that = this;
+                var options = that.options;
                 if ($.type(value) === STRING) {
                     // Note: Giving a value to the dropDownList that does not exist in dataSource is discarded without raising an error
-                    if (that._value !== value && that.dataSource instanceof kendo.data.DataSource && that.dataSource.data().indexOf(value) > -1) {
+                    if (that._value !== value && that.dataSource instanceof kendo.data.DataSource && that.dataSource.data().find(function (item) { return item[options.textField] === value })) {
                         that._value = value;
-                        that._toggleUI();
-                        // that.trigger(CHANGE);
+                        that._toggleSelection();
                     }
                 } else if (value === null) {
                     if (that._value !== value) {
                         that._value = null;
-                        that._toggleUI();
-                        // that.trigger(CHANGE);
+                        that._toggleSelection();
                     }
                 } else if ($.type(value) === 'undefined') {
                     return that._value;
@@ -245,18 +271,23 @@
              */
             _layoutDropDown: function () {
                 var that = this;
+                var element = that.element;
+                var options = that.options;
                 that.dropDownList = $('<input>')
                     .width('100%')
-                    .appendTo(that.element)
+                    .appendTo(element)
                     .kendoDropDownList({
-                        autoBind: that.options.autoBind,
+                        autoBind: options.autoBind,
                         change: $.proxy(that._onDropDownListChange, that), // change is not triggered by dropDownList api calls incl. value(), text(), ...
                         open: $.proxy(that._onDropDownListOpen, that),
-                        dataSource: that.options.dataSource,
-                        optionLabel: that.options.messages.optionLabel,
-                        value: that.options.value,
+                        dataSource: options.dataSource,
+                        dataTextField: options.textField,
+                        dataValueField: options.textField,
+                        optionLabel: options.messages.optionLabel,
+                        template: kendo.format(DROPDOWNLIST_TMPL, options.textField, options.imageField),
+                        valueTemplate: kendo.format(DROPDOWNLIST_TMPL, options.textField, options.imageField),
+                        value: options.value,
                         height: 400
-                        // valuePrimitive: true
                     })
                     .data('kendoDropDownList');
             },
@@ -266,15 +297,14 @@
              * @private
              */
             _onDropDownListChange: function () {
-                var that = this;
-                assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
-                var value = that.dropDownList.value();
+                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                var value = this.dropDownList.value();
                 if ($.type(value) === STRING && value.length) {
-                    that._value = value;
+                    this._value = value;
                 } else {
-                    that._value = null;
+                    this._value = null;
                 }
-                that.trigger(CHANGE, { value: this._value });
+                this.trigger(CHANGE, { value: this._value });
             },
 
             /**
@@ -313,66 +343,111 @@
             },
 
             /**
-             * Event handler for click event and radios and buttons
+             * Event handler for click event on radio buttons
              * Handles
              * @param e
              * @private
              */
-            _onClick: function (e) {
+            _onButtonClick: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
-                var target = $(e.target);
+                var button = $(e.currentTarget);
+                var value = button.attr('value');
+                if (value !== that._value) {
+                    that._value = value;
+                } else { // clicking the same value resets the button (and value)
+                    that._value = null;
+                }
+                that._toggleButton();
+                that.trigger(CHANGE, { value: that._value });
+            },
+
+            /**
+             * Event handler for click event on radio buttons
+             * Handles
+             * @param e
+             * @private
+             */
+            _onRadioClick: function (e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                var that = this;
+                var target = $(e.currentTarget);
                 var value = target.val();
                 if (value !== that._value) {
                     that._value = value;
                 } else { // clicking the same value resets the button (and value)
                     that._value = null;
                 }
-                that._toggleUI();
+                that._toggleRadio();
                 that.trigger(CHANGE, { value: that._value });
             },
 
             /**
-             * Update UI when value is changed
+             * Toggle the selection when value is changed
              * @private
              */
-            _toggleUI: function () {
-                var that = this;
-                var element = this.element;
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
-                switch (that.options.mode) {
+            _toggleSelection: function () {
+                switch (this.options.mode) {
                     case MODES.BUTTON:
-                        element.find(BUTTON_SELECTOR)
-                            .removeClass(ACTIVE)
-                            .attr('style', '')
-                            .css(that.options.itemStyle);
-                        if (that._value) {
-                            element.find(BUTTON_SELECTOR + '[value="' + that._value + '"]')
-                                .addClass(ACTIVE)
-                                .attr('style', '')
-                                .css($.extend({}, that.options.itemStyle, that.options.selectedStyle));
-                        }
+                        this._toggleButton();
                         break;
                     case MODES.DROPDOWN:
-                        assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
-                        that.dropDownList.text(that._value);
+                        this._toggleDropDownList();
                         break;
-                    // case MODES.RADIO:
-                    default:
-                        element.children('div')
-                            .attr('style', '')
-                            .css(that.options.itemStyle);
-                        if (that._value) {
-                            element.find(RADIO_SELECTOR + '[value="' + that._value + '"]')
-                                .prop(CHECKED, true)
-                                .parent()
-                                    .attr('style', '')
-                                    .css($.extend({}, that.options.itemStyle, that.options.selectedStyle));
-                        } else {
-                            element.find(RADIO_SELECTOR + ':checked')
-                                .prop(CHECKED, false);
-                        }
+                    case MODES.RADIO:
+                        this._toggleRadio();
                         break;
+                }
+            },
+
+            /**
+             * Toggle the button selection when value is changed
+             * @private
+             */
+            _toggleButton: function () {
+                var that = this;
+                var element = that.element;
+                var options = that.options;
+                element.find(BUTTON_SELECTOR)
+                    .removeClass(ACTIVE)
+                    .attr('style', '')
+                    .css(that.options.itemStyle);
+                if (that._value) {
+                    element.find(BUTTON_SELECTOR + '[value="' + that._value + '"]')
+                        .addClass(ACTIVE)
+                        .attr('style', '')
+                        .css($.extend({}, that.options.itemStyle, that.options.selectedStyle));
+                }
+            },
+
+            /**
+             * Select drop down list value
+             * @private
+             */
+            _toggleDropDownList: function () {
+                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                this.dropDownList.value(this._value);
+            },
+
+            /**
+             * Toggle the radio selection when value is changed
+             * @private
+             */
+            _toggleRadio: function () {
+                var that = this;
+                var element = that.element;
+                element.children('div')
+                    .attr('style', '')
+                    .css(that.options.itemStyle);
+                if (that._value) {
+                    element.find(RADIO_SELECTOR + '[value="' + that._value + '"]')
+                        .prop(CHECKED, true)
+                        .parent()
+                        .attr('style', '')
+                        .css($.extend({}, that.options.itemStyle, that.options.selectedStyle));
+                } else {
+                    element.find(RADIO_SELECTOR + ':checked')
+                        .prop(CHECKED, false);
                 }
             },
 
@@ -395,7 +470,7 @@
 
                 // Assign dataSource to dropDownList
                 var dropDownList = that.dropDownList;
-                if (dropDownList instanceof kendo.ui.DropDownList && dropDownList.dataSource !== that.dataSource) {
+                if (dropDownList instanceof DropDownList && dropDownList.dataSource !== that.dataSource) {
                     dropDownList.setDataSource(that.dataSource);
                 }
 
@@ -424,31 +499,44 @@
              */
             refresh: function (e) {
                 var that = this;
-                var element = this.element;
+                var element = that.element;
+                var options = that.options;
                 assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
-                if (that.options.mode === MODES.DROPDOWN) {
-                    assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'that.dropDownList', 'kendo.ui.DropDownList'));
+                if (options.mode === MODES.DROPDOWN) {
+                    assert.instanceof(DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'that.dropDownList', 'kendo.ui.DropDownList'));
                     that.dropDownList.refresh(e);
                 } else {
                     var items = that.dataSource.data();
                     if (e && e.items instanceof kendo.data.ObservableArray) {
                         items = e.items;
                     }
+                    // Shuffle
+                    if (options.shuffle) {
+                        items = util.shuffle(items);
+                    }
                     // Note: we only add elements here (not modify or remove depending on e.action) and we might have to improve
-                    that.element.empty();
+                    element.empty();
                     $(items).each(function (index, item) {
-                        if (that.options.mode === MODES.BUTTON) {
-                            $(kendo.format(BUTTON, kendo.htmlEncode(item)))
-                                .css(that.options.itemStyle)
-                                .appendTo(that.element);
-                        } else if (that.options.mode === MODES.RADIO) {
-                            var radio = $(kendo.format(RADIO, kendo.htmlEncode(item), that._randomId, index))
-                                .css(that.options.itemStyle)
-                                .appendTo(that.element);
+                        switch (options.mode) {
+                            case MODES.BUTTON:
+                                $(kendo.format(BUTTON, kendo.htmlEncode(item.get(options.textField)), kendo.htmlEncode(item.get(options.imageField)), item.uid))
+                                    .css(options.itemStyle)
+                                    .appendTo(element);
+                                break;
+                            case MODES.IMAGE:
+                                $(kendo.format(IMAGE, kendo.htmlEncode(item.get(options.textField)), kendo.htmlEncode(item.get(options.imageField)),  item.uid))
+                                    .css(options.itemStyle)
+                                    .appendTo(element);
+                                break;
+                            case MODES.RADIO:
+                                $(kendo.format(RADIO, kendo.htmlEncode(item.get(options.textField)), kendo.htmlEncode(item.get(options.imageField)), item.uid, that._randomId, index))
+                                    .css(options.itemStyle)
+                                    .appendTo(element);
+                                break;
                         }
                     });
                 }
-                // Get rid of value if there is no more a match in the dataSource
+                // Get rid of value if there is no match in the dataSource
                 if (that.dataSource.data().indexOf(that._value) === -1) {
                     that._value = null;
                     that.trigger(CHANGE, { value: that._value });
@@ -460,42 +548,93 @@
              * @param enable
              */
             enable: function (enable) {
-                var that = this;
-                var element = this.element;
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 if ($.type(enable) === UNDEFINED) {
                     enable = true;
                 }
-                if (that.options.mode === MODES.DROPDOWN) {
-                    assert.instanceof(kendo.ui.DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'that.dropDownList', 'kendo.ui.DropDownList'));
-                    that.dropDownList.enable(enable);
-                } else {
-                    element.off(NS);
-                    if (enable) {
-                        element
-                            .on(CLICK + NS, INPUT_SELECTOR, $.proxy(that._onClick, that));
-                    } else {
-                        // Because input are readonly and not disabled, we need to prevent default (checking options)
-                        // and let it bubble to the stage element to display the handle box
-                        element
-                            .on(CLICK + NS, INPUT_SELECTOR, function (e) {
-                                e.preventDefault();
-                            })
-                            .on(CHANGE + NS, INPUT_SELECTOR, function (e) {
-                                // In the very specific case of iOS and only when all radio buttons are unchecked
-                                // a change event is triggered before the click event and the radio clicked is checked
-                                // like if iOS wanted one radio to always be checked
-                                // When one radio is checked, the click event handler above does the job
-                                // and the change event is not raised
-                                // This issue does not occur with checkboxes
-                                $(e.target).prop('checked', false);
-                            });
-                    }
-                    element.find(INPUT_SELECTOR)
-                        .toggleClass(DISABLE, !enable)
-                        // .prop('disabled', !enable) <--- suppresses the click event so elements are no more selectable in design mode
-                        .prop('readonly', !enable);
+                switch(this.options.mode) {
+                    case MODES.BUTTON:
+                        this._enableButtons(enable);
+                        break;
+                    case MODES.DROPDOWN:
+                        this._enableDropDownList(enable);
+                        break;
+                    case MODES.RADIO:
+                        this._enableRadios(enable);
+                        break;
                 }
+            },
+
+            /**
+             * Enable buttons
+             * @param enable
+             * @private
+             */
+            _enableButtons: function (enable) {
+                var that = this;
+                var element = that.element;
+                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
+                element.off(NS);
+                if (enable) {
+                    element
+                        .on(CLICK + NS, BUTTON_SELECTOR, $.proxy(that._onButtonClick, that));
+                } else {
+                    // Because input are readonly and not disabled, we need to prevent default (checking options)
+                    // and let it bubble to the stage element to display the handle box
+                    element
+                        .on(CLICK + NS, BUTTON_SELECTOR, function (e) {
+                            e.preventDefault();
+                        })
+                }
+                element.find(BUTTON_SELECTOR)
+                    .toggleClass(DISABLE, !enable)
+                    // .prop('disabled', !enable) <--- suppresses the click event so elements are no more selectable in design mode
+                    .prop('readonly', !enable);
+            },
+
+            /**
+             * Enable drop down list
+             * @param enable
+             * @private
+             */
+            _enableDropDownList: function (enable) {
+                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                this.dropDownList.enable(enable);
+            },
+
+            /**
+             * Enable radios
+             * @param enable
+             * @private
+             */
+            _enableRadios: function (enable) {
+                var that = this;
+                var element = that.element;
+                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
+                element.off(NS);
+                if (enable) {
+                    element
+                        .on(CLICK + NS, RADIO_SELECTOR, $.proxy(that._onRadioClick, that));
+                } else {
+                    // Because input are readonly and not disabled, we need to prevent default (checking options)
+                    // and let it bubble to the stage element to display the handle box
+                    element
+                        .on(CLICK + NS, RADIO_SELECTOR, function (e) {
+                            e.preventDefault();
+                        })
+                        .on(CHANGE + NS, RADIO_SELECTOR, function (e) {
+                            // In the very specific case of iOS and only when all radio buttons are unchecked
+                            // a change event is triggered before the click event and the radio clicked is checked
+                            // like if iOS wanted one radio to always be checked
+                            // When one radio is checked, the click event handler above does the job
+                            // and the change event is not raised
+                            // This issue does not occur with checkboxes
+                            $(e.target).prop('checked', false);
+                        });
+                }
+                element.find(RADIO_SELECTOR)
+                    .toggleClass(DISABLE, !enable)
+                    // .prop('disabled', !enable) <--- suppresses the click event so elements are no more selectable in design mode
+                    .prop('readonly', !enable);
             },
 
             /**
@@ -506,7 +645,7 @@
                 var element = this.element;
                 Widget.fn.destroy.call(that);
                 // Destroy the drop down list (especially the popup)
-                if (that.dropDownList) {
+                if (that.dropDownList instanceof DropDownList) {
                     that.dropDownList.destroy();
                     that.dropDownList = undefined;
                 }

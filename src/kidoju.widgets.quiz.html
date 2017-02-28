@@ -26,15 +26,16 @@
 
 <h2>Quiz initiated from code</h2>
 <div id="quiz1" style="font-size:60px; border: solid 1px black;"></div>
+<div id="quiz2" style="font-size:60px; border: solid 1px black;"></div>
 <div class="kj-stage" style="position:relative; transform: scale(0.5); height: 200px; border: solid 1px #808080;">
     <div class="kj-element" style="position:absolute; top: 50px; left: 50px; width: 400px;">
-        <div id="quiz2" style="font-size:40px; border: solid 1px black;"></div>
+        <div id="quiz3" style="font-size:40px; border: solid 1px black;"></div>
     </div>
 </div>
 <h2>Quiz bound to observable</h2>
-<div id="quiz3" data-role="quiz" data-mode="button" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
-<div id="quiz4" data-role="quiz" data-mode="dropdown" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
-<div id="quiz5" data-role="quiz" data-mode="radio" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+<div id="quiz4" data-role="quiz" data-mode="button" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+<div id="quiz5" data-role="quiz" data-mode="dropdown" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+<div id="quiz6" data-role="quiz" data-mode="radio" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled&nbsp;
@@ -44,18 +45,30 @@
         value: <span data-bind="text: value"></span>
         source:
             <div data-bind="text: source" style="margin-left: 80px;"></div>
-        source$: <span data-bind="text: source$"></span>
         visible: <span data-bind="text: visible"></span>
         enabled: <span data-bind="text: enabled"></span>
     }
 </pre>
-<textarea data-bind="value: source" class="k-textbox" rows="5"></textarea>
+<textarea data-bind="value: source" class="k-textbox" rows="5" style="width:100%;"></textarea>
 <script>
     ;(function(window, $, undefined){
 
         'use strict';
 
         var kendo = window.kendo;
+        var data = [
+            { text: 'question 1', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg' },
+            { text: 'question 2', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg' },
+            { text: 'question 3', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg' },
+            { text: 'question 4', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg' }
+        ];
+        var model = kendo.data.Model.define({
+            id: 'text',
+            fields: {
+                text: { type: 'string' },
+                image: { type: 'string' }
+            }
+        });
 
         $(function () {
 
@@ -63,15 +76,41 @@
             $('#quiz1').kendoQuiz({
                 value: null,
                 mode: kendo.ui.Quiz.fn.modes.radio,
+                shuffle: true,
                 itemStyle: {
                     color: '#FF0000'
                 },
                 selectedStyle: {
                     backgroundColor: '#00FF00'
                 },
-                dataSource: ['1975', '1982', '1989']
+                dataSource: new kendo.data.DataSource({
+                    data: data,
+                    schema: {
+                        model: model
+                    }
+                })
             });
+
             $('#quiz2').kendoQuiz({
+                value: null,
+                mode: kendo.ui.Quiz.fn.modes.button,
+                itemStyle: {
+                    color: '#FF0000',
+                    height: '300px',
+                    width: '300px'
+                },
+                selectedStyle: {
+                    backgroundColor: '#00FF00'
+                },
+                dataSource: new kendo.data.DataSource({
+                    data: data,
+                    schema: {
+                        model: model
+                    }
+                })
+            });
+
+            $('#quiz3').kendoQuiz({
                 value: null,
                 mode: kendo.ui.Quiz.fn.modes.dropdown,
                 itemStyle: {
@@ -80,18 +119,36 @@
                 selectedStyle: {
                     backgroundColor: '#00FF00'
                 },
-                dataSource: ['1975', '1982', '1989']
+                dataSource: new kendo.data.DataSource({
+                    data: data,
+                    schema: {
+                        model: model
+                    }
+                })
             });
 
-            // Quiz bound to observable
+            // Other quizzes bound to observable
             var viewModel = window.viewModel = kendo.observable({
-                value: undefined,
-                source: '1975\n1982\n1989',
+                value: undefined, // Note: value is always the text (not the image) in the following source items
+                source: '1974[http://www.acardandagift.com/images/1974_C1871_I_HEART_IMAGE1.png]\n' +
+                        '1982[http://www.acardandagift.com/images/1982_C1879_I_HEART_IMAGE1.png]\n' +
+                        '1993[http://www.acardandagift.com/images/1993_C1890_I_HEART_IMAGE1.png]',
                 visible: true,
                 enabled: true,
                 readonly: true,
                 source$: function() {
-                    return this.get('source').split('\n');
+                    var ret = [];
+                    var source = this.get('source');
+                    var match = source.match(/([^\[\]]+)\[([^\[\]]+)\]/g);
+                    for (var i = 0, length = match.length; i < length ; i++) {
+                        var item = match[i].replace('\n', '').trim();
+                        var pos = item.indexOf('[');
+                        ret.push({
+                            text: item.substr(0, pos),
+                            image: item.substr(pos + 1, item.length - pos - 2)
+                        });
+                    }
+                    return ret;
                 }
             });
 

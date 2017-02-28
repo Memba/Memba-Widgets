@@ -1,0 +1,49 @@
+.kj-listeditor > .k-toolbar {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+.kj-listeditor > .k-listview {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+body > .k-list-item,
+.kj-listeditor > .k-listview > .k-list-item {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    padding: 2px;
+}
+body > .k-list-item > .kj-handle,
+.kj-listeditor > .k-listview > .k-list-item > .kj-handle {
+    width: 1em;
+    cursor: move;
+}
+body > .k-list-item > .kj-text,
+.kj-listeditor > .k-listview > .k-list-item > .kj-text {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+body > .k-list-item > .kj-text input,
+.kj-listeditor > .k-listview > .k-list-item > .kj-text input {
+    width: 100%;
+}
+body > .k-list-item > .kj-text .k-tooltip-validation,
+.kj-listeditor > .k-listview > .k-list-item > .kj-text .k-tooltip-validation {
+    position: absolute;
+}
+body > .k-list-item > .kj-buttons,
+.kj-listeditor > .k-listview > .k-list-item > .kj-buttons {
+    display: flex;
+    flex: 0 0 auto;
+    flex-flow: row nowrap;
+    align-items: center;
+}
+body > .k-list-item > .kj-buttons .k-image,
+.kj-listeditor > .k-listview > .k-list-item > .kj-buttons .k-image {
+    height: 2em;
+    width: 2em;
+}

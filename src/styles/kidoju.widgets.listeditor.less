@@ -1,0 +1,48 @@
+.kj-listeditor {
+    >.k-toolbar {
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        // border-bottom: none;
+    }
+    >.k-listview {
+        margin: 0;
+        padding: 0;
+        border: none;
+    }
+}
+// we need body > k-list-item for drgaggable hints
+body, .kj-listeditor>.k-listview {
+    >.k-list-item {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        padding: 2px;
+        >.kj-handle {
+            width: 1em;
+            cursor: move;
+        }
+        >.kj-text {
+            flex: 1 1 auto;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            input {
+                width: 100%;
+            }
+            .k-tooltip-validation {
+                position: absolute;
+            }
+        }
+        >.kj-buttons {
+            display: flex;
+            flex: 0 0 auto;
+            flex-flow: row nowrap;
+            align-items: center;
+            .k-image {
+                height: 2em;
+                width: 2em;
+            }
+        }
+    }
+}

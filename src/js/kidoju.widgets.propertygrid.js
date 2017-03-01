@@ -179,6 +179,7 @@
                     '</table>' +
                     '</div>'
                 );
+                // Add column resizing
                 that._addColumnResizing();
             },
 
@@ -229,12 +230,8 @@
                 // Bind properties of property grid
                 kendo.bind(tbody, properties, kendo.ui, kendo.mobile.ui);
 
-                // reposition resize handle
-                var handle = element.children('.' + HANDLE_CLASS);
-                var propertyColumn = element.find('.k-grid-content>table>tbody>tr>td:first-child');
-                if (handle.length && propertyColumn.length) {
-                    handle.css({left: propertyColumn.outerWidth() - handle.outerWidth() / 2});
-                }
+                // Reposition column resizing handle
+                that._positionHandle();
             },
 
             /* This function's cyclomatic complexity is too high. */
@@ -348,6 +345,20 @@
             /* jshint +W074 */
 
             /**
+             * Event handler for the mousenter event
+             * @private
+             */
+            _positionHandle: function () {
+                var element = this.element;
+                // reposition the resize handle
+                var handle = element.children('.' + HANDLE_CLASS + ':visible');
+                var propertyColumn = element.find('.k-grid-content>table>tbody>tr>td:first-child');
+                if (handle.length && propertyColumn.length) {
+                    handle.css({ left: propertyColumn.outerWidth() - handle.outerWidth() / 2 });
+                }
+            },
+
+            /**
              * Add column resizing
              * @private
              */
@@ -377,7 +388,7 @@
                             var valueWidth = element.find('.k-grid-content>table>tbody>tr>td:last-child').outerWidth();
                             var headerColGroup = element.find('.k-grid-header>.k-grid-header-wrap>table>colgroup');
                             var contentColGroup = element.find('.k-grid-content>table>colgroup');
-                            var shift = e.clientX - e.offsetX + hint.outerWidth() / 2 - propertyWidth;
+                            var shift = e.pageX - element.offset().left - e.offsetX + hint.outerWidth() / 2 - propertyWidth;
                             var propertyPercent = (propertyWidth + shift) / (propertyWidth + valueWidth);
                             var valuePercent = (valueWidth - shift) / (propertyWidth + valueWidth);
                             headerColGroup.children('col:first-child').width(propertyPercent + '%');
@@ -393,6 +404,8 @@
                                 .show();
                         }
                     });
+                    // Reposition handle on mouseenter
+                    that.element.on('mouseenter', $.proxy(that._positionHandle, that));
                 }
             },
 

@@ -40,6 +40,7 @@
         var TBODY = 'tbody';
         var TCELL = 'td[role="gridcell"]';
         var WIDGET_CLASS = 'k-grid k-widget kj-propertygrid';
+        var HANDLE_CLASS = 'k-resize-handle';
 
         /*********************************************************************************
          * Widget
@@ -178,6 +179,7 @@
                     '</table>' +
                     '</div>'
                 );
+                that._addColumnResizing();
             },
 
             /**
@@ -187,8 +189,10 @@
             refresh: function () {
 
                 var that = this;
+                var element = that.element;
+                var options = that.options;
                 var properties = that.value();
-                var tbody = $(that.element).find(TBODY).first();
+                var tbody = element.find(TBODY).first();
 
                 kendo.unbind(tbody);
                 kendo.destroy(tbody);
@@ -199,8 +203,8 @@
                     return;
                 }
 
-                var rowTemplate = kendo.template(that.options.templates.row);
-                var altRowTemplate = kendo.template(that.options.templates.altRow);
+                var rowTemplate = kendo.template(options.templates.row);
+                var altRowTemplate = kendo.template(options.templates.altRow);
                 var rows = that._buildRows();
                 var discarded = 0;
 
@@ -222,8 +226,15 @@
                     }
                 }
 
+                // Bind properties of property grid
                 kendo.bind(tbody, properties, kendo.ui, kendo.mobile.ui);
 
+                // reposition resize handle
+                var handle = element.children('.' + HANDLE_CLASS);
+                var propertyColumn = element.find('.k-grid-content>table>tbody>tr>td:first-child');
+                if (handle.length && propertyColumn.length) {
+                    handle.css({left: propertyColumn.outerWidth() - handle.outerWidth() / 2});
+                }
             },
 
             /* This function's cyclomatic complexity is too high. */
@@ -236,10 +247,11 @@
              */
             _buildRows: function () {
                 var that = this;
+                var options = that.options;
                 var rows = [];
-                var hasRows = $.isArray(that.options.rows); // && that.options.rows.length > 0;
+                var hasRows = $.isArray(options.rows); // && options.rows.length > 0;
 
-                // that.options.rows gives:
+                // options.rows gives:
                 // - field (name) - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.field
                 // - title        - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.title
                 // - format       - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.format
@@ -249,14 +261,14 @@
                 // - encoded????  - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.encoded
                 // - attributes   - http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-columns.attributes
 
-                // that.options.fields gives: - http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
+                // options.fields gives: - http://docs.telerik.com/kendo-ui/api/javascript/data/model#methods-Model.define
                 // - type
                 // - editable
                 // - nullable
-                // - defaultValue - see that.options.value.defaults
+                // - defaultValue - see options.value.defaults
                 // - validation
 
-                // that.options.value gives
+                // options.value gives
                 // - type
                 // - value (for data-binding)
 
@@ -321,18 +333,68 @@
                                     // Without this.options.rows, all public properties are displayed
                                     rows.push(row);
                                 }
-                                // TODO }
+                                // }
                                 /* jshint +W073 */
+
                             }
                         }
                     }
                 }
 
-                buildRows(that.value(), util.hash(that.options.rows), '');
+                buildRows(that.value(), util.hash(options.rows), '');
                 return rows;
             },
 
             /* jshint +W074 */
+
+            /**
+             * Add column resizing
+             * @private
+             */
+            _addColumnResizing: function () {
+                var that = this;
+                var element = that.element;
+                var colgroup = element.find('.k-grid-content>table>colgroup');
+                var tbody = element.find('.k-grid-content>table>tbody');
+                if (!element.children('.' + HANDLE_CLASS).length) {
+                    $('<div />')
+                        .addClass(HANDLE_CLASS)
+                        .appendTo(element);
+                }
+                var resizableWidget = element.data('kendoResisable');
+                if (!(resizableWidget instanceof ui.Resizable)) {
+                    element.kendoResizable({
+                        handle: '.' + HANDLE_CLASS,
+                        hint: function (handle) {
+                            var clone = handle.clone();
+                            handle.hide();
+                            return clone;
+                        },
+                        // start: function (e) {},
+                        resize: function (e) {
+                            var hint = $(e.elementUnderCursor);
+                            var propertyWidth = element.find('.k-grid-content>table>tbody>tr>td:first-child').outerWidth();
+                            var valueWidth = element.find('.k-grid-content>table>tbody>tr>td:last-child').outerWidth();
+                            var headerColGroup = element.find('.k-grid-header>.k-grid-header-wrap>table>colgroup');
+                            var contentColGroup = element.find('.k-grid-content>table>colgroup');
+                            var shift = e.clientX - e.offsetX + hint.outerWidth() / 2 - propertyWidth;
+                            var propertyPercent = (propertyWidth + shift) / (propertyWidth + valueWidth);
+                            var valuePercent = (valueWidth - shift) / (propertyWidth + valueWidth);
+                            headerColGroup.children('col:first-child').width(propertyPercent + '%');
+                            headerColGroup.children('col:last-child').width(valuePercent + '%');
+                            contentColGroup.children('col:first-child').width(propertyPercent + '%');
+                            contentColGroup.children('col:last-child').width(valuePercent + '%');
+                        },
+                        resizeend: function (e) {
+                            var propertyWidth = element.find('.k-grid-content>table>tbody>tr>td:first-child').outerWidth();
+                            var handle = $(e.currentTarget);
+                            handle
+                                .css({ left: propertyWidth - handle.outerWidth() / 2 })
+                                .show();
+                        }
+                    });
+                }
+            },
 
             /**
              * Gets/Set validation rules

@@ -1,9 +1,12 @@
+.kj-propertygrid.k-grid tbody .k-button {
+    min-width: initial;
+}
 .kj-propertygrid .k-resize-handle {
     cursor: col-resize;
     position: absolute;
     top: 0;
     bottom: 0;
-    height: auto;
+    height: auto !important;
     width: 10px;
     z-index: 2;
 }

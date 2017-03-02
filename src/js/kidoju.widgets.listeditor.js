@@ -30,6 +30,7 @@
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.listeditor');
         var NS = '.kendoListEditor';
+        var STRING = 'string';
         var CLICK = 'click';
         var WIDGET_CLASS = 'k-widget kj-listeditor';
         var TEMPLATE = '<li class="k-list-item">' +
@@ -94,6 +95,7 @@
                 editTemplate: EDIT_TMPL,
                 toolbarTemplate: TOOLBAR_TMPL,
                 tooltipTemplate: TOOLTIP_TMPL,
+                schemes: {},
                 messages: {
                     toolbar: {
                         add: 'Add'
@@ -142,7 +144,12 @@
                 // Add click event handler for the Add button
                 $('.k-button', that.toolbar).on(CLICK, function (e) {
                     assert.instanceof(ListView, that.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                    that.listView.add();
+                    // that.listView.add(); // Requires a model to know the fields to create a new data item with
+                    var item = {};
+                    item[options.textField] = '';
+                    item[options.imageField] = '';
+                    that.dataSource.add(item);
+                    that.listView.edit(that.listView.element.children().last());
                     e.preventDefault();
                 });
             },
@@ -165,8 +172,8 @@
                 // Create the listview
                 that.listView = list.kendoListView({
                     dataSource: that.dataSource,
-                    template: kendo.template(kendo.format(options.template, options.textField, options.imageField)),
-                    editTemplate: kendo.template(kendo.format(options.editTemplate, options.textField, options.imageField))
+                    template: kendo.template(kendo.format(options.template, options.textField, options.imageField + ($.isEmptyObject(options.schemes) ? '' : '$()'))),
+                    editTemplate: kendo.template(kendo.format(options.editTemplate, options.textField, options.imageField + ($.isEmptyObject(options.schemes) ? '' : '$()')))
                 }).data('kendoListView');
 
                 // Make the list sortable
@@ -211,20 +218,38 @@
              */
             _dataSource: function () {
                 var that = this;
+                var options = that.options;
 
-                // returns the datasource OR creates one if using array or configuration
-                that.dataSource = DataSource.create(that.options.dataSource);
-
-                // ----------------------------------------------------------------------------
-                // Important note: we need a schema model otherwise the Add button won't work
-                // because the listview won't know the properties to build the new dataItem with
-                // ----------------------------------------------------------------------------
+                // returns the dataSource OR creates one if using array or configuration
+                var data = options.dataSource;
+                if ($.isArray(data) || data instanceof kendo.data.ObservableArray) {
+                    var model = { fields: {} };
+                    model.fields[options.textField] = { type: STRING };
+                    model.fields[options.imageField] = { type: STRING };
+                    // IMPORTANT: This means the dataSource needs to have a calculated field named image$ or equivalent if schemes are implemented
+                    model[options.imageField + '$'] = function () {
+                        var image = this.get(options.imageField);
+                        for (var scheme in options.schemes) {
+                            if (options.schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(image)) {
+                                image = image.replace(scheme + '://', options.schemes[scheme]);
+                                break;
+                            }
+                        }
+                        return image;
+                    };
+                    that.dataSource = DataSource.create({
+                        data: data,
+                        schema: {
+                            model: kendo.data.Model.define(model)
+                        }
+                    });
+                } else {
+                    that.dataSource = DataSource.create(that.options.dataSource);
+                }
 
                 // Set the dataSource on the listview
                 assert.instanceof(ListView, that.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                // if (that.listView instanceof ListView) {
-                    that.listView.setDataSource(that.dataSource);
-                // }
+                that.listView.setDataSource(that.dataSource);
             },
 
             /**

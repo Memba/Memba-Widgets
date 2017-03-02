@@ -73,6 +73,16 @@
             });
         }
 
+        /* kidoju.widgets.listeditor */
+        if (ui.ListEditor) {
+            options = ui.ListEditor.prototype.options;
+            options.messages = $.extend(true, options.messages, {
+                toolbar: {
+                    add: 'Add'
+                }
+            });
+        }
+
         /* kidoju.widgets.mediaplayer */
         if (ui.MediaPlayer) {
             options = ui.MediaPlayer.prototype.options;

@@ -200,13 +200,15 @@
                     that.dropDownList.wrapper.show();
                     that.dropDownList.text(name);
                     if ($.type(paramName) === STRING && paramName.length) {
-                        that.textBox.attr('placeholder', paramName);
-                        that.textBox.val(paramValue);
-                        that.textBox.show();
+                        that.textBox
+                            .attr('placeholder', paramName)
+                            .val(paramValue)
+                            .show();
                     } else {
-                        that.textBox.removeAttr('placeholder');
-                        that.textBox.val('');
-                        that.textBox.hide();
+                        that.textBox
+                            .removeAttr('placeholder')
+                            .val('')
+                            .hide();
                     }
                 }
                 that.trigger(CHANGE, { value: that.value() });
@@ -221,10 +223,12 @@
                 var options = that.options;
                 that.wrapper = that.element;
                 that.element.addClass(WIDGET_CLASS);
+                // Static input showing `Custom`
                 that.input = $('<input class="k-textbox k-state-disabled" disabled>')
                     .width('100%')
                     .val(options.custom)
                     .appendTo(that.element);
+                // Drop down list to choose from library
                 that.dropDownList = $('<select/>')
                     .width('100%')
                     .appendTo(that.element)
@@ -238,7 +242,9 @@
                     })
                     .data('kendoDropDownList');
                 that.dropDownList.bind('dataBound', $.proxy(that._initValue, that));
+                // Param textbox
                 that.textBox = $('<input class="k-textbox">')
+                    .css({ marginTop: '0.25em'})
                     .width('100%')
                     .hide()
                     .appendTo(that.element)
@@ -295,32 +301,16 @@
             },
 
             /**
-             * Clears the widget
-             * @method _clear
-             * @private
-             */
-            _clear: function () {
-                var that = this;
-                // unbind kendo
-                // kendo.unbind($(that.element));
-                // unbind all other events
-                $(that.element).find('*').off();
-                $(that.element).off();
-                // remove descendants
-                $(that.element).empty();
-                // remove element classes
-                // $(that.element).removeClass(WIDGET_CLASS);
-            },
-
-            /**
-             * Destroys the widget including all DOM modifications
+             * Destroys the widget
              * @method destroy
              */
             destroy: function () {
                 var that = this;
+                var element = that.element;
                 Widget.fn.destroy.call(that);
-                that._clear();
-                kendo.destroy(that.element);
+                that.textBox.off(NS);
+                element.removeClass(WIDGET_CLASS);
+                kendo.destroy(element);
             }
         });
 

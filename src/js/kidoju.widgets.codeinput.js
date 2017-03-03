@@ -23,15 +23,19 @@
 
         var kendo = window.kendo;
         var Widget = kendo.ui.Widget;
+        var DropDownList = kendo.ui.DropDownList;
+        var DataSource = kendo.data.DataSource;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.codeinput');
+        var OBJECT = 'object';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
-        var JS_COMMENT = '// ';
-        // var NS = '.kendoCodeInput';
+        var LIB_COMMENT = '// ';
+        var LIB_PARAM = ' ({0})';
+        var NS = '.kendoCodeInput';
         var WIDGET_CLASS = /*'k-widget*/ 'kj-codeinput';
-        var RX_LIBRARY = /^\/\/ ([^\n]+)$/;
+        var RX_LIBRARY = /^\/\/ ([^\(\n]+)( \([^\n]*\))?$/;
         var RX_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
 
         /*********************************************************************************
@@ -59,7 +63,6 @@
                 logger.debug({ method: 'init', message: 'widget initialized' });
                 that._layout();
                 that._dataSource();
-                that._initValue();
                 // kendo.notify(that);
             },
 
@@ -70,10 +73,12 @@
             options: {
                 name: 'CodeInput',
                 autoBind: true,
-                // dataSource
+                dataSource: [],
                 custom: 'custom',
-                default: 'equal',
-                // solution: '',
+                default: '// equal',
+                nameField: 'name',
+                formulaField: 'formula',
+                paramField: 'param',
                 value: null
             },
 
@@ -93,10 +98,10 @@
                 var options = this.options;
                 if ($.type(options.value) === STRING && RX_CUSTOM.test(options.value)) {
                     this.value(options.value);
-                } else if ($.type(options.value) === STRING && RX_LIBRARY.test(/*JS_COMMENT +*/options.value)) {
-                    this.value(/*JS_COMMENT +*/options.value);
+                } else if ($.type(options.value) === STRING && RX_LIBRARY.test(options.value)) {
+                    this.value(options.value);
                 } else if (this.dataSource && this.dataSource.total()) {
-                    this.value(JS_COMMENT + options.default);
+                    this.value(options.default);
                 }
             },
 
@@ -108,13 +113,13 @@
             value: function (value) {
                 var that = this;
                 if ($.type(value) === STRING) {
-                    that._toggle(value);
+                    that._toggleUI(value);
                 } else if ($.type(value) === UNDEFINED) {
-                    if ($.type(that._value) !== STRING || !that._value.length) {
-                        return undefined;
-                    } else {
+                    // if ($.type(that._value) !== STRING || !that._value.length) {
+                    //    return undefined;
+                    // } else {
                         return that._value;
-                    }
+                    // }
                 } else {
                     throw new TypeError('`value` is expected to be a string if not undefined');
                 }
@@ -128,32 +133,39 @@
              */
             _isCustom: function (value) {
                 assert.type(STRING, value, kendo.format(assert.messages.type.default, value, STRING));
-                var customMatches = value.match(RX_CUSTOM);
-                if ($.isArray(customMatches) && customMatches.length === 2) {
+                var matches = value.match(RX_CUSTOM);
+                if ($.isArray(matches) && matches.length === 2) {
                     return value;
                 }
             },
 
             /**
-             * Check that value refers to a piece of code from the library (dataSource)
-             * Returns the name of the library item (without `// `) if found, otherwise undefined
+             * Returns the library item from the code input widget value (that is `// <name> (<paramValue>)`)
              * @param value
              * @returns {*}
              * @private
              */
-            _isInLibrary: function (value) {
+            _parseLibraryValue: function (value) {
                 assert.type(STRING, value, kendo.format(assert.messages.type.default, value, STRING));
-                assert.instanceof(kendo.ui.DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
-                assert.instanceof(kendo.data.DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 assert.equal(this.dropDownList.dataSource, this.dataSource, 'this.dropDownList.dataSource and this.dataSource are expected to be the same');
-                var libraryMatches = value.match(RX_LIBRARY);
-                if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
-                    var found = this.dataSource.data().filter(function (item) {
-                        return item.name === libraryMatches[1];
+                var options = this.options;
+                var matches = value.match(RX_LIBRARY);
+                if ($.isArray(matches) && matches.length === 3) {
+                    var ret = {};
+                    var temp = matches[2];
+                    var found = this.dataSource.data().find(function (item) {
+                        return item[options.nameField] === matches[1];
                     });
-                    if ($.isArray(found) && found.length) {
-                        return libraryMatches[1];
+                    if (found) {
+                        ret.item = found;
                     }
+                    if ($.type(temp) === STRING && temp.length > 2) {
+                        // remove ` (` at the beginning and ')' at the end
+                        ret.paramValue = temp.substr(2, temp.length - 3)
+                    }
+                    return ret;
                 }
             },
 
@@ -161,30 +173,43 @@
              * Toggle UI for custom vs library code
              * @private
              */
-            _toggle: function (value) {
+            _toggleUI: function (value) {
                 assert.type(STRING, value, kendo.format(assert.messages.type.default, value, STRING));
-                assert.instanceof(kendo.ui.DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                 var that = this;
+                var options = that.options;
                 if (that._isCustom(value)) {
                     // If value is in the form `function validate(value, solution[, all]) { ... }`, it is custom
                     that._value = value;
                     that.dropDownList.text('');
                     that.dropDownList.wrapper.hide();
                     that.input.show();
-                    that.trigger(CHANGE, { value: that.value() });
                 } else {
                     // Otherwise, search the library
-                    var name = that._isInLibrary(value);
-                    if ($.type(name) === UNDEFINED) {
+                    var parsed = that._parseLibraryValue(value);
+                    if ($.type(parsed.item) === UNDEFINED) {
                         // and use default if not found
-                        name = that._isInLibrary(JS_COMMENT + that.options.default);
-                        assert.type(STRING, name, '`this.options.default` is expected to exist in the library');
+                        parsed.item = that._parseLibraryValue(LIB_COMMENT + options.default);
+                        assert.type(OBJECT, parsed.item, '`this.options.default` is expected to exist in the library');
                     }
+                    var name = parsed.item[options.nameField];
+                    var paramName = parsed.item[options.paramField];
+                    var paramValue = parsed.paramValue;
+                    that._value = LIB_COMMENT + name + (paramName ? kendo.format(LIB_PARAM, paramValue) : '');
                     that.input.hide();
                     that.dropDownList.wrapper.show();
                     that.dropDownList.text(name);
-                    that._onDropDownListChange(); // this actually triggers a change event
+                    if ($.type(paramName) === STRING && paramName.length) {
+                        that.textBox.attr('placeholder', paramName);
+                        that.textBox.val(paramValue);
+                        that.textBox.show();
+                    } else {
+                        that.textBox.removeAttr('placeholder');
+                        that.textBox.val('');
+                        that.textBox.hide();
+                    }
                 }
+                that.trigger(CHANGE, { value: that.value() });
             },
 
             /**
@@ -193,23 +218,38 @@
              */
             _layout: function () {
                 var that = this;
+                var options = that.options;
                 that.wrapper = that.element;
                 that.element.addClass(WIDGET_CLASS);
                 that.input = $('<input class="k-textbox k-state-disabled" disabled>')
                     .width('100%')
-                    .val(that.options.custom)
+                    .val(options.custom)
                     .appendTo(that.element);
                 that.dropDownList = $('<select/>')
                     .width('100%')
                     .appendTo(that.element)
                     .kendoDropDownList({
-                        autoBind: that.options.autoBind,
+                        autoBind: options.autoBind,
+                        autoWidth: true,
                         change: $.proxy(that._onDropDownListChange, that), // change is not triggered by dropDownList api calls incl. value(), text(), ...
-                        dataTextField: 'name',
-                        dataValueField: 'formula',
-                        dataSource: that.options.dataSource
+                        dataTextField: options.nameField,
+                        dataValueField: options.formulaField,
+                        dataSource: options.dataSource
                     })
                     .data('kendoDropDownList');
+                that.dropDownList.bind('dataBound', $.proxy(that._initValue, that));
+                that.textBox = $('<input class="k-textbox">')
+                    .width('100%')
+                    .hide()
+                    .appendTo(that.element)
+                    .on(CHANGE + NS, function (e) {
+                        var dataItem = that.dropDownList.dataItem();
+                        var name = dataItem.name;
+                        var paramName = dataItem.param;
+                        var paramValue = that.textBox.val();
+                        that._value = LIB_COMMENT + name + (paramName ? kendo.format(LIB_PARAM, paramValue) : '');
+                        that.trigger(CHANGE, { value: that.value() });
+                    });
             },
 
             /**
@@ -217,9 +257,14 @@
              * @private
              */
             _onDropDownListChange: function () {
-                assert.instanceof(kendo.ui.DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
-                this._value = JS_COMMENT + this.dropDownList.text();
-                this.trigger(CHANGE, { value: this.value() });
+                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                var that = this;
+                var options = that.options;
+                var dataItem = that.dropDownList.dataItem();
+                var name = dataItem[options.nameField];
+                var paramName = dataItem[options.paramField];
+                var paramValue = '';
+                that.value(LIB_COMMENT + name + (paramName ? kendo.format(LIB_PARAM, paramValue) : ''));
             },
 
             /**
@@ -227,19 +272,14 @@
              * @private
              */
             _dataSource: function () {
-                assert.instanceof(kendo.ui.DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
-                assert.instanceof(kendo.data.DataSource, this.dropDownList.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dropDownList.dataSource', 'kendo.data.DataSource'));
+                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                 var that = this;
-                var dropDownList = that.dropDownList;
-                if (dropDownList instanceof kendo.ui.DropDownList && dropDownList.dataSource instanceof kendo.data.DataSource) {
-                    // MVVM bindings require that.dataSource
-                    that.dataSource = that.dropDownList.dataSource;
-                    if (that._refreshHandler) {
-                        that.dataSource.unbind(CHANGE, that._refreshHandler);
-                    }
-                    that._refreshHandler = $.proxy(that.refresh, that);
-                    that.dataSource.bind(CHANGE, that._refreshHandler);
-                }
+
+                // returns the datasource OR creates one if using array or configuration
+                that.dataSource = kendo.data.DataSource.create(that.options.dataSource);
+
+                // Pass dataSource to dropDownList
+                that.dropDownList.setDataSource(that.dataSource);
             },
 
             /**
@@ -247,23 +287,11 @@
              * @param dataSource
              */
             setDataSource: function (dataSource) {
-                assert.instanceof(kendo.ui.DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                 var that = this;
-                var dropDownList = that.dropDownList;
-                if (dropDownList.dataSource !== dataSource) {
-                    dropDownList.setDataSource(dataSource);
-                    that._dataSource();
-                    that._initValue();
-                }
-            },
-
-            /**
-             * Refresh
-             * @param e
-             */
-            refresh: function (e) {
-                assert.instanceof(kendo.ui.DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
-                this.dropDownList.refresh(e);
+                // set the internal datasource equal to the one passed in by MVVM
+                that.options.dataSource = dataSource;
+                // rebuild the datasource if necessary, or just reassign
+                that._dataSource();
             },
 
             /**
@@ -294,7 +322,6 @@
                 that._clear();
                 kendo.destroy(that.element);
             }
-
         });
 
         kendo.ui.plugin(CodeInput);

@@ -25,16 +25,18 @@
 </head>
 <body>
 <h1>Code Input</h1>
-<div data-role="dropdownlist" data-bind="value: code, source: names"></div>
-<div data-role="codeinput" data-bind="value: code, source: library" data-default="floatEqual"></div>
+<h2>Standard DropdDown</h2>
+<div data-role="dropdownlist" data-bind="value: code, source: names" data-auto-width="true"></div>
+<h2>Out widget</h2>
+<div data-role="codeinput" data-bind="value: code, source: library" data-default="// floatEqual"></div>
 <pre data-bind="text: code"></pre>
 <script>
     ;(function(window, $, undefined){
 
         'use strict';
 
-        var kendo = window.kendo,
-            library = [
+        var kendo = window.kendo;
+        var library = [
                 {
                     name: 'custom',
                     formula: 'function validate(value, solution) {\n\t// Your code should return true when value is validated against solution.\n}'
@@ -52,6 +54,11 @@
                     formula: 'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}'
                 },
                 {
+                    name: 'withParam',
+                    formula: 'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat({0});\n}',
+                    param: 'RegExp'
+                },
+                {
                     name: 'greaterThan',
                     formula: 'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}'
                 },
@@ -67,13 +74,16 @@
                     name: 'lowerThanOrEqual',
                     formula: 'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
                 }
-            ],
-            viewModel = kendo.observable({
+            ];
+        var viewModel = kendo.observable({
                 code: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === 5 + parseInt(solution, 10);\n}',
                 library: library,
+                param: '',
                 names: library.map(function(item) {
                     if (item.name === 'custom') {
                         return item.formula;
+                    } else if (item.name === 'withParam') {
+                        return '// withParam (^[a-z](\w+)$)';
                     } else {
                         return '// ' + item.name;
                     }

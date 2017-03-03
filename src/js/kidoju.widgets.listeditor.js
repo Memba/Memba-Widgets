@@ -78,9 +78,8 @@
                 Widget.fn.init.call(that, element, options);
                 logger.debug({ method: 'init', message: 'widget initialized' });
                 that._layout();
-                // Set dataSource after layout to bind the listView
                 that._dataSource();
-                kendo.notify(that);
+                // kendo.notify(that);
             },
 
             /**

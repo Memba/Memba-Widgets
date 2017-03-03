@@ -1,8 +1,8 @@
 /*******************
  * Drop Down List
  ******************/
-.kj-quiz .k-dropdown .kj-quiz-item > .k-image,
-.k-animation-container .k-list .kj-quiz-item > .k-image {
+.kj-quiz .k-dropdown .kj-quiz-item.kj-quiz-dropdown > .k-image,
+.k-animation-container .k-list .kj-quiz-item.kj-quiz-dropdown > .k-image {
     background-size: cover;
     background-position: center;
     display: inline-block;
@@ -10,6 +10,9 @@
     width: 1.1em;
     height: 1.1em;
     margin-right: 0.25em;
+}
+.kj-quiz .k-state-disabled {
+    opacity: 1;
 }
 .kj-quiz .kj-quiz-item {
     box-sizing: border-box !important;
@@ -17,31 +20,16 @@
            * Buttons
            ******************/
     /*******************
-           * Images TODO
+           * Images
            ******************/
-    /*
-          .k-image {
-              position: absolute;
-              top: 0;
-              bottom: 0;
-              left: 0;
-              right: 0;
-              width: auto;
-              height: auto;
-          }
-          .k-text {
-              position: absolute;
-              bottom: 0;
-              left: 0;
-              right: 0;
-              width: auto;
-          }
-          */
+    /*******************
+          * Links
+          ******************/
     /*******************
            * Radios
            ******************/
 }
-.kj-quiz .kj-quiz-item.k-button {
+.kj-quiz .kj-quiz-item.kj-quiz-button {
     margin-bottom: 0.2em;
     margin-right: 0.2em;
     padding: 2px 7px 2px;
@@ -49,7 +37,7 @@
     font-family: inherit;
     line-height: 1.72em;
 }
-.kj-quiz .kj-quiz-item.k-button > .k-image {
+.kj-quiz .kj-quiz-item.kj-quiz-button > .k-image {
     background-size: cover;
     background-position: center;
     display: inline-block;
@@ -58,15 +46,55 @@
     height: 1.1em;
     margin-right: 0.25em;
 }
-.kj-quiz .kj-quiz-item input.k-radio {
+.kj-quiz .kj-quiz-item.kj-quiz-image {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    height: 100px;
+    width: 100px;
+    margin-right: 0.25em;
+    /**
+              >.k-text {
+                  position: absolute;
+                  bottom: 10px;
+                  left: 10px;
+                  right: 10px;
+                  height: 1em;
+                  width: auto;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  text-align: center;
+                  opacity: .8;
+              }
+              */
+}
+.kj-quiz .kj-quiz-item.kj-quiz-image > .k-image {
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    top: 10%;
+    bottom: 10%;
+    left: 10%;
+    right: 10%;
+    width: auto;
+    height: auto;
+}
+.kj-quiz .kj-quiz-item.kj-quiz-link {
+    cursor: pointer;
+}
+.kj-quiz .kj-quiz-item.kj-quiz-link::after {
+    content: '\0020';
+}
+.kj-quiz .kj-quiz-item.kj-quiz-radio input.k-radio {
     display: none;
 }
-.kj-quiz .kj-quiz-item .k-radio-label {
+.kj-quiz .kj-quiz-item.kj-quiz-radio .k-radio-label {
     line-height: normal;
     padding-left: 1.2em;
     vertical-align: initial;
 }
-.kj-quiz .kj-quiz-item .k-radio-label > .k-image {
+.kj-quiz .kj-quiz-item.kj-quiz-radio .k-radio-label > .k-image {
     background-size: cover;
     background-position: center;
     display: inline-block;
@@ -75,20 +103,23 @@
     height: 1.1em;
     margin-right: 0.25em;
 }
-.kj-quiz .kj-quiz-item .k-radio-label:before {
+.kj-quiz .kj-quiz-item.kj-quiz-radio .k-radio-label:before {
     border-width: 0.05em;
     top: 0.1em;
     left: 0.1em;
     width: 0.8em;
     height: 0.8em;
 }
-.kj-quiz .kj-quiz-item .k-radio:checked + .k-radio-label:after {
+.kj-quiz .kj-quiz-item.kj-quiz-radio .k-radio:checked + .k-radio-label:after {
     width: 0.7em;
     height: 0.7em;
     top: 0.2em;
     left: 0.2em;
 }
-.k-ff .kj-quiz input.k-button {
+.km-nova .kj-quiz input.k-radio {
+    display: none;
+}
+.k-ff .kj-quiz .kj-quiz-item.kj-quiz-button {
     padding-bottom: initial;
     padding-top: initial;
 }

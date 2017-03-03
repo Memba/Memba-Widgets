@@ -1,7 +1,7 @@
-/*******************
- * Drop Down List
- ******************/
-.kj-quiz .k-dropdown,
+//*******************
+// Drop Down List
+//*******************
+.k-dropdown,
 .k-animation-container .k-list {
     .kj-quiz-item.kj-quiz-dropdown {
         >.k-image {
@@ -17,14 +17,15 @@
     }
 }
 .kj-quiz {
-    .k-state-disabled {
+    &.k-state-disabled {
         opacity: 1;
+        color: inherit;
     }
     .kj-quiz-item {
         box-sizing: border-box !important; // fixes button alignment on iPhone
-        /*******************
-         * Buttons
-         ******************/
+        //*******************
+        // Buttons
+        //*******************
         &.kj-quiz-button {
             margin-bottom: 0.2em;
             margin-right: 0.2em;
@@ -45,9 +46,9 @@
             }
             // >.k-text {}
         }
-        /*******************
-         * Images
-         ******************/
+        //*******************
+        // Images
+        //*******************
         &.kj-quiz-image {
             cursor: pointer;
             display: inline-block;
@@ -83,9 +84,9 @@
             }
             */
         }
-        /*******************
-        * Links
-        ******************/
+        //*******************
+        // Links
+        //*******************
         &.kj-quiz-link {
             cursor:pointer;
             &::after {
@@ -93,9 +94,9 @@
             }
             // &.k-state-selected {}
         }
-        /*******************
-         * Radios
-         ******************/
+        //*******************
+        // Radios
+        //*******************
         &.kj-quiz-radio {
             input.k-radio {
                 display: none;

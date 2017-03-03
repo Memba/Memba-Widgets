@@ -691,16 +691,8 @@
                 if (enable) {
                     element
                         .on(CLICK + NS, BUTTON_SELECTOR, $.proxy(that._onButtonClick, that));
-                } else {
-                    // Because input are readonly and not disabled, we need to prevent default (checking options)
-                    // and let it bubble to the stage element to display the handle box
-                    element
-                        .on(CLICK + NS, BUTTON_SELECTOR, function (e) {
-                            e.preventDefault();
-                        })
                 }
-                element.find(BUTTON_SELECTOR)
-                    .toggleClass(DISABLE, !enable);
+                element.toggleClass(DISABLE, !enable);
             },
 
             /**
@@ -726,16 +718,8 @@
                 if (enable) {
                     element
                         .on(CLICK + NS, IMAGE_SELECTOR, $.proxy(that._onImageClick, that));
-                } else {
-                    // Because input are readonly and not disabled, we need to prevent default (checking options)
-                    // and let it bubble to the stage element to display the handle box
-                    element
-                        .on(CLICK + NS, IMAGE_SELECTOR, function (e) {
-                            e.preventDefault();
-                        })
                 }
-                element.find(IMAGE_SELECTOR)
-                    .toggleClass(DISABLE, !enable);
+                element.toggleClass(DISABLE, !enable);
             },
 
             /**
@@ -751,16 +735,8 @@
                 if (enable) {
                     element
                         .on(CLICK + NS, LINK_SELECTOR, $.proxy(that._onLinkClick, that));
-                } else {
-                    // Because input are readonly and not disabled, we need to prevent default (checking options)
-                    // and let it bubble to the stage element to display the handle box
-                    element
-                        .on(CLICK + NS, LINK_SELECTOR, function (e) {
-                            e.preventDefault();
-                        })
                 }
-                element.find(LINK_SELECTOR)
-                    .toggleClass(DISABLE, !enable);
+                element.toggleClass(DISABLE, !enable);
             },
 
             /**

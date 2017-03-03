@@ -1,7 +1,4 @@
-/*******************
- * Drop Down List
- ******************/
-.kj-quiz .k-dropdown .kj-quiz-item.kj-quiz-dropdown > .k-image,
+.k-dropdown .kj-quiz-item.kj-quiz-dropdown > .k-image,
 .k-animation-container .k-list .kj-quiz-item.kj-quiz-dropdown > .k-image {
     background-size: cover;
     background-position: center;
@@ -11,23 +8,12 @@
     height: 1.1em;
     margin-right: 0.25em;
 }
-.kj-quiz .k-state-disabled {
+.kj-quiz.k-state-disabled {
     opacity: 1;
+    color: inherit;
 }
 .kj-quiz .kj-quiz-item {
     box-sizing: border-box !important;
-    /*******************
-           * Buttons
-           ******************/
-    /*******************
-           * Images
-           ******************/
-    /*******************
-          * Links
-          ******************/
-    /*******************
-           * Radios
-           ******************/
 }
 .kj-quiz .kj-quiz-item.kj-quiz-button {
     margin-bottom: 0.2em;
@@ -52,7 +38,7 @@
     position: relative;
     height: 100px;
     width: 100px;
-    margin-right: 0.25em;
+    margin-right: 0.3em;
     /**
               >.k-text {
                   position: absolute;

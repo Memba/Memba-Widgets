@@ -456,11 +456,12 @@
                     // Attributes
                     attributes = tools.quiz.constructor.prototype.attributes;
                     attributes.data.title = 'Valeurs';
-                    attributes.data.defaultValue = 'Vrai\nFaux';
+                    attributes.data.defaultValue = [{ text: 'Vrai', image: 'cdn://images/o_collection/svg/office/ok.svg' }, { text: 'Faux', image: 'cdn://images/o_collection/svg/office/error.svg' }];
                     attributes.groupStyle.title = 'Style Groupe';
                     attributes.itemStyle.title = 'Style Element';
                     attributes.mode.title = 'Mode';
                     attributes.selectedStyle.title = 'Style Sélection';
+                    attributes.shuffle.title = 'Mélanger';
                     // Properties
                     properties = tools.quiz.constructor.prototype.properties;
                     properties.name.title = 'Nom';

@@ -1398,7 +1398,7 @@
                         }
                     });
 
-                } else if (e.action === 'itemchange') {
+                } else if (e.action === 'itemchange' && Array.isArray(e.items) && e.items.length && e.items[0] instanceof PageComponent) {
                     $.each(e.items, function (index, component) {
                         var stageElement = that.stage.children(kendo.format(ELEMENT_SELECTOR, component.uid));
                         var handleBox = that.wrapper.children(kendo.format(HANDLE_BOX_SELECTOR, component.uid));
@@ -1450,6 +1450,12 @@
                         }
                     });
                 }
+                /*
+                } else if (e.action === 'itemchange' && Array.isArray(e.items) && e.items.length && !(e.items[0] instanceof PageComponent)) {
+                    // This is especially the case for the quiz component when e.field === attributes.data: the e.items[i] is a data entry
+                    // but in this case using the parent() method to recursively find the component is a dead end
+                }
+                */
             },
             /* jshint +W074 */
 

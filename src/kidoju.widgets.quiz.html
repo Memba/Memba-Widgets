@@ -35,7 +35,10 @@
 <h2>Quiz bound to observable</h2>
 <div id="quiz4" data-role="quiz" data-mode="button" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
 <div id="quiz5" data-role="quiz" data-mode="dropdown" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
-<div id="quiz6" data-role="quiz" data-mode="radio" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+<div id="quiz6" data-role="quiz" data-mode="image" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+<div id="quiz7" data-role="quiz" data-mode="link" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+<div id="quiz8" data-role="quiz" data-mode="radio" data-bind="value: value, source: source$, visible: visible, enabled: enabled"></div>
+
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled&nbsp;
@@ -95,9 +98,7 @@
                 value: null,
                 mode: kendo.ui.Quiz.fn.modes.button,
                 itemStyle: {
-                    color: '#FF0000',
-                    height: '300px',
-                    width: '300px'
+                    color: '#FF0000'
                 },
                 selectedStyle: {
                     backgroundColor: '#00FF00'
@@ -139,7 +140,7 @@
                 source$: function() {
                     var ret = [];
                     var source = this.get('source');
-                    var match = source.match(/([^\[\]]+)\[([^\[\]]+)\]/g);
+                    var match = source.match(/([^\[\]]+)\[([^\[\]]*)\]/g);
                     for (var i = 0, length = match.length; i < length ; i++) {
                         var item = match[i].replace('\n', '').trim();
                         var pos = item.indexOf('[');

@@ -295,11 +295,12 @@
             quiz: {
                 description: 'Quiz',
                 attributes: {
-                    data: { title: 'Values', defaultValue: 'True\nFalse' },
+                    data: { title: 'Values', defaultValue: [{ text: 'True', image: 'cdn://images/o_collection/svg/office/ok.svg' }, { text: 'False', image: 'cdn://images/o_collection/svg/office/error.svg' }] },
                     groupStyle: { title: 'Group Style' },
                     itemStyle: { title: 'Item Style' },
                     mode: { title: 'Mode' },
-                    selectedStyle: { title: 'Select. Style' }
+                    selectedStyle: { title: 'Select. Style' },
+                    shuffle: { title: 'Shuffle' }
                 },
                 properties: {
                     name: { title: 'Name' },
@@ -554,13 +555,15 @@
              */
             _getAttributeRows: function () {
                 var rows = [];
-
+                var data = {};
+                data[kendo.attr('decimals')] = 0;
+                data[kendo.attr('format')] = 'n0';
                 // Add top, left, height, width, rotation
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('top'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.left.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('left'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.height.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('height'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.width.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('width'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.rotate.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('rotate'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.title }, data).getRow('top'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.left.title }, data).getRow('left'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.height.title }, data).getRow('height'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.width.title }, data).getRow('width'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.rotate.title }, data).getRow('rotate'));
 
                 // Add other attributes
                 for (var attr in this.attributes) {
@@ -905,11 +908,13 @@
                             paddingRight: '8px'
                         })
                         .appendTo(table);
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
                     var input = $('<input/>')
                         .addClass('k-textbox')
                         .css({ width: '100%' })
                         .prop({ readonly: true })
-                        .attr($.extend({}, settings.attributes, { 'data-bind': 'value: ' + settings.field }))// TODO: namespace???
+                        .attr($.extend({}, settings.attributes, binding))
                         .appendTo(cell);
                     $('<button/>')
                         .text('...')
@@ -933,7 +938,7 @@
                 });
                 // Prepare UI
                 dialogWidget.title(options.title);
-                dialogWidget.content('<div data-role="assetmanager" data-bind="value: url"></div>');
+                dialogWidget.content('<div data-' + kendo.ns + 'role="assetmanager" data-' + kendo.ns + 'bind="value: url"></div>');
                 assert.instanceof(PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
                 assert.instanceof(ToolAssets, assets[options.model.tool], kendo.format(assert.messages.instanceof.default, 'assets[options.model.tool]', 'kidoju.ToolAssets'));
                 var assetManagerWidget = dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets[options.model.tool]).data('kendoAssetManager');
@@ -1006,18 +1011,18 @@
                 dialogWidget.title(options.title);
                 dialogWidget.content('<div style="display:flex;flex-direction:row">' +
                     // character grid
-                    '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-content" data-container=".k-content" ' +
-                    'data-columns="' + model.get('attributes.columns') + '" data-rows="' + model.get('attributes.rows') + '" ' +
-                    'data-blank="' + model.get('attributes.blank') + '" ' +
-                    'data-whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
-                    (options.field === 'properties.solution' ? 'data-locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
-                    'data-grid-fill="' + model.get('attributes.gridFill') + '" ' +
-                    'data-grid-stroke="' + model.get('attributes.gridStroke') + '" ' +
-                    'data-blank-fill="' + model.get('attributes.gridStroke') + '" ' +
-                    'data-selected-fill="' + model.get('attributes.selectedFill') + '" ' +
-                    'data-locked-fill="' + model.get('attributes.lockedFill') + '" ' +
-                    'data-locked-color="' + model.get('attributes.fontColor') + '" ' +
-                    'data-value-color="' + model.get('attributes.fontColor') + '" ' +
+                    '<div data-' + kendo.ns + 'role="chargrid" data-' + kendo.ns + 'bind="value: chargrid" data-' + kendo.ns + 'scaler=".k-content" data-' + kendo.ns + 'container=".k-content" ' +
+                    'data-' + kendo.ns + 'columns="' + model.get('attributes.columns') + '" data-' + kendo.ns + 'rows="' + model.get('attributes.rows') + '" ' +
+                    'data-' + kendo.ns + 'blank="' + model.get('attributes.blank') + '" ' +
+                    'data-' + kendo.ns + 'whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
+                    (options.field === 'properties.solution' ? 'data-' + kendo.ns + 'locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
+                    'data-' + kendo.ns + 'grid-fill="' + model.get('attributes.gridFill') + '" ' +
+                    'data-' + kendo.ns + 'grid-stroke="' + model.get('attributes.gridStroke') + '" ' +
+                    'data-' + kendo.ns + 'blank-fill="' + model.get('attributes.gridStroke') + '" ' +
+                    'data-' + kendo.ns + 'selected-fill="' + model.get('attributes.selectedFill') + '" ' +
+                    'data-' + kendo.ns + 'locked-fill="' + model.get('attributes.lockedFill') + '" ' +
+                    'data-' + kendo.ns + 'locked-color="' + model.get('attributes.fontColor') + '" ' +
+                    'data-' + kendo.ns + 'value-color="' + model.get('attributes.fontColor') + '" ' +
                     'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;flex-shrink:0;padding:20px;"></div>' +
                     // Explanations
                     '<div style="padding:20px 0;">' +
@@ -1074,7 +1079,7 @@
                 var rows = model.get('attributes.values') + 1;
                 // Prepare UI
                 dialogWidget.title(options.title);
-                dialogWidget.content('<div data-role="spreadsheet"></div>');
+                dialogWidget.content('<div data-' + kendo.ns + 'role="spreadsheet"></div>');
                 var spreadsheet = dialogWidget.element.find(kendo.roleSelector('spreadsheet'));
                 assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
                 var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
@@ -1139,10 +1144,12 @@
                 this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 // this.editor = 'input';
                 // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
-                this.editor = function (container, options) {
+                this.editor = function (container, settings) {
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
                     var input = $('<input/>')
                         .css({ width: '100%' })
-                        .attr({ 'data-bind': 'value: ' + options.field }) // TODO namespace???
+                        .attr($.extend({}, settings.attributes, binding))
                         .appendTo(container);
                     input.kendoComboBox({
                         // dataSource: { data: [''] }, // We need a non-empty dataSource otherwise open is not triggered
@@ -1158,12 +1165,12 @@
                             var handleBox = stage.parent().children('.kj-handle-box');
                             var uid = handleBox.attr(kendo.attr('uid'));
                             // find all unselected connectors
-                            assert.instanceof (PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageModel'));
-                            if (options.model.parent() instanceof kendo.Observable && options.model.parent().selectedPage instanceof Page) {
-                                var components = options.model.parent().selectedPage.components;
+                            assert.instanceof (PageComponent, settings.model, kendo.format(assert.messages.instanceof.default, 'settings.model', 'kidoju.data.PageModel'));
+                            if (settings.model.parent() instanceof kendo.Observable && settings.model.parent().selectedPage instanceof Page) {
+                                var components = settings.model.parent().selectedPage.components;
                                 $.each(components.data(), function (index, component) {
                                     if (component.tool === 'connector' && component.uid !== uid) {
-                                        var solution = component.get(options.field);
+                                        var solution = component.get(settings.field);
                                         if ($.type(solution) === STRING && solution.length && solutions.indexOf(solution) === -1) {
                                             solutions.push(solution);
                                         }
@@ -1218,10 +1225,12 @@
                 this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 // this.editor = 'input';
                 // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
-                this.editor = function (container, options) {
+                this.editor = function (container, settings) {
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
                     var input = $('<input/>')
                         .css({ width: '100%' })
-                        .attr({ 'data-bind': 'value: ' + options.field }) // TODO namespace???
+                        .attr($.extend({}, settings.attributes, binding))
                         .appendTo(container);
                     input.kendoComboBox({
                         // dataSource: { data: [] }, // We need a non-empty dataSource otherwise open is not triggered
@@ -1331,32 +1340,110 @@
         });
 
         /**
-         * Quiz adapter
+         * Quiz Data Adapter
          */
-        adapters.QuizAdapter = BaseAdapter.extend({
+        adapters.QuizDataAdapter = BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = undefined;
+                that.defaultValue = that.defaultValue || [];
+                // that.editor is the list editor where the insert image button triggers this.showDialog
+                that.editor = function (container, settings) {
+                    var listEditor = $('<div/>')
+                        .appendTo(container);
+                    var listEditorWidget = listEditor.kendoListEditor({
+                        dataSource: settings.model.get(settings.field),
+                        schemes: assets.image.schemes,
+                        click: $.proxy(that.showDialog, that, settings)
+                    }).data('kendoListEditor');
+                    assert.instanceof(kendo.ui.ListEditor, listEditorWidget, kendo.format(assert.messages.instanceof.default, 'listEditorWidget', 'kendo.ui.ListEditor'));
+                    listEditorWidget.dataSource.bind('change', function (e) {
+                        // the dataSource raises a change event on any of the quiz data items that is added, changed or removed
+                        // This change event triggers propagate in the PageDataSource and triggers teh refresh method in kidoju.widgets.stage
+                        // The issue is e.items includes the modified dataItem which is not a component and offers no way to find the component which has changed
+                        // So we simply trigger the change on the component when the dataSOurc eoccurs any change
+                        settings.model.trigger('change', { field: settings.field });
+                    });
+                };
+            },
+            showDialog: function (options, e) {
+                if (e.action === 'image') {
+                    var that = this;
+                    var item = e.item;
+                    var dialogWidget = that.getDialog(options);
+                    // Create viewModel (Cancel shall not save changes to main model)
+                    dialogWidget.viewModel = kendo.observable({
+                        image: item.get('image')
+                    });
+                    dialogWidget.viewModel._item = item;
+                    // Prepare UI
+                    dialogWidget.title(options.title);
+                    dialogWidget.content('<div data-role="assetmanager" data-bind="value: image"></div>');
+                    assert.instanceof(PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
+                    assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                    var assetManagerWidget = dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets.image).data('kendoAssetManager');
+                    kendo.bind(dialogWidget.element, dialogWidget.viewModel);
+                    dialogWidget.element.addClass(NO_PADDING_CLASS);
+                    // Show dialog
+                    assetManagerWidget.tabStrip.activateTab(0);
+                    dialogWidget.open();
+                }
+            },
+            onOkAction: function (options, e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
+                e.sender.viewModel._item.set('image', e.sender.viewModel.get('image'));
+            }
+        });
+
+        // Important: kj-quiz-item kj-quiz-dropdown defines background-position:vover;background-position:center,display:inline-block;height:1.1em;width:1.1em;
+        var QUIZSOLUTION_TMPL = '<span class="kj-quiz-item kj-quiz-dropdown"># if (data.image) { #<span class="k-image" style="background-image:url(#: data.image$() #);"></span># } #<span class="k-text">#: data.text #</span></span>';
+        /**
+         * Quiz Solution adapter
+         */
+        adapters.QuizSolutionAdapter = BaseAdapter.extend({
             init: function (options, attributes) {
                 BaseAdapter.fn.init.call(this, options);
                 this.type = STRING;
                 this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 // this.editor = 'input';
                 // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
-                this.editor = function (container, options) {
+                this.editor = function (container, settings) {
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
                     var input = $('<input/>')
                         .css({ width: '100%' })
-                        .attr({ 'data-bind': 'value: ' + options.field }) // TODO namespace???
+                        .attr($.extend({}, settings.attributes, binding))
                         .appendTo(container);
-                    input.kendoComboBox({
-                        // dataSource: { data: [''] }, // We need a non-empty dataSource otherwise open is not triggered
-                        /**
-                         * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
-                         * @param e
-                         */
-                        open: function (e) {
-                            var data = options.model.get('attributes.data');
-                            data = $.type(data) === STRING ? data.split('\n') : [];
-                            data.sort();
-                            e.sender.setDataSource(data);
-                        }
+                    input.kendoDropDownList({
+                        dataSource: new kendo.data.DataSource({
+                            data: settings.model.get('attributes.data'),
+                            schema: {
+                                model: kendo.data.Model.define({
+                                    fields: {
+                                        text: { type: STRING },
+                                        image: { type: STRING }
+                                    },
+                                    image$: function () {
+                                        var image = this.get('image');
+                                        var schemes = assets.image.schemes;
+                                        for (var scheme in schemes) {
+                                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(image)) {
+                                                image = image.replace(scheme + '://', schemes[scheme]);
+                                                break;
+                                            }
+                                        }
+                                        return image;
+                                    }
+                                })
+                            }
+                        }),
+                        dataTextField: 'text',
+                        dataValueField: 'text',
+                        optionLabel: kendo.ui.Quiz.fn.options.messages.optionLabel,
+                        template: QUIZSOLUTION_TMPL,
+                        valueTemplate: QUIZSOLUTION_TMPL
                     });
                 };
             },
@@ -1496,10 +1583,12 @@
                             paddingRight: '8px'
                         })
                         .appendTo(table);
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
                     var input = $('<input/>')
                         .addClass('k-textbox') // or k-input
                         .css({ width: '100%' })
-                        .attr($.extend({}, settings.attributes, { 'data-bind': 'value: ' + settings.field })) // TODO namespace?
+                        .attr($.extend({}, settings.attributes, binding))
                         .appendTo(cell);
                     $('<button/>')
                         .text('...')
@@ -1665,9 +1754,11 @@
                             paddingRight: '8px'
                         })
                         .appendTo(table);
-                    var input = $('<div data-role="codeinput" />') // TODO namespace???
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field + ', source: _library';
+                    var input = $('<div data-' + kendo.ns + 'role="codeinput" />')
                     // Note: _library is added to the data bound PageComponent in its init method
-                        .attr($.extend({}, settings.attributes, { 'data-bind': 'value: ' + settings.field + ', source: _library' })) // TODO namespace???
+                        .attr($.extend({}, settings.attributes, binding))
                         .appendTo(cell);
                     // We need a temporary textbox to calculate the height and align the button
                     var temp = $('<input type="text" class="k-textbox">')
@@ -1798,7 +1889,8 @@
                     if (RX_HTTP_S.test(ogg)) {
                         files.push(ogg);
                     }
-                    return JSON.stringify(files);
+                    // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                    return ' ' + JSON.stringify(files);
                 };
                 return template($.extend(component, { ns: kendo.ns }));
             },
@@ -2076,13 +2168,16 @@
                         }
                         series.push(serie);
                     }
+
                     /*
                      return [
                      { name: 'Series 1', data: [200, 450, 300, 125] },
                      { name: 'Series 2', data: [200, 450, 300, 125] }
                      ];
                      */
-                    return JSON.stringify(series);
+
+                    // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                    return ' ' + JSON.stringify(series);
                 };
                 // The seriesDefaults$ function returns an object for chart's data-series-defaults attribute binding
                 component.seriesDefaults$ = function () {
@@ -3025,7 +3120,7 @@
         });
         tools.register(MathExpression);
 
-        var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #"></div>';
+        var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" {0} data-#= ns #source="#: data$() #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #"></div>';
         /**
          * Quiz tool
          * @class Quiz
@@ -3039,32 +3134,69 @@
             weight: 1,
             templates: {
                 design: kendo.format(QUIZ, 'data-#= ns #enable="false"'),
-                play: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value"'),
+                play: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
                 review: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
-            height: 200,
-            width: 350,
+            height: 120,
+            width: 490,
             attributes: {
                 mode: new adapters.EnumAdapter(
-                    { title: i18n.quiz.attributes.mode.title, defaultValue: 'button', enum: ['button', 'dropdown', 'radio'] },
+                    { title: i18n.quiz.attributes.mode.title, defaultValue: 'button', enum: ['button', 'dropdown', 'image', 'link', 'radio'] },
                     { style: 'width: 100%;' }
                 ),
+                shuffle: new adapters.BooleanAdapter({ title: i18n.quiz.attributes.shuffle.title }),
                 groupStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
                 itemStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.itemStyle.title }),
                 selectedStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.selectedStyle.title }),
-                data: new adapters.TextAdapter(
-                    { title: i18n.quiz.attributes.data.title, defaultValue: i18n.quiz.attributes.data.defaultValue },
-                    { rows: 4, style: 'resize:vertical; width: 100%;' }
-                )
+                data: new adapters.QuizDataAdapter({ title: i18n.quiz.attributes.data.title, defaultValue: i18n.quiz.attributes.data.defaultValue })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.quiz.properties.name.title }),
                 description: new adapters.DescriptionAdapter({ title: i18n.quiz.properties.description.title }),
-                solution: new adapters.QuizAdapter({ title: i18n.quiz.properties.solution.title }),
+                solution: new adapters.QuizSolutionAdapter({ title: i18n.quiz.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.quiz.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.quiz.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.quiz.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.quiz.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(Quiz, that, kendo.format(assert.messages.instanceof.default, 'this', 'Quiz'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                var template = kendo.template(that.templates[mode]);
+                // The data$ function resolves urls with schemes like cdn://sample.jpg
+                component.data$ = function () {
+                    var data = component.attributes.get('data');
+                    var clone = [];
+                    var schemes = assets.image.schemes;
+                    for (var i = 0, length = data.length; i < length; i++) {
+                        var item = {
+                            text: data[i].text,
+                            uid: data[i].uid,
+                            image: ''
+                        };
+                        for (var scheme in schemes) {
+                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(data[i].image)) {
+                                item.image = data[i].image.replace(scheme + '://', schemes[scheme]);
+                                break;
+                            }
+                        }
+                        clone.push(item);
+                    }
+                    // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                    return ' ' + JSON.stringify(clone);
+                };
+                return template($.extend(component, { ns: kendo.ns }));
             },
 
             /* This function's cyclomatic complexity is too high. */
@@ -3620,7 +3752,9 @@
                     if (RX_HTTP_S.test(wbem)) {
                         files.push(wbem);
                     }
-                    return JSON.stringify(files);
+
+                    // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                    return ' ' + JSON.stringify(files);
                 };
 
                 /* jshint +W074 */

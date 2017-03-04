@@ -30,12 +30,14 @@
         var kidoju = window.kidoju = window.kidoju || {};
         // var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.propertygrid');
+        var NS = '.kendoPropertyGrid';
         var OBJECT = 'object';
         var STRING = 'string';
         var NUMBER = 'number';
         var BOOLEAN = 'boolean';
         var DATE = 'date';
         var NULL = null;
+        var MOUSEENTER = 'mouseenter';
         var RX_PRIVATE = /^_/;
         var TBODY = 'tbody';
         var TCELL = 'td[role="gridcell"]';
@@ -405,7 +407,7 @@
                         }
                     });
                     // Reposition handle on mouseenter
-                    that.element.on('mouseenter', $.proxy(that._positionHandle, that));
+                    that.element.on(MOUSEENTER + NS, $.proxy(that._positionHandle, that));
                 }
             },
 
@@ -500,31 +502,18 @@
             },
 
             /**
-             * Clears the DOM from modifications made by the widget
-             * @method _clear
-             * @private
-             */
-            _clear: function () {
-                var that = this;
-                that._removeValidator();
-                kendo.unbind(that.element);
-                kendo.destroy(that.element);
-                that.element.find('*').off();
-                // clear element
-                that.element
-                    .off()
-                    .empty()
-                    .removeClass(WIDGET_CLASS);
-            },
-
-            /**
              * Destroys the widget
              * @method destroy
              */
             destroy: function () {
                 var that = this;
-                that._clear();
+                var element = that.element;
+                that._removeValidator();
+                that.element
+                    .off(NS)
+                    .removeClass(WIDGET_CLASS);
                 Widget.fn.destroy.call(this);
+                kendo.destroy(that.element);
             }
 
         });

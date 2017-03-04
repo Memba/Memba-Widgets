@@ -176,8 +176,8 @@
              */
             options: {
                 name: 'CharGrid',
-                scaler: '.kj-stage',
-                container: '.kj-stage>div[data-' + kendo.ns + 'role="stage"]',
+                scaler: 'div.kj-stage',
+                container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]',
                 rotator: '.kj-element',
                 columns: 6,
                 rows: 4,

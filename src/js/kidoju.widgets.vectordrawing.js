@@ -1433,7 +1433,7 @@
                 autoBind: true,
                 dataSource: [],
                 scaler: 'div.kj-stage',
-                container: 'div.kj-stage>div[data-role="stage"]',
+                container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]',
                 enable: true
             },
 

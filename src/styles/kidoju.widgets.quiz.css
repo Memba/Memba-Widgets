@@ -39,21 +39,6 @@
     height: 100px;
     width: 100px;
     margin-right: 0.3em;
-    /**
-              >.k-text {
-                  position: absolute;
-                  bottom: 10px;
-                  left: 10px;
-                  right: 10px;
-                  height: 1em;
-                  width: auto;
-                  white-space: nowrap;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                  text-align: center;
-                  opacity: .8;
-              }
-              */
 }
 .kj-quiz .kj-quiz-item.kj-quiz-image > .k-image {
     background-size: cover;
@@ -91,6 +76,8 @@
 }
 .kj-quiz .kj-quiz-item.kj-quiz-radio .k-radio-label:before {
     border-width: 0.05em;
+    font-size: inherit;
+    line-height: 0.9em;
     top: 0.1em;
     left: 0.1em;
     width: 0.8em;

@@ -30,20 +30,21 @@
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.quiz');
         var NS = '.kendoQuiz';
+        var NULL = 'null';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
-        // var ACTIVE = 'k-state-active';
-        var DISABLE = 'k-state-disabled';
-        var SELECTED = 'k-state-selected';
+        // var STATE_ACTIVE = 'k-state-active';
+        var STATE_DISABLED = 'k-state-disabled';
+        var STATE_SELECTED = 'k-state-selected';
         var WIDGET_CLASS = 'kj-quiz'; // 'k-widget kj-quiz',
         var INTERACTIVE_CLASS = 'kj-interactive';
         var DROPDOWN_TMPL = '<span class="kj-quiz-item kj-quiz-dropdown"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></span>';
         var BUTTON_TMPL = '<button class="k-button kj-quiz-item kj-quiz-button" data-' + kendo.ns +'uid="#: data.uid #" data-' + kendo.ns +'value="#: data.{0} #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></button>';
         var IMAGE_TMPL = '<div class="k-widget kj-quiz-item kj-quiz-image" data-' + kendo.ns + 'uid="#: data.uid #" data-' + kendo.ns +'value="#: data.{0} #"><div class="k-image" style="background-image:url(#: data.{1} #)"></div></div>';
         var LINK_TMPL = '<span class="kj-quiz-item kj-quiz-link" data-' + kendo.ns + 'uid="#: data.uid #" data-' + kendo.ns +'value="#: data.{0} #">#: data.{0} #</span>';
-        var RADIO_TMPL = '<div class="kj-quiz-item kj-quiz-radio" data-' + kendo.ns + 'uid="#: data.uid #"><input id="{2}-#: data.uid #" name="{3}" type="radio" class="k-radio" value="#: data.{0} #"><label class="k-radio-label" for="{2}-#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>';
+        var RADIO_TMPL = '<div class="kj-quiz-item kj-quiz-radio" data-' + kendo.ns + 'uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="radio" class="k-radio" value="#: data.{0} #"><label class="k-radio-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>';
         var BUTTON_SELECTOR = '.kj-quiz-item.kj-quiz-button';
         var IMAGE_SELECTOR = '.kj-quiz-item.kj-quiz-image';
         var LINK_SELECTOR = '.kj-quiz-item.kj-quiz-link';
@@ -248,12 +249,12 @@
                         that._value = value;
                         that._toggleSelection();
                     }
-                } else if (value === null) {
-                    if (that._value !== value) {
+                } else if ($.type(value) === NULL) {
+                    if ($.type(that._value) !== NULL) {
                         that._value = null;
                         that._toggleSelection();
                     }
-                } else if ($.type(value) === 'undefined') {
+                } else if ($.type(value) === UNDEFINED) {
                     return that._value;
                 } else {
                     throw new TypeError('`value` is expected to be a string if not undefined');
@@ -469,12 +470,12 @@
                 var element = that.element;
                 var options = that.options;
                 element.find(BUTTON_SELECTOR)
-                    .removeClass(SELECTED)
+                    .removeClass(STATE_SELECTED)
                     .attr('style', '')
                     .css(options.itemStyle);
                 if ($.type(that._value) === STRING) {
                     element.find(BUTTON_SELECTOR + kendo.format(ATTRIBUTE_SELECTOR, kendo.attr('value'), that._value))
-                        .addClass(SELECTED)
+                        .addClass(STATE_SELECTED)
                         .attr('style', '')
                         .css($.extend({}, options.itemStyle, options.selectedStyle));
                 }
@@ -498,12 +499,12 @@
                 var element = that.element;
                 var options = that.options;
                 element.find(IMAGE_SELECTOR)
-                    .removeClass(SELECTED)
+                    .removeClass(STATE_SELECTED)
                     .attr('style', '')
                     .css(options.itemStyle);
                 if ($.type(that._value) === STRING) {
                     element.find(IMAGE_SELECTOR + kendo.format(ATTRIBUTE_SELECTOR, kendo.attr('value'), that._value))
-                        .addClass(SELECTED)
+                        .addClass(STATE_SELECTED)
                         .attr('style', '')
                         .css($.extend({}, options.itemStyle, options.selectedStyle));
                 }
@@ -518,12 +519,12 @@
                 var element = that.element;
                 var options = that.options;
                 element.find(LINK_SELECTOR)
-                    .removeClass(SELECTED)
+                    .removeClass(STATE_SELECTED)
                     .attr('style', '')
                     .css(options.itemStyle);
                 if ($.type(that._value) === STRING) {
                     element.find(LINK_SELECTOR + kendo.format(ATTRIBUTE_SELECTOR, kendo.attr('value'), that._value))
-                        .addClass(SELECTED)
+                        .addClass(STATE_SELECTED)
                         .attr('style', '')
                         .css($.extend({}, options.itemStyle, options.selectedStyle));
                 }
@@ -543,14 +544,14 @@
                 element.find(RADIO_SELECTOR)
                     .prop(CHECKED, false)
                     .parent()
-                    .attr('style', '')
-                    .css(options.itemStyle);
+                        .attr('style', '')
+                        .css(options.itemStyle);
                 if ($.type(that._value) === STRING) {
                     element.find(RADIO_SELECTOR + kendo.format(ATTRIBUTE_SELECTOR, 'value', that._value))
                         .prop(CHECKED, true)
                         .parent()
-                        .attr('style', '')
-                        .css($.extend({}, options.itemStyle, options.selectedStyle));
+                            .attr('style', '')
+                            .css($.extend({}, options.itemStyle, options.selectedStyle));
                 }
             },
 
@@ -692,7 +693,7 @@
                     element
                         .on(CLICK + NS, BUTTON_SELECTOR, $.proxy(that._onButtonClick, that));
                 }
-                element.toggleClass(DISABLE, !enable);
+                element.toggleClass(STATE_DISABLED, !enable);
             },
 
             /**
@@ -719,7 +720,7 @@
                     element
                         .on(CLICK + NS, IMAGE_SELECTOR, $.proxy(that._onImageClick, that));
                 }
-                element.toggleClass(DISABLE, !enable);
+                element.toggleClass(STATE_DISABLED, !enable);
             },
 
             /**
@@ -736,7 +737,7 @@
                     element
                         .on(CLICK + NS, LINK_SELECTOR, $.proxy(that._onLinkClick, that));
                 }
-                element.toggleClass(DISABLE, !enable);
+                element.toggleClass(STATE_DISABLED, !enable);
             },
 
             /**
@@ -770,7 +771,7 @@
                         });
                 }
                 element.find(RADIO_SELECTOR)
-                    .toggleClass(DISABLE, !enable)
+                    .toggleClass(STATE_DISABLED, !enable)
                     // .prop('disabled', !enable) <--- suppresses the click event so elements are no more selectable in design mode
                     .prop('readonly', !enable);
             },
@@ -780,23 +781,17 @@
              */
             destroy: function () {
                 var that = this;
-                var element = this.element;
-                Widget.fn.destroy.call(that);
-                // Destroy the drop down list (especially the popup)
-                if (that.dropDownList instanceof DropDownList) {
-                    that.dropDownList.destroy();
-                    that.dropDownList = undefined;
+                var element = that.element;
+                that.dropDownList = undefined;
+                if (that._refreshHandler) {
+                    that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
-                // unbind and destroy kendo
-                kendo.unbind(element);
+                element
+                    .removeClass(WIDGET_CLASS)
+                    .removeClass(INTERACTIVE_CLASS)
+                    .off(NS);
+                Widget.fn.destroy.call(that);
                 kendo.destroy(element);
-                // unbind all other events
-                that.element.find('*').off();
-                that.element.off(NS);
-                // remove descendants
-                that.element.empty();
-                // remove element classes
-                that.element.removeClass(WIDGET_CLASS);
             }
 
         });

@@ -340,7 +340,7 @@
                     // Properties
                     properties = tools.chargrid.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -361,7 +361,7 @@
                     // Properties
                     properties = tools.checkbox.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -378,7 +378,7 @@
                     // Properties
                     properties = tools.connector.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -400,7 +400,7 @@
                     // Properties
                     properties = tools.dropzone.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -465,7 +465,7 @@
                     // Properties
                     properties = tools.quiz.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -484,7 +484,7 @@
                     // Properties
                     properties = tools.selector.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -512,7 +512,7 @@
                     // Properties
                     properties = tools.textarea.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -530,7 +530,7 @@
                     // Properties
                     properties = tools.textbox.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';

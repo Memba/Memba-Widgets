@@ -39,6 +39,7 @@
         var ZERO_NUMBER = 0;
         var NEGATIVE_NUMBER = -1;
         var RX_VALID_NAME = /^val_[a-z0-9]{6}$/;
+        var RX_LIBRARY = /^\/\/ ([^\(\n]+)( \([^\n]*\))?$/;
         var location = window.location;
         var workerLibPath = location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js';
         // var workerLibPath = location.protocol + '//' + location.host + '/src/js/kidoju.data.workerlib.js'; // for WEINRE
@@ -1261,16 +1262,22 @@
                                 // assert.type(STRING, properties.name, kendo.format(assert.messages.type.default, 'properties.name', STRING));
                                 if ($.type(properties.name) === STRING) {
                                     var found;
-                                    var libraryMatches = properties.validation.match(/^\/\/ ([^\n]+)$/);
-                                    // var customMatches = value.match(/^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/);
-                                    if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
-                                        // Find in the code library
-                                        found = properties._library.filter(function (item) {
+                                    var param;
+                                    var libraryMatches = properties.validation.match(RX_LIBRARY);
+                                     if ($.isArray(libraryMatches) && libraryMatches.length === 3) {
+                                        // Find libraryMatches[1] in the code library
+                                        found = properties._library.find(function (item) {
                                             return item.name === libraryMatches[1];
                                         });
-                                        assert.ok($.isArray(found) && found.length, 'properties.validation cannot be found in code library');
+                                        assert.isPlainObject(found, 'properties.validation cannot be found in code library');
+                                        // libraryMatches[2] is the param beginning with ` (` and ending with `)`
+                                        param = libraryMatches[2];
+                                        if ($.type(found.param) === STRING && $.type(param) === STRING && param.length > 2) {
+                                            // Remove the space and parenthesis
+                                            param = param.substr(2, param.length - 3);
+                                        }
                                     }
-                                    var code = $.isArray(found) ? found[0].formula : properties.validation;
+                                    var code = $.isPlainObject(found) && $.type(found.formula) === STRING ? kendo.format(found.formula, param) : properties.validation;
 
                                     // Note: when e.data.value is undefined, we need to specifically call postMessage(undefined) instead of postMessage() otherwise we get the following error:
                                     // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.

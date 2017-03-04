@@ -1152,6 +1152,7 @@
                         .attr($.extend({}, settings.attributes, binding))
                         .appendTo(container);
                     input.kendoComboBox({
+                        autoWidth: true,
                         // dataSource: { data: [''] }, // We need a non-empty dataSource otherwise open is not triggered
                         /**
                          * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
@@ -1233,6 +1234,7 @@
                         .attr($.extend({}, settings.attributes, binding))
                         .appendTo(container);
                     input.kendoComboBox({
+                        autoWidth: true,
                         // dataSource: { data: [] }, // We need a non-empty dataSource otherwise open is not triggered
                         /**
                          * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
@@ -1417,6 +1419,7 @@
                         .attr($.extend({}, settings.attributes, binding))
                         .appendTo(container);
                     input.kendoDropDownList({
+                        autoWidth: true,
                         dataSource: new kendo.data.DataSource({
                             data: settings.model.get('attributes.data'),
                             schema: {
@@ -1512,7 +1515,8 @@
                 },
                 {
                     name: 'ignoreCaseMatch',
-                    formula: kendo.format(VALIDATION_CUSTOM, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\', \'i\')).test(String(value).trim());')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return (new RegExp(\'{0}\', \'i\')).test(String(value).trim());'),
+                    param: 'Regular Expression'
                 },
                 {
                     name: 'ignoreDiacriticsEqual',
@@ -1520,7 +1524,8 @@
                 },
                 {
                     name: 'match',
-                    formula: kendo.format(VALIDATION_CUSTOM, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\')).test(String(value).trim());')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return (new RegExp(\'{0}\')).test(String(value).trim());'),
+                    param: 'Regular Expression'
                 },
                 {
                     name: 'metaphone',
@@ -3281,6 +3286,7 @@
                         message: kendo.format(messages.invalidData, description, pageIdx + 1)
                     });
                 }
+                // TODO: Check that solution matches one of the data
                 return ret;
             }
 
@@ -3296,7 +3302,7 @@
          */
         var Selector = Tool.extend({
             id: 'selector',
-            icon: 'arrow_circle',
+            icon: 'selector',
             description: i18n.selector.description,
             cursor: CURSOR_CROSSHAIR,
             weight: 1,

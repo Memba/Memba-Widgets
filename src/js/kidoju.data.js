@@ -1309,7 +1309,7 @@
                                     result[properties.name] = {
                                         page: pageIdx,
                                         name: properties.name,
-                                        description: properties.description,
+                                        question: properties.question,
                                         tool: component.tool,
                                         value: test[properties.name].value,
                                         solution: properties.solution,

@@ -257,7 +257,7 @@
                 } else if ($.type(value) === UNDEFINED) {
                     return that._value;
                 } else {
-                    throw new TypeError('`value` is expected to be a string if not undefined');
+                    throw new TypeError('`value` is expected to be a string if not null or undefined');
                 }
             },
 

@@ -2,8 +2,8 @@
 
 ## CodeMirror
 
-1. Download archive from https://github.com/codemirror/CodeMirror and copy required files
-2. Get [jsint.js](https://raw.githubusercontent.com/jshint/jshint/master/dist/jshint.js) from https://github.com/jshint/jshint
+1. Download archive from https://github.com/codemirror/CodeMirror, run ```npm install``` to generate lib/codemirror.js and copy required files
+2. Get [jshint.js](https://raw.githubusercontent.com/jshint/jshint/master/dist/jshint.js) from https://github.com/jshint/jshint
 
 ## Kendo UI
 

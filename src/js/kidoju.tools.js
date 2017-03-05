@@ -200,25 +200,6 @@
                 }
             },
 
-            checkbox: {
-                description: 'CheckBox',
-                attributes: {
-                    data: { title: 'Values', defaultValue: 'Option 1\nOption 2' },
-                    groupStyle: { title: 'Group Style' },
-                    itemStyle: { title: 'Item Style' },
-                    selectedStyle: { title: 'Select. Style' }
-                },
-                properties: {
-                    name: { title: 'Name' },
-                    question: { title: 'Question' },
-                    solution: { title: 'Solution' },
-                    validation: { title: 'Validation' },
-                    success: { title: 'Success' },
-                    failure: { title: 'Failure' },
-                    omit: { title: 'Omit' }
-                }
-            },
-
             connector: {
                 description: 'Connector',
                 attributes: {
@@ -289,6 +270,27 @@
                 properties: {
                     draggable: { title: 'Draggable' },
                     dropValue: { title: 'Value' }
+                }
+            },
+
+            multiquiz: {
+                description: 'MultiQuiz',
+                attributes: {
+                    data: { title: 'Values', defaultValue: [{ text: 'True', image: 'cdn://images/o_collection/svg/office/ok.svg' }, { text: 'False', image: 'cdn://images/o_collection/svg/office/error.svg' }] },
+                    groupStyle: { title: 'Group Style' },
+                    itemStyle: { title: 'Item Style' },
+                    mode: { title: 'Mode' },
+                    selectedStyle: { title: 'Select. Style' },
+                    shuffle: { title: 'Shuffle' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    question: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
                 }
             },
 
@@ -1247,6 +1249,60 @@
         });
 
         /**
+         * MultiQuiz Solution adapter
+         */
+        adapters.MultiQuizSolutionAdapter = BaseAdapter.extend({
+            init: function (options, attributes) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = undefined;
+                this.defaultValue = this.defaultValue || [];
+                // this.editor = 'input';
+                // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
+                this.editor = function (container, settings) {
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
+                    var input = $('<div/>')
+                        .attr(binding)
+                        .appendTo(container);
+                    input.kendoMultiQuiz({
+                        mode: 'checkbox',
+                        dataSource: new kendo.data.DataSource({
+                            data: settings.model.get('attributes.data'),
+                            schema: {
+                                model: kendo.data.Model.define({
+                                    id: 'text',
+                                    fields: {
+                                        text: { type: STRING },
+                                        image: { type: STRING }
+                                    },
+                                    image$: function () {
+                                        var image = this.get('image');
+                                        var schemes = assets.image.schemes;
+                                        for (var scheme in schemes) {
+                                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(image)) {
+                                                image = image.replace(scheme + '://', schemes[scheme]);
+                                                break;
+                                            }
+                                        }
+                                        return image;
+                                    }
+                                })
+                            }
+                        })
+                    });
+                };
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(VALIDATION_CUSTOM, '// Note: both value and solution are arrays of strings\n\t' +
+                        'return String(value.sort()) === String(solution.sort());')
+                }
+            ],
+            libraryDefault: 'equal'
+        });
+
+        /**
          * Property name adapter
          */
         adapters.NameAdapter = BaseAdapter.extend({
@@ -1352,20 +1408,20 @@
                 that.defaultValue = that.defaultValue || [];
                 // that.editor is the list editor where the insert image button triggers this.showDialog
                 that.editor = function (container, settings) {
-                    var listEditor = $('<div/>')
-                        .appendTo(container);
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'source: ' + settings.field;
+                    var listEditor = $('<div/>').attr(binding).appendTo(container);
                     var listEditorWidget = listEditor.kendoListEditor({
-                        dataSource: settings.model.get(settings.field),
                         schemes: assets.image.schemes,
                         click: $.proxy(that.showDialog, that, settings)
                     }).data('kendoListEditor');
                     assert.instanceof(kendo.ui.ListEditor, listEditorWidget, kendo.format(assert.messages.instanceof.default, 'listEditorWidget', 'kendo.ui.ListEditor'));
                     listEditorWidget.dataSource.bind('change', function (e) {
-                        // the dataSource raises a change event on any of the quiz data items that is added, changed or removed
-                        // This change event triggers propagate in the PageDataSource and triggers teh refresh method in kidoju.widgets.stage
-                        // The issue is e.items includes the modified dataItem which is not a component and offers no way to find the component which has changed
-                        // So we simply trigger the change on the component when the dataSOurc eoccurs any change
-                        settings.model.trigger('change', { field: settings.field });
+                        // When the dataSource raises a change event on any of the quiz data items that is added, changed or removed
+                        // We need to trigger a change event on the model field to ensure the stage element (which is not databound) is redrawn
+                        if ($.type(e.action) === STRING) {
+                            settings.model.trigger('change', {field: settings.field});
+                        }
                     });
                 };
             },
@@ -2386,131 +2442,6 @@
         });
         tools.register(CharGrid);
 
-        var CHECKBOX = '<div data-#= ns #role="multicheckbox" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #"></div>';
-        /**
-         * Checkbox tool
-         * @class CheckBox
-         * @type {void|*}
-         */
-        var CheckBox = Tool.extend({
-            id: 'checkbox',
-            icon: 'checkbox',
-            description: i18n.checkbox.description,
-            cursor: CURSOR_CROSSHAIR,
-            weight: 1,
-            templates: {
-                design: kendo.format(CHECKBOX, 'data-#= ns #enable="false"'),
-                play: kendo.format(CHECKBOX, 'data-#= ns #bind="value: #: properties.name #.value"'),
-                review: kendo.format(CHECKBOX, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
-            },
-            height: 200,
-            width: 350,
-            attributes: {
-                groupStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
-                itemStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.itemStyle.title }),
-                selectedStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.selectedStyle.title }),
-                data: new adapters.TextAdapter(
-                    { title: i18n.checkbox.attributes.data.title, defaultValue: i18n.checkbox.attributes.data.defaultValue },
-                    { rows: 4, style: 'resize:vertical; width: 100%;' }
-                )
-            },
-            properties: {
-                name: new adapters.NameAdapter({ title: i18n.checkbox.properties.name.title }),
-                question: new adapters.QuestionAdapter({ title: i18n.checkbox.properties.question.title }),
-                solution: new adapters.StringArrayAdapter({ title: i18n.checkbox.properties.solution.title }),
-                validation: new adapters.ValidationAdapter({ title: i18n.checkbox.properties.validation.title }),
-                success: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.success.title, defaultValue: 1 }),
-                failure: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.failure.title, defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.omit.title, defaultValue: 0 })
-            },
-
-            /**
-             * Improved display of value in score grid
-             * @param testItem
-             */
-            value$: function (testItem) {
-                var ret = (testItem.value || []).slice();
-                for (var i = 0; i < ret.length; i++) {
-                    ret[i] = kendo.htmlEncode(ret[i]);
-                }
-                return ret.join('<br/>');
-            },
-
-            /**
-             * Improved display of solution in score grid
-             * @param testItem
-             */
-            solution$: function (testItem) {
-                return kendo.htmlEncode(testItem.solution || '').split('\n').join('<br/>');
-            },
-
-            /**
-             * onResize Event Handler
-             * @method onResize
-             * @param e
-             * @param component
-             */
-            onResize: function (e, component) {
-                var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                var content = stageElement.children('div').first();
-                if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
-                }
-                if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
-                    // if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
-                    //     content.css('font-size', Math.floor(0.85 * content.height()));
-                    // }
-                }
-                // prevent any side effect
-                e.preventDefault();
-                // prevent event to bubble on stage
-                e.stopPropagation();
-            },
-
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
-
-            /**
-             * Component validation
-             * @param component
-             * @param pageIdx
-             */
-            validate: function (component, pageIdx) {
-                /* jshint maxcomplexity: 8 */
-                var ret = Tool.fn.validate.call(this, component, pageIdx);
-                var description = this.description; // tool description
-                var messages = this.i18n.messages;
-                if (!component.attributes ||
-                   // Styles are only checked if there is any (optional)
-                   (component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle)) ||
-                   (component.attributes.itemStyle && !RX_STYLE.test(component.attributes.itemStyle)) ||
-                   (component.attributes.selectedStyle && !RX_STYLE.test(component.attributes.selectedStyle))) {
-                    ret.push({
-                        type: ERROR,
-                        index: pageIdx,
-                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
-                    });
-                }
-                if (!component.attributes ||
-                    !component.attributes.data ||
-                    !RX_DATA.test(component.attributes.data)) {
-                    ret.push({
-                        type: ERROR,
-                        index: pageIdx,
-                        message: kendo.format(messages.invalidData, description, pageIdx + 1)
-                    });
-                }
-                return ret;
-            }
-
-            /* jshint +W074 */
-
-        });
-        tools.register(CheckBox);
-
         var CONNECTOR = '<div data-#= ns #role="connector" data-#= ns #id="#: properties.name #" data-#= ns #target-value="#: properties.solution #" data-#= ns #color="#: attributes.color #" {0}></div>';
         /**
          * @class Connector tool
@@ -3125,7 +3056,195 @@
         });
         tools.register(MathExpression);
 
-        var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" {0} data-#= ns #source="#: data$() #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #"></div>';
+        var MULTIQUIZ = '<div data-#= ns #role="multiquiz" data-#= ns #mode="#: attributes.mode #" data-#= ns #source="#: data$() #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #" {0}></div>';
+        /**
+         * MultiQuiz tool
+         * @class MultiQuiz
+         * @type {void|*}
+         */
+        var MultiQuiz = Tool.extend({
+            id: 'multiquiz',
+            icon: 'checkbox',
+            description: i18n.multiquiz.description,
+            cursor: CURSOR_CROSSHAIR,
+            weight: 1,
+            templates: {
+                design: kendo.format(MULTIQUIZ, 'data-#= ns #enable="false"'),
+                play: kendo.format(MULTIQUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
+                review: kendo.format(MULTIQUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+            },
+            height: 120,
+            width: 490,
+            attributes: {
+                mode: new adapters.EnumAdapter(
+                    { title: i18n.multiquiz.attributes.mode.title, defaultValue: 'checkbox', enum: ['button', 'checkbox', 'image', 'link', 'multiselect'] },
+                    { style: 'width: 100%;' }
+                ),
+                shuffle: new adapters.BooleanAdapter({ title: i18n.multiquiz.attributes.shuffle.title }),
+                groupStyle: new adapters.StyleAdapter({ title: i18n.multiquiz.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
+                itemStyle: new adapters.StyleAdapter({ title: i18n.multiquiz.attributes.itemStyle.title }),
+                selectedStyle: new adapters.StyleAdapter({ title: i18n.multiquiz.attributes.selectedStyle.title }),
+                data: new adapters.QuizDataAdapter({ title: i18n.multiquiz.attributes.data.title, defaultValue: i18n.multiquiz.attributes.data.defaultValue })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.multiquiz.properties.name.title }),
+                question: new adapters.QuestionAdapter({ title: i18n.multiquiz.properties.question.title }),
+                solution: new adapters.MultiQuizSolutionAdapter({ title: i18n.multiquiz.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({ title: i18n.multiquiz.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.multiquiz.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.multiquiz.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.multiquiz.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(MultiQuiz, that, kendo.format(assert.messages.instanceof.default, 'this', 'MultiQuiz'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                var template = kendo.template(that.templates[mode]);
+                // The data$ function resolves urls with schemes like cdn://sample.jpg
+                component.data$ = function () {
+                    var data = component.attributes.get('data');
+                    var clone = [];
+                    var schemes = assets.image.schemes;
+                    for (var i = 0, length = data.length; i < length; i++) {
+                        var item = {
+                            text: data[i].text,
+                            uid: data[i].uid,
+                            image: ''
+                        };
+                        for (var scheme in schemes) {
+                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(data[i].image)) {
+                                item.image = data[i].image.replace(scheme + '://', schemes[scheme]);
+                                break;
+                            }
+                        }
+                        clone.push(item);
+                    }
+                    // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                    return ' ' + JSON.stringify(clone);
+                };
+                return template($.extend(component, { ns: kendo.ns }));
+            },
+
+            /**
+             * Improved display of value in score grid
+             * @param testItem
+             */
+            value$: function (testItem) {
+                var ret = (testItem.value || []).slice();
+                for (var i = 0; i < ret.length; i++) {
+                    ret[i] = kendo.htmlEncode(ret[i]);
+                }
+                return ret.join('<br/>');
+            },
+
+            /**
+             * Improved display of solution in score grid
+             * @param testItem
+             */
+            solution$: function (testItem) {
+                var ret = (testItem.solution || []).slice();
+                for (var i = 0; i < ret.length; i++) {
+                    ret[i] = kendo.htmlEncode(ret[i]);
+                }
+                return ret.join('<br/>');
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                /* jshint maxcomplexity: 8 */
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div' + kendo.roleSelector('quiz'));
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+                }
+                /*
+                 // Auto-resize algorithm is not great so let's wait until we find a better solution
+                 var data = component.attributes.data;
+                 var length = data.trim().split('\n').length || 1;
+                 switch (component.attributes.mode) {
+                 case 'button':
+                 content.css('font-size', Math.floor(0.57 * component.height));
+                 break;
+                 case 'dropdown':
+                 content.css('font-size', Math.floor(0.5 * component.height));
+                 break;
+                 case 'radio':
+                 var h = component.height / (length || 1);
+                 content.css('font-size', Math.floor(0.9 * h));
+                 content.find('input')
+                 .height(0.6 * h)
+                 .width(0.6 * h);
+                 break;
+                 }
+                 */
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                /* jshint maxcomplexity: 8 */
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle)) ||
+                    (component.attributes.itemStyle && !RX_STYLE.test(component.attributes.itemStyle)) ||
+                    (component.attributes.selectedStyle && !RX_STYLE.test(component.attributes.selectedStyle))) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
+                }
+                if (!component.attributes ||
+                    !component.attributes.data ||
+                    !RX_DATA.test(component.attributes.data)) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidData, description, pageIdx + 1)
+                    });
+                }
+                return ret;
+            }
+
+            /* jshint +W074 */
+
+        });
+        tools.register(MultiQuiz);
+
+        var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" data-#= ns #source="#: data$() #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #" {0}></div>';
         /**
          * Quiz tool
          * @class Quiz
@@ -3204,9 +3323,6 @@
                 return template($.extend(component, { ns: kendo.ns }));
             },
 
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
-
             /**
              * onResize Event Handler
              * @method onResize
@@ -3250,8 +3366,6 @@
                 // prevent event to bubble on stage
                 e.stopPropagation();
             },
-
-            /* jshint +W074 */
 
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */

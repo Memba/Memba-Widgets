@@ -102,6 +102,14 @@
             });
         }
 
+        /* kidoju.widgets.multiquiz */
+        if (ui.MultiQuiz) {
+            options = ui.MultiQuiz.prototype.options;
+            options.messages = $.extend(true, options.messages, {
+                placeholder: 'Select...'
+            });
+        }
+
         /* kidoju.widgets.navigation */
         if (ui.Navigation) {
             options = ui.Navigation.prototype.options;
@@ -348,27 +356,6 @@
                     properties.omit.title = 'Omit';
                 }
 
-                if (tools.checkbox instanceof Tool) {
-                    // Description
-                    tools.checkbox.constructor.prototype.description = 'CheckBox';
-                    // Attributes
-                    attributes = tools.checkbox.constructor.prototype.attributes;
-                    attributes.data.title = 'Values';
-                    attributes.data.defaultValue = 'Option 1\nOption 2';
-                    attributes.groupStyle.title = 'Group Style';
-                    attributes.itemStyle.title = 'Item Style';
-                    attributes.selectedStyle.title = 'Select. Style';
-                    // Properties
-                    properties = tools.checkbox.constructor.prototype.properties;
-                    properties.name.title = 'Name';
-                    properties.question.title = 'Question';
-                    properties.solution.title = 'Solution';
-                    properties.validation.title = 'Validation';
-                    properties.success.title = 'Success';
-                    properties.failure.title = 'Failure';
-                    properties.omit.title = 'Omit';
-                }
-
                 if (tools.connector instanceof Tool) {
                     // Description
                     tools.connector.constructor.prototype.description = 'Connector';
@@ -450,6 +437,29 @@
                     attributes.style.title = 'Style';
                 }
 
+                if (tools.multiquiz instanceof Tool) {
+                    // Description
+                    tools.multiquiz.constructor.prototype.description = 'MultiQuiz';
+                    // Attributes
+                    attributes = tools.multiquiz.constructor.prototype.attributes;
+                    attributes.data.title = 'Values';
+                    attributes.data.defaultValue = [{ text: 'True', image: 'cdn://images/o_collection/svg/office/ok.svg' }, { text: 'False', image: 'cdn://images/o_collection/svg/office/error.svg' }];
+                    attributes.groupStyle.title = 'Group Style';
+                    attributes.itemStyle.title = 'Item Style';
+                    attributes.mode.title = 'Mode';
+                    attributes.selectedStyle.title = 'Select. Style';
+                    attributes.shuffle.title = 'Shuffle';
+                    // Properties
+                    properties = tools.multiquiz.constructor.prototype.properties;
+                    properties.name.title = 'Name';
+                    properties.question.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Success';
+                    properties.failure.title = 'Failure';
+                    properties.omit.title = 'Omit';
+                }
+
                 if (tools.quiz instanceof Tool) {
                     // Description
                     tools.quiz.constructor.prototype.description = 'Quiz';
@@ -472,7 +482,6 @@
                     properties.failure.title = 'Failure';
                     properties.omit.title = 'Omit';
                 }
-
 
                 if (tools.selector instanceof Tool) {
                     // Description

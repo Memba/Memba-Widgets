@@ -1042,20 +1042,20 @@
         };
 
         /**
-         * ValidatedTest model
+         * BaseTest model
          */
         /*
-         var ValidatedTest = models.ValidatedTest = Model.define({
-         fields: {
-         max: {
-         type: 'number',
-         nullable: false
-         },
-         score: {
-         type: 'number',
-         nullable: false
-         }
-         }
+         var BaseTest = models.BaseTest = Model.define({
+            fields: {
+                interactions: {
+                    type: undefined;
+                    defaultValue: []
+                }
+                // Other fields are defined dynamically in getTestFromProperties
+            },
+            // TODO considering:
+            // 1) Ability to validate one page vs all pages
+            // 2) Limatation of all to fields on teh same page
          });
          */
 
@@ -1155,7 +1155,7 @@
                 var pageCollectionDataSource = this; // don't use that which is used below
                 var deferred = $.Deferred();
                 var workerPool = new WorkerPool((window.navigator.hardwareConcurrency || 2) - 1, workerTimeout());
-                // TODO: use an app.model and define a submodel with each field - see ValidatedTest above
+                // TODO: use an app.model and define a submodel with each field - see BaseTest above
                 var result = {
                     interactions: test.interactions,
                     score: function () {

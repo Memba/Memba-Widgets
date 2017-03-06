@@ -7,12 +7,12 @@
             }
         }
     }
-    .k-resize-handle {
+    >.k-resize-handle {
         cursor: col-resize;
         position: absolute;
         top: 0;
         bottom: 0;
-        height: auto;
+        height: auto !important; // becauseof .k-grid > .k-resize-gandle
         width: 10px;
         z-index: 2;
     }

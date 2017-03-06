@@ -276,7 +276,7 @@
             multiquiz: {
                 description: 'MultiQuiz',
                 attributes: {
-                    data: { title: 'Values', defaultValue: [{ text: 'True', image: 'cdn://images/o_collection/svg/office/ok.svg' }, { text: 'False', image: 'cdn://images/o_collection/svg/office/error.svg' }] },
+                    data: { title: 'Values', defaultValue: [{ text: 'Option 1', image: 'cdn://images/o_collection/svg/office/hand_count_one.svg' }, { text: 'Option 2', image: 'cdn://images/o_collection/svg/office/hand_point_up.svg' }] },
                     groupStyle: { title: 'Group Style' },
                     itemStyle: { title: 'Item Style' },
                     mode: { title: 'Mode' },
@@ -1266,6 +1266,8 @@
                         .appendTo(container);
                     input.kendoMultiQuiz({
                         mode: 'checkbox',
+                        // checkboxTemplate: '<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-' + kendo.ns + 'uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>',
+                        checkboxTemplate: '<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-' + kendo.ns + 'uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1}$() #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>',
                         dataSource: new kendo.data.DataSource({
                             data: settings.model.get('attributes.data'),
                             schema: {
@@ -1480,6 +1482,7 @@
                             data: settings.model.get('attributes.data'),
                             schema: {
                                 model: kendo.data.Model.define({
+                                    id: 'text',
                                     fields: {
                                         text: { type: STRING },
                                         image: { type: STRING }
@@ -3073,8 +3076,8 @@
                 play: kendo.format(MULTIQUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
                 review: kendo.format(MULTIQUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
-            height: 120,
-            width: 490,
+            height: 150,
+            width: 420,
             attributes: {
                 mode: new adapters.EnumAdapter(
                     { title: i18n.multiquiz.attributes.mode.title, defaultValue: 'checkbox', enum: ['button', 'checkbox', 'image', 'link', 'multiselect'] },

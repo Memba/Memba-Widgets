@@ -200,6 +200,11 @@
                 shuffle: false,
                 textField: 'text',
                 imageField: 'image',
+                buttonTemplate: BUTTON_TMPL,
+                dropDownTemplate: DROPDOWN_TMPL,
+                imageTemplate: IMAGE_TMPL,
+                linkTemplate: LINK_TMPL,
+                radioTemplate: RADIO_TMPL,
                 itemStyle: {},
                 selectedStyle: {},
                 scaler: 'div.kj-stage',
@@ -222,11 +227,11 @@
                 options.groupStyle = util.formatStyle(options.groupStyle);
                 options.itemStyle = util.formatStyle(options.itemStyle);
                 options.selectedStyle = util.formatStyle(options.selectedStyle);
-                that._buttonTemplate = kendo.template(kendo.format(BUTTON_TMPL, options.textField, options.imageField));
-                that._dropDownTemplate = kendo.format(DROPDOWN_TMPL, options.textField, options.imageField); // ! not a compiled template
-                that._imageTemplate = kendo.template(kendo.format(IMAGE_TMPL, options.textField, options.imageField));
-                that._linkTemplate = kendo.template(kendo.format(LINK_TMPL, options.textField, options.imageField));
-                that._radioTemplate = kendo.template(kendo.format(RADIO_TMPL, options.textField, options.imageField, util.randomId()));
+                that._buttonTemplate = kendo.template(kendo.format(options.buttonTemplate, options.textField, options.imageField));
+                that._dropDownTemplate = kendo.format(options.dropDownTemplate, options.textField, options.imageField); // ! not a compiled template
+                that._imageTemplate = kendo.template(kendo.format(options.imageTemplate, options.textField, options.imageField));
+                that._linkTemplate = kendo.template(kendo.format(options.linkTemplate, options.textField, options.imageField));
+                that._radioTemplate = kendo.template(kendo.format(options.radioTemplate, options.textField, options.imageField, util.randomId()));
             },
 
             /**

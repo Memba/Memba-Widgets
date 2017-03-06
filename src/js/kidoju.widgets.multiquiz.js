@@ -202,6 +202,11 @@
                 shuffle: false,
                 textField: 'text',
                 imageField: 'image',
+                buttonTemplate: BUTTON_TMPL,
+                checkboxTemplate: CHECKBOX_TMPL,
+                imageTemplate: IMAGE_TMPL,
+                linkTemplate: LINK_TMPL,
+                multiSelectTemplate: MULTISELECT_TMPL,
                 itemStyle: {},
                 selectedStyle: {},
                 scaler: 'div.kj-stage',
@@ -224,11 +229,11 @@
                 options.groupStyle = util.formatStyle(options.groupStyle);
                 options.itemStyle = util.formatStyle(options.itemStyle);
                 options.selectedStyle = util.formatStyle(options.selectedStyle);
-                that._buttonTemplate = kendo.template(kendo.format(BUTTON_TMPL, options.textField, options.imageField));
-                that._multiSelectTemplate = kendo.format(MULTISELECT_TMPL, options.textField, options.imageField); // ! not a compiled template
-                that._imageTemplate = kendo.template(kendo.format(IMAGE_TMPL, options.textField, options.imageField));
-                that._linkTemplate = kendo.template(kendo.format(LINK_TMPL, options.textField, options.imageField));
-                that._checkboxTemplate = kendo.template(kendo.format(CHECKBOX_TMPL, options.textField, options.imageField, util.randomId()));
+                that._buttonTemplate = kendo.template(kendo.format(options.buttonTemplate, options.textField, options.imageField));
+                that._checkboxTemplate = kendo.template(kendo.format(options.checkboxTemplate, options.textField, options.imageField, util.randomId()));
+                that._imageTemplate = kendo.template(kendo.format(options.imageTemplate, options.textField, options.imageField));
+                that._linkTemplate = kendo.template(kendo.format(options.linkTemplate, options.textField, options.imageField));
+                that._multiSelectTemplate = kendo.format(options.multiSelectTemplate, options.textField, options.imageField); // ! not a compiled template
             },
 
             /**

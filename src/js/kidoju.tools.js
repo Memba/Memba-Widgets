@@ -78,8 +78,8 @@
         var RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
         var RX_SOLUTION = /\S+/i;
         var RX_TEXT = /\S+/i;
-        var RX_VALIDATION_LIBRARY = /^\/\/ \w+$/i;
-        var RX_VALIDATION_CUSTOM = /^function validate\(value, solution, all\) {[\s\S]+}$/;
+        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\(\n]+)( \([^\n]*\))?$/;
+        var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
         var RX_VIDEO = /^(cdn|data):\/\/[\s\S]+.mp4$/i;
         var VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
         var JS_COMMENT = '// ';
@@ -3121,7 +3121,6 @@
                     for (var i = 0, length = data.length; i < length; i++) {
                         var item = {
                             text: data[i].text,
-                            uid: data[i].uid,
                             image: ''
                         };
                         for (var scheme in schemes) {
@@ -3309,7 +3308,6 @@
                     for (var i = 0, length = data.length; i < length; i++) {
                         var item = {
                             text: data[i].text,
-                            uid: data[i].uid,
                             image: ''
                         };
                         for (var scheme in schemes) {

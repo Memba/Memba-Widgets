@@ -41,8 +41,8 @@
         var JS_COMMENT = '// ';
         // var NS = '.kendoCodeEditor',
         var WIDGET_CLASS = 'k-widget kj-codeeditor';
-        var RX_LIBRARY = /^\/\/ ([^\n]+)$/;
-        var RX_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
+        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\(\n]+)( \([^\n]*\))?$/;
+        var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
 
         /*********************************************************************************
          * Widget
@@ -100,9 +100,9 @@
              */
             _initValue: function () { // Consider setOptions
                 var options = this.options;
-                if ($.type(options.value) === STRING && RX_CUSTOM.test(options.value)) {
+                if ($.type(options.value) === STRING && RX_VALIDATION_CUSTOM.test(options.value)) {
                     this.value(options.value);
-                } else if ($.type(options.value) === STRING && RX_LIBRARY.test(/*JS_COMMENT +*/options.value)) {
+                } else if ($.type(options.value) === STRING && RX_VALIDATION_LIBRARY.test(/*JS_COMMENT +*/options.value)) {
                     this.value(/*JS_COMMENT +*/options.value);
                 } else if (this.dataSource && this.dataSource.total()) {
                     this.value(JS_COMMENT + options.default);
@@ -141,7 +141,7 @@
              */
             _isCustom: function (value) {
                 assert.type(STRING, value, kendo.format(assert.messages.type.default, value, STRING));
-                var customMatches = value.match(RX_CUSTOM);
+                var customMatches = value.match(RX_VALIDATION_CUSTOM);
                 if ($.isArray(customMatches) && customMatches.length === 2) {
                     return value;
                 }
@@ -159,7 +159,7 @@
                 assert.instanceof(kendo.ui.DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                 assert.instanceof(kendo.data.DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 assert.equal(this.dropDownList.dataSource, this.dataSource, 'this.dropDownList.dataSource and this.dataSource are expected to be the same');
-                var libraryMatches = value.match(RX_LIBRARY);
+                var libraryMatches = value.match(RX_VALIDATION_LIBRARY);
                 if ($.isArray(libraryMatches) && libraryMatches.length === 2) {
                     var found = this.dataSource.data().filter(function (item) {
                         return item.name === libraryMatches[1];

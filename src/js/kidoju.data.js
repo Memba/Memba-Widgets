@@ -39,7 +39,8 @@
         var ZERO_NUMBER = 0;
         var NEGATIVE_NUMBER = -1;
         var RX_VALID_NAME = /^val_[a-z0-9]{6}$/;
-        var RX_LIBRARY = /^\/\/ ([^\(\n]+)( \([^\n]*\))?$/;
+        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\(\n]+)( \([^\n]*\))?$/;
+        // var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
         var location = window.location;
         var workerLibPath = location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js';
         // var workerLibPath = location.protocol + '//' + location.host + '/src/js/kidoju.data.workerlib.js'; // for WEINRE
@@ -1263,7 +1264,7 @@
                                 if ($.type(properties.name) === STRING) {
                                     var found;
                                     var param;
-                                    var libraryMatches = properties.validation.match(RX_LIBRARY);
+                                    var libraryMatches = properties.validation.match(RX_VALIDATION_LIBRARY);
                                      if ($.isArray(libraryMatches) && libraryMatches.length === 3) {
                                         // Find libraryMatches[1] in the code library
                                         found = properties._library.find(function (item) {

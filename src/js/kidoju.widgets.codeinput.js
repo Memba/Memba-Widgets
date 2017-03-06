@@ -35,8 +35,8 @@
         var LIB_PARAM = ' ({0})';
         var NS = '.kendoCodeInput';
         var WIDGET_CLASS = /*'k-widget*/ 'kj-codeinput';
-        var RX_LIBRARY = /^\/\/ ([^\(\n]+)( \([^\n]*\))?$/;
-        var RX_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
+        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\(\n]+)( \([^\n]*\))?$/;
+        var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
 
         /*********************************************************************************
          * Widget
@@ -96,9 +96,9 @@
              */
             _initValue: function () { // Consider setOptions
                 var options = this.options;
-                if ($.type(options.value) === STRING && RX_CUSTOM.test(options.value)) {
+                if ($.type(options.value) === STRING && RX_VALIDATION_CUSTOM.test(options.value)) {
                     this.value(options.value);
-                } else if ($.type(options.value) === STRING && RX_LIBRARY.test(options.value)) {
+                } else if ($.type(options.value) === STRING && RX_VALIDATION_LIBRARY.test(options.value)) {
                     this.value(options.value);
                 } else if (this.dataSource && this.dataSource.total()) {
                     this.value(options.default);
@@ -133,7 +133,7 @@
              */
             _isCustom: function (value) {
                 assert.type(STRING, value, kendo.format(assert.messages.type.default, value, STRING));
-                var matches = value.match(RX_CUSTOM);
+                var matches = value.match(RX_VALIDATION_CUSTOM);
                 if ($.isArray(matches) && matches.length === 2) {
                     return value;
                 }
@@ -151,7 +151,7 @@
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 assert.equal(this.dropDownList.dataSource, this.dataSource, 'this.dropDownList.dataSource and this.dataSource are expected to be the same');
                 var options = this.options;
-                var matches = value.match(RX_LIBRARY);
+                var matches = value.match(RX_VALIDATION_LIBRARY);
                 if ($.isArray(matches) && matches.length === 3) {
                     var ret = {};
                     var temp = matches[2];

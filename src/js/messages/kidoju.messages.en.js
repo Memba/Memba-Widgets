@@ -443,7 +443,7 @@
                     // Attributes
                     attributes = tools.multiquiz.constructor.prototype.attributes;
                     attributes.data.title = 'Values';
-                    attributes.data.defaultValue = [{ text: 'True', image: 'cdn://images/o_collection/svg/office/ok.svg' }, { text: 'False', image: 'cdn://images/o_collection/svg/office/error.svg' }];
+                    attributes.data.defaultValue = [{ text: 'Option 1', image: 'cdn://images/o_collection/svg/office/hand_count_one.svg' }, { text: 'Option 2', image: 'cdn://images/o_collection/svg/office/hand_point_up.svg' }];
                     attributes.groupStyle.title = 'Group Style';
                     attributes.itemStyle.title = 'Item Style';
                     attributes.mode.title = 'Mode';

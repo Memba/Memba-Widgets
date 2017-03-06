@@ -509,11 +509,11 @@
                 var that = this;
                 var element = that.element;
                 that._removeValidator();
-                that.element
+                element
                     .off(NS)
                     .removeClass(WIDGET_CLASS);
                 Widget.fn.destroy.call(this);
-                kendo.destroy(that.element);
+                kendo.destroy(element);
             }
 
         });

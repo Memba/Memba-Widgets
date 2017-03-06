@@ -433,7 +433,10 @@
                 var that = this;
                 that._removeValidator();
                 kendo.unbind(that.element);
-                kendo.destroy(that.element);
+				
+				var childElements = that.element.children();
+				
+                kendo.destroy(childElements);
                 that.element.find('*').off();
                 // clear element
                 that.element

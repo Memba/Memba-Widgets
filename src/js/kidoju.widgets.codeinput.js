@@ -31,10 +31,9 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var LIB_COMMENT = '// ';
-        var LIB_PARAM = ' ({0})';
         var NS = '.kendoCodeInput';
         var WIDGET_CLASS = /*'k-widget*/ 'kj-codeinput';
-        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\(\n]+)( \([^\n]*\))?$/;
+        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\[\n]+)( \["[^\n]*"\])?$/;
         var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
 
         /*********************************************************************************
@@ -159,9 +158,8 @@
                     if (found) {
                         ret.item = found;
                     }
-                    if ($.type(temp) === STRING && temp.length > 2) {
-                        // remove ` (` at the beginning and ')' at the end
-                        ret.paramValue = temp.substr(2, temp.length - 3);
+                    if ($.type(temp) === STRING && temp.length > 4) {
+                        ret.paramValue = JSON.parse(temp.trim())[0];
                     }
                 }
                 return ret;
@@ -191,7 +189,7 @@
                     var name = parsed.item[options.nameField];
                     var paramName = parsed.item[options.paramField];
                     var paramValue = parsed.paramValue;
-                    that._value = LIB_COMMENT + name + (paramName ? kendo.format(LIB_PARAM, paramValue) : '');
+                    that._value = LIB_COMMENT + name + (paramName ? ' ' + JSON.stringify([paramValue]) : '');
                     that.customInput.hide();
                     that.dropDownList.wrapper.show();
                     that.dropDownList.text(name);
@@ -267,7 +265,7 @@
                     if (name === options.custom) {
                         that.value(formula);
                     } else {
-                        that.value(LIB_COMMENT + name + (paramName ? kendo.format(LIB_PARAM, paramValue) : ''));
+                        that.value(LIB_COMMENT + name + (paramName ? ' ' + JSON.stringify([paramValue]) : ''));
                     }
                 }
             },

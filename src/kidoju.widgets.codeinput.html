@@ -25,7 +25,7 @@
 </head>
 <body>
 <h1>Code Input</h1>
-<div data-role="codeinput" data-bind="value: code, source: library" data-default="// floatEqual"></div>
+<div data-role="codeinput" data-bind="value: code, source: library" data-default="floatEqual"></div>
 <h2>Bindings</h2>
 <div data-role="dropdownlist" data-bind="value: code, source: names" data-auto-width="true"></div>
 <pre data-bind="text: code"></pre>
@@ -55,7 +55,7 @@
                 },
                 {
                     name: 'withParam',
-                    formula: 'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat({0});\n}',
+                    formula: 'function validate(value, solution) {\n\treturn new RegExp({0}, \'i\').test(value);\n}',
                     param: 'RegExp'
                 },
                 {
@@ -83,7 +83,7 @@
                     if (item.name === 'custom') {
                         return item.formula;
                     } else if (item.name === 'withParam') {
-                        return '// withParam (^[a-z](\w+)$)';
+                        return '// withParam ["^[a-z](\w+)$"]';
                     } else {
                         return '// ' + item.name;
                     }

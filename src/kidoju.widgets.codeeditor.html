@@ -63,7 +63,7 @@
             },
             {
                 name: 'withParam',
-                formula: 'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat({0});\n}',
+                formula: 'function validate(value, solution) {\n\treturn new RegExp({0}, \'i\').test(value);\n}',
                 param: 'RegExp'
             },
             {

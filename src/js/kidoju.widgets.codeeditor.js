@@ -43,13 +43,11 @@
         var BEFORECHANGE = 'beforeChange';
         var CHANGE = 'change';
         var CLICK = 'click';
-        var ERROR = 'error';
         var LIB_COMMENT = '// ';
-        var LIB_PARAM = ' ({0})';
         var NS = '.kendoCodeEditor';
         var WIDGET_CLASS = 'k-widget kj-codeeditor';
         var STATE_DISABLED = 'k-state-disabled';
-        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\(\n]+)( \([^\n]*\))?$/;
+        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\[\n]+)( \["[^\n]*"\])?$/;
         var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
         var LABEL_TMPL = '<label><span>{0}</span></label>';
         var MESSAGE_TMPL = '<div class="k-widget k-notification k-notification-#: type #" data-role="alert">' +
@@ -196,13 +194,15 @@
                     if (found) {
                         ret.item = found;
                     }
-                    if ($.type(temp) === STRING && temp.length > 2) {
-                        // remove ` (` at the beginning and ')' at the end
-                        ret.paramValue = temp.substr(2, temp.length - 3);
+                    if ($.type(temp) === STRING && temp.length > 4) {
+                        ret.paramValue = JSON.parse(temp.trim())[0];
                     }
                 }
                 return ret;
             },
+
+            /* This function has too many statements. */
+            /* jshint -W071 */
 
             /**
              * toggle UI for custom vs library code
@@ -213,7 +213,6 @@
                 assert.instanceof(CodeMirror, this.codeMirror, kendo.format(assert.messages.instanceof.default, 'this.codeMirror', 'CodeMirror'));
                 var that = this;
                 var options = that.options;
-
                 // Any changes should remove any pending message
                 that.message.empty();
 
@@ -225,7 +224,9 @@
                         .attr({ placeholder: options.messages.notApplicable })
                         .addClass(STATE_DISABLED)
                         .val('');
-                    that.codeMirror.getDoc().setValue(that._value);
+                    if (that.codeMirror.getDoc().getValue() !== that._value) {
+                        that.codeMirror.getDoc().setValue(that._value);
+                    }
 
                 } else {
 
@@ -242,7 +243,7 @@
                     var paramValue = parsed.paramValue;
 
                     // Reset value in case the original value could not be found and we had to fallback to default
-                    that._value = LIB_COMMENT + name + (paramName ? kendo.format(LIB_PARAM, paramValue) : '');
+                    that._value = LIB_COMMENT + name + (paramName ? ' ' + JSON.stringify([paramValue]) : '');
                     that.dropDownList.text(name);
                     // Enable/disable paramInput
                     if ($.type(paramName) === STRING && paramName.length) {
@@ -256,11 +257,19 @@
                             .addClass(STATE_DISABLED)
                             .val('');
                     }
+
+                    var code = kendo.format(formula, paramValue);
+                    if (that.codeMirror.getDoc().getValue() !== code) {
+                        that.codeMirror.getDoc().setValue(code);
+                    }
+
                     that.codeMirror.getDoc().setValue(kendo.format(formula, paramValue));
                 }
 
                 that.trigger(CHANGE, { value: that.value() });
             },
+
+            /* jshint +W071 */
 
             /**
              * Builds the widget layout
@@ -322,7 +331,7 @@
                     if (name === options.custom) {
                         that.value(formula);
                     } else {
-                        that.value(LIB_COMMENT + name + (paramName ? kendo.format(LIB_PARAM, paramValue) : ''));
+                        that.value(LIB_COMMENT + name + (paramName ? ' ' + JSON.stringify([paramValue]) : ''));
                     }
                 }
             },
@@ -368,10 +377,7 @@
                         var name = dataItem[options.nameField];
                         var code = that.codeMirror.getDoc().getValue();
                         if (name === options.custom || code !== kendo.format(formula, that.paramInput.val())) {
-                            that.dropDownList.text(options.custom);
-                            that._value = code;
-                            // trigger a change event for MVVM value binding
-                            that.trigger(CHANGE, { value: that.value() });
+                            that.value(code);
                         }
                     }
                 });
@@ -533,7 +539,9 @@
                         .append(kendo.template(MESSAGE_TMPL)({ type: 'info', message: options.messages.failure }));
                 }
                 setTimeout(function () {
-                    that.message.empty();
+                    if (that.message instanceof $) { // Note: that.message might no more exist if the codeeditor has been closed in the meantime
+                        that.message.empty();
+                    }
                 }, 5000);
             },
 

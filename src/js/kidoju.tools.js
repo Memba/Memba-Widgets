@@ -78,11 +78,11 @@
         var RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
         var RX_SOLUTION = /\S+/i;
         var RX_TEXT = /\S+/i;
-        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\(\n]+)( \([^\n]*\))?$/;
+        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\[\n]+)( \["[^\n]*"\])?$/;
         var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
         var RX_VIDEO = /^(cdn|data):\/\/[\s\S]+.mp4$/i;
         var VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
-        var JS_COMMENT = '// ';
+        var LIB_COMMENT = '// ';
         var CUSTOM = {
             name: 'custom',
             formula: kendo.format(VALIDATION_CUSTOM, '// Your code should return true when value is validated against solution.')
@@ -524,7 +524,7 @@
                 // Pass solution adapter library to validation adapter, especially for the code editor
                 if (this.properties && this.properties.solution instanceof BaseAdapter && this.properties.validation instanceof adapters.ValidationAdapter) {
                     this.properties.validation.library = this.properties.solution.library;
-                    this.properties.validation.defaultValue = JS_COMMENT + this.properties.solution.libraryDefault;
+                    this.properties.validation.defaultValue = LIB_COMMENT + this.properties.solution.libraryDefault;
                 }
 
             },

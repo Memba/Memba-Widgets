@@ -15,7 +15,6 @@
         './vendor/kendo/kendo.color',
         './vendor/kendo/kendo.drawing',
         './vendor/kendo/kendo.toolbar'
-        // './vendor/kendo/kendo.multiselect' // required because of a test in kendo.binder.js
     ], f);
 })(function () {
 

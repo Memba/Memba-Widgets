@@ -25,11 +25,11 @@
 </head>
 <body>
 <h1>Code Input</h1>
-<h2>Standard DropdDown</h2>
-<div data-role="dropdownlist" data-bind="value: code, source: names" data-auto-width="true"></div>
-<h2>Out widget</h2>
 <div data-role="codeinput" data-bind="value: code, source: library" data-default="// floatEqual"></div>
+<h2>Bindings</h2>
+<div data-role="dropdownlist" data-bind="value: code, source: names" data-auto-width="true"></div>
 <pre data-bind="text: code"></pre>
+<textarea data-bind="value: code" class="k-textbox" style="width:100%;height:10em;"></textarea>
 <script>
     ;(function(window, $, undefined){
 

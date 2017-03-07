@@ -970,7 +970,7 @@
                     workers[thread] = new Worker(task.script);
                     workers[thread].onmessage = function (e) {
                         deferreds[task.id].resolve({ name: task.name, value: e.data });
-                        workers[thread].terminate();
+                        // workers[thread].terminate();
                         window.URL.revokeObjectURL(task.script);
                         runNextTask(thread);
                     };
@@ -982,7 +982,7 @@
                         error.colno = e.colno;
                         error.lineno = e.lineno;
                         deferreds[task.id].reject(error);
-                        workers[thread].terminate();
+                        // workers[thread].terminate();
                         window.URL.revokeObjectURL(task.script);
                         logger.crit(error);
                         // No need to run next task because $.when fails on the first failing deferred

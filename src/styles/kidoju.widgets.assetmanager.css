@@ -7,16 +7,29 @@
 .kj-assetmanager .k-filebrowser .k-filebrowser-toolbar {
     margin: 0;
 }
-.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-upload {
-    margin-right: .3em;
+.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-toolbar-wrap .k-upload {
+    margin-right: .5em;
 }
-.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-upload .k-icon {
+.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-toolbar-wrap .k-upload .k-icon {
     vertical-align: middle;
 }
-.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-textbox {
-    width: 100%;
+.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange {
+    display: flex;
+    align-items: center;
+    max-width: 60%;
 }
-.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-textbox .k-search {
+.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-progressbar {
+    color: inherit;
+    max-width: 40%;
+    margin-right: .5em;
+}
+.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-textbox {
+    width: 60%;
+}
+.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-textbox .k-icon {
+    color: inherit;
+}
+.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-textbox .k-search {
     top: 50%;
     margin: -8px 0 0;
 }

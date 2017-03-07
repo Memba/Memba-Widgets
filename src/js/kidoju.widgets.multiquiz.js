@@ -33,7 +33,6 @@
         var NS = '.kendoMultiQuiz';
         var STRING = 'string';
         var NULL = 'null';
-        var STRING = 'string';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
@@ -43,9 +42,9 @@
         var WIDGET_CLASS = 'kj-multiquiz'; // 'k-widget kj-multiquiz',
         var INTERACTIVE_CLASS = 'kj-interactive';
         var MULTISELECT_TMPL = '<span class="kj-multiquiz-item kj-multiquiz-multiselect"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></span>';
-        var BUTTON_TMPL = '<button class="k-button kj-multiquiz-item kj-multiquiz-button" data-' + kendo.ns +'uid="#: data.uid #" data-' + kendo.ns +'value="#: data.{0} #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></button>';
-        var IMAGE_TMPL = '<div class="k-widget kj-multiquiz-item kj-multiquiz-image" data-' + kendo.ns + 'uid="#: data.uid #" data-' + kendo.ns +'value="#: data.{0} #"><div class="k-image" style="background-image:url(#: data.{1} #)"></div></div>';
-        var LINK_TMPL = '<span class="kj-multiquiz-item kj-multiquiz-link" data-' + kendo.ns + 'uid="#: data.uid #" data-' + kendo.ns +'value="#: data.{0} #">#: data.{0} #</span>';
+        var BUTTON_TMPL = '<button class="k-button kj-multiquiz-item kj-multiquiz-button" data-' + kendo.ns + 'uid="#: data.uid #" data-' + kendo.ns + 'value="#: data.{0} #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></button>';
+        var IMAGE_TMPL = '<div class="k-widget kj-multiquiz-item kj-multiquiz-image" data-' + kendo.ns + 'uid="#: data.uid #" data-' + kendo.ns + 'value="#: data.{0} #"><div class="k-image" style="background-image:url(#: data.{1} #)"></div></div>';
+        var LINK_TMPL = '<span class="kj-multiquiz-item kj-multiquiz-link" data-' + kendo.ns + 'uid="#: data.uid #" data-' + kendo.ns + 'value="#: data.{0} #">#: data.{0} #</span>';
         var CHECKBOX_TMPL = '<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-' + kendo.ns + 'uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>';
         var BUTTON_SELECTOR = '.kj-multiquiz-item.kj-multiquiz-button';
         var IMAGE_SELECTOR = '.kj-multiquiz-item.kj-multiquiz-image';
@@ -123,8 +122,10 @@
              * @param array
              * @returns {*}
              */
-            shuffle: function(array) {
-                var m = array.length, t, i;
+            shuffle: function (array) {
+                var m = array.length;
+                var t;
+                var i;
 
                 // While there remain elements to shuffle…
                 while (m) {
@@ -694,7 +695,7 @@
                 if ($.type(enable) === UNDEFINED) {
                     enable = true;
                 }
-                switch(this.options.mode) {
+                switch (this.options.mode) {
                     case MODES.BUTTON:
                         this._enableButtons(enable);
                         break;

@@ -41,9 +41,9 @@
         var WIDGET_CLASS = 'kj-quiz'; // 'k-widget kj-quiz',
         var INTERACTIVE_CLASS = 'kj-interactive';
         var DROPDOWN_TMPL = '<span class="kj-quiz-item kj-quiz-dropdown"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></span>';
-        var BUTTON_TMPL = '<button class="k-button kj-quiz-item kj-quiz-button" data-' + kendo.ns +'uid="#: data.uid #" data-' + kendo.ns +'value="#: data.{0} #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></button>';
-        var IMAGE_TMPL = '<div class="k-widget kj-quiz-item kj-quiz-image" data-' + kendo.ns + 'uid="#: data.uid #" data-' + kendo.ns +'value="#: data.{0} #"><div class="k-image" style="background-image:url(#: data.{1} #)"></div></div>';
-        var LINK_TMPL = '<span class="kj-quiz-item kj-quiz-link" data-' + kendo.ns + 'uid="#: data.uid #" data-' + kendo.ns +'value="#: data.{0} #">#: data.{0} #</span>';
+        var BUTTON_TMPL = '<button class="k-button kj-quiz-item kj-quiz-button" data-' + kendo.ns + 'uid="#: data.uid #" data-' + kendo.ns + 'value="#: data.{0} #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></button>';
+        var IMAGE_TMPL = '<div class="k-widget kj-quiz-item kj-quiz-image" data-' + kendo.ns + 'uid="#: data.uid #" data-' + kendo.ns + 'value="#: data.{0} #"><div class="k-image" style="background-image:url(#: data.{1} #)"></div></div>';
+        var LINK_TMPL = '<span class="kj-quiz-item kj-quiz-link" data-' + kendo.ns + 'uid="#: data.uid #" data-' + kendo.ns + 'value="#: data.{0} #">#: data.{0} #</span>';
         var RADIO_TMPL = '<div class="kj-quiz-item kj-quiz-radio" data-' + kendo.ns + 'uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="radio" class="k-radio" value="#: data.{0} #"><label class="k-radio-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>';
         var BUTTON_SELECTOR = '.kj-quiz-item.kj-quiz-button';
         var IMAGE_SELECTOR = '.kj-quiz-item.kj-quiz-image';
@@ -121,8 +121,10 @@
              * @param array
              * @returns {*}
              */
-            shuffle: function(array) {
-                var m = array.length, t, i;
+            shuffle: function (array) {
+                var m = array.length;
+                var t;
+                var i;
 
                 // While there remain elements to shuffle…
                 while (m) {
@@ -250,7 +252,7 @@
                 var options = that.options;
                 if ($.type(value) === STRING) {
                     // Note: Giving a value to the dropDownList that does not exist in dataSource is discarded without raising an error
-                    if (that._value !== value && that.dataSource instanceof kendo.data.DataSource && that.dataSource.data().find(function (item) { return item[options.textField] === value })) {
+                    if (that._value !== value && that.dataSource instanceof kendo.data.DataSource && that.dataSource.data().find(function (item) { return item[options.textField] === value; })) {
                         that._value = value;
                         that._toggleSelection();
                     }
@@ -665,7 +667,7 @@
                 if ($.type(enable) === UNDEFINED) {
                     enable = true;
                 }
-                switch(this.options.mode) {
+                switch (this.options.mode) {
                     case MODES.BUTTON:
                         this._enableButtons(enable);
                         break;

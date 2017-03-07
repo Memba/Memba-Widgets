@@ -216,7 +216,8 @@
          * @param onDragLeave
          */
         function bindDragEventWrappers(element, onDragEnter, onDragLeave) {
-            var hideInterval, lastDrag;
+            var hideInterval;
+            var lastDrag;
             element.on(DRAGENTER, function (e) {
                 onDragEnter(e);
                 lastDrag = new Date();
@@ -524,7 +525,7 @@
                 var that = this;
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
                 assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
-                this._uploadFiles(files);
+                this._uploadFiles(e.target.files);
             },
 
             /**
@@ -538,12 +539,15 @@
                 var that = this;
                 if (files instanceof window.FileList && files.length) {
                     that.listView.element.addClass('k-loading');
-                    // Add multiple attribute to html file input for multiple uploads
+                    var finder = function (file) {
+                        return that.dataSource.data().find(function (dataItem) {
+                            return new RegExp('/' + file.name + '$').test(dataItem.url);
+                        });
+                    };
+                    // Note: Add multiple attribute to html file input for multiple uploads
                     for (var i = 0, length = files.length; i < length; i++) {
                         // Find possible duplicate
-                        var duplicate = that.dataSource.data().find(function (dataItem) {
-                            return new RegExp('/' + files[i].name + '$').test(dataItem.url);
-                        });
+                        var duplicate = finder(files[i]);
                         // Remove duplicate
                         if (duplicate instanceof kendo.data.ObservableObject) {
                             that.dataSource.remove(duplicate);

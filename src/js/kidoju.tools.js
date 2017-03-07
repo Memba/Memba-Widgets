@@ -1422,7 +1422,7 @@
                         // When the dataSource raises a change event on any of the quiz data items that is added, changed or removed
                         // We need to trigger a change event on the model field to ensure the stage element (which is not databound) is redrawn
                         if ($.type(e.action) === STRING) {
-                            settings.model.trigger('change', {field: settings.field});
+                            settings.model.trigger('change', { field: settings.field });
                         }
                     });
                 };

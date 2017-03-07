@@ -182,13 +182,13 @@
                     handler: '.kj-handle, .kj-handle *',
                     holdToDrag: true, // for touch screens
                     ignore: 'input',  // otherwise focus and selections won't work properly in inputs
-                    placeholder: function(element) {
+                    placeholder: function (element) {
                         return element.clone().css('opacity', 0.4);
                     },
-                    hint: function(element) {
+                    hint: function (element) {
                         return element.clone().removeClass('k-state-selected');
                     },
-                    change: function(e) {
+                    change: function (e) {
                         var dataSource = that.dataSource;
                         var skip = dataSource.skip() || 0;
                         var newIndex = e.newIndex + skip;

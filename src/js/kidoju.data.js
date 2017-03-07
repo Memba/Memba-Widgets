@@ -1265,7 +1265,7 @@
                                     var found;
                                     var param;
                                     var libraryMatches = properties.validation.match(RX_VALIDATION_LIBRARY);
-                                     if ($.isArray(libraryMatches) && libraryMatches.length === 3) {
+                                    if ($.isArray(libraryMatches) && libraryMatches.length === 3) {
                                         // Find libraryMatches[1] in the code library
                                         found = properties._library.find(function (item) {
                                             return item.name === libraryMatches[1];

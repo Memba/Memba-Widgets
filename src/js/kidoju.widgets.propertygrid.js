@@ -185,12 +185,15 @@
                 that._addColumnResizing();
             },
 
+            /* This function has too many statements. */
+            /* jshint -W071 */
+
             /**
              * Refresh rows
              * @method refresh
              */
             refresh: function () {
-
+                /* jshint maxstatements: 26 */
                 var that = this;
                 var element = that.element;
                 var options = that.options;
@@ -235,6 +238,8 @@
                 // Reposition column resizing handle
                 that._positionHandle();
             },
+
+            /* jshint +W071 */
 
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */

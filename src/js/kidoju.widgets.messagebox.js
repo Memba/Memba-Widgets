@@ -36,7 +36,7 @@
             WARNING: 'warning'
         };
         var CONTENT_TEMPLATE = '<div class="k-widget k-notification k-notification-#: type #" data-role="alert">' +
-            '<div class="k-notification-wrap"><span class="k-icon k-i-note"></span>#: message #</div>' +
+            '<div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div>' +
             '</div>';
         var ACTION_TEMPLATE = '<li class=\'k-button# if (data.primary) { # k-primary# } #\' role=\'button\'></li>';
         var TEXT_TEMPLATE = '<img alt="#: data.text #" class="k-image" src="#: data.imageUrl #">#: data.text #';

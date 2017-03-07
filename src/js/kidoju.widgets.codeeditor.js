@@ -111,7 +111,9 @@
                     failure: 'Failure',
                     omit: 'Omit',
                     error: 'Error',
-                    ajaxError: 'Error loading worker library'
+                    ajaxError: 'Error loading worker library',
+                    jsonError: 'Error parsing value as json',
+                    timeoutError: 'The execution of a web worker has timed out'
                 }
             },
 
@@ -388,9 +390,9 @@
                 var valueLabel = $(kendo.format(LABEL_TMPL, options.messages.value)).appendTo(footer.find('div:nth-child(2)'));
                 var testDiv = footer.find('div:nth-child(3)');
 
-                // Add the disbaled input field to display the solution
+                // Add a disabled input field to display the solution
                 that.solutionInput = $('<input class="k-textbox k-state-disabled" disabled>')
-                    .val(options.solution)
+                    .val($.type(options.solution) === STRING ? options.solution : JSON.stringify(options.solution))
                     .appendTo(solutionLabel);
 
                 // Add the input field to enter a value
@@ -436,6 +438,9 @@
                 }
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Run test
              * @param workerLib
@@ -461,18 +466,19 @@
                 // Build the data to post to the web worker
                 var data = {};
                 var value = that.valueInput.val();
-                if ($.type(value) === STRING && value.length) {
+                if ($.type(value) === STRING && value.length) { // an empty string cannot be parsed
                     try {
                         // try JSON for complex objects/arrays
                         data.value = JSON.parse(value);
                     } catch (ex) {
-                        data.value = value;
+                        dfd.reject(new Error(options.messages.jsonError));
+                        return dfd.promise();
                     }
                 }
 
-                data.solution = options.solution; // same as that.solutionInput.val();
+                data.solution = $.type(options.solution) === STRING ? JSON.parse(options.solution) : options.solution;
 
-                // avoid error whn calling all.val_abcdef
+                // avoid error when calling all.val_<id>
                 data.all = {}; // TODO: detect when all is required and disable test
 
                 // Build teh web worker
@@ -492,7 +498,7 @@
                 if ($.type(options.timeOut) === NUMBER) {
                     setTimeout(function () {
                         if (dfd.state() === 'pending') {
-                            dfd.reject(new Error('The execution of a web worker has timed out'));
+                            dfd.reject(new Error(options.timeoutError));
                             worker.terminate();
                             window.URL.revokeObjectURL(blobURL);
                         }
@@ -502,6 +508,8 @@
                 return dfd.promise();
 
             },
+
+            /* jshint +W074 */
 
             /**
              * Display result (success, failure, omit)

@@ -54,6 +54,8 @@
         var DATE = 'date';
         var ERROR = 'error';
         var WARNING = 'warning';
+        var CLICK = 'click';
+        var CHANGE = 'change';
         var CURSOR_DEFAULT = 'default';
         var CURSOR_CROSSHAIR = 'crosshair';
         var REGISTER = 'register';
@@ -64,7 +66,7 @@
         var DIALOG_SELECTOR = '.kj-dialog';
         var INTERACTIVE_CLASS = 'kj-interactive';
         var NO_PADDING_CLASS = 'kj-no-padding';
-        var CLICK = 'click';
+        var STATE_DISABLED = 'k-state-disabled';
         var RX_HTTP_S = /^https?:\/\//;
         var RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
         var RX_AUDIO = /^(cdn|data):\/\/[\s\S]+.mp3$/i;
@@ -213,7 +215,7 @@
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
                     omit: { title: 'Omit' },
-                    disabled: { title: 'Disable' }
+                    disabled: { title: 'Disabled' }
                 }
             },
 
@@ -1218,6 +1220,7 @@
             libraryDefault: 'equal'
         });
 
+        var ATTR_CONTAIN_SELECTOR = '[{0}*="{1}"]';
         /**
          * Disabled adapter
          */
@@ -1226,10 +1229,63 @@
                 BaseAdapter.fn.init.call(this, options);
                 this.type = BOOLEAN;
                 this.defaultValue = this.defaultValue || (this.nullable ? null : false);
-                this.editor = 'input';
-                this.attributes = $.extend({}, this.attributes, attributes);
-                this.attributes[kendo.attr('role')] = 'switch';
-                // TODO: set scores at 0 and disable test logic
+                // this.editor = 'input';
+                // this.attributes = $.extend({}, this.attributes, attributes);
+                // this.attributes[kendo.attr('role')] = 'switch';
+                this.editor = function (container, settings) {
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
+                    var input = $('<div/>')
+                        .attr(binding)
+                        .appendTo(container);
+                    var switchWidget = input.kendoMobileSwitch({
+                        change: function (e) {
+                            var tbody = e.sender.element.closest('tbody');
+                            // Question
+                            var questionWidget = tbody.find(kendo.format(ATTR_CONTAIN_SELECTOR, kendo.attr('bind'), 'properties.question')).data('kendoComboBox');
+                            if (questionWidget instanceof kendo.ui.ComboBox) {
+                                questionWidget.enable(!e.checked);
+                            }
+                            // Solution - Note: cannot predict what solutionWidget is
+                            /*
+                            var solutionElement = tbody.find(kendo.format(ATTR_CONTAIN_SELECTOR, kendo.attr('bind'), 'properties.solution'));
+                            var solutionWidget = kendo.widgetInstance(solutionElement);
+                            if ($.isFunction(solutionWidget.enable)) {
+                                 solutionWidget.enable(!e.checked);
+                            }
+                            */
+                            // Validation
+                            var validationWidget = tbody.find(kendo.format(ATTR_CONTAIN_SELECTOR, kendo.attr('bind'), 'properties.validation')).data('kendoCodeInput');
+                            if (validationWidget instanceof kendo.ui.CodeInput) {
+                                validationWidget.enable(!e.checked);
+                                validationWidget.element
+                                    .closest('td[role="gridcell"]')
+                                    .find('button.k-button')
+                                    .prop('disabled', e.checked)
+                                    .toggleClass(STATE_DISABLED, e.checked);
+                            }
+                            // Success
+                            var successWidget = tbody.find(kendo.format(ATTR_CONTAIN_SELECTOR, kendo.attr('bind'), 'properties.success')).data('kendoNumericTextBox');
+                            if (successWidget instanceof kendo.ui.NumericTextBox) {
+                                successWidget.enable(!e.checked);
+                            }
+                            // Failure
+                            var failureWidget = tbody.find(kendo.format(ATTR_CONTAIN_SELECTOR, kendo.attr('bind'), 'properties.failure')).data('kendoNumericTextBox');
+                            if (failureWidget instanceof kendo.ui.NumericTextBox) {
+                                failureWidget.enable(!e.checked);
+                            }
+                            // Omit
+                            var omitWidget = tbody.find(kendo.format(ATTR_CONTAIN_SELECTOR, kendo.attr('bind'), 'properties.omit')).data('kendoNumericTextBox');
+                            if (omitWidget instanceof kendo.ui.NumericTextBox) {
+                                omitWidget.enable(!e.checked);
+                            }
+                        }
+                    }).data('kendoMobileSwitch');
+                    setTimeout(function() {
+                        // Note: switchWidget.check() before data bindings so we need to yield some time
+                        switchWidget.trigger(CHANGE, {checked: switchWidget.check()});
+                    }, 0);
+                };
             }
         });
 
@@ -1313,7 +1369,7 @@
                 this.type = STRING;
                 this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 this.editor = 'input';
-                this.attributes = $.extend({}, this.attributes, attributes, { type: 'text', class: 'k-textbox',  readonly: true });
+                this.attributes = $.extend({}, this.attributes, attributes, { type: 'text', class: 'k-textbox k-state-disabled',  disabled: true });
             }
         });
 
@@ -2471,7 +2527,7 @@
                 question: new adapters.QuestionAdapter({ title: i18n.connector.properties.question.title }),
                 solution: new adapters.ConnectorAdapter({ title: i18n.connector.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.connector.properties.validation.title }),
-                success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 0.5 }),
+                success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.connector.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.connector.properties.omit.title, defaultValue: 0 }),
                 disabled: new adapters.DisabledAdapter({ title: i18n.connector.properties.disabled.title, defaultValue: false })

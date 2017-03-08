@@ -380,7 +380,7 @@
                     properties.success.title = 'Succès';
                     properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
-                    properties.disabled.title = 'Désactiver';
+                    properties.disabled.title = 'Désactivé';
                 }
 
                 if (tools.dropzone instanceof Tool) {

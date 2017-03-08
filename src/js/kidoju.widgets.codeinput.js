@@ -33,6 +33,7 @@
         var LIB_COMMENT = '// ';
         var NS = '.kendoCodeInput';
         var WIDGET_CLASS = /*'k-widget*/ 'kj-codeinput';
+        var STATE_DISABLED = 'k-state-disabled';
         var RX_VALIDATION_LIBRARY = /^\/\/ ([^\[\n]+)( \["[^\n]*"\])?$/;
         var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
 
@@ -305,6 +306,15 @@
                 that.options.dataSource = dataSource;
                 // rebuild the datasource if necessary, or just reassign
                 that._dataSource();
+            },
+
+            /**
+             * Enable
+             */
+            enable: function (enabled) {
+                enabled = !!enabled;
+                this.dropDownList.enable(enabled);
+                this.paramInput.toggleClass(STATE_DISABLED, !enabled);
             },
 
             /**

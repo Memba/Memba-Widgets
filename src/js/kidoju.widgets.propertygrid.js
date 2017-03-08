@@ -540,9 +540,9 @@
             input: function (container, options) {
                 if (options && options.attributes && $.type(options.attributes[kendo.attr('role')]) === UNDEFINED) {
                     if ([undefined, 'text', 'email', 'search', 'tel', 'url'].indexOf(options.attributes.type) > -1) {
-                        options.attributes.class = 'k-textbox';
+                        options.attributes.class = $.type(options.attributes.class) === STRING ? options.attributes.class : 'k-textbox';
                     } else if (['button', 'reset'].indexOf(options.attributes.type) > -1) {
-                        options.attributes.class = 'k-button';
+                        options.attributes.class = $.type(options.attributes.class) === STRING ? options.attributes.class : 'k-button';
                     }
                 }
                 $('<input style="width: 100%;"/>')

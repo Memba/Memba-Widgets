@@ -1308,15 +1308,17 @@
                                     });
 
                                     // Queue task into worker pool with name, script, and value to be posted to script
-                                    workerPool.add(
-                                        properties.name,
-                                        blobURL,
-                                        {
-                                            value: all[properties.name],
-                                            solution: properties.solution,
-                                            all: all // all properties
-                                        }
-                                    );
+                                    if (!properties.disabled) {
+                                        workerPool.add(
+                                            properties.name,
+                                            blobURL,
+                                            {
+                                                value: all[properties.name],
+                                                solution: properties.solution,
+                                                all: all // all properties - TODO should be page properties only
+                                            }
+                                        );
+                                    }
 
                                     // Update result
                                     result[properties.name] = {

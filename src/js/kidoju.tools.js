@@ -942,7 +942,9 @@
                 });
                 // Prepare UI
                 dialogWidget.title(options.title);
-                dialogWidget.content('<div data-' + kendo.ns + 'role="assetmanager" data-' + kendo.ns + 'bind="value: url"></div>');
+                dialogWidget.content('<div ' +
+                    'data-' + kendo.ns + 'role="assetmanager" ' +
+                    'data-' + kendo.ns + 'bind="value: url"/>');
                 assert.instanceof(PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
                 assert.instanceof(ToolAssets, assets[options.model.tool], kendo.format(assert.messages.instanceof.default, 'assets[options.model.tool]', 'kidoju.ToolAssets'));
                 var assetManagerWidget = dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets[options.model.tool]).data('kendoAssetManager');
@@ -1015,8 +1017,13 @@
                 dialogWidget.title(options.title);
                 dialogWidget.content('<div style="display:flex;flex-direction:row">' +
                     // character grid
-                    '<div data-' + kendo.ns + 'role="chargrid" data-' + kendo.ns + 'bind="value: chargrid" data-' + kendo.ns + 'scaler=".k-content" data-' + kendo.ns + 'container=".k-content" ' +
-                    'data-' + kendo.ns + 'columns="' + model.get('attributes.columns') + '" data-' + kendo.ns + 'rows="' + model.get('attributes.rows') + '" ' +
+                    '<div ' +
+                    'data-' + kendo.ns + 'role="chargrid" ' +
+                    'data-' + kendo.ns + 'bind="value: chargrid" ' +
+                    'data-' + kendo.ns + 'scaler=".k-content" ' +
+                    'data-' + kendo.ns + 'container=".k-content" ' +
+                    'data-' + kendo.ns + 'columns="' + model.get('attributes.columns') + '" ' +
+                    'data-' + kendo.ns + 'rows="' + model.get('attributes.rows') + '" ' +
                     'data-' + kendo.ns + 'blank="' + model.get('attributes.blank') + '" ' +
                     'data-' + kendo.ns + 'whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
                     (options.field === 'properties.solution' ? 'data-' + kendo.ns + 'locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
@@ -1083,7 +1090,7 @@
                 var rows = model.get('attributes.values') + 1;
                 // Prepare UI
                 dialogWidget.title(options.title);
-                dialogWidget.content('<div data-' + kendo.ns + 'role="spreadsheet"></div>');
+                dialogWidget.content('<div data-' + kendo.ns + 'role="spreadsheet"/>');
                 var spreadsheet = dialogWidget.element.find(kendo.roleSelector('spreadsheet'));
                 assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
                 var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
@@ -1495,7 +1502,9 @@
                     dialogWidget.viewModel._item = item;
                     // Prepare UI
                     dialogWidget.title(options.title);
-                    dialogWidget.content('<div data-role="assetmanager" data-bind="value: image"></div>');
+                    dialogWidget.content('<div ' +
+                        'data-' + kendo.ns + 'role="assetmanager" ' +
+                        'data-' + kendo.ns + 'bind="value: image"/>');
                     assert.instanceof(PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
                     assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
                     var assetManagerWidget = dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets.image).data('kendoAssetManager');
@@ -1732,7 +1741,10 @@
                 });
                 // Prepare UI
                 dialogWidget.title(options.title);
-                dialogWidget.content('<div data-role="styleeditor" data-bind="value: style" data-height="400"></div>');
+                dialogWidget.content('<div ' +
+                    'data-' + kendo.ns + 'role="styleeditor" ' +
+                    'data-' + kendo.ns + 'bind="value: style" ' +
+                    'data-' + kendo.ns + 'height="400"/>');
                 kendo.bind(dialogWidget.element, dialogWidget.viewModel);
                 var styleEditor = dialogWidget.element.find(kendo.roleSelector('styleeditor'));
                 assert.hasLength(styleEditor, kendo.format(assert.messages.hasLength.default, 'styleEditor'));
@@ -1779,7 +1791,7 @@
                 var rows = model.get('attributes.rows');
                 // Prepare UI
                 dialogWidget.title(options.title);
-                dialogWidget.content('<div data-role="spreadsheet"></div>');
+                dialogWidget.content('<div data-' + kendo.ns + 'role="spreadsheet"/>');
                 var spreadsheet = dialogWidget.element.find(kendo.roleSelector('spreadsheet'));
                 assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
                 var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
@@ -1876,7 +1888,9 @@
                         .appendTo(table);
                     var binding = {};
                     binding[kendo.attr('bind')] = 'value: ' + settings.field + ', source: _library';
-                    var input = $('<div data-' + kendo.ns + 'role="codeinput" />')
+                    var input = $('<div' +
+                        'data-' + kendo.ns + 'role="codeinput" ' +
+                        'data-' + kendo.ns + 'default="' + settings.model.properties.defaults.validation + '" />')
                     // Note: _library is added to the data bound PageComponent in its init method
                         .attr($.extend({}, settings.attributes, binding))
                         .appendTo(cell);
@@ -1908,7 +1922,11 @@
                 });
                 // Prepare UI
                 dialogWidget.title(options.title);
-                dialogWidget.content('<div data-role="codeeditor" data-bind="value: code, source: library" data-default="' + that.defaultValue + '" data-solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"></div>');
+                dialogWidget.content('<div ' +
+                    'data-' + kendo.ns + 'role="codeeditor" ' +
+                    'data-' + kendo.ns + 'bind="value: code, source: library" ' +
+                    'data-' + kendo.ns + 'default="' + that.defaultValue + '" ' +
+                    'data-' + kendo.ns + 'solution="' + kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution'))) + '"/>');
                 kendo.bind(dialogWidget.element, dialogWidget.viewModel);
                 dialogWidget.element.addClass(NO_PADDING_CLASS);
                 // Bind window activate handler

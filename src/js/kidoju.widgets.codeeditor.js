@@ -91,7 +91,7 @@
                 autoBind: true,
                 dataSource: [],
                 custom: 'custom',
-                default: 'equal',
+                default: '// equal',
                 nameField: 'name',
                 formulaField: 'formula',
                 paramField: 'param',
@@ -134,7 +134,7 @@
                 } else if ($.type(options.value) === STRING && RX_VALIDATION_LIBRARY.test(options.value)) {
                     this.value(options.value);
                 } else if (this.dataSource instanceof DataSource && this.dataSource.total()) {
-                    this.value(LIB_COMMENT + options.default);
+                    this.value(options.default);
                 }
             },
 
@@ -236,7 +236,7 @@
                     var parsed = that._parseLibraryValue(that._value);
                     if ($.type(parsed.item) === UNDEFINED) {
                         // and use default if not found
-                        parsed = that._parseLibraryValue(LIB_COMMENT + options.default);
+                        parsed = that._parseLibraryValue(options.default);
                         assert.type(OBJECT, parsed.item, '`this.options.default` is expected to exist in the library');
                     }
                     var name = parsed.item[options.nameField];

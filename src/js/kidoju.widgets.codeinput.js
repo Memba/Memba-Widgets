@@ -74,7 +74,7 @@
                 autoBind: true,
                 dataSource: [],
                 custom: 'custom',
-                default: 'equal',
+                default: '// equal',
                 nameField: 'name',
                 formulaField: 'formula',
                 paramField: 'param',
@@ -190,7 +190,7 @@
                     var parsed = that._parseLibraryValue(that._value);
                     if ($.type(parsed.item) === UNDEFINED) {
                         // and use default if not found
-                        parsed = that._parseLibraryValue(LIB_COMMENT + options.default);
+                        parsed = that._parseLibraryValue(options.default);
                         assert.type(OBJECT, parsed.item, '`this.options.default` is expected to exist in the library');
                     }
 

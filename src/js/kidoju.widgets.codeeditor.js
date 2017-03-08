@@ -109,9 +109,9 @@
                     failure: 'Failure',
                     omit: 'Omit',
                     error: 'Error',
-                    ajaxError: 'Error loading worker library',
-                    jsonError: 'Error parsing value as json',
-                    timeoutError: 'The execution of a web worker has timed out'
+                    ajaxError: 'Error loading worker library.',
+                    jsonError: 'Error parsing value as json.',
+                    timeoutError: 'The execution of a web worker has timed out.'
                 }
             },
 
@@ -148,7 +148,8 @@
                 if ($.type(value) === STRING) {
                     if (that._value !== value) {
                         that._value = value;
-                        that._toggleUI();
+                        that.refresh();
+                        that.trigger(CHANGE, { value: that.value() });
                     }
                 } else if ($.type(value) === UNDEFINED) {
                     return that._value;
@@ -205,14 +206,15 @@
             /* jshint -W071 */
 
             /**
-             * toggle UI for custom vs library code
+             * refresh UI
              * @private
              */
-            _toggleUI: function () {
+            refresh: function () {
                 assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                 assert.instanceof(CodeMirror, this.codeMirror, kendo.format(assert.messages.instanceof.default, 'this.codeMirror', 'CodeMirror'));
                 var that = this;
                 var options = that.options;
+
                 // Any changes should remove any pending message
                 that.message.empty();
 
@@ -265,8 +267,6 @@
 
                     that.codeMirror.getDoc().setValue(kendo.format(formula, paramValue));
                 }
-
-                that.trigger(CHANGE, { value: that.value() });
             },
 
             /* jshint +W071 */
@@ -581,7 +581,7 @@
             },
 
             /**
-             * _dataSource function to bind refresh to the change event
+             * _dataSource function to pass the dataSource to the dropDownList
              * @private
              */
             _dataSource: function () {

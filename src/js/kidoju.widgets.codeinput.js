@@ -113,7 +113,8 @@
                 if ($.type(value) === STRING) {
                     if (that._value !== value) {
                         that._value = value;
-                        that._toggleUI();
+                        that.refresh();
+                        that.trigger(CHANGE, { value: that.value() });
                     }
                 } else if ($.type(value) === UNDEFINED) {
                     return that._value;
@@ -169,7 +170,7 @@
              * Toggle UI for custom vs library code
              * @private
              */
-            _toggleUI: function () {
+            refresh: function () {
                 assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                 var that = this;
                 var options = that.options;
@@ -205,7 +206,6 @@
                             .hide();
                     }
                 }
-                that.trigger(CHANGE, { value: that.value() });
             },
 
             /**
@@ -271,7 +271,7 @@
             },
 
             /**
-             * _dataSource function to bind refresh to the change event
+             * _dataSource function to pass the dataSource to the dropDownList
              * @private
              */
             _dataSource: function () {

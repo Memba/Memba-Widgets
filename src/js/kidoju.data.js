@@ -45,6 +45,10 @@
         var workerLibPath = location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js';
         // var workerLibPath = location.protocol + '//' + location.host + '/src/js/kidoju.data.workerlib.js'; // for WEINRE
 
+        /**
+         * Define our worker timeout from CPU capacity
+         * @returns {number}
+         */
         function workerTimeout() {
             var start = Date.now();
             var rnd;
@@ -546,6 +550,7 @@
                 var clone = {};
                 // Copy page component fields (tool, top, left, height, width, rotate, ...), but not attributes and properties
                 for (var field in fields) {
+                    // copy any field where fields[field].type is a string including 'boolean', 'number' and 'string' (i.e. not undefined)
                     if (fields.hasOwnProperty(field) && $.type(fields[field].type) === STRING && field !== component.idField) {
                         clone[field] = component.get(field);
                     }
@@ -554,14 +559,21 @@
                 fields = component.attributes.fields;
                 clone.attributes = {};
                 for (/*var */field in fields) {
-                    if (fields.hasOwnProperty(field) && $.type(fields[field].type) === STRING) {
-                        clone.attributes[field] = component.get('attributes.' + field);
+                    if (fields.hasOwnProperty(field)) {
+                        clone.attributes[field] = JSON.parse(JSON.stringify(component.get('attributes.' + field)));
                     }
                 }
-                // IMPORTANT: we do not copy test logic (properties)
-                clone = new PageComponent(clone);
+                // copy some property attributes
+                fields = component.properties.fields;
+                clone.properties = {};
+                for (/*var */field in fields) {
+                    // Copying validation can be fairly complex depending on the use of all, considering components need to change name
+                    if (fields.hasOwnProperty(field) && ['name', 'question', 'solution', 'validation', 'success', 'failure', 'omit'].indexOf(field) === -1) {
+                        clone.properties[field] = JSON.parse(JSON.stringify(component.get('properties.' + field)));
+                    }
+                }
                 // Return clone
-                return clone;
+                return new PageComponent(clone);
             },
 
             /**

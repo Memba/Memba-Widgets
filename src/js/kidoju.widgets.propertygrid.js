@@ -35,8 +35,9 @@
         var STRING = 'string';
         var NUMBER = 'number';
         var BOOLEAN = 'boolean';
+        var NULL = 'null';
+        var UNDEFINED = 'undefined';
         var DATE = 'date';
-        var NULL = null;
         var MOUSEENTER = 'mouseenter';
         var RX_PRIVATE = /^_/;
         var TBODY = 'tbody';
@@ -77,6 +78,10 @@
 
                 // Refresh if we have an object to display
                 that.refresh();
+
+                // Restore declarative bindings
+                kendo.notify(that);
+
             },
 
             /**
@@ -85,9 +90,9 @@
              */
             options: {
                 name: 'PropertyGrid',
-                value: NULL,
-                rows: NULL,
-                validation: NULL,
+                value: null, // Cannot be undefined
+                rows: null,  // Cannot be undefined and [] means no row to display
+                validation: null, // Cannot be undefined
                 templates: {
                     row: '<tr role="row"><td role="gridcell">#: title #</td><td role="gridcell"></td></tr>',
                     altRow: '<tr class="k-alt" role="row"><td role="gridcell">#: title #</td><td role="gridcell"></td></tr>'
@@ -100,46 +105,39 @@
 
             /**
              * Value is the object whose properties are displayed in the property grid
-             * @param object
+             * @param value
              * @returns {*}
              */
-            value: function (object) {
+            value: function (value) {
                 var that = this;
-                if (object === null) {
-                    if (that.options.value !== null) {
-                        that.options.value = null;
+                if ($.type(value) === OBJECT || $.type(value) === NULL) {
+                    if (that.options.value !== value) {
+                        that.options.value = value;
                         that.refresh();
                     }
-                } else if (object !== undefined) {
-                    if ($.type(object) !== OBJECT) {
-                        throw new TypeError('Properties should be an object');
-                    }
-                    if (object !== that.options.value) {
-                        that.options.value = object;
-                        that.refresh();
-                    }
-                } else {
+                } else if ($.type(value) === UNDEFINED) {
                     return that.options.value;
+                } else {
+                    throw new TypeError('`value` is expected to be an object if not null or undefined');
                 }
             },
 
             /**
              * Rows setter/getter
-             * @param array
+             * @param rows
              * @returns {*}
              */
-            rows: function (array) {
+            rows: function (rows) {
                 var that = this;
-                if (array !== undefined) {
-                    if (!$.isArray(array)) {
-                        throw new TypeError('Rows should be an object');
+                if ($.isArray(rows) || $.type(rows) === NULL) {
+                    if (rows !== that.options.rows) {
+                        that.options.rows = rows;
+                        // that.refresh();
                     }
-                    if (array !== that.options.rows) {
-                        that.options.rows = array;
-                        that.refresh();
-                    }
-                } else {
+                } else if ($.type(rows) === UNDEFINED) {
                     return that.options.rows;
+                } else {
+                    throw new TypeError('`rows` is expected to be an array if not null or undefined');
                 }
             },
 
@@ -200,7 +198,7 @@
                 var properties = that.value();
                 var tbody = element.find(TBODY).first();
 
-                kendo.unbind(tbody);
+                // kendo.unbind(tbody);
                 kendo.destroy(tbody);
                 tbody.find('*').off();
                 tbody.empty();
@@ -237,6 +235,8 @@
 
                 // Reposition column resizing handle
                 that._positionHandle();
+
+                logger.debug({ method: 'refresh', message: 'widget refreshed' });
             },
 
             /* jshint +W071 */
@@ -424,17 +424,16 @@
              */
             validation: function (validation) {
                 var that = this;
-                if (validation !== undefined) {
-                    if (validation !== NULL && !$.isPlainObject(validation)) {
-                        throw new TypeError('validation is not a nullable object');
-                    }
+                if ($.type(validation) === OBJECT || $.type(validation) === NULL) {
                     if (validation !== that.options.validation) {
                         that.options.validation = validation;
                         that._removeValidator();
                         that._addValidator();
                     }
-                } else {
+                } else if ($.type(validation) !== UNDEFINED) {
                     return that.options.validation;
+                } else {
+                    throw new TypeError('`validation` is expected to be an object if not null or undefined');
                 }
             },
 
@@ -539,7 +538,7 @@
             },
 
             input: function (container, options) {
-                if (options && options.attributes && options.attributes[kendo.attr('role')] === undefined) {
+                if (options && options.attributes && $.type(options.attributes[kendo.attr('role')]) === UNDEFINED) {
                     if ([undefined, 'text', 'email', 'search', 'tel', 'url'].indexOf(options.attributes.type) > -1) {
                         options.attributes.class = 'k-textbox';
                     } else if (['button', 'reset'].indexOf(options.attributes.type) > -1) {
@@ -625,21 +624,13 @@
                 if (field && fieldTypes.indexOf(field.type) > -1) {
                     return field.type;
                 }
-                if (defaultValue !== undefined && defaultValue !== null) {
+                if ($.type(defaultValue) !== UNDEFINED && $.type(defaultValue) !== NULL) {
                     type = $.type(defaultValue);
-                    if (fieldTypes.indexOf(type) > -1) {
-                        return type;
-                    } else {
-                        return undefined;
-                    }
+                    return fieldTypes.indexOf(type) > -1 ? type : undefined;
                 }
-                if (value !== undefined && value !== null) {
+                if ($.type(value) !== UNDEFINED && $.type(value) !== NULL) {
                     type = $.type(value);
-                    if (fieldTypes.indexOf(type) > -1) {
-                        return type;
-                    } else {
-                        return undefined;
-                    }
+                    return fieldTypes.indexOf(type) > -1 ? type : undefined;
                 }
                 // By default
                 return STRING;

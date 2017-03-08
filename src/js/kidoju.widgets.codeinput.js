@@ -73,7 +73,7 @@
                 autoBind: true,
                 dataSource: [],
                 custom: 'custom',
-                default: '// equal',
+                default: 'equal',
                 nameField: 'name',
                 formulaField: 'formula',
                 paramField: 'param',
@@ -172,14 +172,19 @@
              */
             refresh: function () {
                 assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+
                 var that = this;
                 var options = that.options;
+
                 if (that._isCustom(that._value)) {
+
                     // If value is in the form `function validate(value, solution[, all]) { ... }`, it is custom
                     that.dropDownList.text('');
                     that.dropDownList.wrapper.hide();
                     that.customInput.show();
+
                 } else {
+
                     // Otherwise, search the library
                     var parsed = that._parseLibraryValue(that._value);
                     if ($.type(parsed.item) === UNDEFINED) {
@@ -187,13 +192,16 @@
                         parsed = that._parseLibraryValue(LIB_COMMENT + options.default);
                         assert.type(OBJECT, parsed.item, '`this.options.default` is expected to exist in the library');
                     }
+
                     var name = parsed.item[options.nameField];
                     var paramName = parsed.item[options.paramField];
                     var paramValue = parsed.paramValue;
+
                     that._value = LIB_COMMENT + name + (paramName ? ' ' + JSON.stringify([paramValue]) : '');
                     that.customInput.hide();
                     that.dropDownList.wrapper.show();
                     that.dropDownList.text(name);
+
                     if ($.type(paramName) === STRING && paramName.length) {
                         that.paramInput
                             .attr('placeholder', paramName)
@@ -206,6 +214,8 @@
                             .hide();
                     }
                 }
+
+                logger.debug({ method: 'refresh', message: 'widget refreshed' });
             },
 
             /**

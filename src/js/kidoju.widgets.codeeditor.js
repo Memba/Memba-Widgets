@@ -91,7 +91,7 @@
                 autoBind: true,
                 dataSource: [],
                 custom: 'custom',
-                default: '// equal',
+                default: 'equal',
                 nameField: 'name',
                 formulaField: 'formula',
                 paramField: 'param',
@@ -267,6 +267,8 @@
 
                     that.codeMirror.getDoc().setValue(kendo.format(formula, paramValue));
                 }
+
+                logger.debug({ method: 'refresh', message: 'widget refreshed' });
             },
 
             /* jshint +W071 */

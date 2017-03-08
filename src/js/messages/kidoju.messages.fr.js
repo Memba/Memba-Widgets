@@ -46,14 +46,23 @@
         }
 
         /* kidoju.widgets.codeeditor */
-        /*
-         if (ui.CodeEditor) {
+        if (ui.CodeEditor) {
             options = ui.CodeEditor.prototype.options;
             options.messages = $.extend(true, options.messages, {
-                // TODO
+                formula: 'Formule:',
+                notApplicable: 'N/A',
+                solution: 'Solution:',
+                value: 'Valeur:',
+                test: 'Test',
+                success: 'Succès',
+                failure: 'Échec',
+                omit: 'Omission',
+                error: 'Erreur',
+                ajaxError: 'Erreur de chargement de la librairie de validation.',
+                jsonError: 'Erreur de traitement de la valeur par json.',
+                timeoutError: 'L\'exécution du processus de validation a pris trop de temps.'
             });
-         }
-         */
+        }
 
         /* kidoju.widgets.codeinput */
         /*
@@ -306,7 +315,7 @@
 
                 if (tools.audio instanceof Tool) {
                     // Description
-                    tools.checkbox.constructor.prototype.description = 'Lecteur Audio';
+                    tools.audio.constructor.prototype.description = 'Lecteur Audio';
                     // Attributes
                     attributes = tools.audio.constructor.prototype.attributes;
                     attributes.autoplay.title = 'Auto.';

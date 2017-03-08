@@ -46,14 +46,23 @@
         }
 
         /* kidoju.widgets.codeeditor */
-        /*
         if (ui.CodeEditor) {
              options = ui.CodeEditor.prototype.options;
              options.messages = $.extend(true, options.messages, {
-                // TODO
+                 formula: 'Formula:',
+                 notApplicable: 'N/A',
+                 solution: 'Solution:',
+                 value: 'Value:',
+                 test: 'Test',
+                 success: 'Success',
+                 failure: 'Failure',
+                 omit: 'Omit',
+                 error: 'Error',
+                 ajaxError: 'Error loading worker library.',
+                 jsonError: 'Error parsing value as json.',
+                 timeoutError: 'The execution of a web worker has timed out.'
             });
         }
-        */
 
         /* kidoju.widgets.codeinput */
         /*

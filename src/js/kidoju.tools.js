@@ -3067,7 +3067,7 @@
          */
         var MultiQuiz = Tool.extend({
             id: 'multiquiz',
-            icon: 'checkbox',
+            icon: 'checkbox_group',
             description: i18n.multiquiz.description,
             cursor: CURSOR_CROSSHAIR,
             weight: 1,

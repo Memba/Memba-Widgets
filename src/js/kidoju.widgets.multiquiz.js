@@ -685,6 +685,7 @@
                     that._value = null;
                     that.trigger(CHANGE, { value: that._value });
                 }
+                logger.debug({ method: 'refresh', message: 'widget refreshed' });
             },
 
             /**

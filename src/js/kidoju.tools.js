@@ -3092,7 +3092,7 @@
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.multiquiz.properties.name.title }),
                 question: new adapters.QuestionAdapter({ title: i18n.multiquiz.properties.question.title }),
-                solution: new adapters.MultiQuizSolutionAdapter({ title: i18n.multiquiz.properties.solution.title }),
+                solution: new adapters.MultiQuizSolutionAdapter({ title: i18n.multiquiz.properties.solution.title, defaultValue: [] }),
                 validation: new adapters.ValidationAdapter({ title: i18n.multiquiz.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.multiquiz.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.multiquiz.properties.failure.title, defaultValue: 0 }),

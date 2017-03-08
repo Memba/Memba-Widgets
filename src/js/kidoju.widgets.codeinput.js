@@ -61,7 +61,7 @@
                 logger.debug({ method: 'init', message: 'widget initialized' });
                 that._layout();
                 that._dataSource();
-                // kendo.notify(that);
+                kendo.notify(that);
             },
 
             /**
@@ -92,7 +92,7 @@
              * Init value
              * @private
              */
-            _initValue: function () { // Consider setOptions
+            _initValue: function () { // Consider making it setOptions(options)
                 var options = this.options;
                 if ($.type(options.value) === STRING && RX_VALIDATION_CUSTOM.test(options.value)) {
                     this.value(options.value);

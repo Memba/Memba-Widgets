@@ -532,6 +532,7 @@
                 var container = that.element.closest(options.container);
                 assert.instanceof($, container, kendo.format(assert.messages.instanceof.default, 'container', 'jQuery'));
                 assert.instanceof(DataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+
                 var surface = container.data(SURFACE);
                 if (surface instanceof kendo.drawing.Surface) {
                     // Clear surface
@@ -561,6 +562,8 @@
                         }
                     });
                 }
+
+                logger.debug({ method: 'refresh', message: 'widget refreshed' });
             },
 
             /**

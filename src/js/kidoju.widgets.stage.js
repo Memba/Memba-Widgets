@@ -1456,6 +1456,7 @@
                     // but in this case using the parent() method to recursively find the component is a dead end
                 }
                 */
+                logger.debug({ method: 'refresh', message: 'widget refreshed' });
             },
             /* jshint +W074 */
 

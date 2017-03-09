@@ -1283,7 +1283,7 @@
         });
 
         it('soundex', function (done) {
-            var soundex = [
+            var SOUNDEX = [
                 { name: 'Soundex', value: 'S532' },
                 { name: 'Example', value: 'E251' },
                 { name: 'Sownteks', value: 'S532' },
@@ -1309,21 +1309,21 @@
             var workerPool = new WorkerPool(2, 250);
             // var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
             var i = 0;
-            for (i = 0; i < soundex.length; i++) {
+            for (i = 0; i < SOUNDEX.length; i++) {
                 var blob = new Blob([
                     // 'self.importScripts("' + scriptUrl + '");\n' +
                     workerLib + ';\n' +
                     'self.onmessage = function (e) { self.postMessage(soundex(JSON.parse(e.data))); self.close(); };'],
                     { type: 'application/javascript' });
                 var blobURL = window.URL.createObjectURL(blob);
-                workerPool.add(soundex[i].name, blobURL, soundex[i].name);
+                workerPool.add(SOUNDEX[i].name, blobURL, SOUNDEX[i].name);
             }
             workerPool.run()
                 .done(function () {
-                    expect(arguments.length).to.equal(soundex.length);
+                    expect(arguments.length).to.equal(SOUNDEX.length);
                     for (i = 0; i < arguments.length; i++) {
-                        expect(arguments[i]).to.have.property('name', soundex[i].name);
-                        expect(arguments[i]).to.have.property('value', soundex[i].value);
+                        expect(arguments[i]).to.have.property('name', SOUNDEX[i].name);
+                        expect(arguments[i]).to.have.property('value', SOUNDEX[i].value);
                     }
                 })
                 .fail(function (err) {
@@ -1336,7 +1336,7 @@
         });
 
         it('metaphone', function (done) {
-            var metaphone = [
+            var METAPHONE = [
                 { name: 'Gnu', value: 'N' },
                 { name: 'bigger', value: 'BKR' },
                 { name: 'accuracy', value: 'AKKRS' },
@@ -1346,21 +1346,21 @@
             var workerPool = new WorkerPool(2, 250);
             // var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
             var i = 0;
-            for (i = 0; i < metaphone.length; i++) {
+            for (i = 0; i < METAPHONE.length; i++) {
                 var blob = new Blob([
                     // 'self.importScripts("' + scriptUrl + '");\n' +
                     workerLib + ';\n' +
                     'self.onmessage = function (e) { self.postMessage(metaphone(JSON.parse(e.data))); self.close(); };'],
                     { type: 'application/javascript' });
                 var blobURL = window.URL.createObjectURL(blob);
-                workerPool.add(metaphone[i].name, blobURL, metaphone[i].name);
+                workerPool.add(METAPHONE[i].name, blobURL, METAPHONE[i].name);
             }
             workerPool.run()
                 .done(function () {
-                    expect(arguments.length).to.equal(metaphone.length);
+                    expect(arguments.length).to.equal(METAPHONE.length);
                     for (i = 0; i < arguments.length; i++) {
-                        expect(arguments[i]).to.have.property('name', metaphone[i].name);
-                        expect(arguments[i]).to.have.property('value', metaphone[i].value);
+                        expect(arguments[i]).to.have.property('name', METAPHONE[i].name);
+                        expect(arguments[i]).to.have.property('value', METAPHONE[i].value);
                     }
                 })
                 .fail(function (err) {
@@ -1373,7 +1373,7 @@
         });
 
         it('removeDiacritics', function (done) {
-            var diacritics = [
+            var DIACRITICS = [
                 { name: 'La leçon est terminée', value: 'La lecon est terminee' },
                 { name: 'Cómo está usted', value: 'Como esta usted' },
                 { name: 'można zapoznać się', value: 'mozna zapoznac sie' },
@@ -1383,21 +1383,21 @@
             var workerPool = new WorkerPool(2, 250);
             // var scriptUrl = location.protocol + '//' + location.host + (/^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : '') + '/src/js/kidoju.data.workerlib.js';
             var i = 0;
-            for (i = 0; i < diacritics.length; i++) {
+            for (i = 0; i < DIACRITICS.length; i++) {
                 var blob = new Blob([
                     // 'self.importScripts("' + scriptUrl + '");\n' +
                     workerLib + ';\n' +
                     'self.onmessage = function (e) { self.postMessage(removeDiacritics(JSON.parse(e.data))); self.close(); };'],
                     { type: 'application/javascript' });
                 var blobURL = window.URL.createObjectURL(blob);
-                workerPool.add(diacritics[i].name, blobURL, diacritics[i].name);
+                workerPool.add(DIACRITICS[i].name, blobURL, DIACRITICS[i].name);
             }
             workerPool.run()
                 .done(function () {
-                    expect(arguments.length).to.equal(diacritics.length);
+                    expect(arguments.length).to.equal(DIACRITICS.length);
                     for (i = 0; i < arguments.length; i++) {
-                        expect(arguments[i]).to.have.property('name', diacritics[i].name);
-                        expect(arguments[i]).to.have.property('value', diacritics[i].value);
+                        expect(arguments[i]).to.have.property('name', DIACRITICS[i].name);
+                        expect(arguments[i]).to.have.property('value', DIACRITICS[i].value);
                     }
                 })
                 .fail(function (err) {

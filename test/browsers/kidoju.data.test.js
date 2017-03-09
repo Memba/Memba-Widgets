@@ -1313,7 +1313,8 @@
                 var blob = new Blob([
                     // 'self.importScripts("' + scriptUrl + '");\n' +
                     workerLib + ';\n' +
-                    'self.onmessage = function (e) { self.postMessage(soundex(JSON.parse(e.data))); self.close(); };']);
+                    'self.onmessage = function (e) { self.postMessage(soundex(JSON.parse(e.data))); self.close(); };'],
+                    { type: 'application/javascript' });
                 var blobURL = window.URL.createObjectURL(blob);
                 workerPool.add(soundex[i].name, blobURL, soundex[i].name);
             }
@@ -1349,7 +1350,8 @@
                 var blob = new Blob([
                     // 'self.importScripts("' + scriptUrl + '");\n' +
                     workerLib + ';\n' +
-                    'self.onmessage = function (e) { self.postMessage(metaphone(JSON.parse(e.data))); self.close(); };']);
+                    'self.onmessage = function (e) { self.postMessage(metaphone(JSON.parse(e.data))); self.close(); };'],
+                    { type: 'application/javascript' });
                 var blobURL = window.URL.createObjectURL(blob);
                 workerPool.add(metaphone[i].name, blobURL, metaphone[i].name);
             }
@@ -1385,7 +1387,8 @@
                 var blob = new Blob([
                     // 'self.importScripts("' + scriptUrl + '");\n' +
                     workerLib + ';\n' +
-                    'self.onmessage = function (e) { self.postMessage(removeDiacritics(JSON.parse(e.data))); self.close(); };']);
+                    'self.onmessage = function (e) { self.postMessage(removeDiacritics(JSON.parse(e.data))); self.close(); };'],
+                    { type: 'application/javascript' });
                 var blobURL = window.URL.createObjectURL(blob);
                 workerPool.add(diacritics[i].name, blobURL, diacritics[i].name);
             }

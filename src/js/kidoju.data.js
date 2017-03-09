@@ -1298,7 +1298,7 @@
                                         // 'self.importScripts("' + workerLibPath + '");\n' +
                                         workerLib + ';\n' +
                                         'self.onmessage = function (e) {\n' + code + '\nvar data=JSON.parse(e.data);\nif (typeof data.value === "undefined") { self.postMessage(undefined); } else { self.postMessage(validate(data.value, data.solution, data.all)); } self.close(); };'
-                                    ]);
+                                    ], { type: 'application/javascript' });
                                     var blobURL = window.URL.createObjectURL(blob);
 
                                     logger.debug({

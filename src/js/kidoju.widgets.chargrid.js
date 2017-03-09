@@ -763,14 +763,15 @@
             destroy: function () {
                 var that = this;
                 var element = that.element;
-                Widget.fn.destroy.call(that);
                 // unbind events
                 that.enable(false);
-                // unbind and destroy all descendants
-                kendo.unbind(element);
+                // release references
+                that.surface = undefined;
+                that.input = undefined;
+                that._selectedCell = undefined;
+                // destroy kendo
+                Widget.fn.destroy.call(that);
                 kendo.destroy(element);
-                // remove descendants
-                element.empty();
                 // remove widget class
                 element.removeClass(WIDGET_CLASS);
             }

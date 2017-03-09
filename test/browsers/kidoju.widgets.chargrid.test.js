@@ -57,7 +57,6 @@
                 expect(charGrid).to.be.an.instanceof(CharGrid);
                 // expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-chargrid');
-                // TODO expect(assetManager).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
             });
 
             it('from markup', function () {
@@ -70,7 +69,7 @@
             });
 
             xit('from markup with attributes', function () {
-                // TODO: AssetManager might be a bit complex to initialize with attributes...
+                // TODO
             });
 
             afterEach(function () {
@@ -98,7 +97,7 @@
             });
 
             xit('setOptions', function () {
-                // TODO especially regarding filters (to be enforced)
+                // TODO
             });
 
             xit('destroy', function () {

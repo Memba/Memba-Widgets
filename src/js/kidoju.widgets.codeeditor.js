@@ -216,7 +216,7 @@
                 var options = that.options;
 
                 // Any changes should remove any pending message
-                that.message.empty();
+                that.messageWrap.empty();
 
                 if (that._isCustom(that._value)) {
 
@@ -413,7 +413,7 @@
                     .appendTo(testDiv);
 
                 // Add the message block
-                that.message = $('<div class="kj-codeeditor-message"></div>')
+                that.messageWrap = $('<div class="kj-codeeditor-message"></div>')
                     .appendTo(testDiv);
             },
 
@@ -426,7 +426,7 @@
                 var options = that.options;
 
                 // New test, so empty the message if it is still shown
-                that.message.empty();
+                that.messageWrap.empty();
 
                 if ($.type(options.workerLib) === STRING && options.workerLib.length) {
                     // Download the worker lib
@@ -531,18 +531,18 @@
                 var options = that.options;
                 that._lines = undefined;
                 if ($.type(result) === UNDEFINED) {
-                    that.message
+                    that.messageWrap
                         .append(kendo.template(MESSAGE_TMPL)({ type: 'warning', message: options.messages.omit }));
                 } else if (result === true) {
-                    that.message
+                    that.messageWrap
                         .append(kendo.template(MESSAGE_TMPL)({ type: 'success', message: options.messages.success }));
                 } else if (result === false) {
-                    that.message
+                    that.messageWrap
                         .append(kendo.template(MESSAGE_TMPL)({ type: 'info', message: options.messages.failure }));
                 }
                 setTimeout(function () {
-                    if (that.message instanceof $) { // Note: that.message might no more exist if the codeeditor has been closed in the meantime
-                        that.message.empty();
+                    if (that.messageWrap instanceof $) { // Note: that.messageWrap might no more exist if the codeeditor has been closed in the meantime
+                        that.messageWrap.empty();
                     }
                 }, 5000);
             },
@@ -558,11 +558,11 @@
                 var that = this;
                 var options = that.options;
 
-                that.message
+                that.messageWrap
                     .append(kendo.template(MESSAGE_TMPL)({ type: 'error', message: options.messages.error }));
 
                 if (!(that.tooltip instanceof kendo.ui.Tooltip)) {
-                    that.tooltip = that.message.kendoTooltip({
+                    that.tooltip = that.messageWrap.kendoTooltip({
                         filter: '.k-notification-error',
                         position: 'top',
                         content: function (e) {
@@ -635,7 +635,7 @@
                 that.solutionInput = undefined;
                 that.valueInput = undefined;
                 that.testButton = undefined;
-                that.message = undefined;
+                that.messageWrap = undefined;
                 // Destroy kendo
                 Widget.fn.destroy.call(that);
                 kendo.destroy(element);

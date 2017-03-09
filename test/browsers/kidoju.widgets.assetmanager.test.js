@@ -215,8 +215,7 @@
 
             it('value and select', function (done) {
                 if (window.PHANTOMJS) {
-                    // TODO: Does not work on Travis-CI
-                    return done();
+                    return done(); // TODO: Does not work on Travis-CI
                 }
                 expect(assetManager).to.be.an.instanceof(AssetManager);
                 expect(assetManager.dataSource).to.be.an.instanceof(kendo.data.DataSource);
@@ -234,7 +233,7 @@
                             assetManager.select(2);
                             expect(assetManager.value()).to.equal('cdn://images/o_collection/svg/dark_grey/add.svg');
                             done();
-                        }, TTL);
+                        }, 0);
                     }
                 });
                 // Yield some time for collections to load

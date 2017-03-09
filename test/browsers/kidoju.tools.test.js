@@ -136,6 +136,20 @@
                 expect(field).to.have.property('type', adapter.type);
             });
 
+            it('Validate CharGridAdapter', function () {
+                var adapter = new adapters.CharGridAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field.type).to.be.undefined;
+            });
+
+            it('Validate ChartAdapter', function () {
+                var adapter = new adapters.ChartAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field.type).to.be.undefined;
+            });
+
             it('Validate ColorAdapter', function () {
                 var adapter = new adapters.ColorAdapter();
                 var field = adapter.getField();
@@ -157,8 +171,8 @@
                 expect(field).to.have.property('type', adapter.type);
             });
 
-            it('Validate DescriptionAdapter', function () {
-                var adapter = new adapters.DescriptionAdapter();
+            it('Validate DisabledAdapter', function () {
+                var adapter = new adapters.DisabledAdapter();
                 var field = adapter.getField();
                 var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
@@ -169,6 +183,13 @@
                 var field = adapter.getField();
                 var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
+            });
+
+            it('Validate MultiQuizSolutionAdapter', function () {
+                var adapter = new adapters.MultiQuizSolutionAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field.type).to.be.undefined;
             });
 
             it('Validate NameAdapter', function () {
@@ -185,14 +206,35 @@
                 expect(field).to.have.property('type', adapter.type);
             });
 
-            it('Validate QuizAdapter', function () {
-                var adapter = new adapters.QuizAdapter();
+            it('Validate QuestionAdapter', function () {
+                var adapter = new adapters.NumberAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+            it('Validate QuizDataAdapter', function () {
+                var adapter = new adapters.QuizDataAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field.type).to.be.undefined;
+            });
+
+            it('Validate QuizSolutionAdapter', function () {
+                var adapter = new adapters.QuizSolutionAdapter();
                 var field = adapter.getField();
                 var row = adapter.getRow('test');
                 expect(field).to.have.property('type', adapter.type);
             });
 
             it('Validate ScoreAdapter', function () {
+                var adapter = new adapters.ScoreAdapter();
+                var field = adapter.getField();
+                var row = adapter.getRow('test');
+                expect(field).to.have.property('type', adapter.type);
+            });
+
+            it('Validate SelectorAdapter', function () {
                 var adapter = new adapters.ScoreAdapter();
                 var field = adapter.getField();
                 var row = adapter.getRow('test');
@@ -255,7 +297,7 @@
 
         describe('Audio', function () {
 
-            it('Validate audio properties', function () {
+            it('Validate properties', function () {
                 var tool = tools.audio;
                 expect(tool.id).to.equal('audio');
                 expect(tool.icon).to.equal('loudspeaker3');
@@ -300,15 +342,15 @@
 
         });
 
-        describe('Checkbox', function () {
+        describe('Chart', function () {
 
-            it('Validate checkbox properties', function () {
-                var tool = tools.checkbox;
-                expect(tool.id).to.equal('checkbox');
-                expect(tool.icon).to.equal('checkbox');
+            it('Validate properties', function () {
+                var tool = tools.chart;
+                expect(tool.id).to.equal('chart');
+                expect(tool.icon).to.equal('chart_area');
                 expect(tool.cursor).to.equal('crosshair');
-                expect(tool.height).to.equal(200);
-                expect(tool.width).to.equal(350);
+                expect(tool.height).to.equal(400);
+                expect(tool.width).to.equal(400);
                 expect(tool.getHtmlContent).to.respond;
                 expect(tool.onMove).to.be.undefined;
                 expect(tool.onResize).to.respond;
@@ -322,8 +364,8 @@
                 function fn2() {
                     return tool.getHtmlContent(component);
                 }
-                var tool = tools.checkbox;
-                var component = new PageComponent({ tool: 'checkbox' });
+                var tool = tools.chart;
+                var component = new PageComponent({ tool: 'chart' });
                 var html;
 
                 // If we do not submit a page component
@@ -334,22 +376,69 @@
 
                 // If we submit a valid page component in design mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
-                expect(html).to.match(/^<div data-role="multicheckbox"/);
+                expect(html).to.match(/^<div data-role="chart"/);
 
                 // If we submit a valid page component in play mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
-                expect(html).to.match(/^<div data-role="multicheckbox"/);
+                expect(html).to.match(/^<div data-role="chart"/);
 
                 // If we submit a valid page component in review mode
                 html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
-                expect(html).to.match(/^<div data-role="multicheckbox"/);
+                expect(html).to.match(/^<div data-role="chart"/);
+            });
+
+        });
+
+        describe('CharGrid', function () {
+
+            it('Validate properties', function () {
+                var tool = tools.chargrid;
+                expect(tool.id).to.equal('chargrid');
+                expect(tool.icon).to.equal('dot_matrix');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(400);
+                expect(tool.width).to.equal(400);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.chargrid;
+                var component = new PageComponent({ tool: 'chargrid' });
+                var html;
+
+                // If we do not submit a page component
+                expect(fn1).to.throw;
+
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
+                expect(html).to.match(/^<div data-role="chargrid"/);
+
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<div data-role="chargrid"/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<div data-role="chargrid"/);
             });
 
         });
 
         describe('Connector', function () {
 
-            it('Validate connector properties', function () {
+            it('Validate properties', function () {
                 var tool = tools.connector;
                 expect(tool.id).to.equal('connector');
                 expect(tool.icon).to.equal('target');
@@ -396,7 +485,7 @@
 
         describe('DropZone', function () {
 
-            it('Validate dropzone properties', function () {
+            it('Validate properties', function () {
                 var tool = tools.dropzone;
                 expect(tool.id).to.equal('dropzone');
                 expect(tool.icon).to.equal('elements_selection');
@@ -443,7 +532,7 @@
 
         describe('Image', function () {
 
-            it('Validate image properties', function () {
+            it('Validate properties', function () {
                 var tool = tools.image;
                 expect(tool.id).to.equal('image');
                 expect(tool.icon).to.equal('painting_landscape');
@@ -490,7 +579,7 @@
 
         describe('Label', function () {
 
-            it('Validate label properties', function () {
+            it('Validate properties', function () {
                 var tool = tools.label;
                 expect(tool.id).to.equal('label');
                 expect(tool.icon).to.equal('font');
@@ -537,7 +626,7 @@
 
         describe('MathExpression', function () {
 
-            it('Validate checkbox properties', function () {
+            it('Validate properties', function () {
                 var tool = tools.mathexpression;
                 expect(tool.id).to.equal('mathexpression');
                 expect(tool.icon).to.equal('formula');
@@ -582,15 +671,62 @@
 
         });
 
+        describe('MultiQuiz', function () {
+
+            it('Validate properties', function () {
+                var tool = tools.multiquiz;
+                expect(tool.id).to.equal('multiquiz');
+                expect(tool.icon).to.equal('checkbox_group');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(150);
+                expect(tool.width).to.equal(420);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.multiquiz;
+                var component = new PageComponent({ tool: 'multiquiz' });
+                var html;
+
+                // If we do not submit a page component
+                expect(fn1).to.throw;
+
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
+                expect(html).to.match(/^<div data-role="multiquiz"/);
+
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<div data-role="multiquiz"/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<div data-role="multiquiz"/);
+            });
+
+        });
+
         describe('Quiz', function () {
 
-            it('Validate quiz properties', function () {
+            it('Validate properties', function () {
                 var tool = tools.quiz;
                 expect(tool.id).to.equal('quiz');
                 expect(tool.icon).to.equal('radio_button_group');
                 expect(tool.cursor).to.equal('crosshair');
-                expect(tool.height).to.equal(200);
-                expect(tool.width).to.equal(350);
+                expect(tool.height).to.equal(120);
+                expect(tool.width).to.equal(490);
                 expect(tool.getHtmlContent).to.respond;
                 expect(tool.onMove).to.be.undefined;
                 expect(tool.onResize).to.respond;
@@ -629,9 +765,150 @@
 
         });
 
+        describe('Selector', function () {
+
+            it('Validate properties', function () {
+                var tool = tools.selector;
+                expect(tool.id).to.equal('selector');
+                expect(tool.icon).to.equal('selector');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(150);
+                expect(tool.width).to.equal(250);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.selector;
+                var component = new PageComponent({ tool: 'selector' });
+                var html;
+
+                // If we do not submit a page component
+                expect(fn1).to.throw;
+
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
+                expect(html).to.match(/^<div data-role="selector"/);
+
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<div data-role="selector"/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<div data-role="selector"/);
+            });
+
+        });
+
+        describe('Table', function () {
+
+            it('Validate properties', function () {
+                var tool = tools.table;
+                expect(tool.id).to.equal('table');
+                expect(tool.icon).to.equal('table');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(350);
+                expect(tool.width).to.equal(600);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.table;
+                var component = new PageComponent({ tool: 'table' });
+                var html;
+
+                // If we do not submit a page component
+                expect(fn1).to.throw;
+
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
+                expect(html).to.match(/^<div data-role="table"/);
+
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<div data-role="table"/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<div data-role="table"/);
+            });
+
+        });
+
+        describe('Textarea', function () {
+
+            it('Validate properties', function () {
+                var tool = tools.textarea;
+                expect(tool.id).to.equal('textarea');
+                expect(tool.icon).to.equal('document_orientation_landscape');
+                expect(tool.cursor).to.equal('crosshair');
+                expect(tool.height).to.equal(300);
+                expect(tool.width).to.equal(500);
+                expect(tool.getHtmlContent).to.respond;
+                expect(tool.onMove).to.be.undefined;
+                expect(tool.onResize).to.respond;
+                expect(tool.onRotate).to.be.undefined;
+            });
+
+            it('Check getHtmlContent', function () {
+                function fn1() {
+                    return tool.getHtmlContent({});
+                }
+                function fn2() {
+                    return tool.getHtmlContent(component);
+                }
+                var tool = tools.textarea;
+                var component = new PageComponent({ tool: 'textarea' });
+                var html;
+
+                // If we do not submit a page component
+                expect(fn1).to.throw;
+
+                // If we do not submit a mode
+                expect(fn2).to.throw;
+
+                // If we submit a valid page component in design mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.design);
+                expect(html).to.match(/^<textarea/);
+
+                // If we submit a valid page component in play mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.play);
+                expect(html).to.match(/^<textarea/);
+
+                // If we submit a valid page component in review mode
+                html = tool.getHtmlContent(component, kendo.ui.Stage.fn.modes.review);
+                expect(html).to.match(/^<textarea/);
+            });
+
+        });
+
         describe('Textbox', function () {
 
-            it('Validate textbox properties', function () {
+            it('Validate properties', function () {
                 var tool = tools.textbox;
                 expect(tool.id).to.equal('textbox');
                 expect(tool.icon).to.equal('text_field');
@@ -678,7 +955,7 @@
 
         describe('Video', function () {
 
-            it('Validate audio properties', function () {
+            it('Validate properties', function () {
                 var tool = tools.video;
                 expect(tool.id).to.equal('video');
                 expect(tool.icon).to.equal('movie');

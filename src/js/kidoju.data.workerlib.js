@@ -103,8 +103,16 @@
         }
     }
     if (global.requestFileSystem) {
-        // true in chrome
         global.requestFileSystem = undefined;
+    }
+    if (global.requestFileSystemSync) {
+        global.requestFileSystemSync = undefined;
+    }
+    if (global.resolveLocalFileSystemURL) {
+        global.resolveLocalFileSystemURL = undefined;
+    }
+    if (global.resolveLocalFileSystemSyncURL) {
+        global.resolveLocalFileSystemSyncURL = undefined;
     }
     global.setInterval = undefined;
     global.setTimeout = undefined;

@@ -1888,7 +1888,7 @@
                         .appendTo(table);
                     var binding = {};
                     binding[kendo.attr('bind')] = 'value: ' + settings.field + ', source: _library';
-                    var input = $('<div' +
+                    var input = $('<div ' +
                         'data-' + kendo.ns + 'role="codeinput" ' +
                         'data-' + kendo.ns + 'default="' + settings.model.properties.defaults.validation + '" />')
                     // Note: _library is added to the data bound PageComponent in its init method

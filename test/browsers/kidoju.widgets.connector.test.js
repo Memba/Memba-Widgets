@@ -112,119 +112,18 @@
 
             var element;
             var connector;
-            var DUMMY = 'dummy';
-            // var EQ_NAME = LIBRARY[1].name;
-            // var EQ_FORMULA = LIBRARY[1].formula;
-            var FORMULA1 = 'function test(a, b) { return a + b; }';
-            var FORMULA2 = 'function validate(value, solution) {\n\treturn true;\n}';
-            var FORMULA3 = 'function validate(value,solution,all){\nreturn true;\n}';
+
 
             beforeEach(function () {
                 element = $(CONNECTOR1).appendTo(FIXTURES);
                 connector = element.kendoConnector({
-                    // dataSource: LIBRARY,
-                    // default: NAME,
-                    // value: NAME
+                    // TODO
                 }).data('kendoConnector');
             });
 
-            it('_isCustom: private method to check custom formula', function () {
-                function fn() {
-                    connector._isCustom(100);
-                }
-                expect(connector).to.be.an.instanceof(Connector);
-                expect(fn).to.throw(TypeError);
-                // expect(connector._isCustom(JS_COMMENT)).to.be.undefined;
-                // expect(connector._isCustom(EQ_NAME)).to.be.undefined;
-                // expect(connector._isCustom(JS_COMMENT + EQ_NAME)).to.be.undefined;
-                expect(connector._isCustom(FORMULA1)).to.be.undefined;
-                expect(connector._isCustom(FORMULA2)).to.equal(FORMULA2);
-                expect(connector._isCustom(FORMULA3)).to.equal(FORMULA3);
+            xit('value', function () {
+                // TODO
             });
-
-            it('_isInLibrary: private method to check library formula', function () {
-                function fn() {
-                    connector._isInLibrary(100);
-                }
-                expect(connector).to.be.an.instanceof(Connector);
-                expect(fn).to.throw(TypeError);
-                // expect(connector._isInLibrary(JS_COMMENT)).to.be.undefined;
-                // expect(connector._isInLibrary(DUMMY)).to.be.undefined;
-                // expect(connector._isInLibrary(JS_COMMENT + DUMMY)).to.be.undefined;
-                // expect(connector._isInLibrary(EQ_NAME)).to.be.undefined;
-                expect(connector._isInLibrary(FORMULA1)).to.be.undefined;
-                expect(connector._isInLibrary(FORMULA2)).to.be.undefined;
-                expect(connector._isInLibrary(FORMULA3)).to.be.undefined;
-                // expect(connector._isInLibrary(JS_COMMENT + EQ_NAME)).to.equal(EQ_NAME);
-            });
-
-            it('setDataSource', function () {
-                expect(connector).to.be.an.instanceof(Connector);
-                expect(connector).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
-                expect(connector).to.have.property('dropDownList').that.is.an.instanceof(kendo.ui.DropDownList);
-                expect(connector.dropDownList).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
-                expect(connector.dataSource).to.equal(connector.dropDownList.dataSource);
-                // expect(connector.dataSource.total()).to.equal(LIBRARY.length);
-                // expect(connector.value()).to.equal(JS_COMMENT + NAME);
-                // connector.setDataSource([LIBRARY[0], LIBRARY[1], LIBRARY[4]]);
-                // expect(connector.value()).to.equal(JS_COMMENT + NAME);
-                expect(connector).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
-                expect(connector).to.have.property('dropDownList').that.is.an.instanceof(kendo.ui.DropDownList);
-                expect(connector.dropDownList).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
-                expect(connector.dataSource).to.equal(connector.dropDownList.dataSource);
-                expect(connector.dataSource.total()).to.equal(3);
-            });
-
-            /* This function has too many statements. */
-            /* jshint -W071 */
-            it('value', function () {
-                function fn1() {
-                    connector.value(100);
-                }
-                function fn2() {
-                    connector.value(null);
-                }
-                expect(connector).to.be.an.instanceof(Connector);
-                expect(connector).to.have.property('dropDownList').that.is.an.instanceof(kendo.ui.DropDownList);
-                expect(fn1).to.throw(TypeError);
-                expect(fn2).to.throw(TypeError);
-                connector.value(undefined);
-                // expect(connector.value()).to.equal(JS_COMMENT + NAME);
-                //  expect(connector.dropDownList.text()).to.equal(NAME);
-                expect(connector.dropDownList.wrapper).to.be.visible;
-                expect(connector.input).not.to.be.visible;
-                // connector.value(JS_COMMENT);
-                // expect(connector.value()).to.equal(JS_COMMENT + NAME);
-                //  expect(connector.dropDownList.text()).to.equal(NAME);
-                expect(connector.dropDownList.wrapper).to.be.visible;
-                expect(connector.input).not.to.be.visible;
-                // connector.value(JS_COMMENT + EQ_NAME);
-                // expect(connector.value()).to.equal(JS_COMMENT + EQ_NAME);
-                // expect(connector.dropDownList.text()).to.equal(EQ_NAME);
-                expect(connector.dropDownList.wrapper).to.be.visible;
-                expect(connector.input).not.to.be.visible;
-                // If the value is stupid it uses connector.options.default
-                // connector.value(JS_COMMENT + DUMMY);
-                // expect(connector.value()).to.equal(JS_COMMENT + NAME);
-                // expect(connector.dropDownList.text()).to.equal(NAME);
-                expect(connector.dropDownList.wrapper).to.be.visible;
-                expect(connector.input).not.to.be.visible;
-                connector.value(FORMULA2);
-                expect(connector.value()).to.equal(FORMULA2);
-                expect(connector.dropDownList.wrapper).not.to.be.visible;
-                expect(connector.input).to.be.visible;
-                // If the value is stupid it uses connector.options.default
-                connector.value(FORMULA1);
-                // expect(connector.value()).to.equal(JS_COMMENT + NAME);
-                // expect(connector.dropDownList.text()).to.equal(NAME);
-                expect(connector.dropDownList.wrapper).to.be.visible;
-                expect(connector.input).not.to.be.visible;
-                connector.value(FORMULA3);
-                expect(connector.value()).to.equal(FORMULA3);
-                expect(connector.dropDownList.wrapper).not.to.be.visible;
-                expect(connector.input).to.be.visible;
-            });
-            /* jshint +W071 */
 
             xit('destroy', function () {
                 // TODO
@@ -237,11 +136,8 @@
             var element;
             var connector;
             var change;
-            //  var EQ_NAME = LIBRARY[1].name;
-            // var EQ_FORMULA = LIBRARY[1].formula;
             var viewModel = kendo.observable({
-                // library: LIBRARY,
-                code: ''
+                // TODO
             });
 
             beforeEach(function () {

@@ -37,44 +37,48 @@
 
         var kendo = window.kendo;
         var library = [
-                {
-                    name: 'custom',
-                    formula: 'function validate(value, solution) {\n\t// Your code should return true when value is validated against solution.\n}'
-                },
-                {
-                    name: 'intEqual',
-                    formula: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
-                },
-                {
-                    name: 'floatEqual',
-                    formula: 'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
-                },
-                {
-                    name: 'round2DecimalsEqual',
-                    formula: 'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}'
-                },
-                {
-                    name: 'withParam',
-                    formula: 'function validate(value, solution) {\n\treturn new RegExp({0}, \'i\').test(value);\n}',
-                    param: 'RegExp'
-                },
-                {
-                    name: 'greaterThan',
-                    formula: 'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}'
-                },
-                {
-                    name: 'greaterThanOrEqual',
-                    formula: 'function validate(value, solution) {\n\treturn parseFloat(value) >= parseFloat(solution);\n}'
-                },
-                {
-                    name: 'lowerThan',
-                    formula: 'function validate(value, solution) {\n\treturn parseFloat(value) < parseFloat(solution);\n}'
-                },
-                {
-                    name: 'lowerThanOrEqual',
-                    formula: 'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
-                }
-            ];
+            {
+                name: 'custom',
+                formula: 'function validate(value, solution) {\n\t// Your code should return true when value is validated against solution.\n}'
+            },
+            // { // Test another options.default
+            //    name: 'equal',
+            //    formula: 'function validate(value, solution) {\n\treturn String(value).trim() === String(solution).trim();\n}'
+            // },
+            {
+                name: 'intEqual',
+                formula: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
+            },
+            {
+                name: 'floatEqual',
+                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) === parseFloat(solution);\n}'
+            },
+            {
+                name: 'round2DecimalsEqual',
+                formula: 'function validate(value, solution) {\n\treturn Math.round(parseFloat(value)*100)/100 === parseFloat(solution);\n}'
+            },
+            {
+                name: 'greaterThan',
+                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) > parseFloat(solution);\n}'
+            },
+            {
+                name: 'greaterThanOrEqual',
+                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) >= parseFloat(solution);\n}'
+            },
+            {
+                name: 'lowerThan',
+                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) < parseFloat(solution);\n}'
+            },
+            {
+                name: 'lowerThanOrEqual',
+                formula: 'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
+            },
+            {
+                name: 'withParam',
+                formula: 'function validate(value, solution) {\n\treturn new RegExp({0}, \'i\').test(value);\n}',
+                param: 'RegExp'
+            }
+        ];
         var viewModel = kendo.observable({
                 code: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === 5 + parseInt(solution, 10);\n}',
                 library: library,

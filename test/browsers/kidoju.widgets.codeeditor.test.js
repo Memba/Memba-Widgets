@@ -26,6 +26,10 @@
             formula: 'function validate(value, solution, all) {\n\t// Your code should return true when value is validated against solution.\n}'
         },
         {
+            name: 'equal',
+            formula: 'function validate(value, solution) {\n\treturn String(value).trim() === String(solution).trim();\n}'
+        },
+        {
             name: 'intEqual',
             formula: 'function validate(value, solution) {\n\treturn parseInt(value, 10) === parseInt(solution, 10);\n}'
         },
@@ -52,9 +56,14 @@
         {
             name: 'lowerThanOrEqual',
             formula: 'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
+        },
+        {
+            name: 'withParam',
+            formula: 'function validate(value, solution) {\n\treturn new RegExp({0}, \'i\').test(value);\n}',
+            param: 'RegExp'
         }
     ];
-    var JS_COMMENT = '// ';
+    var LIB_COMMENT = '// ';
     var NAME = LIBRARY[4].name;
     var FORMULA = LIBRARY[4].formula;
     var SOLUTION = '0';
@@ -90,28 +99,41 @@
                 expect(codeEditor).to.have.property('codeMirror').that.is.an.instanceof(CodeMirror);
                 expect(codeEditor).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
                 expect(codeEditor).to.have.property('dropDownList').that.is.an.instanceof(kendo.ui.DropDownList);
-                expect(codeEditor).to.have.property('input').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('paramInput').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('solutionInput').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('valueInput').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('testButton').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('messageWrap').that.is.an.instanceof(jQuery);
                 expect(codeEditor).to.have.property('wrapper').that.is.an.instanceof(jQuery);
                 expect(codeEditor.dataSource.total()).to.equal(0);
                 expect(codeEditor.value()).to.be.undefined;
-                expect(codeEditor.input.val()).to.equal('');
+                // expect(codeEditor.paramInput.attr('placeholder')).to.equal(CodeEditor.fn.options.messages.notApplicable);
+                expect(codeEditor.paramInput.val()).to.equal('');
+                expect(codeEditor.solutionInput.val()).to.equal('');
+                expect(codeEditor.valueInput.val()).to.equal('');
             });
 
             it('from code with options', function () {
                 var element = $(CODEEDITOR1).appendTo(FIXTURES);
-                var codeEditor = element.kendoCodeEditor({ dataSource: LIBRARY, value: JS_COMMENT + NAME, solution: SOLUTION }).data('kendoCodeEditor');
+                var codeEditor = element.kendoCodeEditor({ dataSource: LIBRARY, value: LIB_COMMENT + NAME, solution: SOLUTION }).data('kendoCodeEditor');
                 expect(codeEditor).to.be.an.instanceof(CodeEditor);
                 expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-codeeditor');
                 expect(codeEditor).to.have.property('codeMirror').that.is.an.instanceof(CodeMirror);
                 expect(codeEditor).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
                 expect(codeEditor).to.have.property('dropDownList').that.is.an.instanceof(kendo.ui.DropDownList);
-                expect(codeEditor).to.have.property('input').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('paramInput').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('solutionInput').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('valueInput').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('testButton').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('messageWrap').that.is.an.instanceof(jQuery);
                 expect(codeEditor).to.have.property('wrapper').that.is.an.instanceof(jQuery);
                 expect(codeEditor.dataSource.total()).to.equal(LIBRARY.length);
-                // expect(codeEditor.dataSource.data()).to.deep.equal(LIBRARY);
-                expect(codeEditor.value()).to.equal(JS_COMMENT + NAME);
-                expect(codeEditor.input.val()).to.equal(SOLUTION);
+                expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
+                expect(codeEditor.paramInput.attr('placeholder')).to.equal(CodeEditor.fn.options.messages.notApplicable);
+                expect(codeEditor.paramInput.val()).to.equal('');
+                expect(codeEditor.solutionInput.val()).to.equal(SOLUTION);
+                expect(codeEditor.valueInput.val()).to.equal('');
             });
 
             it('from markup', function () {
@@ -124,17 +146,24 @@
                 expect(codeEditor).to.have.property('codeMirror').that.is.an.instanceof(CodeMirror);
                 expect(codeEditor).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
                 expect(codeEditor).to.have.property('dropDownList').that.is.an.instanceof(kendo.ui.DropDownList);
-                expect(codeEditor).to.have.property('input').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('paramInput').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('solutionInput').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('valueInput').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('testButton').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('messageWrap').that.is.an.instanceof(jQuery);
                 expect(codeEditor).to.have.property('wrapper').that.is.an.instanceof(jQuery);
                 expect(codeEditor.dataSource.total()).to.equal(0);
                 expect(codeEditor.value()).to.be.undefined;
-                expect(codeEditor.input.val()).to.equal('');
+                // expect(codeEditor.paramInput.attr('placeholder')).to.equal(CodeEditor.fn.options.messages.notApplicable);
+                expect(codeEditor.paramInput.val()).to.equal('');
+                expect(codeEditor.solutionInput.val()).to.equal('');
+                expect(codeEditor.valueInput.val()).to.equal('');
             });
 
             it('from markup with attributes', function () {
                 var attr = {
                     'data-source': JSON.stringify(LIBRARY),
-                    'data-default': 'floatEqual',
+                    'data-default': '// floatEqual',
                     'data-solution': '1.5555',
                     'data-value': 'function validate(value, solution) {\\n\\treturn true;\\n}'
                 };
@@ -147,12 +176,18 @@
                 expect(codeEditor).to.have.property('codeMirror').that.is.an.instanceof(CodeMirror);
                 expect(codeEditor).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
                 expect(codeEditor).to.have.property('dropDownList').that.is.an.instanceof(kendo.ui.DropDownList);
-                expect(codeEditor).to.have.property('input').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('paramInput').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('solutionInput').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('valueInput').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('testButton').that.is.an.instanceof(jQuery);
+                expect(codeEditor).to.have.property('messageWrap').that.is.an.instanceof(jQuery);
                 expect(codeEditor).to.have.property('wrapper').that.is.an.instanceof(jQuery);
                 expect(codeEditor.dataSource.total()).to.equal(LIBRARY.length);
-                // expect(codeEditor.dataSource.data()).to.deep.equal(LIBRARY);
                 expect(codeEditor.value()).to.equal(attr['data-value'].replace(/\\\\/g, '\\'));
-                expect(codeEditor.input.val()).to.equal(attr['data-solution']);
+                expect(codeEditor.paramInput.attr('placeholder')).to.equal(CodeEditor.fn.options.messages.notApplicable);
+                expect(codeEditor.paramInput.val()).to.equal('');
+                expect(codeEditor.solutionInput.val()).to.equal(attr['data-solution']);
+                expect(codeEditor.valueInput.val()).to.equal('');
             });
 
             afterEach(function () {
@@ -179,7 +214,7 @@
                 element = $(CODEEDITOR1).appendTo(FIXTURES);
                 codeEditor = element.kendoCodeEditor({
                     dataSource: LIBRARY,
-                    default: NAME,
+                    default: LIB_COMMENT + NAME,
                     solution: SOLUTION,
                     value: NAME
                 }).data('kendoCodeEditor');
@@ -191,28 +226,30 @@
                 }
                 expect(codeEditor).to.be.an.instanceof(CodeEditor);
                 expect(fn).to.throw(TypeError);
-                expect(codeEditor._isCustom(JS_COMMENT)).to.be.undefined;
+                expect(codeEditor._isCustom(LIB_COMMENT)).to.be.undefined;
                 expect(codeEditor._isCustom(EQ_NAME)).to.be.undefined;
-                expect(codeEditor._isCustom(JS_COMMENT + EQ_NAME)).to.be.undefined;
+                expect(codeEditor._isCustom(LIB_COMMENT + EQ_NAME)).to.be.undefined;
                 expect(codeEditor._isCustom(FORMULA1)).to.be.undefined;
                 expect(codeEditor._isCustom(FORMULA2)).to.equal(FORMULA2);
                 expect(codeEditor._isCustom(FORMULA3)).to.equal(FORMULA3);
             });
 
-            it('_isInLibrary: private method to check library formula', function () {
+            it('_parseLibraryValue: private method to check library formula', function () {
                 function fn() {
-                    codeEditor._isInLibrary(100);
+                    codeEditor._parseLibraryValue(100);
                 }
                 expect(codeEditor).to.be.an.instanceof(CodeEditor);
                 expect(fn).to.throw(TypeError);
-                expect(codeEditor._isInLibrary(JS_COMMENT)).to.be.undefined;
-                expect(codeEditor._isInLibrary(DUMMY)).to.be.undefined;
-                expect(codeEditor._isInLibrary(JS_COMMENT + DUMMY)).to.be.undefined;
-                expect(codeEditor._isInLibrary(EQ_NAME)).to.be.undefined;
-                expect(codeEditor._isInLibrary(FORMULA1)).to.be.undefined;
-                expect(codeEditor._isInLibrary(FORMULA2)).to.be.undefined;
-                expect(codeEditor._isInLibrary(FORMULA3)).to.be.undefined;
-                expect(codeEditor._isInLibrary(JS_COMMENT + EQ_NAME)).to.equal(EQ_NAME);
+                expect(codeEditor._parseLibraryValue(LIB_COMMENT).item).to.be.undefined;
+                expect(codeEditor._parseLibraryValue(DUMMY).item).to.be.undefined;
+                expect(codeEditor._parseLibraryValue(LIB_COMMENT + DUMMY).item).to.be.undefined;
+                expect(codeEditor._parseLibraryValue(EQ_NAME).item).to.be.undefined;
+                expect(codeEditor._parseLibraryValue(FORMULA1).item).to.be.undefined;
+                expect(codeEditor._parseLibraryValue(FORMULA2).item).to.be.undefined;
+                expect(codeEditor._parseLibraryValue(FORMULA3).item).to.be.undefined;
+                expect(codeEditor._parseLibraryValue(LIB_COMMENT + EQ_NAME).item).not.to.be.undefined;
+                expect(codeEditor._parseLibraryValue(LIB_COMMENT + EQ_NAME).item.name).to.equal(EQ_NAME);
+                expect(codeEditor._parseLibraryValue(LIB_COMMENT + EQ_NAME).item.formula).to.equal(EQ_FORMULA);
             });
 
             it('setDataSource', function () {
@@ -222,9 +259,9 @@
                 expect(codeEditor.dropDownList).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
                 expect(codeEditor.dataSource).to.equal(codeEditor.dropDownList.dataSource);
                 expect(codeEditor.dataSource.total()).to.equal(LIBRARY.length);
-                expect(codeEditor.value()).to.equal(JS_COMMENT + NAME);
+                expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
                 codeEditor.setDataSource([LIBRARY[0], LIBRARY[1], LIBRARY[4]]);
-                expect(codeEditor.value()).to.equal(JS_COMMENT + NAME);
+                expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
                 expect(codeEditor).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
                 expect(codeEditor).to.have.property('dropDownList').that.is.an.instanceof(kendo.ui.DropDownList);
                 expect(codeEditor.dropDownList).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
@@ -234,7 +271,9 @@
 
             /* This function has too many statements. */
             /* jshint -W071 */
+
             it('value', function () {
+                // TODO: paramInput
                 function fn1() {
                     codeEditor.value(100);
                 }
@@ -247,20 +286,20 @@
                 expect(fn1).to.throw(TypeError);
                 expect(fn2).to.throw(TypeError);
                 codeEditor.value(undefined);
-                expect(codeEditor.value()).to.equal(JS_COMMENT + NAME);
+                expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
                 expect(codeEditor.dropDownList.text()).to.equal(NAME);
                 expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(FORMULA);
-                codeEditor.value(JS_COMMENT);
-                expect(codeEditor.value()).to.equal(JS_COMMENT + NAME);
+                codeEditor.value(LIB_COMMENT);
+                expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
                 expect(codeEditor.dropDownList.text()).to.equal(NAME);
                 expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(FORMULA);
-                codeEditor.value(JS_COMMENT + EQ_NAME);
-                expect(codeEditor.value()).to.equal(JS_COMMENT + EQ_NAME);
+                codeEditor.value(LIB_COMMENT + EQ_NAME);
+                expect(codeEditor.value()).to.equal(LIB_COMMENT + EQ_NAME);
                 expect(codeEditor.dropDownList.text()).to.equal(EQ_NAME);
                 expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(EQ_FORMULA);
                 // If the value is stupid it uses codeEditor.options.default
-                codeEditor.value(JS_COMMENT + DUMMY);
-                expect(codeEditor.value()).to.equal(JS_COMMENT + NAME);
+                codeEditor.value(LIB_COMMENT + DUMMY);
+                expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
                 expect(codeEditor.dropDownList.text()).to.equal(NAME);
                 expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(FORMULA);
                 codeEditor.value(FORMULA2);
@@ -269,7 +308,7 @@
                 expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(FORMULA2);
                 // If the value is stupid it uses codeEditor.options.default
                 codeEditor.value(FORMULA1);
-                expect(codeEditor.value()).to.equal(JS_COMMENT + NAME);
+                expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
                 expect(codeEditor.dropDownList.text()).to.equal(NAME);
                 expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(FORMULA);
                 codeEditor.value(FORMULA3);
@@ -277,10 +316,20 @@
                 expect(codeEditor.dropDownList.text()).to.equal(codeEditor.options.custom);
                 expect(codeEditor.codeMirror.getDoc().getValue()).to.equal(FORMULA3);
             });
+
             /* jshint +W071 */
 
-            xit('destroy', function () {
-                // TODO
+            it('destroy', function () {
+                expect(codeEditor).to.be.an.instanceof(CodeEditor);
+                codeEditor.destroy();
+                expect(codeEditor.codeMirror).to.be.undefined;
+                expect(codeEditor.dataSource).to.be.undefined;
+                expect(codeEditor.dropDownList).to.be.undefined;
+                expect(codeEditor.paramInput).to.be.undefined;
+                expect(codeEditor.solutionInput).to.be.undefined;
+                expect(codeEditor.valueInput).to.be.undefined;
+                expect(codeEditor.testButton).to.be.undefined;
+                expect(codeEditor.messageWrap).to.be.undefined;
             });
 
             afterEach(function () {
@@ -308,7 +357,7 @@
                 element = $(CODEEDITOR2)
                     .attr({
                         'data-bind': 'source: library, value: code',
-                        'data-default': NAME
+                        'data-default': LIB_COMMENT + NAME
                     })
                     .appendTo(FIXTURES);
                 kendo.bind(FIXTURES, viewModel);
@@ -320,24 +369,24 @@
             it('A change of widget value raises a change in the viewModel', function () {
                 expect(change).not.to.have.been.called;
                 expect(codeEditor).to.be.an.instanceof(CodeEditor);
-                expect(codeEditor.value()).to.equal(JS_COMMENT + NAME);
+                expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
                 expect(viewModel.get('code')).to.equal(codeEditor.value());
                 // Change the widget value
-                codeEditor.value(JS_COMMENT + EQ_NAME);
+                codeEditor.value(LIB_COMMENT + EQ_NAME);
                 expect(change).to.have.been.calledOnce;
-                expect(codeEditor.value()).to.equal(JS_COMMENT + EQ_NAME);
+                expect(codeEditor.value()).to.equal(LIB_COMMENT + EQ_NAME);
                 expect(viewModel.get('code')).to.equal(codeEditor.value());
             });
 
             it('A change in the viewModel raises a change of widget value', function () {
                 expect(change).not.to.have.been.called;
                 expect(codeEditor).to.be.an.instanceof(CodeEditor);
-                expect(codeEditor.value()).to.equal(JS_COMMENT + NAME);
+                expect(codeEditor.value()).to.equal(LIB_COMMENT + NAME);
                 expect(viewModel.get('code')).to.equal(codeEditor.value());
                 // Change in the view Model
-                viewModel.set('code', JS_COMMENT + EQ_NAME);
+                viewModel.set('code', LIB_COMMENT + EQ_NAME);
                 expect(change).to.have.been.calledOnce;
-                expect(codeEditor.value()).to.equal(JS_COMMENT + EQ_NAME);
+                expect(codeEditor.value()).to.equal(LIB_COMMENT + EQ_NAME);
                 expect(viewModel.get('code')).to.equal(codeEditor.value());
             });
 
@@ -355,7 +404,7 @@
                 item.simulate(CLICK);
                 // a second click closes the list and sets a new value
                 expect(change).to.have.been.calledOnce;
-                expect(codeEditor.value()).to.equal(JS_COMMENT + EQ_NAME);
+                expect(codeEditor.value()).to.equal(LIB_COMMENT + EQ_NAME);
                 expect(viewModel.get('code')).to.equal(codeEditor.value());
             });
 
@@ -421,8 +470,8 @@
                 element = $(CODEEDITOR1).appendTo(FIXTURES);
                 codeEditor = element.kendoCodeEditor({
                     dataSource: LIBRARY,
-                    value: NAME,
-                    default: NAME,
+                    value: LIB_COMMENT + NAME,
+                    default: LIB_COMMENT + NAME,
                     solution: SOLUTION
                 }).data('kendoCodeEditor');
             });
@@ -432,12 +481,12 @@
                 codeEditor.bind(CHANGE, function (e) {
                     change(e.value);
                 });
-                codeEditor.value(JS_COMMENT + EQ_NAME);
-                expect(change).to.have.been.calledWith(JS_COMMENT + EQ_NAME);
+                codeEditor.value(LIB_COMMENT + EQ_NAME);
+                expect(change).to.have.been.calledWith(LIB_COMMENT + EQ_NAME);
                 codeEditor.value(FORMULA2);
                 expect(change).to.have.been.calledWith(FORMULA2);
                 codeEditor.value(DUMMY);
-                expect(change).to.have.been.calledWith(JS_COMMENT + NAME);
+                expect(change).to.have.been.calledWith(LIB_COMMENT + NAME);
             });
 
             afterEach(function () {

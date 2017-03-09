@@ -325,16 +325,19 @@
                 var that = this;
                 var element = that.element;
                 // Unbind events
-                that.paramInput.off(NS);
+                if (that.paramInput instanceof $) {
+                    that.paramInput.off(NS);
+                }
                 // Release references;
                 that.dataSource = undefined;
                 that.dropDownList = undefined;
                 that.customInput = undefined;
                 that.paramInput = undefined;
-                element.removeClass(WIDGET_CLASS);
                 // Destroy kendo;
                 Widget.fn.destroy.call(that);
                 kendo.destroy(element);
+                // Remove widget class
+                element.removeClass(WIDGET_CLASS)
             }
         });
 

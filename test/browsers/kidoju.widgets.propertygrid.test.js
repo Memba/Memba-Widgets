@@ -874,6 +874,7 @@
                 expect(fn).to.throw(TypeError);
                 var rows1 = [];
                 propertyGrid.rows(rows1);
+                propertyGrid.refresh();
                 validateGridHtml(element, rows1.length);
                 expect(propertyGrid.rows()).to.equal(rows1);
                 var rows2 = [
@@ -881,11 +882,20 @@
                     { field: 'lastName' }
                 ];
                 propertyGrid.rows(rows2);
+                propertyGrid.refresh();
                 validateGridHtml(element, rows2.length);
                 expect(propertyGrid.rows()).to.equal(rows2);
             });
 
-            // TODO: refresh and destroy
+            // TODO: refresh
+
+            it('Destroy', function () {
+                var element = $(PROPERTYGRID1).appendTo(FIXTURES);
+                var propertyGrid = element.kendoPropertyGrid({
+                    value: { firstName: 'John', lastName: 'Smith', dateOfBirth: new Date(1966, 2, 14), married: true, children: 3 }
+                }).data('kendoPropertyGrid');
+                propertyGrid.destroy();
+            });
 
         });
 
@@ -955,6 +965,7 @@
                     { field: 'married', title: 'Married', attributes: { style: 'background-color: #FF0000;' } },
                     { field: 'children', title: 'Children', attributes: { style: 'background-color: #FF0000;' } }
                 ]);
+                propertyGrid.refresh();
                 validateGridHtml(element, 5); // now excluding uid
             });
 

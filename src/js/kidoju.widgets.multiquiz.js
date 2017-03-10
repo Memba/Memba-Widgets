@@ -27,6 +27,7 @@
         var ui = kendo.ui;
         var Widget = ui.Widget;
         var MultiSelect = ui.MultiSelect;
+        var DataSource = kendo.data.DataSource;
         var ObservableArray = kendo.data.ObservableArray;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.multiquiz');
@@ -252,10 +253,19 @@
                 var that = this;
                 var options = that.options;
                 if ($.isArray(value) || value instanceof ObservableArray) {
-                    // Note: We might want to check that values match dataSource
+                    if (that.dataSource instanceof DataSource) {
+                        // Only retain values that have a match in dataSource
+                        for (var i = value.length - 1; i >= 0; i--) {
+                            if (!that.dataSource.data().find(function (item) { return item[options.textField] === value[i]; })) {
+                                value.splice(i, 1);
+                            }
+                        }
+                    } else {
+                        value = [];
+                    }
                     that._value = value;
                     that._toggleSelection();
-                } else if ($.type(value) === NULL) {
+                } else if ($.type(value) === NULL) { // null is the same as [] but we allow it for data bindings
                     if ($.type(that._value) !== NULL) {
                         that._value = null;
                         that._toggleSelection();
@@ -598,7 +608,7 @@
                 var that = this;
 
                 // returns the datasource OR creates one if using array or configuration
-                that.dataSource = kendo.data.DataSource.create(that.options.dataSource);
+                that.dataSource = DataSource.create(that.options.dataSource);
 
                 // bind to the change event to refresh the widget
                 if (that._refreshHandler) {

@@ -47,10 +47,10 @@
         var CLICK = 'click';
         var ERROR = 'error';
         var NS = '.kendoAssetManager';
-        var DRAGENTER = 'dragenter' + NS;
-        var DRAGOVER = 'dragover' + NS;
-        var DROP = 'drop' + NS;
-        var PROGRESS = 'progress' + NS;
+        var DRAGENTER = 'dragenter';
+        var DRAGOVER = 'dragover';
+        var DROP = 'drop';
+        var PROGRESS = 'progress';
         var WIDGET_CLASS = 'k-widget kj-assetmanager';
         var TOOLBAR_TMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
                 '<div class="k-toolbar-wrap">' +
@@ -218,7 +218,7 @@
         function bindDragEventWrappers(element, onDragEnter, onDragLeave) {
             var hideInterval;
             var lastDrag;
-            element.on(DRAGENTER, function (e) {
+            element.on(DRAGENTER + NS, function (e) {
                 onDragEnter(e);
                 lastDrag = new Date();
                 if (!hideInterval) {
@@ -231,7 +231,7 @@
                         }
                     }, 100);
                 }
-            }).on(DRAGOVER, function () {
+            }).on(DRAGOVER + NS, function () {
                 lastDrag = new Date();
             });
         }
@@ -493,7 +493,7 @@
                     .data('kendoProgressBar');
                 assert.instanceof(kendo.ui.ProgressBar, that.progressBar, kendo.format(assert.messages.instanceof.default, 'this.progressBar', 'kendo.ui.ProgressBar'));
                 // Event handler used to report upload transport progress in app.assets.js
-                $(document).on(PROGRESS, function (e, value, status) {
+                $(document).on(PROGRESS + NS, function (e, value, status) {
                     that.progressBar.value(value);
                     if (status === 'complete') {
                         // TODO: display/limit total storage
@@ -759,8 +759,9 @@
                 this._resetTransport(this._hasProjectTransport() ? tabIndex - 1 : tabIndex, 0, true);
 
                 // add/remove k-state-nodrop to dropZone
-                $('.k-dropzone', this.wrapper).toggleClass('k-state-nodrop', tabIndex !== 0 || !this._hasProjectTransport());
-
+                if (this.dropZone instanceof $) {
+                    this.dropZone.toggleClass('k-state-nodrop', tabIndex !== 0 || !this._hasProjectTransport());
+                }
                 // refresh pager
                 this.pager.refresh();
             },
@@ -836,16 +837,15 @@
             _dataSource: function (transport) {
 
                 var that = this;
+                var options = that.options;
 
-                if (that.dataSource instanceof DataSource && that._errorHandler) {
+                if (that.dataSource instanceof DataSource && $.isFunction(that._errorHandler)) {
                     that.dataSource.unbind(ERROR, that._errorHandler);
-                } else {
-                    that._errorHandler = $.proxy(that._dataError, that);
                 }
-
+                that._errorHandler = $.proxy(that._dataError, that);
                 that.dataSource = DataSource
                     .create({
-                        filter: getDataSourceFilter(that.options.extensions),
+                        filter: getDataSourceFilter(options.extensions),
                         schema: {
                             data: 'data',
                             model: {
@@ -858,7 +858,7 @@
                                 name$: function () {
                                     var url = this.get('url');
                                     if ($.type(url) !== STRING) {
-                                        return that.options.messages.data.defaultName;
+                                        return options.messages.data.defaultName;
                                     }
                                     return nameFormatter(url);
                                 },
@@ -875,21 +875,21 @@
                                 url$: function () {
                                     var url = this.get('url');
                                     if ($.type(url) !== STRING) {
-                                        return that.options.messages.data.defaultImage;
+                                        return options.messages.data.defaultImage;
                                     }
-                                    return urlFormatter(this.get('url'), that.options.schemes);
+                                    return urlFormatter(this.get('url'), options.schemes);
                                 }
                             },
                             total: 'total',
                             type: 'json'
                         },
                         // keep default sort order
-                        transport: $.isPlainObject(transport) ? transport : that.options.transport,
+                        transport: $.isPlainObject(transport) ? transport : options.transport,
                         pageSize: 12
                     })
                     .bind(ERROR, that._errorHandler);
 
-                // that.dataSource.filter(getDataSourceFilter(that.options.extensions));
+                // that.dataSource.filter(getDataSourceFilter(options.extensions));
 
             },
 
@@ -925,36 +925,36 @@
             _dropZone: function () {
                 var that = this;
                 if (supportsFileDrop()) {
-                    var dropZone = $('.k-dropzone', that.wrapper)
-                        .on(DRAGENTER, function (e) {
+                    that.dropZone = $('.k-dropzone', that.wrapper)
+                        .on(DRAGENTER + NS, function (e) {
                             e.stopPropagation();
                             e.preventDefault();
                         })
-                        .on(DRAGOVER, function (e) {
+                        .on(DRAGOVER + NS, function (e) {
                             e.preventDefault();
                         })
-                        .on(DROP, $.proxy(that._onDrop, that));
+                        .on(DROP + NS, $.proxy(that._onDrop, that));
                     // The following add/remove classes used by kendo.upload.js that we match for a consistent UI
                     bindDragEventWrappers(
-                        dropZone,
+                        that.dropZone,
                         function () {
-                            if (!that.wrapper.hasClass('k-state-disabled') && !dropZone.hasClass('k-state-nodrop')) {
-                                dropZone.addClass('k-dropzone-hovered');
+                            if (!that.wrapper.hasClass('k-state-disabled') && !that.dropZone.hasClass('k-state-nodrop')) {
+                                that.dropZone.addClass('k-dropzone-hovered');
                             }
                         },
                         function () {
-                            dropZone.removeClass('k-dropzone-hovered');
+                            that.dropZone.removeClass('k-dropzone-hovered');
                         }
                     );
                     bindDragEventWrappers(
                         $(document),
                         function () {
-                            if (!that.wrapper.hasClass('k-state-disabled') && !dropZone.hasClass('k-state-nodrop')) {
-                                dropZone.addClass('k-dropzone-active');
+                            if (!that.wrapper.hasClass('k-state-disabled') && !that.dropZone.hasClass('k-state-nodrop')) {
+                                that.dropZone.addClass('k-dropzone-active');
                             }
                         },
                         function () {
-                            dropZone.removeClass('k-dropzone-active');
+                            that.dropZone.removeClass('k-dropzone-active');
                         }
                     );
                 }
@@ -968,45 +968,11 @@
             _onDrop: function (e) {
                 e.stopPropagation();
                 e.preventDefault();
-                if (!$('.k-dropzone', this.wrapper).hasClass('.k-state-nodrop')) {
+                if (this.dropZone instanceof $ && !this.dropZone.hasClass('.k-state-nodrop')) {
                     var dt = e.originalEvent.dataTransfer;
                     var files = dt.files;
                     this._uploadFiles(files);
                 }
-            },
-
-            /**
-             * Clears the widget
-             * @method _clear
-             * @private
-             */
-            _clear: function () {
-                var that = this;
-                // unbind kendo
-                kendo.unbind(that.element);
-                // remove drop down list
-                if (that.dropDownList) {
-                    that.dropDownList.destroy();
-                }
-                // remove pager
-                if (that.pager) {
-                    that.pager.destroy();
-                }
-                // remove list view
-                if (that.listView) {
-                    that.listView.destroy();
-                }
-                // Remove tabs
-                if (that.tabStrip) {
-                    that.tabStrip.destroy();
-                }
-                // unbind all other events
-                $(that.element).find('*').off();
-                $(that.element).off();
-                // remove descendants
-                $(that.element).empty();
-                // remove element classes
-                $(that.element).removeClass(WIDGET_CLASS);
             },
 
             /**
@@ -1015,12 +981,35 @@
              */
             destroy: function () {
                 var that = this;
+                var element =  that.element;
+                // Unbind events
+                $(document).off(NS); // Assuming there is only one assetmanager on the page
+                if (that.toolbar instanceof $) {
+                    that.toolbar.off(NS);
+                }
+                if (that.dropZone instanceof $) {
+                    that.dropZone.off(NS);
+                }
+                // Release references
+                that.tabStrip = undefined;
+                that.dropDownList = undefined;
+                that.progressBar = undefined;
+                that.searchInput = undefined;
+                that.toolbar = undefined;
+                that.listView = undefined;
+                that.pager = undefined;
+                that.fileBrowser = undefined;
+                that.dropZone = undefined;
+                if (that.dataSource instanceof DataSource && $.isFunction(that._errorHandler)) {
+                    that.dataSource.unbind(ERROR, that._errorHandler);
+                }
+                that.dataSource = undefined;
+                that._errorHandler = undefined;
+                // Destroy kendo
                 Widget.fn.destroy.call(that);
-                that._clear();
-                // if ($.isFunction(that._refreshHandler)) {
-                //    that.options.tools.unbind(CHANGE, that._refreshHandler);
-                // }
-                kendo.destroy(that.element);
+                kendo.destroy(element);
+                // Remove widget class
+                element.removeClass(WIDGET_CLASS)
             }
 
         });

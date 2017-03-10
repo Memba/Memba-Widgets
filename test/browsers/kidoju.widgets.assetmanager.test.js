@@ -251,7 +251,17 @@
             it('destroy', function () {
                 expect(assetManager).to.be.an.instanceof(AssetManager);
                 assetManager.destroy();
-                expect(assetManager.element).to.be.empty;
+                expect(assetManager.tabStrip).to.be.undefined;
+                expect(assetManager.dropDownList).to.be.undefined;
+                expect(assetManager.progressBar).to.be.undefined;
+                expect(assetManager.searchInput).to.be.undefined;
+                expect(assetManager.toolbar).to.be.undefined;
+                expect(assetManager.listView).to.be.undefined;
+                expect(assetManager.pager).to.be.undefined;
+                expect(assetManager.fileBrowser).to.be.undefined;
+                expect(assetManager.dropZone).to.be.undefined;
+                expect(assetManager.dataSource).to.be.undefined;
+                expect(assetManager._errorHandler).to.be.undefined;
             });
 
             afterEach(function () {

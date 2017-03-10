@@ -27,6 +27,7 @@
         var ui = kendo.ui;
         var Widget = ui.Widget;
         var DropDownList = ui.DropDownList;
+        var DataSource = kendo.data.DataSource;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.quiz');
         var NS = '.kendoQuiz';
@@ -252,7 +253,7 @@
                 var options = that.options;
                 if ($.type(value) === STRING) {
                     // Note: Giving a value to the dropDownList that does not exist in dataSource is discarded without raising an error
-                    if (that._value !== value && that.dataSource instanceof kendo.data.DataSource && that.dataSource.data().find(function (item) { return item[options.textField] === value; })) {
+                    if (that._value !== value && that.dataSource instanceof DataSource && that.dataSource.data().find(function (item) { return item[options.textField] === value; })) {
                         that._value = value;
                         that._toggleSelection();
                     }
@@ -570,7 +571,7 @@
                 var that = this;
 
                 // returns the datasource OR creates one if using array or configuration
-                that.dataSource = kendo.data.DataSource.create(that.options.dataSource);
+                that.dataSource = DataSource.create(that.options.dataSource);
 
                 // bind to the change event to refresh the widget
                 if (that._refreshHandler) {

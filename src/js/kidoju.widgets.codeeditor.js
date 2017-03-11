@@ -262,7 +262,7 @@
                             .val('');
                     }
                     // Replace string single quote delimiter to avoid breaking formulas
-                    var code = kendo.format(formula, paramValue.replace(/'/g, '\\u0027'));
+                    var code = kendo.format(formula, (paramValue || '').replace(/'/g, '\\u0027'));
                     if (that.codeMirror.getDoc().getValue() !== code) {
                         that.codeMirror.getDoc().setValue(code);
                     }
@@ -377,9 +377,10 @@
                     if (dataItem) {
                         var formula = dataItem[options.formulaField];
                         var name = dataItem[options.nameField];
-                        var code = that.codeMirror.getDoc().getValue();
-                        if (name === options.custom || code !== kendo.format(formula, that.paramInput.val().replace(/'/g, '\\u0027'))) {
-                            that.value(code);
+                        var value = that.codeMirror.getDoc().getValue();
+                        var code = kendo.format(formula, that.paramInput.val().replace(/'/g, '\\u0027'));
+                        if (name === options.custom || value !== code) {
+                            that.value(value);
                         }
                     }
                 });

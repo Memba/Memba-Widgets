@@ -1297,7 +1297,7 @@
                                         }
                                         // This is code form the library possibly with param
                                         // Replace any string delimiter (single quotes) otherwise the formula might be broken
-                                        code = kendo.format(found.formula, param.replace(/'/g, '\\u0027'));
+                                        code = kendo.format(found.formula, (param || '').replace(/'/g, '\\u0027'));
 
                                     } else {
                                         // This is custom code not form the library

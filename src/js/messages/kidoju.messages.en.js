@@ -59,7 +59,7 @@
                 omit: 'Omit',
                 error: 'Error',
                 ajaxError: 'Error loading worker library.',
-                jsonError: 'Error parsing value as json.',
+                jsonError: 'Error parsing value as json. Wrap strings in double quotes.',
                 timeoutError: 'The execution of a web worker has timed out.'
             });
         }

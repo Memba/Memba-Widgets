@@ -59,7 +59,7 @@
                 omit: 'Omission',
                 error: 'Erreur',
                 ajaxError: 'Erreur de chargement de la librairie de validation.',
-                jsonError: 'Erreur de traitement de la valeur par json.',
+                jsonError: 'Erreur d\'analyse de la valeur par json. Placez les chaînes de caractères entre guillemets.',
                 timeoutError: 'L\'exécution du processus de validation a pris trop de temps.'
             });
         }

@@ -110,7 +110,7 @@
                     omit: 'Omit',
                     error: 'Error',
                     ajaxError: 'Error loading worker library.',
-                    jsonError: 'Error parsing value as json.',
+                    jsonError: 'Error parsing value as json. Wrap strings in double quotes.',
                     timeoutError: 'The execution of a web worker has timed out.'
                 }
             },
@@ -261,13 +261,11 @@
                             .addClass(STATE_DISABLED)
                             .val('');
                     }
-
-                    var code = kendo.format(formula, paramValue);
+                    // Replace string single quote delimiter to avoid breaking formulas
+                    var code = kendo.format(formula, paramValue.replace(/'/g, '\\u0027'));
                     if (that.codeMirror.getDoc().getValue() !== code) {
                         that.codeMirror.getDoc().setValue(code);
                     }
-
-                    that.codeMirror.getDoc().setValue(kendo.format(formula, paramValue));
                 }
 
                 logger.debug({ method: 'refresh', message: 'widget refreshed' });
@@ -380,7 +378,7 @@
                         var formula = dataItem[options.formulaField];
                         var name = dataItem[options.nameField];
                         var code = that.codeMirror.getDoc().getValue();
-                        if (name === options.custom || code !== kendo.format(formula, that.paramInput.val())) {
+                        if (name === options.custom || code !== kendo.format(formula, that.paramInput.val().replace(/'/g, '\\u0027'))) {
                             that.value(code);
                         }
                     }

@@ -151,17 +151,18 @@
                 assert.equal(this.dropDownList.dataSource, this.dataSource, 'this.dropDownList.dataSource and this.dataSource are expected to be the same');
                 var options = this.options;
                 var ret = {};
-                var matches = value.match(RX_VALIDATION_LIBRARY);
-                if ($.isArray(matches) && matches.length === 3) {
-                    var temp = matches[2];
-                    var found = this.dataSource.data().find(function (item) {
-                        return item[options.nameField] === matches[1];
+                var libraryMatches = value.match(RX_VALIDATION_LIBRARY);
+                if ($.isArray(libraryMatches) && libraryMatches.length === 3) {
+                    var param = libraryMatches[2];
+                    // Array.find is not available in Internet Explorer, thus the use of Array.filter
+                    var found = this.dataSource.data().filter(function (item) {
+                        return item[options.nameField] === libraryMatches[1];
                     });
-                    if (found) {
-                        ret.item = found;
+                    if ($.isArray(found) && found.length) {
+                        ret.item = found[0];
                     }
-                    if ($.type(temp) === STRING && temp.length > 4) {
-                        ret.paramValue = JSON.parse(temp.trim())[0];
+                    if ($.type(ret.item.param) === STRING && $.type(param) === STRING && param.length > 4) {
+                        ret.paramValue = JSON.parse(param.trim())[0];
                     }
                 }
                 return ret;

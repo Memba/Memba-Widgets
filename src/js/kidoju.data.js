@@ -1276,7 +1276,7 @@
                                 if ($.type(properties.name) === STRING) {
                                     var code;
                                     var found;
-                                    var param;
+                                    var paramValue;
                                     var libraryMatches = properties.validation.match(RX_VALIDATION_LIBRARY);
                                     if ($.isArray(libraryMatches) && libraryMatches.length === 3) {
                                         // Find libraryMatches[1] in the code library
@@ -1289,16 +1289,14 @@
                                         found = found[0];
                                         assert.isPlainObject(found, kendo.format(assert.messages.isPlainObject.default, 'found'));
                                         assert.type(STRING, found.formula, kendo.format(assert.messages.type.default, 'found.formula', STRING));
-                                        // libraryMatches[2] is the param beginning with ` ["` and ending with `"]`
-                                        param = libraryMatches[2];
-                                        if ($.type(found.param) === STRING && $.type(param) === STRING && param.length > 4) {
-                                            // Get the  param in the JSON array
-                                            param = JSON.parse(param.trim())[0];
+                                        // libraryMatches[2] is the param value beginning with ` ["` and ending with `"]`
+                                        paramValue = libraryMatches[2] || '';
+                                        if ($.type(found.param) === STRING && $.type(paramValue) === STRING && paramValue.length > 4) {
+                                            // Get the  paramValue in the JSON array
+                                            paramValue = JSON.parse(paramValue.trim())[0];
                                         }
-                                        // This is code form the library possibly with param
-                                        // Replace any string delimiter (single quotes) otherwise the formula might be broken
-                                        code = kendo.format(found.formula, (param || '').replace(/'/g, '\\u0027'));
-
+                                        // This is code from the library possibly with param
+                                        code = kendo.format(found.formula, paramValue);
                                     } else {
                                         // This is custom code not form the library
                                         code = properties.validation;

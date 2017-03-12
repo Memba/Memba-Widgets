@@ -1639,7 +1639,8 @@
                 },
                 {
                     name: 'ignoreCaseMatch',
-                    formula: kendo.format(VALIDATION_CUSTOM, 'return (new RegExp(\'{0}\', \'i\')).test(String(value).trim());'),
+                    // Do not use RegExp constructor because escaping backslashes is a nightmare
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return /{0}/i.test(String(value).trim());'),
                     param: 'Regular Expression'
                 },
                 {
@@ -1648,7 +1649,8 @@
                 },
                 {
                     name: 'match',
-                    formula: kendo.format(VALIDATION_CUSTOM, 'return (new RegExp(\'{0}\')).test(String(value).trim());'),
+                    // Do not use RegExp constructor because escaping backslashes is a nightmare
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return /{0}/.test(String(value).trim());'),
                     param: 'Regular Expression'
                 },
                 {

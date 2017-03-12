@@ -244,7 +244,7 @@
                     var name = parsed.item[options.nameField];
                     var formula = parsed.item[options.formulaField];
                     var paramName = parsed.item[options.paramField];
-                    var paramValue = parsed.paramValue;
+                    var paramValue = parsed.paramValue || '';
 
                     // Reset value in case the original value could not be found and we had to fallback to default
                     that._value = LIB_COMMENT + name + (paramName ? ' ' + JSON.stringify([paramValue]) : '');
@@ -261,8 +261,7 @@
                             .addClass(STATE_DISABLED)
                             .val('');
                     }
-                    // Replace string single quote delimiter to avoid breaking formulas
-                    var code = kendo.format(formula, (paramValue || '').replace(/'/g, '\\u0027'));
+                    var code = kendo.format(formula, paramValue);
                     if (that.codeMirror.getDoc().getValue() !== code) {
                         that.codeMirror.getDoc().setValue(code);
                     }
@@ -378,7 +377,8 @@
                         var formula = dataItem[options.formulaField];
                         var name = dataItem[options.nameField];
                         var value = that.codeMirror.getDoc().getValue();
-                        var code = kendo.format(formula, that.paramInput.val().replace(/'/g, '\\u0027'));
+                        var paramValue = that.paramInput.val();
+                        var code = kendo.format(formula, paramValue);
                         if (name === options.custom || value !== code) {
                             that.value(value);
                         }

@@ -539,6 +539,7 @@
                 var that = this;
                 if (files instanceof window.FileList && files.length) {
                     that.listView.element.addClass('k-loading');
+                    // finder is used to satisfy jshint which would otherwise complain about making functions within loops
                     var finder = function (file) {
                         return that.dataSource.data().find(function (dataItem) {
                             return new RegExp('/' + file.name + '$').test(dataItem.url);
@@ -676,8 +677,9 @@
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
                 assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
                 if (this._selectedItem() instanceof ObservableObject) {
-                    if (this.tabStrip.select().index() === 0) {
+                    if (this.tabStrip.select().index() === 0 && this._hasProjectTransport()) {
                         this.toolbar.find('.k-i-close').parent().removeClass('k-state-disabled').show();
+                        this.toolbar.find('div.k-tiles-arrange .k-progressbar').show();
                     }
                     this.trigger(CHANGE, { value: this.value() });
                 }
@@ -690,6 +692,7 @@
             _onListViewDataBinding: function () {
                 assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
                 this.toolbar.find('.k-i-close').parent().addClass('k-state-disabled').hide();
+                this.toolbar.find('div.k-tiles-arrange .k-progressbar').hide();
             },
 
             /**

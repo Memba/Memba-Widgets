@@ -583,13 +583,21 @@
                 // So we cannot use `this` within handlers, which is specific to this selector surface
                 var options = this.options;
                 var data = {}; // We need an object so that data is passed by reference between handlers
+
+                // ATTENTION! There might be several options.container on the page as in Kidoju-Mobile
+                // So we need to make sure we unbind/bind events to the parent container
+                // https://github.com/kidoju/Kidoju-Widgets/issues/162
+                var container = this.element.closest(options.container);
+                var containers = $(document).find(options.container);
+                var selector = options.container + ':eq(' + containers.index(container) + ')';
+
                 $(document)
-                    .off(NS, options.container);
+                    .off(NS, selector);
                 if (this.enable()) {
                     $(document)
-                        .on(MOUSEDOWN, options.container, data, this._onMouseDown)
-                        .on(MOUSEMOVE, options.container, data, this._onMouseMove)
-                        .on(MOUSEUP, options.container, data, this._onMouseUp);
+                        .on(MOUSEDOWN, selector, data, this._onMouseDown)
+                        .on(MOUSEMOVE, selector, data, this._onMouseMove)
+                        .on(MOUSEUP, selector, data, this._onMouseUp);
                 }
             },
 

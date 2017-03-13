@@ -205,7 +205,8 @@
                         collections: V_COLLECTIONS
                     }
                 ],
-                schemes: SCHEMES
+                schemes: SCHEMES,
+                transport: null
             };
 
             beforeEach(function () {
@@ -224,14 +225,14 @@
                 expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
                 expect(assetManager.value()).to.be.undefined;
                 assetManager.listView.bind('dataBound', function (e) {
-                    if (assetManager.dropDownList.text() === 'Dark Grey') {
+                    if (assetManager.tabStrip.select().index() === 1 && assetManager.dropDownList.text() === '32x32') {
                         setTimeout(function () {
                             assetManager.select(0);
-                            expect(assetManager.value()).to.equal('cdn://images/o_collection/svg/dark_grey/3d_glasses.svg');
+                            expect(assetManager.value()).to.equal('cdn://images/v_collection/png/32x32/3d_glasses.png');
                             assetManager.select(1);
-                            expect(assetManager.value()).to.equal('cdn://images/o_collection/svg/dark_grey/about.svg');
+                            expect(assetManager.value()).to.equal('cdn://images/v_collection/png/32x32/about.png');
                             assetManager.select(2);
-                            expect(assetManager.value()).to.equal('cdn://images/o_collection/svg/dark_grey/add.svg');
+                            expect(assetManager.value()).to.equal('cdn://images/v_collection/png/32x32/add.png');
                             done();
                         }, 0);
                     }
@@ -355,7 +356,7 @@
                 expect(assetManager.value()).to.equal('data://Elvis.jpg');
                 assetManager.listView.bind('dataBound', function (e) {
                     setTimeout(function () {
-                        if (assetManager.dropDownList.text() === 'Dark Grey') {
+                        if (assetManager.tabStrip.select().index() === 1 && assetManager.dropDownList.text() === 'Dark Grey') {
                             expect(assetManager.dataSource.at(0).id).to.equal('cdn://images/o_collection/svg/dark_grey/3d_glasses.svg');
                             expect(assetManager.dataSource.at(1).id).to.equal('cdn://images/o_collection/svg/dark_grey/about.svg');
                             expect(assetManager.dataSource.at(2).id).to.equal('cdn://images/o_collection/svg/dark_grey/add.svg');
@@ -396,7 +397,7 @@
                 });
                 assetManager.listView.bind('dataBound', function (e) {
                     // 3) Third, check list view once loaded
-                    if (assetManager.dropDownList.text() === 'White') {
+                    if (assetManager.tabStrip.select().index() === 1 && assetManager.dropDownList.text() === 'White') {
                         setTimeout(function () {
                             expect(assetManager.dataSource.at(0).id).to.equal('cdn://images/o_collection/svg/white/3d_glasses.svg');
                             expect(assetManager.dataSource.at(1).id).to.equal('cdn://images/o_collection/svg/white/about.svg');
@@ -425,7 +426,7 @@
                 expect(assetManager.tabStrip).to.be.an.instanceof(kendo.ui.TabStrip);
                 expect(assetManager.value()).to.equal('data://Elvis.jpg');
                 assetManager.listView.bind('dataBound', function (e) {
-                    if (assetManager.dropDownList.text() === 'Dark Grey') {
+                    if (assetManager.tabStrip.select().index() === 1 && assetManager.dropDownList.text() === 'Dark Grey') {
                         if (assetManager.searchInput.val() === '') {
                             assetManager.searchInput.val('apple');
                             // assetManager.searchInput.simulate('keydown', { keyCode: 13 });

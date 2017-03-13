@@ -59,7 +59,7 @@
         },
         {
             name: 'withParam',
-            formula: 'function validate(value, solution) {\n\treturn new RegExp({0}, \'i\').test(value);\n}',
+            formula: 'function validate(value, solution) {\n\treturn /{0}/i.test(value);\n}',
             param: 'RegExp'
         }
     ];

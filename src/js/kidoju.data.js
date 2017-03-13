@@ -1275,13 +1275,11 @@
                                 // assert.type(STRING, properties.name, kendo.format(assert.messages.type.default, 'properties.name', STRING));
                                 if ($.type(properties.name) === STRING) {
                                     var code;
-                                    var found;
-                                    var paramValue;
                                     var libraryMatches = properties.validation.match(RX_VALIDATION_LIBRARY);
                                     if ($.isArray(libraryMatches) && libraryMatches.length === 3) {
                                         // Find libraryMatches[1] in the code library
                                         // Array.find is not available in Internet Explorer, thus the use of Array.filter
-                                        found = properties._library.filter(function (item) {
+                                        var found = properties._library.filter(function (item) {
                                             return item.name === libraryMatches[1];
                                         });
                                         assert.isArray(found, kendo.format(assert.messages.isArray.default, 'found'));
@@ -1290,7 +1288,7 @@
                                         assert.isPlainObject(found, kendo.format(assert.messages.isPlainObject.default, 'found'));
                                         assert.type(STRING, found.formula, kendo.format(assert.messages.type.default, 'found.formula', STRING));
                                         // libraryMatches[2] is the param value beginning with ` ["` and ending with `"]`
-                                        paramValue = libraryMatches[2] || '';
+                                        var paramValue = libraryMatches[2] || '';
                                         if ($.type(found.param) === STRING && $.type(paramValue) === STRING && paramValue.length > 4) {
                                             // Get the  paramValue in the JSON array
                                             paramValue = JSON.parse(paramValue.trim())[0];

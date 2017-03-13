@@ -51,6 +51,11 @@
         {
             name: 'lowerThanOrEqual',
             formula: 'function validate(value, solution) {\n\treturn parseFloat(value) <= parseFloat(solution);\n}'
+        },
+        {
+            name: 'withParam',
+            formula: 'function validate(value, solution) {\n\treturn /{0}/i.test(value);\n}',
+            param: 'RegExp'
         }
     ];
     var LIB_COMMENT = '// ';

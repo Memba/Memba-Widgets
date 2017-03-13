@@ -1288,9 +1288,9 @@
                             }
                         }
                     }).data('kendoMobileSwitch');
-                    setTimeout(function() {
+                    setTimeout(function () {
                         // Note: switchWidget.check() before data bindings so we need to yield some time
-                        switchWidget.trigger(CHANGE, {checked: switchWidget.check()});
+                        switchWidget.trigger(CHANGE, { checked: switchWidget.check() });
                     }, 0);
                 };
             }

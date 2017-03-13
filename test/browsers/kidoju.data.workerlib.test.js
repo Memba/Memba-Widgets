@@ -14,14 +14,20 @@
 
     describe('kidoju.data.workerlib.test', function () {
 
+        /* This function has too many statements. */
+        /* jshint -W071 */
+
         it('Blacklisted globals', function () {
             expect(window.ActiveXObject).to.be.undefined;
             expect(window.clearInterval).to.be.undefined;
             expect(window.clearTimeout).to.be.undefined;
+            /* eval can be harmful. */
+            /* jshint -W061 */
             expect(window.eval).to.be.undefined;
+            /* jshint +W061 */
             expect(window.Function).to.be.undefined;
             expect(window.importScripts).to.be.undefined;
-            if(window.indexedDB && !window.PHANTOMJS) {
+            if (window.indexedDB && !window.PHANTOMJS) {
                 // Note: test fails on PhantomJS
                 expect(window.indexedDB.open).to.be.undefined;
                 expect(window.indexedDB.deleteDatabase).to.be.undefined;
@@ -57,6 +63,8 @@
             expect(window.Worker).to.be.undefined;
         });
 
+        /* jshint +W071 */
+
         it('Soundex', function () {
             var SOUNDEX = [
                 { name: 'Soundex', value: 'S532' },
@@ -82,7 +90,7 @@
                 { name: 'O\'Hara', value: 'O600' }
             ];
             for (var i = 0, length = SOUNDEX.length; i < length; i++) {
-                expect(soundex(SOUNDEX[i].name)).to.equal(SOUNDEX[i].value);
+                expect(window.soundex(SOUNDEX[i].name)).to.equal(SOUNDEX[i].value);
             }
         });
 
@@ -95,7 +103,7 @@
                 // TODO we need more...
             ];
             for (var i = 0, length = METAPHONE.length; i < length; i++) {
-                expect(metaphone(METAPHONE[i].name)).to.equal(METAPHONE[i].value);
+                expect(window.metaphone(METAPHONE[i].name)).to.equal(METAPHONE[i].value);
             }
         });
 
@@ -108,7 +116,7 @@
                 // TODO we need more...
             ];
             for (var i = 0, length = DIACRITICS.length; i < length; i++) {
-                expect(removeDiacritics(DIACRITICS[i].name)).to.equal(DIACRITICS[i].value);
+                expect(window.removeDiacritics(DIACRITICS[i].name)).to.equal(DIACRITICS[i].value);
             }
         });
 

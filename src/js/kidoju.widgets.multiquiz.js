@@ -245,6 +245,9 @@
                 CHANGE
             ],
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Gets/sets the value
              * @param value
@@ -254,9 +257,15 @@
                 var options = that.options;
                 if ($.isArray(value) || value instanceof ObservableArray) {
                     if (that.dataSource instanceof DataSource) {
+                        // createFinder is used to satisfy jshint which would otherwise complain about making functions within loops
+                        var createFinder = function (value) {
+                            return function (item) {
+                                return item[options.textField] === value;
+                            };
+                        };
                         // Only retain values that have a match in dataSource
                         for (var i = value.length - 1; i >= 0; i--) {
-                            if (!that.dataSource.data().find(function (item) { return item[options.textField] === value[i]; })) {
+                            if (!that.dataSource.data().find(createFinder(value[i]))) {
                                 value.splice(i, 1);
                             }
                         }
@@ -276,6 +285,8 @@
                     throw new TypeError('`value` is expected to be a an array if not null or undefined');
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * Widget layout

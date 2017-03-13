@@ -338,7 +338,7 @@
                 Widget.fn.destroy.call(that);
                 kendo.destroy(element);
                 // Remove widget class
-                element.removeClass(WIDGET_CLASS)
+                element.removeClass(WIDGET_CLASS);
             }
         });
 

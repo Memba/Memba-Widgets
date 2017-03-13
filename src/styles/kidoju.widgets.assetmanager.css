@@ -16,7 +16,7 @@
 .kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange {
     display: flex;
     align-items: center;
-    max-width: 100%;
+    max-width: 60%;
 }
 .kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-progressbar {
     color: inherit;
@@ -24,7 +24,7 @@
     margin-right: .5em;
 }
 .kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-textbox {
-    width: 60%;
+    width: 100%;
 }
 .kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-textbox .k-icon {
     color: inherit;

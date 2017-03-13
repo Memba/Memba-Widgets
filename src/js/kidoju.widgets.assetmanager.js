@@ -747,7 +747,7 @@
                 var tabIndex = $(e.item).index();
 
                 // Ensure all content holders have the same height
-                this.tabStrip.contentHolder(tabIndex).height(this.tabStrip.contentHolder(oldIndex).height());
+                this.tabStrip.contentHolder(tabIndex).height('auto');
 
                 // Move file browser to the selected tab
                 this.fileBrowser.appendTo(this.tabStrip.contentHolder(tabIndex));

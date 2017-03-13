@@ -75,6 +75,8 @@
                 element.append('<div class="kj-floating-content"></div>');
                 // Create titleless window
                 element.kendoWindow({
+                    resizable: false,
+                    scrollable: false,
                     title: false
                 });
                 that.window = element.data('kendoWindow');

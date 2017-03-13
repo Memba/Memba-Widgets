@@ -257,15 +257,15 @@
                 var options = that.options;
                 if ($.isArray(value) || value instanceof ObservableArray) {
                     if (that.dataSource instanceof DataSource) {
-                        // createFinder is used to satisfy jshint which would otherwise complain about making functions within loops
-                        var createFinder = function (value) {
-                            return function (item) {
-                                return item[options.textField] === value;
-                            };
+                        // finder is used to satisfy jshint which would otherwise complain about making functions within loops
+                        var finder = function (value) {
+                            return that.dataSource.data().find(function(dataItem) {
+                                return dataItem[options.textField] === value;
+                            });
                         };
                         // Only retain values that have a match in dataSource
                         for (var i = value.length - 1; i >= 0; i--) {
-                            if (!that.dataSource.data().find(createFinder(value[i]))) {
+                            if (!finder(value[i])) {
                                 value.splice(i, 1);
                             }
                         }

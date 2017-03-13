@@ -1030,8 +1030,17 @@
                     var shapeOptions = { stroke: options.shapeStroke };
                     var group = new drawing.Group();
                     var bbox = new geometry.Rect(
-                        [options.shapeStroke.width / 2, options.shapeStroke.width / 2],
-                        [element.width() - options.shapeStroke.width, element.height() - options.shapeStroke.width]);
+                        [
+                            options.shapeStroke.width / 2,
+                            options.shapeStroke.width / 2
+                        ],
+                        [
+                            // We cannot have a negative value here, esepcailly when element.width() === 0
+                            // https://github.com/kidoju/Kidoju-Widgets/issues/160
+                            Math.max(element.width(), options.shapeStroke.width)  - options.shapeStroke.width,
+                            Math.max(element.height(), options.shapeStroke.width) - options.shapeStroke.width
+                        ]
+                    );
                     var outerRect = new drawing.Rect(bbox, frameOptions);
                     group.append(outerRect);
                     if (shape === SelectorSurface.fn.shapes.line) {

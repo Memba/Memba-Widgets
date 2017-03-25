@@ -169,20 +169,6 @@
                     .addClass(WIDGET_CLASS)
                     .css({ touchAction: 'none' });
                 that.surface = Surface.create(that.element);
-                // TODO ----------------------
-                that._drawGrid();
-                that._drawAxis();
-                that._drawMathFunction('x^2', 'f(x)', { stroke: { color: '#FF0000' } });
-                that._drawMathFunction('cos(x)', 'g(x)', { stroke: { color: '#00FF00' } });
-                that._drawMathFunction('1/x', 'h(x)', { stroke: { color: '#0000FF' } });
-                // Segment
-                that._drawSegment({ x: 1, y: 1 }, { x: 4, y: -3 }, '[AB]', { stroke: { color: '#FF00FF', dashType: 'dash' } });
-                that._drawPoint({ x: 1, y: 1 }, 'A', { fill: { color: '#FF00FF' } });
-                that._drawPoint({ x: 4, y: -3 }, 'B', { fill: { color: '#FF00FF' } });
-                // Circle
-                that._drawCircle({ x: -4, y: 2 }, { x: -4, y: 4 }, 'C', { stroke: { color: '#00FFFF', dashType: 'dash' } });
-                that._drawPoint({ x: -4, y: 2 }, 'C', { fill: { color: '#00FFFF' } });
-                that._drawPoint({ x: -4, y: 4 }, 'D', { fill: { color: '#00FFFF' } });
             },
 
             /**
@@ -250,18 +236,64 @@
              * Refresh upon changing the dataSource
              * Redraw all connections
              */
-            refresh: function () {
+            refresh: function (e) {
                 var that = this;
-                var options = that.options;
-                var container = that.element.closest(options.container);
-                assert.instanceof($, container, kendo.format(assert.messages.instanceof.default, 'container', 'jQuery'));
                 assert.instanceof(DataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
-                var connections = this.dataSource.data();
-                var surface = container.data(SURFACE);
-                if (surface instanceof kendo.drawing.Surface) {
+                if (that.surface instanceof Surface) {
+                    var items = this.dataSource.data();
                     // Clear surface
-                    surface.clear();
-
+                    that.surface.clear();
+                    // Draw grid
+                    that._drawGrid();
+                    // Draw axis
+                    that._drawAxis();
+                    // Draw items
+                    for (var i = 0; i < items.length; i++) {
+                        var item = items[i];
+                        var item1;
+                        var item2;
+                        var pt1;
+                        var pt2;
+                        if (['point'].indexOf(item.type) > -1) {
+                            pt1 = {
+                                x: item.x,
+                                y: item.y
+                            };
+                        } else if (['circle', 'line', 'ray', 'segment'].indexOf(item.type) > -1) {
+                            item1 = that.dataSource.get(item.pt1).toJSON();
+                            pt1 = {
+                                x: item1.x,
+                                y: item1.y
+                            };
+                            item2 = that.dataSource.get(item.pt2).toJSON();
+                            pt2 = {
+                                x: item2.x,
+                                y: item2.y
+                            };
+                        }
+                        switch (item.type) {
+                            case 'arc':
+                                break;
+                            case 'circle':
+                                that._drawCircle(pt1, pt2, item.name, item.configuration.toJSON());
+                                break;
+                            case 'function':
+                                that._drawMathFunction(item.code, item.name, item.configuration.toJSON());
+                                break;
+                            case 'line':
+                                that._drawLine(pt1, pt2, item.name, item.configuration.toJSON());
+                                break;
+                            case 'point':
+                                that._drawPoint(pt1, item.name, item.configuration.toJSON());
+                                break;
+                            case 'ray':
+                                that._drawRay(pt1, pt2, item.name, item.configuration.toJSON());
+                                break;
+                            case 'segment':
+                                that._drawSegment(pt1, pt2, item.name, item.configuration.toJSON());
+                                break;
+                        }
+                    }
                 }
             },
 

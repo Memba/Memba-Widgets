@@ -127,33 +127,18 @@
             },
 
             /**
-             * Clears the widget
-             * @method _clear
-             * @private
-             */
-            _clear: function () {
-                var that = this;
-                var element = that.element;
-                // unbind kendo
-                // kendo.unbind(element);
-                // unbind all other events
-                element.find('*').off();
-                element.off();
-                // remove descendants
-                element.empty();
-                // remove element classes
-                element.removeClass(WIDGET_CLASS);
-            },
-
-            /**
              * Destroys the widget including all DOM modifications
              * @method destroy
              */
             destroy: function () {
                 var that = this;
+                // Unbind events
+                // Release references
+                // Destroy kendo
                 Widget.fn.destroy.call(that);
-                that._clear();
                 kendo.destroy(that.element);
+                // Remove widget class
+                element.removeClass(WIDGET_CLASS);
             }
 
         });

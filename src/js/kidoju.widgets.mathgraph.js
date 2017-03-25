@@ -9,15 +9,23 @@
 (function (f, define) {
     'use strict';
     define([
+        './vendor/silentmatt/expr-eval',
+        // './vendor/mathjs/math',
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.color',
         './vendor/kendo/kendo.drawing'
     ], f);
-})(function () {
+})(function (math) {
 
     'use strict';
+
+    // Eval is evil, besides x ^ 2 is better than Math.pow(x, 2)
+    // So we have identified two proper math parsers:
+    // https://github.com/silentmatt/expr-eval (small and simple)
+    // https://github.com/josdejong/mathjs (big and feature-rich)
+    math = math || window.exprEval || window.math;
 
     /* This function has too many statements. */
     /* jshint -W071 */
@@ -29,9 +37,11 @@
         var drawing = kendo.drawing;
         var geometry = kendo.geometry;
         var DataSource = data.DataSource;
+        var Group = drawing.Group;
+        var Path = drawing.Path;
         var Surface = drawing.Surface;
         var Widget = kendo.ui.Widget;
-        var ToolBar = kendo.ui.ToolBar;
+        // var ToolBar = kendo.ui.ToolBar;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.drawing');
         var NUMBER = 'number';
@@ -158,11 +168,21 @@
                 that.element
                     .addClass(WIDGET_CLASS)
                     .css({ touchAction: 'none' });
-                that.surface = drawing.Surface.create(that.element);
+                that.surface = Surface.create(that.element);
                 // TODO ----------------------
                 that._drawGrid();
                 that._drawAxis();
-                that._drawMathFunction();
+                that._drawMathFunction('x^2', 'f(x)', { stroke: { color: '#FF0000' } });
+                that._drawMathFunction('cos(x)', 'g(x)', { stroke: { color: '#00FF00' } });
+                that._drawMathFunction('1/x', 'h(x)', { stroke: { color: '#0000FF' } });
+                // Segment
+                that._drawSegment({ x: 1, y: 1 }, { x: 4, y: -3 }, '[AB]', { stroke: { color: '#FF00FF', dashType: 'dash' } });
+                that._drawPoint({ x: 1, y: 1 }, 'A', { fill: { color: '#FF00FF' } });
+                that._drawPoint({ x: 4, y: -3 }, 'B', { fill: { color: '#FF00FF' } });
+                // Circle
+                that._drawCircle({ x: -4, y: 2 }, { x: -4, y: 4 }, 'C', { stroke: { color: '#00FFFF', dashType: 'dash' } });
+                that._drawPoint({ x: -4, y: 2 }, 'C', { fill: { color: '#00FFFF' } });
+                that._drawPoint({ x: -4, y: 4 }, 'D', { fill: { color: '#00FFFF' } });
             },
 
             /**
@@ -257,15 +277,15 @@
                     var height = element.height();
                     var width = element.width();
                     var origin = that._getOrigin();
-                    var grid = new drawing.Group();
+                    var group = new Group();
                     var xSize = parseFloat(options.grid.size.x);
                     if (!isNaN(xSize) && xSize > 0) {
                         var xShift = origin.x % xSize;
                         var columns = width / xSize;
                         // TODO: because of xShift, we might need to start at -1
                         for (var c = 0; c < columns ; c++) {
-                            var colPath = new drawing.Path(options.grid.path).moveTo(c * xSize + xShift, 0).lineTo(c * xSize + xShift, height);
-                            grid.append(colPath);
+                            var colPath = new Path(options.grid.path).moveTo(c * xSize + xShift, 0).lineTo(c * xSize + xShift, height);
+                            group.append(colPath);
                         }
                     }
                     var ySize = parseFloat(options.grid.size.y);
@@ -273,12 +293,12 @@
                         var yShift = origin.y % ySize;
                         var rows = height / ySize;
                         for (var r = 0; r < rows ; r++) {
-                            var rowPath = new drawing.Path(options.grid.path).moveTo(0, r * ySize + yShift).lineTo(width, r * ySize + yShift);
-                            grid.append(rowPath);
+                            var rowPath = new Path(options.grid.path).moveTo(0, r * ySize + yShift).lineTo(width, r * ySize + yShift);
+                            group.append(rowPath);
                         }
                     }
-                    if ($.isArray(grid.children) && grid.children.length) {
-                        that.surface.draw(grid);
+                    if ($.isArray(group.children) && group.children.length) {
+                        that.surface.draw(group);
                     }
                 }
             },
@@ -315,6 +335,44 @@
             },
 
             /**
+             * Get the pixel position from top left corner, given a point from origin
+             * The point has math cooordinates considering the grid size and position of axis/origin
+             * The position has pixel coordinates
+             * @param point
+             * @private
+             */
+            _getPixelFromPoint: function (point) {
+                var that = this;
+                var options = that.options;
+                var xSize = parseFloat(options.grid.size.x);
+                var ySize = parseFloat(options.grid.size.y);
+                var origin = that._getOrigin();
+                return {
+                    x: point.x * xSize + origin.x,
+                    y: - point.y * ySize + origin.y
+                };
+            },
+
+            /**
+             * Get the point from origin, gievn the pixel position from top left corner
+             * The point has math cooordinates considering the grid size and position of axis/origin
+             * The position has pixel coordinates
+             * @param pixel
+             * @private
+             */
+            _getPointFromPixel: function (pixel) {
+                var that = this;
+                var options = that.options;
+                var xSize = parseFloat(options.grid.size.x);
+                var ySize = parseFloat(options.grid.size.y);
+                var origin = that._getOrigin();
+                return {
+                    x: (pixel.x - origin.x) / xSize,
+                    y: (origin.y - pixel.y) / ySize
+                };
+            },
+
+            /**
              * Draw axis
              * @private
              */
@@ -326,63 +384,137 @@
                     var origin = that._getOrigin();
                     var height = element.height();
                     var width = element.width();
-                    var axis = new drawing.Group();
-                    var xPath = new drawing.Path(options.axis.path).moveTo(0, origin.y).lineTo(width, origin.y);
-                    axis.append(xPath);
-                    var yPath = new drawing.Path(options.axis.path).moveTo(origin.x, 0).lineTo(origin.x, height);
-                    axis.append(yPath);
-                    that.surface.draw(axis);
+                    var group = new Group();
+                    var xPath = new Path(options.axis.path).moveTo(0, origin.y).lineTo(width, origin.y);
+                    group.append(xPath);
+
+                    var yPath = new Path(options.axis.path).moveTo(origin.x, 0).lineTo(origin.x, height);
+                    group.append(yPath);
+                    that.surface.draw(group);
+                    // TODO add end arrows
+                    // TODO add graduations
                 }
             },
 
             /**
              * Draw a point
+             * @param pt
+             * @param name
+             * @param configuration
              * @private
              */
-            _drawPoint: function () {
+            _drawPoint: function (pt, name, configuration) {
+                var that = this;
+                var px = that._getPixelFromPoint(pt);
+                if (isFinite(px.x) && isFinite(px.y)) {
+                    var group = new Group;
+                    // Outer circle
+                    var circleGeometry = new geometry.Circle([px.x, px.y], 10); // TODO configure radius
+                    var circle = new drawing.Circle(circleGeometry, $.extend(configuration, { opacity: .25 }));
+                    group.append(circle);
+                    // Inner circle
+                    circleGeometry = new geometry.Circle([px.x, px.y], 3); // TODO configure radius
+                    circle = new drawing.Circle(circleGeometry, configuration);
+                    group.append(circle);
+                    // Add name
+                    var text = new drawing.Text(name, new geometry.Point(px.x + 10, px.y - 22));  // TODO configure font size and calculate position
+                    group.append(text);
+                    that.surface.draw(group);
+                }
+            },
+
+            /**
+             * Draw a segment between pt1 and pt2
+             * @param pt1
+             * @param pt2
+             * @param name
+             * @param configuration
+             * @private
+             */
+            _drawSegment: function (pt1, pt2, name, configuration) {
+                var that = this;
+                var px1 = that._getPixelFromPoint(pt1);
+                var px2 = that._getPixelFromPoint(pt2);
+                if (isFinite(px1.x) && isFinite(px1.y) &&
+                    isFinite(px2.x) && isFinite(px2.y)
+                ) {
+                    var group = new Group;
+                    // Add path
+                    var path = new Path(configuration);
+                    path.moveTo(px1.x, px1.y);
+                    path.lineTo(px2.x, px2.y);
+                    group.append(path);
+                    // TODO Add name
+                    that.surface.draw(group);
+                }
+            },
+
+            /**
+             * Draw a ray starting at pt1 and going through pt2
+             * @param pt1
+             * @param pt2
+             * @param name
+             * @param configuration
+             * @private
+             */
+            _drawRay: function (pt1, pt2, name, configuration) {
 
             },
 
-            // Segment, open segment and line
-            _drawSegment: function () {
+            /**
+             * Draw a line going through pt1 and pt2
+             * @param pt1
+             * @param pt2
+             * @param name
+             * @param configuration
+             * @private
+             */
+            _drawLine: function (pt1, pt2, name, configuration) {
 
             },
 
-            // Draw circle
-            _drawCircle: function () {
-
+            /**
+             * Draw a circle centered at pt1 and going through pt2
+             * @param pt1
+             * @param pt2
+             * @param name
+             * @param configuration
+             * @private
+             */
+            _drawCircle: function (pt1, pt2, name, configuration) {
+                var that = this;
+                var px1 = that._getPixelFromPoint(pt1);
+                var px2 = that._getPixelFromPoint(pt2);
+                if (isFinite(px1.x) && isFinite(px1.y) &&
+                    isFinite(px2.x) && isFinite(px2.y)
+                ) {
+                    var radius = Math.sqrt(Math.pow(px2.x - px1.x, 2) + Math.pow(px2.y - px1.y, 2));
+                    var group = new Group();
+                    var circleGeometry = new geometry.Circle([px1.x, px1.y], radius);
+                    var circle = new drawing.Circle(circleGeometry, configuration);
+                    group.append(circle);
+                    // TODO Add name
+                    that.surface.draw(group);
+                }
             },
 
             /**
              * Draw arc
              * @private
              */
-            _drawArc: function () {
+            _drawArc: function (p1, radius, a1, a2, name, configuration) {
 
-            },
-
-            /**
-             * Parse a math function
-             * @private
-             */
-            _parseMathFunction: function () {
-                // The function to draw
-                return function (x) {
-                    // TODO use a simple parser as in
-                    // http://stackoverflow.com/questions/31600121/how-do-you-write-an-arithmetic-expression-parser-in-javascript-without-using-ev/31621205#31621205
-                    // return x + 3;
-                    // return Math.pow(x, 2);
-                    // return Math.cos(x);
-                    // return 1/x;
-                    return 1 / (Math.pow(x, 2) - 1);
-                };
             },
 
             /**
              * Draw math function
+             * @param code a math expression with a single variable x
+             * @param name
+             * @param configuration, a drawing path configuration as documented at http://docs.telerik.com/kendo-ui/api/javascript/drawing/path#configuration
              * @private
              */
-            _drawMathFunction: function () {
+            _drawMathFunction: function (code, name, configuration) {
+                assert.type(STRING, code, kendo.format(assert.messages.type.default, 'code', STRING));
                 var that = this;
                 var element = that.element;
                 var options = that.options;
@@ -390,15 +522,30 @@
                 var ySize = parseFloat(options.grid.size.y);
                 var origin = that._getOrigin();
                 var width = element.width();
-                var group = new drawing.Group();
-                var path = new drawing.Path();
-                for (var x = 0; x < width; x++) {
-                    // x, y represent a pixel
-                    // a, b are our coordinates
+                var group = new Group();
+                var path = new Path(configuration);
+                var which = false;
+                var fn;
+                if ($.isFunction(math.Parser)) {
+                    // we are using https://github.com/silentmatt/expr-eval
+                    var parser = new math.Parser();
+                    fn = parser.parse(code);
+                } else if ($.isFunction(math.parse)) {
+                    // we are using https://github.com/josdejong/mathjs
+                    which = true;
+                    fn = math.parse(code).compile();
+                } else {
+                    // we need a math parser
+                    throw new Error('You need to reference a math parser');
+                }
+                for (var x = 0; x <= width; x++) {
+                    // x, y represent a pixel with 0,0 in the top left corner
+                    // a, b are our coordinates from origin
                     var a = (x - origin.x) / xSize;
-                    var b = that._parseMathFunction()(a);
-                    if (isFinite(b)) {
-                        var y = -b * ySize + origin.y;
+                    // Our function uses x but this is actually a, considering x refers to the horizontal position of pixels
+                    var b = which ? fn.eval({ x: a }) : fn.evaluate({ x: a });
+                    var y = -b * ySize + origin.y;
+                    if (isFinite(y) && y >=0 && y <= width) {
                         if (path.segments && path.segments.length === 0) {
                             path.moveTo(x, y);
                         } else {
@@ -408,14 +555,15 @@
                             group.append(path);
                         }
                     } else { // Especially for 1/x and similar functions
-                        // We only append to the group if we had one moveTo and at least one lineTo
+                        // We only append to the group if we had one moveTo and at least one lineTo, that is 2 segments
                         if (path.segments && path.segments.length > 1) {
                             group.append(path);
                         }
-                        // In all cases, we start a new path
-                        path = new drawing.Path();
+                        // In all cases (whether the previous one has been added to the group or not), we start a new path
+                        path = new Path(configuration);
                     }
                 }
+                // TODO Add name
                 that.surface.draw(group);
             },
 

@@ -44,3 +44,8 @@ And each time you need to build MathQuill
 
 1. Go to your mathquill directory, e.g. ```cd /mnt/c/Users/<me>/Desktop/mathquill-0.10.1```
 2. Run ```make```.
+
+## SilentMatt's Expr-Eval
+
+The source code is available at https://github.com/silentmatt/expr-eval, but this is for nodejs.
+The browser version can be downloaded from https://cdnjs.cloudflare.com/ajax/libs/expr-eval/1.0.0/bundle(.min).js.

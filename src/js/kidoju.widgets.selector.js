@@ -556,7 +556,7 @@
                         that.toolbar.addColor(selector.options.shapeStroke.color);
                     }
                     // Reset mouse handlers
-                    that._resetMouseHandlers();
+                    that._initMouseEvents();
                 }
             },
 
@@ -573,10 +573,10 @@
             },
 
             /**
-             * Reset mouse event handlers to draw on surface
+             * Init mouse event handlers to draw on surface
              * @private
              */
-            _resetMouseHandlers: function () {
+            _initMouseEvents: function () {
                 // IMPORTANT
                 // We can have several widgets for selections on a page
                 // But we only have one set of event handlers shared across all selections
@@ -1180,7 +1180,7 @@
                 var selectorSurface = this.selectorSurface;
                 this._enabled = enabled;
                 if (selectorSurface instanceof SelectorSurface) {
-                    selectorSurface._resetMouseHandlers();
+                    selectorSurface._initMouseEvents();
                 }
             },
 

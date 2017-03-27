@@ -296,7 +296,6 @@
                     .on(MOUSEDOWN, DOT + WIDGET_CLASS, function (e) {
                         e.preventDefault(); // prevents from selecting the div
                         element = $(e.currentTarget);
-                        var elementOffset = element.offset();
                         var elementWidget = element.data(WIDGET);
                         if (elementWidget instanceof Connector && elementWidget._enabled) {
                             elementWidget._dropConnection();

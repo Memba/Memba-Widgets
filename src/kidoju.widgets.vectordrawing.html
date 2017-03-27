@@ -27,16 +27,16 @@
 </head>
 <body>
 <h1>kidoju.widgets.vectordrawing</h1>
-<div id="toolbar" data-bind="visible: visible, enabled: enabled"></div>
-
-
-
-<div data-role="vectordrawing" data-bind="source: source, visible: visible, enabled: enabled"></div>
-
+<div id="toolbar"></div>
+<div class="kj-stage" style="position:relative;height:600px;width:800px;border:solid 1px black;transform: scale(0.75);">
+    <div data-role="stage" style="height:600px;width:800px;">
+        <div class="kj-element" style="position:absolute;top:10px;left:10px;height:480px;width:640px;">
+            <div data-role="vectordrawing" data-bind="source: source, visible: visible, enabled: enabled" style="height:480px;width:640px;"></div>
+        </div>
+    </div>
+</div>
 <pre>
 {
-    source$:
-    <div data-bind="text: source$" style="margin-left:50px;"></div>
     visible: <span data-bind="text: visible"></span>
     enabled: <span data-bind="text: enabled"></span>
 }
@@ -45,6 +45,7 @@
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />enabled
 </div>
+<div id="grid"></div>
 
 <script>
     ;(function(window, $, undefined){
@@ -53,73 +54,52 @@
 
         var kendo = window.kendo;
         var viewModel = window.viewModel = new kendo.observable({
-            source: [],
-            source$: function() {
-                var ret = '';
-                this.get('source').forEach(function(item) {
-                    ret += kendo.format('{0} --> {1} ({2})\n', item.originId, item.destinationId, item.color);
-                });
-                return ret;
-            },
+            source: [
+                {
+                    id: kendo.guid(),
+                    type: 'path',
+                    // Curved segments see http://docs.telerik.com/kendo-ui/api/javascript/drawing/segment
+                    segments: [[0,0], [100,100]],
+                    closed: false,
+                    configuration: { stroke: { color: '#FF0000', width: 3 } }
+                },
+                {
+                    id: kendo.guid(),
+                    type: 'rect',
+                    origin: [200, 200],
+                    size: [150, 150],
+                    configuration: { stroke: { color: '#00FF00', width: 5 } }
+                },
+                {
+                    id: kendo.guid(),
+                    type: 'circle',
+                    center: [300, 300],
+                    radius: 180,
+                    configuration: { stroke: { color: '#0000FF', width: 5 } }
+                },
+                {
+                    id: kendo.guid(),
+                    type: 'text',
+                    text: 'Foo',
+                    position: [400, 400],
+                    configuration: { font: 'italic 5em \'Open Sans\', sans-serif', stroke: { color: '#00FFFF' } }
+                }
+                // TODO image
+            ],
             visible: true,
             enabled: true
         });
 
         $(function() {
-            kendo.bind('body', viewModel);
-            $('#toolbar').kendoMiniToolBar({
-                // toolbarName: 'data'
-                tools: [
-                    {
-                        type: 'button',
-                        command: 'PropertyChangeCommand',
-                        property: 'bold',
-                        value: true,
-                        iconClass: 'bold',
-                        togglable: true
-                    },
-                    {
-                        type: 'button',
-                        command: 'PropertyChangeCommand',
-                        property: 'italic',
-                        value: true,
-                        iconClass: 'italic',
-                        togglable: true
-                    },
-                    {
-                        type: 'button',
-                        command: 'PropertyChangeCommand',
-                        property: 'underline',
-                        value: true,
-                        iconClass: 'underline',
-                        togglable: true
-                    },
-                    {
-                        type: 'colorPicker',
-                        property: 'background',
-                        iconClass: 'background'
-                    },
-                    {
-                        type: 'dialog',
-                        dialogName: 'hyperlink',
-                        iconClass: 'hyperlink',
-                        overflow: 'never',
-                        text: ''
-                    }
+            $('#grid').kendoGrid({
+                dataSource: viewModel.source,
+                columns: [
+                    { field: 'id', title: 'id' },
+                    { field: 'type', title: 'type' }
                 ],
-                action: function (e) {
-                    debugger;
-                },
-                click: function (e) {
-                    debugger;
-                },
-                dialog: function (e) {
-                    debugger;
-                },
-                toggle: function (e) {
-                    debugger;
-                }
+                editable: true
             });
+            kendo.bind('body', viewModel);
         });
 
     }(this, jQuery));

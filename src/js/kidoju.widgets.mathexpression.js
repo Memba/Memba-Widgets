@@ -20,13 +20,14 @@
 
     'use strict';
 
+    var katex = window.katex || katX;
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.mathexpression');
-        var katex = window.katex || katX;
         var FUNCTION = 'function';
         var STRING = 'string';
         var NULL = 'null';
@@ -132,7 +133,9 @@
              */
             destroy: function () {
                 var that = this;
+                var element = that.element;
                 // Unbind events
+                that.unbind(CHANGE);
                 // Release references
                 // Destroy kendo
                 Widget.fn.destroy.call(that);

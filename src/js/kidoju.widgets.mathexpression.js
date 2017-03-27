@@ -139,7 +139,7 @@
                 // Release references
                 // Destroy kendo
                 Widget.fn.destroy.call(that);
-                kendo.destroy(that.element);
+                kendo.destroy(element);
                 // Remove widget class
                 element.removeClass(WIDGET_CLASS);
             }

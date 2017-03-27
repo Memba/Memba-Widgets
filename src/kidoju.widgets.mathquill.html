@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kidoju.widgets.mathquill</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
+    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
+    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
+    <script src="./js/vendor/kendo/kendo.data.js"></script>
+    <script src="./js/vendor/kendo/kendo.binder.js"></script>
+    <script src="./js/vendor/kendo/kendo.color.js"></script>
+    <script src="./js/vendor/kendo/kendo.drawing.js"></script-->
+    <!-- mathquill requirements -->
+    <link rel="stylesheet" type="text/css" href="./styles/vendor/mathquill/mathquill.css">
+    <!--link rel="stylesheet" href="./styles/kidoju.widgets.mathquill.css"-->
+    <script src="./js/window.assert.js"></script>
+    <script src="./js/window.logger.js"></script>
+    <script src="./js/vendor/mathquill/mathquill.js"></script>
+    <script src="./js/kidoju.widgets.mathquill.js"></script>
+    <style>
+
+    </style>
+</head>
+<body>
+<h1>kidoju.widgets.mathquill</h1>
+<div id="toolbar"></div>
+<div class="kj-stage" style="position:relative;height:600px;width:800px;border:solid 1px black;transform: scale(0.75);">
+    <div data-role="stage" style="height:600px;width:800px;">
+        <div class="kj-element" style="position:absolute;top:50px;left:100px;height:50px;width:200px;">
+            <span data-role="mathquill" data-bind="value: value, visible: visible, enabled: enabled" style="height:50px;width:200px;"></span>
+        </div>
+        <div class="kj-element" style="position:absolute;top:250px;left:100px;height:50px;width:200px;">
+            <div data-role="mathquill" data-bind="value: value, visible: visible, enabled: enabled" style="height:50px;width:200px;"></div>
+        </div>
+    </div>
+</div>
+
+<pre>
+{
+    value: <span data-bind="text: value"></span>
+    visible: <span data-bind="text: visible"></span>
+    enabled: <span data-bind="text: enabled"></span>
+}
+</pre>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />enabled
+</div>
+
+<script>
+    ;(function(window, $, undefined){
+
+        'use strict';
+
+        var kendo = window.kendo;
+        var viewModel = window.viewModel = new kendo.observable({
+            value: '',
+            visible: true,
+            enabled: true
+        });
+
+        $(function() {
+            kendo.bind('body', viewModel);
+        });
+
+    }(this, jQuery));
+</script>
+</body>
+</html>

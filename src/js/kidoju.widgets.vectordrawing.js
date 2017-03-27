@@ -41,7 +41,6 @@
         var NULL = 'null';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
-        var CLICK = 'click';
         var DOT = '.';
         var WIDGET = 'kendoVectorDrawing';
         var NS = DOT + WIDGET;
@@ -50,10 +49,29 @@
         var MOUSEUP = 'mouseup' + NS + ' ' + 'touchend' + NS;
         var DIV = '<div/>';
         var WIDGET_CLASS = 'kj-drawing';
-        var ATTR_SELECTOR = '[{0}="{1}"]';
+        var WIDGET_SELECTOR = DOT + 'kj-drawing';
+        var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
         var RX_COLOR = /^#([0-9A-F]{3}|[0-9A-F]{6})$/i;
         var RX_DASHTYPE = /^(dash|dashDot|dot|longDash|longDashDot|longDashDotDot)$/; // Note: `solid` is not listed becuase it is the default
-        var TOOLS = ['select', 'circle', 'line', 'pen', 'rect', 'text'];
+        var TOOLS = [
+            'select',
+            'pen',
+            'line',
+            'rect',
+            'circle',
+            'text'
+        ];
+        var TOOLBAR = [
+            TOOLS,
+            [
+                'bold',
+                'italic'
+            ],
+            'backgroundColor',
+            'textColor',
+            'fontSize',
+            'fontFamily'
+        ];
 
         /*********************************************************************************
          * Helpers
@@ -224,9 +242,8 @@
                 autoBind: true,
                 dataSource: [],
                 scaler: 'div.kj-stage',
-                container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]',
                 toolbar: '#toolbar',
-                // TODO: tools
+                tools: TOOLBAR,
                 enable: true,
                 bbox: {
                     stroke: {
@@ -278,9 +295,9 @@
                 that.element
                     .addClass(WIDGET_CLASS)
                     .css({ touchAction: 'none' });
-                // that.surface = drawing.Surface.create(that.element);
+                that.surface = drawing.Surface.create(that.element);
                 // that.surface = drawing.Surface.create(that.element, { type: 'canvas' }); // TODO: remove the type, for testing only
-                that.surface = drawing.Surface.create(that.element, { type: 'svg' }); // TODO: remove the type, for testing only
+                // that.surface = drawing.Surface.create(that.element, { type: 'svg' }); // TODO: remove the type, for testing only
                 that._initToolBar();
             },
 
@@ -294,7 +311,7 @@
                 that.toolBar = $(DIV)
                     .appendTo(options.toolbar)
                     .kendoVectorDrawingToolBar({
-                        // tools: options.tools
+                        tools: options.tools,
                         action: $.proxy(that._onToolBarAction, that),
                         dialog: $.proxy(that._onToolBarDialog, that)
                     })
@@ -309,7 +326,7 @@
             _setTool: function (tool) {
                 assert.enum(TOOLS, tool, kendo.format(assert.messages.enum.default, 'tool', TOOLS));
                 window.assert(VectorDrawingToolBar, this.toolBar, kendo.format(assert.messages.instanceof.default, 'this.toolBar', 'kendo.ui.VectorDrawingToolBar'));
-                var buttonElement = this.toolBar.element.find(kendo.format(ATTR_SELECTOR, kendo.attr('tool'), tool));
+                var buttonElement = this.toolBar.element.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr('tool'), tool));
                 this.toolBar.toggle(buttonElement, true);
                 if (tool === 'select') {
                     this.wrapper.css({ cursor: 'default' });
@@ -377,11 +394,11 @@
                 $(document).off(NS);
                 if (that._enabled) {
                     $(document)
-                        .on(MOUSEDOWN, DOT + WIDGET_CLASS, data, $.proxy(that._onMouseDown, that))
-                        .on(MOUSEMOVE, DOT + WIDGET_CLASS, data, $.proxy(that._onMouseMove, that))
+                        .on(MOUSEDOWN, WIDGET_SELECTOR, data, $.proxy(that._onMouseDown, that))
+                        .on(MOUSEMOVE, WIDGET_SELECTOR, data, $.proxy(that._onMouseMove, that))
                         // TODO: test moving outside the boundaries of the widgets with several widgets on the page
                         // .on(MOUSEMOVE, data, $.proxy(that._onMouseMove, that))
-                        .on(MOUSEUP, DOT + WIDGET_CLASS, data, $.proxy(that._onMouseUp, that))
+                        .on(MOUSEUP, WIDGET_SELECTOR, data, $.proxy(that._onMouseUp, that))
                         .on(MOUSEUP, data, $.proxy(that._onMouseEnd, that));
                 }
             },
@@ -399,14 +416,12 @@
                 assert.ok(this._enabled, kendo.format(assert.messages.ok.default, 'this._enabled'));
                 var scaler = element.closest(widget.options.scaler);
                 var scale = scaler.length ? util.getTransformScale(scaler) : 1;
-                var container = element.closest(widget.options.container);
-                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, widget.options.container));
-                var mouse = util.getMousePosition(e, container);
+                var mouse = util.getMousePosition(e, element);
                 return new geometry.Point(mouse.x / scale, mouse.y / scale);
             },
 
             /**
-             * Find elements at position
+             * Find element at position
              * @param position
              * @private
              */
@@ -547,9 +562,9 @@
              * @private
              */
             _onMouseUp: function (e) {
-                var position = this._getMousePosition(e);
                 // Discard mouse events unless there is e.data
                 if ($.type(e.data) === OBJECT && !$.isEmptyObject(e.data)) {
+                    var position = this._getMousePosition(e);
                     switch (this._tool) {
                         case 'circle':
                             this._endCircle(position, e.data);
@@ -903,7 +918,6 @@
                 var that = this;
                 var element = that.element;
                 // Unbind events
-                that.surface.unbind(CLICK);
                 $(document).off(NS);
                 // Release references
                 that.toolBar.destroy();
@@ -1172,24 +1186,7 @@
             options: {
                 name: 'VectorDrawingToolBar',
                 resizable: false,
-                tools: [
-                    [
-                        'select',
-                        'pen',
-                        'line',
-                        'rect',
-                        'circle',
-                        'text'
-                    ],
-                    [
-                        'bold',
-                        'italic'
-                    ],
-                    'backgroundColor',
-                    'textColor',
-                    'fontSize',
-                    'fontFamily'
-                ]
+                tools: TOOLBAR
             },
             action: function (args) {
                 this.trigger('action', args);

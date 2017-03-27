@@ -26,6 +26,7 @@
     // So we have identified two proper math parsers:
     // https://github.com/silentmatt/expr-eval (small and simple)
     // https://github.com/josdejong/mathjs (big and feature-rich)
+    // See also https://github.com/pegjs/pegjs
     math = math || window.exprEval || window.math;
 
     /* This function has too many statements. */

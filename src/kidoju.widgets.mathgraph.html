@@ -29,11 +29,10 @@
 </head>
 <body>
 <h1>kidoju.widgets.mathgraph</h1>
-<div id="toolbar" data-bind="visible: visible, enabled: enabled"></div>
-
+<div id="toolbar"></div>
 <div class="kj-stage" style="position:relative;height:600px;width:800px;border:solid 1px black;transform: scale(0.75);">
     <div data-role="stage" style="height:600px;width:800px;">
-        <div class="kj-element" style="position:absolute;top:10px;left:10px;height:480px;width:640px;">
+        <div class="kj-element" style="position:absolute;top:50px;left:100px;height:480px;width:640px;">
             <div data-role="mathgraph" data-bind="source: source, visible: visible, enabled: enabled" style="height:480px;width:640px;"></div>
         </div>
     </div>
@@ -133,6 +132,22 @@
                         pt1: pt3,
                         pt2: pt4,
                         configuration: { stroke: { color: '#00FFFF' } }
+                    },
+                    {
+                        id: kendo.guid(),
+                        type: 'line',
+                        name: ']BD[',
+                        pt1: pt2,
+                        pt2: pt4,
+                        configuration: { stroke: { color: '#25AAAA' } }
+                    },
+                    {
+                        id: kendo.guid(),
+                        type: 'ray',
+                        name: ']AC]',
+                        pt1: pt1,
+                        pt2: pt3,
+                        configuration: { stroke: { color: '#AAAA25' } }
                     }
                 ]
             }),

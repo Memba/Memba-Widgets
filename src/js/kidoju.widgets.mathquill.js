@@ -183,6 +183,10 @@
 
             /**
              * Initialize toolbar
+             * Note: let us make this a toolbar for now because it is easier considering existing kendo ui widgets
+             * but ultimately we migh need a custom keyboard like http://khan.github.io/math-input/custom.html.
+             * Alternatively focusing a math input on mobile devices might bring up a dialog where the toolbar
+             * popups have more space to expand like a keyboard.
              * @private
              */
             _initToolBar: function () {
@@ -254,6 +258,14 @@
              */
             _onToolBarDialog: function (e) {
                 debugger;
+            },
+
+            /**
+             * Add a cursor
+             * @private
+             */
+            _setCursor: function () {
+                // TODO: see http://khan.github.io/math-input/custom.html
             },
 
             /**

@@ -236,6 +236,9 @@
                         this.mathField.cmd('^');
                         // this.mathField.write('_{}');
                         // this.mathField.cmd('_');
+                        // \times\div\pm\pi\degree\ne\ge\le><
+                        // \frac{ }{ }\sqrt{ }\sqrt[3]{}\sqrt[]{}\ ^{ }\ _{ }
+                        // \angle\parallel\perp\triangle\parallelogram
                         break;
                     case 'ToolbarPasteCommand':
                         // this.mathField.write('\\sum_{}^{}');

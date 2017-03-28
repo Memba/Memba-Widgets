@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.mathquill</title>
+    <title>kidoju.widgets.mathinput</title>
     <script>
         window.app = { DEBUG: true };
     </script>
@@ -16,27 +16,27 @@
     <script src="./js/vendor/kendo/kendo.binder.js"></script>
     <script src="./js/vendor/kendo/kendo.color.js"></script>
     <script src="./js/vendor/kendo/kendo.drawing.js"></script-->
-    <!-- mathquill requirements -->
+    <!-- mathinput requirements -->
     <link rel="stylesheet" type="text/css" href="./styles/vendor/mathquill/mathquill.css">
-    <!--link rel="stylesheet" href="./styles/kidoju.widgets.mathquill.css"-->
+    <link rel="stylesheet" href="./styles/kidoju.widgets.mathinput.css">
     <script src="./js/window.assert.js"></script>
     <script src="./js/window.logger.js"></script>
     <script src="./js/vendor/mathquill/mathquill.js"></script>
-    <script src="./js/kidoju.widgets.mathquill.js"></script>
+    <script src="./js/kidoju.widgets.mathinput.js"></script>
     <style>
 
     </style>
 </head>
 <body>
-<h1>kidoju.widgets.mathquill</h1>
+<h1>kidoju.widgets.mathinput</h1>
 <div id="toolbar"></div>
 <div class="kj-stage" style="position:relative;height:600px;width:800px;border:solid 1px black;transform: scale(0.75);">
     <div data-role="stage" style="height:600px;width:800px;">
         <div class="kj-element" style="position:absolute;top:50px;left:100px;height:50px;width:200px;">
-            <span data-role="mathquill" data-bind="value: value, visible: visible, enabled: enabled" style="height:50px;width:200px;"></span>
+            <span data-role="mathinput" data-bind="value: value, visible: visible, enabled: enabled" style="height:50px;width:200px;"></span>
         </div>
         <div class="kj-element" style="position:absolute;top:250px;left:100px;height:50px;width:200px;">
-            <div data-role="mathquill" data-bind="value: value, visible: visible, enabled: enabled" style="height:50px;width:200px;font-size:35pt"></div>
+            <div data-role="mathinput" data-bind="value: value, visible: visible, enabled: enabled" style="height:50px;width:200px;font-size:35pt"></div>
         </div>
     </div>
 </div>

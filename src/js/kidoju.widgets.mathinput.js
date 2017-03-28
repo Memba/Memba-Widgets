@@ -30,17 +30,17 @@
         var ToolBar = kendo.ui.ToolBar;
         var MQ = mq.getInterface(mq.getInterface.MAX);
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.mathquill');
+        var logger = new window.Logger('kidoju.widgets.mathinput');
         var FUNCTION = 'function';
         var STRING = 'string';
         var NULL = 'null';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var DOT = '.';
-        var WIDGET = 'kendoMathQuill';
+        var WIDGET = 'kendoMathInput';
         var NS = DOT + WIDGET;
-        var WIDGET_CLASS = 'kj-mathquill'; // 'k-widget kj-mathquill';
-        var WIDGET_SELECTOR = DOT + 'kj-mathquill';
+        var WIDGET_CLASS = 'kj-mathinput'; // 'k-widget kj-mathinput';
+        var WIDGET_SELECTOR = DOT + 'kj-mathinput';
         var DIV = '<div/>';
         var SPAN = '<span/>';
         var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
@@ -54,14 +54,14 @@
         ];
 
         /*********************************************************************************
-         * MathQuill Widget
+         * MathInput Widget
          *********************************************************************************/
 
         /**
-         * MathQuill
-         * @class MathQuill Widget (kendoMathQuill)
+         * MathInput
+         * @class MathInput Widget (kendoMathInput)
          */
-        var MathQuill = Widget.extend({
+        var MathInput = Widget.extend({
 
             /**
              * Initializes the widget
@@ -85,7 +85,7 @@
              * @property options
              */
             options: {
-                name: 'MathQuill',
+                name: 'MathInput',
                 value: null,
                 errorColor: '#cc0000',
                 inline: false,
@@ -126,7 +126,7 @@
                 var that = this;
                 that.wrapper = that.element;
                 that.element.addClass(WIDGET_CLASS);
-                that._initMathQuill();
+                that._initMathInput();
                 that._initToolBar();
             },
 
@@ -134,7 +134,7 @@
              * Initialize
              * @private
              */
-            _initMathQuill: function () {
+            _initMathInput: function () {
                 var that = this;
                 var element = that.element;
                 if (element.is('span')) {
@@ -194,12 +194,12 @@
                 var options = that.options;
                 that.toolBar = $(DIV)
                     .appendTo(options.toolbar)
-                    .kendoMathQuillToolBar({
+                    .kendoMathInputToolBar({
                         tools: options.tools,
                         action: $.proxy(that._onToolBarAction, that),
                         dialog: $.proxy(that._onToolBarDialog, that)
                     })
-                    .data('kendoMathQuillToolBar');
+                    .data('kendoMathInputToolBar');
                 // that._setTool('select');
             },
 
@@ -209,7 +209,7 @@
              */
             _setTool: function (tool) {
                 assert.enum(TOOLS, tool, kendo.format(assert.messages.enum.default, 'tool', TOOLS));
-                window.assert(MathQuillToolBar, this.toolBar, kendo.format(assert.messages.instanceof.default, 'this.toolBar', 'kendo.ui.MathQuillToolBar'));
+                window.assert(MathInputToolBar, this.toolBar, kendo.format(assert.messages.instanceof.default, 'this.toolBar', 'kendo.ui.MathInputToolBar'));
                 var buttonElement = this.toolBar.element.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr('tool'), tool));
                 this.toolBar.toggle(buttonElement, true);
                 if (tool === 'select') {
@@ -297,10 +297,10 @@
 
         });
 
-        kendo.ui.plugin(MathQuill);
+        kendo.ui.plugin(MathInput);
 
         /*********************************************************************************
-         * MathQuillToolBar Widget
+         * MathInputToolBar Widget
          *********************************************************************************/
 
         var MESSAGES = {
@@ -327,10 +327,10 @@
             }
         };
 
-        var MathQuillToolBar = ToolBar.extend({
+        var MathInputToolBar = ToolBar.extend({
             init: function (element, options) {
                 options = options || {};
-                options.items = this._expandTools(options.tools || MathQuillToolBar.prototype.options.tools);
+                options.items = this._expandTools(options.tools || MathInputToolBar.prototype.options.tools);
                 ToolBar.fn.init.call(this, element, options);
                 var handleClick = this._click.bind(this);
                 this.element.addClass('k-spreadsheet-toolbar');
@@ -418,7 +418,7 @@
                 'dialog'
             ],
             options: {
-                name: 'MathQuillToolBar',
+                name: 'MathInputToolBar',
                 resizable: false,
                 tools: TOOLBAR
             },
@@ -494,10 +494,10 @@
             }
         });
 
-        kendo.ui.plugin(MathQuillToolBar);
+        kendo.ui.plugin(MathInputToolBar);
 
         /*********************************************************************************
-         * MathQuillToolBar Tools
+         * MathInputToolBar Tools
          *********************************************************************************/
 
         var DropDownTool = kendo.toolbar.Item.extend({

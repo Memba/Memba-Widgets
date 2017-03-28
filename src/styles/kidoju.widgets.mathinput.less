@@ -1,0 +1,89 @@
+.kj-mathinput .mq-editable-field .mq-cursor {
+    border-left: 2px solid #78c008 !important;
+    border-radius: 1px;
+
+    margin-left: -1px !important;
+    margin-right: -1px !important;
+    margin-bottom: 2px;
+}
+
+.kj-mathinput .mq-editable-field .mq-non-leaf .mq-cursor:only-child {
+    border: 2px solid #78c008 !important; /* bright-green color */
+    padding: 0 4px 0 4px;
+}
+
+.kj-mathinput .mq-empty {
+    background: transparent !important;
+}
+
+.kj-mathinput .mq-empty:not(.mq-root-block):after {
+    visibility: visible !important;
+
+    /* hides the 'c' content added by MathQuill to measure the width */
+    color: transparent;
+
+    display: inline-block;
+    border: 2px solid #ccc;
+    border-radius: 1px;
+    padding: 0 4px 0 4px;
+    margin-left: -1px;
+    margin-right: -1px;
+    margin-bottom: 2px;
+}
+
+.kj-mathinput .mq-editable-field .mq-non-leaf .mq-cursor:only-child {
+    visibility: visible !important; /* disable default blink behavior */
+    border: 2px solid #78c008 !important; /* bright-green color */
+    padding: 0 4px 0 4px;
+}
+
+.kj-mathinput .mq-empty {
+    background: transparent !important;
+}
+
+/* also adds empty block styling to elements with .mq-hasCursor but without a cursor element (this happens where the cursor is when the math input loses focus) */
+.kj-mathinput .mq-empty:not(.mq-root-block):after, .kj-mathinput .mq-hasCursor:empty:not(.mq-root-block):after {
+    visibility: visible !important;
+
+    /* hides the 'c' content added by MathQuill to measure the width */
+    color: transparent;
+
+    display: inline-block;
+    border: 2px solid #ccc;
+    border-radius: 1px;
+    padding: 0 4px 0 4px;
+    margin-left: -1px;
+    margin-right: -1px;
+}
+
+.kj-mathinput .mq-selection .mq-empty:not(.mq-root-block):after {
+    border-color: #ffffff;
+}
+
+.kj-mathinput .mq-hasCursor:empty:not(.mq-root-block):after {
+    /* place a c inside for sizing the cursor (for the case explained above); normally, MathQuill already does this for .mq-cursor */
+    content: 'c';
+}
+
+.kj-mathinput .mq-math-mode .mq-selection .mq-non-leaf,
+.kj-mathinput .mq-editable-field .mq-selection .mq-non-leaf
+{
+    background: #78c008 !important;
+    color: white !important;
+    border-color: white !important;
+}
+
+.kj-mathinput .mq-math-mode .mq-selection .mq-scaled,
+.kj-mathinput .mq-editable-field .mq-selection .mq-scaled
+{
+    background: transparent !important;
+    color: white !important;
+    border-color: transparent !important;
+}
+
+.kj-mathinput .mq-selection {
+    display: inline-block !important;
+    background: #78c008 !important;
+    color: white !important;
+    border-color: white !important;
+}

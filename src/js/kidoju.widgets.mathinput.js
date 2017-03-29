@@ -23,6 +23,9 @@
 
     mq = window.MathQuill || mq;
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -143,7 +146,7 @@
                         {
                             handlers: {
                                 edit: $.proxy(that._onEdit, that)
-                                // enter: function() { submitLatex(latex); }
+                                // enter: function () { submitLatex(latex); }
                             }
                         }
                     );
@@ -168,7 +171,7 @@
              * @private
              */
             _onEdit: function (mathField) {
-               this.trigger(CHANGE, { value: mathField.latex() });
+                this.trigger(CHANGE, { value: mathField.latex() });
             },
 
             /**
@@ -260,7 +263,7 @@
              * @private
              */
             _onToolBarDialog: function (e) {
-                debugger;
+                // debugger;
             },
 
             /**
@@ -825,6 +828,8 @@
 
 
     }(window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kendo;
 

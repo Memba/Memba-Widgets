@@ -169,7 +169,12 @@
             // tooltip,
             // tramsform,
             // visible
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             toJSON: function (withFont) {
+                /* jshint maxcomplexity: 11 */
                 var configuration = {};
                 // Fill color
                 if (RX_COLOR.test(this.fill.color)) {
@@ -202,6 +207,8 @@
                 }
                 return configuration;
             }
+
+            /* jshint +W074 */
         });
 
         /*********************************************************************************
@@ -336,6 +343,9 @@
                 this._tool = tool;
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Event handler for triggering an action event from the toolbar
              * @param e
@@ -371,13 +381,15 @@
                 }
             },
 
+            /* jshint +W074 */
+
             /**
              * Event handler for triggering a dialog event from the toolbar
              * @param e
              * @private
              */
             _onToolBarDialog: function (e) {
-                debugger;
+                // debugger;
             },
 
             /**
@@ -465,7 +477,7 @@
                     group.append(rect);
                     // top left handle
                     var position = bbox.topLeft();
-                    var rectGeometry = new geometry.Rect([position.x - size / 2, position.y - size / 2], [size, size]);
+                    rectGeometry = new geometry.Rect([position.x - size / 2, position.y - size / 2], [size, size]);
                     rect = new drawing.Rect(rectGeometry, this.options.handle);
                     group.append(rect);
                     // top right handle
@@ -784,6 +796,9 @@
                 that._dataSource();
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Refresh upon changing the dataSource
              * Redraw all connections
@@ -818,6 +833,8 @@
                     }
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * Draw a circle

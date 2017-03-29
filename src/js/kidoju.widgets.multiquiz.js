@@ -259,7 +259,7 @@
                     if (that.dataSource instanceof DataSource) {
                         // finder is used to satisfy jshint which would otherwise complain about making functions within loops
                         var finder = function (value) {
-                            return that.dataSource.data().find(function(dataItem) {
+                            return that.dataSource.data().find(function (dataItem) {
                                 return dataItem[options.textField] === value;
                             });
                         };

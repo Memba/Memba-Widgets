@@ -238,7 +238,7 @@
                 that._enabled = enable;
                 // Yield some time for all drop zones to get enabled/disabled before we init event handlers
                 setTimeout(function () {
-                    $.proxy(that._initDragEventHandlers, that)();
+                    $.proxy(that._initMouseEvents, that)();
                 }, 100);
             },
 
@@ -246,7 +246,7 @@
              * Initialize drag event handlers
              * @private
              */
-            _initDragEventHandlers: function () {
+            _initMouseEvents: function () {
                 var that = this;
                 var options = that.options;
                 var container = that.container;

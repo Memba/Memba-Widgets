@@ -177,7 +177,7 @@
                 autoBind: true,
                 dataSource: [],
                 scaler: 'div.kj-stage',
-                container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]',
+                container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]',  // TODO: container might not be necessary but we need a Surface Widget??? https://github.com/kidoju/Kidoju-Widgets/issues/166
                 color: '#FF0000',
                 // in design mode: createSurface = false, enable = false
                 // in play mode: createSurface = true, enabled = true

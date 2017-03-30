@@ -30,7 +30,8 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var KEYPRESS = 'keypress';
-        // var NS = '.kendoStyleEditor';
+        var NS = '.kendoStyleEditor';
+        var CLICK = 'click';
         var WIDGET_CLASS = 'k-grid k-widget kj-styleeditor';
         var COLON = ':';
         var SEMICOLON = ';';
@@ -357,7 +358,7 @@
              */
             _setDestroyHandler: function () {
                 var element = this.element;
-                element.find('.k-grid-toolbar>.k-grid-delete').click(function (e) {
+                element.find('.k-grid-toolbar>.k-grid-delete').on(CLICK + NS, function (e) {
                     var grid = element.data('kendoGrid');
                     if (grid instanceof kendo.ui.Grid) {
                         var selected = grid.select();
@@ -381,7 +382,7 @@
              */
             _setKeyPressHandler: function () {
                 var element = this.element;
-                element.find('table').on(KEYPRESS, function (e) {
+                element.find('table').on(KEYPRESS + NS, function (e) {
                     if (e /*instanceof $.Event*/ && e.target instanceof window.HTMLElement) {
                         var input = $(e.target);
                         if (input.hasClass('k-input') && input.parent().hasClass('k-dropdown-wrap')) {
@@ -404,34 +405,24 @@
             /* jshint +W074 */
 
             /**
-             * Clears the widget
-             * @method _clear
-             * @private
-             */
-            _clear: function () {
-                var that = this;
-                // unbind kendo
-                // kendo.unbind($(that.element));
-                // unbind all other events
-                that.element.find('*').off();
-                that.element.off();
-                // remove descendants
-                that.element.empty();
-                that.element.removeClass(WIDGET_CLASS);
-            },
-
-            /**
              * Destroys the widget including all DOM modifications
              * @method destroy
              */
             destroy: function () {
                 var that = this;
+                var element = that.element;
+                // Unbind events
+                element.find('table').off(KEYPRESS + NS);
+                element.find('.k-grid-toolbar>.k-grid-delete').off(CLICK + NS);
+                that._dataSource.unbind(CHANGE);
+                // Clear references
+                that.grid = undefined;
+                that._dataSource = undefined;
+                // Destroy kendo
                 Widget.fn.destroy.call(that);
-                that._clear();
-                // if ($.isFunction(that._refreshHandler)) {
-                //    that.options.tools.unbind(CHANGE, that._refreshHandler);
-                // }
-                kendo.destroy(that.element);
+                kendo.destroy(element);
+                // Remove widget class
+                element.removeClass(WIDGET_CLASS);
             }
 
         });

@@ -553,8 +553,8 @@
                     } else if (that._selectorId > selectorId) {
                         that._selectorId = selectorId;
                     }
-                    // Add selector color to toolbar
-                    if (that.toolbar instanceof SelectorToolBar) {
+                    // Add enabled selector color to toolbar
+                    if (that.toolbar instanceof SelectorToolBar && selector._enabled) {
                         that.toolbar.addColor(selector.options.shapeStroke.color);
                     }
                     // Reset mouse handlers

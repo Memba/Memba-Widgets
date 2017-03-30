@@ -499,43 +499,47 @@
                 var doneCalled = false;
                 var count = assetManager.listView.dataSource.total();
                 assetManager.listView.bind('dataBound', function (e) {
-                    var list = $('div.k-filebrowser ul.k-tiles');
-                    if (assetManager.listView.dataSource.total() > 0) {
-                        var deleteButton = $('button.k-button span.k-i-close').parent();
-                        // expect(deleteButton).to.be.hidden;
-                        expect(deleteButton).to.be.visible;
-                        var item = list.children('li.k-tile:first');
-                        expect(item).to.be.an.instanceof($).with.property('length', 1);
-                        var src = item.find('img').attr('src');
-                        var url = assetManager.value();
-                        var scheme = /^(\w+):\/\//.exec(assetManager.value());
-                        expect(assetManager.value().replace(scheme[0], options.schemes[scheme[1]])).to.equal(src);
-                        if (kendo.support.click === CLICK) {
-                            item.simulate(CLICK);
-                            // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
-                            // item.simulate('mousedown');
-                            // item.simulate('mouseup');
-                            expect(assetManager.value()).to.equal(assetManager.listView.dataSource.at(0).id);
+                    // Without this timeout the dataBound eveneyt handler is called before teh destroy transport
+                    // and we then need two clicks two delete the last item causing a mismatch in count at the end
+                    setTimeout(function () {
+                        var list = $('div.k-filebrowser ul.k-tiles');
+                        if (assetManager.listView.dataSource.total() > 0) {
+                            var deleteButton = $('button.k-button span.k-i-close').parent();
+                            // expect(deleteButton).to.be.hidden;
                             expect(deleteButton).to.be.visible;
-                            setTimeout(function () {
-                                deleteButton.simulate(CLICK);
-                            }, 0);
-                            // Deleting a dataSource item causes a refresh which triggers the dataBound event
-                            // so we are deleting all items until dataSource.total() === 0
-                            // but to avoid nesting delete events into delete events we need to call setTimout to trigger the next delete event on its own timer
-                        } else {
-                            done(); // This is for IE and edge
-                        }
-                    } else if (assetManager.listView.dataSource.total() === 0) {
-                        // If not added to the timer queue, this is executed before the last delete and misses one count
-                        setTimeout(function () {
-                            expect(destroy).to.have.callCount(count);
-                            if (!doneCalled) {
-                                done();
-                                doneCalled = true;
+                            var item = list.children('li.k-tile:first');
+                            expect(item).to.be.an.instanceof($).with.property('length', 1);
+                            var src = item.find('img').attr('src');
+                            var url = assetManager.value();
+                            var scheme = /^(\w+):\/\//.exec(url);
+                            expect(url.replace(scheme[0], options.schemes[scheme[1]])).to.equal(src);
+                            if (kendo.support.click === CLICK) {
+                                item.simulate(CLICK);
+                                // TODO: item.simulate does not work with pointerdown and pointerup (IE11 and edge) - see https://github.com/jquery/jquery-simulate/issues/37
+                                // item.simulate('mousedown');
+                                // item.simulate('mouseup');
+                                expect(url).to.equal(assetManager.listView.dataSource.at(0).id);
+                                expect(deleteButton).to.be.visible;
+                                setTimeout(function () {
+                                    deleteButton.simulate(CLICK);
+                                }, 0);
+                                // Deleting a dataSource item causes a refresh which triggers the dataBound event
+                                // so we are deleting all items until dataSource.total() === 0
+                                // but to avoid nesting delete events into delete events we need to call setTimout to trigger the next delete event on its own timer
+                            } else {
+                                done(); // This is for IE and edge
                             }
-                        }, 0);
-                    }
+                        } else if (assetManager.listView.dataSource.total() === 0) {
+                            // If not added to the timer queue, this is executed before the last delete and misses one count
+                            setTimeout(function () {
+                                expect(destroy).to.have.callCount(count);
+                                if (!doneCalled) {
+                                    done();
+                                    doneCalled = true;
+                                }
+                            }, 0);
+                        }
+                    }, 0);
                 });
                 // Make sure we hit the dataBound handler
                 assetManager.listView.refresh();

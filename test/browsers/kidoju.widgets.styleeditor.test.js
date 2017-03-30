@@ -161,7 +161,8 @@
             it('destroy', function () {
                 expect(styleEditor).to.be.an.instanceof(StyleEditor);
                 styleEditor.destroy();
-                expect(element).to.be.empty;
+                expect(element).not.to.have.class('kj-styleeditor');
+                expect(element.data('kendoStyleEditor')).to.be.undefined;
             });
 
             afterEach(function () {
@@ -223,7 +224,7 @@
                 expect(change).to.have.been.calledOnce;
             });
 
-            it('New style', function () {
+            it('New style', function (done) {
                 var oldStyle = viewModel.get('style');
                 var newStyle = { name: 'opacity', value: '0.5' };
                 expect(styleEditor).to.be.an.instanceof(StyleEditor);
@@ -231,39 +232,64 @@
                 var rows = styleEditor.grid.tbody.find('tr[role="row"]').length;
                 // Click add button
                 element.find('div.k-grid-toolbar > a.k-button.k-grid-add').simulate('click');
-                // Fill name cell in new row
-                var nameCell = styleEditor.grid.tbody.find('td[role="gridcell"]:eq(0)');
-                nameCell.simulate('click');
-                var nameInput = nameCell.find('input[role="combobox"]');
-                nameInput.focus();
-                nameInput.val(newStyle.name);
-                nameInput.simulate('keydown', { keyCode: 13 });
-                nameInput.focusout();
-                // Fill second cell in new row
-                var valueCell = styleEditor.grid.tbody.find('td[role="gridcell"]:eq(1)');
-                valueCell.simulate('click');
-                valueCell.find('input').val(newStyle.value).trigger('change');
-                // Check data
-                expect(viewModel.get('style')).to.equal(newStyle.name + ':' + newStyle.value + ';' + oldStyle);
-                expect(styleEditor._dataSource.total()).to.equal(rows + 1);
-                var data = styleEditor._dataSource.data();
-                expect(data[0].name).to.equal(newStyle.name);
-                expect(data[0].value).to.equal(newStyle.value);
-                expect(change).to.have.been.calledOnce;
+                // Wait for the click to process (since jQuery 3.2.1)
+                setTimeout(function () {
+                    // Fill name cell in new row
+                    var nameCell = styleEditor.grid.tbody.find('td[role="gridcell"]:eq(0)');
+                    nameCell.simulate('click');
+                    var nameInput = nameCell.find('input[role="combobox"]');
+                    nameInput.focus();
+                    nameInput.val(newStyle.name);
+                    nameInput.simulate('keydown', { keyCode: 13 });
+                    // Fill second cell in new row
+                    var valueCell = styleEditor.grid.tbody.find('td[role="gridcell"]:eq(1)');
+                    valueCell.simulate('click');
+                    var valueInput = valueCell.find('input');
+                    valueInput.val(newStyle.value);
+                    valueInput.simulate('keydown', { keyCode: 13 });
+                    // None of the following triggers a change event on the grid, and therefore on the widget to update value bindings
+                    // valueInput.blur();
+                    // valueInput.focusout();
+                    // So we need to force the change event
+                    valueInput.trigger('change');
+                    setTimeout(function () {
+                        // Check value
+                        var expectedStyle = newStyle.name + ':' + newStyle.value + ';' + oldStyle;
+                        expect(styleEditor.value()).to.equal(expectedStyle);
+                        // Check data
+                        expect(styleEditor._dataSource.total()).to.equal(rows + 1);
+                        var data = styleEditor._dataSource.data();
+                        expect(data[0].name).to.equal(newStyle.name);
+                        expect(data[0].value).to.equal(newStyle.value);
+                        // Check viewModel
+                        expect(viewModel.get('style')).to.equal(expectedStyle);
+                        expect(change).to.have.been.calledOnce;
+                        done();
+                    });
+                }, 0);
             });
 
-            it('Delete', function () {
+            it('Delete', function (done) {
+                var count = styleEditor.grid.dataSource.total();
                 expect(styleEditor).to.be.an.instanceof(StyleEditor);
                 expect(change).not.to.have.been.called;
-                var count = 0;
-                while (styleEditor.grid.dataSource.total() > 0) {
-                    // Click row
-                    styleEditor.grid.tbody.find('td[role="gridcell"]').first().simulate('click');
-                    // Click delete button
-                    element.find('div.k-grid-toolbar > a.k-button.k-grid-delete').simulate('click');
-                    count++;
-                }
-                expect(change).to.have.callCount(count);
+                var remove = function () {
+                    // Since jQuery 3.2.1 we need setTimout to allow time for processing clicks
+                    setTimeout(function () {
+                        if (styleEditor.grid.dataSource.total() > 0) {
+                            // Click row
+                            styleEditor.grid.tbody.find('td[role="gridcell"]').first().simulate('click');
+                            // Click delete button
+                            element.find('div.k-grid-toolbar > a.k-button.k-grid-delete').simulate('click');
+                            // remove next row
+                            remove();
+                        } else {
+                            expect(change).to.have.callCount(count);
+                            done();
+                        }
+                    }, 0);
+                };
+                remove();
             });
 
             afterEach(function () {

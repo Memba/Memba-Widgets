@@ -451,7 +451,7 @@
                 var that = this;
                 var element = that.element;
                 ToolBar.fn.destroy.call(that);
-                kendo.destroy(element)
+                kendo.destroy(element);
             }
 
         });

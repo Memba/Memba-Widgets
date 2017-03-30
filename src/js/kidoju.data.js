@@ -58,8 +58,8 @@
                 rnd = Math.floor (100 * Math.random());
             }
             var end = Date.now();
-            // A minimum of 250ms is required
-            return Math.max(250, 10 * (end - start));
+            // A minimum of 250ms is required in browsers and 400ms in Phonegap
+            return Math.max(kendo.support.mobileOS.cordova ? 400 : 250, 10 * (end - start));
         }
 
         /*********************************************************************************

@@ -449,7 +449,9 @@
              */
             destroy: function () {
                 var that = this;
+                var element = that.element;
                 ToolBar.fn.destroy.call(that);
+                kendo.destroy(element)
             }
 
         });
@@ -483,12 +485,12 @@
              */
             options: {
                 name: 'SelectorSurface',
-                container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]',
+                container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]', // TODO: container might not be necessary??? - replace with that.element / https://github.com/kidoju/Kidoju-Widgets/issues/167
                 scaler: 'div.kj-stage',
                 penStroke: {
                     width: 8
                 },
-                toolbar: ''
+                toolbar: '#toolbar'
             },
 
             /**
@@ -589,15 +591,15 @@
                 // https://github.com/kidoju/Kidoju-Widgets/issues/162
                 var container = this.element.closest(options.container);
                 var containers = $(document).find(options.container);
-                var selector = options.container + ':eq(' + containers.index(container) + ')';
+                container = options.container + ':eq(' + containers.index(container) + ')';
 
                 $(document)
-                    .off(NS, selector);
+                    .off(NS, container);
                 if (this.enable()) {
                     $(document)
-                        .on(MOUSEDOWN, selector, data, this._onMouseDown)
-                        .on(MOUSEMOVE, selector, data, this._onMouseMove)
-                        .on(MOUSEUP, selector, data, this._onMouseUp);
+                        .on(MOUSEDOWN, container, data, this._onMouseDown)
+                        .on(MOUSEMOVE, container, data, this._onMouseMove)
+                        .on(MOUSEUP, container, data, this._onMouseUp);
                 }
             },
 
@@ -843,25 +845,27 @@
              */
             destroy: function () {
                 var that = this;
-                var options = that.options;
-                Widget.fn.destroy.call(that);
+                var element = that.element;
                 // unbind document events
-                $(document)
-                    .off(NS, options.container);
+                that._initMouseEvents();
                 // unbind dataSource
-                that.dataSource.unbind(CHANGE, that._refreshHandler);
+                if ($.isFunction(that._refreshHandler)) {
+                    that.dataSource.unbind(CHANGE, that._refreshHandler);
+                }
                 // destroy toolbar
                 if (that.toolbar instanceof SelectorToolBar) {
                     that.toolbar.destroy();
                     that.toolbar.wrapper.remove();
                     that.toolbar = undefined;
                 }
-                // Dereference objects
+                // Release references
                 that.surface = undefined;
                 that.selectors = undefined;
-                // Remove class
-                // that.element.removeClass(WIDGET_CLASS);
-                kendo.destroy(that.element);
+                // Destroy kendo
+                Widget.fn.destroy.call(that);
+                kendo.destroy(element);
+                // Remove widget class
+                element.removeClass(WIDGET_CLASS);
             }
         });
 
@@ -1177,8 +1181,8 @@
              * Enable/disable user interactivity on container
              */
             enable: function (enabled) {
+                this._enabled = !!enabled;
                 var selectorSurface = this.selectorSurface;
-                this._enabled = enabled;
                 if (selectorSurface instanceof SelectorSurface) {
                     selectorSurface._initMouseEvents();
                 }
@@ -1191,7 +1195,6 @@
             destroy: function () {
                 var that = this;
                 var options = that.options;
-                Widget.fn.destroy.call(that);
                 // unbind dataSource
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
                 // dereference selectors
@@ -1208,6 +1211,8 @@
                     }
                     that.selectorSurface = undefined;
                 }
+                // Destroy kendo
+                Widget.fn.destroy.call(that);
                 kendo.destroy(that.element);
             }
         });

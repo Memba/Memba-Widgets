@@ -22,6 +22,7 @@
 
         var kendo = window.kendo;
         var Widget = kendo.ui.Widget;
+        var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.floating');
         // var UNDEFINED = 'undefined';
@@ -162,7 +163,7 @@
                 if (observed) {
                     wrapper.hide();
                     // create an observer instance (show only if there are observed nodes)
-                    that.observer = new window.MutationObserver(function () {
+                    that.observer = new MutationObserver(function () {
                         // that.wrapper.toggle(!!content.find(observed).length);
                         // creates an infinite loop because display attribute is always modified
                         // so we need to only apply if there is a change
@@ -209,7 +210,7 @@
                 Widget.fn.destroy.call(that);
                 kendo.destroy(that.element);
                 // disconnect the mutation observer
-                if (that.observer instanceof window.MutationObserver) {
+                if (that.observer instanceof MutationObserver) {
                     that.observer.disconnect();
                 }
             }

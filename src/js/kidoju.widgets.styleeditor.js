@@ -24,6 +24,7 @@
         var kendo = window.kendo;
         var ui = kendo.ui;
         var Widget = ui.Widget;
+        var Grid = ui.Grid;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.styleeditor');
         var STRING = 'string';
@@ -33,8 +34,31 @@
         var NS = '.kendoStyleEditor';
         var CLICK = 'click';
         var WIDGET_CLASS = 'k-grid k-widget kj-styleeditor';
+        var TOOLBAR_SELECTOR = '.k-grid-toolbar';
+        var ADD_SELECTOR = '.k-grid-add';
+        var DELETE_SELECTOR = '.k-grid-delete';
+        var TABLE_SELECTOR = 'table';
+        var INPUT_SELECTOR = 'input';
         var COLON = ':';
         var SEMICOLON = ';';
+        var CSS_STYLES = [
+            // This is where we define all style names displayed in the combo box and their respective default values
+            { name: 'background-color', value: '#FFFFFF' },
+            { name: 'border-color', value: '#000000' },
+            { name: 'border-radius', value: '5px' },
+            { name: 'border-style', value: 'solid' },
+            { name: 'border-width', value: '1px' },
+            { name: 'color', value: '#000000' },
+            { name: 'font-family', value: 'Times New Roman' },
+            { name: 'font-size', value: '20px' },
+            { name: 'font-style', value: 'italic' },
+            { name: 'font-weight', value: 'bold' },
+            { name: 'padding', value: '10px' },
+            { name: 'margin', value: '10px' },
+            { name: 'text-align', value: 'center' },
+            { name: 'text-decoration', value: 'underline' },
+            { name: 'vertical-align', value: 'middle' }
+        ];
 
         /*********************************************************************************
          * Helpers
@@ -74,10 +98,9 @@
                 that._setDataSource();
                 that.value(that.options.value);
                 that._layout();
-                that._setDestroyHandler();
-                that._setKeyPressHandler();
+                that._setEventHandlers();
                 // }
-                // TODO a simple textarea would do when running kendo-core without grid
+                // Note: a simple textarea would do when running kendo-core without grid
             },
 
             /**
@@ -126,19 +149,19 @@
             value: function (value) {
 
                 /*
-                // Sort function on style names
-                // Sorting is not user-friendly as positions change unexpectedly in the grid
-                function sort(a, b) {
-                    if (a.name > b.name) {
-                        return 1;
-                    }
-                    if (a.name < b.name) {
-                        return -1;
-                    }
-                    // a must be equal to b
-                    return 0;
-                }
-                */
+                 // Sort function on style names
+                 // Sorting is not user-friendly as positions change unexpectedly in the grid
+                 function sort(a, b) {
+                 if (a.name > b.name) {
+                 return 1;
+                 }
+                 if (a.name < b.name) {
+                 return -1;
+                 }
+                 // a must be equal to b
+                 return 0;
+                 }
+                 */
 
                 var that = this;
                 var i;
@@ -156,6 +179,8 @@
                                 data.push({ name: style[0].trim(), value: style[1].trim() });
                             }
                         }
+                        // Because of this, we have to implement additional plumbing
+                        // See: http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#methods-editCell
                         that._dataSource.data(data); // (data.sort(sort));
                         // that.trigger(CHANGE);
                     }
@@ -180,6 +205,147 @@
                 }
             },
 
+            /**
+             * Builds the widget layout
+             * @private
+             */
+            _layout: function () {
+                var that = this;
+                that.wrapper = that.element;
+                that._setGrid();
+                that.element.addClass(WIDGET_CLASS);
+            },
+
+            /**
+             * Set the grid
+             * @private
+             */
+            _setGrid: function () {
+                var that = this;
+                var options = that.options;
+                that.grid = that.element
+                    .kendoGrid({
+                        columns: [
+                            {
+                                field: 'name',
+                                title: options.messages.columns.name,
+                                editor: $.proxy(that._cssDropDownEditor, that),
+                                template: '#=name#'
+                            },
+                            {
+                                field: 'value',
+                                title: options.messages.columns.value
+                            }
+                        ],
+                        dataBound: $.proxy(that._onDataBound, that),
+                        dataSource: that._dataSource,
+                        editable: 'incell',
+                        edit: $.proxy(that._onGridEdit, that),
+                        height: options.height,
+                        resizable: true,
+                        scrollable: true,
+                        selectable: 'row',
+                        sortable: true,
+                        toolbar: [
+                            { name: 'create', text: options.messages.toolbar.create },
+                            { name: 'destroy', text: options.messages.toolbar.destroy }
+                        ]
+                    })
+                    .data('kendoGrid');
+            },
+
+            /**
+             * This function is taken from http://demos.kendoui.com/web/grid/editing-custom.html
+             * @See also http://www.telerik.com/forums/kendo-ui-grid-s-combobox-editor-template-validation
+             * @param container
+             * @param options
+             * @private
+             */
+            _cssDropDownEditor: function (container, options) {
+                var that = this;
+                // We cannot set the combobox name for validation before initializing the kendo ui widget
+                // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
+                // $('<input name="style_name" data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.name + '">')
+                var combobox = $('<input data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.name + '">')
+                    .appendTo(container)
+                    .kendoComboBox({
+                        autoBind: true,
+                        change: function (e) {
+                            // The change event handler assigns a default value depending on the style name
+                            if (e /*instanceof $.Event*/ && e.sender instanceof kendo.ui.ComboBox) {
+                                var dataItem = e.sender.dataItem();
+                                // var grid = container.closest('.k-grid').data('kendoGrid');
+                                var grid = that.element.data('kendoGrid');
+                                var uid = container.parent().attr(kendo.attr('uid'));
+                                if (grid instanceof kendo.ui.Grid && $.type(uid) === 'string' && $.type(dataItem) !== UNDEFINED) {
+                                    var row = grid.dataSource.getByUid(uid);
+                                    row.set('value', dataItem.get('value'));
+                                }
+                            }
+                        },
+                        dataSource: { data: CSS_STYLES },
+                        dataTextField: 'name',
+                        dataValueField: 'name'
+                    })
+                    .data('kendoComboBox');
+                // The workaround for validation to work is to set the name after initializing the kendo ui widget
+                // TODO http://www.telerik.com/forums/how-to-enforce-validation-in-grid-sample
+                combobox.element.attr('name', 'name');
+                $('<span class="k-invalid-msg" data-for="name"></span>').appendTo(container);
+            },
+
+            /**
+             * Event handler for the grid dataBound event
+             * Clicking `New Style` executes addRow which triggers a sync event on the dataSource
+             * This triggers a refresh on the grid which cancels edit mode
+             * We restore edit mode here below assuming that if the first dataItem has empty properties, it has just been added
+             * @private
+             */
+            _onDataBound: function (e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
+                var dataItem = e.sender.dataSource.at(0);
+                if (dataItem && dataItem.name === '' && dataItem.value === '') {
+                    e.sender.editCell(e.sender.element.find('td:eq(0)'));
+                }
+            },
+
+            /**
+             * Event handler for editing a grid row
+             * @param e
+             * @private
+             */
+            _onGridEdit: function (e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
+                assert.instanceof($, e.container, kendo.format(assert.messages.instanceof.default, 'e.container', 'jQuery'));
+                // Select the edited row
+                e.sender.select(e.container.closest('tr'));
+                // Find the combobox and update dataSource with a list of styles that does not contain styles already defined
+                var comboBox = e.container.find('input:not(.k-input)').data('kendoComboBox');
+                if (comboBox instanceof kendo.ui.ComboBox) {
+                    var rows = e.sender.dataSource.data();
+                    var css = [];
+                    for (var i = 0; i < CSS_STYLES.length; i++) {
+                        var found = false;
+                        for (var j = 0; j < rows.length; j++) {
+                            /* Blocks are nested too deeply. */
+                            /* jshint -W073 */
+                            if (CSS_STYLES[i].name === rows[j].name && CSS_STYLES[i].name !== comboBox.value()) {
+                                found = true;
+                                break;
+                            }
+                            /* jshint +W073 */
+                        }
+                        if (!found) {
+                            css.push(CSS_STYLES[i]);
+                        }
+                    }
+                    comboBox.setDataSource(css);
+                    comboBox.focus();
+                }
+            },
+
             /* jshint +W074 */
             /* jshint +W071 */
 
@@ -189,11 +355,11 @@
              */
             _setDataSource: function () {
                 var that = this;
-                // This dataSource is private to the widget
+                // This dataSource is private to the widget because data is assigned through value binding instead of source binding
                 that._dataSource = new kendo.data.DataSource({
                     autoSync: true,
                     change: function (e) {
-                        // triggers the change event for MVVM
+                        // triggers the change event on the widget for value binding
                         // that.trigger(CHANGE, { value: that.value() }); // otherwise that.value is executed twice (also by MVVM)
                         that.trigger(CHANGE);
                     },
@@ -221,129 +387,7 @@
             },
 
             /**
-             * Builds the widget layout
-             * @private
-             */
-            _layout: function () {
-
-                // This function is taken from http://demos.kendoui.com/web/grid/editing-custom.html
-                // See also http://www.telerik.com/forums/kendo-ui-grid-s-combobox-editor-template-validation
-                function cssDropDownEditor(container, options) {
-                    // We cannot set the combobox name for validation before initializing the kendo ui widget
-                    // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
-                    // $('<input name="style_name" data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.name + '">')
-                    var combobox = $('<input data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.name + '">')
-                        .appendTo(container)
-                        .kendoComboBox({
-                            autoBind: false,
-                            change: function (e) {
-                                // The change event handler assigns a default value depending on the style name
-                                if (e /*instanceof $.Event*/ && e.sender instanceof kendo.ui.ComboBox) {
-                                    var dataItem = e.sender.dataItem();
-                                    // var grid = container.closest('.k-grid').data('kendoGrid');
-                                    var grid = that.element.data('kendoGrid');
-                                    var uid = container.parent().attr(kendo.attr('uid'));
-                                    if (grid instanceof kendo.ui.Grid && $.type(uid) === 'string' && $.type(dataItem) !== UNDEFINED) {
-                                        var style = grid.dataSource.getByUid(uid);
-                                        style.set('value', dataItem.get('value'));
-                                    }
-                                }
-                            },
-                            // dataSource: viewModel.css,
-                            dataTextField: 'name',
-                            dataValueField: 'name'
-                        })
-                        .data('kendoComboBox');
-                    // The workaround for validation to work is to set the name after initializing the kendo ui widget
-                    // TODO http://www.telerik.com/forums/how-to-enforce-validation-in-grid-sample
-                    combobox.element.attr('name', 'name');
-                    $('<span class="k-invalid-msg" data-for="name"></span>').appendTo(container);
-                }
-
-                var that = this;
-                that.wrapper = that.element;
-                that.element.addClass(WIDGET_CLASS);
-                that.grid = that.element
-                    .kendoGrid({
-                    columns: [
-                        { field: 'name', title: that.options.messages.columns.name, editor: cssDropDownEditor, template: '#=name#' },
-                        { field: 'value', title: that.options.messages.columns.value }
-                    ],
-                    /*
-                     dataBound: function (e) {
-                     if (e.sender instanceof kendo.ui.Grid) {
-                     var selected = e.sender.select();
-                     if (selected instanceof $ && selected.length === 0) {
-                     e.sender.select('tr:eq(1)');
-                     e.sender.editCell('tr:eq(1) td:eq(0)');
-                     }
-                     }
-                     },
-                     */
-                    dataSource: that._dataSource,
-                    edit: function (e) {
-                        if (e /*instanceof $.Event*/ && e.sender instanceof kendo.ui.Grid && e.container instanceof $) {
-                            // Select the edited row
-                            this.select(e.container.parent());
-                            // Find the combobox and update dataSource
-                            var comboBox = e.container.find('input:not(.k-input)').data('kendoComboBox');
-                            if (comboBox instanceof kendo.ui.ComboBox) {
-                                var styles = e.sender.dataSource.data();
-                                var css = [];
-                                var all = [
-                                    // This is where we define all style names displayed in the combo box and their respective default values
-                                    { name: 'background-color', value: '#FFFFFF' },
-                                    { name: 'border-color', value: '#000000' },
-                                    { name: 'border-radius', value: '5px' },
-                                    { name: 'border-style', value: 'solid' },
-                                    { name: 'border-width', value: '1px' },
-                                    { name: 'color', value: '#000000' },
-                                    { name: 'font-family', value: 'Times New Roman' },
-                                    { name: 'font-size', value: '20px' },
-                                    { name: 'font-style', value: 'italic' },
-                                    { name: 'font-weight', value: 'bold' },
-                                    { name: 'padding', value: '10px' },
-                                    { name: 'margin', value: '10px' },
-                                    { name: 'text-align', value: 'center' },
-                                    { name: 'text-decoration', value: 'underline' },
-                                    { name: 'vertical-align', value: 'middle' }
-                                ];
-                                for (var i = 0; i < all.length; i++) {
-                                    var found = false;
-                                    for (var j = 0; j < styles.length; j++) {
-                                        /* Blocks are nested too deeply. */
-                                        /* jshint -W073 */
-                                        if (all[i].name === styles[j].name && all[i].name !== comboBox.value()) {
-                                            found = true;
-                                            break;
-                                        }
-                                        /* jshint +W073 */
-                                    }
-                                    if (!found) {
-                                        css.push(all[i]);
-                                    }
-                                }
-                                comboBox.setDataSource(css);
-                            }
-                        }
-                    },
-                    editable: true,
-                    height: that.options.height,
-                    resizable: true,
-                    scrollable: true,
-                    selectable: 'row',
-                    sortable: true,
-                    toolbar: [
-                        { name: 'create', text: that.options.messages.toolbar.create },
-                        { name: 'destroy', text: that.options.messages.toolbar.destroy }
-                    ]
-                })
-                    .data('kendoGrid');
-
-            },
-
-            /**
-             * Refreshed the grid
+             * Refresh the grid
              */
             refresh: function () {
                 var that = this;
@@ -353,53 +397,63 @@
             },
 
             /**
-             * Add a click event handler for the destroy button
+             * Add a click event handlers for the toolbar
              * @private
              */
-            _setDestroyHandler: function () {
-                var element = this.element;
-                element.find('.k-grid-toolbar>.k-grid-delete').on(CLICK + NS, function (e) {
-                    var grid = element.data('kendoGrid');
-                    if (grid instanceof kendo.ui.Grid) {
-                        var selected = grid.select();
-                        if (selected instanceof $ && selected.length) {
-                            // allthough shorter, the following displays an alert to confirm deletion
-                            // grid.removeRow(selected);
-                            var uid = selected.attr(kendo.attr('uid'));
-                            var style = grid.dataSource.getByUid(uid);
-                            grid.dataSource.remove(style);
-                        }
-                    }
-                });
+            _setEventHandlers: function () {
+                var that = this;
+                var element = that.element;
+                element.find(TOOLBAR_SELECTOR)
+                    .on(CLICK + NS, DELETE_SELECTOR, $.proxy(that._onDeleteClick, that));
+                element.find(TABLE_SELECTOR)
+                    .on(KEYPRESS + NS, INPUT_SELECTOR, $.proxy(that._onInputKeyPress, that));
+            },
+
+            /**
+             * Event handler for clicking the `Delete` button
+             * Note: Since the dataSource does not have transport destroy, delete is not processed
+             * @param e
+             * @private
+             */
+            _onDeleteClick: function (e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof(Grid, this.grid, kendo.format(assert.messages.instanceof.default, 'this.grid', 'kendo.ui.Grid'));
+                e.preventDefault();
+                var grid = this.grid;
+                var selected = grid.select();
+                if (selected instanceof $ && selected.length) {
+                    // although shorter, the following displays an alert to confirm deletion, which we do not want
+                    // grid.removeRow(selected);
+                    var uid = selected.attr(kendo.attr('uid'));
+                    var dataItem = grid.dataSource.getByUid(uid);
+                    grid.dataSource.remove(dataItem);
+                }
             },
 
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
             /**
-             * Set a keypress event handler to prevent some unhealthy characters to be used for style names and values
+             * Event handler for input key press
+             * to prevent some unhealthy characters to be used for style names and values
              * @private
              */
-            _setKeyPressHandler: function () {
-                var element = this.element;
-                element.find('table').on(KEYPRESS + NS, function (e) {
-                    if (e /*instanceof $.Event*/ && e.target instanceof window.HTMLElement) {
-                        var input = $(e.target);
-                        if (input.hasClass('k-input') && input.parent().hasClass('k-dropdown-wrap')) {
-                            // the drop down with a list of style names has the focus
-                            // allowed characters are a-z (96-123) and minus/hiphen/dash (45)
-                            if (!(e.which === 45 || (e.which > 96 && e.which < 123))) {
-                                e.preventDefault();
-                            }
-                        } else if (input.hasClass('k-textbox') && input.parent().hasClass('k-edit-cell')) {
-                            // the textbox for style value has the focus
-                            // do not allow < (60), > (62), ; (59) and " (34)
-                            if (e.which === 34 || e.which === 59 || e.which === 60 || e.which === 62) {
-                                e.preventDefault();
-                            }
-                        }
+            _onInputKeyPress: function (e) {
+                assert.instanceof($.Event, e, assert.messages.instanceof.default, 'e', 'jQuery.Event');
+                var input = $(e.target);
+                if (input.hasClass('k-input') && input.parent().hasClass('k-dropdown-wrap')) {
+                    // the drop down with a list of style names has the focus
+                    // allowed characters are a-z (96-123) and minus/hiphen/dash (45)
+                    if (!(e.which === 45 || (e.which > 96 && e.which < 123))) {
+                        e.preventDefault();
                     }
-                });
+                } else if (input.hasClass('k-textbox') && input.parent().hasClass('k-edit-cell')) {
+                    // the textbox for style value has the focus
+                    // do not allow < (60), > (62), : (58), ; (59) and " (34)
+                    if (e.which === 34 || e.which === 58 || e.which === 59 || e.which === 60 || e.which === 62) {
+                        e.preventDefault();
+                    }
+                }
             },
 
             /* jshint +W074 */
@@ -412,8 +466,10 @@
                 var that = this;
                 var element = that.element;
                 // Unbind events
-                element.find('table').off(KEYPRESS + NS);
-                element.find('.k-grid-toolbar>.k-grid-delete').off(CLICK + NS);
+                element.find(TABLE_SELECTOR)
+                    .off(KEYPRESS + NS);
+                element.find(TOOLBAR_SELECTOR)
+                    .off(CLICK + NS);
                 that._dataSource.unbind(CHANGE);
                 // Clear references
                 that.grid = undefined;

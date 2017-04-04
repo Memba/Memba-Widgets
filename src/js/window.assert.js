@@ -158,6 +158,17 @@
         };
 
         /**
+         * Assert empty object (i.e. {})
+         * @param value
+         * @param message
+         */
+        assert.isEmptyObject = function (value, message) {
+            if (!$.isEmptyObject(value)) {
+                throw new TypeError(message);
+            }
+        };
+
+        /**
          * Assert optional object (can be undefined but mot an empty object, i.e. {})
          * @param value
          * @param message
@@ -251,6 +262,9 @@
             },
             isArray: {
                 default: '`{0}` is expected to be an array'
+            },
+            isEmptyObject: {
+                default: '`{0}` is expected to be an empty object'
             },
             isOptionalObject: {
                 default: '`{0}` is expected to be undefined or a plain object'

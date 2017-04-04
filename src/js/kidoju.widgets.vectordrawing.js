@@ -51,6 +51,26 @@
         var WIDGET_CLASS = 'kj-drawing';
         var WIDGET_SELECTOR = DOT + 'kj-drawing';
         var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
+        var CURSOR = {
+            CROSSAIR: 'crosshair',
+            DEFAULT: 'default',
+            MOVE: 'move',
+            NESW_RESIZE: 'nesw-resize', // for top right and bottom left
+            NWSE_RESIZE: 'nwse-resize' // for top left and bottom right
+            // SAMPLE: url(smiley.gif),url(myBall.cur),auto;
+        };
+        var HANDLES = {
+            BBOX: 'handles.bbox',
+            BOTTOMLEFT: 'handles.bottomLeft',
+            BOTTOMRIGHT: 'handles.bottomRight',
+            TOPLEFT: 'handles.topLeft',
+            TOPRIGHT: 'handles.topRight'
+        };
+        var TRANSFORMATION = {
+            ROTATE: 'rotate',
+            SCALE: 'scale',
+            TRANSLATE: 'translate'
+        };
         var RX_COLOR = /^#([0-9A-F]{3}|[0-9A-F]{6})$/i;
         var RX_DASHTYPE = /^(dash|dashDot|dot|longDash|longDashDot|longDashDotDot)$/; // Note: `solid` is not listed becuase it is the default
         var TOOLS = [
@@ -252,18 +272,22 @@
                 toolbar: '#toolbar',
                 tools: TOOLBAR,
                 enable: true,
-                bbox: {
-                    stroke: {
-                        color: '#808080',
-                        dashType: 'dot'
-                    }
-                },
                 handle: {
                     stroke: {
                         color: '#808080'
                     },
                     fill: {
                         color: '#ffffff'
+                    }
+                },
+                handleBox: {
+                    stroke: {
+                        color: '#808080',
+                        dashType: 'dot'
+                    },
+                    fill: { // Important! otherwise the cursor won't show
+                        color: '#FFFFFF',
+                        opacity: 0
                     }
                 }
             },
@@ -336,9 +360,9 @@
                 var buttonElement = this.toolBar.element.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr('tool'), tool));
                 this.toolBar.toggle(buttonElement, true);
                 if (tool === 'select') {
-                    this.wrapper.css({ cursor: 'default' });
+                    this.wrapper.css({ cursor: CURSOR.DEFAULT });
                 } else {
-                    this.wrapper.css({ cursor: 'crosshair' });
+                    this.wrapper.css({ cursor: CURSOR.CROSSAIR });
                 }
                 this._tool = tool;
             },
@@ -375,6 +399,7 @@
                                 this._configuration.font.fontFamily = e.options.value;
                                 break;
                         }
+                        // TODO Now apply new congiguration to selected object if any
                         break;
                     default:
                         $.noop();
@@ -429,7 +454,7 @@
                 var scaler = element.closest(widget.options.scaler);
                 var scale = scaler.length ? util.getTransformScale(scaler) : 1;
                 var mouse = util.getMousePosition(e, element);
-                return new geometry.Point(mouse.x / scale, mouse.y / scale);
+                return new geometry.Point(mouse.x / scale, mouse.y / scale).round();
             },
 
             /**
@@ -438,6 +463,7 @@
              * @private
              */
             _getElementAtPosition: function (position) {
+                assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
                 var elements = this.surface.exportVisual().children;
                 var ret;
                 // The last elements are on top of the others, so we loop from last to first
@@ -449,7 +475,7 @@
                     }
                     // containsPoint does not work with shapes that have no fill color
                     // if (elements[i].containsPoint(position)) {
-                    var bbox = element.clippedBBox();
+                    var bbox = element.clippedBBox(); // TODO: beware transformations, especially rotations
                     if ((position.x >= bbox.origin.x) && (position.x <= bbox.origin.x + bbox.size.width) &&
                         (position.y >= bbox.origin.y) && (position.y <= bbox.origin.y + bbox.size.height)) {
                         ret = element;
@@ -460,47 +486,108 @@
             },
 
             /**
+             * Get a drawing element form its uid
+             * @param uid
+             * @private
+             */
+            _getElementByUid: function (uid) {
+                assert.type(STRING, uid, kendo.format(assert.messages.type.default, 'uid', STRING));
+                assert.instanceof(Surface, this.surface, kendo.format(assert.messages.instanceof.default, 'this.surface', 'kendo.drawing.Surface'));
+                var children = this.surface.exportVisual().children;
+                for (var i = 0, length = children.length; i < length; i++) {
+                    if (children[i].options.get('uid') === uid) {
+                        return children[i];
+                    }
+                }
+            },
+
+            /**
+             * Get handles around element
+             * @param element
+             * @private
+             */
+            _getHandles: function (element) {
+                assert.instanceof(drawing.Element, element, kendo.format(assert.messages.instanceof.default, 'element', 'kendo.drawing.Element'));
+                // Note: we might also want to test that the element is on the surface
+                var size = 10;
+                var bbox = element.clippedBBox();
+                var group = new drawing.Group();
+                // handleBox
+                var rectGeometry = bbox;
+                var rect = new drawing.Rect(rectGeometry, $.extend(true, {}, this.options.handleBox, { cursor: CURSOR.MOVE }));
+                rect.options.set('role', HANDLES.BBOX);
+                group.append(rect);
+                // top left handle
+                var position = bbox.topLeft();
+                rectGeometry = new geometry.Rect([position.x - size / 2, position.y - size / 2], [size, size]);
+                rect = new drawing.Rect(rectGeometry, $.extend(true, {}, this.options.handle, { cursor: CURSOR.NWSE_RESIZE }));
+                rect.options.set('role', HANDLES.TOPLEFT);
+                group.append(rect);
+                // top right handle
+                position = bbox.topRight();
+                rectGeometry = new geometry.Rect([position.x - size / 2, position.y - size / 2], [size, size]);
+                rect = new drawing.Rect(rectGeometry, $.extend(true, {}, this.options.handle, { cursor: CURSOR.NESW_RESIZE }));
+                rect.options.set('role', HANDLES.TOPRIGHT);
+                group.append(rect);
+                // bottom right handle
+                position = bbox.bottomRight();
+                rectGeometry = new geometry.Rect([position.x - size / 2, position.y - size / 2], [size, size]);
+                rect = new drawing.Rect(rectGeometry, $.extend(true, {}, this.options.handle, { cursor: CURSOR.NWSE_RESIZE }));
+                rect.options.set('role', HANDLES.BOTTOMRIGHT);
+                group.append(rect);
+                // bottom left handle
+                position = bbox.bottomLeft();
+                rectGeometry = new geometry.Rect([position.x - size / 2, position.y - size / 2], [size, size]);
+                rect = new drawing.Rect(rectGeometry, $.extend(true, {}, this.options.handle, { cursor: CURSOR.NESW_RESIZE }));
+                rect.options.set('role', HANDLES.BOTTOMLEFT);
+                group.append(rect);
+                return group;
+            },
+
+            /**
+             * Get handle role at position
+             * @param position
+             * @private
+             */
+            _getHandleRoleAtPosition: function (position) {
+                assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
+                assert.isPlainObject(this._selection, kendo.format(assert.messages.isPlainObject.default, 'this._selection'));
+                assert.instanceof(drawing.Group, this._selection.handles, kendo.format(assert.messages.instanceof.default, 'this._selection', 'kendo.drawing.Group'));
+                var role;
+                var handles = this._selection.handles;
+                for (var i = 0, length = handles.children.length; i < length; i++) {
+                    var handle = handles.children[i];
+                    var bbox = handle.clippedBBox(); // TODO: Beware transformations!!!!!
+                    if ((position.x >= bbox.origin.x) && (position.x <= bbox.origin.x + bbox.size.width) &&
+                        (position.y >= bbox.origin.y) && (position.y <= bbox.origin.y + bbox.size.height)) {
+                        if ($.type(role) === UNDEFINED || handle.options.get('role') !== HANDLES.BBOX) {
+                            role = handle.options.get('role');
+                        }
+                    }
+                }
+                return role;
+            },
+
+            /**
              * Select an element and display handles
              * @param element
              * @private
              */
             _select: function (element) {
-                this._unselect();
-                if (element instanceof drawing.Element) {
-                    // Note: we might also want to test that the element is on the surface
-                    var size = 10;
-                    var bbox = element.clippedBBox();
-                    var group = new drawing.Group();
-                    // bounding box
-                    var rectGeometry = bbox;
-                    var rect = new drawing.Rect(rectGeometry, this.options.bbox);
-                    group.append(rect);
-                    // top left handle
-                    var position = bbox.topLeft();
-                    rectGeometry = new geometry.Rect([position.x - size / 2, position.y - size / 2], [size, size]);
-                    rect = new drawing.Rect(rectGeometry, this.options.handle);
-                    group.append(rect);
-                    // top right handle
-                    position = bbox.topRight();
-                    rectGeometry = new geometry.Rect([position.x - size / 2, position.y - size / 2], [size, size]);
-                    rect = new drawing.Rect(rectGeometry, this.options.handle);
-                    group.append(rect);
-                    // bottom right handle
-                    position = bbox.bottomRight();
-                    rectGeometry = new geometry.Rect([position.x - size / 2, position.y - size / 2], [size, size]);
-                    rect = new drawing.Rect(rectGeometry, this.options.handle);
-                    group.append(rect);
-                    // bottom left handle
-                    position = bbox.bottomLeft();
-                    rectGeometry = new geometry.Rect([position.x - size / 2, position.y - size / 2], [size, size]);
-                    rect = new drawing.Rect(rectGeometry, this.options.handle);
-                    group.append(rect);
-                    this.surface.draw(group);
-                    this._selection = {
-                        element: element, // Note: we could consider an array to allow for multiple selections
-                        handles: group
-                    };
-                }
+                assert.instanceof(drawing.Element, element, kendo.format(assert.messages.instanceof.default, 'element', 'kendo.drawing.Element'));
+                assert.type(STRING, element.options.get('uid'), kendo.format(assert.messages.type.default, 'element.options.get(\'uid\')', STRING));
+                // Note: we cannot rely on the element which might have been redrawn via the refresh method so let's use the uid to retrieve it from the surface
+                var uid = element.options.get('uid');
+                element = this._getElementByUid(uid);
+                // Draw the handles
+                var handles = this._getHandles(element);
+                this.surface.draw(handles);
+                // Update selection
+                this._selection = {
+                    element: element, // Note: we could consider an array to allow for multiple selections
+                    handles: handles
+                };
+                // TODO: update _configuration and the toolbar
             },
 
             /**
@@ -508,12 +595,14 @@
              * @private
              */
             _unselect: function () {
-                if ($.type(this._selection) !== UNDEFINED) {
-                    // this.surface.exportVisual().children.pop();
-                    // this.surface.resize(true);
-                    this.refresh();
-                    this._selection = undefined;
-                }
+                // Remove the handles
+                // this.surface.exportVisual().children.pop();
+                // Redraw
+                // this.surface.resize(true);
+
+                // Redraw from database (removes handles)
+                this._selection = undefined;
+                this.refresh();
             },
 
             /**
@@ -525,9 +614,19 @@
                 var position = this._getMousePosition(e);
                 switch (this._tool) {
                     case 'select':
-                        // The surface click event and surface.eventTarget(e) won't work properly because our widget is scaled
+                        // The surface click event and surface.eventTarget(e) won't work properly because our widget is scaled.
+                        // Also elements with no fill won't receive the event when clicked in the fill area.
+                        // So we need to find the element at position ourselves.
                         var element = this._getElementAtPosition(position);
-                        this._select(element);
+                        if ($.isPlainObject(this._selection) && this._selection.element === element) {
+                            // If the element is already selected, we are on for transformations depending on the part of the handleBox which has been clicked
+                            this._startTransformation(position, e.data);
+                        } else if (element instanceof kendo.drawing.Element) {
+                            this._unselect();
+                            this._select(element);
+                        } else {
+                            this._unselect();
+                        }
                         break;
                     case 'circle':
                         this._startCircle(position, e.data);
@@ -554,6 +653,9 @@
                 if ($.type(e.data) === OBJECT && !$.isEmptyObject(e.data)) {
                     var position = this._getMousePosition(e);
                     switch (this._tool) {
+                        case 'select':
+                            this._continueTransformation(position, e.data);
+                            break;
                         case 'circle':
                             this._continueCircle(position, e.data);
                             break;
@@ -578,6 +680,9 @@
                 if ($.type(e.data) === OBJECT && !$.isEmptyObject(e.data)) {
                     var position = this._getMousePosition(e);
                     switch (this._tool) {
+                        case 'select':
+                            this._endTransformation(position, e.data);
+                            break;
                         case 'circle':
                             this._endCircle(position, e.data);
                             break;
@@ -610,6 +715,83 @@
             },
 
             /**
+             * Start transformation
+             * @param position
+             * @param data
+             * @private
+             */
+            _startTransformation: function (position, data) {
+                assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
+                assert.isEmptyObject(data, kendo.format(assert.messages.isEmptyObject.default, 'data'));
+                var handleRole = this._getHandleRoleAtPosition(position);
+                switch (handleRole) {
+                    case HANDLES.BOTTOMLEFT:
+                    case HANDLES.BOTTOMRIGHT:
+                    case HANDLES.TOPLEFT:
+                    case HANDLES.TOPRIGHT:
+                        data.transformation = TRANSFORMATION.SCALE;
+                        data.role = handleRole;
+                        data.previous = position;
+                        break;
+                    // Note: handles are tested first because they overlap the bbox
+                    case HANDLES.BBOX:
+                        data.transformation = TRANSFORMATION.TRANSLATE;
+                        data.previous = position;
+                        break;
+                    default:
+                        data.transformation = TRANSFORMATION.ROTATE;
+                        // TODO
+                        break;
+                }
+            },
+
+            /**
+             * Continue Transformation
+             * @param position
+             * @param data
+             * @private
+             */
+            _continueTransformation: function (position, data) {
+                assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
+                assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
+                var transformation = new geometry.Transformation();
+                switch (data.transformation) {
+                    case TRANSFORMATION.ROTATE:
+                        // TODO
+                        break;
+                    case TRANSFORMATION.SCALE:
+                        // TODO
+                        break;
+                    case TRANSFORMATION.TRANSLATE:
+                        transformation.translate(position.x - data.previous.x, position.y - data.previous.y);
+                        data.previous = position;
+                        break;
+                }
+                var elementTransform = this._selection.element.transform() || geometry.transform();
+                elementTransform = elementTransform.multiply(transformation);
+                this._selection.element.transform(elementTransform);
+                var handlesTransform = this._selection.handles.transform() || geometry.transform();
+                handlesTransform = handlesTransform.multiply(transformation);
+                this._selection.handles.transform(handlesTransform);
+            },
+
+            /**
+             * End transformation
+             * @param position
+             * @param data
+             * @private
+             */
+            _endTransformation: function (position, data) {
+                // assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
+                // assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
+                this._continueTransformation(position, data);
+                var uid = this._selection.element.options.get('uid');
+                var dataItem = this.dataSource.getByUid(uid);
+                var transform = this._selection.element.transform() || geometry.transform();
+                dataItem.set('transformation', transform.matrix().toArray());
+            },
+
+            /**
              * Start drawing a circle with a mouse (MouseDown)
              * @param position
              * @param data
@@ -617,11 +799,10 @@
              */
             _startCircle: function (position, data) {
                 assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
-                assert.ok($.isEmptyObject(data), 'data is expected to be an empty object');
+                assert.isEmptyObject(data, kendo.format(assert.messages.isEmptyObject.default, 'data'));
                 var circleGeometry = new geometry.Circle(position, 1);
                 var circle = new drawing.Circle(circleGeometry, this._configuration.toJSON());
                 this.surface.draw(circle);
-                // TODO bounding box like MSPaint
                 data.origin = position;
                 data.circle = circle;
             },
@@ -634,7 +815,7 @@
              */
             _continueCircle: function (position, data) {
                 assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
-                assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'date'));
+                assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
                 assert.instanceof(geometry.Point, data.origin, kendo.format(assert.messages.instanceof.default, 'data.origin', 'kendo.geometry.Point'));
                 assert.instanceof(drawing.Circle, data.circle, kendo.format(assert.messages.instanceof.default, 'data.circle', 'kendo.drawing.Circle'));
                 var origin = data.origin;
@@ -651,6 +832,9 @@
              * @private
              */
             _endCircle: function (position, data) {
+                // This._continueCircle has asserts
+                // assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
+                // assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
                 this._continueCircle(position, data);
                 var circleGeometry = data.circle.geometry();
                 this.dataSource.add({
@@ -658,7 +842,6 @@
                     center: circleGeometry.getCenter().toArray(),
                     radius: circleGeometry.getRadius(),
                     configuration: this._configuration.toJSON()
-                    // transformation:
                 });
             },
 
@@ -670,7 +853,7 @@
              */
             _startPen: function (position, data) {
                 assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
-                assert.ok($.isEmptyObject(data), 'data is expected to be an empty object');
+                assert.isEmptyObject(data, kendo.format(assert.messages.isEmptyObject.default, 'data'));
                 var path = new drawing.Path(this._configuration.toJSON());
                 path.moveTo(position);
                 this.surface.draw(path);
@@ -686,10 +869,10 @@
              */
             _continuePen: function (position, data) {
                 assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
-                assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'date'));
+                assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
                 assert.instanceof(geometry.Point, data.origin, kendo.format(assert.messages.instanceof.default, 'data.origin', 'kendo.geometry.Point'));
                 assert.instanceof(drawing.Path, data.path, kendo.format(assert.messages.instanceof.default, 'data.path', 'kendo.drawing.Path'));
-                data.path.lineTo(position);
+                data.path.lineTo(position.round());
             },
 
             /**
@@ -699,13 +882,17 @@
              * @private
              */
             _endPen: function (position, data) {
+                // this._continuePen has asserts
+                // assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
+                // assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
                 this._continuePen(position, data);
+                var PathNode = kendo.drawing.svg.PathNode;
+                var svg = PathNode.fn.printPath(data.path);
                 this.dataSource.add({
                     type: 'path',
-                    segments: data.path.segments,
-                    closed: false,
+                    svg: svg,
+                    // closed: false,
                     configuration: this._configuration.toJSON()
-                    // transformation:
                 });
             },
 
@@ -717,11 +904,10 @@
              */
             _startRect: function (position, data) {
                 assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
-                assert.ok($.isEmptyObject(data), 'data is expected to be an empty object');
+                assert.isEmptyObject(data, kendo.format(assert.messages.isEmptyObject.default, 'data'));
                 var rectGeometry = new geometry.Rect(position, [1, 1]);
                 var rect = new drawing.Rect(rectGeometry, this._configuration.toJSON());
                 this.surface.draw(rect);
-                // TODO bounding box like MSPaint
                 data.origin = position;
                 data.rect = rect;
             },
@@ -734,7 +920,7 @@
              */
             _continueRect: function (position, data) {
                 assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
-                assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'date'));
+                assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
                 assert.instanceof(geometry.Point, data.origin, kendo.format(assert.messages.instanceof.default, 'data.origin', 'kendo.geometry.Point'));
                 assert.instanceof(drawing.Rect, data.rect, kendo.format(assert.messages.instanceof.default, 'data.rect', 'kendo.drawing.Rect'));
                 var origin = data.origin;
@@ -750,6 +936,9 @@
              * @private
              */
             _endRect: function (position, data) {
+                // this._continueRect has asserts
+                // assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
+                // assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
                 this._continueRect(position, data);
                 var rectGeometry = data.rect.geometry();
                 this.dataSource.add({
@@ -757,7 +946,6 @@
                     origin: rectGeometry.getOrigin().toArray(),
                     size: [rectGeometry.getSize().width, rectGeometry.getSize().height],
                     configuration: this._configuration.toJSON()
-                    // transformation:
                 });
             },
 
@@ -807,29 +995,34 @@
                 var that = this;
                 assert.instanceof(DataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 if (that.surface instanceof Surface) {
-                    var items = this.dataSource.data();
+                    var dataItems = this.dataSource.data();
                     // Clear surface
                     that.surface.clear();
                     // Draw all items in dataSource
-                    for (var i = 0; i < items.length; i++) {
-                        var item = items[i];
-                        switch (item.type) {
+                    for (var i = 0; i < dataItems.length; i++) {
+                        var dataItem = dataItems[i];
+                        switch (dataItem.type) {
                             case 'circle':
-                                that._drawCircle(item);
+                                that._drawCircle(dataItem);
                                 break;
                             case 'image':
-                                that._drawImage(item);
+                                that._drawImage(dataItem);
                                 break;
                             case 'path':
-                                that._drawPath(item);
+                                that._drawPath(dataItem);
                                 break;
                             case 'rect':
-                                that._drawRect(item);
+                                that._drawRect(dataItem);
                                 break;
                             case 'text':
-                                that._drawText(item);
+                                that._drawText(dataItem);
                                 break;
                         }
+                    }
+                    // Restore selection
+                    if ($.isPlainObject(this._selection) && this._selection.element instanceof drawing.Element) {
+                        // Note that the surface has just been redrawn with new elements
+                        that._select(this._selection.element);
                     }
                 }
             },
@@ -842,11 +1035,26 @@
              * @private
              */
             _drawCircle: function (dataItem) {
+                assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
+                assert.equal('circle', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type' , 'circle'));
+                var uid = dataItem.get('uid');
                 var item = dataItem.toJSON();
+                // Draw shape
                 var circleGeometry = new geometry.Circle(item.center, item.radius);
                 var circle = new drawing.Circle(circleGeometry, item.configuration);
-                // TODO Transformation
-                circle.options.set('uid', dataItem.get('uid'));
+                // Apply transformations
+                var matrix = $.isArray(item.transformation) ? new geometry.Matrix(
+                    item.transformation[0],
+                    item.transformation[1],
+                    item.transformation[2],
+                    item.transformation[3],
+                    item.transformation[4],
+                    item.transformation[5]
+                ) : geometry.Matrix.unit();
+                var transform = new geometry.Transformation(matrix);
+                circle.transform(transform);
+                // Track uid correspondence with dataSource
+                circle.options.set('uid', uid);
                 this.surface.draw(circle);
             },
 
@@ -856,7 +1064,27 @@
              * @private
              */
             _drawImage: function (dataItem) {
-
+                assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
+                assert.equal('image', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type' , 'image'));
+                var uid = dataItem.get('uid');
+                var item = dataItem.toJSON();
+                // Draw shape
+                var rectGeometry = new geometry.Rect(item.origin, item.size);
+                var image = new drawing.Image(item.src, rectGeometry);
+                // Apply transformations
+                var matrix = $.isArray(item.transformation) ? new geometry.Matrix(
+                    item.transformation[0],
+                    item.transformation[1],
+                    item.transformation[2],
+                    item.transformation[3],
+                    item.transformation[4],
+                    item.transformation[5]
+                ) : geometry.Matrix.unit();
+                var transform = new geometry.Transformation(matrix);
+                image.transform(transform);
+                // Track uid correspondence with dataSource
+                image.options.set('uid', uid);
+                this.surface.draw(image);
             },
 
             /**
@@ -865,28 +1093,26 @@
              * @private
              */
             _drawPath: function (dataItem) {
+                assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
+                assert.equal('path', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type' , 'path'));
+                var uid = dataItem.get('uid');
                 var item = dataItem.toJSON();
-                var segments = item.segments; // Might be an ObservableArray
-                if (segments && segments.length > 1) {
-                    var path = new drawing.Path(item.configuration);
-                    /*
-                     var path = new draw.Path()
-                        .moveTo(100, 200)
-                        .curveTo([100, 100], [250, 100], [250, 200]) // TODO
-                        .lineTo(100, 200);
-                     */
-                    for (var i = 0; i < segments.length; i++) {
-                        if (i === 0) {
-                            path.moveTo(segments[0][0], segments[0][1]);
-                        } else {
-                            path.lineTo(segments[i][0], segments[i][1]);
-                        }
-                    }
-                    // TODO Transformation
-                    // We need the uid to link the drawing element to the dataItem
-                    path.options.set('uid', dataItem.get('uid'));
-                    this.surface.draw(path);
-                }
+                // Draw shape
+                var path = new drawing.Path.parse(item.svg, item.configuration);
+                // Apply transformations
+                var matrix = $.isArray(item.transformation) ? new geometry.Matrix(
+                    item.transformation[0],
+                    item.transformation[1],
+                    item.transformation[2],
+                    item.transformation[3],
+                    item.transformation[4],
+                    item.transformation[5]
+                ) : geometry.Matrix.unit();
+                var transform = new geometry.Transformation(matrix);
+                path.transform(transform);
+                // Track uid correspondence with dataSource
+                path.options.set('uid', uid);
+                this.surface.draw(path);
             },
 
             /**
@@ -895,12 +1121,23 @@
              * @private
              */
             _drawRect: function (dataItem) {
+                assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
+                assert.equal('rect', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type' , 'rect'));
+                var uid = dataItem.get('uid');
                 var item = dataItem.toJSON();
                 var rectGeometry = new geometry.Rect(item.origin, item.size);
                 var rect = new drawing.Rect(rectGeometry, item.configuration);
-                // TODO Transformation
-                // We need the uid to link the drawing element to the dataItem
-                rect.options.set('uid', dataItem.get('uid'));
+                var matrix = $.isArray(item.transformation) ? new geometry.Matrix(
+                    item.transformation[0],
+                    item.transformation[1],
+                    item.transformation[2],
+                    item.transformation[3],
+                    item.transformation[4],
+                    item.transformation[5]
+                ) : geometry.Matrix.unit();
+                var transform = new geometry.Transformation(matrix);
+                rect.transform(transform);
+                rect.options.set('uid', uid);
                 this.surface.draw(rect);
             },
 
@@ -910,12 +1147,24 @@
              * @private
              */
             _drawText: function (dataItem) {
+                assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
+                assert.equal('text', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type' , 'text'));
+                var uid = dataItem.get('uid');
                 var item = dataItem.toJSON();
+                // Position
                 var point = geometry.Point.create(item.position);
                 var text = new drawing.Text(item.text, point);
-                // TODO Transformation
-                // We need the uid to link the drawing element to the dataItem
-                text.options.set('uid', dataItem.get('uid'));
+                var matrix = $.isArray(item.transformation) ? new geometry.Matrix(
+                    item.transformation[0],
+                    item.transformation[1],
+                    item.transformation[2],
+                    item.transformation[3],
+                    item.transformation[4],
+                    item.transformation[5]
+                ) : geometry.Matrix.unit();
+                var transform = new geometry.Transformation(matrix);
+                text.transform(transform);
+                text.options.set('uid', uid);
                 this.surface.draw(text);
             },
 

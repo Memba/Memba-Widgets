@@ -155,13 +155,13 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug({ method: 'init', message: 'widget initialized' });
+                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 that._layout();
                 that._ensureSurface();
                 that._dataSource();
                 that._drawConnector();
                 that._addMouseHandlers();
                 that.value(that.options.value);
-                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 kendo.notify(that);
             },
 

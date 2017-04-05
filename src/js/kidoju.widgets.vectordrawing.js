@@ -290,9 +290,9 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug({ method: 'init', message: 'widget initialized' });
+                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 that._layout();
                 that._dataSource();
-                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 that._tool = 'select';
                 that._configuration = new Configuration();
                 kendo.notify(that);
@@ -1636,6 +1636,84 @@
          * VectorDrawingToolBar Tools
          *********************************************************************************/
 
+        var registry = {};
+        // TODO check!!!!
+        kendo.drawing.dialogs = {
+            register: function (name, dialogClass) {
+                registry[name] = dialogClass;
+            },
+            registered: function (name) {
+                return !!registry[name];
+            },
+            create: function (name, options) {
+                var dialogClass = registry[name];
+                if (dialogClass) {
+                    return new dialogClass(options);
+                }
+            }
+        };
+        var DrawingDialog = kendo.drawing.DrawingDialog = kendo.Observable.extend({
+            init: function (options) {
+                kendo.Observable.fn.init.call(this, options);
+                this.options = $.extend(true, {}, this.options, options);
+                this.bind(this.events, options);
+            },
+            events: [
+                'close',
+                'activate'
+            ],
+            options: { autoFocus: true },
+            dialog: function () {
+                if (!this._dialog) {
+                    this._dialog = $('<div class=\'k-spreadsheet-window k-action-window\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
+                        messages: kendo.spreadsheet.messages.dialogs || MESSAGES,
+                        errors: this.options.errors
+                    })).appendTo(document.body).kendoWindow({
+                        autoFocus: this.options.autoFocus,
+                        scrollable: false,
+                        resizable: false,
+                        modal: true,
+                        visible: false,
+                        width: this.options.width || 320,
+                        title: this.options.title,
+                        open: function () {
+                            this.center();
+                        },
+                        close: this._onDialogClose.bind(this),
+                        activate: this._onDialogActivate.bind(this),
+                        deactivate: this._onDialogDeactivate.bind(this)
+                    }).data('kendoWindow');
+                }
+                return this._dialog;
+            },
+            _onDialogClose: function () {
+                this.trigger('close', { action: this._action });
+            },
+            _onDialogActivate: function () {
+                this.trigger('activate');
+            },
+            _onDialogDeactivate: function () {
+                this.trigger('deactivate');
+                this.destroy();
+            },
+            destroy: function () {
+                if (this._dialog) {
+                    this._dialog.destroy();
+                    this._dialog = null;
+                }
+            },
+            open: function () {
+                this.dialog().open();
+            },
+            apply: function () {
+                this.close();
+            },
+            close: function () {
+                this._action = 'close';
+                this.dialog().close();
+            }
+        });
+
         var DropDownTool = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
                 var dropDownList = $('<select />').kendoDropDownList({ height: 'auto' }).data('kendoDropDownList');
@@ -1720,6 +1798,53 @@
         });
 
         /*
+        var HyperlinkDialog = DrawingDialog.extend({
+            options: {
+                template: '<div class=\'k-edit-label\'><label>#: messages.linkDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button style=\'float: left\' class=\'k-button\' data-bind=\'click: remove\'>#= messages.linkDialog.labels.removeLink #</button>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                title: MESSAGES.linkDialog.title,
+                autoFocus: false
+            },
+            open: function (range) {
+                var self = this;
+                SpreadsheetDialog.fn.open.apply(self, arguments);
+                var element = self.dialog().element;
+                var model = kendo.observable({
+                    url: range.link(),
+                    apply: function () {
+                        if (!/\S/.test(model.url)) {
+                            model.url = null;
+                        }
+                        self.trigger('action', {
+                            command: 'HyperlinkCommand',
+                            options: { link: model.url }
+                        });
+                        self.close();
+                    },
+                    remove: function () {
+                        model.url = null;
+                        model.apply();
+                    },
+                    cancel: self.close.bind(self)
+                });
+                kendo.bind(element, model);
+                element.find('input').focus().on('keydown', function (ev) {
+                    if (ev.keyCode == 13) {
+                        model.url = $(this).val();
+                        ev.stopPropagation();
+                        ev.preventDefault();
+                        model.apply();
+                    } else if (ev.keyCode == 27) {
+                        ev.stopPropagation();
+                        ev.preventDefault();
+                        model.cancel();
+                    }
+                });
+            }
+        });
+        kendo.spreadsheet.dialogs.register('hyperlink', HyperlinkDialog);
+        */
+
+        /*
          kendo.toolbar.registerComponent('dialog', kendo.toolbar.ToolBarButton.extend({
          init: function (options, toolbar) {
          kendo.toolbar.ToolBarButton.fn.init.call(this, options, toolbar);
@@ -1742,7 +1867,6 @@
          }
          }));
          */
-
         var OverflowDialogButton = kendo.toolbar.OverflowButton.extend({
             init: function (options, toolbar) {
                 kendo.toolbar.OverflowButton.fn.init.call(this, options, toolbar);
@@ -1753,59 +1877,6 @@
             },
             _click: $.noop
         });
-
-        // Color Picker
-        /*
-         var ColorPicker = PopupTool.extend({
-         init: function (options, toolbar) {
-         PopupTool.fn.init.call(this, options, toolbar);
-         this.popup.element.addClass('k-spreadsheet-colorpicker');
-         this.colorChooser = new kendo.spreadsheet.ColorChooser(this.popup.element, { change: this._colorChange.bind(this) });
-         this.element.attr({ 'data-property': options.property });
-         this.element.data({
-         type: 'colorPicker',
-         colorPicker: this,
-         instance: this
-         });
-         },
-         destroy: function () {
-         this.colorChooser.destroy();
-         PopupTool.fn.destroy.call(this);
-         },
-         update: function (value) {
-         this.value(value);
-         },
-         value: function (value) {
-         this.colorChooser.value(value);
-         },
-         _colorChange: function (e) {
-         this.toolbar.action({
-         command: 'PropertyChangeCommand',
-         options: {
-         property: this.options.property,
-         value: e.sender.value()
-         }
-         });
-         this.popup.close();
-         }
-         });
-         var ColorPickerButton = OverflowDialogButton.extend({
-         init: function (options, toolbar) {
-         options.iconName = 'text';
-         OverflowDialogButton.fn.init.call(this, options, toolbar);
-         },
-         _click: function () {
-         this.toolbar.dialog({
-         name: 'colorPicker',
-         options: {
-         title: this.options.property,
-         property: this.options.property
-         }
-         });
-         }
-         });
-         kendo.toolbar.registerComponent('colorPicker', ColorPicker, ColorPickerButton);
-         */
 
         // Font sizes
         var FONT_SIZES = [
@@ -1930,46 +2001,6 @@
             }
         });
         kendo.toolbar.registerComponent('fontFamily', FontFamily, FontFamilyButton);
-
-        // border
-        /*
-         var BorderChangeTool = PopupTool.extend({
-         init: function (options, toolbar) {
-         PopupTool.fn.init.call(this, options, toolbar);
-         this._borderPalette();
-         this.element.data({
-         type: 'borders',
-         instance: this
-         });
-         },
-         destroy: function () {
-         this.borderPalette.destroy();
-         PopupTool.fn.destroy.call(this);
-         },
-         _borderPalette: function () {
-         var element = $('<div />').appendTo(this.popup.element);
-         this.borderPalette = new kendo.spreadsheet.BorderPalette(element, { change: this._action.bind(this) });
-         },
-         _action: function (e) {
-         this.toolbar.action({
-         command: 'BorderChangeCommand',
-         options: {
-         border: e.type,
-         style: {
-         size: 1,
-         color: e.color
-         }
-         }
-         });
-         }
-         });
-         var BorderChangeButton = OverflowDialogButton.extend({
-         _click: function () {
-         this.toolbar.dialog({ name: 'borders' });
-         }
-         });
-         kendo.toolbar.registerComponent('borders', BorderChangeTool, BorderChangeButton);
-         */
 
         // Alignment
         /*

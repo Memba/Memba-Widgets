@@ -238,9 +238,9 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug({ method: 'init', message: 'widget initialized' });
+                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 that._layout();
                 that._dataSource();
-                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 that._tool = 'select';
                 that._configuration = new Configuration();
                 kendo.notify(that);

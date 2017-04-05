@@ -33,17 +33,25 @@
 <div class="kj-stage" style="position:relative;height:600px;width:800px;border:solid 1px black;transform: scale(0.75);">
     <div data-role="stage" style="height:600px;width:800px;">
         <div class="kj-element" style="position:absolute;top:50px;left:100px;height:50px;width:200px;">
-            <span data-role="mathinput" data-bind="value: value, visible: visible, enabled: enabled" style="height:50px;width:200px;"></span>
+            <span data-role="mathinput" data-bind="value: value1, visible: visible, enabled: enabled" style="min-height:50px;width:200px;">
+                \sqrt{ \MathQuillMathField{x}^2 + \MathQuillMathField{y}^2 }
+            </span>
         </div>
         <div class="kj-element" style="position:absolute;top:250px;left:100px;height:50px;width:200px;">
-            <div data-role="mathinput" data-bind="value: value, visible: visible, enabled: enabled" style="height:50px;width:200px;font-size:35pt"></div>
+            <div data-role="mathinput" data-bind="value: value2, visible: visible, enabled: enabled" style="min-height:50px;width:200px;font-size:35pt"></div>
+        </div>
+        <div class="kj-element" style="position:absolute;top:350px;left:100px;height:50px;width:200px;">
+            <div data-role="mathinput" data-bind="value: value2, visible: visible, enabled: enabled" style="min-height:50px;width:200px;font-size:35pt"></div>
         </div>
     </div>
 </div>
 
 <pre>
 {
-    value: <span data-bind="text: value"></span>
+    value1:
+    <div data-bind="text: value1$"></div>
+    value2:
+    <div data-bind="text: value2$"></div>
     visible: <span data-bind="text: visible"></span>
     enabled: <span data-bind="text: enabled"></span>
 }
@@ -60,7 +68,14 @@
 
         var kendo = window.kendo;
         var viewModel = window.viewModel = new kendo.observable({
-            value: '',
+            value1: [],
+            value1$: function() {
+                return '\t' + this.get('value1').join('\n\t');
+            },
+            value2: [],
+            value2$: function() {
+                return '\t' + this.get('value2').join('<br/>');
+            },
             visible: true,
             enabled: true
         });

@@ -1,27 +1,22 @@
 .kj-mathinput .mq-editable-field .mq-cursor {
     border-left: 2px solid #78c008 !important;
     border-radius: 1px;
-
     margin-left: -1px !important;
     margin-right: -1px !important;
     margin-bottom: 2px;
 }
-
 .kj-mathinput .mq-editable-field .mq-non-leaf .mq-cursor:only-child {
-    border: 2px solid #78c008 !important; /* bright-green color */
+    border: 2px solid #78c008 !important;
+    /* bright-green color */
     padding: 0 4px 0 4px;
 }
-
 .kj-mathinput .mq-empty {
     background: transparent !important;
 }
-
 .kj-mathinput .mq-empty:not(.mq-root-block):after {
     visibility: visible !important;
-
     /* hides the 'c' content added by MathQuill to measure the width */
     color: transparent;
-
     display: inline-block;
     border: 2px solid #ccc;
     border-radius: 1px;
@@ -30,24 +25,22 @@
     margin-right: -1px;
     margin-bottom: 2px;
 }
-
 .kj-mathinput .mq-editable-field .mq-non-leaf .mq-cursor:only-child {
-    visibility: visible !important; /* disable default blink behavior */
-    border: 2px solid #78c008 !important; /* bright-green color */
+    visibility: visible !important;
+    /* disable default blink behavior */
+    border: 2px solid #78c008 !important;
+    /* bright-green color */
     padding: 0 4px 0 4px;
 }
-
 .kj-mathinput .mq-empty {
     background: transparent !important;
 }
-
 /* also adds empty block styling to elements with .mq-hasCursor but without a cursor element (this happens where the cursor is when the math input loses focus) */
-.kj-mathinput .mq-empty:not(.mq-root-block):after, .kj-mathinput .mq-hasCursor:empty:not(.mq-root-block):after {
+.kj-mathinput .mq-empty:not(.mq-root-block):after,
+.kj-mathinput .mq-hasCursor:empty:not(.mq-root-block):after {
     visibility: visible !important;
-
     /* hides the 'c' content added by MathQuill to measure the width */
     color: transparent;
-
     display: inline-block;
     border: 2px solid #ccc;
     border-radius: 1px;
@@ -55,35 +48,139 @@
     margin-left: -1px;
     margin-right: -1px;
 }
-
 .kj-mathinput .mq-selection .mq-empty:not(.mq-root-block):after {
     border-color: #ffffff;
 }
-
 .kj-mathinput .mq-hasCursor:empty:not(.mq-root-block):after {
     /* place a c inside for sizing the cursor (for the case explained above); normally, MathQuill already does this for .mq-cursor */
     content: 'c';
 }
-
 .kj-mathinput .mq-math-mode .mq-selection .mq-non-leaf,
-.kj-mathinput .mq-editable-field .mq-selection .mq-non-leaf
-{
+.kj-mathinput .mq-editable-field .mq-selection .mq-non-leaf {
     background: #78c008 !important;
     color: white !important;
     border-color: white !important;
 }
-
 .kj-mathinput .mq-math-mode .mq-selection .mq-scaled,
-.kj-mathinput .mq-editable-field .mq-selection .mq-scaled
-{
+.kj-mathinput .mq-editable-field .mq-selection .mq-scaled {
     background: transparent !important;
     color: white !important;
     border-color: transparent !important;
 }
-
 .kj-mathinput .mq-selection {
     display: inline-block !important;
     background: #78c008 !important;
     color: white !important;
     border-color: white !important;
+}
+.kj-mathinput-popup {
+    max-width: 242px;
+}
+.kj-mathinput-toolbar .k-icon,
+.kj-mathinput-popup .k-icon,
+.kj-mathinput-toolbar .k-font-icon,
+.kj-mathinput-popup .k-font-icon {
+    font: 20px/1 Symbola !important;
+}
+.kj-mathinput-toolbar .k-icon.k-i-arrow-s,
+.kj-mathinput-popup .k-icon.k-i-arrow-s,
+.kj-mathinput-toolbar .k-icon.k-i-textbox,
+.kj-mathinput-popup .k-icon.k-i-textbox {
+    font: 16px/1 WebComponentsIcons !important;
+}
+.kj-mathinput-toolbar .k-i-alpha:before,
+.kj-mathinput-popup .k-i-alpha:before {
+    content: "\03b1";
+}
+.kj-mathinput-toolbar .k-i-beta:before,
+.kj-mathinput-popup .k-i-beta:before {
+    content: "\03b2";
+}
+.kj-mathinput-toolbar .k-i-gamma:before,
+.kj-mathinput-popup .k-i-gamma:before {
+    content: "\03b3";
+}
+.kj-mathinput-toolbar .k-i-delta:before,
+.kj-mathinput-popup .k-i-delta:before {
+    content: "\03b4";
+}
+.kj-mathinput-toolbar .k-i-epsilon:before,
+.kj-mathinput-popup .k-i-epsilon:before {
+    content: "\03b5";
+}
+.kj-mathinput-toolbar .k-i-zeta:before,
+.kj-mathinput-popup .k-i-zeta:before {
+    content: "\03b6";
+}
+.kj-mathinput-toolbar .k-i-eta:before,
+.kj-mathinput-popup .k-i-eta:before {
+    content: "\03b7";
+}
+.kj-mathinput-toolbar .k-i-theta:before,
+.kj-mathinput-popup .k-i-theta:before {
+    content: "\03b8";
+}
+.kj-mathinput-toolbar .k-i-iota:before,
+.kj-mathinput-popup .k-i-iota:before {
+    content: "\03b9";
+}
+.kj-mathinput-toolbar .k-i-kappa:before,
+.kj-mathinput-popup .k-i-kappa:before {
+    content: "\03ba";
+}
+.kj-mathinput-toolbar .k-i-lambda:before,
+.kj-mathinput-popup .k-i-lambda:before {
+    content: "\03bb";
+}
+.kj-mathinput-toolbar .k-i-mu:before,
+.kj-mathinput-popup .k-i-mu:before {
+    content: "\03bc";
+}
+.kj-mathinput-toolbar .k-i-nu:before,
+.kj-mathinput-popup .k-i-nu:before {
+    content: "\03bd";
+}
+.kj-mathinput-toolbar .k-i-xi:before,
+.kj-mathinput-popup .k-i-xi:before {
+    content: "\03be";
+}
+.kj-mathinput-toolbar .k-i-omicron:before,
+.kj-mathinput-popup .k-i-omicron:before {
+    content: "\03bf";
+}
+.kj-mathinput-toolbar .k-i-pi:before,
+.kj-mathinput-popup .k-i-pi:before {
+    content: "\03c0";
+}
+.kj-mathinput-toolbar .k-i-rho:before,
+.kj-mathinput-popup .k-i-rho:before {
+    content: "\03c1";
+}
+.kj-mathinput-toolbar .k-i-sigma:before,
+.kj-mathinput-popup .k-i-sigma:before {
+    content: "\03c3";
+}
+.kj-mathinput-toolbar .k-i-tau:before,
+.kj-mathinput-popup .k-i-tau:before {
+    content: "\03c4";
+}
+.kj-mathinput-toolbar .k-i-upsilon:before,
+.kj-mathinput-popup .k-i-upsilon:before {
+    content: "\03c5";
+}
+.kj-mathinput-toolbar .k-i-phi:before,
+.kj-mathinput-popup .k-i-phi:before {
+    content: "\03c6";
+}
+.kj-mathinput-toolbar .k-i-chi:before,
+.kj-mathinput-popup .k-i-chi:before {
+    content: "\03c7";
+}
+.kj-mathinput-toolbar .k-i-psi:before,
+.kj-mathinput-popup .k-i-psi:before {
+    content: "\03c8";
+}
+.kj-mathinput-toolbar .k-i-omega:before,
+.kj-mathinput-popup .k-i-omega:before {
+    content: "\03c9";
 }

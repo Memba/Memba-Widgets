@@ -34,26 +34,25 @@
         var MQ = mq.getInterface(mq.getInterface.MAX);
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.mathinput');
-        var FUNCTION = 'function';
         var STRING = 'string';
         var NULL = 'null';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
+        var FOCUSIN = 'focusin';
+        var FOCUSOUT = 'focusout';
         var DOT = '.';
         var WIDGET = 'kendoMathInput';
         var NS = DOT + WIDGET;
         var WIDGET_CLASS = 'kj-mathinput'; // 'k-widget kj-mathinput';
-        var WIDGET_SELECTOR = DOT + 'kj-mathinput';
+        // var WIDGET_SELECTOR = DOT + 'kj-mathinput';
         var DIV = '<div/>';
-        var SPAN = '<span/>';
         var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
-        var TOOLS = [
-            'cut',
-            'copy',
-            'paste'
-        ];
+        var RX_INNERFIELD = /\\MathQuillMathField/; // or /\\MathQuillMathField{[\}]*}/
         var TOOLBAR = [
-            TOOLS
+            [
+                'field'
+            ],
+            'greek'
         ];
 
         /*********************************************************************************
@@ -76,9 +75,11 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug({ method: 'init', message: 'widget initialized' });
-                that.bind(CHANGE, $.proxy(that.refresh, that));
+                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
+                // that.bind(CHANGE, $.proxy(that.refresh, that));
                 that._layout();
                 that.value(that.options.value);
+                that.enable(that._enabled);
                 // see http://www.telerik.com/forums/kendo-notify()
                 kendo.notify(that);
             },
@@ -89,10 +90,13 @@
              */
             options: {
                 name: 'MathInput',
-                value: null,
+                value: [],
+                enable: true,
                 errorColor: '#cc0000',
                 inline: false,
+                // messages: {},
                 toolbar: '#toolbar'
+                // tools: TOOLS
             },
 
             /**
@@ -109,13 +113,38 @@
              */
             value: function (value) {
                 var that = this;
-                if ($.type(value) === STRING || $.type(value) === NULL) {
-                    if (that.mathField.latex() !== value) {
-                        that.mathField.latex(value);
-                        that.trigger(CHANGE, { value: value });
+                if ($.isArray(value) || value instanceof kendo.data.ObservableArray) {
+                    var hasChanged = false;
+                    for (var i = 0, length = value.length; i < length; i++) {
+                        if (that.mathFields[i] instanceof MQ.MathField && that.mathFields[i].latex() !== value[i]) {
+                            logger.debug({ method: 'value', message: 'Setting value', data: { value: value }});
+                            if ($.type(value[i]) === STRING) {
+                                that.mathFields[i].latex(value[i]);
+                            } else {
+                                that.mathFields[i].latex(that.defaults[i]);
+                            }
+                            hasChanged = true;
+                        }
                     }
+                    if (hasChanged) {
+                        that.trigger(CHANGE);
+                    }
+                } else if ($.type(value) === NULL) { // null is the same as [] but we allow it for data bindings
+                    logger.debug({ method: 'value', message: 'Setting value', data: { value: null }});
+                    // TODO
                 } else if ($.type(value) === UNDEFINED) {
-                    return that.mathField.latex();
+                    var ret = that.mathFields.map(function (mathField) { return mathField.latex() });
+                    var isDefault = true;
+                    for (var i = 0, length = ret.length; i < length; i++) {
+                        if (ret[i] !== that.defaults[i]) {
+                            isDefault = false;
+                            break;
+                        }
+                    }
+                    if (isDefault) {
+                        ret = [];
+                    }
+                    return ret;
                 } else {
                     throw new TypeError('`value` is expected to be a string if not undefined');
                 }
@@ -134,54 +163,173 @@
             },
 
             /**
+             * Sets MQ configuration
+             * Note: it would have been nice to set handler globally on the MQ object but we need to play nice we others
+             * @see http://docs.mathquill.com/en/latest/Api_Methods/#mqconfigconfig
+             * @see http://docs.mathquill.com/en/latest/Config/
+             * @private
+             */
+            _getConfig: function () {
+                // We cannot build return that.config for all MathFields because MathQuill modifies it and it cannot be reused.
+                // Se we keep track of a single instance of handlers and return a new config object at each request.
+                var that = this;
+
+                // Cache handlers
+                if ($.type(that._handlers) === UNDEFINED) {
+                    that._handlers = {
+                        deleteOutOf: $.proxy(that._onOutOf, that),
+                        downOutOf: $.proxy(that._onOutOf, that),
+                        edit: $.proxy(that._onEdit, that),
+                        enter: $.proxy(that._onEnter, that),
+                        moveOutOf: $.proxy(that._onOutOf, that),
+                        selectOutOf: $.proxy(that._onOutOf, that),
+                        upOutOf: $.proxy(that._onOutOf, that)
+                    }
+                }
+
+                // Return a fresh config that MathQuill can modify
+                return {
+                    // TODO: http://docs.mathquill.com/en/latest/Config/
+                    // spaceBehavesLikeTab: true,
+                    // leftRightIntoCmdGoes: 'up',
+                    // restrictMismatchedBrackets: true,
+                    // sumStartsWithNEquals: true,
+                    // supSubsRequireOperand: true,
+                    // charsThatBreakOutOfSupSub: '+-=<>',
+                    // autoSubscriptNumerals: true,
+                    // autoCommands: 'pi theta sqrt sum',
+                    // autoOperatorNames: 'sin cos',
+                    // substituteTextarea: function() { return document.createElement('textarea'); },
+                    handlers: that._handlers
+                };
+            },
+
+            /**
              * Initialize
              * @private
              */
             _initMathInput: function () {
                 var that = this;
                 var element = that.element;
-                if (element.is('span')) {
-                    that.mathField = MQ.MathField(
-                        element.get(0),
-                        {
-                            handlers: {
-                                edit: $.proxy(that._onEdit, that)
-                                // enter: function () { submitLatex(latex); }
-                            }
-                        }
-                    );
+                var options = that.options;
+                // Get initial layout within <div></div> or <span></span>
+                that.layout = that.element.text().trim();
+                if ($.type(that.layout) === STRING && RX_INNERFIELD.test(that.layout)) {
+                    // If the initial layout contains embedded fields
+                    that.staticMath = MQ.StaticMath(element.get(0));
+                    that.mathFields = that.staticMath.innerFields;
                 } else {
-                    // TODO: height, width???
-                    that.mathField = MQ.MathField(
-                        $(SPAN).width('100%').appendTo(element).get(0),
-                        {
-                            handlers: {
-                                edit: $.proxy(that._onEdit, that),
-                                enter: $.proxy(that._onEnter, that)
-                            }
-                        }
-                    );
+                    // // If the initial layout doe snot contain embedded fields
+                    that.mathFields = [MQ.MathField(element.get(0))];
+                }
+                // Gather defaults
+                that.defaults = that.mathFields.map(function (mathField) {
+                    return mathField.latex();
+                });
+            },
+
+            /**
+             * Initialize handlers
+             * @private
+             */
+            _initHandlers: function () {
+                var that = this;
+                // Set config handlers on each field
+                for (var i = 0, length = that.mathFields.length; i < length; i++) {
+                    that.mathFields[i].config(that._enabled ? that._getConfig() : {});
+                    // that.mathFields[i].__controller.editable = that._enabled;
+                }
+                // Enabled/Disable textareas
+                that.element.find('textarea').each(function () {
+                    $(this).prop('disabled', !that._enabled);
+                });
+                // Add focusin and mousedown event handlers
+                that.element.off(NS);
+                if (that._enabled) {
+                    that.element
+                        .on(FOCUSIN + NS, $.proxy(that._onFocusIn, that))
+                        .on(FOCUSOUT + NS, $.proxy(that._onFocusOut, that));
                 }
             },
 
             /**
-             *
+             * Event handler triggered when MQ content has changed
              * @see http://docs.mathquill.com/en/latest/Config/#editmathfield
              * @param mathField
              * @private
              */
             _onEdit: function (mathField) {
-                this.trigger(CHANGE, { value: mathField.latex() });
+                this.trigger(CHANGE);
             },
 
             /**
-             *
+             * Event handler triggered when pressing the enter key
              * @see http://docs.mathquill.com/en/latest/Config/#entermathfield
              * @param mathField
              * @private
              */
             _onEnter: function (mathField) {
-                this.trigger(CHANGE, { value: mathField.latex() });
+                this.trigger(CHANGE);
+            },
+
+            /**
+             * Event handler triggered when losing focus
+             * @see http://docs.mathquill.com/en/latest/Config/#outof-handlers
+             * @param direction
+             * @param mathField
+             * @private
+             */
+            _onOutOf: function (direction, mathField) {
+                window.console.log('_onOutOf')
+            },
+
+            /**
+             * Event handler for focusing into the widget element (or any of its MathFields)
+             * @private
+             */
+            _onFocusIn: function (e) {
+                var that = this;
+                var options = that.options;
+                // Record MathField with focus
+                that._activeField = undefined;
+                for (var i = 0, length = that.mathFields.length; i < length; i++) {
+                    // if (!that.mathFields[i].__controller.blurred) {
+                    if (this.mathFields[i].__controller.textarea.is(e.target)) {
+                        that._activeField = that.mathFields[i];
+                    }
+                }
+                // Hide all toolbars
+                // $(document).find(kendo.roleSelector('mathinputtoolbar')).hide();
+                $(options.toolbar).children(kendo.roleSelector('mathinputtoolbar')).hide();
+                // Show widget's toolbar
+                if (this._activeField instanceof MQ.MathField) {
+                    this.toolBar.wrapper.show();
+                }
+            },
+
+            /**
+             * Event handler for focusing out of the widget element (or any of its MathFields)
+             * @param e
+             * @private
+             */
+            _onFocusOut: function (e) {
+                var that = this;
+                /* This is how kendo.editor does it at ln 698
+                setTimeout(function () {
+                    // Check whether we are interacting with the toolbar
+                    if (!that.toolBar.focused()) {
+                        that.toolBar.wrapper.hide();
+                    }
+                }, 10);
+                */
+            },
+
+            /**
+             * Add a cursor (on mobile devices)
+             * @private
+             */
+            _initCursor: function () {
+                // TODO: see http://khan.github.io/math-input/custom.html
             },
 
             /**
@@ -203,24 +351,7 @@
                         dialog: $.proxy(that._onToolBarDialog, that)
                     })
                     .data('kendoMathInputToolBar');
-                // that._setTool('select');
-            },
-
-            /**
-             * Set the current tool
-             * @private
-             */
-            _setTool: function (tool) {
-                assert.enum(TOOLS, tool, kendo.format(assert.messages.enum.default, 'tool', TOOLS));
-                window.assert(MathInputToolBar, this.toolBar, kendo.format(assert.messages.instanceof.default, 'this.toolBar', 'kendo.ui.MathInputToolBar'));
-                var buttonElement = this.toolBar.element.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr('tool'), tool));
-                this.toolBar.toggle(buttonElement, true);
-                if (tool === 'select') {
-                    this.wrapper.css({ cursor: 'default' });
-                } else {
-                    this.wrapper.css({ cursor: 'crosshair' });
-                }
-                this._tool = tool;
+                that.toolBar.wrapper.hide();
             },
 
             /**
@@ -230,31 +361,32 @@
              */
             _onToolBarAction: function (e) {
                 switch (e.command) {
-                    case 'ToolbarCutCommand':
-                        // this.mathField.write('\\sqrt[]{}');
-                        this.mathField.cmd('\\sqrt');
-                        break;
-                    case 'ToolbarCopyCommand':
-                        // this.mathField.write('^{}');
-                        this.mathField.cmd('^');
-                        // this.mathField.write('_{}');
-                        // this.mathField.cmd('_');
+                    case 'ToolbarFieldCommand':
+                        // this._activeField.write('\\sqrt[]{}');
+                        // this._activeField.write('^{}');
+                        // this._activeField.cmd('^');
+                        // this._activeField.write('_{}');
+                        // this._activeField.cmd('_');
                         // \times\div\pm\pi\degree\ne\ge\le><
                         // \frac{ }{ }\sqrt{ }\sqrt[3]{}\sqrt[]{}\ ^{ }\ _{ }
                         // \angle\parallel\perp\triangle\parallelogram
+                        // this._activeField.write('\\sum_{}^{}');
+                        // this._activeField.cmd('\\sum');
+                        // this._activeField.keystroke('Left');
+                        // this._activeField.keystroke('Right');
+                        this._activeField.cmd('\\sqrt');
+                        this._activeField.focus();
                         break;
-                    case 'ToolbarPasteCommand':
-                        // this.mathField.write('\\sum_{}^{}');
-                        this.mathField.cmd('\\sum');
-                        // this.mathField.keystroke('Left');
-                        // this.mathField.keystroke('Right');
+                    case 'ToolbarGreekCommand':
+                        this._activeField.cmd(e.options.value);
+                        this._activeField.focus();
                         break;
                     default:
                         $.noop();
                 }
                 // In case of focus issues, it might be worth considering implementing the mousedown event
                 // on the toolbar to be able to cancel the click so as to keep the focus on the mathquill input
-                this.mathField.focus();
+                this._activeField.focus();
             },
 
             /**
@@ -267,18 +399,21 @@
             },
 
             /**
-             * Add a cursor
-             * @private
+             * Enable
+             * @param enabled
              */
-            _setCursor: function () {
-                // TODO: see http://khan.github.io/math-input/custom.html
+            enable: function (enabled) {
+                this._enabled = !!enabled;
+                this._initHandlers();
+                // TODO hide cursor
+                // TODO hide toolbar
             },
 
             /**
              * Refresh the widget
              */
             refresh: function () {
-
+                window.console.log('refresh');
             },
 
             /**
@@ -289,11 +424,19 @@
                 var that = this;
                 var element = that.element;
                 // Unbind events
+                that.enable(false);
                 // Release references
                 that.toolBar.destroy();
-                that.toolBar.element.remove();
+                that.toolBar.wrapper.remove();
                 that.toolBar = undefined;
-                that.mathField = undefined;
+                // http://docs.mathquill.com/en/latest/Api_Methods/#revert
+                if (that.staticMath instanceof MQ.StaticMath) {
+                    that.staticMath.revert();
+                    that.staticMath = undefined;
+                } else if ($.isArray(that.mathFields) && that.mathFields.length === 1 && that.mathFields[0] instanceof MQ.MathField) {
+                    that.mathFields[0].revert();
+                    that.mathFields = undefined;
+                }
                 // Destroy kendo
                 Widget.fn.destroy.call(that);
                 kendo.destroy(element);
@@ -309,27 +452,47 @@
          * MathInputToolBar Widget
          *********************************************************************************/
 
-        var MESSAGES = {
-            copy: 'Copy',
-            cut: 'Cut',
-            paste: 'Paste'
+        kendo.mathinput = { messages: {} };
+
+        var MESSAGES = kendo.mathinput.messages.toolbar = {
+            field: 'Field',
+            greekButtons: {
+                alpha: 'Alpha',
+                beta: 'Beta',
+                gamma: 'Gamma',
+                delta: 'Delta',
+                epsilon: 'Epsilon', // varepsilon
+                zeta: 'Zeta',
+                eta: 'Eta',
+                theta: 'Theta', // vartheta
+                iota: 'Iota',
+                kappa: 'Kappa', // varkappa
+                lambda: 'Lambda',
+                mu: 'Mu',
+                nu: 'Nu',
+                xi: 'Xi',
+                omicron: 'Omicron',
+                pi: 'Pi', // varpi
+                rho: 'Rho', // varrho
+                sigma: 'Sigma', // varsigma
+                tau: 'Tau',
+                upsilon: 'Upsilon',
+                phi: 'Phi', // varphi
+                chi: 'Chi',
+                psi: 'Psi',
+                omega: 'Omega'
+            }
         };
         var toolDefaults = {
             separator: { type: 'separator' },
-            cut: {
+            field: {
                 type: 'button',
-                command: 'ToolbarCutCommand',
-                iconClass: 'cut'
+                command: 'ToolbarFieldCommand',
+                iconClass: 'textbox'
             },
-            copy: {
-                type: 'button',
-                command: 'ToolbarCopyCommand',
-                iconClass: 'copy'
-            },
-            paste: {
-                type: 'button',
-                command: 'ToolbarPasteCommand',
-                iconClass: 'paste'
+            greek: {
+                type: 'greek',
+                iconClass: 'alpha'
             }
         };
 
@@ -339,7 +502,7 @@
                 options.items = this._expandTools(options.tools || MathInputToolBar.prototype.options.tools);
                 ToolBar.fn.init.call(this, element, options);
                 var handleClick = this._click.bind(this);
-                this.element.addClass('k-spreadsheet-toolbar');
+                this.element.addClass('k-spreadsheet-toolbar kj-mathinput-toolbar');
                 this._addSeparators(this.element);
                 this.bind({
                     click: handleClick,
@@ -427,6 +590,10 @@
                 name: 'MathInputToolBar',
                 resizable: false,
                 tools: TOOLBAR
+            },
+            focused: function () {
+                // TODO: from kendo.editor at ln 8410
+                return this.element.find('.k-state-focused').length > 0; // || this.preventPopupHide || this.overflowPopup && this.overflowPopup.visible();
             },
             action: function (args) {
                 this.trigger('action', args);
@@ -585,7 +752,9 @@
             },
             _popup: function () {
                 var element = this.element;
-                this.popup = $('<div class=\'k-spreadsheet-popup\' />').appendTo(element).kendoPopup({ anchor: element }).data('kendoPopup');
+                this.popup = $('<div class=\'k-spreadsheet-popup kj-mathinput-popup\' />').appendTo(element).kendoPopup({
+                    anchor: element
+                }).data('kendoPopup');
             }
         });
 
@@ -624,208 +793,363 @@
             _click: $.noop
         });
 
-        // Color Picker
-        /*
-         var ColorPicker = PopupTool.extend({
-         init: function (options, toolbar) {
-         PopupTool.fn.init.call(this, options, toolbar);
-         this.popup.element.addClass('k-spreadsheet-colorpicker');
-         this.colorChooser = new kendo.spreadsheet.ColorChooser(this.popup.element, { change: this._colorChange.bind(this) });
-         this.element.attr({ 'data-property': options.property });
-         this.element.data({
-         type: 'colorPicker',
-         colorPicker: this,
-         instance: this
-         });
-         },
-         destroy: function () {
-         this.colorChooser.destroy();
-         PopupTool.fn.destroy.call(this);
-         },
-         update: function (value) {
-         this.value(value);
-         },
-         value: function (value) {
-         this.colorChooser.value(value);
-         },
-         _colorChange: function (e) {
-         this.toolbar.action({
-         command: 'PropertyChangeCommand',
-         options: {
-         property: this.options.property,
-         value: e.sender.value()
-         }
-         });
-         this.popup.close();
-         }
-         });
-         var ColorPickerButton = OverflowDialogButton.extend({
-         init: function (options, toolbar) {
-         options.iconName = 'text';
-         OverflowDialogButton.fn.init.call(this, options, toolbar);
-         },
-         _click: function () {
-         this.toolbar.dialog({
-         name: 'colorPicker',
-         options: {
-         title: this.options.property,
-         property: this.options.property
-         }
-         });
-         }
-         });
-         kendo.toolbar.registerComponent('colorPicker', ColorPicker, ColorPickerButton);
-         */
+        // Field
+        // TODO: we cannot insert
+
+        // Greek
+        var GreekTool = PopupTool.extend({
+            init: function (options, toolbar) {
+                PopupTool.fn.init.call(this, options, toolbar);
+                this.element.attr({ 'data-property': 'greek' });
+                this._commandPalette();
+                this.popup.element.on('click', '.k-button', function (e) {
+                    this._action($(e.currentTarget));
+                    this.popup.close();
+                }.bind(this));
+                this.element.data({
+                    type: 'greek',
+                    greek: this,
+                    instance: this
+                });
+            },
+            buttons: [
+                {
+                    value: '\\alpha',
+                    iconClass: 'alpha',
+                    text: MESSAGES.greekButtons.alpha
+                },
+                {
+                    value: '\\beta',
+                    iconClass: 'beta',
+                    text: MESSAGES.greekButtons.beta
+                },
+                {
+                    value: '\\gamma',
+                    iconClass: 'gamma',
+                    text: MESSAGES.greekButtons.gamma
+                },
+                {
+                    value: '\\delta',
+                    iconClass: 'delta',
+                    text: MESSAGES.greekButtons.delta
+                },
+                {
+                    value: '\\epsilon',
+                    iconClass: 'epsilon',
+                    text: MESSAGES.greekButtons.epsilon
+                },
+                {
+                    value: '\\zeta',
+                    iconClass: 'zeta',
+                    text: MESSAGES.greekButtons.zeta
+                },
+                {
+                    value: '\\eta',
+                    iconClass: 'eta',
+                    text: MESSAGES.greekButtons.eta
+                },
+                {
+                    value: '\\theta',
+                    iconClass: 'theta',
+                    text: MESSAGES.greekButtons.theta
+                },
+                {
+                    value: '\\iota',
+                    iconClass: 'iota',
+                    text: MESSAGES.greekButtons.iota
+                },
+                {
+                    value: '\\kappa',
+                    iconClass: 'kappa',
+                    text: MESSAGES.greekButtons.kappa
+                },
+                {
+                    value: '\\lambda',
+                    iconClass: 'lambda',
+                    text: MESSAGES.greekButtons.lambda
+                },
+                {
+                    value: '\\mu',
+                    iconClass: 'mu',
+                    text: MESSAGES.greekButtons.mu
+                },
+                {
+                    value: '\\nu',
+                    iconClass: 'nu',
+                    text: MESSAGES.greekButtons.nu
+                },
+                {
+                    value: '\\xi',
+                    iconClass: 'xi',
+                    text: MESSAGES.greekButtons.xi
+                },
+                {
+                    value: '\\omicron',
+                    iconClass: 'omicron',
+                    text: MESSAGES.greekButtons.omicron
+                },
+                {
+                    value: '\\pi',
+                    iconClass: 'pi',
+                    text: MESSAGES.greekButtons.pi
+                },
+                {
+                    value: '\\rho',
+                    iconClass: 'rho',
+                    text: MESSAGES.greekButtons.rho
+                },
+                {
+                    value: '\\sigma',
+                    iconClass: 'sigma',
+                    text: MESSAGES.greekButtons.sigma
+                },
+                {
+                    value: '\\tau',
+                    iconClass: 'tau',
+                    text: MESSAGES.greekButtons.tau
+                },
+                {
+                    value: '\\upsilon',
+                    iconClass: 'upsilon',
+                    text: MESSAGES.greekButtons.upsilon
+                },
+                {
+                    value: '\\phi',
+                    iconClass: 'phi',
+                    text: MESSAGES.greekButtons.phi
+                },
+                {
+                    value: '\\chi',
+                    iconClass: 'chi',
+                    text: MESSAGES.greekButtons.chi
+                },
+                {
+                    value: '\\psi',
+                    iconClass: 'psi',
+                    text: MESSAGES.greekButtons.psi
+                },
+                {
+                    value: '\\omega',
+                    iconClass: 'omega',
+                    text: MESSAGES.greekButtons.omega
+                }
+            ],
+            destroy: function () {
+                this.popup.element.off();
+                PopupTool.fn.destroy.call(this);
+            },
+            _commandPalette: function () {
+                var buttons = this.buttons;
+                var element = $('<div />').appendTo(this.popup.element);
+                buttons.forEach(function (options, index) {
+                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
+                        element.append($('<span class=\'k-separator\' />'));
+                    }
+                    element.append(button);
+                });
+            },
+            _action: function (button) {
+                var value = button.attr('data-value');
+                this.toolbar.action({
+                    command: 'ToolbarGreekCommand',
+                    options: { value: value }
+                });
+            }
+        });
+        var GreekButton = OverflowDialogButton.extend({
+            _click: function () {
+                this.toolbar.dialog({ name: 'greek' });
+            }
+        });
+        kendo.toolbar.registerComponent('greek', GreekTool, GreekButton);
+
+        // Function
 
 
-        // border
-        /*
-         var BorderChangeTool = PopupTool.extend({
-         init: function (options, toolbar) {
-         PopupTool.fn.init.call(this, options, toolbar);
-         this._borderPalette();
-         this.element.data({
-         type: 'borders',
-         instance: this
-         });
-         },
-         destroy: function () {
-         this.borderPalette.destroy();
-         PopupTool.fn.destroy.call(this);
-         },
-         _borderPalette: function () {
-         var element = $('<div />').appendTo(this.popup.element);
-         this.borderPalette = new kendo.spreadsheet.BorderPalette(element, { change: this._action.bind(this) });
-         },
-         _action: function (e) {
-         this.toolbar.action({
-         command: 'BorderChangeCommand',
-         options: {
-         border: e.type,
-         style: {
-         size: 1,
-         color: e.color
-         }
-         }
-         });
-         }
-         });
-         var BorderChangeButton = OverflowDialogButton.extend({
-         _click: function () {
-         this.toolbar.dialog({ name: 'borders' });
-         }
-         });
-         kendo.toolbar.registerComponent('borders', BorderChangeTool, BorderChangeButton);
-         */
-
-        // Alignment
-        /*
-         var AlignmentTool = PopupTool.extend({
-         init: function (options, toolbar) {
-         PopupTool.fn.init.call(this, options, toolbar);
-         this.element.attr({ 'data-property': 'alignment' });
-         this._commandPalette();
-         this.popup.element.on('click', '.k-button', function (e) {
-         this._action($(e.currentTarget));
-         }.bind(this));
-         this.element.data({
-         type: 'alignment',
-         alignment: this,
-         instance: this
-         });
-         },
-         buttons: [
-         {
-         property: 'textAlign',
-         value: 'left',
-         iconClass: 'justify-left',
-         text: MESSAGES.alignmentButtons.justtifyLeft
-         },
-         {
-         property: 'textAlign',
-         value: 'center',
-         iconClass: 'justify-center',
-         text: MESSAGES.alignmentButtons.justifyCenter
-         },
-         {
-         property: 'textAlign',
-         value: 'right',
-         iconClass: 'justify-right',
-         text: MESSAGES.alignmentButtons.justifyRight
-         },
-         {
-         property: 'textAlign',
-         value: 'justify',
-         iconClass: 'justify-full',
-         text: MESSAGES.alignmentButtons.justifyFull
-         },
-         {
-         property: 'verticalAlign',
-         value: 'top',
-         iconClass: 'align-top',
-         text: MESSAGES.alignmentButtons.alignTop
-         },
-         {
-         property: 'verticalAlign',
-         value: 'center',
-         iconClass: 'align-middle',
-         text: MESSAGES.alignmentButtons.alignMiddle
-         },
-         {
-         property: 'verticalAlign',
-         value: 'bottom',
-         iconClass: 'align-bottom',
-         text: MESSAGES.alignmentButtons.alignBottom
-         }
-         ],
-         destroy: function () {
-         this.popup.element.off();
-         PopupTool.fn.destroy.call(this);
-         },
-         update: function (range) {
-         var textAlign = range.textAlign();
-         var verticalAlign = range.verticalAlign();
-         var element = this.popup.element;
-         element.find('.k-button').removeClass('k-state-active');
-         if (textAlign) {
-         element.find('[data-property=textAlign][data-value=' + textAlign + ']').addClass('k-state-active');
-         }
-         if (verticalAlign) {
-         element.find('[data-property=verticalAlign][data-value=' + verticalAlign + ']').addClass('k-state-active');
-         }
-         },
-         _commandPalette: function () {
-         var buttons = this.buttons;
-         var element = $('<div />').appendTo(this.popup.element);
-         buttons.forEach(function (options, index) {
-         var button = '<a title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-font-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
-         if (index !== 0 && buttons[index - 1].property !== options.property) {
-         element.append($('<span class=\'k-separator\' />'));
-         }
-         element.append(button);
-         });
-         },
-         _action: function (button) {
-         var property = button.attr('data-property');
-         var value = button.attr('data-value');
-         this.toolbar.action({
-         command: 'PropertyChangeCommand',
-         options: {
-         property: property,
-         value: value
-         }
-         });
-         }
-         });
-         var AlignmentButton = OverflowDialogButton.extend({
-         _click: function () {
-         this.toolbar.dialog({ name: 'alignment' });
-         }
-         });
-         kendo.toolbar.registerComponent('alignment', AlignmentTool, AlignmentButton);
-         */
+        // Operators
 
 
+
+        /*********************************************************************************
+         * MathInputToolBar Dialogs
+         *********************************************************************************/
+
+        var MSG = kendo.mathinput.messages.dialogs = {
+            apply: 'Apply',
+            save: 'Save',
+            cancel: 'Cancel',
+            remove: 'Remove',
+            retry: 'Retry',
+            revert: 'Revert',
+            okText: 'OK',
+            greekDialog: {
+                title: 'Alignment',
+                buttons: {
+                    justifyLeft: 'Align left',
+                    justifyCenter: 'Center',
+                    justifyRight: 'Align right',
+                    justifyFull: 'Justify',
+                    alignTop: 'Align top',
+                    alignMiddle: 'Align middle',
+                    alignBottom: 'Align bottom'
+                }
+            }
+        };
+
+        var registry = {};
+        kendo.mathinput.dialogs = {
+            register: function (name, dialogClass) {
+                registry[name] = dialogClass;
+            },
+            registered: function (name) {
+                return !!registry[name];
+            },
+            create: function (name, options) {
+                var dialogClass = registry[name];
+                if (dialogClass) {
+                    return new dialogClass(options);
+                }
+            }
+        };
+        var MathInputDialog = kendo.mathinput.MathInputDialog = kendo.Observable.extend({
+            init: function (options) {
+                kendo.Observable.fn.init.call(this, options);
+                this.options = $.extend(true, {}, this.options, options);
+                this.bind(this.events, options);
+            },
+            events: [
+                'close',
+                'activate'
+            ],
+            options: { autoFocus: true },
+            dialog: function () {
+                if (!this._dialog) {
+                    this._dialog = $('<div class=\'k-spreadsheet-window k-action-window\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
+                        messages: kendo.spreadsheet.messages.dialogs || MESSAGES,
+                        errors: this.options.errors
+                    })).appendTo(document.body).kendoWindow({
+                        autoFocus: this.options.autoFocus,
+                        scrollable: false,
+                        resizable: false,
+                        modal: true,
+                        visible: false,
+                        width: this.options.width || 320,
+                        title: this.options.title,
+                        open: function () {
+                            this.center();
+                        },
+                        close: this._onDialogClose.bind(this),
+                        activate: this._onDialogActivate.bind(this),
+                        deactivate: this._onDialogDeactivate.bind(this)
+                    }).data('kendoWindow');
+                }
+                return this._dialog;
+            },
+            _onDialogClose: function () {
+                this.trigger('close', { action: this._action });
+            },
+            _onDialogActivate: function () {
+                this.trigger('activate');
+            },
+            _onDialogDeactivate: function () {
+                this.trigger('deactivate');
+                this.destroy();
+            },
+            destroy: function () {
+                if (this._dialog) {
+                    this._dialog.destroy();
+                    this._dialog = null;
+                }
+            },
+            open: function () {
+                this.dialog().open();
+            },
+            apply: function () {
+                this.close();
+            },
+            close: function () {
+                this._action = 'close';
+                this.dialog().close();
+            }
+        });
+
+        var GreekDialog = MathInputDialog.extend({
+            init: function (options) {
+                var messages = kendo.mathinput.messages.dialogs.greekDialog || MSG; // TODO: review
+                var defaultOptions = {
+                    title: messages.title,
+                    buttons: [
+                        {
+                            property: 'textAlign',
+                            value: 'left',
+                            iconClass: 'align-left',
+                            text: messages.buttons.justifyLeft
+                        },
+                        {
+                            property: 'textAlign',
+                            value: 'center',
+                            iconClass: 'align-center',
+                            text: messages.buttons.justifyCenter
+                        },
+                        {
+                            property: 'textAlign',
+                            value: 'right',
+                            iconClass: 'align-right',
+                            text: messages.buttons.justifyRight
+                        },
+                        {
+                            property: 'textAlign',
+                            value: 'justify',
+                            iconClass: 'align-justify',
+                            text: messages.buttons.justifyFull
+                        },
+                        {
+                            property: 'verticalAlign',
+                            value: 'top',
+                            iconClass: 'align-top',
+                            text: messages.buttons.alignTop
+                        },
+                        {
+                            property: 'verticalAlign',
+                            value: 'center',
+                            iconClass: 'align-middle',
+                            text: messages.buttons.alignMiddle
+                        },
+                        {
+                            property: 'verticalAlign',
+                            value: 'bottom',
+                            iconClass: 'align-bottom',
+                            text: messages.buttons.alignBottom
+                        }
+                    ]
+                };
+                MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
+                this._list();
+            },
+            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            _list: function () {
+                var ul = this.dialog().element.find('ul');
+                this.list = new kendo.ui.StaticList(ul, {
+                    dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
+                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
+                    change: this.apply.bind(this)
+                });
+                this.list.dataSource.fetch();
+            },
+            apply: function (e) {
+                var dataItem = e.sender.value()[0];
+                MathInputDialog.fn.apply.call(this);
+                this.trigger('action', {
+                    command: 'PropertyChangeCommand',
+                    options: {
+                        property: dataItem.property,
+                        value: dataItem.value
+                    }
+                });
+            }
+        });
+        kendo.mathinput.dialogs.register('greek', GreekDialog);
 
     }(window.jQuery));
 

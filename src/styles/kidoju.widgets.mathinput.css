@@ -84,11 +84,13 @@
 }
 .kj-mathinput-toolbar .k-icon.k-i-arrow-s,
 .kj-mathinput-popup .k-icon.k-i-arrow-s,
-.kj-mathinput-toolbar .k-icon.k-i-rewind,
-.kj-mathinput-popup .k-icon.k-i-rewind,
 .kj-mathinput-toolbar .k-icon.k-i-textbox,
 .kj-mathinput-popup .k-icon.k-i-textbox {
     font: 16px/1 WebComponentsIcons !important;
+}
+.kj-mathinput-toolbar .k-i-backspace:before,
+.kj-mathinput-popup .k-i-backspace:before {
+    content: "\232b";
 }
 .kj-mathinput-toolbar .k-i-comma:before,
 .kj-mathinput-popup .k-i-comma:before {
@@ -193,6 +195,74 @@
 .kj-mathinput-toolbar .k-i-space:before,
 .kj-mathinput-popup .k-i-space:before {
     content: "\fe48";
+}
+.kj-mathinput-toolbar .k-icon.k-i-sqrt,
+.kj-mathinput-popup .k-icon.k-i-sqrt,
+.kj-mathinput-toolbar .k-icon.k-i-cubert,
+.kj-mathinput-popup .k-icon.k-i-cubert,
+.kj-mathinput-toolbar .k-icon.k-i-nthroot,
+.kj-mathinput-popup .k-icon.k-i-nthroot,
+.kj-mathinput-toolbar .k-icon.k-i-frac,
+.kj-mathinput-popup .k-icon.k-i-frac,
+.kj-mathinput-toolbar .k-icon.k-i-pow,
+.kj-mathinput-popup .k-icon.k-i-pow,
+.kj-mathinput-toolbar .k-icon.k-i-pow2,
+.kj-mathinput-popup .k-icon.k-i-pow2,
+.kj-mathinput-toolbar .k-icon.k-i-pow3,
+.kj-mathinput-popup .k-icon.k-i-pow3,
+.kj-mathinput-toolbar .k-icon.k-i-subscript,
+.kj-mathinput-popup .k-icon.k-i-subscript,
+.kj-mathinput-toolbar .k-icon.k-i-sin,
+.kj-mathinput-popup .k-icon.k-i-sin,
+.kj-mathinput-toolbar .k-icon.k-i-cos,
+.kj-mathinput-popup .k-icon.k-i-cos,
+.kj-mathinput-toolbar .k-icon.k-i-tan,
+.kj-mathinput-popup .k-icon.k-i-tan {
+    font: 16px/1 kidoju !important;
+}
+.kj-mathinput-toolbar .k-i-sqrt:before,
+.kj-mathinput-popup .k-i-sqrt:before {
+    content: "\221a";
+}
+.kj-mathinput-toolbar .k-i-cubert:before,
+.kj-mathinput-popup .k-i-cubert:before {
+    content: "\221b";
+}
+.kj-mathinput-toolbar .k-i-nthroot:before,
+.kj-mathinput-popup .k-i-nthroot:before {
+    content: "\221c";
+}
+.kj-mathinput-toolbar .k-i-frac:before,
+.kj-mathinput-popup .k-i-frac:before {
+    content: "\e700";
+}
+.kj-mathinput-toolbar .k-i-pow:before,
+.kj-mathinput-popup .k-i-pow:before {
+    content: "\e701";
+}
+.kj-mathinput-toolbar .k-i-pow2:before,
+.kj-mathinput-popup .k-i-pow2:before {
+    content: "\e702";
+}
+.kj-mathinput-toolbar .k-i-pow3:before,
+.kj-mathinput-popup .k-i-pow3:before {
+    content: "\e703";
+}
+.kj-mathinput-toolbar .k-i-subscript:before,
+.kj-mathinput-popup .k-i-subscript:before {
+    content: "\e704";
+}
+.kj-mathinput-toolbar .k-i-sin:before,
+.kj-mathinput-popup .k-i-sin:before {
+    content: "\e710";
+}
+.kj-mathinput-toolbar .k-i-cos:before,
+.kj-mathinput-popup .k-i-cos:before {
+    content: "\e711";
+}
+.kj-mathinput-toolbar .k-i-tan:before,
+.kj-mathinput-popup .k-i-tan:before {
+    content: "\e712";
 }
 .kj-mathinput-toolbar .k-i-alpha:before,
 .kj-mathinput-popup .k-i-alpha:before {

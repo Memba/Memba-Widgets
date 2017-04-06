@@ -106,12 +106,18 @@
     // ------------------
     // Exceptions
     // ------------------
-    .k-icon.k-i-arrow-s,
-    .k-icon.k-i-rewind, // TODO ------------- see backspace
-    .k-icon.k-i-textbox
+    .k-icon
     {
-        font: 16px/1 WebComponentsIcons !important;
+        &.k-i-arrow-s,
+        &.k-i-textbox {
+            font: 16px/1 WebComponentsIcons !important;
+        }
     }
+
+    // ------------------
+    // Backspace
+    // ------------------
+    .k-i-backspace:before {content:"\232b";}
 
     // ------------------
     // KeyPad
@@ -145,7 +151,33 @@
     // ------------------
     // Basic
     // ------------------
+    .k-icon {
+        &.k-i-sqrt,
+        &.k-i-cubert,
+        &.k-i-nthroot,
+        &.k-i-frac,
+        &.k-i-pow,
+        &.k-i-pow2,
+        &.k-i-pow3,
+        &.k-i-subscript,
+        &.k-i-sin,
+        &.k-i-cos,
+        &.k-i-tan {
+            font: 16px/1 kidoju !important;
+        }
+    }
 
+    .k-i-sqrt:before {content:"\221a";}
+    .k-i-cubert:before {content:"\221b";}
+    .k-i-nthroot:before {content:"\221c";}
+    .k-i-frac:before {content:"\e700";}
+    .k-i-pow:before {content:"\e701";}
+    .k-i-pow2:before {content:"\e702";}
+    .k-i-pow3:before {content:"\e703";}
+    .k-i-subscript:before {content:"\e704";}
+    .k-i-sin:before {content:"\e710";}
+    .k-i-cos:before {content:"\e711";}
+    .k-i-tan:before {content:"\e712";}
 
     // ------------------
     // Greek (lowercase)

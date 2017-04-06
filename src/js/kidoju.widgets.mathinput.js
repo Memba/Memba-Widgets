@@ -50,9 +50,12 @@
         // var WIDGET_SELECTOR = DOT + 'kj-mathinput';
         var DIV = '<div/>';
         // var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
+        var RX_COMMAND = /^\\[a-z]+$/;
+        var RX_PARAMS = /[\(\[\{][^\}\]\)]*[\}\]\)]/g;
         var RX_INNERFIELD = /\\MathQuillMathField/; // or /\\MathQuillMathField{[\}]*}/
         var KEYSTROKES = {
             BACKSPACE: 'Backspace',
+            LEFT: 'Left',
             RIGHT: 'Right'
         };
         var TOOLBAR = [
@@ -394,46 +397,38 @@
                         this._activeField.cmd('\\sqrt'); /// TODO
                         break;
                     case 'ToolbarBackspaceCommand':
-                        this._activeField.keystroke(e.options.value);
-                        break;
-                    case 'ToolbarKeyPadCommand':
-                        this._activeField.write(e.options.value);
-                        break;
-                    case 'ToolbarBasicCommand':
-                        this._activeField.write(e.options.value);
-                        break;
-                    case 'ToolbarLowerGreekCommand':
                         this._activeField.keystroke(KEYSTROKES.BACKSPACE);
                         break;
+                    case 'ToolbarKeyPadCommand':
+                    case 'ToolbarBasicCommand':
+                    case 'ToolbarLowerGreekCommand':
                     case 'ToolbarUpperGreekCommand':
-                        // Currently commented out because this requires a double backspace to delete
-                        // if (/^\\text/.test(e.options.value)) {
-                        //     this._activeField.write(e.options.value);
-                        //     this._activeField.keystroke(KEYSTROKES.RIGHT);
-                        // } else {
-                        this._activeField.cmd(e.options.value);
-                        // }
-                        break;
                     case 'ToolbarOperatorCommand':
-                        this._activeField.write(e.options.value);
-                        break;
-                    case 'ToolbarFunctionCommand':
-                        this._activeField.write(e.options.value);
-                        break;
-                    case 'ToolbarSetCommand':
-                        this._activeField.write(e.options.value);
-                        break;
+                    case 'ToolbarExpressionCommand':
+                    case 'ToolbarGroupCommand':
                     case 'ToolbarMatrixCommand':
-                        this._activeField.write(e.options.value);
-                        break;
                     case 'ToolbarStatisticsCommand':
-                        this._activeField.write(e.options.value);
-                        break;
+                    // TODO ---------------------------->  case 'ToolbarUnitsCommand':
                     case 'ToolbarChemistryCommand':
-                        this._activeField.write(e.options.value);
-                        break;
                     default:
-                        $.noop();
+                        if (RX_COMMAND.test(e.options.value)) {
+                            this._activeField.cmd(e.options.value);
+                            // } else if (/^\\text/.test(e.options.value)) {
+                            //     // Currently commented out because this requires a double backspace to delete
+                            //     this._activeField.write(e.options.value);
+                            //     this._activeField.keystroke(KEYSTROKES.RIGHT);
+                        } else if ($.type(e.options.value) === STRING) {
+                            this._activeField.write(e.options.value);
+                            var matches = e.options.value.match(RX_PARAMS);
+                            if ($.isArray(matches)) {
+                                for (var i = 0, length = matches.length; i < length; i++) {
+                                    var content = matches[i].replace(/\\[a-z]+/g, '').replace(/\s/g, '');
+                                    if (content.length === 2) {
+                                        this._activeField.keystroke(KEYSTROKES.LEFT);
+                                    }
+                                }
+                            }
+                        }
                 }
                 // In case of focus issues, it might be worth considering implementing the mousedown event
                 // on the toolbar to be able to cancel the click so as to keep the focus on the mathquill input
@@ -532,11 +527,22 @@
                 x: 'x',
                 y: 'y',
                 z: 'z',
+                pi: 'Pi',
                 infinity: 'Infinity',
                 space: 'Space'
             },
             basicButtons: {
-
+                sqrt: 'Square root',
+                cubert: 'Cube root',
+                nthroot: 'Nth root',
+                frac: 'Fraction',
+                pow: 'Power',
+                pow2: 'Power of 2',
+                pow3: 'Power of 3',
+                subscript: 'Subscript',
+                sin: 'Sine',
+                cos: 'Cosine',
+                tan: 'Tangent'
             },
             lowerGreekButtons: {
                 alpha: 'Alpha',
@@ -619,7 +625,7 @@
             backspace: {
                 type: 'button',
                 command: 'ToolbarBackspaceCommand',
-                iconClass: 'rewind' // TODO -------------------- see stylesheet
+                iconClass: 'backspace'
             },
             keypad: {
                 type: 'keypad',
@@ -1048,6 +1054,11 @@
                     text: MESSAGES.keypadButtons.z
                 },
                 {
+                    value: '\\pi',
+                    iconClass: 'pi',
+                    text: MESSAGES.keypadButtons.pi
+                },
+                {
                     value: '\\infinity',
                     iconClass: 'infinity',
                     text: MESSAGES.keypadButtons.infinity
@@ -1106,13 +1117,61 @@
                 });
             },
             buttons: [
-                /*
                 {
-                    value: '\\alpha',
-                    iconClass: 'alpha',
-                    text: MESSAGES.basicButtons.alpha
+                    value: '\\sqrt',
+                    iconClass: 'sqrt',
+                    text: MESSAGES.basicButtons.sqrt
                 },
-                */
+                {
+                    value: '\\sqrt[3]{ }',
+                    iconClass: 'cubert',
+                    text: MESSAGES.basicButtons.cubert
+                },
+                {
+                    value: '\\sqrt[]{ }',
+                    iconClass: 'nthroot',
+                    text: MESSAGES.basicButtons.nthroot
+                },
+                {
+                    value: '\\frac',
+                    iconClass: 'frac',
+                    text: MESSAGES.basicButtons.frac
+                },
+                {
+                    value: '^{ }',
+                    iconClass: 'pow',
+                    text: MESSAGES.basicButtons.pow
+                },
+                {
+                    value: '^2',
+                    iconClass: 'pow2',
+                    text: MESSAGES.basicButtons.pow2
+                },
+                {
+                    value: '^3',
+                    iconClass: 'pow3',
+                    text: MESSAGES.basicButtons.pow3
+                },
+                {
+                    value: '_{ }',
+                    iconClass: 'subscript',
+                    text: MESSAGES.basicButtons.subscript
+                },
+                {
+                    value: '\\sin\\left(\\right)',
+                    iconClass: 'sin',
+                    text: MESSAGES.basicButtons.sin
+                },
+                {
+                    value: '\\cos\\left(\\right)',
+                    iconClass: 'cos',
+                    text: MESSAGES.basicButtons.cos
+                },
+                {
+                    value: '\\tan\\left(\\right)',
+                        iconClass: 'tan',
+                    text: MESSAGES.basicButtons.tan
+                }
             ],
             destroy: function () {
                 this.popup.element.off();
@@ -1874,6 +1933,8 @@
                     x: 'x',
                     y: 'y',
                     z: 'z',
+                    pi: 'Pi',
+                    // euler `e` and imaginary `i`
                     infinity: 'Infinity',
                     space: 'Space'
                 }

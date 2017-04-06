@@ -956,6 +956,10 @@
              * @private
              */
             _startPen: function (position, data) {
+                // TODO use bezier curves to remove useless points as in
+                // https://github.com/soswow/fit-curve
+                // http://soswow.github.io/fit-curve/demo/
+
                 assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
                 assert.isEmptyObject(data, kendo.format(assert.messages.isEmptyObject.default, 'data'));
                 var path = new drawing.Path(this._configuration.toJSON());

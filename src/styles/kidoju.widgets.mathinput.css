@@ -80,13 +80,119 @@
 .kj-mathinput-popup .k-icon,
 .kj-mathinput-toolbar .k-font-icon,
 .kj-mathinput-popup .k-font-icon {
-    font: 20px/1 Symbola !important;
+    font: 18px/1 Symbola !important;
 }
 .kj-mathinput-toolbar .k-icon.k-i-arrow-s,
 .kj-mathinput-popup .k-icon.k-i-arrow-s,
+.kj-mathinput-toolbar .k-icon.k-i-rewind,
+.kj-mathinput-popup .k-icon.k-i-rewind,
 .kj-mathinput-toolbar .k-icon.k-i-textbox,
 .kj-mathinput-popup .k-icon.k-i-textbox {
     font: 16px/1 WebComponentsIcons !important;
+}
+.kj-mathinput-toolbar .k-i-comma:before,
+.kj-mathinput-popup .k-i-comma:before {
+    content: "\002c";
+}
+.kj-mathinput-toolbar .k-i-stop:before,
+.kj-mathinput-popup .k-i-stop:before {
+    content: "\002e";
+}
+.kj-mathinput-toolbar .k-i-n0:before,
+.kj-mathinput-popup .k-i-n0:before {
+    content: "\0030";
+}
+.kj-mathinput-toolbar .k-i-n1:before,
+.kj-mathinput-popup .k-i-n1:before {
+    content: "\0031";
+}
+.kj-mathinput-toolbar .k-i-n2:before,
+.kj-mathinput-popup .k-i-n2:before {
+    content: "\0032";
+}
+.kj-mathinput-toolbar .k-i-n3:before,
+.kj-mathinput-popup .k-i-n3:before {
+    content: "\0033";
+}
+.kj-mathinput-toolbar .k-i-n4:before,
+.kj-mathinput-popup .k-i-n4:before {
+    content: "\0034";
+}
+.kj-mathinput-toolbar .k-i-n5:before,
+.kj-mathinput-popup .k-i-n5:before {
+    content: "\0035";
+}
+.kj-mathinput-toolbar .k-i-n6:before,
+.kj-mathinput-popup .k-i-n6:before {
+    content: "\0036";
+}
+.kj-mathinput-toolbar .k-i-n7:before,
+.kj-mathinput-popup .k-i-n7:before {
+    content: "\0037";
+}
+.kj-mathinput-toolbar .k-i-n8:before,
+.kj-mathinput-popup .k-i-n8:before {
+    content: "\0038";
+}
+.kj-mathinput-toolbar .k-i-n9:before,
+.kj-mathinput-popup .k-i-n9:before {
+    content: "\0039";
+}
+.kj-mathinput-toolbar .k-i-a:before,
+.kj-mathinput-popup .k-i-a:before {
+    content: "\0061";
+}
+.kj-mathinput-toolbar .k-i-b:before,
+.kj-mathinput-popup .k-i-b:before {
+    content: "\0062";
+}
+.kj-mathinput-toolbar .k-i-c:before,
+.kj-mathinput-popup .k-i-c:before {
+    content: "\0063";
+}
+.kj-mathinput-toolbar .k-i-i:before,
+.kj-mathinput-popup .k-i-i:before {
+    content: "\0069";
+}
+.kj-mathinput-toolbar .k-i-j:before,
+.kj-mathinput-popup .k-i-j:before {
+    content: "\006a";
+}
+.kj-mathinput-toolbar .k-i-k:before,
+.kj-mathinput-popup .k-i-k:before {
+    content: "\006b";
+}
+.kj-mathinput-toolbar .k-i-n:before,
+.kj-mathinput-popup .k-i-n:before {
+    content: "\006e";
+}
+.kj-mathinput-toolbar .k-i-p:before,
+.kj-mathinput-popup .k-i-p:before {
+    content: "\0070";
+}
+.kj-mathinput-toolbar .k-i-q:before,
+.kj-mathinput-popup .k-i-q:before {
+    content: "\0071";
+}
+.kj-mathinput-toolbar .k-i-x:before,
+.kj-mathinput-popup .k-i-x:before {
+    content: "\0078";
+}
+.kj-mathinput-toolbar .k-i-y:before,
+.kj-mathinput-popup .k-i-y:before {
+    content: "\0079";
+}
+.kj-mathinput-toolbar .k-i-z:before,
+.kj-mathinput-popup .k-i-z:before {
+    content: "\007a";
+}
+.kj-mathinput-toolbar .k-i-infinity:before,
+.kj-mathinput-popup .k-i-infinity:before {
+    content: "\221e";
+}
+.kj-mathinput-toolbar .k-i-space:before,
+.kj-mathinput-popup .k-i-space:before {
+    content: "\fe48";
 }
 .kj-mathinput-toolbar .k-i-alpha:before,
 .kj-mathinput-popup .k-i-alpha:before {
@@ -183,4 +289,100 @@
 .kj-mathinput-toolbar .k-i-omega:before,
 .kj-mathinput-popup .k-i-omega:before {
     content: "\03c9";
+}
+.kj-mathinput-toolbar .k-i-alpha-maj:before,
+.kj-mathinput-popup .k-i-alpha-maj:before {
+    content: "\0391";
+}
+.kj-mathinput-toolbar .k-i-beta-maj:before,
+.kj-mathinput-popup .k-i-beta-maj:before {
+    content: "\0392";
+}
+.kj-mathinput-toolbar .k-i-gamma-maj:before,
+.kj-mathinput-popup .k-i-gamma-maj:before {
+    content: "\0393";
+}
+.kj-mathinput-toolbar .k-i-delta-maj:before,
+.kj-mathinput-popup .k-i-delta-maj:before {
+    content: "\0394";
+}
+.kj-mathinput-toolbar .k-i-epsilon-maj:before,
+.kj-mathinput-popup .k-i-epsilon-maj:before {
+    content: "\0395";
+}
+.kj-mathinput-toolbar .k-i-zeta-maj:before,
+.kj-mathinput-popup .k-i-zeta-maj:before {
+    content: "\0396";
+}
+.kj-mathinput-toolbar .k-i-eta-maj:before,
+.kj-mathinput-popup .k-i-eta-maj:before {
+    content: "\0397";
+}
+.kj-mathinput-toolbar .k-i-theta-maj:before,
+.kj-mathinput-popup .k-i-theta-maj:before {
+    content: "\0398";
+}
+.kj-mathinput-toolbar .k-i-iota-maj:before,
+.kj-mathinput-popup .k-i-iota-maj:before {
+    content: "\0399";
+}
+.kj-mathinput-toolbar .k-i-kappa-maj:before,
+.kj-mathinput-popup .k-i-kappa-maj:before {
+    content: "\039a";
+}
+.kj-mathinput-toolbar .k-i-lambda-maj:before,
+.kj-mathinput-popup .k-i-lambda-maj:before {
+    content: "\039b";
+}
+.kj-mathinput-toolbar .k-i-mu-maj:before,
+.kj-mathinput-popup .k-i-mu-maj:before {
+    content: "\039c";
+}
+.kj-mathinput-toolbar .k-i-nu-maj:before,
+.kj-mathinput-popup .k-i-nu-maj:before {
+    content: "\039d";
+}
+.kj-mathinput-toolbar .k-i-xi-maj:before,
+.kj-mathinput-popup .k-i-xi-maj:before {
+    content: "\039e";
+}
+.kj-mathinput-toolbar .k-i-omicron-maj:before,
+.kj-mathinput-popup .k-i-omicron-maj:before {
+    content: "\039f";
+}
+.kj-mathinput-toolbar .k-i-pi-maj:before,
+.kj-mathinput-popup .k-i-pi-maj:before {
+    content: "\03a0";
+}
+.kj-mathinput-toolbar .k-i-rho-maj:before,
+.kj-mathinput-popup .k-i-rho-maj:before {
+    content: "\03a1";
+}
+.kj-mathinput-toolbar .k-i-sigma-maj:before,
+.kj-mathinput-popup .k-i-sigma-maj:before {
+    content: "\03a3";
+}
+.kj-mathinput-toolbar .k-i-tau-maj:before,
+.kj-mathinput-popup .k-i-tau-maj:before {
+    content: "\03a4";
+}
+.kj-mathinput-toolbar .k-i-upsilon-maj:before,
+.kj-mathinput-popup .k-i-upsilon-maj:before {
+    content: "\03a5";
+}
+.kj-mathinput-toolbar .k-i-phi-maj:before,
+.kj-mathinput-popup .k-i-phi-maj:before {
+    content: "\03a6";
+}
+.kj-mathinput-toolbar .k-i-chi-maj:before,
+.kj-mathinput-popup .k-i-chi-maj:before {
+    content: "\03a7";
+}
+.kj-mathinput-toolbar .k-i-psi-maj:before,
+.kj-mathinput-popup .k-i-psi-maj:before {
+    content: "\03a8";
+}
+.kj-mathinput-toolbar .k-i-omega-maj:before,
+.kj-mathinput-popup .k-i-omega-maj:before {
+    content: "\03a9";
 }

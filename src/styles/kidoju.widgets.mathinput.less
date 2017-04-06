@@ -94,31 +94,56 @@
 // ----------------------------------------------------------------------------------------------------
 
 .kj-mathinput-popup {
-    max-width: 241px;
+    max-width: 242px;
 }
 
 .kj-mathinput-toolbar, .kj-mathinput-popup {
 
     .k-icon, .k-font-icon {
-        font: 20px/1 Symbola !important;
+        font: 18px/1 Symbola !important;
     }
 
     // ------------------
     // Exceptions
     // ------------------
     .k-icon.k-i-arrow-s,
+    .k-icon.k-i-rewind, // TODO ------------- see backspace
     .k-icon.k-i-textbox
     {
         font: 16px/1 WebComponentsIcons !important;
     }
 
     // ------------------
-    // Operators
+    // KeyPad
     // ------------------
-    // .k-i-plus:before {content:"\03b1";}
-
+    .k-i-comma:before {content:"\002c";}
+    .k-i-stop:before {content:"\002e";}
+    .k-i-n0:before {content:"\0030";}
+    .k-i-n1:before {content:"\0031";}
+    .k-i-n2:before {content:"\0032";}
+    .k-i-n3:before {content:"\0033";}
+    .k-i-n4:before {content:"\0034";}
+    .k-i-n5:before {content:"\0035";}
+    .k-i-n6:before {content:"\0036";}
+    .k-i-n7:before {content:"\0037";}
+    .k-i-n8:before {content:"\0038";}
+    .k-i-n9:before {content:"\0039";}
+    .k-i-a:before {content:"\0061";}
+    .k-i-b:before {content:"\0062";}
+    .k-i-c:before {content:"\0063";}
+    .k-i-i:before {content:"\0069";}
+    .k-i-j:before {content:"\006a";}
+    .k-i-k:before {content:"\006b";}
+    .k-i-n:before {content:"\006e";}
+    .k-i-p:before {content:"\0070";}
+    .k-i-q:before {content:"\0071";}
+    .k-i-x:before {content:"\0078";}
+    .k-i-y:before {content:"\0079";}
+    .k-i-z:before {content:"\007a";}
+    .k-i-infinity:before {content:"\221e";}
+    .k-i-space:before {content:"\fe48";}
     // ------------------
-    // Sets
+    // Basic
     // ------------------
 
 
@@ -150,4 +175,43 @@
     .k-i-chi:before {content:"\03c7";}
     .k-i-psi:before {content:"\03c8";}
     .k-i-omega:before {content:"\03c9";}
+
+    // ------------------
+    // Greek (uppercase)
+    // ------------------
+    .k-i-alpha-maj:before {content:"\0391";}
+    .k-i-beta-maj:before {content:"\0392";}
+    .k-i-gamma-maj:before {content:"\0393";}
+    .k-i-delta-maj:before {content:"\0394";}
+    .k-i-epsilon-maj:before {content:"\0395";}
+    .k-i-zeta-maj:before {content:"\0396";}
+    .k-i-eta-maj:before {content:"\0397";}
+    .k-i-theta-maj:before {content:"\0398";}
+    .k-i-iota-maj:before {content:"\0399";}
+    .k-i-kappa-maj:before {content:"\039a";}
+    .k-i-lambda-maj:before {content:"\039b";}
+    .k-i-mu-maj:before {content:"\039c";}
+    .k-i-nu-maj:before {content:"\039d";}
+    .k-i-xi-maj:before {content:"\039e";}
+    .k-i-omicron-maj:before {content:"\039f";}
+    .k-i-pi-maj:before {content:"\03a0";}
+    .k-i-rho-maj:before {content:"\03a1";}
+    // Note that \03a2 is not represented
+    .k-i-sigma-maj:before {content:"\03a3";}
+    .k-i-tau-maj:before {content:"\03a4";}
+    .k-i-upsilon-maj:before {content:"\03a5";}
+    .k-i-phi-maj:before {content:"\03a6";}
+    .k-i-chi-maj:before {content:"\03a7";}
+    .k-i-psi-maj:before {content:"\03a8";}
+    .k-i-omega-maj:before {content:"\03a9";}
+
+    // ------------------
+    // Operators
+    // ------------------
+    // .k-i-plus:before {content:"\03b1";}
+
+    // ------------------
+    // Sets
+    // ------------------
+
 }

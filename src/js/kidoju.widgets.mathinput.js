@@ -15,7 +15,10 @@
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.userevents',
         './vendor/kendo/kendo.draganddrop'
-        // TODO We may need kendo.spreadsheet for toolbar items
+        // Popup
+        // staticList
+
+        // TODO: remove spreadhseet classes
     ], f);
 })(function (mq) {
 
@@ -46,13 +49,27 @@
         var WIDGET_CLASS = 'kj-mathinput'; // 'k-widget kj-mathinput';
         // var WIDGET_SELECTOR = DOT + 'kj-mathinput';
         var DIV = '<div/>';
-        var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
+        // var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
         var RX_INNERFIELD = /\\MathQuillMathField/; // or /\\MathQuillMathField{[\}]*}/
+        var KEYSTROKES = {
+            BACKSPACE: 'Backspace',
+            RIGHT: 'Right'
+        };
         var TOOLBAR = [
             [
-                'field'
+                'field',
+                'backspace'
             ],
-            'greek'
+            'keypad',
+            'basic',
+            'lowergreek',
+            'uppergreek',
+            'operator',
+            'expression',
+            'group',
+            'matrix',
+            'statistics',
+            'chemistry'
         ];
 
         /*********************************************************************************
@@ -129,9 +146,9 @@
                     if (hasChanged) {
                         that.trigger(CHANGE);
                     }
-                } else if ($.type(value) === NULL) { // null is the same as [] but we allow it for data bindings
-                    logger.debug({ method: 'value', message: 'Setting value', data: { value: null }});
-                    // TODO
+                } else if ($.type(value) === NULL) {
+                    // null is the same as [] but we allow it for data bindings
+                    that.value([]);
                 } else if ($.type(value) === UNDEFINED) {
                     var ret = that.mathFields.map(function (mathField) { return mathField.latex() });
                     var isDefault = true;
@@ -373,13 +390,47 @@
                         // this._activeField.write('\\sum_{}^{}');
                         // this._activeField.cmd('\\sum');
                         // this._activeField.keystroke('Left');
-                        // this._activeField.keystroke('Right');
-                        this._activeField.cmd('\\sqrt');
-                        this._activeField.focus();
+                        // this._activeField.keystroke(KEYSTROKES.RIGHT);
+                        this._activeField.cmd('\\sqrt'); /// TODO
                         break;
-                    case 'ToolbarGreekCommand':
+                    case 'ToolbarBackspaceCommand':
+                        this._activeField.keystroke(e.options.value);
+                        break;
+                    case 'ToolbarKeyPadCommand':
+                        this._activeField.write(e.options.value);
+                        break;
+                    case 'ToolbarBasicCommand':
+                        this._activeField.write(e.options.value);
+                        break;
+                    case 'ToolbarLowerGreekCommand':
+                        this._activeField.keystroke(KEYSTROKES.BACKSPACE);
+                        break;
+                    case 'ToolbarUpperGreekCommand':
+                        // Currently commented out because this requires a double backspace to delete
+                        // if (/^\\text/.test(e.options.value)) {
+                        //     this._activeField.write(e.options.value);
+                        //     this._activeField.keystroke(KEYSTROKES.RIGHT);
+                        // } else {
                         this._activeField.cmd(e.options.value);
-                        this._activeField.focus();
+                        // }
+                        break;
+                    case 'ToolbarOperatorCommand':
+                        this._activeField.write(e.options.value);
+                        break;
+                    case 'ToolbarFunctionCommand':
+                        this._activeField.write(e.options.value);
+                        break;
+                    case 'ToolbarSetCommand':
+                        this._activeField.write(e.options.value);
+                        break;
+                    case 'ToolbarMatrixCommand':
+                        this._activeField.write(e.options.value);
+                        break;
+                    case 'ToolbarStatisticsCommand':
+                        this._activeField.write(e.options.value);
+                        break;
+                    case 'ToolbarChemistryCommand':
+                        this._activeField.write(e.options.value);
                         break;
                     default:
                         $.noop();
@@ -456,7 +507,38 @@
 
         var MESSAGES = kendo.mathinput.messages.toolbar = {
             field: 'Field',
-            greekButtons: {
+            backspace: 'Backspace',
+            keypadButtons: {
+                comma: ',',
+                stop: '.',
+                n0: '0',
+                n1: '1',
+                n2: '2',
+                n3: '3',
+                n4: '4',
+                n5: '5',
+                n6: '6',
+                n7: '7',
+                n8: '8',
+                n9: '9',
+                a: 'a',
+                b: 'b',
+                c: 'c',
+                i: 'i',
+                j: 'j',
+                k: 'k',
+                n: 'n',
+                p: 'p',
+                x: 'x',
+                y: 'y',
+                z: 'z',
+                infinity: 'Infinity',
+                space: 'Space'
+            },
+            basicButtons: {
+
+            },
+            lowerGreekButtons: {
                 alpha: 'Alpha',
                 beta: 'Beta',
                 gamma: 'Gamma',
@@ -481,6 +563,50 @@
                 chi: 'Chi',
                 psi: 'Psi',
                 omega: 'Omega'
+            },
+            upperGreekButtons: {
+                alpha: 'Alpha',
+                beta: 'Beta',
+                gamma: 'Gamma',
+                delta: 'Delta',
+                epsilon: 'Epsilon', // varepsilon
+                zeta: 'Zeta',
+                eta: 'Eta',
+                theta: 'Theta', // vartheta
+                iota: 'Iota',
+                kappa: 'Kappa', // varkappa
+                lambda: 'Lambda',
+                mu: 'Mu',
+                nu: 'Nu',
+                xi: 'Xi',
+                omicron: 'Omicron',
+                pi: 'Pi', // varpi
+                rho: 'Rho', // varrho
+                sigma: 'Sigma', // varsigma
+                tau: 'Tau',
+                upsilon: 'Upsilon',
+                phi: 'Phi', // varphi
+                chi: 'Chi',
+                psi: 'Psi',
+                omega: 'Omega'
+            },
+            operatorButtons: {
+
+            },
+            expressionButtons: {
+
+            },
+            groupButtons: {
+
+            },
+            matrixButtons: {
+
+            },
+            statisticsButtons: {
+
+            },
+            chemistryButtons: {
+
             }
         };
         var toolDefaults = {
@@ -490,12 +616,56 @@
                 command: 'ToolbarFieldCommand',
                 iconClass: 'textbox'
             },
-            greek: {
-                type: 'greek',
+            backspace: {
+                type: 'button',
+                command: 'ToolbarBackspaceCommand',
+                iconClass: 'rewind' // TODO -------------------- see stylesheet
+            },
+            keypad: {
+                type: 'keypad',
+                iconClass: 'n1'
+            },
+            basic: {
+                type: 'basic',
+                iconClass: 'alpha'
+            },
+            lowergreek: {
+                type: 'lowergreek',
+                iconClass: 'alpha'
+            },
+            uppergreek: {
+                type: 'uppergreek',
+                iconClass: 'alpha-maj'
+            },
+            operator: {
+                type: 'operator',
+                iconClass: 'beta'
+            },
+            expression: {
+                type: 'expression',
+                iconClass: 'gamma'
+            },
+            group: {
+                type: 'group',
+                iconClass: 'delta'
+            },
+            matrix: {
+                type: 'matrix',
+                iconClass: 'epsilon'
+            },
+            statistics: {
+                type: 'statistics',
+                iconClass: 'zeta'
+            },
+            chemistry: {
+                type: 'chemistry',
                 iconClass: 'alpha'
             }
         };
 
+        /**
+         * MathInputToolBar
+         */
         var MathInputToolBar = ToolBar.extend({
             init: function (element, options) {
                 options = options || {};
@@ -666,72 +836,15 @@
                 ToolBar.fn.destroy.call(this);
             }
         });
-
         kendo.ui.plugin(MathInputToolBar);
 
         /*********************************************************************************
          * MathInputToolBar Tools
          *********************************************************************************/
 
-        var DropDownTool = kendo.toolbar.Item.extend({
-            init: function (options, toolbar) {
-                var dropDownList = $('<select />').kendoDropDownList({ height: 'auto' }).data('kendoDropDownList');
-                this.dropDownList = dropDownList;
-                this.element = dropDownList.wrapper;
-                this.options = options;
-                this.toolbar = toolbar;
-                this.attributes();
-                this.addUidAttr();
-                this.addOverflowAttr();
-                dropDownList.bind('open', this._open.bind(this));
-                dropDownList.bind('change', this._change.bind(this));
-                this.element.width(options.width).attr({
-                    'data-command': 'PropertyChangeCommand',
-                    'data-property': options.property
-                });
-            },
-            _open: function () {
-                var ddl = this.dropDownList;
-                var list = ddl.list;
-                var listWidth;
-                list.css({
-                    whiteSpace: 'nowrap',
-                    width: 'auto'
-                });
-                listWidth = list.width();
-                if (listWidth) {
-                    listWidth += 20;
-                } else {
-                    listWidth = ddl._listWidth;
-                }
-                list.css('width', listWidth + kendo.support.scrollbar());
-                ddl._listWidth = listWidth;
-            },
-            _change: function (e) {
-                var instance = e.sender;
-                var value = instance.value();
-                var dataItem = instance.dataItem();
-                var popupName = dataItem ? dataItem.popup : undefined;
-                if (popupName) {
-                    this.toolbar.dialog({ name: popupName });
-                } else {
-                    this.toolbar.action({
-                        command: 'PropertyChangeCommand',
-                        options: {
-                            property: this.options.property,
-                            value: value === 'null' ? null : value
-                        }
-                    });
-                }
-            },
-            value: function (value) {
-                if (value !== undefined) {
-                    this.dropDownList.value(value);
-                } else {
-                    return this.dropDownList.value();
-                }
-            }
-        });
+        /**
+         * PopupTool
+         */
         var PopupTool = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
                 this.element = $('<a href=\'#\' class=\'k-button k-button-icon\'>' + '<span class=\'' + options.spriteCssClass + '\'>' + '</span><span class=\'k-icon k-i-arrow-s\'></span>' + '</a>');
@@ -782,6 +895,9 @@
          }));
          */
 
+        /**
+         * OverflowDialogButton
+         */
         var OverflowDialogButton = kendo.toolbar.OverflowButton.extend({
             init: function (options, toolbar) {
                 kendo.toolbar.OverflowButton.fn.init.call(this, options, toolbar);
@@ -793,145 +909,153 @@
             _click: $.noop
         });
 
-        // Field
-        // TODO: we cannot insert
-
-        // Greek
-        var GreekTool = PopupTool.extend({
+        /**
+         * KeyPadTool and KeyPadButton
+         */
+        var KeyPadTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
-                this.element.attr({ 'data-property': 'greek' });
                 this._commandPalette();
                 this.popup.element.on('click', '.k-button', function (e) {
                     this._action($(e.currentTarget));
                     this.popup.close();
                 }.bind(this));
                 this.element.data({
-                    type: 'greek',
-                    greek: this,
+                    type: 'keypad',
+                    keypad: this,
                     instance: this
                 });
             },
             buttons: [
                 {
-                    value: '\\alpha',
-                    iconClass: 'alpha',
-                    text: MESSAGES.greekButtons.alpha
+                    value: '7',
+                    iconClass: 'n7',
+                    text: MESSAGES.keypadButtons.n7
                 },
                 {
-                    value: '\\beta',
-                    iconClass: 'beta',
-                    text: MESSAGES.greekButtons.beta
+                    value: '8',
+                    iconClass: 'n8',
+                    text: MESSAGES.keypadButtons.n8
                 },
                 {
-                    value: '\\gamma',
-                    iconClass: 'gamma',
-                    text: MESSAGES.greekButtons.gamma
+                    value: '9',
+                    iconClass: 'n9',
+                    text: MESSAGES.keypadButtons.n9
                 },
                 {
-                    value: '\\delta',
-                    iconClass: 'delta',
-                    text: MESSAGES.greekButtons.delta
+                    value: 'a',
+                    iconClass: 'a',
+                    text: MESSAGES.keypadButtons.a
                 },
                 {
-                    value: '\\epsilon',
-                    iconClass: 'epsilon',
-                    text: MESSAGES.greekButtons.epsilon
+                    value: 'b',
+                    iconClass: 'b',
+                    text: MESSAGES.keypadButtons.b
                 },
                 {
-                    value: '\\zeta',
-                    iconClass: 'zeta',
-                    text: MESSAGES.greekButtons.zeta
+                    value: 'c',
+                    iconClass: 'c',
+                    text: MESSAGES.keypadButtons.c
                 },
                 {
-                    value: '\\eta',
-                    iconClass: 'eta',
-                    text: MESSAGES.greekButtons.eta
+                    value: '4',
+                    iconClass: 'n4',
+                    text: MESSAGES.keypadButtons.n4
                 },
                 {
-                    value: '\\theta',
-                    iconClass: 'theta',
-                    text: MESSAGES.greekButtons.theta
+                    value: '5',
+                    iconClass: 'n5',
+                    text: MESSAGES.keypadButtons.n5
                 },
                 {
-                    value: '\\iota',
-                    iconClass: 'iota',
-                    text: MESSAGES.greekButtons.iota
+                    value: '6',
+                    iconClass: 'n6',
+                    text: MESSAGES.keypadButtons.n6
                 },
                 {
-                    value: '\\kappa',
-                    iconClass: 'kappa',
-                    text: MESSAGES.greekButtons.kappa
+                    value: 'i',
+                    iconClass: 'i',
+                    text: MESSAGES.keypadButtons.i
                 },
                 {
-                    value: '\\lambda',
-                    iconClass: 'lambda',
-                    text: MESSAGES.greekButtons.lambda
+                    value: 'j',
+                    iconClass: 'j',
+                    text: MESSAGES.keypadButtons.j
                 },
                 {
-                    value: '\\mu',
-                    iconClass: 'mu',
-                    text: MESSAGES.greekButtons.mu
+                    value: 'k',
+                    iconClass: 'k',
+                    text: MESSAGES.keypadButtons.k
                 },
                 {
-                    value: '\\nu',
-                    iconClass: 'nu',
-                    text: MESSAGES.greekButtons.nu
+                    value: '1',
+                    iconClass: 'n1',
+                    text: MESSAGES.keypadButtons.n1
                 },
                 {
-                    value: '\\xi',
-                    iconClass: 'xi',
-                    text: MESSAGES.greekButtons.xi
+                    value: '2',
+                    iconClass: 'n2',
+                    text: MESSAGES.keypadButtons.n2
                 },
                 {
-                    value: '\\omicron',
-                    iconClass: 'omicron',
-                    text: MESSAGES.greekButtons.omicron
+                    value: '3',
+                    iconClass: 'n3',
+                    text: MESSAGES.keypadButtons.n3
                 },
                 {
-                    value: '\\pi',
-                    iconClass: 'pi',
-                    text: MESSAGES.greekButtons.pi
+                    value: 'n',
+                    iconClass: 'n',
+                    text: MESSAGES.keypadButtons.n
                 },
                 {
-                    value: '\\rho',
-                    iconClass: 'rho',
-                    text: MESSAGES.greekButtons.rho
+                    value: 'p',
+                    iconClass: 'p',
+                    text: MESSAGES.keypadButtons.p
                 },
                 {
-                    value: '\\sigma',
-                    iconClass: 'sigma',
-                    text: MESSAGES.greekButtons.sigma
+                    value: 'q',
+                    iconClass: 'q',
+                    text: MESSAGES.keypadButtons.q
                 },
                 {
-                    value: '\\tau',
-                    iconClass: 'tau',
-                    text: MESSAGES.greekButtons.tau
+                    value: ',',
+                    iconClass: 'comma',
+                    text: MESSAGES.keypadButtons.comma
                 },
                 {
-                    value: '\\upsilon',
-                    iconClass: 'upsilon',
-                    text: MESSAGES.greekButtons.upsilon
+                    value: '0',
+                    iconClass: 'n0',
+                    text: MESSAGES.keypadButtons.n0
                 },
                 {
-                    value: '\\phi',
-                    iconClass: 'phi',
-                    text: MESSAGES.greekButtons.phi
+                    value: '.',
+                    iconClass: 'stop',
+                    text: MESSAGES.keypadButtons.stop
                 },
                 {
-                    value: '\\chi',
-                    iconClass: 'chi',
-                    text: MESSAGES.greekButtons.chi
+                    value: 'x',
+                    iconClass: 'x',
+                    text: MESSAGES.keypadButtons.x
                 },
                 {
-                    value: '\\psi',
-                    iconClass: 'psi',
-                    text: MESSAGES.greekButtons.psi
+                    value: 'y',
+                    iconClass: 'y',
+                    text: MESSAGES.keypadButtons.y
                 },
                 {
-                    value: '\\omega',
-                    iconClass: 'omega',
-                    text: MESSAGES.greekButtons.omega
+                    value: 'z',
+                    iconClass: 'z',
+                    text: MESSAGES.keypadButtons.z
+                },
+                {
+                    value: '\\infinity',
+                    iconClass: 'infinity',
+                    text: MESSAGES.keypadButtons.infinity
+                },
+                {
+                    value: ' ',
+                    iconClass: 'space',
+                    text: MESSAGES.keypadButtons.space
                 }
             ],
             destroy: function () {
@@ -952,24 +1076,765 @@
             _action: function (button) {
                 var value = button.attr('data-value');
                 this.toolbar.action({
-                    command: 'ToolbarGreekCommand',
+                    command: 'ToolbarKeyPadCommand',
                     options: { value: value }
                 });
             }
         });
-        var GreekButton = OverflowDialogButton.extend({
+        var KeyPadButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'greek' });
+                this.toolbar.dialog({ name: 'keypad' });
             }
         });
-        kendo.toolbar.registerComponent('greek', GreekTool, GreekButton);
+        kendo.toolbar.registerComponent('keypad', KeyPadTool, KeyPadButton);
 
-        // Function
+        /**
+         * BasicTool and BasicButton
+         */
+        var BasicTool = PopupTool.extend({
+            init: function (options, toolbar) {
+                PopupTool.fn.init.call(this, options, toolbar);
+                this._commandPalette();
+                this.popup.element.on('click', '.k-button', function (e) {
+                    this._action($(e.currentTarget));
+                    this.popup.close();
+                }.bind(this));
+                this.element.data({
+                    type: 'basic',
+                    basic: this,
+                    instance: this
+                });
+            },
+            buttons: [
+                /*
+                {
+                    value: '\\alpha',
+                    iconClass: 'alpha',
+                    text: MESSAGES.basicButtons.alpha
+                },
+                */
+            ],
+            destroy: function () {
+                this.popup.element.off();
+                PopupTool.fn.destroy.call(this);
+            },
+            _commandPalette: function () {
+                var buttons = this.buttons;
+                var element = $('<div />').appendTo(this.popup.element);
+                buttons.forEach(function (options, index) {
+                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
+                        element.append($('<span class=\'k-separator\' />'));
+                    }
+                    element.append(button);
+                });
+            },
+            _action: function (button) {
+                var value = button.attr('data-value');
+                this.toolbar.action({
+                    command: 'ToolbarBasicCommand',
+                    options: { value: value }
+                });
+            }
+        });
+        var BasicButton = OverflowDialogButton.extend({
+            _click: function () {
+                this.toolbar.dialog({ name: 'basic' });
+            }
+        });
+        kendo.toolbar.registerComponent('basic', BasicTool, BasicButton);
 
+        /**
+         * LowerGreekTool and LowerGreekButton
+         */
+        var LowerGreekTool = PopupTool.extend({
+            init: function (options, toolbar) {
+                PopupTool.fn.init.call(this, options, toolbar);
+                this._commandPalette();
+                this.popup.element.on('click', '.k-button', function (e) {
+                    this._action($(e.currentTarget));
+                    this.popup.close();
+                }.bind(this));
+                this.element.data({
+                    type: 'lowergreek',
+                    lowergreek: this,
+                    instance: this
+                });
+            },
+            buttons: [
+                {
+                    value: '\\alpha',
+                    iconClass: 'alpha',
+                    text: MESSAGES.lowerGreekButtons.alpha
+                },
+                {
+                    value: '\\beta',
+                    iconClass: 'beta',
+                    text: MESSAGES.lowerGreekButtons.beta
+                },
+                {
+                    value: '\\gamma',
+                    iconClass: 'gamma',
+                    text: MESSAGES.lowerGreekButtons.gamma
+                },
+                {
+                    value: '\\delta',
+                    iconClass: 'delta',
+                    text: MESSAGES.lowerGreekButtons.delta
+                },
+                {
+                    value: '\\epsilon',
+                    iconClass: 'epsilon',
+                    text: MESSAGES.lowerGreekButtons.epsilon
+                },
+                {
+                    value: '\\zeta',
+                    iconClass: 'zeta',
+                    text: MESSAGES.lowerGreekButtons.zeta
+                },
+                {
+                    value: '\\eta',
+                    iconClass: 'eta',
+                    text: MESSAGES.lowerGreekButtons.eta
+                },
+                {
+                    value: '\\theta',
+                    iconClass: 'theta',
+                    text: MESSAGES.lowerGreekButtons.theta
+                },
+                {
+                    value: '\\iota',
+                    iconClass: 'iota',
+                    text: MESSAGES.lowerGreekButtons.iota
+                },
+                {
+                    value: '\\kappa',
+                    iconClass: 'kappa',
+                    text: MESSAGES.lowerGreekButtons.kappa
+                },
+                {
+                    value: '\\lambda',
+                    iconClass: 'lambda',
+                    text: MESSAGES.lowerGreekButtons.lambda
+                },
+                {
+                    value: '\\mu',
+                    iconClass: 'mu',
+                    text: MESSAGES.lowerGreekButtons.mu
+                },
+                {
+                    value: '\\nu',
+                    iconClass: 'nu',
+                    text: MESSAGES.lowerGreekButtons.nu
+                },
+                {
+                    value: '\\xi',
+                    iconClass: 'xi',
+                    text: MESSAGES.lowerGreekButtons.xi
+                },
+                {
+                    value: '\\omicron',
+                    iconClass: 'omicron',
+                    text: MESSAGES.lowerGreekButtons.omicron
+                },
+                {
+                    value: '\\pi',
+                    iconClass: 'pi',
+                    text: MESSAGES.lowerGreekButtons.pi
+                },
+                {
+                    value: '\\rho',
+                    iconClass: 'rho',
+                    text: MESSAGES.lowerGreekButtons.rho
+                },
+                {
+                    value: '\\sigma',
+                    iconClass: 'sigma',
+                    text: MESSAGES.lowerGreekButtons.sigma
+                },
+                {
+                    value: '\\tau',
+                    iconClass: 'tau',
+                    text: MESSAGES.lowerGreekButtons.tau
+                },
+                {
+                    value: '\\upsilon',
+                    iconClass: 'upsilon',
+                    text: MESSAGES.lowerGreekButtons.upsilon
+                },
+                {
+                    value: '\\phi',
+                    iconClass: 'phi',
+                    text: MESSAGES.lowerGreekButtons.phi
+                },
+                {
+                    value: '\\chi',
+                    iconClass: 'chi',
+                    text: MESSAGES.lowerGreekButtons.chi
+                },
+                {
+                    value: '\\psi',
+                    iconClass: 'psi',
+                    text: MESSAGES.lowerGreekButtons.psi
+                },
+                {
+                    value: '\\omega',
+                    iconClass: 'omega',
+                    text: MESSAGES.lowerGreekButtons.omega
+                }
+            ],
+            destroy: function () {
+                this.popup.element.off();
+                PopupTool.fn.destroy.call(this);
+            },
+            _commandPalette: function () {
+                var buttons = this.buttons;
+                var element = $('<div />').appendTo(this.popup.element);
+                buttons.forEach(function (options, index) {
+                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
+                        element.append($('<span class=\'k-separator\' />'));
+                    }
+                    element.append(button);
+                });
+            },
+            _action: function (button) {
+                var value = button.attr('data-value');
+                this.toolbar.action({
+                    command: 'ToolbarLowerGreekCommand',
+                    options: { value: value }
+                });
+            }
+        });
+        var LowerGreekButton = OverflowDialogButton.extend({
+            _click: function () {
+                this.toolbar.dialog({ name: 'lowergreek' });
+            }
+        });
+        kendo.toolbar.registerComponent('lowergreek', LowerGreekTool, LowerGreekButton);
 
-        // Operators
+        /**
+         * UpperGreekTool and UpperGreekButton
+         */
+        var UpperGreekTool = PopupTool.extend({
+            init: function (options, toolbar) {
+                PopupTool.fn.init.call(this, options, toolbar);
+                this._commandPalette();
+                this.popup.element.on('click', '.k-button', function (e) {
+                    this._action($(e.currentTarget));
+                    this.popup.close();
+                }.bind(this));
+                this.element.data({
+                    type: 'uppergreek',
+                    uppergreek: this,
+                    instance: this
+                });
+            },
+            buttons: [
+                /*
+                // Note: when deleting, you need two strokes to delete unicode characters, one for the unicode character and one for the text directive
+                // TODO: So let us comment that for now
+                {
+                    value: '\\text{\u0391}',
+                    iconClass: 'alpha-maj',
+                    text: MESSAGES.upperGreekButtons.alpha
+                },
+                {
+                    value: '\\text{\u0392}',
+                    iconClass: 'beta-maj',
+                    text: MESSAGES.upperGreekButtons.beta
+                },
+                */
+                {
+                    value: '\\Gamma',
+                    iconClass: 'gamma-maj',
+                    text: MESSAGES.upperGreekButtons.gamma
+                },
+                {
+                    value: '\\Delta',
+                    iconClass: 'delta-maj',
+                    text: MESSAGES.upperGreekButtons.delta
+                },
+                /*
+                {
+                    value: '\\text{\u0395}',
+                    iconClass: 'epsilon-maj',
+                    text: MESSAGES.upperGreekButtons.epsilon
+                },
+                {
+                    value: '\\text{\u0396}',
+                    iconClass: 'zeta-maj',
+                    text: MESSAGES.upperGreekButtons.zeta
+                },
+                {
+                    value: '\\text{\u0397}',
+                    iconClass: 'eta-maj',
+                    text: MESSAGES.upperGreekButtons.eta
+                },
+                */
+                {
+                    value: '\\Theta',
+                    iconClass: 'theta-maj',
+                    text: MESSAGES.upperGreekButtons.theta
+                },
+                /*
+                {
+                    value: '\\text{\u0399}',
+                    iconClass: 'iota-maj',
+                    text: MESSAGES.upperGreekButtons.iota
+                },
+                {
+                    value: '\\text{\u039a}',
+                    iconClass: 'kappa-maj',
+                    text: MESSAGES.upperGreekButtons.kappa
+                },
+                */
+                {
+                    value: '\\Lambda',
+                    iconClass: 'lambda-maj',
+                    text: MESSAGES.upperGreekButtons.lambda
+                },
+                /*
+                {
+                    value: '\\text{\u039c}',
+                    iconClass: 'mu-maj',
+                    text: MESSAGES.upperGreekButtons.mu
+                },
+                {
+                    value: '\\text{\u039d}',
+                    iconClass: 'nu-maj',
+                    text: MESSAGES.upperGreekButtons.nu
+                },
+                */
+                {
+                    value: '\\Xi',
+                    iconClass: 'xi-maj',
+                    text: MESSAGES.upperGreekButtons.xi
+                },
+                /*
+                {
+                    value: '\\text{\u039f}',
+                    iconClass: 'omicron-maj',
+                    text: MESSAGES.upperGreekButtons.omicron
+                },
+                */
+                {
+                    value: '\\Pi',
+                    iconClass: 'pi-maj',
+                    text: MESSAGES.upperGreekButtons.pi
+                },
+                /*
+                {
+                    value: '\\text{\u03a1}',
+                    iconClass: 'rho-maj',
+                    text: MESSAGES.upperGreekButtons.rho
+                },
+                */
+                {
+                    value: '\\Sigma',
+                    iconClass: 'sigma-maj',
+                    text: MESSAGES.upperGreekButtons.sigma
+                },
+                /*
+                {
+                    value: '\\text{\u03a4}',
+                    iconClass: 'tau-maj',
+                    text: MESSAGES.upperGreekButtons.tau
+                },
+                */
+                {
+                    value: '\\Upsilon',
+                    iconClass: 'upsilon-maj',
+                    text: MESSAGES.upperGreekButtons.upsilon
+                },
+                {
+                    value: '\\Phi',
+                    iconClass: 'phi-maj',
+                    text: MESSAGES.upperGreekButtons.phi
+                },
+                /*
+                {
+                    value: '\\text{\u03a7}',
+                    iconClass: 'chi-maj',
+                    text: MESSAGES.upperGreekButtons.chi
+                },
+                */
+                {
+                    value: '\\Psi',
+                    iconClass: 'psi-maj',
+                    text: MESSAGES.upperGreekButtons.psi
+                },
+                {
+                    value: '\\Omega',
+                    iconClass: 'omega-maj',
+                    text: MESSAGES.upperGreekButtons.omega
+                }
+            ],
+            destroy: function () {
+                this.popup.element.off();
+                PopupTool.fn.destroy.call(this);
+            },
+            _commandPalette: function () {
+                var buttons = this.buttons;
+                var element = $('<div />').appendTo(this.popup.element);
+                buttons.forEach(function (options, index) {
+                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
+                        element.append($('<span class=\'k-separator\' />'));
+                    }
+                    element.append(button);
+                });
+            },
+            _action: function (button) {
+                var value = button.attr('data-value');
+                this.toolbar.action({
+                    command: 'ToolbarUpperGreekCommand',
+                    options: { value: value }
+                });
+            }
+        });
+        var UpperGreekButton = OverflowDialogButton.extend({
+            _click: function () {
+                this.toolbar.dialog({ name: 'uppergreek' });
+            }
+        });
+        kendo.toolbar.registerComponent('uppergreek', UpperGreekTool, UpperGreekButton);
 
+        /**
+         * OperatorTool and OperatorButton
+         */
+        var OperatorTool = PopupTool.extend({
+            init: function (options, toolbar) {
+                PopupTool.fn.init.call(this, options, toolbar);
+                this._commandPalette();
+                this.popup.element.on('click', '.k-button', function (e) {
+                    this._action($(e.currentTarget));
+                    this.popup.close();
+                }.bind(this));
+                this.element.data({
+                    type: 'operator',
+                    operator: this,
+                    instance: this
+                });
+            },
+            buttons: [
+                /*
+                 {
+                 value: '\\alpha',
+                 iconClass: 'alpha',
+                 text: MESSAGES.operatorButtons.alpha
+                 },
+                 */
+            ],
+            destroy: function () {
+                this.popup.element.off();
+                PopupTool.fn.destroy.call(this);
+            },
+            _commandPalette: function () {
+                var buttons = this.buttons;
+                var element = $('<div />').appendTo(this.popup.element);
+                buttons.forEach(function (options, index) {
+                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
+                        element.append($('<span class=\'k-separator\' />'));
+                    }
+                    element.append(button);
+                });
+            },
+            _action: function (button) {
+                var value = button.attr('data-value');
+                this.toolbar.action({
+                    command: 'ToolbarOperatorCommand',
+                    options: { value: value }
+                });
+            }
+        });
+        var OperatorButton = OverflowDialogButton.extend({
+            _click: function () {
+                this.toolbar.dialog({ name: 'operator' });
+            }
+        });
+        kendo.toolbar.registerComponent('operator', OperatorTool, OperatorButton);
 
+        /**
+         * ExpressionTool and ExpressionButton
+         */
+        var ExpressionTool = PopupTool.extend({
+            init: function (options, toolbar) {
+                PopupTool.fn.init.call(this, options, toolbar);
+                this._commandPalette();
+                this.popup.element.on('click', '.k-button', function (e) {
+                    this._action($(e.currentTarget));
+                    this.popup.close();
+                }.bind(this));
+                this.element.data({
+                    type: 'expression',
+                    expression: this,
+                    instance: this
+                });
+            },
+            buttons: [
+                /*
+                 {
+                 value: '\\alpha',
+                 iconClass: 'alpha',
+                 text: MESSAGES.expressionButtons.alpha
+                 },
+                 */
+            ],
+            destroy: function () {
+                this.popup.element.off();
+                PopupTool.fn.destroy.call(this);
+            },
+            _commandPalette: function () {
+                var buttons = this.buttons;
+                var element = $('<div />').appendTo(this.popup.element);
+                buttons.forEach(function (options, index) {
+                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
+                        element.append($('<span class=\'k-separator\' />'));
+                    }
+                    element.append(button);
+                });
+            },
+            _action: function (button) {
+                var value = button.attr('data-value');
+                this.toolbar.action({
+                    command: 'ToolbarExpressionCommand',
+                    options: { value: value }
+                });
+            }
+        });
+        var ExpressionButton = OverflowDialogButton.extend({
+            _click: function () {
+                this.toolbar.dialog({ name: 'expression' });
+            }
+        });
+        kendo.toolbar.registerComponent('expression', ExpressionTool, ExpressionButton);
+
+        /**
+         * GroupTool and GroupButton
+         */
+        var GroupTool = PopupTool.extend({
+            init: function (options, toolbar) {
+                PopupTool.fn.init.call(this, options, toolbar);
+                this._commandPalette();
+                this.popup.element.on('click', '.k-button', function (e) {
+                    this._action($(e.currentTarget));
+                    this.popup.close();
+                }.bind(this));
+                this.element.data({
+                    type: 'group',
+                    group: this,
+                    instance: this
+                });
+            },
+            buttons: [
+                /*
+                 {
+                 value: '\\alpha',
+                 iconClass: 'alpha',
+                 text: MESSAGES.groupButtons.alpha
+                 },
+                 */
+            ],
+            destroy: function () {
+                this.popup.element.off();
+                PopupTool.fn.destroy.call(this);
+            },
+            _commandPalette: function () {
+                var buttons = this.buttons;
+                var element = $('<div />').appendTo(this.popup.element);
+                buttons.forEach(function (options, index) {
+                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
+                        element.append($('<span class=\'k-separator\' />'));
+                    }
+                    element.append(button);
+                });
+            },
+            _action: function (button) {
+                var value = button.attr('data-value');
+                this.toolbar.action({
+                    command: 'ToolbarGroupCommand',
+                    options: { value: value }
+                });
+            }
+        });
+        var GroupButton = OverflowDialogButton.extend({
+            _click: function () {
+                this.toolbar.dialog({ name: 'group' });
+            }
+        });
+        kendo.toolbar.registerComponent('group', GroupTool, GroupButton);
+
+        /**
+         * MatrixTool and MatrixButton
+         */
+        var MatrixTool = PopupTool.extend({
+            init: function (options, toolbar) {
+                PopupTool.fn.init.call(this, options, toolbar);
+                this._commandPalette();
+                this.popup.element.on('click', '.k-button', function (e) {
+                    this._action($(e.currentTarget));
+                    this.popup.close();
+                }.bind(this));
+                this.element.data({
+                    type: 'matrix',
+                    matrix: this,
+                    instance: this
+                });
+            },
+            buttons: [
+                /*
+                 {
+                 value: '\\alpha',
+                 iconClass: 'alpha',
+                 text: MESSAGES.matrixButtons.alpha
+                 },
+                 */
+            ],
+            destroy: function () {
+                this.popup.element.off();
+                PopupTool.fn.destroy.call(this);
+            },
+            _commandPalette: function () {
+                var buttons = this.buttons;
+                var element = $('<div />').appendTo(this.popup.element);
+                buttons.forEach(function (options, index) {
+                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
+                        element.append($('<span class=\'k-separator\' />'));
+                    }
+                    element.append(button);
+                });
+            },
+            _action: function (button) {
+                var value = button.attr('data-value');
+                this.toolbar.action({
+                    command: 'ToolbarMatrixCommand',
+                    options: { value: value }
+                });
+            }
+        });
+        var MatrixButton = OverflowDialogButton.extend({
+            _click: function () {
+                this.toolbar.dialog({ name: 'matrix' });
+            }
+        });
+        kendo.toolbar.registerComponent('matrix', MatrixTool, MatrixButton);
+
+        /**
+         * StatisticsTool and StatisticsButton
+         */
+        var StatisticsTool = PopupTool.extend({
+            init: function (options, toolbar) {
+                PopupTool.fn.init.call(this, options, toolbar);
+                this._commandPalette();
+                this.popup.element.on('click', '.k-button', function (e) {
+                    this._action($(e.currentTarget));
+                    this.popup.close();
+                }.bind(this));
+                this.element.data({
+                    type: 'statistics',
+                    statistics: this,
+                    instance: this
+                });
+            },
+            buttons: [
+                /*
+                 {
+                 value: '\\alpha',
+                 iconClass: 'alpha',
+                 text: MESSAGES.statisticsButtons.alpha
+                 },
+                 */
+            ],
+            destroy: function () {
+                this.popup.element.off();
+                PopupTool.fn.destroy.call(this);
+            },
+            _commandPalette: function () {
+                var buttons = this.buttons;
+                var element = $('<div />').appendTo(this.popup.element);
+                buttons.forEach(function (options, index) {
+                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
+                        element.append($('<span class=\'k-separator\' />'));
+                    }
+                    element.append(button);
+                });
+            },
+            _action: function (button) {
+                var value = button.attr('data-value');
+                this.toolbar.action({
+                    command: 'ToolbarStatisticsCommand',
+                    options: { value: value }
+                });
+            }
+        });
+        var StatisticsButton = OverflowDialogButton.extend({
+            _click: function () {
+                this.toolbar.dialog({ name: 'statistics' });
+            }
+        });
+        kendo.toolbar.registerComponent('statistics', StatisticsTool, StatisticsButton);
+
+        /**
+         * ChemistryTool and ChemistryButton
+         */
+        var ChemistryTool = PopupTool.extend({
+            init: function (options, toolbar) {
+                PopupTool.fn.init.call(this, options, toolbar);
+                this._commandPalette();
+                this.popup.element.on('click', '.k-button', function (e) {
+                    this._action($(e.currentTarget));
+                    this.popup.close();
+                }.bind(this));
+                this.element.data({
+                    type: 'chemistry',
+                    chemistry: this,
+                    instance: this
+                });
+            },
+            buttons: [
+                /*
+                 {
+                 value: '\\alpha',
+                 iconClass: 'alpha',
+                 text: MESSAGES.chemistryButtons.alpha
+                 },
+                 */
+            ],
+            destroy: function () {
+                this.popup.element.off();
+                PopupTool.fn.destroy.call(this);
+            },
+            _commandPalette: function () {
+                var buttons = this.buttons;
+                var element = $('<div />').appendTo(this.popup.element);
+                buttons.forEach(function (options, index) {
+                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
+                        element.append($('<span class=\'k-separator\' />'));
+                    }
+                    element.append(button);
+                });
+            },
+            _action: function (button) {
+                var value = button.attr('data-value');
+                this.toolbar.action({
+                    command: 'ToolbarChemistryCommand',
+                    options: { value: value }
+                });
+            }
+        });
+        var ChemistryButton = OverflowDialogButton.extend({
+            _click: function () {
+                this.toolbar.dialog({ name: 'chemistry' });
+            }
+        });
+        kendo.toolbar.registerComponent('chemistry', ChemistryTool, ChemistryButton);
 
         /*********************************************************************************
          * MathInputToolBar Dialogs
@@ -983,20 +1848,128 @@
             retry: 'Retry',
             revert: 'Revert',
             okText: 'OK',
-            greekDialog: {
-                title: 'Alignment',
+            keyPadDialog: {
+                title: 'KeyPad',
                 buttons: {
-                    justifyLeft: 'Align left',
-                    justifyCenter: 'Center',
-                    justifyRight: 'Align right',
-                    justifyFull: 'Justify',
-                    alignTop: 'Align top',
-                    alignMiddle: 'Align middle',
-                    alignBottom: 'Align bottom'
+                    comma: ',',
+                    stop: '.',
+                    n0: '0',
+                    n1: '1',
+                    n2: '2',
+                    n3: '3',
+                    n4: '4',
+                    n5: '5',
+                    n6: '6',
+                    n7: '7',
+                    n8: '8',
+                    n9: '9',
+                    a: 'a',
+                    b: 'b',
+                    c: 'c',
+                    i: 'i',
+                    j: 'j',
+                    k: 'k',
+                    n: 'n',
+                    p: 'p',
+                    x: 'x',
+                    y: 'y',
+                    z: 'z',
+                    infinity: 'Infinity',
+                    space: 'Space'
                 }
+            },
+            basicDialog: {
+                title: 'Basic',
+                buttons: {}
+            },
+            lowerGreekDialog: {
+                title: 'Greek (Lower Case)',
+                buttons: {
+                    alpha: 'Alpha',
+                    beta: 'Beta',
+                    gamma: 'Gamma',
+                    delta: 'Delta',
+                    epsilon: 'Epsilon', // varepsilon
+                    zeta: 'Zeta',
+                    eta: 'Eta',
+                    theta: 'Theta', // vartheta
+                    iota: 'Iota',
+                    kappa: 'Kappa', // varkappa
+                    lambda: 'Lambda',
+                    mu: 'Mu',
+                    nu: 'Nu',
+                    xi: 'Xi',
+                    omicron: 'Omicron',
+                    pi: 'Pi', // varpi
+                    rho: 'Rho', // varrho
+                    sigma: 'Sigma', // varsigma
+                    tau: 'Tau',
+                    upsilon: 'Upsilon',
+                    phi: 'Phi', // varphi
+                    chi: 'Chi',
+                    psi: 'Psi',
+                    omega: 'Omega'
+                }
+            },
+            upperGreekDialog: {
+                title: 'Greek (Upper Case)',
+                buttons: {
+                    alpha: 'Alpha',
+                    beta: 'Beta',
+                    gamma: 'Gamma',
+                    delta: 'Delta',
+                    epsilon: 'Epsilon', // varepsilon
+                    zeta: 'Zeta',
+                    eta: 'Eta',
+                    theta: 'Theta', // vartheta
+                    iota: 'Iota',
+                    kappa: 'Kappa', // varkappa
+                    lambda: 'Lambda',
+                    mu: 'Mu',
+                    nu: 'Nu',
+                    xi: 'Xi',
+                    omicron: 'Omicron',
+                    pi: 'Pi', // varpi
+                    rho: 'Rho', // varrho
+                    sigma: 'Sigma', // varsigma
+                    tau: 'Tau',
+                    upsilon: 'Upsilon',
+                    phi: 'Phi', // varphi
+                    chi: 'Chi',
+                    psi: 'Psi',
+                    omega: 'Omega'
+                }
+            },
+            operatorDialog: {
+                title: 'Operators',
+                buttons: {}
+            },
+            expressionDialog: {
+                title: 'Functions',
+                buttons: {}
+            },
+            groupDialog: {
+                title: 'Sets',
+                buttons: {}
+            },
+            matrixDialog: {
+                title: 'Matrices',
+                buttons: {}
+            },
+            statisticsDialog: {
+                title: 'Statistics',
+                buttons: {}
+            },
+            chemistryDialog: {
+                title: 'Chemistry',
+                buttons: {}
             }
         };
 
+        /**
+         * Dialog registry
+         * @type {{}}
+         */
         var registry = {};
         kendo.mathinput.dialogs = {
             register: function (name, dialogClass) {
@@ -1012,6 +1985,10 @@
                 }
             }
         };
+
+        /**
+         * MathInputDialog
+         */
         var MathInputDialog = kendo.mathinput.MathInputDialog = kendo.Observable.extend({
             init: function (options) {
                 kendo.Observable.fn.init.call(this, options);
@@ -1074,53 +2051,218 @@
             }
         });
 
-        var GreekDialog = MathInputDialog.extend({
+        /**
+         * KeyPadDialog
+         */
+        var KeyPadDialog = MathInputDialog.extend({
+                init: function (options) {
+                    var messages = kendo.mathinput.messages.dialogs.keypadDialog || MSG; // TODO: review
+                    var defaultOptions = {
+                        title: messages.title,
+                        buttons: [
+                            /*
+                             {
+                             value: '\\alpha',
+                             iconClass: 'alpha',
+                             text: messages.keypadButtons.alpha
+                             }
+                             */
+                        ]
+                    };
+                    MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
+                    this._list();
+                },
+                options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+                _list: function () {
+                    var ul = this.dialog().element.find('ul');
+                    this.list = new kendo.ui.StaticList(ul, {
+                        dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
+                        template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
+                        change: this.apply.bind(this)
+                    });
+                    this.list.dataSource.fetch();
+                },
+                apply: function (e) {
+                    var dataItem = e.sender.value()[0];
+                    MathInputDialog.fn.apply.call(this);
+                    this.trigger('action', {
+                        command: 'ToolbarKeyPadCommand',
+                        options: { value: dataItem.value }
+                    });
+                }
+            });
+        kendo.mathinput.dialogs.register('keypad', KeyPadDialog);
+
+        /**
+         * BasicDialog
+         */
+        var BasicDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.greekDialog || MSG; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.basicDialog || MSG; // TODO: review
+                var defaultOptions = {
+                    title: messages.title,
+                    buttons: [
+                        /*
+                         {
+                         value: '\\alpha',
+                         iconClass: 'alpha',
+                         text: messages.basicButtons.alpha
+                         }
+                         */
+                    ]
+                };
+                MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
+                this._list();
+            },
+            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            _list: function () {
+                var ul = this.dialog().element.find('ul');
+                this.list = new kendo.ui.StaticList(ul, {
+                    dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
+                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
+                    change: this.apply.bind(this)
+                });
+                this.list.dataSource.fetch();
+            },
+            apply: function (e) {
+                var dataItem = e.sender.value()[0];
+                MathInputDialog.fn.apply.call(this);
+                this.trigger('action', {
+                    command: 'ToolbarBasicCommand',
+                    options: { value: dataItem.value }
+                });
+            }
+        });
+        kendo.mathinput.dialogs.register('basic', BasicDialog);
+
+        /**
+         * LowerGreekDialog
+         */
+        var LowerGreekDialog = MathInputDialog.extend({
+            init: function (options) {
+                var messages = kendo.mathinput.messages.dialogs.lowerGreekDialog || MSG; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
                         {
-                            property: 'textAlign',
-                            value: 'left',
-                            iconClass: 'align-left',
-                            text: messages.buttons.justifyLeft
+                            value: '\\alpha',
+                            iconClass: 'alpha',
+                            text: messages.lowerGreekButtons.alpha
                         },
                         {
-                            property: 'textAlign',
-                            value: 'center',
-                            iconClass: 'align-center',
-                            text: messages.buttons.justifyCenter
+                            value: '\\beta',
+                            iconClass: 'beta',
+                            text: messages.lowerGreekButtons.beta
                         },
                         {
-                            property: 'textAlign',
-                            value: 'right',
-                            iconClass: 'align-right',
-                            text: messages.buttons.justifyRight
+                            value: '\\gamma',
+                            iconClass: 'gamma',
+                            text: messages.lowerGreekButtons.gamma
                         },
                         {
-                            property: 'textAlign',
-                            value: 'justify',
-                            iconClass: 'align-justify',
-                            text: messages.buttons.justifyFull
+                            value: '\\delta',
+                            iconClass: 'delta',
+                            text: messages.lowerGreekButtons.delta
                         },
                         {
-                            property: 'verticalAlign',
-                            value: 'top',
-                            iconClass: 'align-top',
-                            text: messages.buttons.alignTop
+                            value: '\\epsilon',
+                            iconClass: 'epsilon',
+                            text: messages.lowerGreekButtons.epsilon
                         },
                         {
-                            property: 'verticalAlign',
-                            value: 'center',
-                            iconClass: 'align-middle',
-                            text: messages.buttons.alignMiddle
+                            value: '\\zeta',
+                            iconClass: 'zeta',
+                            text: messages.lowerGreekButtons.zeta
                         },
                         {
-                            property: 'verticalAlign',
-                            value: 'bottom',
-                            iconClass: 'align-bottom',
-                            text: messages.buttons.alignBottom
+                            value: '\\eta',
+                            iconClass: 'eta',
+                            text: messages.lowerGreekButtons.eta
+                        },
+                        {
+                            value: '\\theta',
+                            iconClass: 'theta',
+                            text: messages.lowerGreekButtons.theta
+                        },
+                        {
+                            value: '\\iota',
+                            iconClass: 'iota',
+                            text: messages.lowerGreekButtons.iota
+                        },
+                        {
+                            value: '\\kappa',
+                            iconClass: 'kappa',
+                            text: messages.lowerGreekButtons.kappa
+                        },
+                        {
+                            value: '\\lambda',
+                            iconClass: 'lambda',
+                            text: messages.lowerGreekButtons.lambda
+                        },
+                        {
+                            value: '\\mu',
+                            iconClass: 'mu',
+                            text: messages.lowerGreekButtons.mu
+                        },
+                        {
+                            value: '\\nu',
+                            iconClass: 'nu',
+                            text: messages.lowerGreekButtons.nu
+                        },
+                        {
+                            value: '\\xi',
+                            iconClass: 'xi',
+                            text: messages.lowerGreekButtons.xi
+                        },
+                        {
+                            value: '\\omicron',
+                            iconClass: 'omicron',
+                            text: messages.lowerGreekButtons.omicron
+                        },
+                        {
+                            value: '\\pi',
+                            iconClass: 'pi',
+                            text: messages.lowerGreekButtons.pi
+                        },
+                        {
+                            value: '\\rho',
+                            iconClass: 'rho',
+                            text: messages.lowerGreekButtons.rho
+                        },
+                        {
+                            value: '\\sigma',
+                            iconClass: 'sigma',
+                            text: messages.lowerGreekButtons.sigma
+                        },
+                        {
+                            value: '\\tau',
+                            iconClass: 'tau',
+                            text: messages.lowerGreekButtons.tau
+                        },
+                        {
+                            value: '\\upsilon',
+                            iconClass: 'upsilon',
+                            text: messages.lowerGreekButtons.upsilon
+                        },
+                        {
+                            value: '\\phi',
+                            iconClass: 'phi',
+                            text: messages.lowerGreekButtons.phi
+                        },
+                        {
+                            value: '\\chi',
+                            iconClass: 'chi',
+                            text: messages.lowerGreekButtons.chi
+                        },
+                        {
+                            value: '\\psi',
+                            iconClass: 'psi',
+                            text: messages.lowerGreekButtons.psi
+                        },
+                        {
+                            value: '\\omega',
+                            iconClass: 'omega',
+                            text: messages.lowerGreekButtons.omega
                         }
                     ]
                 };
@@ -1141,15 +2283,419 @@
                 var dataItem = e.sender.value()[0];
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
-                    command: 'PropertyChangeCommand',
-                    options: {
-                        property: dataItem.property,
-                        value: dataItem.value
-                    }
+                    command: 'ToolbarLowerGreekCommand',
+                    options: { value: dataItem.value }
                 });
             }
         });
-        kendo.mathinput.dialogs.register('greek', GreekDialog);
+        kendo.mathinput.dialogs.register('lowergreek', LowerGreekDialog);
+
+        /**
+         * UpperGreekDialog
+         */
+        var UpperGreekDialog = MathInputDialog.extend({
+            init: function (options) {
+                var messages = kendo.mathinput.messages.dialogs.upperGreekDialog || MSG; // TODO: review
+                var defaultOptions = {
+                    title: messages.title,
+                    buttons: [
+                        {
+                            value: '\\Alpha',
+                            iconClass: 'alpha-maj',
+                            text: messages.upperGreekButtons.alpha
+                        },
+                        {
+                            value: '\\Beta',
+                            iconClass: 'beta-maj',
+                            text: messages.upperGreekButtons.beta
+                        },
+                        {
+                            value: '\\Gamma',
+                            iconClass: 'gamma-maj',
+                            text: messages.upperGreekButtons.gamma
+                        },
+                        {
+                            value: '\\Delta',
+                            iconClass: 'delta-maj',
+                            text: messages.upperGreekButtons.delta
+                        },
+                        {
+                            value: '\\Epsilon',
+                            iconClass: 'epsilon-maj',
+                            text: messages.upperGreekButtons.epsilon
+                        },
+                        {
+                            value: '\\Zeta',
+                            iconClass: 'zeta-maj',
+                            text: messages.upperGreekButtons.zeta
+                        },
+                        {
+                            value: '\\Eta',
+                            iconClass: 'eta-maj',
+                            text: messages.upperGreekButtons.eta
+                        },
+                        {
+                            value: '\\Theta',
+                            iconClass: 'theta-maj',
+                            text: messages.upperGreekButtons.theta
+                        },
+                        {
+                            value: '\\Iota',
+                            iconClass: 'iota-maj',
+                            text: messages.upperGreekButtons.iota
+                        },
+                        {
+                            value: '\\Kappa',
+                            iconClass: 'kappa-maj',
+                            text: messages.upperGreekButtons.kappa
+                        },
+                        {
+                            value: '\\Lambda',
+                            iconClass: 'lambda-maj',
+                            text: messages.upperGreekButtons.lambda
+                        },
+                        {
+                            value: '\\Mu',
+                            iconClass: 'mu-maj',
+                            text: messages.upperGreekButtons.mu
+                        },
+                        {
+                            value: '\\Nu',
+                            iconClass: 'nu-maj',
+                            text: messages.upperGreekButtons.nu
+                        },
+                        {
+                            value: '\\Xi',
+                            iconClass: 'xi-maj',
+                            text: messages.upperGreekButtons.xi
+                        },
+                        {
+                            value: '\\Omicron',
+                            iconClass: 'omicron-maj',
+                            text: messages.upperGreekButtons.omicron
+                        },
+                        {
+                            value: '\\Pi',
+                            iconClass: 'pi-maj',
+                            text: messages.upperGreekButtons.pi
+                        },
+                        {
+                            value: '\\Rho',
+                            iconClass: 'rho-maj',
+                            text: messages.upperGreekButtons.rho
+                        },
+                        {
+                            value: '\\Sigma',
+                            iconClass: 'sigma-maj',
+                            text: messages.upperGreekButtons.sigma
+                        },
+                        {
+                            value: '\\Tau',
+                            iconClass: 'tau-maj',
+                            text: messages.upperGreekButtons.tau
+                        },
+                        {
+                            value: '\\Upsilon',
+                            iconClass: 'upsilon-maj',
+                            text: messages.upperGreekButtons.upsilon
+                        },
+                        {
+                            value: '\\Phi',
+                            iconClass: 'phi-maj',
+                            text: messages.upperGreekButtons.phi
+                        },
+                        {
+                            value: '\\Chi',
+                            iconClass: 'chi-maj',
+                            text: messages.upperGreekButtons.chi
+                        },
+                        {
+                            value: '\\Psi',
+                            iconClass: 'psi-maj',
+                            text: messages.upperGreekButtons.psi
+                        },
+                        {
+                            value: '\\Omega',
+                            iconClass: 'omega-maj',
+                            text: messages.upperGreekButtons.omega
+                        }
+                    ]
+                };
+                MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
+                this._list();
+            },
+            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            _list: function () {
+                var ul = this.dialog().element.find('ul');
+                this.list = new kendo.ui.StaticList(ul, {
+                    dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
+                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
+                    change: this.apply.bind(this)
+                });
+                this.list.dataSource.fetch();
+            },
+            apply: function (e) {
+                var dataItem = e.sender.value()[0];
+                MathInputDialog.fn.apply.call(this);
+                this.trigger('action', {
+                    command: 'ToolbarUpperGreekCommand',
+                    options: { value: dataItem.value }
+                });
+            }
+        });
+        kendo.mathinput.dialogs.register('uppergreek', UpperGreekDialog);
+
+        /**
+         * OperatorDialog
+         */
+        var OperatorDialog = MathInputDialog.extend({
+            init: function (options) {
+                var messages = kendo.mathinput.messages.dialogs.operatorDialog || MSG; // TODO: review
+                var defaultOptions = {
+                    title: messages.title,
+                    buttons: [
+                        /*
+                         {
+                         value: '\\alpha',
+                         iconClass: 'alpha',
+                         text: messages.operatorButtons.alpha
+                         }
+                         */
+                    ]
+                };
+                MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
+                this._list();
+            },
+            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            _list: function () {
+                var ul = this.dialog().element.find('ul');
+                this.list = new kendo.ui.StaticList(ul, {
+                    dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
+                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
+                    change: this.apply.bind(this)
+                });
+                this.list.dataSource.fetch();
+            },
+            apply: function (e) {
+                var dataItem = e.sender.value()[0];
+                MathInputDialog.fn.apply.call(this);
+                this.trigger('action', {
+                    command: 'ToolbarOperatorCommand',
+                    options: { value: dataItem.value }
+                });
+            }
+        });
+        kendo.mathinput.dialogs.register('operator', OperatorDialog);
+
+        /**
+         * ExpressionDialog
+         */
+        var ExpressionDialog = MathInputDialog.extend({
+            init: function (options) {
+                var messages = kendo.mathinput.messages.dialogs.expressionDialog || MSG; // TODO: review
+                var defaultOptions = {
+                    title: messages.title,
+                    buttons: [
+                        /*
+                         {
+                         value: '\\alpha',
+                         iconClass: 'alpha',
+                         text: messages.expressionButtons.alpha
+                         }
+                         */
+                    ]
+                };
+                MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
+                this._list();
+            },
+            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            _list: function () {
+                var ul = this.dialog().element.find('ul');
+                this.list = new kendo.ui.StaticList(ul, {
+                    dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
+                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
+                    change: this.apply.bind(this)
+                });
+                this.list.dataSource.fetch();
+            },
+            apply: function (e) {
+                var dataItem = e.sender.value()[0];
+                MathInputDialog.fn.apply.call(this);
+                this.trigger('action', {
+                    command: 'ToolbarExpressionCommand',
+                    options: { value: dataItem.value }
+                });
+            }
+        });
+        kendo.mathinput.dialogs.register('expression', ExpressionDialog);
+
+        /**
+         * GroupDialog
+         */
+        var GroupDialog = MathInputDialog.extend({
+            init: function (options) {
+                var messages = kendo.mathinput.messages.dialogs.groupDialog || MSG; // TODO: review
+                var defaultOptions = {
+                    title: messages.title,
+                    buttons: [
+                        /*
+                         {
+                         value: '\\alpha',
+                         iconClass: 'alpha',
+                         text: messages.groupButtons.alpha
+                         }
+                         */
+                    ]
+                };
+                MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
+                this._list();
+            },
+            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            _list: function () {
+                var ul = this.dialog().element.find('ul');
+                this.list = new kendo.ui.StaticList(ul, {
+                    dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
+                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
+                    change: this.apply.bind(this)
+                });
+                this.list.dataSource.fetch();
+            },
+            apply: function (e) {
+                var dataItem = e.sender.value()[0];
+                MathInputDialog.fn.apply.call(this);
+                this.trigger('action', {
+                    command: 'ToolbarGroupCommand',
+                    options: { value: dataItem.value }
+                });
+            }
+        });
+        kendo.mathinput.dialogs.register('group', GroupDialog);
+
+        /**
+         * MatrixDialog
+         */
+        var MatrixDialog = MathInputDialog.extend({
+            init: function (options) {
+                var messages = kendo.mathinput.messages.dialogs.matrixDialog || MSG; // TODO: review
+                var defaultOptions = {
+                    title: messages.title,
+                    buttons: [
+                        /*
+                         {
+                         value: '\\alpha',
+                         iconClass: 'alpha',
+                         text: messages.matrixButtons.alpha
+                         }
+                         */
+                    ]
+                };
+                MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
+                this._list();
+            },
+            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            _list: function () {
+                var ul = this.dialog().element.find('ul');
+                this.list = new kendo.ui.StaticList(ul, {
+                    dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
+                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
+                    change: this.apply.bind(this)
+                });
+                this.list.dataSource.fetch();
+            },
+            apply: function (e) {
+                var dataItem = e.sender.value()[0];
+                MathInputDialog.fn.apply.call(this);
+                this.trigger('action', {
+                    command: 'ToolbarMatrixCommand',
+                    options: { value: dataItem.value }
+                });
+            }
+        });
+        kendo.mathinput.dialogs.register('matrix', MatrixDialog);
+
+        /**
+         * StatisticsDialog
+         */
+        var StatisticsDialog = MathInputDialog.extend({
+            init: function (options) {
+                var messages = kendo.mathinput.messages.dialogs.statisticsDialog || MSG; // TODO: review
+                var defaultOptions = {
+                    title: messages.title,
+                    buttons: [
+                        /*
+                         {
+                         value: '\\alpha',
+                         iconClass: 'alpha',
+                         text: messages.statisticsButtons.alpha
+                         }
+                         */
+                    ]
+                };
+                MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
+                this._list();
+            },
+            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            _list: function () {
+                var ul = this.dialog().element.find('ul');
+                this.list = new kendo.ui.StaticList(ul, {
+                    dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
+                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
+                    change: this.apply.bind(this)
+                });
+                this.list.dataSource.fetch();
+            },
+            apply: function (e) {
+                var dataItem = e.sender.value()[0];
+                MathInputDialog.fn.apply.call(this);
+                this.trigger('action', {
+                    command: 'ToolbarStatisticsCommand',
+                    options: { value: dataItem.value }
+                });
+            }
+        });
+        kendo.mathinput.dialogs.register('statistics', StatisticsDialog);
+
+        /**
+         * ChemistryDialog
+         */
+        var ChemistryDialog = MathInputDialog.extend({
+            init: function (options) {
+                var messages = kendo.mathinput.messages.dialogs.chemistryDialog || MSG; // TODO: review
+                var defaultOptions = {
+                    title: messages.title,
+                    buttons: [
+                        /*
+                         {
+                         value: '\\alpha',
+                         iconClass: 'alpha',
+                         text: messages.chemistryButtons.alpha
+                         }
+                         */
+                    ]
+                };
+                MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
+                this._list();
+            },
+            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            _list: function () {
+                var ul = this.dialog().element.find('ul');
+                this.list = new kendo.ui.StaticList(ul, {
+                    dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
+                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
+                    change: this.apply.bind(this)
+                });
+                this.list.dataSource.fetch();
+            },
+            apply: function (e) {
+                var dataItem = e.sender.value()[0];
+                MathInputDialog.fn.apply.call(this);
+                this.trigger('action', {
+                    command: 'ToolbarChemistryCommand',
+                    options: { value: dataItem.value }
+                });
+            }
+        });
+        kendo.mathinput.dialogs.register('chemistry', ChemistryDialog);
 
     }(window.jQuery));
 

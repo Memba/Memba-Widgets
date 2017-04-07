@@ -308,9 +308,12 @@
                 autoBind: true,
                 dataSource: [],
                 scaler: 'div.kj-stage',
-                toolbar: '#toolbar',
-                tools: TOOLBAR,
                 enable: true,
+                toolbar: {
+                    container: '#toolbar',
+                    resizable: false, // TODO
+                    tools: TOOLBAR
+                },
                 handle: {
                     stroke: {
                         color: '#808080'
@@ -379,9 +382,10 @@
                 var that = this;
                 var options = that.options;
                 that.toolBar = $(DIV)
-                    .appendTo(options.toolbar)
+                    .appendTo(options.toolbar.container)
                     .kendoVectorDrawingToolBar({
-                        tools: options.tools,
+                        tools: options.toolbar.tools,
+                        resizable: options.toolbar.resizable,
                         action: $.proxy(that._onToolBarAction, that),
                         dialog: $.proxy(that._onToolBarDialog, that)
                     })

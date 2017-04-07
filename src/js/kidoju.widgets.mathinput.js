@@ -50,7 +50,8 @@
         // var WIDGET_SELECTOR = DOT + 'kj-mathinput';
         var DIV = '<div/>';
         // var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
-        var RX_COMMAND = /^\\[a-z]+$/;
+        var RX_SIMPLE_COMMAND = /^\\[a-z]+$/; // These are simple LaTeX commands
+        var RX_COMPLEX_COMMAND = /^\\mathbb{[^\}]+}$/; // These are commands with parameters which can be passed to mathField.command instead of mathField.write
         var RX_PARAMS = /[\(\[\{][^\}\]\)]*[\}\]\)]/g;
         var RX_INNERFIELD = /\\MathQuillMathField/; // or /\\MathQuillMathField{[\}]*}/
         var KEYSTROKES = {
@@ -72,6 +73,7 @@
             'group',
             'matrix',
             'statistics',
+            // 'units',
             'chemistry'
         ];
 
@@ -115,8 +117,11 @@
                 errorColor: '#cc0000',
                 inline: false,
                 // messages: {},
-                toolbar: '#toolbar'
-                // tools: TOOLS
+                toolbar: {
+                    container: '#toolbar',
+                    resizable: false,
+                    tools: TOOLBAR
+                }
             },
 
             /**
@@ -320,7 +325,7 @@
                 }
                 // Hide all toolbars
                 // $(document).find(kendo.roleSelector('mathinputtoolbar')).hide();
-                $(options.toolbar).children(kendo.roleSelector('mathinputtoolbar')).hide();
+                $(options.toolbar.container).children(kendo.roleSelector('mathinputtoolbar')).hide();
                 // Show widget's toolbar
                 if (this._activeField instanceof MQ.MathField) {
                     this.toolBar.wrapper.show();
@@ -363,15 +368,21 @@
             _initToolBar: function () {
                 var that = this;
                 var options = that.options;
-                that.toolBar = $(DIV)
-                    .appendTo(options.toolbar)
-                    .kendoMathInputToolBar({
-                        tools: options.tools,
-                        action: $.proxy(that._onToolBarAction, that),
-                        dialog: $.proxy(that._onToolBarDialog, that)
-                    })
-                    .data('kendoMathInputToolBar');
-                that.toolBar.wrapper.hide();
+                var container = $(options.toolbar.container);
+                if (container.length) {
+                    that.toolBar = $(DIV)
+                        .appendTo(container)
+                        .kendoMathInputToolBar({
+                            tools: options.toolbar.tools,
+                            resizable:options.toolbar.resizable,
+                            action: $.proxy(that._onToolBarAction, that),
+                            dialog: $.proxy(that._onToolBarDialog, that)
+                        })
+                        .data('kendoMathInputToolBar');
+                    that.toolBar.wrapper.hide();
+                } else {
+                    // TODO add toolbar and wrap
+                }
             },
 
             /**
@@ -411,7 +422,7 @@
                     // TODO ---------------------------->  case 'ToolbarUnitsCommand':
                     case 'ToolbarChemistryCommand':
                     default:
-                        if (RX_COMMAND.test(e.options.value)) {
+                        if (RX_SIMPLE_COMMAND.test(e.options.value) || RX_COMPLEX_COMMAND.test(e.options.value)) {
                             this._activeField.cmd(e.options.value);
                             // } else if (/^\\text/.test(e.options.value)) {
                             //     // Currently commented out because this requires a double backspace to delete
@@ -603,7 +614,24 @@
 
             },
             groupButtons: {
-
+                 cset: 'Complexes',
+                 pset: 'Primes',
+                 nset: 'Naturals',
+                 qset: 'Rationals',
+                 rset: 'Reals',
+                 zset: 'Integers',
+                 emptyset: 'Empty set',
+                 forall: 'For all',
+                 exists: 'Exists',
+                 nexists: 'Not exists',
+                 in: 'In',
+                 nin: 'Not in',
+                 subset: 'Subset',
+                 nsubset: 'Not subset',
+                 intersection: '',
+                 union: '',
+                 implies: '',
+                 nimplies: ''
             },
             matrixButtons: {
 
@@ -641,11 +669,11 @@
             },
             uppergreek: {
                 type: 'uppergreek',
-                iconClass: 'alpha-maj'
+                iconClass: 'omega-maj'
             },
             operator: {
                 type: 'operator',
-                iconClass: 'beta'
+                iconClass: 'plusminus'
             },
             expression: {
                 type: 'expression',
@@ -653,7 +681,7 @@
             },
             group: {
                 type: 'group',
-                iconClass: 'delta'
+                iconClass: 'in'
             },
             matrix: {
                 type: 'matrix',
@@ -663,6 +691,7 @@
                 type: 'statistics',
                 iconClass: 'zeta'
             },
+            // TODO units
             chemistry: {
                 type: 'chemistry',
                 iconClass: 'alpha'
@@ -846,6 +875,7 @@
 
         /*********************************************************************************
          * MathInputToolBar Tools
+         * See list of MathQuill supported LaTeX symbols at https://inspera.atlassian.net/wiki/display/KB/MathQuill+symbols
          *********************************************************************************/
 
         /**
@@ -1100,7 +1130,7 @@
         kendo.toolbar.registerComponent('keypad', KeyPadTool, KeyPadButton);
 
         /**
-         * BasicTool and BasicButton
+         * BasicTool and BasicButton (compatible with kidoju.widgets.mathgraph)
          */
         var BasicTool = PopupTool.extend({
             init: function (options, toolbar) {
@@ -1689,13 +1719,105 @@
                 });
             },
             buttons: [
-                /*
-                 {
-                 value: '\\alpha',
-                 iconClass: 'alpha',
-                 text: MESSAGES.groupButtons.alpha
-                 },
-                 */
+                // See also https://texblog.org/2007/08/27/number-sets-prime-natural-integer-rational-real-and-complex-in-latex/
+                {
+                    value: '\\C', // also '\\complexes', but \\mathbb{C} does not work
+                    iconClass: 'cset',
+                    text: MESSAGES.groupButtons.cset
+                },
+                {
+                    value: '\\N', // also '\\naturals', but \\mathbb{N} does not work
+                    iconClass: 'nset',
+                    text: MESSAGES.groupButtons.nset
+                },
+                {
+                    value: '\\P', // also '\\primes',
+                    iconClass: 'pset',
+                    text: MESSAGES.groupButtons.pset
+                },
+                {
+                    value: '\\Q', // also '\\rationals',
+                    iconClass: 'qset',
+                    text: MESSAGES.groupButtons.qset
+                },
+                {
+                    value: '\\R', // also '\\reals',
+                    iconClass: 'rset',
+                    text: MESSAGES.groupButtons.rset
+                },
+                {
+                    value: '\\Z', // also '\\integers',
+                    iconClass: 'zset',
+                    text: MESSAGES.groupButtons.zset
+                },
+                {
+                    value: '\\varnothing', // also '\\O', '\\empty' and '\\emptyset',
+                    iconClass: 'emptyset',
+                    text: MESSAGES.groupButtons.emptyset
+                },
+                {
+                    value: '\\forall',
+                    iconClass: 'forall',
+                    text: MESSAGES.groupButtons.forall
+                },
+                {
+                    value: '\\exists',
+                    iconClass: 'exists',
+                    text: MESSAGES.groupButtons.exists
+                },
+                /* TODO
+                {
+                    value: '\\not\\exist',
+                    iconClass: 'nexist',
+                    text: MESSAGES.groupButtons.nexist
+                },
+                */
+                {
+                    value: '\\in',
+                    iconClass: 'in',
+                    text: MESSAGES.groupButtons.in
+                },
+                /* TODO: does not work
+                {
+                    value: '\\nin',
+                    iconClass: 'nin',
+                    text: MESSAGES.groupButtons.nin
+                },
+                */
+                {
+                    value: '\\subset',
+                    iconClass: 'subset',
+                    text: MESSAGES.groupButtons.subset
+                },
+                /* TODO: does not work
+                {
+                    value: '\\nsubset',
+                    iconClass: 'nsubset',
+                    text: MESSAGES.groupButtons.nsubset
+                },
+                */
+                {
+                    value: '\\cap', // also '\\intersection'
+                    iconClass: 'intersection',
+                    text: MESSAGES.groupButtons.intersection
+                },
+                {
+                    value: '\\cup', // also '\\union',
+                    iconClass: 'union',
+                    text: MESSAGES.groupButtons.union
+                },
+                {
+                    value: '\\Rightarrow', // also '\\implies',
+                    iconClass: 'implies',
+                    text: MESSAGES.groupButtons.implies
+                }
+                /* TODO: does not work
+                {
+                    value: '\\nimplies',
+                    iconClass: 'nimplies',
+                    text: MESSAGES.groupButtons.nimplies
+                }
+                */
             ],
             destroy: function () {
                 this.popup.element.off();

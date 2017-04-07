@@ -80,7 +80,7 @@
 .kj-mathinput-popup .k-icon,
 .kj-mathinput-toolbar .k-font-icon,
 .kj-mathinput-popup .k-font-icon {
-    font: 18px/1 Symbola !important;
+    font: 16px/1 Symbola !important;
 }
 .kj-mathinput-toolbar .k-icon.k-i-arrow-s,
 .kj-mathinput-popup .k-icon.k-i-arrow-s,
@@ -455,4 +455,144 @@
 .kj-mathinput-toolbar .k-i-omega-maj:before,
 .kj-mathinput-popup .k-i-omega-maj:before {
     content: "\03a9";
+}
+.kj-mathinput-toolbar .k-i-and:before,
+.kj-mathinput-popup .k-i-and:before {
+    content: "\2227";
+}
+.kj-mathinput-toolbar .k-i-or:before,
+.kj-mathinput-popup .k-i-or:before {
+    content: "\2228";
+}
+.kj-mathinput-toolbar .k-i-equal:before,
+.kj-mathinput-popup .k-i-equal:before {
+    content: "\003d";
+}
+.kj-mathinput-toolbar .k-i-plus:before,
+.kj-mathinput-popup .k-i-plus:before {
+    content: "\002b";
+}
+.kj-mathinput-toolbar .k-i-minus:before,
+.kj-mathinput-popup .k-i-minus:before {
+    content: "\002d";
+}
+.kj-mathinput-toolbar .k-i-plusminus:before,
+.kj-mathinput-popup .k-i-plusminus:before {
+    content: "\00b1";
+}
+.kj-mathinput-toolbar .k-i-times:before,
+.kj-mathinput-popup .k-i-times:before {
+    content: "\00d7";
+}
+.kj-mathinput-toolbar .k-i-div:before,
+.kj-mathinput-popup .k-i-div:before {
+    content: "\00f7";
+}
+.kj-mathinput-toolbar .k-i-percent:before,
+.kj-mathinput-popup .k-i-percent:before {
+    content: "\0025";
+}
+.kj-mathinput-toolbar .k-i-factorial:before,
+.kj-mathinput-popup .k-i-factorial:before {
+    content: "\0021";
+}
+.kj-mathinput-toolbar .k-i-lt:before,
+.kj-mathinput-popup .k-i-lt:before {
+    content: "\003c";
+}
+.kj-mathinput-toolbar .k-i-le:before,
+.kj-mathinput-popup .k-i-le:before {
+    content: "\2264";
+}
+.kj-mathinput-toolbar .k-i-gt:before,
+.kj-mathinput-popup .k-i-gt:before {
+    content: "\03b1";
+}
+.kj-mathinput-toolbar .k-i-ge:before,
+.kj-mathinput-popup .k-i-ge:before {
+    content: "\2265";
+}
+.kj-mathinput-toolbar .k-i-approx:before,
+.kj-mathinput-popup .k-i-approx:before {
+    content: "\2248";
+}
+.kj-mathinput-toolbar .k-i-nequal:before,
+.kj-mathinput-popup .k-i-nequal:before {
+    content: "\2260";
+}
+.kj-mathinput-toolbar .k-i-cset:before,
+.kj-mathinput-popup .k-i-cset:before {
+    content: "\2102";
+}
+.kj-mathinput-toolbar .k-h-iset:before,
+.kj-mathinput-popup .k-h-iset:before {
+    content: "\210d";
+}
+.kj-mathinput-toolbar .k-i-nset:before,
+.kj-mathinput-popup .k-i-nset:before {
+    content: "\2115";
+}
+.kj-mathinput-toolbar .k-i-pset:before,
+.kj-mathinput-popup .k-i-pset:before {
+    content: "\2119";
+}
+.kj-mathinput-toolbar .k-i-qset:before,
+.kj-mathinput-popup .k-i-qset:before {
+    content: "\211a";
+}
+.kj-mathinput-toolbar .k-i-rset:before,
+.kj-mathinput-popup .k-i-rset:before {
+    content: "\211d";
+}
+.kj-mathinput-toolbar .k-i-zset:before,
+.kj-mathinput-popup .k-i-zset:before {
+    content: "\2124";
+}
+.kj-mathinput-toolbar .k-i-emptyset:before,
+.kj-mathinput-popup .k-i-emptyset:before {
+    content: "\2205";
+}
+.kj-mathinput-toolbar .k-i-forall:before,
+.kj-mathinput-popup .k-i-forall:before {
+    content: "\2200";
+}
+.kj-mathinput-toolbar .k-i-exists:before,
+.kj-mathinput-popup .k-i-exists:before {
+    content: "\2203";
+}
+.kj-mathinput-toolbar .k-i-nexists:before,
+.kj-mathinput-popup .k-i-nexists:before {
+    content: "\2204";
+}
+.kj-mathinput-toolbar .k-i-in:before,
+.kj-mathinput-popup .k-i-in:before {
+    content: "\220a";
+}
+.kj-mathinput-toolbar .k-i-nin:before,
+.kj-mathinput-popup .k-i-nin:before {
+    content: "\2209";
+}
+.kj-mathinput-toolbar .k-i-subset:before,
+.kj-mathinput-popup .k-i-subset:before {
+    content: "\2282";
+}
+.kj-mathinput-toolbar .k-i-nsubset:before,
+.kj-mathinput-popup .k-i-nsubset:before {
+    content: "\2284";
+}
+.kj-mathinput-toolbar .k-i-intersection:before,
+.kj-mathinput-popup .k-i-intersection:before {
+    content: "\2229";
+}
+.kj-mathinput-toolbar .k-i-union:before,
+.kj-mathinput-popup .k-i-union:before {
+    content: "\222a";
+}
+.kj-mathinput-toolbar .k-i-implies:before,
+.kj-mathinput-popup .k-i-implies:before {
+    content: "\21d2";
+}
+.kj-mathinput-toolbar .k-i-nimplies:before,
+.kj-mathinput-popup .k-i-nimplies:before {
+    content: "\21cf";
 }

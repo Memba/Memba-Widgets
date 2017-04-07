@@ -280,8 +280,11 @@
                 },
                 // TODO: zoom ?
                 enable: true,
-                toolbar: '#toolbar',
-                tools: TOOLBAR,
+                toolbar: {
+                    container: '#toolbar',
+                    resizable: true,
+                    tools: TOOLBAR
+                },
                 messages: {
                     // TODO
                 }
@@ -343,10 +346,12 @@
             _initToolBar: function () {
                 var that = this;
                 var options = that.options;
+                // TO CHECK container or wrap
                 that.toolBar = $(DIV)
-                    .appendTo(options.toolbar)
+                    .appendTo(options.toolbar.container)
                     .kendoMathGraphToolBar({
-                        tools: options.tools,
+                        tools: options.toolbar.tools,
+                        resizable: options.toolbar.resizable,
                         action: $.proxy(that._onToolBarAction, that),
                         dialog: $.proxy(that._onToolBarDialog, that)
                     })

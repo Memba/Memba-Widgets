@@ -37,12 +37,12 @@ Requirements can be installed (only once):
 
 Then each time you need to build KaTeX
 
-1. Go to your katex directory, e.g. ```cd /mnt/c/Users/<me>/Desktop/katex-0.7.0```
+1. Go to your katex directory, e.g. ```cd /mnt/c/WebStorm/vendors/katex```
 2. Run ```make dist```.
 
 And each time you need to build MathQuill
 
-1. Go to your mathquill directory, e.g. ```cd /mnt/c/Users/<me>/Desktop/mathquill-0.10.1```
+1. Go to your mathquill directory, e.g. ```cd /mnt/c/WebStorm/vendors/mathquill```
 2. Run ```make```.
 
 ## SilentMatt's Expr-Eval

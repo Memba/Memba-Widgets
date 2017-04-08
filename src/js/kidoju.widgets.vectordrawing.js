@@ -13,8 +13,9 @@
         './window.logger',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.color',
-        './vendor/kendo/kendo.drawing'
+        './vendor/kendo/kendo.drawing',
         // TODO: we also need spreadsheet for the toolbar
+        './kidoju.widjets.common'
     ], f);
 })(function () {
 
@@ -738,7 +739,7 @@
                             $.noop();
                             break;
                         case 'line':
-                            this._continueLine(position, e.data);
+                            $.noop();
                             break;
                         case 'pen':
                             this._continuePen(position, e.data);
@@ -954,6 +955,16 @@
             },
 
             /**
+             *
+             * @param position
+             * @param data
+             * @private
+             */
+            _startLine: function (position, data) {
+
+            },
+
+            /**
              * Start drawing freely (pen) with a mouse (MouseDown)
              * @param position
              * @param data
@@ -963,6 +974,7 @@
                 // TODO use bezier curves to remove useless points as in
                 // https://github.com/soswow/fit-curve
                 // http://soswow.github.io/fit-curve/demo/
+                // http://stackoverflow.com/questions/7054272/how-to-draw-smooth-curve-through-n-points-using-javascript-html5-canvas
 
                 assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
                 assert.isEmptyObject(data, kendo.format(assert.messages.isEmptyObject.default, 'data'));
@@ -998,8 +1010,17 @@
                 // assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
                 // assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
                 this._continuePen(position, data);
-                var PathNode = kendo.drawing.svg.PathNode;
-                var svg = PathNode.fn.printPath(data.path);
+                // Let's simplify the path using https://github.com/mourner/simplify-js
+                // bacause that is a lot of points to store in database
+                var anchors = [];
+                for (var i = 0, length = data.path.segments.length; i < length; i++) {
+                    anchors.push(data.path.segments[i].anchor().clone());
+                }
+                var subset = kidoju.simplify(anchors, 20);
+                var simplified = drawing.Path.fromPoints(subset);
+                // kidoju.smooth(simplified);
+                var PathNode = drawing.svg.PathNode;
+                var svg = PathNode.fn.printPath(simplified);
                 this.dataSource.add({
                     type: 'path',
                     svg: svg,

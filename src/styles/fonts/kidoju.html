@@ -69,7 +69,9 @@
 }
 
 .kf {
-	font-family:"kidoju";
+	
+		font-family:"kidoju";
+	
 	display:inline-block;
 	vertical-align:middle;
 	line-height:1;
@@ -92,6 +94,11 @@
 }
 
 
+.kf-alpha:before {
+	content:"\3b1";
+}
+
+
 .kf-android:before {
 	content:"\f102";
 }
@@ -102,8 +109,33 @@
 }
 
 
+.kf-arccos:before {
+	content:"\e734";
+}
+
+
+.kf-arcsin:before {
+	content:"\e733";
+}
+
+
+.kf-arctan:before {
+	content:"\e735";
+}
+
+
 .kf-submit:before {
 	content:"\e320";
+}
+
+
+.kf-backspace:before {
+	content:"\232b";
+}
+
+
+.kf-chemistry:before {
+	content:"\e703";
 }
 
 
@@ -112,8 +144,18 @@
 }
 
 
+.kf-calculator:before {
+	content:"\e701";
+}
+
+
 .kf-datetime:before {
 	content:"\f105";
+}
+
+
+.kf-cbrt:before {
+	content:"\221b";
 }
 
 
@@ -123,12 +165,17 @@
 
 
 .kf-cos:before {
-	content:"\e711";
+	content:"\e731";
 }
 
 
-.kf-cubert:before {
-	content:"\221b";
+.kf-derivative:before {
+	content:"\e740";
+}
+
+
+.kf-dice:before {
+	content:"\2680";
 }
 
 
@@ -173,7 +220,12 @@
 
 
 .kf-frac:before {
-	content:"\e700";
+	content:"\e710";
+}
+
+
+.kf-fx:before {
+	content:"\e702";
 }
 
 
@@ -197,8 +249,43 @@
 }
 
 
+.kf-int:before {
+	content:"\e742";
+}
+
+
+.kf-keypad:before {
+	content:"\2328";
+}
+
+
+.kf-left-cb:before {
+	content:"\7b";
+}
+
+
+.kf-left-par:before {
+	content:"\28";
+}
+
+
+.kf-left-sb:before {
+	content:"\5b";
+}
+
+
+.kf-left-vl:before {
+	content:"\9b";
+}
+
+
 .kf-support:before {
 	content:"\f10a";
+}
+
+
+.kf-lim:before {
+	content:"\e745";
 }
 
 
@@ -212,13 +299,38 @@
 }
 
 
+.kf-ln:before {
+	content:"\e728";
+}
+
+
 .kf-signin:before {
 	content:"\f10b";
 }
 
 
+.kf-log:before {
+	content:"\e726";
+}
+
+
+.kf-log10:before {
+	content:"\e727";
+}
+
+
+.kf-logic:before {
+	content:"\26ad";
+}
+
+
 .kf-search:before {
 	content:"\e0e9";
+}
+
+
+.kf-matrix2x2:before {
+	content:"\e750";
 }
 
 
@@ -262,13 +374,28 @@
 }
 
 
-.kf-pinterest:before {
+.kf-omega-maj:before {
 	content:"\f10e";
 }
 
 
-.kf-create:before {
+.kf-partial:before {
+	content:"\e741";
+}
+
+
+.kf-pinterest:before {
 	content:"\f10f";
+}
+
+
+.kf-create:before {
+	content:"\f110";
+}
+
+
+.kf-pm:before {
+	content:"\b1";
 }
 
 
@@ -278,37 +405,62 @@
 
 
 .kf-pow:before {
-	content:"\e701";
+	content:"\e721";
 }
 
 
 .kf-pow2:before {
-	content:"\e702";
+	content:"\e722";
 }
 
 
 .kf-pow3:before {
-	content:"\e703";
+	content:"\e723";
+}
+
+
+.kf-prod:before {
+	content:"\e744";
 }
 
 
 .kf-publish:before {
-	content:"\f110";
-}
-
-
-.kf-help:before {
 	content:"\f111";
 }
 
 
-.kf-share:before {
+.kf-help:before {
 	content:"\f112";
 }
 
 
+.kf-right-cb:before {
+	content:"\7d";
+}
+
+
+.kf-right-par:before {
+	content:"\29";
+}
+
+
+.kf-right-sb:before {
+	content:"\5d";
+}
+
+
+.kf-right-vl:before {
+	content:"\9d";
+}
+
+
+.kf-share:before {
+	content:"\f113";
+}
+
+
 .kf-sin:before {
-	content:"\e710";
+	content:"\e730";
 }
 
 
@@ -328,22 +480,32 @@
 
 
 .kf-stumbleupon:before {
-	content:"\f113";
-}
-
-
-.kf-subscript:before {
-	content:"\e704";
-}
-
-
-.kf-tags:before {
 	content:"\f114";
 }
 
 
+.kf-subscript:before {
+	content:"\e711";
+}
+
+
+.kf-sum:before {
+	content:"\e743";
+}
+
+
+.kf-tags:before {
+	content:"\f115";
+}
+
+
 .kf-tan:before {
-	content:"\e712";
+	content:"\e732";
+}
+
+
+.kf-field:before {
+	content:"\e700";
 }
 
 
@@ -358,17 +520,17 @@
 
 
 .kf-user:before {
-	content:"\f115";
-}
-
-
-.kf-uservoice:before {
 	content:"\f116";
 }
 
 
-.kf-youtube:before {
+.kf-uservoice:before {
 	content:"\f117";
+}
+
+
+.kf-youtube:before {
+	content:"\f118";
 }
 
 		</style>
@@ -380,21 +542,39 @@
 			
 				<div class="icons__item" data-name="add"><i class="kf kf-add"></i> kf-add</div>
 			
+				<div class="icons__item" data-name="alpha"><i class="kf kf-alpha"></i> kf-alpha</div>
+			
 				<div class="icons__item" data-name="android"><i class="kf kf-android"></i> kf-android</div>
 			
 				<div class="icons__item" data-name="apple"><i class="kf kf-apple"></i> kf-apple</div>
 			
+				<div class="icons__item" data-name="arccos"><i class="kf kf-arccos"></i> kf-arccos</div>
+			
+				<div class="icons__item" data-name="arcsin"><i class="kf kf-arcsin"></i> kf-arcsin</div>
+			
+				<div class="icons__item" data-name="arctan"><i class="kf kf-arctan"></i> kf-arctan</div>
+			
 				<div class="icons__item" data-name="submit"><i class="kf kf-submit"></i> kf-submit</div>
+			
+				<div class="icons__item" data-name="backspace"><i class="kf kf-backspace"></i> kf-backspace</div>
+			
+				<div class="icons__item" data-name="chemistry"><i class="kf kf-chemistry"></i> kf-chemistry</div>
 			
 				<div class="icons__item" data-name="blog"><i class="kf kf-blog"></i> kf-blog</div>
 			
+				<div class="icons__item" data-name="calculator"><i class="kf kf-calculator"></i> kf-calculator</div>
+			
 				<div class="icons__item" data-name="datetime"><i class="kf kf-datetime"></i> kf-datetime</div>
+			
+				<div class="icons__item" data-name="cbrt"><i class="kf kf-cbrt"></i> kf-cbrt</div>
 			
 				<div class="icons__item" data-name="sync"><i class="kf kf-sync"></i> kf-sync</div>
 			
 				<div class="icons__item" data-name="cos"><i class="kf kf-cos"></i> kf-cos</div>
 			
-				<div class="icons__item" data-name="cubert"><i class="kf kf-cubert"></i> kf-cubert</div>
+				<div class="icons__item" data-name="derivative"><i class="kf kf-derivative"></i> kf-derivative</div>
+			
+				<div class="icons__item" data-name="dice"><i class="kf kf-dice"></i> kf-dice</div>
 			
 				<div class="icons__item" data-name="summary"><i class="kf kf-summary"></i> kf-summary</div>
 			
@@ -414,6 +594,8 @@
 			
 				<div class="icons__item" data-name="frac"><i class="kf kf-frac"></i> kf-frac</div>
 			
+				<div class="icons__item" data-name="fx"><i class="kf kf-fx"></i> kf-fx</div>
+			
 				<div class="icons__item" data-name="settings"><i class="kf kf-settings"></i> kf-settings</div>
 			
 				<div class="icons__item" data-name="google"><i class="kf kf-google"></i> kf-google</div>
@@ -422,15 +604,39 @@
 			
 				<div class="icons__item" data-name="home"><i class="kf kf-home"></i> kf-home</div>
 			
+				<div class="icons__item" data-name="int"><i class="kf kf-int"></i> kf-int</div>
+			
+				<div class="icons__item" data-name="keypad"><i class="kf kf-keypad"></i> kf-keypad</div>
+			
+				<div class="icons__item" data-name="left-cb"><i class="kf kf-left-cb"></i> kf-left-cb</div>
+			
+				<div class="icons__item" data-name="left-par"><i class="kf kf-left-par"></i> kf-left-par</div>
+			
+				<div class="icons__item" data-name="left-sb"><i class="kf kf-left-sb"></i> kf-left-sb</div>
+			
+				<div class="icons__item" data-name="left-vl"><i class="kf kf-left-vl"></i> kf-left-vl</div>
+			
 				<div class="icons__item" data-name="support"><i class="kf kf-support"></i> kf-support</div>
+			
+				<div class="icons__item" data-name="lim"><i class="kf kf-lim"></i> kf-lim</div>
 			
 				<div class="icons__item" data-name="linkedin"><i class="kf kf-linkedin"></i> kf-linkedin</div>
 			
 				<div class="icons__item" data-name="live"><i class="kf kf-live"></i> kf-live</div>
 			
+				<div class="icons__item" data-name="ln"><i class="kf kf-ln"></i> kf-ln</div>
+			
 				<div class="icons__item" data-name="signin"><i class="kf kf-signin"></i> kf-signin</div>
 			
+				<div class="icons__item" data-name="log"><i class="kf kf-log"></i> kf-log</div>
+			
+				<div class="icons__item" data-name="log10"><i class="kf kf-log10"></i> kf-log10</div>
+			
+				<div class="icons__item" data-name="logic"><i class="kf kf-logic"></i> kf-logic</div>
+			
 				<div class="icons__item" data-name="search"><i class="kf kf-search"></i> kf-search</div>
+			
+				<div class="icons__item" data-name="matrix2x2"><i class="kf kf-matrix2x2"></i> kf-matrix2x2</div>
 			
 				<div class="icons__item" data-name="play"><i class="kf kf-play"></i> kf-play</div>
 			
@@ -448,9 +654,15 @@
 			
 				<div class="icons__item" data-name="nthroot"><i class="kf kf-nthroot"></i> kf-nthroot</div>
 			
+				<div class="icons__item" data-name="omega-maj"><i class="kf kf-omega-maj"></i> kf-omega-maj</div>
+			
+				<div class="icons__item" data-name="partial"><i class="kf kf-partial"></i> kf-partial</div>
+			
 				<div class="icons__item" data-name="pinterest"><i class="kf kf-pinterest"></i> kf-pinterest</div>
 			
 				<div class="icons__item" data-name="create"><i class="kf kf-create"></i> kf-create</div>
+			
+				<div class="icons__item" data-name="pm"><i class="kf kf-pm"></i> kf-pm</div>
 			
 				<div class="icons__item" data-name="scan"><i class="kf kf-scan"></i> kf-scan</div>
 			
@@ -460,9 +672,19 @@
 			
 				<div class="icons__item" data-name="pow3"><i class="kf kf-pow3"></i> kf-pow3</div>
 			
+				<div class="icons__item" data-name="prod"><i class="kf kf-prod"></i> kf-prod</div>
+			
 				<div class="icons__item" data-name="publish"><i class="kf kf-publish"></i> kf-publish</div>
 			
 				<div class="icons__item" data-name="help"><i class="kf kf-help"></i> kf-help</div>
+			
+				<div class="icons__item" data-name="right-cb"><i class="kf kf-right-cb"></i> kf-right-cb</div>
+			
+				<div class="icons__item" data-name="right-par"><i class="kf kf-right-par"></i> kf-right-par</div>
+			
+				<div class="icons__item" data-name="right-sb"><i class="kf kf-right-sb"></i> kf-right-sb</div>
+			
+				<div class="icons__item" data-name="right-vl"><i class="kf kf-right-vl"></i> kf-right-vl</div>
 			
 				<div class="icons__item" data-name="share"><i class="kf kf-share"></i> kf-share</div>
 			
@@ -478,9 +700,13 @@
 			
 				<div class="icons__item" data-name="subscript"><i class="kf kf-subscript"></i> kf-subscript</div>
 			
+				<div class="icons__item" data-name="sum"><i class="kf kf-sum"></i> kf-sum</div>
+			
 				<div class="icons__item" data-name="tags"><i class="kf kf-tags"></i> kf-tags</div>
 			
 				<div class="icons__item" data-name="tan"><i class="kf kf-tan"></i> kf-tan</div>
+			
+				<div class="icons__item" data-name="field"><i class="kf kf-field"></i> kf-field</div>
 			
 				<div class="icons__item" data-name="score"><i class="kf kf-score"></i> kf-score</div>
 			

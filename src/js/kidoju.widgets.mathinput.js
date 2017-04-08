@@ -51,6 +51,8 @@
         var DIV = '<div/>';
         // var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
         var RX_SIMPLE_COMMAND = /^\\[a-z]+$/; // These are simple LaTeX commands
+
+        // TODO: review as \\mathbb commands do not seem to work
         var RX_COMPLEX_COMMAND = /^\\mathbb{[^\}]+}$/; // These are commands with parameters which can be passed to mathField.command instead of mathField.write
         var RX_PARAMS = /[\(\[\{][^\}\]\)]*[\}\]\)]/g;
         var RX_INNERFIELD = /\\MathQuillMathField/; // or /\\MathQuillMathField{[\}]*}/
@@ -422,6 +424,7 @@
                     // TODO ---------------------------->  case 'ToolbarUnitsCommand':
                     case 'ToolbarChemistryCommand':
                     default:
+                        // TODO Review RX_COMPLEX
                         if (RX_SIMPLE_COMMAND.test(e.options.value) || RX_COMPLEX_COMMAND.test(e.options.value)) {
                             this._activeField.cmd(e.options.value);
                             // } else if (/^\\text/.test(e.options.value)) {
@@ -431,6 +434,7 @@
                         } else if ($.type(e.options.value) === STRING) {
                             this._activeField.write(e.options.value);
                             var matches = e.options.value.match(RX_PARAMS);
+                            // TODO: Note _ and ^ might need to be counted to - see log_{}() which requires 3 keystrokes instead of 2
                             if ($.isArray(matches)) {
                                 for (var i = 0, length = matches.length; i < length; i++) {
                                     var content = matches[i].replace(/\\[a-z]+/g, '').replace(/\s/g, '');
@@ -507,6 +511,8 @@
 
         /*********************************************************************************
          * MathInputToolBar Widget
+         * @see math symbols at http://htmlarrows.com/math/
+         * @see MQ supported LaTeX at https://inspera.atlassian.net/wiki/display/KB/MathQuill+symbols
          *********************************************************************************/
 
         kendo.mathinput = { messages: {} };
@@ -550,10 +556,24 @@
                 pow: 'Power',
                 pow2: 'Power of 2',
                 pow3: 'Power of 3',
+                log: 'Logarithm',
+                log10: 'Logarithm base 10',
+                ln: 'Naperian logarithm',
                 subscript: 'Subscript',
                 sin: 'Sine',
                 cos: 'Cosine',
-                tan: 'Tangent'
+                tan: 'Tangent',
+                arcsin: 'Arc sine',
+                arccos: 'Arc cosine',
+                arctan: 'Arc tangent',
+                deriv: 'Derivative',
+                partial: 'Partial derivative',
+                int: 'Integral',
+                sum: 'Sum',
+                prod: 'Product',
+                lim: 'Limit',
+                matrix: 'Matrix 2x2'
+                // TODO: fact, binomial
             },
             lowerGreekButtons: {
                 alpha: 'Alpha',
@@ -608,30 +628,51 @@
                 omega: 'Omega'
             },
             operatorButtons: {
-
+                equal: 'Equal',
+                plus: 'Plus',
+                minus: 'Minus',
+                cdot: 'Times',
+                times: 'Times',
+                div: 'Divide',
+                lt: 'Lower then',
+                le: 'Lower than or equal',
+                gt: 'Greater than',
+                ge: 'Lower Than',
+                approx: 'Approximate',
+                neq: 'Not equal',
+                plusminus: 'Plus-Minus',
+                percent: 'Percent',
+                factorial: 'Factorial',
+                and: 'And',
+                or: 'Or',
+                nabla: 'Nabla'
             },
             expressionButtons: {
 
             },
             groupButtons: {
-                 cset: 'Complexes',
-                 pset: 'Primes',
-                 nset: 'Naturals',
-                 qset: 'Rationals',
-                 rset: 'Reals',
-                 zset: 'Integers',
-                 emptyset: 'Empty set',
-                 forall: 'For all',
-                 exists: 'Exists',
-                 nexists: 'Not exists',
-                 in: 'In',
-                 nin: 'Not in',
-                 subset: 'Subset',
-                 nsubset: 'Not subset',
-                 intersection: '',
-                 union: '',
-                 implies: '',
-                 nimplies: ''
+                cset: 'Complexes',
+                pset: 'Primes',
+                nset: 'Naturals',
+                qset: 'Rationals',
+                rset: 'Reals',
+                zset: 'Integers',
+                emptyset: 'Empty set',
+                forall: 'For all',
+                exists: 'Exists',
+                nexists: 'Not exists',
+                in: 'In',
+                nin: 'Not in',
+                subset: 'Subset',
+                supset: 'Superset',
+                nsubset: 'Not subset',
+                nsupset: 'Not superset',
+                intersection: 'Intersection',
+                union: 'Union',
+                to: 'To',
+                implies: 'Implies',
+                nimplies: 'Not implies',
+                iff: ''
             },
             matrixButtons: {
 
@@ -648,7 +689,7 @@
             field: {
                 type: 'button',
                 command: 'ToolbarFieldCommand',
-                iconClass: 'textbox'
+                iconClass: 'field'
             },
             backspace: {
                 type: 'button',
@@ -657,44 +698,44 @@
             },
             keypad: {
                 type: 'keypad',
-                iconClass: 'n1'
+                iconClass: 'keypad'
             },
             basic: {
                 type: 'basic',
-                iconClass: 'alpha'
+                iconClass: 'basic'
             },
             lowergreek: {
                 type: 'lowergreek',
-                iconClass: 'alpha'
+                iconClass: 'lowergreek'
             },
             uppergreek: {
                 type: 'uppergreek',
-                iconClass: 'omega-maj'
+                iconClass: 'uppergreek'
             },
             operator: {
                 type: 'operator',
-                iconClass: 'plusminus'
+                iconClass: 'operator'
             },
             expression: {
                 type: 'expression',
-                iconClass: 'gamma'
+                iconClass: 'expression'
             },
             group: {
                 type: 'group',
-                iconClass: 'in'
+                iconClass: 'group'
             },
             matrix: {
                 type: 'matrix',
-                iconClass: 'epsilon'
+                iconClass: 'matrix'
             },
             statistics: {
                 type: 'statistics',
-                iconClass: 'zeta'
+                iconClass: 'statistics'
             },
             // TODO units
             chemistry: {
                 type: 'chemistry',
-                iconClass: 'alpha'
+                iconClass: 'chemistry'
             }
         };
 
@@ -1154,7 +1195,7 @@
                 },
                 {
                     value: '\\sqrt[3]{ }',
-                    iconClass: 'cubert',
+                    iconClass: 'cbrt',
                     text: MESSAGES.basicButtons.cubert
                 },
                 {
@@ -1166,6 +1207,11 @@
                     value: '\\frac',
                     iconClass: 'frac',
                     text: MESSAGES.basicButtons.frac
+                },
+                {
+                    value: '_{ }',
+                    iconClass: 'subscript',
+                    text: MESSAGES.basicButtons.subscript
                 },
                 {
                     value: '^{ }',
@@ -1183,25 +1229,85 @@
                     text: MESSAGES.basicButtons.pow3
                 },
                 {
-                    value: '_{ }',
-                    iconClass: 'subscript',
-                    text: MESSAGES.basicButtons.subscript
+                    value: '\\log_{}\\left(\\right)',
+                    iconClass: 'log',
+                    text: MESSAGES.basicButtons.log
                 },
                 {
-                    value: '\\sin\\left(\\right)',
-                    iconClass: 'sin',
-                    text: MESSAGES.basicButtons.sin
+                    value: '\\log\\left(\\right)',
+                    iconClass: 'log10',
+                    text: MESSAGES.basicButtons.log10
                 },
                 {
-                    value: '\\cos\\left(\\right)',
-                    iconClass: 'cos',
-                    text: MESSAGES.basicButtons.cos
+                    value: '\\ln\\left(\\right)',
+                    iconClass: 'ln',
+                    text: MESSAGES.basicButtons.ln
                 },
                 {
-                    value: '\\tan\\left(\\right)',
-                        iconClass: 'tan',
-                    text: MESSAGES.basicButtons.tan
+                    value: '\\arcsin\\left(\\right)',
+                    iconClass: 'arcsin',
+                    text: MESSAGES.basicButtons.arcsin
+                },
+                {
+                    value: '\\arccos\\left(\\right)',
+                    iconClass: 'arccos',
+                    text: MESSAGES.basicButtons.arccos
+                },
+                {
+                    value: '\\arctan\\left(\\right)',
+                    iconClass: 'arctan',
+                    text: MESSAGES.basicButtons.arctan
+                },
+                {
+                    value: '\\frac{d}{dx}\\left(\\right)',
+                    iconClass: 'deriv',
+                    text: MESSAGES.basicButtons.deriv
+                },
+                {
+                    value: '\\frac{\\partial}{\\partial x}\\left(\\right)',
+                    iconClass: 'partial',
+                    text: MESSAGES.basicButtons.partial
+                },
+                {
+                    value: '\\int',
+                    iconClass: 'int',
+                    text: MESSAGES.basicButtons.int
+                },
+                {
+                    value: '\\sum',
+                    iconClass: 'sum',
+                    text: MESSAGES.basicButtons.sum
+                },
+                {
+                    value: '\\prod',
+                    iconClass: 'prod',
+                    text: MESSAGES.basicButtons.prod
+                },
+                {
+                    value: '\\lim_{\\to}\\left(\\right)',
+                    iconClass: 'lim',
+                    text: MESSAGES.basicButtons.lim
                 }
+                /*
+                {
+                    // https://github.com/mathquill/mathquill/issues/332
+                    // Matrix support: https://github.com/Learnosity/mathquill/commit/50315cf9056946fd59f2ffc14e2b1d0e03f6ec4b
+                    value: '\\matrix\\left(\\right)',
+                    iconClass: 'matrix2x2',
+                    text: MESSAGES.basicButtons.matrix2x2
+                }
+                */
+                /*
+                 left-par': 0x0028,
+                 'right-par': 0x0029,
+                 'left-sb': 0x005b,
+                 'right-sb': 0x005d,
+                 'left-cb': 0x007b,
+                 'right-cb': 0x007d,
+                 'left-vl': 0x009b, // <-- wrong
+                 'right-vl': 0x009d,
+                 */
+               // TODO fact, binomial
             ],
             destroy: function () {
                 this.popup.element.off();
@@ -1607,13 +1713,96 @@
                 });
             },
             buttons: [
-                /*
-                 {
-                 value: '\\alpha',
-                 iconClass: 'alpha',
-                 text: MESSAGES.operatorButtons.alpha
-                 },
-                 */
+                {
+                    value: '=',
+                    iconClass: 'equal',
+                    text: MESSAGES.operatorButtons.equal
+                },
+                {
+                    value: '+',
+                    iconClass: 'plus',
+                    text: MESSAGES.operatorButtons.plus
+                },
+                {
+                    value: '-',
+                    iconClass: 'minus',
+                    text: MESSAGES.operatorButtons.minus
+                },
+                {
+                    value: '\\cdot',
+                    iconClass: 'cdot',
+                    text: MESSAGES.operatorButtons.cdot
+                },
+                {
+                    value: '\\times',
+                    iconClass: 'times',
+                    text: MESSAGES.operatorButtons.times
+                },
+                {
+                    value: '\\div',
+                    iconClass: 'div',
+                    text: MESSAGES.operatorButtons.div
+                },
+                {
+                    value: '<',
+                    iconClass: 'lt',
+                    text: MESSAGES.operatorButtons.lt
+                },
+                {
+                    value: '\\le',
+                    iconClass: 'le',
+                    text: MESSAGES.operatorButtons.le
+                },
+                {
+                    value: '>',
+                    iconClass: 'gt',
+                    text: MESSAGES.operatorButtons.gt
+                },
+                {
+                    value: '\\ge',
+                    iconClass: 'ge',
+                    text: MESSAGES.operatorButtons.ge
+                },
+                {
+                    value: '\\approx',
+                    iconClass: 'approx',
+                    text: MESSAGES.operatorButtons.approx
+                },
+                {
+                    value: '\\neq',
+                    iconClass: 'neq',
+                    text: MESSAGES.operatorButtons.neq
+                },
+                {
+                    value: '\\pm',
+                    iconClass: 'plusminus',
+                    text: MESSAGES.operatorButtons.equal
+                },
+                {
+                    value: '%',
+                    iconClass: 'percent',
+                    text: MESSAGES.operatorButtons.percent
+                },
+                {
+                    value: '!',
+                    iconClass: 'factorial',
+                    text: MESSAGES.operatorButtons.factorial
+                },
+                {
+                    value: '\\wedge', // also '\\and',
+                    iconClass: 'and',
+                    text: MESSAGES.operatorButtons.and
+                },
+                {
+                    value: '\\vee',// also '\\or',
+                    iconClass: 'or',
+                    text: MESSAGES.operatorButtons.or
+                },
+                {
+                    value: '\\nabla',
+                    iconClass: 'nabla',
+                    text: MESSAGES.operatorButtons.nabla
+                }
             ],
             destroy: function () {
                 this.popup.element.off();
@@ -1765,35 +1954,42 @@
                     iconClass: 'exists',
                     text: MESSAGES.groupButtons.exists
                 },
-                /* TODO
                 {
-                    value: '\\not\\exist',
-                    iconClass: 'nexist',
-                    text: MESSAGES.groupButtons.nexist
+                    value: '\\nexists',
+                    iconClass: 'nexists',
+                    text: MESSAGES.groupButtons.nexists
                 },
-                */
                 {
                     value: '\\in',
                     iconClass: 'in',
                     text: MESSAGES.groupButtons.in
                 },
-                /* TODO: does not work
                 {
-                    value: '\\nin',
+                    value: '\\notin',
                     iconClass: 'nin',
                     text: MESSAGES.groupButtons.nin
                 },
-                */
                 {
                     value: '\\subset',
                     iconClass: 'subset',
                     text: MESSAGES.groupButtons.subset
                 },
-                /* TODO: does not work
                 {
-                    value: '\\nsubset',
+                    value: '\\supset',
+                    iconClass: 'supset',
+                    text: MESSAGES.groupButtons.supset
+                },
+                // TODO: does not work - see https://github.com/mathquill/mathquill/pull/624
+                /*
+                {
+                    value: '\\notsubset',
                     iconClass: 'nsubset',
                     text: MESSAGES.groupButtons.nsubset
+                },
+                {
+                    value: '\\notsupset',
+                    iconClass: 'nsupset',
+                    text: MESSAGES.groupButtons.nsupset
                 },
                 */
                 {
@@ -1807,17 +2003,28 @@
                     text: MESSAGES.groupButtons.union
                 },
                 {
+                    value: '\\to',
+                    iconClass: 'to',
+                    text: MESSAGES.groupButtons.to
+                },
+                {
                     value: '\\Rightarrow', // also '\\implies',
                     iconClass: 'implies',
                     text: MESSAGES.groupButtons.implies
-                }
-                /* TODO: does not work
+                },
+                // TODO does not work
+                /*
                 {
-                    value: '\\nimplies',
+                    value: '\nRightarrow',
                     iconClass: 'nimplies',
                     text: MESSAGES.groupButtons.nimplies
-                }
+                },
                 */
+                {
+                    value: '\\iff',
+                    iconClass: 'iff',
+                    text: MESSAGES.groupButtons.iff
+                }
             ],
             destroy: function () {
                 this.popup.element.off();

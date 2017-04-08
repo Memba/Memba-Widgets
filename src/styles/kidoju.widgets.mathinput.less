@@ -91,8 +91,13 @@
 
 // ----------------------------------------------------------------------------------------------------
 // Symbola font icons (MathQuill plans to upgrade to STIX)
-// https://en.wikipedia.org/wiki/Mathematical_operators_and_symbols_in_Unicode
+// see http://htmlarrows.com/math/
+// see https://en.wikibooks.org/wiki/LaTeX/Mathematics
+// see https://www.johndcook.com/blog/math_symbols/
+// see https://en.wikipedia.org/wiki/Mathematical_operators_and_symbols_in_Unicode
 // see http://xahlee.info/comp/unicode_math_operators.html
+// see http://web.archive.org/web/20150405233752/http://www.tex.ac.uk/tex-archive/info/symbols/comprehensive/symbols-a4.pdf
+// see https://www.rpi.edu/dept/arc/training/latex/LaTeX_symbols.pdf
 // ----------------------------------------------------------------------------------------------------
 
 .kj-mathinput-popup {
@@ -110,16 +115,66 @@
     // ------------------
     .k-icon
     {
-        &.k-i-arrow-s,
-        &.k-i-textbox {
+        // Toolbar
+        &.k-i-arrow-s {
             font: 16px/1 WebComponentsIcons !important;
+        }
+        &.k-i-field,
+        &.k-i-backspace,
+        &.k-i-keypad,
+        &.k-i-basic,
+        &.k-i-lowergreek,
+        &.k-i-uppergreek,
+        &.k-i-operator,
+        &.k-i-expression,
+        &.k-i-group,
+        &.k-i-matrix,
+        &.k-i-statistics,
+        &.k-i-chemistry,
+        //
+        &.k-i-sqrt,
+        &.k-i-cbrt,
+        &.k-i-nthroot,
+        &.k-i-frac,
+        &.k-i-subscript,
+        &.k-i-pow,
+        &.k-i-pow2,
+        &.k-i-pow3,
+        &.k-i-log,
+        &.k-i-log10,
+        &.k-i-ln,
+        &.k-i-sin,
+        &.k-i-cos,
+        &.k-i-tan,
+        &.k-i-arcsin,
+        &.k-i-arccos,
+        &.k-i-arctan,
+        &.k-i-deriv,
+        &.k-i-partial,
+        &.k-i-int,
+        &.k-i-sum,
+        &.k-i-prod,
+        &.k-i-lim,
+        &.k-i-matrix2x2{
+            font: 16px/1 kidoju !important;
         }
     }
 
     // ------------------
-    // Backspace
+    // Toolbar
     // ------------------
+    .k-i-field:before {content:"\e700";}
     .k-i-backspace:before {content:"\232b";}
+    .k-i-keypad:before {content:"\2328";}
+    .k-i-basic:before {content:"\e701";}
+    .k-i-lowergreek:before {content:"\03b1";}
+    .k-i-uppergreek:before {content:"\03a9";}
+    .k-i-operator:before {content:"\00b1";}
+    .k-i-expression:before {content:"\e702";}
+    .k-i-group:before {content:"\26ad";}
+    .k-i-matrix:before {content:"\e750";}
+    .k-i-statistics:before {content:"\2680";}
+    .k-i-chemistry:before {content:"\e703";}
 
     // ------------------
     // KeyPad
@@ -163,33 +218,32 @@
     // ------------------
     // Basic (compatible with kidoju.widgets.mathgraph)
     // ------------------
-    .k-icon {
-        &.k-i-sqrt,
-        &.k-i-cubert,
-        &.k-i-nthroot,
-        &.k-i-frac,
-        &.k-i-pow,
-        &.k-i-pow2,
-        &.k-i-pow3,
-        &.k-i-subscript,
-        &.k-i-sin,
-        &.k-i-cos,
-        &.k-i-tan {
-            font: 16px/1 kidoju !important;
-        }
-    }
 
     .k-i-sqrt:before {content:"\221a";}
-    .k-i-cubert:before {content:"\221b";}
+    .k-i-cbrt:before {content:"\221b";}
     .k-i-nthroot:before {content:"\221c";}
-    .k-i-frac:before {content:"\e700";}
-    .k-i-pow:before {content:"\e701";}
-    .k-i-pow2:before {content:"\e702";}
-    .k-i-pow3:before {content:"\e703";}
-    .k-i-subscript:before {content:"\e704";}
-    .k-i-sin:before {content:"\e710";}
-    .k-i-cos:before {content:"\e711";}
-    .k-i-tan:before {content:"\e712";}
+    .k-i-frac:before {content:"\e710";}
+    .k-i-subscript:before {content:"\e711";}
+    .k-i-pow:before {content:"\e721";}
+    .k-i-pow2:before {content:"\e722";}
+    .k-i-pow3:before {content:"\e723";}
+    .k-i-log:before {content:"\e726";}
+    .k-i-log10:before {content:"\e727";}
+    .k-i-ln:before {content:"\e728";}
+    .k-i-sin:before {content:"\e730";}
+    .k-i-cos:before {content:"\e731";}
+    .k-i-tan:before {content:"\e732";}
+    .k-i-arcsin:before {content:"\e733";}
+    .k-i-arccos:before {content:"\e734";}
+    .k-i-arctan:before {content:"\e735";}
+    .k-i-deriv:before {content:"0xe740";}
+    .k-i-partial:before {content:"0xe741";}
+    .k-i-int:before {content:"0xe742";} // TODO standard unicode
+    .k-i-sum:before {content:"0xe743";} // TODO standard unicode
+    .k-i-prod:before {content:"0xe744";} // TODO standard unicode
+    .k-i-lim:before {content:"0xe745";}
+    .k-i-matrix2x2:before {content:"0xe750";}
+    // TODO fact, binomial
 
     // ------------------
     // Greek (lowercase)
@@ -252,25 +306,26 @@
     // ------------------
     // Operators
     // ------------------
-    .k-i-and:before {content:"\2227";}
-    .k-i-or:before {content:"\2228";}
     .k-i-equal:before {content:"\003d";}
     .k-i-plus:before {content:"\002b";}
     .k-i-minus:before {content:"\002d";}
-    .k-i-plusminus:before {content:"\00b1";}
-    .k-i-times:before {content:"\00d7";} // TODO: cdot and star???
+    .k-i-times:before {content:"\00d7";}
+    .k-i-cdot:before {content:"\00b7";}
     .k-i-div:before {content:"\00f7";}
+    .k-i-plusminus:before {content:"\00b1";}
     .k-i-percent:before {content:"\0025";}
     .k-i-factorial:before {content:"\0021";}
     .k-i-lt:before {content:"\003c";}
     .k-i-le:before {content:"\2264";}
-    .k-i-gt:before {content:"\03b1";}
+    .k-i-gt:before {content:"\003e";}
     .k-i-ge:before {content:"\2265";}
-    .k-i-approx:before {content:"\2248";} // TODO see \2243
-    .k-i-nequal:before {content:"\2260";}
-    // Other negations
-
-    // Nabla
+    .k-i-approx:before {content:"\2248";}
+    .k-i-neq:before {content:"\2260";}
+    .k-i-and:before {content:"\2227";}
+    .k-i-or:before {content:"\2228";}
+    .k-i-nabla:before {content:"\2207";}
+    // TODO add \neg
+    // Other negations, gcd and lcm
 
     // ------------------
     // Expressions (functions)
@@ -296,16 +351,20 @@
     .k-i-in:before {content:"\220a";}
     .k-i-nin:before {content:"\2209";}
     .k-i-subset:before {content:"\2282";}
+    .k-i-supset:before {content:"\2283";}
     .k-i-nsubset:before {content:"\2284";}
+    .k-i-nsupset:before {content:"\2285";}
     .k-i-intersection:before {content:"\2229";}
     .k-i-union:before {content:"\222a";}
+    .k-i-to:before {content:"\2192";}
     .k-i-implies:before {content:"\21d2";}
     .k-i-nimplies:before {content:"\21cf";}
-
+    .k-i-iff:before {content:"\21d4";}
 
     // ------------------
     // Matrices
     // ------------------
+
 
     // ------------------
     // Statistics
@@ -315,6 +374,11 @@
     // ------------------
     // Units
     // ------------------
+    // distance: m cm m km
+    // weight: g kg
+    // surface m2
+    // vol: ml l m3
+    // force, pressure, pH, ...
 
     // ------------------
     // Chemistry

@@ -361,7 +361,7 @@ var Node = P(function(_) {
   _.isEmpty = function() {
     return this.ends[L] === 0 && this.ends[R] === 0;
   };
-
+  
   _.isStyleBlock = function() {
     return false;
   };
@@ -1069,7 +1069,12 @@ function getInterface(v) {
       var ctrlr = this.__controller.notify(), cursor = ctrlr.cursor;
       if (/^\\[a-z]+$/i.test(cmd)) {
         cmd = cmd.slice(1);
-        var klass = LatexCmds[cmd];
+        // BEGIN: Removed by JLC - https://github.com/mathquill/mathquill/pull/642/files
+        // var klass = LatexCmds[cmd];
+        // BEGIN: Removed by JLC - https://github.com/mathquill/mathquill/pull/642/files
+        // BEGIN: Added by JLC - https://github.com/mathquill/mathquill/pull/642/files
+        var klass = LatexCmds[cmd] || Environments[cmd];
+        // END: Added by JLC - https://github.com/mathquill/mathquill/pull/642/files
         if (klass) {
           cmd = klass(cmd);
           if (cursor.selection) cmd.replaces(cursor.replaceSelection());
@@ -3271,6 +3276,7 @@ API.TextField = function(APIClasses) {
  * Symbols for Advanced Mathematics
  ***********************************/
 
+LatexCmds.notin =
 LatexCmds.cong =
 LatexCmds.equiv =
 LatexCmds.oplus =
@@ -3297,7 +3303,9 @@ LatexCmds['\u2248'] = LatexCmds.asymp = LatexCmds.approx = bind(BinaryOperator,'
 
 LatexCmds.isin = LatexCmds['in'] = bind(BinaryOperator,'\\in ','&isin;');
 
+// BEGIN - Added by JLC
 LatexCmds.notin = LatexCmds.nisin = LatexCmds.nin = bind(BinaryOperator,'\\notin ','&notin;');
+// END - Added by JLC
 
 LatexCmds.ni = LatexCmds.contains = bind(BinaryOperator,'\\ni ','&ni;');
 
@@ -3509,8 +3517,48 @@ LatexCmds.bull = LatexCmds.bullet = bind(VanillaSymbol,'\\bullet ','&bull;');
 LatexCmds.setminus = LatexCmds.smallsetminus =
   bind(VanillaSymbol,'\\setminus ','&#8726;');
 
-LatexCmds.not = //bind(Symbol,'\\not ','<span class="not">/</span>');
+// BEGIN Removed by JLC -- see https://github.com/mathquill/mathquill/pull/624/files?diff=unified
+// LatexCmds.not = //bind(Symbol,'\\not ','<span class="not">/</span>');
+// END Removed y JLC
 LatexCmds['\u00ac'] = LatexCmds.neg = bind(VanillaSymbol,'\\neg ','&not;');
+// BEGIN Added by JLC -- see https://github.com/mathquill/mathquill/pull/624/files?diff=unified
+LatexCmds.not = P(VanillaSymbol, function(_, super_) {
+    // If one of these appears immediately after not, the
+    // parser returns a different symbol.
+    _.suffixes = {
+        '\\in':       'notin',
+        '\\ni':       'notni',
+        '\\subset':   'notsubset',
+        '\\subseteq': 'notsubseteq',
+        '\\supset':   'notsupset',
+        '\\supseteq': 'notsupseteq'
+    };
+    _.init = function() {
+        return super_.init.call(this, '\\neg ', '&not;');
+    };
+    _.parser = function() {
+        var succeed = Parser.succeed;
+        var optWhitespace = Parser.optWhitespace;
+
+        // Sort the suffixes, longest first
+        var suffixes = Object.keys(_.suffixes).sort(function(a, b) {
+            return b.length - a.length;
+        });
+
+        // Returns a parser matching any string in array
+        function anyOf(strings) {
+            var parser = Parser.string(strings.shift());
+            return (strings.length) ? parser.or(anyOf(strings)) : parser;
+        }
+
+        return anyOf(suffixes).then(function(suffix) {
+            return optWhitespace
+                .then(succeed(LatexCmds[_.suffixes[suffix]]()));
+        })
+            .or(optWhitespace.then(succeed(this)));
+    };
+});
+// END Added y JLC
 
 LatexCmds['\u2026'] = LatexCmds.dots = LatexCmds.ellip = LatexCmds.hellip =
 LatexCmds.ellipsis = LatexCmds.hellipsis =
@@ -3569,7 +3617,7 @@ LatexCmds.alef = LatexCmds.alefsym = LatexCmds.aleph = LatexCmds.alephsym =
 LatexCmds.xist = //LOL
 LatexCmds.xists = LatexCmds.exist = LatexCmds.exists =
   bind(VanillaSymbol,'\\exists ','&exist;');
-
+  
 LatexCmds.nexists = LatexCmds.nexist =
       bind(VanillaSymbol, '\\nexists ', '&#8708;');
 
@@ -4047,7 +4095,7 @@ var PlusMinus = P(BinaryOperator, function(_) {
 
       return 'mq-binary-operator';
     };
-
+    
     if (dir === R) return; // ignore if sibling only changed on the right
     this.jQ[0].className = determineOpClassType(this);
     return this;
@@ -4975,6 +5023,457 @@ var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
     ;
   };
 });
+
+// BEGIN: Added by JLC - https://github.com/mathquill/mathquill/pull/642/files
+
+// LaTeX environments
+// Environments are delimited by an opening \begin{} and a closing
+// \end{}. Everything inside those tags will be formatted in a
+// special manner depending on the environment type.
+var Environments = {};
+
+LatexCmds.begin = P(MathCommand, function(_, super_) {
+    _.parser = function() {
+        var string = Parser.string;
+        var regex = Parser.regex;
+        return string('{')
+            .then(regex(/^[a-z]+/i))
+            .skip(string('}'))
+            .then(function (env) {
+                return (Environments[env] ?
+                        Environments[env]().parser() :
+                        Parser.fail('unknown environment type: '+env)
+                ).skip(string('\\end{'+env+'}'));
+            })
+            ;
+    };
+});
+
+var Environment = P(MathCommand, function(_, super_) {
+    _.template = [['\\begin{', '}'], ['\\end{', '}']];
+    _.wrappers = function () {
+        return [
+            _.template[0].join(this.environment),
+            _.template[1].join(this.environment)
+        ];
+    };
+});
+
+var Matrix =
+    Environments.matrix = P(Environment, function(_, super_) {
+
+        var delimiters = {
+            column: '&',
+            row: '\\\\'
+        };
+        _.parentheses = {
+            left: null,
+            right: null
+        };
+        _.environment = 'matrix';
+
+        _.reflow = function() {
+            var blockjQ = this.jQ.children('table');
+
+            var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
+
+            var parens = this.jQ.children('.mq-paren');
+            if (parens.length) {
+                scale(parens, min(1 + .2*(height - 1), 1.2), 1.05*height);
+            }
+        };
+        _.latex = function() {
+            var latex = '';
+            var row;
+
+            this.eachChild(function (cell) {
+                if (typeof row !== 'undefined') {
+                    latex += (row !== cell.row) ?
+                        delimiters.row :
+                        delimiters.column;
+                }
+                row = cell.row;
+                latex += cell.latex();
+            });
+
+            return this.wrappers().join(latex);
+        };
+        _.html = function() {
+            var cells = [], trs = '', i=0, row;
+
+            function parenHtml(paren) {
+                return (paren) ?
+                    '<span class="mq-scaled mq-paren">'
+                    +   paren
+                    + '</span>' : '';
+            }
+
+            // Build <tr><td>.. structure from cells
+            this.eachChild(function (cell) {
+                if (row !== cell.row) {
+                    row = cell.row;
+                    trs += '<tr>$tds</tr>';
+                    cells[row] = [];
+                }
+                cells[row].push('<td>&'+(i++)+'</td>');
+            });
+
+            this.htmlTemplate =
+                '<span class="mq-matrix mq-non-leaf">'
+                +   parenHtml(this.parentheses.left)
+                +   '<table class="mq-non-leaf">'
+                +     trs.replace(/\$tds/g, function () {
+                    return cells.shift().join('');
+                })
+                +   '</table>'
+                +   parenHtml(this.parentheses.right)
+                + '</span>'
+            ;
+
+            return super_.html.call(this);
+        };
+        // Create default 4-cell matrix
+        _.createBlocks = function() {
+            this.blocks = [
+                MatrixCell(0, this),
+                MatrixCell(0, this),
+                MatrixCell(1, this),
+                MatrixCell(1, this)
+            ];
+        };
+        _.parser = function() {
+            var self = this;
+            var optWhitespace = Parser.optWhitespace;
+            var string = Parser.string;
+
+            return optWhitespace
+                .then(string(delimiters.column)
+                    .or(string(delimiters.row))
+                    .or(latexMathParser.block))
+                .many()
+                .skip(optWhitespace)
+                .then(function(items) {
+                    var blocks = [];
+                    var row = 0;
+                    self.blocks = [];
+
+                    function addCell() {
+                        self.blocks.push(MatrixCell(row, self, blocks));
+                        blocks = [];
+                    }
+
+                    for (var i=0; i<items.length; i+=1) {
+                        if (items[i] instanceof MathBlock) {
+                            blocks.push(items[i]);
+                        } else {
+                            addCell();
+                            if (items[i] === delimiters.row) row+=1;
+                        }
+                    }
+                    addCell();
+                    self.autocorrect();
+                    return Parser.succeed(self);
+                });
+        };
+        // Relink all the cells after parsing
+        _.finalizeTree = function() {
+            var table = this.jQ.find('table');
+            table.toggleClass('mq-rows-1', table.find('tr').length === 1);
+            this.relink();
+        };
+        // Set up directional pointers between cells
+        _.relink = function() {
+            var blocks = this.blocks;
+            var rows = [];
+            var row, column, cell;
+
+            // Use a for loop rather than eachChild
+            // as we're still making sure children()
+            // is set up properly
+            for (var i=0; i<blocks.length; i+=1) {
+                cell = blocks[i];
+                if (row !== cell.row) {
+                    row = cell.row;
+                    rows[row] = [];
+                    column = 0;
+                }
+                rows[row][column] = cell;
+
+                // Set up horizontal linkage
+                cell[R] = blocks[i+1];
+                cell[L] = blocks[i-1];
+
+                // Set up vertical linkage
+                if (rows[row-1] && rows[row-1][column]) {
+                    cell.upOutOf = rows[row-1][column];
+                    rows[row-1][column].downOutOf = cell;
+                }
+
+                column+=1;
+            }
+
+            // set start and end blocks of matrix
+            this.ends[L] = blocks[0];
+            this.ends[R] = blocks[blocks.length-1];
+        };
+        // Ensure consistent row lengths
+        _.autocorrect = function(rows) {
+            var lengths = [], rows = [];
+            var blocks = this.blocks;
+            var maxLength, shortfall, position, row, i;
+
+            for (i=0; i<blocks.length; i+=1) {
+                row = blocks[i].row;
+                rows[row] = rows[row] || [];
+                rows[row].push(blocks[i]);
+                lengths[row] = rows[row].length;
+            }
+
+            maxLength = Math.max.apply(null, lengths);
+            if (maxLength !== Math.min.apply(null, lengths)) {
+                // Pad shorter rows to correct length
+                for (i=0; i<rows.length; i+=1) {
+                    shortfall = maxLength - rows[i].length;
+                    while (shortfall) {
+                        position = maxLength*i + rows[i].length;
+                        blocks.splice(position, 0, MatrixCell(i, this));
+                        shortfall-=1;
+                    }
+                }
+                this.relink();
+            }
+        };
+        // Deleting a cell will also delete the current row and
+        // column if they are empty, and relink the matrix.
+        _.deleteCell = function(currentCell) {
+            var rows = [], columns = [], myRow = [], myColumn = [];
+            var blocks = this.blocks, row, column;
+
+            // Create arrays for cells in the current row / column
+            this.eachChild(function (cell) {
+                if (row !== cell.row) {
+                    row = cell.row;
+                    rows[row] = [];
+                    column = 0;
+                }
+                columns[column] = columns[column] || [];
+                columns[column].push(cell);
+                rows[row].push(cell);
+
+                if (cell === currentCell) {
+                    myRow = rows[row];
+                    myColumn = columns[column];
+                }
+
+                column+=1;
+            });
+
+            function isEmpty(cells) {
+                var empties = [];
+                for (var i=0; i<cells.length; i+=1) {
+                    if (cells[i].isEmpty()) empties.push(cells[i]);
+                }
+                return empties.length === cells.length;
+            }
+
+            function remove(cells) {
+                for (var i=0; i<cells.length; i+=1) {
+                    if (blocks.indexOf(cells[i]) > -1) {
+                        cells[i].remove();
+                        blocks.splice(blocks.indexOf(cells[i]), 1);
+                    }
+                }
+            }
+
+            if (isEmpty(myRow) && myColumn.length > 1) {
+                row = rows.indexOf(myRow);
+                // Decrease all following row numbers
+                this.eachChild(function (cell) {
+                    if (cell.row > row) cell.row-=1;
+                });
+                // Dispose of cells and remove <tr>
+                remove(myRow);
+                this.jQ.find('tr').eq(row).remove();
+            }
+            if (isEmpty(myColumn) && myRow.length > 1) {
+                remove(myColumn);
+            }
+            this.finalizeTree();
+        };
+        _.addRow = function(afterCell) {
+            var previous = [], newCells = [], next = [];
+            var newRow = $('<tr></tr>'), row = afterCell.row;
+            var columns = 0, block, column;
+
+            this.eachChild(function (cell) {
+                // Cache previous rows
+                if (cell.row <= row) {
+                    previous.push(cell);
+                }
+                // Work out how many columns
+                if (cell.row === row) {
+                    if (cell === afterCell) column = columns;
+                    columns+=1;
+                }
+                // Cache cells after new row
+                if (cell.row > row) {
+                    cell.row+=1;
+                    next.push(cell);
+                }
+            });
+
+            // Add new cells, one for each column
+            for (var i=0; i<columns; i+=1) {
+                block = MatrixCell(row+1);
+                block.parent = this;
+                newCells.push(block);
+
+                // Create cell <td>s and add to new row
+                block.jQ = $('<td class="mq-empty">')
+                    .attr(mqBlockId, block.id)
+                    .appendTo(newRow);
+            }
+
+            // Insert the new row
+            this.jQ.find('tr').eq(row).after(newRow);
+            this.blocks = previous.concat(newCells, next);
+            return newCells[column];
+        };
+        _.addColumn = function(afterCell) {
+            var rows = [], newCells = [];
+            var column, block;
+
+            // Build rows array and find new column index
+            this.eachChild(function (cell) {
+                rows[cell.row] = rows[cell.row] || [];
+                rows[cell.row].push(cell);
+                if (cell === afterCell) column = rows[cell.row].length;
+            });
+
+            // Add new cells, one for each row
+            for (var i=0; i<rows.length; i+=1) {
+                block = MatrixCell(i);
+                block.parent = this;
+                newCells.push(block);
+                rows[i].splice(column, 0, block);
+
+                block.jQ = $('<td class="mq-empty">')
+                    .attr(mqBlockId, block.id);
+            }
+
+            // Add cell <td> elements in correct positions
+            this.jQ.find('tr').each(function (i) {
+                $(this).find('td').eq(column-1).after(rows[i][column].jQ);
+            });
+
+            // Flatten the rows array-of-arrays
+            this.blocks = [].concat.apply([], rows);
+            return newCells[afterCell.row];
+        };
+        _.insert = function(method, afterCell) {
+            var cellToFocus = this[method](afterCell);
+            this.cursor = this.cursor || this.parent.cursor;
+            this.finalizeTree();
+            this.bubble('reflow').cursor.insAtRightEnd(cellToFocus);
+        };
+        _.backspace = function(cell, dir, cursor, finalDeleteCallback) {
+            var dirwards = cell[dir];
+            if (cell.isEmpty()) {
+                this.deleteCell(cell);
+                while (dirwards &&
+                dirwards[dir] &&
+                this.blocks.indexOf(dirwards) === -1) {
+                    dirwards = dirwards[dir];
+                }
+                if (dirwards) {
+                    cursor.insAtDirEnd(-dir, dirwards);
+                }
+                if (this.blocks.length === 1 && this.blocks[0].isEmpty()) {
+                    finalDeleteCallback();
+                    this.finalizeTree();
+                }
+                this.bubble('edited');
+            }
+        };
+    });
+
+Environments.pmatrix = P(Matrix, function(_, super_) {
+    _.environment = 'pmatrix';
+    _.parentheses = {
+        left: '(',
+        right: ')'
+    };
+});
+
+Environments.bmatrix = P(Matrix, function(_, super_) {
+    _.environment = 'bmatrix';
+    _.parentheses = {
+        left: '[',
+        right: ']'
+    };
+});
+
+Environments.Bmatrix = P(Matrix, function(_, super_) {
+    _.environment = 'Bmatrix';
+    _.parentheses = {
+        left: '{',
+        right: '}'
+    };
+});
+
+Environments.vmatrix = P(Matrix, function(_, super_) {
+    _.environment = 'vmatrix';
+    _.parentheses = {
+        left: '|',
+        right: '|'
+    };
+});
+
+Environments.Vmatrix = P(Matrix, function(_, super_) {
+    _.environment = 'Vmatrix';
+    _.parentheses = {
+        left: '&#8214;',
+        right: '&#8214;'
+    };
+});
+
+// Replacement for mathblocks inside matrix cells
+// Adds matrix-specific keyboard commands
+var MatrixCell = P(MathBlock, function(_, super_) {
+    _.init = function(row, parent, replaces) {
+        super_.init.call(this);
+        this.row = row;
+        if (parent) {
+            this.adopt(parent, parent.ends[R], 0);
+        }
+        if (replaces) {
+            for (var i=0; i<replaces.length; i++) {
+                replaces[i].children().adopt(this, this.ends[R], 0);
+            }
+        }
+    };
+    _.keystroke = function(key, e, ctrlr) {
+        switch (key) {
+            case 'Shift-Spacebar':
+                e.preventDefault();
+                return this.parent.insert('addColumn', this);
+                break;
+            case 'Shift-Enter':
+                return this.parent.insert('addRow', this);
+                break;
+        }
+        return super_.keystroke.apply(this, arguments);
+    };
+    _.deleteOutOf = function(dir, cursor) {
+        var self = this, args = arguments;
+        this.parent.backspace(this, dir, cursor, function () {
+            // called when last cell gets deleted
+            return super_.deleteOutOf.apply(self, args);
+        });
+    }
+});
+// END: Added by JLC - https://github.com/mathquill/mathquill/pull/642/files
+
 /****************************************
  * Input box to type backslash commands
  ***************************************/
@@ -5051,7 +5550,12 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
 
     var latex = this.ends[L].latex();
     if (!latex) latex = ' ';
-    var cmd = LatexCmds[latex];
+    // BEGIN Removed by JLC - https://github.com/mathquill/mathquill/pull/642/files
+    // var cmd = LatexCmds[latex];
+    // END Removed by JLC - https://github.com/mathquill/mathquill/pull/642/files
+    // BEGIN Added by JLC - https://github.com/mathquill/mathquill/pull/642/files
+    var cmd = LatexCmds[latex] || Environments[latex];
+    // END Added by JLC - https://github.com/mathquill/mathquill/pull/642/files
     if (cmd) {
       cmd = cmd(latex);
       if (this._replacedFragment) cmd.replaces(this._replacedFragment);
@@ -5080,8 +5584,4 @@ for (var key in MQ1) (function(key, val) {
   else MathQuill[key] = val;
 }(key, MQ1[key]));
 
-// For webpack compatibility - https://github.com/mathquill/mathquill/pull/714
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = MathQuill;
-}
 }());

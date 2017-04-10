@@ -198,6 +198,9 @@
                 width: DEFAULTS.STROKE_WIDTH
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Parses an element configuration
              * @param element
@@ -219,6 +222,8 @@
                 this.stroke.dashType = (element.options.stroke && element.options.stroke.dashType) || DEFAULTS.STROKE_DASHTYPE;
                 this.stroke.width = (element.options.stroke && element.options.stroke.width) || DEFAULTS.STROKE_WIDTH;
             },
+
+            /* jshint +W074 */
 
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
@@ -666,6 +671,9 @@
                 this.refresh();
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * MouseDown event handler
              * @param e
@@ -717,6 +725,11 @@
                 }
             },
 
+            /* jshint +W074 */
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * MouseMove event handler
              * @param e
@@ -753,6 +766,11 @@
                     }
                 }
             },
+
+            /* jshint +W074 */
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * MouseUp event handler (within the widget boundaries)
@@ -793,6 +811,8 @@
                     e.data.mouseUp = true;
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * MouseUp event handler (anywhere on the document)

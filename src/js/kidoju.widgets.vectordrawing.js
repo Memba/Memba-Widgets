@@ -1179,7 +1179,7 @@
              */
             _drawCircle: function (dataItem) {
                 assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
-                assert.equal('circle', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type' , 'circle'));
+                assert.equal('circle', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type', 'circle'));
                 var uid = dataItem.get(UID);
                 var item = dataItem.toJSON();
                 // Draw shape
@@ -1208,7 +1208,7 @@
              */
             _drawImage: function (dataItem) {
                 assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
-                assert.equal('image', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type' , 'image'));
+                assert.equal('image', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type', 'image'));
                 var uid = dataItem.get(UID);
                 var item = dataItem.toJSON();
                 // Draw shape
@@ -1237,7 +1237,7 @@
              */
             _drawPath: function (dataItem) {
                 assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
-                assert.equal('path', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type' , 'path'));
+                assert.equal('path', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type', 'path'));
                 var uid = dataItem.get(UID);
                 var item = dataItem.toJSON();
                 // Draw shape
@@ -1265,7 +1265,7 @@
              */
             _drawRect: function (dataItem) {
                 assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
-                assert.equal('rect', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type' , 'rect'));
+                assert.equal('rect', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type', 'rect'));
                 var uid = dataItem.get(UID);
                 var item = dataItem.toJSON();
                 var rectGeometry = new geometry.Rect(item.origin, item.size);
@@ -1291,7 +1291,7 @@
              */
             _drawText: function (dataItem) {
                 assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
-                assert.equal('text', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type' , 'text'));
+                assert.equal('text', dataItem.type, kendo.format(assert.messages.equal.default, 'dataItem.type', 'text'));
                 var uid = dataItem.get(UID);
                 var item = dataItem.toJSON();
                 // Position
@@ -1685,9 +1685,9 @@
                 return !!registry[name];
             },
             create: function (name, options) {
-                var dialogClass = registry[name];
-                if (dialogClass) {
-                    return new dialogClass(options);
+                var DialogClass = registry[name];
+                if (DialogClass) {
+                    return new DialogClass(options);
                 }
             }
         };

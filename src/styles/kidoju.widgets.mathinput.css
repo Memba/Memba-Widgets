@@ -382,31 +382,63 @@
 }
 .kj-mathinput-toolbar .k-i-deriv:before,
 .kj-mathinput-popup .k-i-deriv:before {
-    content: "0xe740";
+    content: "\e740";
 }
 .kj-mathinput-toolbar .k-i-partial:before,
 .kj-mathinput-popup .k-i-partial:before {
-    content: "0xe741";
+    content: "\e741";
 }
 .kj-mathinput-toolbar .k-i-int:before,
 .kj-mathinput-popup .k-i-int:before {
-    content: "0xe742";
+    content: "\e742";
 }
 .kj-mathinput-toolbar .k-i-sum:before,
 .kj-mathinput-popup .k-i-sum:before {
-    content: "0xe743";
+    content: "\e743";
 }
 .kj-mathinput-toolbar .k-i-prod:before,
 .kj-mathinput-popup .k-i-prod:before {
-    content: "0xe744";
+    content: "\e744";
 }
 .kj-mathinput-toolbar .k-i-lim:before,
 .kj-mathinput-popup .k-i-lim:before {
-    content: "0xe745";
+    content: "\e745";
 }
 .kj-mathinput-toolbar .k-i-matrix2x2:before,
 .kj-mathinput-popup .k-i-matrix2x2:before {
-    content: "0xe750";
+    content: "\e750";
+}
+.kj-mathinput-toolbar .k-i-leftpar:before,
+.kj-mathinput-popup .k-i-leftpar:before {
+    content: "\003b";
+}
+.kj-mathinput-toolbar .k-i-rightpar:before,
+.kj-mathinput-popup .k-i-rightpar:before {
+    content: "\003d";
+}
+.kj-mathinput-toolbar .k-i-leftsb:before,
+.kj-mathinput-popup .k-i-leftsb:before {
+    content: "\005b";
+}
+.kj-mathinput-toolbar .k-i-rightsb:before,
+.kj-mathinput-popup .k-i-rightsb:before {
+    content: "\005d";
+}
+.kj-mathinput-toolbar .k-i-leftcb:before,
+.kj-mathinput-popup .k-i-leftcb:before {
+    content: "\007b";
+}
+.kj-mathinput-toolbar .k-i-rightcb:before,
+.kj-mathinput-popup .k-i-rightcb:before {
+    content: "\007d";
+}
+.kj-mathinput-toolbar .k-i-leftvl:before,
+.kj-mathinput-popup .k-i-leftvl:before {
+    content: "\009b";
+}
+.kj-mathinput-toolbar .k-i-rightvl:before,
+.kj-mathinput-popup .k-i-rightvl:before {
+    content: "\009d";
 }
 .kj-mathinput-toolbar .k-i-alpha:before,
 .kj-mathinput-popup .k-i-alpha:before {

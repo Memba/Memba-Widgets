@@ -118,6 +118,19 @@
                 enable: true,
                 errorColor: '#cc0000',
                 inline: false,
+                mathquill: {
+                    //See  http://docs.mathquill.com/en/latest/Config/
+                    spaceBehavesLikeTab: true,
+                    leftRightIntoCmdGoes: 'up',
+                    restrictMismatchedBrackets: true,
+                    sumStartsWithNEquals: true,
+                    supSubsRequireOperand: true,
+                    charsThatBreakOutOfSupSub: '+-=<>',
+                    autoSubscriptNumerals: true,
+                    autoCommands: 'pi theta sqrt sum',
+                    autoOperatorNames: 'sin cos',
+                    substituteTextarea: function() { return document.createElement('textarea'); }
+                },
                 // messages: {},
                 toolbar: {
                     container: '#toolbar',
@@ -134,15 +147,20 @@
                 CHANGE
             ],
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Value for MVVM binding
              * @param value
              */
             value: function (value) {
                 var that = this;
+                var i;
+                var length;
                 if ($.isArray(value) || value instanceof kendo.data.ObservableArray) {
                     var hasChanged = false;
-                    for (var i = 0, length = value.length; i < length; i++) {
+                    for (i = 0, length = value.length; i < length; i++) {
                         if (that.mathFields[i] instanceof MQ.MathField && that.mathFields[i].latex() !== value[i]) {
                             logger.debug({ method: 'value', message: 'Setting value', data: { value: value }});
                             if ($.type(value[i]) === STRING) {
@@ -160,9 +178,9 @@
                     // null is the same as [] but we allow it for data bindings
                     that.value([]);
                 } else if ($.type(value) === UNDEFINED) {
-                    var ret = that.mathFields.map(function (mathField) { return mathField.latex() });
+                    var ret = that.mathFields.map(function (mathField) { return mathField.latex(); });
                     var isDefault = true;
-                    for (var i = 0, length = ret.length; i < length; i++) {
+                    for (i = 0, length = ret.length; i < length; i++) {
                         if (ret[i] !== that.defaults[i]) {
                             isDefault = false;
                             break;
@@ -176,6 +194,8 @@
                     throw new TypeError('`value` is expected to be a string if not undefined');
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * Builds the widget layout
@@ -200,6 +220,7 @@
                 // We cannot build return that.config for all MathFields because MathQuill modifies it and it cannot be reused.
                 // Se we keep track of a single instance of handlers and return a new config object at each request.
                 var that = this;
+                var options = that.options;
 
                 // Cache handlers
                 if ($.type(that._handlers) === UNDEFINED) {
@@ -211,24 +232,14 @@
                         moveOutOf: $.proxy(that._onOutOf, that),
                         selectOutOf: $.proxy(that._onOutOf, that),
                         upOutOf: $.proxy(that._onOutOf, that)
-                    }
+                    };
                 }
 
                 // Return a fresh config that MathQuill can modify
-                return {
-                    // TODO: http://docs.mathquill.com/en/latest/Config/
-                    // spaceBehavesLikeTab: true,
-                    // leftRightIntoCmdGoes: 'up',
-                    // restrictMismatchedBrackets: true,
-                    // sumStartsWithNEquals: true,
-                    // supSubsRequireOperand: true,
-                    // charsThatBreakOutOfSupSub: '+-=<>',
-                    // autoSubscriptNumerals: true,
-                    // autoCommands: 'pi theta sqrt sum',
-                    // autoOperatorNames: 'sin cos',
-                    // substituteTextarea: function() { return document.createElement('textarea'); },
-                    handlers: that._handlers
-                };
+                var config = $.extend({}, options.mathquill);
+                config.substituteTextarea = options.mathquill.substituteTextarea;
+                config.handlers = that._handlers;
+                return config;
             },
 
             /**
@@ -270,6 +281,21 @@
                 that.element.find('textarea').each(function () {
                     $(this).prop('disabled', !that._enabled);
                 });
+
+                // TODO Check interesting code at https://github.com/mathquill/mathquill/blob/master/test/visual.html#L456
+                /*
+                 MQ.MathField($('#disable-typing')[0], {
+                     substituteKeyboardEvents: function(textarea, handlers) {
+                         return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
+                             cut: $.noop,
+                             paste: $.noop,
+                             keystroke: $.noop,
+                             typedText: $.noop
+                     }));
+                     }
+                 });
+                 */
+
                 // Add focusin and mousedown event handlers
                 that.element.off(NS);
                 if (that._enabled) {
@@ -307,7 +333,7 @@
              * @private
              */
             _onOutOf: function (direction, mathField) {
-                window.console.log('_onOutOf')
+                window.console.log('_onOutOf');
             },
 
             /**
@@ -384,8 +410,12 @@
                     that.toolBar.wrapper.hide();
                 } else {
                     // TODO add toolbar and wrap
+                    $.noop();
                 }
             },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Event handler for triggering an action event from the toolbar
@@ -395,19 +425,8 @@
             _onToolBarAction: function (e) {
                 switch (e.command) {
                     case 'ToolbarFieldCommand':
-                        // this._activeField.write('\\sqrt[]{}');
-                        // this._activeField.write('^{}');
-                        // this._activeField.cmd('^');
-                        // this._activeField.write('_{}');
-                        // this._activeField.cmd('_');
-                        // \times\div\pm\pi\degree\ne\ge\le><
-                        // \frac{ }{ }\sqrt{ }\sqrt[3]{}\sqrt[]{}\ ^{ }\ _{ }
-                        // \angle\parallel\perp\triangle\parallelogram
-                        // this._activeField.write('\\sum_{}^{}');
-                        // this._activeField.cmd('\\sum');
-                        // this._activeField.keystroke('Left');
-                        // this._activeField.keystroke(KEYSTROKES.RIGHT);
-                        this._activeField.cmd('\\sqrt'); /// TODO
+                        this._activeField.write('\\MathQuillMathField{}');
+                        // this._activeField.cmd('\\MathQuillMathField');
                         break;
                     case 'ToolbarBackspaceCommand':
                         this._activeField.keystroke(KEYSTROKES.BACKSPACE);
@@ -423,7 +442,17 @@
                     case 'ToolbarStatisticsCommand':
                     // TODO ---------------------------->  case 'ToolbarUnitsCommand':
                     case 'ToolbarChemistryCommand':
-                    default:
+                        // this._activeField.write('^{}');
+                        // this._activeField.cmd('^');
+                        // this._activeField.write('_{}');
+                        // this._activeField.cmd('_');
+                        // \times\div\pm\pi\degree\ne\ge\le><
+                        // \frac{ }{ }\sqrt{ }\sqrt[3]{}\sqrt[]{}\ ^{ }\ _{ }
+                        // \angle\parallel\perp\triangle\parallelogram
+                        // this._activeField.write('\\sum_{}^{}');
+                        // this._activeField.cmd('\\sum');
+                        // this._activeField.keystroke('Left');
+                        // this._activeField.keystroke(KEYSTROKES.RIGHT);
                         // TODO Review RX_COMPLEX
                         if (RX_SIMPLE_COMMAND.test(e.options.value) || RX_COMPLEX_COMMAND.test(e.options.value)) {
                             this._activeField.cmd(e.options.value);
@@ -449,6 +478,8 @@
                 // on the toolbar to be able to cancel the click so as to keep the focus on the mathquill input
                 this._activeField.focus();
             },
+
+            /* jshint +W074 */
 
             /**
              * Event handler for triggering a dialog event from the toolbar
@@ -1287,26 +1318,37 @@
                     value: '\\lim_{\\to}\\left(\\right)',
                     iconClass: 'lim',
                     text: MESSAGES.basicButtons.lim
-                }
-                /*
+                },
                 {
-                    // https://github.com/mathquill/mathquill/issues/332
-                    // Matrix support: https://github.com/Learnosity/mathquill/commit/50315cf9056946fd59f2ffc14e2b1d0e03f6ec4b
-                    value: '\\matrix\\left(\\right)',
-                    iconClass: 'matrix2x2',
-                    text: MESSAGES.basicButtons.matrix2x2
+                    value: '\\left[',
+                    iconClass: 'leftsb',
+                    text: MESSAGES.basicButtons.leftsb
+                },
+                {
+                    value: '\\right]',
+                    iconClass: 'rightsb',
+                    text: MESSAGES.basicButtons.rightsb
+                },
+                {
+                    value: '\\left{',
+                    iconClass: 'leftcb',
+                    text: MESSAGES.basicButtons.leftcb
+                },
+                {
+                    value: '\\right}',
+                    iconClass: 'rightcb',
+                    text: MESSAGES.basicButtons.rightcb
+                },
+                {
+                    value: '\\left|',
+                    iconClass: 'leftvl',
+                    text: MESSAGES.basicButtons.leftvl
+                },
+                {
+                    value: '\\right|',
+                    iconClass: 'rightvl',
+                    text: MESSAGES.basicButtons.rightvl
                 }
-                */
-                /*
-                 left-par': 0x0028,
-                 'right-par': 0x0029,
-                 'left-sb': 0x005b,
-                 'right-sb': 0x005d,
-                 'left-cb': 0x007b,
-                 'right-cb': 0x007d,
-                 'left-vl': 0x009b, // <-- wrong
-                 'right-vl': 0x009d,
-                 */
                // TODO fact, binomial
             ],
             destroy: function () {
@@ -1803,6 +1845,7 @@
                     iconClass: 'nabla',
                     text: MESSAGES.operatorButtons.nabla
                 }
+                // TODO: add factorial
             ],
             destroy: function () {
                 this.popup.element.off();
@@ -2074,13 +2117,40 @@
                 });
             },
             buttons: [
-                /*
-                 {
-                 value: '\\alpha',
-                 iconClass: 'alpha',
-                 text: MESSAGES.matrixButtons.alpha
-                 },
-                 */
+                // https://github.com/mathquill/mathquill/issues/332
+                // Matrix support: https://github.com/Learnosity/mathquill/commit/50315cf9056946fd59f2ffc14e2b1d0e03f6ec4b
+                {
+                    value: '\\begin{matrix}1&amp;2\\\\x&amp;y\\end{matrix}', // Bare
+                    iconClass: 'matrix2x2',
+                    text: MESSAGES.matrixButtons.matrix2x2
+                },
+                {
+                    value: '\\begin{pmatrix}1&amp;2\\\\x&amp;y\\end{pmatrix}', // Parenthesis
+                    iconClass: 'matrix2x2',
+                    text: MESSAGES.matrixButtons.matrix2x2
+                },
+                {
+                    value: '\\begin{bmatrix}1&amp;2\\\\x&amp;y\\end{bmatrix}', // Square Brackets
+                    iconClass: 'matrix2x2',
+                    text: MESSAGES.matrixButtons.matrix2x2
+                },
+                {
+                    value: '\\begin{Bmatrix}1&amp;2\\\\x&amp;y\\end{Bmatrix}', // Curly braces
+                    iconClass: 'matrix2x2',
+                    text: MESSAGES.matrixButtons.matrix2x2
+                },
+                {
+                    value: '\\begin{vmatrix}1&amp;2\\\\x&amp;y\\end{vmatrix}', // Vertical line
+                    iconClass: 'matrix2x2',
+                    text: MESSAGES.matrixButtons.matrix2x2
+                },
+                {
+                    value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // Double vertical lines
+                    iconClass: 'matrix2x2',
+                    text: MESSAGES.matrixButtons.matrix2x2
+                }
+                // TODO matrix, \pmatrix, \bmatrix, \Bmatrix, \vmatrix, \Vmatrix
+                // TODO add column, add row, remove column, remove row
             ],
             destroy: function () {
                 this.popup.element.off();
@@ -2369,9 +2439,9 @@
                 return !!registry[name];
             },
             create: function (name, options) {
-                var dialogClass = registry[name];
-                if (dialogClass) {
-                    return new dialogClass(options);
+                var DialogClass = registry[name];
+                if (DialogClass) {
+                    return new DialogClass(options);
                 }
             }
         };

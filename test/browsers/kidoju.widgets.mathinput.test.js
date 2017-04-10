@@ -52,7 +52,6 @@
 
             it('from code with options', function () {
                 var toolbar = $(TOOLBAR).appendTo(FIXTURES);
-                var toolbar = $(TOOLBAR).appendTo(FIXTURES);
                 var element = $(MATHINPUT1).appendTo(FIXTURES);
                 var options = {
 

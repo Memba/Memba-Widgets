@@ -1,6 +1,7 @@
 /**
  * Copyright (c) 2013-2017 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
+ * Portions Copyright (c) 2015, Vladimir Agafonkin
  */
 
 /* jshint browser: true, jquery: true */
@@ -9,8 +10,6 @@
 (function (f, define) {
     'use strict';
     define([
-        './window.assert',
-        './window.logger',
         './vendor/kendo/kendo.core',
         './vendor/kendo/kendo.drawing'
     ], f);
@@ -22,7 +21,6 @@
 
     (function ($, undefined) {
 
-        var assert = window.assert;
         var kendo = window.kendo;
         var drawing = kendo.drawing;
         var geometry = kendo.geometry;
@@ -30,6 +28,7 @@
         /**************************************************************************************************************
          * Algorithm to simplify a path
          * https://github.com/mourner/simplify-js
+         * https://karthaus.nl/rdp/js/rdp2.js
          **************************************************************************************************************/
 
         /**
@@ -79,8 +78,6 @@
 
             return dx * dx + dy * dy;
         }
-
-        // rest of the code doesn't care about point format
 
         /**
          * Basic distance-based simplification
@@ -152,32 +149,13 @@
             return simplified;
         }
 
-        /**
-         * A combination of distance-based and Ramer-Douglas-Peucker algorithms to simplify a path (list of points)
-         * @param points
-         * @param tolerance - number of pixels (the higher the less precise but the quicker)
-         * @param highestQuality - true only applies Ramer-Douglas-Peucker
-         * @returns {*}
-         */
-        kidoju.simplify = function (points, tolerance, highestQuality) {
-
-            if (points.length <= 2) return points;
-
-            var sqTolerance = tolerance !== undefined ? tolerance * tolerance : 1;
-
-            points = highestQuality ? points : simplifyRadialDist(points, sqTolerance);
-            points = simplifyDouglasPeucker(points, sqTolerance);
-
-            return points;
-        };
-
         /**************************************************************************************************************
          * Algorith to interpolate control points from a series of points
          * see https://www.particleincell.com/2012/bezier-splines/
          **************************************************************************************************************/
 
         /**
-         * Computes a series of control points on an axis
+         * Computes a series of control points on an x or y axis to make a bezier spline
          * @param K
          * @returns {{p1: Array, p2: Array}}
          */
@@ -237,38 +215,89 @@
             return { p1:p1, p2:p2 };
         }
 
-        /**
-         * Returns
-         * @param path
-         */
-        kidoju.smooth = function (path) {
-            assert.instanceof(drawing.Path, path, kendo.format(assert.messages.instanceof.default, 'path', 'kendo.drawing.Path'));
-            var i;
-            var length;
-            var x = [];
-            var y = [];
-
-            // Collect anchor coordinates
-            for (i = 0, length = path.segments.length; i < length; i++) {
-                x.push(path.segments[i].anchor().x);
-                y.push(path.segments[i].anchor().y);
-            }
-
-            // Compute control points p1 and p2 for x and y direction
-            var px = computeControlPoints(x);
-            var py = computeControlPoints(y);
-
-            // Update path with control points
-            for (i = 0, length = path.segments.length; i < length; i++) {
-                path.segments[i].controlOut(new geometry.Point(px.p1[i], py.p1[i]));
-                path.segments[i].controlIn(new geometry.Point(px.p2[i], py.p2[i]));
-            }
-
-        };
-
         /**************************************************************************************************************
-         * MORE .......................
+         * kendo.drawing.PathEx
          **************************************************************************************************************/
+
+        /**
+         * An extended class for kendo.drawing.Path
+         */
+        drawing.PathEx = drawing.Path.extend({
+
+            /**
+             * A combination of distance-based and Ramer-Douglas-Peucker algorithms to simplify a path (list of points)
+             * @param points
+             * @param tolerance - number of pixels (the higher the less precise but the quicker)
+             * @param useDistances - false only applies Ramer-Douglas-Peucker
+             */
+            simplify: function (tolerance, useDistances) {
+                if (this.segments.length <= 2) {
+                    return this;
+                }
+                var sqTolerance = tolerance !== undefined ? tolerance * tolerance : 1;
+
+                // Calculate simplified anchors using Ramer-Douglas-Peucker
+                var anchors = Array.prototype.map.call(this.segments, function (segment) { return segment.anchor().clone() });
+                anchors = useDistances ? simplifyRadialDist(anchors, sqTolerance) : anchors;
+                anchors = simplifyDouglasPeucker(anchors, sqTolerance);
+
+                // Modify the path
+                var segments = anchors.map(function (anchor) { return new drawing.Segment(anchor) });
+                // We cannot use splice because of https://github.com/telerik/kendo-ui-core/issues/3030
+                // this.segments.splice(0, this.segments.length, segments);
+                this.segments._splice(0, this.segments.length, segments);
+                this.segments._change();
+
+                // return the path, especially to chain with smooth
+                return this;
+            },
+
+            /**
+             * Smooth the path
+             */
+            smooth: function () {
+
+                var i;
+                var length = this.segments.length;
+                var xes = [];
+                var yes = [];
+
+                // Collect anchor coordinates
+                for (i = 0; i < length; i++) {
+                    var segment = this.segments[i];
+                    xes.push(segment.anchor().x);
+                    yes.push(segment.anchor().y);
+                }
+
+                // Compute control points p1 and p2 for x and y directions
+                var pxes = computeControlPoints(xes);
+                var pyes = computeControlPoints(yes);
+
+                // Update path with control points
+                for (i = 0; i < length - 1; i++) {
+                    this.segments[i].controlOut(new geometry.Point(pxes.p1[i], pyes.p1[i]));
+                    this.segments[i + 1].controlIn(new geometry.Point(pxes.p2[i], pyes.p2[i]));
+                }
+
+                return this;
+            },
+
+            /**
+             * Prints an SVG path
+             * @returns {*}
+             */
+            stringify: function () {
+                var PathNode = drawing.svg.PathNode;
+                return PathNode.fn.printPath(this);
+            }
+
+            /**
+             * TODO: compute intersections:
+             * See https://www.particleincell.com/2013/cubic-line-intersection/
+             * See https://sites.google.com/site/curvesintersection/
+             */
+
+        });
 
     }(window.jQuery));
 

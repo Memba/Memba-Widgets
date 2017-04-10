@@ -978,7 +978,7 @@
 
                 assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
                 assert.isEmptyObject(data, kendo.format(assert.messages.isEmptyObject.default, 'data'));
-                var path = new drawing.Path(this._configuration.toJSON());
+                var path = new drawing.PathEx(this._configuration.toJSON());
                 path.moveTo(position);
                 this.surface.draw(path);
                 data.origin = position;
@@ -1010,20 +1010,10 @@
                 // assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
                 // assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
                 this._continuePen(position, data);
-                // Let's simplify the path using https://github.com/mourner/simplify-js
-                // bacause that is a lot of points to store in database
-                var anchors = [];
-                for (var i = 0, length = data.path.segments.length; i < length; i++) {
-                    anchors.push(data.path.segments[i].anchor().clone());
-                }
-                var subset = kidoju.simplify(anchors, 20);
-                var simplified = drawing.Path.fromPoints(subset);
-                // kidoju.smooth(simplified);
-                var PathNode = drawing.svg.PathNode;
-                var svg = PathNode.fn.printPath(simplified);
+                data.path.simplify(10, true).smooth();
                 this.dataSource.add({
                     type: 'path',
-                    svg: svg,
+                    svg: data.path.stringify(),
                     // closed: false,
                     configuration: this._configuration.toJSON()
                 });

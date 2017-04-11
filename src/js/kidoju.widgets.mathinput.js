@@ -74,9 +74,9 @@
             'expression',
             'group',
             'matrix',
-            'statistics',
+            'statistics'
             // 'units',
-            'chemistry'
+            // 'chemistry'
         ];
 
         /*********************************************************************************
@@ -160,8 +160,8 @@
                 var length;
                 if ($.isArray(value) || value instanceof kendo.data.ObservableArray) {
                     var hasChanged = false;
-                    for (i = 0, length = value.length; i < length; i++) {
-                        if (that.mathFields[i] instanceof MQ.MathField && that.mathFields[i].latex() !== value[i]) {
+                    for (i = 0, length = that.mathFields.length; i < length; i++) {
+                        if (that.mathFields[i] instanceof MQ.MathField && that.mathFields[i].latex() !== (value[i] || that.defaults[i])) {
                             logger.debug({ method: 'value', message: 'Setting value', data: { value: value }});
                             if ($.type(value[i]) === STRING) {
                                 that.mathFields[i].latex(value[i]);
@@ -256,8 +256,10 @@
                     // If the initial layout contains embedded fields
                     that.staticMath = MQ.StaticMath(element.get(0));
                     that.mathFields = that.staticMath.innerFields;
+                    // Named fields are listed as innerFields[name] in addition to innerField[#num]
+                    // Considering we do versioning, using field names has no benefit especially if naming cannot be enforced
                 } else {
-                    // // If the initial layout doe snot contain embedded fields
+                    // If the initial layout does not contain embedded fields
                     that.mathFields = [MQ.MathField(element.get(0))];
                 }
                 // Gather defaults
@@ -427,6 +429,8 @@
                     case 'ToolbarFieldCommand':
                         this._activeField.write('\\MathQuillMathField{}');
                         // this._activeField.cmd('\\MathQuillMathField');
+                        // TODO: Apparently, MathQuillFields can have a name as in \\MathQuillMathField[name]{}
+                        // https://github.com/mathquill/mathquill/issues/741
                         break;
                     case 'ToolbarBackspaceCommand':
                         this._activeField.keystroke(KEYSTROKES.BACKSPACE);
@@ -711,9 +715,8 @@
             statisticsButtons: {
 
             },
-            chemistryButtons: {
-
-            }
+            // unitsButtons: {},
+            // chemistryButtons: {}
         };
         var toolDefaults = {
             separator: { type: 'separator' },
@@ -762,12 +765,9 @@
             statistics: {
                 type: 'statistics',
                 iconClass: 'statistics'
-            },
-            // TODO units
-            chemistry: {
-                type: 'chemistry',
-                iconClass: 'chemistry'
             }
+            // units: { type: 'units', iconClass: 'units' },
+            // chemistry: { type: 'chemistry', iconClass: 'chemistry' }
         };
 
         /**
@@ -2238,6 +2238,9 @@
         });
         kendo.toolbar.registerComponent('statistics', StatisticsTool, StatisticsButton);
 
+        // TODO UnitsTool: how to delete kg or km as one symbol although it is made of 2 letters
+        // TODO the same applies to chemistry with periodic table elements like Ag, Br, Cl, Na, ...
+
         /**
          * ChemistryTool and ChemistryButton
          */
@@ -2262,6 +2265,19 @@
                  iconClass: 'alpha',
                  text: MESSAGES.chemistryButtons.alpha
                  },
+                 */
+                /*
+                 Periodic table
+                 Subscripts and Superscripts 0-9 + and -
+                 arrow and arrow + text
+                 Rightwards Harpoon Over Leftwards Harpoon (U+21cc)
+                 parenthesis and square brackets
+                 https://en.wikipedia.org/wiki/Gibbs_free_energy (energy, entropy, enthalpy and their deltas)
+                 d/dt
+                 K equilibirum constant
+                 k rate constant
+                 Also look at bond symbols https://github.com/mathquill/mathquill/pull/557
+                 Check that everyting works in KaTeX
                  */
             ],
             destroy: function () {

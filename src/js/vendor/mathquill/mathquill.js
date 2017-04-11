@@ -361,7 +361,7 @@ var Node = P(function(_) {
   _.isEmpty = function() {
     return this.ends[L] === 0 && this.ends[R] === 0;
   };
-  
+
   _.isStyleBlock = function() {
     return false;
   };
@@ -3617,7 +3617,7 @@ LatexCmds.alef = LatexCmds.alefsym = LatexCmds.aleph = LatexCmds.alephsym =
 LatexCmds.xist = //LOL
 LatexCmds.xists = LatexCmds.exist = LatexCmds.exists =
   bind(VanillaSymbol,'\\exists ','&exist;');
-  
+
 LatexCmds.nexists = LatexCmds.nexist =
       bind(VanillaSymbol, '\\nexists ', '&#8708;');
 
@@ -4095,7 +4095,7 @@ var PlusMinus = P(BinaryOperator, function(_) {
 
       return 'mq-binary-operator';
     };
-    
+
     if (dir === R) return; // ignore if sibling only changed on the right
     this.jQ[0].className = determineOpClassType(this);
     return this;
@@ -4973,7 +4973,7 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
     var self = this,
       string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
     return string('[').then(regex(/^[a-z][a-z0-9]*/i)).skip(string(']'))
-      .map(function(name) { self.name = name; }).or(succeed())
+      .map(function(name) {self.name = name;}).or(succeed())
       .then(super_.parser.call(self));
   };
   _.finalizeTree = function(options) {
@@ -5472,8 +5472,7 @@ var MatrixCell = P(MathBlock, function(_, super_) {
         });
     }
 });
-// END: Added by JLC - https://github.com/mathquill/mathquill/pull/642/files
-
+// END: Added by JLC - https://github.com/mathquill/mathquill/pull/642/files;
 /****************************************
  * Input box to type backslash commands
  ***************************************/
@@ -5583,5 +5582,9 @@ for (var key in MQ1) (function(key, val) {
   }
   else MathQuill[key] = val;
 }(key, MQ1[key]));
-
+// BEGIN - Added by JLC - https://github.com/mathquill/mathquill/pull/714
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = MathQuill;
+}
+// END - Added by JLC - https://github.com/mathquill/mathquill/pull/714
 }());

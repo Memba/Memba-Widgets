@@ -242,8 +242,8 @@
 
                 // Modify the path
                 var segments = anchors.map(function (anchor) { return new drawing.Segment(anchor) });
-                // We cannot use splice because of https://github.com/telerik/kendo-ui-core/issues/3030
-                // this.segments.splice(0, this.segments.length, segments);
+                // ElementsArray is not public to call ElementsArray.prototype.splice.apply and pass an array
+                // this.segments.splice(0, this.segments.length, segments[0], segments[1], ...);
                 this.segments._splice(0, this.segments.length, segments);
                 this.segments._change();
 

@@ -949,8 +949,8 @@
                 assert.instanceof(drawing.Circle, data.circle, kendo.format(assert.messages.instanceof.default, 'data.circle', 'kendo.drawing.Circle'));
                 var origin = data.origin;
                 var center = new geometry.Point((origin.x + position.x) /  2, (origin.y + position.y) /  2);
-                // var radius = position.distanceTo(origin) / 2;
-                var radius = Math.sqrt(Math.pow(position.x - origin.x, 2) + Math.pow(position.y - origin.y, 2)) / 2;
+                // var radius = position.distanceTo(origin) / (2 * sqrt (2));
+                var radius = Math.sqrt(Math.pow(position.x - origin.x, 2) + Math.pow(position.y - origin.y, 2)) / (2 * Math.sqrt(2));
                 data.circle.geometry(new geometry.Circle(center, radius));
             },
 

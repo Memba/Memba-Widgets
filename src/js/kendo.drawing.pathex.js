@@ -17,8 +17,6 @@
 
     'use strict';
 
-    window.kidoju = window.kidoju || {};
-
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -221,6 +219,7 @@
 
         /**
          * An extended class for kendo.drawing.Path
+         * @see https://medium.com/@jlchereau/an-extended-kendo-drawing-path-for-pen-drawing-7c40b5a83059
          */
         drawing.PathEx = drawing.Path.extend({
 
@@ -301,6 +300,6 @@
 
     }(window.jQuery));
 
-    return window.kidoju;
+    return window.kendo;
 
 }, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

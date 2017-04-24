@@ -7,15 +7,17 @@
 
 ## HighlighJS
 
-1. Get HighlightJS from https://github.com/isagalaev/highlight.js
-2. Follow instructions at ./highligh/highlight.md
+1. Download and unzip/untar the [latest release](https://github.com/isagalaev/highlight.js/releases) into a directory
+2. Go to this directory and run ```npm install```
+3. Run ```node tools/build.js :common``` or any other command [described here](http://highlightjs.readthedocs.org/en/latest/building-testing.html)
+4. Copy highlight.pack.js and css files to your project
 
 ## Kendo UI
 
 > Attention! Kidoju Widgets use open source Kendo UI Core, not commercial Kendo UI
 
 1. Get Kendo UI Core from https://github.com/telerik/kendo-ui-core
-2. Get minimized versions from http://cdn.kendostatic.com/<version>/js/kendo.all.min.js, respectively http://cdn.kendostatic.com/2017.1.118/styles/kendo.common.min.css
+2. Get minimized versions from http://cdn.kendostatic.com/<version>/js/kendo.all.min.js, respectively http://cdn.kendostatic.com/<version>/styles/kendo.common.min.css
 
 Required files can be found at http://www.telerik.com/download/custom-download
 

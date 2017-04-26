@@ -552,7 +552,7 @@
 
         kendo.mathinput = { messages: {} };
 
-        var MESSAGES = kendo.mathinput.messages.toolbar = {
+        var TOOLBAR_MESSAGES = kendo.mathinput.messages.toolbar = {
             field: 'Field',
             backspace: 'Backspace',
             keypadButtons: {
@@ -806,9 +806,9 @@
                     };
                     var tool = $.extend({
                         name: options.name || toolName,
-                        text: MESSAGES[options.name || toolName],
+                        text: TOOLBAR_MESSAGES[options.name || toolName],
                         spriteCssClass: spriteCssClass,
-                        attributes: { title: MESSAGES[options.name || toolName] }
+                        attributes: { title: TOOLBAR_MESSAGES[options.name || toolName] }
                     }, typeDefaults[type], options);
                     if (type === 'splitButton') {
                         tool.menuButtons = tool.menuButtons.map(expandTool);
@@ -1038,137 +1038,137 @@
                 {
                     value: '7',
                     iconClass: 'n7',
-                    text: MESSAGES.keypadButtons.n7
+                    text: TOOLBAR_MESSAGES.keypadButtons.n7
                 },
                 {
                     value: '8',
                     iconClass: 'n8',
-                    text: MESSAGES.keypadButtons.n8
+                    text: TOOLBAR_MESSAGES.keypadButtons.n8
                 },
                 {
                     value: '9',
                     iconClass: 'n9',
-                    text: MESSAGES.keypadButtons.n9
+                    text: TOOLBAR_MESSAGES.keypadButtons.n9
                 },
                 {
                     value: 'a',
                     iconClass: 'a',
-                    text: MESSAGES.keypadButtons.a
+                    text: TOOLBAR_MESSAGES.keypadButtons.a
                 },
                 {
                     value: 'b',
                     iconClass: 'b',
-                    text: MESSAGES.keypadButtons.b
+                    text: TOOLBAR_MESSAGES.keypadButtons.b
                 },
                 {
                     value: 'c',
                     iconClass: 'c',
-                    text: MESSAGES.keypadButtons.c
+                    text: TOOLBAR_MESSAGES.keypadButtons.c
                 },
                 {
                     value: '4',
                     iconClass: 'n4',
-                    text: MESSAGES.keypadButtons.n4
+                    text: TOOLBAR_MESSAGES.keypadButtons.n4
                 },
                 {
                     value: '5',
                     iconClass: 'n5',
-                    text: MESSAGES.keypadButtons.n5
+                    text: TOOLBAR_MESSAGES.keypadButtons.n5
                 },
                 {
                     value: '6',
                     iconClass: 'n6',
-                    text: MESSAGES.keypadButtons.n6
+                    text: TOOLBAR_MESSAGES.keypadButtons.n6
                 },
                 {
                     value: 'i',
                     iconClass: 'i',
-                    text: MESSAGES.keypadButtons.i
+                    text: TOOLBAR_MESSAGES.keypadButtons.i
                 },
                 {
                     value: 'j',
                     iconClass: 'j',
-                    text: MESSAGES.keypadButtons.j
+                    text: TOOLBAR_MESSAGES.keypadButtons.j
                 },
                 {
                     value: 'k',
                     iconClass: 'k',
-                    text: MESSAGES.keypadButtons.k
+                    text: TOOLBAR_MESSAGES.keypadButtons.k
                 },
                 {
                     value: '1',
                     iconClass: 'n1',
-                    text: MESSAGES.keypadButtons.n1
+                    text: TOOLBAR_MESSAGES.keypadButtons.n1
                 },
                 {
                     value: '2',
                     iconClass: 'n2',
-                    text: MESSAGES.keypadButtons.n2
+                    text: TOOLBAR_MESSAGES.keypadButtons.n2
                 },
                 {
                     value: '3',
                     iconClass: 'n3',
-                    text: MESSAGES.keypadButtons.n3
+                    text: TOOLBAR_MESSAGES.keypadButtons.n3
                 },
                 {
                     value: 'n',
                     iconClass: 'n',
-                    text: MESSAGES.keypadButtons.n
+                    text: TOOLBAR_MESSAGES.keypadButtons.n
                 },
                 {
                     value: 'p',
                     iconClass: 'p',
-                    text: MESSAGES.keypadButtons.p
+                    text: TOOLBAR_MESSAGES.keypadButtons.p
                 },
                 {
                     value: 'q',
                     iconClass: 'q',
-                    text: MESSAGES.keypadButtons.q
+                    text: TOOLBAR_MESSAGES.keypadButtons.q
                 },
                 {
                     value: ',',
                     iconClass: 'comma',
-                    text: MESSAGES.keypadButtons.comma
+                    text: TOOLBAR_MESSAGES.keypadButtons.comma
                 },
                 {
                     value: '0',
                     iconClass: 'n0',
-                    text: MESSAGES.keypadButtons.n0
+                    text: TOOLBAR_MESSAGES.keypadButtons.n0
                 },
                 {
                     value: '.',
                     iconClass: 'stop',
-                    text: MESSAGES.keypadButtons.stop
+                    text: TOOLBAR_MESSAGES.keypadButtons.stop
                 },
                 {
                     value: 'x',
                     iconClass: 'x',
-                    text: MESSAGES.keypadButtons.x
+                    text: TOOLBAR_MESSAGES.keypadButtons.x
                 },
                 {
                     value: 'y',
                     iconClass: 'y',
-                    text: MESSAGES.keypadButtons.y
+                    text: TOOLBAR_MESSAGES.keypadButtons.y
                 },
                 {
                     value: 'z',
                     iconClass: 'z',
-                    text: MESSAGES.keypadButtons.z
+                    text: TOOLBAR_MESSAGES.keypadButtons.z
                 },
                 {
                     value: '\\pi',
                     iconClass: 'pi',
-                    text: MESSAGES.keypadButtons.pi
+                    text: TOOLBAR_MESSAGES.keypadButtons.pi
                 },
                 {
                     value: '\\infinity',
                     iconClass: 'infinity',
-                    text: MESSAGES.keypadButtons.infinity
+                    text: TOOLBAR_MESSAGES.keypadButtons.infinity
                 },
                 {
                     value: ' ',
                     iconClass: 'space',
-                    text: MESSAGES.keypadButtons.space
+                    text: TOOLBAR_MESSAGES.keypadButtons.space
                 }
             ],
             destroy: function () {
@@ -1222,132 +1222,132 @@
                 {
                     value: '\\sqrt',
                     iconClass: 'sqrt',
-                    text: MESSAGES.basicButtons.sqrt
+                    text: TOOLBAR_MESSAGES.basicButtons.sqrt
                 },
                 {
                     value: '\\sqrt[3]{ }',
                     iconClass: 'cbrt',
-                    text: MESSAGES.basicButtons.cubert
+                    text: TOOLBAR_MESSAGES.basicButtons.cubert
                 },
                 {
                     value: '\\sqrt[]{ }',
                     iconClass: 'nthroot',
-                    text: MESSAGES.basicButtons.nthroot
+                    text: TOOLBAR_MESSAGES.basicButtons.nthroot
                 },
                 {
                     value: '\\frac',
                     iconClass: 'frac',
-                    text: MESSAGES.basicButtons.frac
+                    text: TOOLBAR_MESSAGES.basicButtons.frac
                 },
                 {
                     value: '_{ }',
                     iconClass: 'subscript',
-                    text: MESSAGES.basicButtons.subscript
+                    text: TOOLBAR_MESSAGES.basicButtons.subscript
                 },
                 {
                     value: '^{ }',
                     iconClass: 'pow',
-                    text: MESSAGES.basicButtons.pow
+                    text: TOOLBAR_MESSAGES.basicButtons.pow
                 },
                 {
                     value: '^2',
                     iconClass: 'pow2',
-                    text: MESSAGES.basicButtons.pow2
+                    text: TOOLBAR_MESSAGES.basicButtons.pow2
                 },
                 {
                     value: '^3',
                     iconClass: 'pow3',
-                    text: MESSAGES.basicButtons.pow3
+                    text: TOOLBAR_MESSAGES.basicButtons.pow3
                 },
                 {
                     value: '\\log_{}\\left(\\right)',
                     iconClass: 'log',
-                    text: MESSAGES.basicButtons.log
+                    text: TOOLBAR_MESSAGES.basicButtons.log
                 },
                 {
                     value: '\\log\\left(\\right)',
                     iconClass: 'log10',
-                    text: MESSAGES.basicButtons.log10
+                    text: TOOLBAR_MESSAGES.basicButtons.log10
                 },
                 {
                     value: '\\ln\\left(\\right)',
                     iconClass: 'ln',
-                    text: MESSAGES.basicButtons.ln
+                    text: TOOLBAR_MESSAGES.basicButtons.ln
                 },
                 {
                     value: '\\arcsin\\left(\\right)',
                     iconClass: 'arcsin',
-                    text: MESSAGES.basicButtons.arcsin
+                    text: TOOLBAR_MESSAGES.basicButtons.arcsin
                 },
                 {
                     value: '\\arccos\\left(\\right)',
                     iconClass: 'arccos',
-                    text: MESSAGES.basicButtons.arccos
+                    text: TOOLBAR_MESSAGES.basicButtons.arccos
                 },
                 {
                     value: '\\arctan\\left(\\right)',
                     iconClass: 'arctan',
-                    text: MESSAGES.basicButtons.arctan
+                    text: TOOLBAR_MESSAGES.basicButtons.arctan
                 },
                 {
                     value: '\\frac{d}{dx}\\left(\\right)',
                     iconClass: 'deriv',
-                    text: MESSAGES.basicButtons.deriv
+                    text: TOOLBAR_MESSAGES.basicButtons.deriv
                 },
                 {
                     value: '\\frac{\\partial}{\\partial x}\\left(\\right)',
                     iconClass: 'partial',
-                    text: MESSAGES.basicButtons.partial
+                    text: TOOLBAR_MESSAGES.basicButtons.partial
                 },
                 {
                     value: '\\int',
                     iconClass: 'int',
-                    text: MESSAGES.basicButtons.int
+                    text: TOOLBAR_MESSAGES.basicButtons.int
                 },
                 {
                     value: '\\sum',
                     iconClass: 'sum',
-                    text: MESSAGES.basicButtons.sum
+                    text: TOOLBAR_MESSAGES.basicButtons.sum
                 },
                 {
                     value: '\\prod',
                     iconClass: 'prod',
-                    text: MESSAGES.basicButtons.prod
+                    text: TOOLBAR_MESSAGES.basicButtons.prod
                 },
                 {
                     value: '\\lim_{\\to}\\left(\\right)',
                     iconClass: 'lim',
-                    text: MESSAGES.basicButtons.lim
+                    text: TOOLBAR_MESSAGES.basicButtons.lim
                 },
                 {
                     value: '\\left[',
                     iconClass: 'leftsb',
-                    text: MESSAGES.basicButtons.leftsb
+                    text: TOOLBAR_MESSAGES.basicButtons.leftsb
                 },
                 {
                     value: '\\right]',
                     iconClass: 'rightsb',
-                    text: MESSAGES.basicButtons.rightsb
+                    text: TOOLBAR_MESSAGES.basicButtons.rightsb
                 },
                 {
                     value: '\\left{',
                     iconClass: 'leftcb',
-                    text: MESSAGES.basicButtons.leftcb
+                    text: TOOLBAR_MESSAGES.basicButtons.leftcb
                 },
                 {
                     value: '\\right}',
                     iconClass: 'rightcb',
-                    text: MESSAGES.basicButtons.rightcb
+                    text: TOOLBAR_MESSAGES.basicButtons.rightcb
                 },
                 {
                     value: '\\left|',
                     iconClass: 'leftvl',
-                    text: MESSAGES.basicButtons.leftvl
+                    text: TOOLBAR_MESSAGES.basicButtons.leftvl
                 },
                 {
                     value: '\\right|',
                     iconClass: 'rightvl',
-                    text: MESSAGES.basicButtons.rightvl
+                    text: TOOLBAR_MESSAGES.basicButtons.rightvl
                 }
                // TODO fact, binomial
             ],
@@ -1402,122 +1402,122 @@
                 {
                     value: '\\alpha',
                     iconClass: 'alpha',
-                    text: MESSAGES.lowerGreekButtons.alpha
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.alpha
                 },
                 {
                     value: '\\beta',
                     iconClass: 'beta',
-                    text: MESSAGES.lowerGreekButtons.beta
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.beta
                 },
                 {
                     value: '\\gamma',
                     iconClass: 'gamma',
-                    text: MESSAGES.lowerGreekButtons.gamma
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.gamma
                 },
                 {
                     value: '\\delta',
                     iconClass: 'delta',
-                    text: MESSAGES.lowerGreekButtons.delta
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.delta
                 },
                 {
                     value: '\\epsilon',
                     iconClass: 'epsilon',
-                    text: MESSAGES.lowerGreekButtons.epsilon
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.epsilon
                 },
                 {
                     value: '\\zeta',
                     iconClass: 'zeta',
-                    text: MESSAGES.lowerGreekButtons.zeta
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.zeta
                 },
                 {
                     value: '\\eta',
                     iconClass: 'eta',
-                    text: MESSAGES.lowerGreekButtons.eta
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.eta
                 },
                 {
                     value: '\\theta',
                     iconClass: 'theta',
-                    text: MESSAGES.lowerGreekButtons.theta
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.theta
                 },
                 {
                     value: '\\iota',
                     iconClass: 'iota',
-                    text: MESSAGES.lowerGreekButtons.iota
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.iota
                 },
                 {
                     value: '\\kappa',
                     iconClass: 'kappa',
-                    text: MESSAGES.lowerGreekButtons.kappa
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.kappa
                 },
                 {
                     value: '\\lambda',
                     iconClass: 'lambda',
-                    text: MESSAGES.lowerGreekButtons.lambda
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.lambda
                 },
                 {
                     value: '\\mu',
                     iconClass: 'mu',
-                    text: MESSAGES.lowerGreekButtons.mu
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.mu
                 },
                 {
                     value: '\\nu',
                     iconClass: 'nu',
-                    text: MESSAGES.lowerGreekButtons.nu
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.nu
                 },
                 {
                     value: '\\xi',
                     iconClass: 'xi',
-                    text: MESSAGES.lowerGreekButtons.xi
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.xi
                 },
                 {
                     value: '\\omicron',
                     iconClass: 'omicron',
-                    text: MESSAGES.lowerGreekButtons.omicron
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.omicron
                 },
                 {
                     value: '\\pi',
                     iconClass: 'pi',
-                    text: MESSAGES.lowerGreekButtons.pi
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.pi
                 },
                 {
                     value: '\\rho',
                     iconClass: 'rho',
-                    text: MESSAGES.lowerGreekButtons.rho
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.rho
                 },
                 {
                     value: '\\sigma',
                     iconClass: 'sigma',
-                    text: MESSAGES.lowerGreekButtons.sigma
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.sigma
                 },
                 {
                     value: '\\tau',
                     iconClass: 'tau',
-                    text: MESSAGES.lowerGreekButtons.tau
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.tau
                 },
                 {
                     value: '\\upsilon',
                     iconClass: 'upsilon',
-                    text: MESSAGES.lowerGreekButtons.upsilon
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.upsilon
                 },
                 {
                     value: '\\phi',
                     iconClass: 'phi',
-                    text: MESSAGES.lowerGreekButtons.phi
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.phi
                 },
                 {
                     value: '\\chi',
                     iconClass: 'chi',
-                    text: MESSAGES.lowerGreekButtons.chi
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.chi
                 },
                 {
                     value: '\\psi',
                     iconClass: 'psi',
-                    text: MESSAGES.lowerGreekButtons.psi
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.psi
                 },
                 {
                     value: '\\omega',
                     iconClass: 'omega',
-                    text: MESSAGES.lowerGreekButtons.omega
+                    text: TOOLBAR_MESSAGES.lowerGreekButtons.omega
                 }
             ],
             destroy: function () {
@@ -1574,137 +1574,137 @@
                 {
                     value: '\\text{\u0391}',
                     iconClass: 'alpha-maj',
-                    text: MESSAGES.upperGreekButtons.alpha
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.alpha
                 },
                 {
                     value: '\\text{\u0392}',
                     iconClass: 'beta-maj',
-                    text: MESSAGES.upperGreekButtons.beta
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.beta
                 },
                 */
                 {
                     value: '\\Gamma',
                     iconClass: 'gamma-maj',
-                    text: MESSAGES.upperGreekButtons.gamma
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.gamma
                 },
                 {
                     value: '\\Delta',
                     iconClass: 'delta-maj',
-                    text: MESSAGES.upperGreekButtons.delta
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.delta
                 },
                 /*
                 {
                     value: '\\text{\u0395}',
                     iconClass: 'epsilon-maj',
-                    text: MESSAGES.upperGreekButtons.epsilon
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.epsilon
                 },
                 {
                     value: '\\text{\u0396}',
                     iconClass: 'zeta-maj',
-                    text: MESSAGES.upperGreekButtons.zeta
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.zeta
                 },
                 {
                     value: '\\text{\u0397}',
                     iconClass: 'eta-maj',
-                    text: MESSAGES.upperGreekButtons.eta
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.eta
                 },
                 */
                 {
                     value: '\\Theta',
                     iconClass: 'theta-maj',
-                    text: MESSAGES.upperGreekButtons.theta
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.theta
                 },
                 /*
                 {
                     value: '\\text{\u0399}',
                     iconClass: 'iota-maj',
-                    text: MESSAGES.upperGreekButtons.iota
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.iota
                 },
                 {
                     value: '\\text{\u039a}',
                     iconClass: 'kappa-maj',
-                    text: MESSAGES.upperGreekButtons.kappa
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.kappa
                 },
                 */
                 {
                     value: '\\Lambda',
                     iconClass: 'lambda-maj',
-                    text: MESSAGES.upperGreekButtons.lambda
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.lambda
                 },
                 /*
                 {
                     value: '\\text{\u039c}',
                     iconClass: 'mu-maj',
-                    text: MESSAGES.upperGreekButtons.mu
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.mu
                 },
                 {
                     value: '\\text{\u039d}',
                     iconClass: 'nu-maj',
-                    text: MESSAGES.upperGreekButtons.nu
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.nu
                 },
                 */
                 {
                     value: '\\Xi',
                     iconClass: 'xi-maj',
-                    text: MESSAGES.upperGreekButtons.xi
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.xi
                 },
                 /*
                 {
                     value: '\\text{\u039f}',
                     iconClass: 'omicron-maj',
-                    text: MESSAGES.upperGreekButtons.omicron
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.omicron
                 },
                 */
                 {
                     value: '\\Pi',
                     iconClass: 'pi-maj',
-                    text: MESSAGES.upperGreekButtons.pi
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.pi
                 },
                 /*
                 {
                     value: '\\text{\u03a1}',
                     iconClass: 'rho-maj',
-                    text: MESSAGES.upperGreekButtons.rho
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.rho
                 },
                 */
                 {
                     value: '\\Sigma',
                     iconClass: 'sigma-maj',
-                    text: MESSAGES.upperGreekButtons.sigma
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.sigma
                 },
                 /*
                 {
                     value: '\\text{\u03a4}',
                     iconClass: 'tau-maj',
-                    text: MESSAGES.upperGreekButtons.tau
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.tau
                 },
                 */
                 {
                     value: '\\Upsilon',
                     iconClass: 'upsilon-maj',
-                    text: MESSAGES.upperGreekButtons.upsilon
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.upsilon
                 },
                 {
                     value: '\\Phi',
                     iconClass: 'phi-maj',
-                    text: MESSAGES.upperGreekButtons.phi
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.phi
                 },
                 /*
                 {
                     value: '\\text{\u03a7}',
                     iconClass: 'chi-maj',
-                    text: MESSAGES.upperGreekButtons.chi
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.chi
                 },
                 */
                 {
                     value: '\\Psi',
                     iconClass: 'psi-maj',
-                    text: MESSAGES.upperGreekButtons.psi
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.psi
                 },
                 {
                     value: '\\Omega',
                     iconClass: 'omega-maj',
-                    text: MESSAGES.upperGreekButtons.omega
+                    text: TOOLBAR_MESSAGES.upperGreekButtons.omega
                 }
             ],
             destroy: function () {
@@ -1758,92 +1758,92 @@
                 {
                     value: '=',
                     iconClass: 'equal',
-                    text: MESSAGES.operatorButtons.equal
+                    text: TOOLBAR_MESSAGES.operatorButtons.equal
                 },
                 {
                     value: '+',
                     iconClass: 'plus',
-                    text: MESSAGES.operatorButtons.plus
+                    text: TOOLBAR_MESSAGES.operatorButtons.plus
                 },
                 {
                     value: '-',
                     iconClass: 'minus',
-                    text: MESSAGES.operatorButtons.minus
+                    text: TOOLBAR_MESSAGES.operatorButtons.minus
                 },
                 {
                     value: '\\cdot',
                     iconClass: 'cdot',
-                    text: MESSAGES.operatorButtons.cdot
+                    text: TOOLBAR_MESSAGES.operatorButtons.cdot
                 },
                 {
                     value: '\\times',
                     iconClass: 'times',
-                    text: MESSAGES.operatorButtons.times
+                    text: TOOLBAR_MESSAGES.operatorButtons.times
                 },
                 {
                     value: '\\div',
                     iconClass: 'div',
-                    text: MESSAGES.operatorButtons.div
+                    text: TOOLBAR_MESSAGES.operatorButtons.div
                 },
                 {
                     value: '<',
                     iconClass: 'lt',
-                    text: MESSAGES.operatorButtons.lt
+                    text: TOOLBAR_MESSAGES.operatorButtons.lt
                 },
                 {
                     value: '\\le',
                     iconClass: 'le',
-                    text: MESSAGES.operatorButtons.le
+                    text: TOOLBAR_MESSAGES.operatorButtons.le
                 },
                 {
                     value: '>',
                     iconClass: 'gt',
-                    text: MESSAGES.operatorButtons.gt
+                    text: TOOLBAR_MESSAGES.operatorButtons.gt
                 },
                 {
                     value: '\\ge',
                     iconClass: 'ge',
-                    text: MESSAGES.operatorButtons.ge
+                    text: TOOLBAR_MESSAGES.operatorButtons.ge
                 },
                 {
                     value: '\\approx',
                     iconClass: 'approx',
-                    text: MESSAGES.operatorButtons.approx
+                    text: TOOLBAR_MESSAGES.operatorButtons.approx
                 },
                 {
                     value: '\\neq',
                     iconClass: 'neq',
-                    text: MESSAGES.operatorButtons.neq
+                    text: TOOLBAR_MESSAGES.operatorButtons.neq
                 },
                 {
                     value: '\\pm',
                     iconClass: 'plusminus',
-                    text: MESSAGES.operatorButtons.equal
+                    text: TOOLBAR_MESSAGES.operatorButtons.equal
                 },
                 {
                     value: '%',
                     iconClass: 'percent',
-                    text: MESSAGES.operatorButtons.percent
+                    text: TOOLBAR_MESSAGES.operatorButtons.percent
                 },
                 {
                     value: '!',
                     iconClass: 'factorial',
-                    text: MESSAGES.operatorButtons.factorial
+                    text: TOOLBAR_MESSAGES.operatorButtons.factorial
                 },
                 {
                     value: '\\wedge', // also '\\and',
                     iconClass: 'and',
-                    text: MESSAGES.operatorButtons.and
+                    text: TOOLBAR_MESSAGES.operatorButtons.and
                 },
                 {
                     value: '\\vee',// also '\\or',
                     iconClass: 'or',
-                    text: MESSAGES.operatorButtons.or
+                    text: TOOLBAR_MESSAGES.operatorButtons.or
                 },
                 {
                     value: '\\nabla',
                     iconClass: 'nabla',
-                    text: MESSAGES.operatorButtons.nabla
+                    text: TOOLBAR_MESSAGES.operatorButtons.nabla
                 }
                 // TODO: add factorial
             ],
@@ -1899,7 +1899,7 @@
                  {
                  value: '\\alpha',
                  iconClass: 'alpha',
-                 text: MESSAGES.expressionButtons.alpha
+                 text: TOOLBAR_MESSAGES.expressionButtons.alpha
                  },
                  */
             ],
@@ -1955,118 +1955,118 @@
                 {
                     value: '\\C', // also '\\complexes', but \\mathbb{C} does not work
                     iconClass: 'cset',
-                    text: MESSAGES.groupButtons.cset
+                    text: TOOLBAR_MESSAGES.groupButtons.cset
                 },
                 {
                     value: '\\N', // also '\\naturals', but \\mathbb{N} does not work
                     iconClass: 'nset',
-                    text: MESSAGES.groupButtons.nset
+                    text: TOOLBAR_MESSAGES.groupButtons.nset
                 },
                 {
                     value: '\\P', // also '\\primes',
                     iconClass: 'pset',
-                    text: MESSAGES.groupButtons.pset
+                    text: TOOLBAR_MESSAGES.groupButtons.pset
                 },
                 {
                     value: '\\Q', // also '\\rationals',
                     iconClass: 'qset',
-                    text: MESSAGES.groupButtons.qset
+                    text: TOOLBAR_MESSAGES.groupButtons.qset
                 },
                 {
                     value: '\\R', // also '\\reals',
                     iconClass: 'rset',
-                    text: MESSAGES.groupButtons.rset
+                    text: TOOLBAR_MESSAGES.groupButtons.rset
                 },
                 {
                     value: '\\Z', // also '\\integers',
                     iconClass: 'zset',
-                    text: MESSAGES.groupButtons.zset
+                    text: TOOLBAR_MESSAGES.groupButtons.zset
                 },
                 {
                     value: '\\varnothing', // also '\\O', '\\empty' and '\\emptyset',
                     iconClass: 'emptyset',
-                    text: MESSAGES.groupButtons.emptyset
+                    text: TOOLBAR_MESSAGES.groupButtons.emptyset
                 },
                 {
                     value: '\\forall',
                     iconClass: 'forall',
-                    text: MESSAGES.groupButtons.forall
+                    text: TOOLBAR_MESSAGES.groupButtons.forall
                 },
                 {
                     value: '\\exists',
                     iconClass: 'exists',
-                    text: MESSAGES.groupButtons.exists
+                    text: TOOLBAR_MESSAGES.groupButtons.exists
                 },
                 {
                     value: '\\nexists',
                     iconClass: 'nexists',
-                    text: MESSAGES.groupButtons.nexists
+                    text: TOOLBAR_MESSAGES.groupButtons.nexists
                 },
                 {
                     value: '\\in',
                     iconClass: 'in',
-                    text: MESSAGES.groupButtons.in
+                    text: TOOLBAR_MESSAGES.groupButtons.in
                 },
                 {
                     value: '\\notin',
                     iconClass: 'nin',
-                    text: MESSAGES.groupButtons.nin
+                    text: TOOLBAR_MESSAGES.groupButtons.nin
                 },
                 {
                     value: '\\subset',
                     iconClass: 'subset',
-                    text: MESSAGES.groupButtons.subset
+                    text: TOOLBAR_MESSAGES.groupButtons.subset
                 },
                 {
                     value: '\\supset',
                     iconClass: 'supset',
-                    text: MESSAGES.groupButtons.supset
+                    text: TOOLBAR_MESSAGES.groupButtons.supset
                 },
                 // TODO: does not work - see https://github.com/mathquill/mathquill/pull/624
                 /*
                 {
                     value: '\\notsubset',
                     iconClass: 'nsubset',
-                    text: MESSAGES.groupButtons.nsubset
+                    text: TOOLBAR_MESSAGES.groupButtons.nsubset
                 },
                 {
                     value: '\\notsupset',
                     iconClass: 'nsupset',
-                    text: MESSAGES.groupButtons.nsupset
+                    text: TOOLBAR_MESSAGES.groupButtons.nsupset
                 },
                 */
                 {
                     value: '\\cap', // also '\\intersection'
                     iconClass: 'intersection',
-                    text: MESSAGES.groupButtons.intersection
+                    text: TOOLBAR_MESSAGES.groupButtons.intersection
                 },
                 {
                     value: '\\cup', // also '\\union',
                     iconClass: 'union',
-                    text: MESSAGES.groupButtons.union
+                    text: TOOLBAR_MESSAGES.groupButtons.union
                 },
                 {
                     value: '\\to',
                     iconClass: 'to',
-                    text: MESSAGES.groupButtons.to
+                    text: TOOLBAR_MESSAGES.groupButtons.to
                 },
                 {
                     value: '\\Rightarrow', // also '\\implies',
                     iconClass: 'implies',
-                    text: MESSAGES.groupButtons.implies
+                    text: TOOLBAR_MESSAGES.groupButtons.implies
                 },
                 // TODO does not work
                 /*
                 {
                     value: '\nRightarrow',
                     iconClass: 'nimplies',
-                    text: MESSAGES.groupButtons.nimplies
+                    text: TOOLBAR_MESSAGES.groupButtons.nimplies
                 },
                 */
                 {
                     value: '\\iff',
                     iconClass: 'iff',
-                    text: MESSAGES.groupButtons.iff
+                    text: TOOLBAR_MESSAGES.groupButtons.iff
                 }
             ],
             destroy: function () {
@@ -2122,32 +2122,32 @@
                 {
                     value: '\\begin{matrix}1&amp;2\\\\x&amp;y\\end{matrix}', // Bare
                     iconClass: 'matrix2x2',
-                    text: MESSAGES.matrixButtons.matrix2x2
+                    text: TOOLBAR_MESSAGES.matrixButtons.matrix2x2
                 },
                 {
                     value: '\\begin{pmatrix}1&amp;2\\\\x&amp;y\\end{pmatrix}', // Parenthesis
                     iconClass: 'matrix2x2',
-                    text: MESSAGES.matrixButtons.matrix2x2
+                    text: TOOLBAR_MESSAGES.matrixButtons.matrix2x2
                 },
                 {
                     value: '\\begin{bmatrix}1&amp;2\\\\x&amp;y\\end{bmatrix}', // Square Brackets
                     iconClass: 'matrix2x2',
-                    text: MESSAGES.matrixButtons.matrix2x2
+                    text: TOOLBAR_MESSAGES.matrixButtons.matrix2x2
                 },
                 {
                     value: '\\begin{Bmatrix}1&amp;2\\\\x&amp;y\\end{Bmatrix}', // Curly braces
                     iconClass: 'matrix2x2',
-                    text: MESSAGES.matrixButtons.matrix2x2
+                    text: TOOLBAR_MESSAGES.matrixButtons.matrix2x2
                 },
                 {
                     value: '\\begin{vmatrix}1&amp;2\\\\x&amp;y\\end{vmatrix}', // Vertical line
                     iconClass: 'matrix2x2',
-                    text: MESSAGES.matrixButtons.matrix2x2
+                    text: TOOLBAR_MESSAGES.matrixButtons.matrix2x2
                 },
                 {
                     value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // Double vertical lines
                     iconClass: 'matrix2x2',
-                    text: MESSAGES.matrixButtons.matrix2x2
+                    text: TOOLBAR_MESSAGES.matrixButtons.matrix2x2
                 }
                 // TODO matrix, \pmatrix, \bmatrix, \Bmatrix, \vmatrix, \Vmatrix
                 // TODO add column, add row, remove column, remove row
@@ -2204,7 +2204,7 @@
                  {
                  value: '\\alpha',
                  iconClass: 'alpha',
-                 text: MESSAGES.statisticsButtons.alpha
+                 text: TOOLBAR_MESSAGES.statisticsButtons.alpha
                  },
                  */
             ],
@@ -2263,7 +2263,7 @@
                  {
                  value: '\\alpha',
                  iconClass: 'alpha',
-                 text: MESSAGES.chemistryButtons.alpha
+                 text: TOOLBAR_MESSAGES.chemistryButtons.alpha
                  },
                  */
                 /*
@@ -2314,7 +2314,7 @@
          * MathInputToolBar Dialogs
          *********************************************************************************/
 
-        var MSG = kendo.mathinput.messages.dialogs = {
+        var DIALOG_MESSAGES = kendo.mathinput.messages.dialogs = {
             apply: 'Apply',
             save: 'Save',
             cancel: 'Cancel',
@@ -2479,7 +2479,7 @@
             dialog: function () {
                 if (!this._dialog) {
                     this._dialog = $('<div class=\'k-spreadsheet-window k-action-window\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
-                        messages: kendo.spreadsheet.messages.dialogs || MESSAGES,
+                        messages: kendo.spreadsheet.messages.dialogs || TOOLBAR_MESSAGES,
                         errors: this.options.errors
                     })).appendTo(document.body).kendoWindow({
                         autoFocus: this.options.autoFocus,
@@ -2532,7 +2532,7 @@
          */
         var KeyPadDialog = MathInputDialog.extend({
                 init: function (options) {
-                    var messages = kendo.mathinput.messages.dialogs.keypadDialog || MSG; // TODO: review
+                    var messages = kendo.mathinput.messages.dialogs.keypadDialog || DIALOG_MESSAGES; // TODO: review
                     var defaultOptions = {
                         title: messages.title,
                         buttons: [
@@ -2574,7 +2574,7 @@
          */
         var BasicDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.basicDialog || MSG; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.basicDialog || DIALOG_MESSAGES; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
@@ -2616,7 +2616,7 @@
          */
         var LowerGreekDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.lowerGreekDialog || MSG; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.lowerGreekDialog || DIALOG_MESSAGES; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
@@ -2771,7 +2771,7 @@
          */
         var UpperGreekDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.upperGreekDialog || MSG; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.upperGreekDialog || DIALOG_MESSAGES; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
@@ -2926,7 +2926,7 @@
          */
         var OperatorDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.operatorDialog || MSG; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.operatorDialog || DIALOG_MESSAGES; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
@@ -2968,7 +2968,7 @@
          */
         var ExpressionDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.expressionDialog || MSG; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.expressionDialog || DIALOG_MESSAGES; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
@@ -3010,7 +3010,7 @@
          */
         var GroupDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.groupDialog || MSG; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.groupDialog || DIALOG_MESSAGES; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
@@ -3052,7 +3052,7 @@
          */
         var MatrixDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.matrixDialog || MSG; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.matrixDialog || DIALOG_MESSAGES; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
@@ -3094,7 +3094,7 @@
          */
         var StatisticsDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.statisticsDialog || MSG; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.statisticsDialog || DIALOG_MESSAGES; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
@@ -3136,7 +3136,7 @@
          */
         var ChemistryDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.chemistryDialog || MSG; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.chemistryDialog || DIALOG_MESSAGES; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [

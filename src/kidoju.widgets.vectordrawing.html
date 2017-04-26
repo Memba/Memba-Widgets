@@ -14,16 +14,21 @@
     <script src="./js/vendor/kendo/kendo.core.js"></script>
     <script src="./js/vendor/kendo/kendo.data.js"></script>
     <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
     <script src="./js/vendor/kendo/kendo.color.js"></script>
     <script src="./js/vendor/kendo/kendo.popup.js"></script>
     <script src="./js/vendor/kendo/kendo.drawing.js"></script>
+    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
+    <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
+    <script src="./js/vendor/kendo/kendo.slider.js"></script>
+    <script src="./js/vendor/kendo/kendo.button.js"></script>
+    <script src="./js/vendor/kendo/kendo.colorpicker.js"></script>
     <script src="./js/vendor/kendo/kendo.list.js"></script>
     <script src="./js/vendor/kendo/kendo.combobox.js"></script>
     <script src="./js/vendor/kendo/kendo.dropdownlist.js"></script>
     <script src="./js/vendor/kendo/kendo.columnsorter.js"></script>
     <script src="./js/vendor/kendo/kendo.grid.js"></script>
     <script src="./js/vendor/kendo/kendo.toolbar.js"></script>
+    <script src="./js/vendor/kendo/kendo.window.js"></script>
     <!-- vectordrawing requirements -->
     <!--link rel="stylesheet" href="./styles/kidoju.widgets.vectordrawing.css"-->
     <script src="./js/window.assert.js"></script>
@@ -36,8 +41,6 @@
 </head>
 <body>
 <h1>kidoju.widgets.vectordrawing</h1>
-<p>TODO: each type of drawing elements should have different handles: a line has two handles, a square has 4 handles, a pen has multiple handles</p>
-<p>TODO: add images (and schemes)</p>
 <div id="toolbar"></div>
 <div class="kj-stage" style="position:relative;height:600px;width:800px;border:solid 1px black;transform: scale(0.75);">
     <div data-role="stage" style="height:600px;width:800px;">
@@ -55,6 +58,13 @@
     enabled: <span data-bind="text: enabled"></span>
 }
 </pre>
+<div>
+    <button>Size 1</button>&nbsp;
+    <button>Size 2</button>&nbsp;
+    <button>Open</button>&nbsp;
+    <button>Save</button>&nbsp;
+    <button>Export</button>&nbsp;
+</div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />enabled
@@ -103,6 +113,66 @@
         });
 
         $(function() {
+            $('button').click(function (e) {
+                var vectorDrawingWidget  = $(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
+                switch ($('button').index(e.target)) {
+                    case 0: // Size 1
+                        var stage = $('.kj-stage');
+                        var element = vectorDrawingWidget.element;
+                        var parent = vectorDrawingWidget.wrapper.parent();
+                        stage.css({ transform: 'scale(0.75)' });
+                        parent.css({
+                            top: 50,
+                            left: 100,
+                            height: 480,
+                            width: 640
+                        });
+                        element.css({
+                            height: 480,
+                            width: 640
+                        });
+                        vectorDrawingWidget.resize();
+                        break;
+                    case 1: // Size 2
+                        var stage = $('.kj-stage');
+                        var element = vectorDrawingWidget.element;
+                        var parent = vectorDrawingWidget.wrapper.parent();
+                        stage.css({ transform: 'scale(0.9)' });
+                        parent.css({
+                            top: 75,
+                            left: 200,
+                            height: 500,
+                            width: 400
+                        });
+                        element.css({
+                            height: 500,
+                            width: 400
+                        });
+                        vectorDrawingWidget.resize();
+                        break;
+                    case 2: // Open
+                        window.alert('TODO: Check SVG roundtrips');
+                        break;
+                    case 3: // Save
+                        vectorDrawingWidget.save()
+                            .done(function (data) {
+                                kendo.saveAs({
+                                    dataURI: data,
+                                    fileName: "vectordrawing.svg"
+                                });
+                            });
+                        break;
+                    case 4: // Export
+                        vectorDrawingWidget.export()
+                            .done(function (data) {
+                                kendo.saveAs({
+                                    dataURI: data,
+                                    fileName: "vectordrawing.png"
+                                });
+                            });
+                        break;
+                }
+            });
             $('#grid').kendoGrid({
                 dataSource: viewModel.source,
                 columns: [

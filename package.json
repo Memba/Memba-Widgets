@@ -25,6 +25,7 @@
     "start": "node ./nodejs/http.server.js",
     "test": "grunt test"
   },
+  "dependencies": {},
   "devDependencies": {
     "chai": "^3.5.0",
     "grunt": "^1.0.1",
@@ -57,6 +58,7 @@
     "mocha": "^3.3.0",
     "phantomjs-prebuilt": "^2.1.14",
     "sinon": "^2.2.0",
+    "systemjs-plugin-babel": "0.0.21",
     "zombie": "^5.0.5"
   },
   "engines": {

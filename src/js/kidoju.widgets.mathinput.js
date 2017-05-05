@@ -119,7 +119,7 @@
                 errorColor: '#cc0000',
                 inline: false,
                 mathquill: {
-                    //See  http://docs.mathquill.com/en/latest/Config/
+                    // See http://docs.mathquill.com/en/latest/Config/
                     spaceBehavesLikeTab: true,
                     leftRightIntoCmdGoes: 'up',
                     restrictMismatchedBrackets: true,
@@ -129,7 +129,7 @@
                     autoSubscriptNumerals: true,
                     autoCommands: 'pi theta sqrt sum',
                     autoOperatorNames: 'sin cos',
-                    substituteTextarea: function() { return document.createElement('textarea'); }
+                    substituteTextarea: function () { return document.createElement('textarea'); }
                 },
                 // messages: {},
                 toolbar: {
@@ -287,7 +287,7 @@
                 // TODO Check interesting code at https://github.com/mathquill/mathquill/blob/master/test/visual.html#L456
                 /*
                  MQ.MathField($('#disable-typing')[0], {
-                     substituteKeyboardEvents: function(textarea, handlers) {
+                     substituteKeyboardEvents: function (textarea, handlers) {
                          return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
                              cut: $.noop,
                              paste: $.noop,
@@ -714,7 +714,7 @@
             },
             statisticsButtons: {
 
-            },
+            }
             // unitsButtons: {},
             // chemistryButtons: {}
         };

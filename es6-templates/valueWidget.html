@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="../src/styles/vendor/kendo/web/kendo.common.min.css">
+    <link rel="stylesheet" href="../src/styles/vendor/kendo/web/kendo.rtl.min.css">
+    <link rel="stylesheet" href="../src/styles/vendor/kendo/web/kendo.default.min.css">
+    <script src="../test/vendor/system.js"></script>
+</head>
+<body>
+<h2>Imperative</h2>
+<div id="unbound"></div>
+<h2>Declarative</h2>
+<div id="bound">
+    <input data-bind="value: value">
+    <div data-role="valuewidget" data-bind="value: value">
+</div>
+
+<script type="text/javascript" charset="utf-8">
+    /**
+     *
+     */
+    System.config({
+        baseURL: './',
+        transpiler: 'plugin-babel',
+        map: {
+            'plugin-babel': '../node_modules/systemjs-plugin-babel/plugin-babel.js',
+            'systemjs-babel-build': '../node_modules/systemjs-plugin-babel/systemjs-babel-browser.js',
+            'jquery': '../src/js/vendor/jquery/jquery-3.2.1.min.js'
+        },
+        paths: {
+        	// Note: systemJS 0.20.x does not load kendo ui using a wildcard as explained at http://docs.telerik.com/kendo-ui/third-party/systemjs
+            // 'kendo.*': '../bower_components/kendo-ui/src/js/kendo.*'
+            'kendo.*': '../src/js/vendor/kendo/kendo.*.js'
+        }
+    });
+    System.import('./valueWidget.es6').then(function () {
+    	var kendo = window.kendo;
+        var viewModel = kendo.observable({
+            value: 'Hey!'
+        });
+        $(function () {
+            // Imperative
+            $('#unbound').kendoValueWidget({
+                value: 'Hello World'
+            });
+            // Declarative
+            kendo.bind('#bound', viewModel);
+        });
+    });
+</script>
+</body>
+</html>

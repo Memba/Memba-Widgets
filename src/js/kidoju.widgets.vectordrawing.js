@@ -536,6 +536,9 @@
                 this._dialogs.pop();
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Event handler for PropertyChangeCommand
              * @param options
@@ -581,12 +584,14 @@
                 }
             },
 
+            /* jshint +W074 */
+
             /**
              * Event handler for ToolbarArrangeCommand
              * @param options
              * @private
              */
-            _onToolbarArrange: function(options) {
+            _onToolbarArrange: function (options) {
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 var that = this;
                 if ($.isPlainObject(that._selection) && $.type(that._selection.uid) === STRING) {
@@ -628,7 +633,7 @@
              * Event handler for ToolbarRemoveCommand
              * @private
              */
-            _onToolbarRemove: function() {
+            _onToolbarRemove: function () {
                 var that = this;
                 if ($.isPlainObject(that._selection) && $.type(that._selection.uid) === STRING) {
                     var dataItem = that.dataSource.getByUid(that._selection.uid);
@@ -991,6 +996,7 @@
                             break;
                         case TOOLS.IMAGE:
                             that._continueImage(position, e.data);
+                            break;
                         case TOOLS.LINE:
                             that._continueLine(position, e.data);
                             break;
@@ -1060,6 +1066,9 @@
 
             /* jshint +W074 */
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * MouseUp event handler (anywhere on the document)
              * Cancels the current action if _mouseUp did not occur to avoid `losing` elements at far coordinates
@@ -1090,6 +1099,8 @@
                     }
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * Start selection
@@ -1130,6 +1141,9 @@
                 }
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Start transformation
              * @param position
@@ -1159,12 +1173,14 @@
                         break;
                     // Note: handles are tested first because they overlap the bbox
                     case HANDLES.BBOX:
-                    default:
+                        // default:
                         data.transformation = TRANSFORMATION.TRANSLATE;
                         data.previous = position;
                         break;
                 }
             },
+
+            /* jshint +W074 */
 
             /**
              * Continue Transformation
@@ -1957,7 +1973,7 @@
         kendo.vectordrawing = { messages: {} };
 
         var TOOLBAR_MESSAGES = kendo.vectordrawing.messages.toolbar = {
-            //Tools
+            // Tools
             select: 'Select',
             pen: 'Pen',
             line: 'Line',
@@ -2462,8 +2478,8 @@
             },
             _customColorPalette: function () {
                 var element = $('<div />', {
-                    'class': 'k-spreadsheet-window',
-                    'html': '<div></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>' + TOOLBAR_MESSAGES.colorPalette.apply + '</button>' + '<button class=\'k-button\' data-bind=\'click: close\'>' + TOOLBAR_MESSAGES.colorPalette.cancel + '</button>' + '</div>'
+                    class: 'k-spreadsheet-window',
+                    html: '<div></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>' + TOOLBAR_MESSAGES.colorPalette.apply + '</button>' + '<button class=\'k-button\' data-bind=\'click: close\'>' + TOOLBAR_MESSAGES.colorPalette.cancel + '</button>' + '</div>'
                 });
                 var dialog = this.dialog = element.appendTo(document.body).kendoWindow({
                     animation: false,
@@ -3013,12 +3029,12 @@
                 });
                 kendo.bind(element, model);
                 element.find('input').focus().on('keydown', function (ev) {
-                    if (ev.keyCode == 13) {
+                    if (ev.keyCode === 13) {
                         model.url = $(this).val();
                         ev.stopPropagation();
                         ev.preventDefault();
                         model.apply();
-                    } else if (ev.keyCode == 27) {
+                    } else if (ev.keyCode === 27) {
                         ev.stopPropagation();
                         ev.preventDefault();
                         model.cancel();
@@ -3031,7 +3047,7 @@
         /**
          * Fill and Stroke Colors
          */
-        var ColorChooser = VectorDrawingDialog.extend({
+        var ColorChooserDialog = VectorDrawingDialog.extend({
             init: function (options) {
                 VectorDrawingDialog.fn.init.call(this, options);
                 this.element = this.dialog().element;
@@ -3062,10 +3078,10 @@
                 }
             }
         });
-        var ColorPickerDialog = ColorChooser.extend({
+        var ColorPickerDialog = ColorChooserDialog.extend({
             init: function (options) {
                 options.width = 177;
-                ColorChooser.fn.init.call(this, options);
+                ColorChooserDialog.fn.init.call(this, options);
                 this._colorPalette();
             },
             _colorPalette: function () {
@@ -3139,10 +3155,10 @@
         });
         kendo.vectordrawing.dialogs.register('colorPickerEx', ColorPickerDialog);
         /*
-        var CustomColorDialog = ColorChooser.extend({
+        var CustomColorDialog = ColorChooserDialog.extend({
             init: function (options) {
                 options.width = 268;
-                ColorChooser.fn.init.call(this, options);
+                ColorChooserDialog.fn.init.call(this, options);
                 this.dialog().setOptions({ animation: false });
                 this.dialog().one('activate', this._colorPicker.bind(this));
             },

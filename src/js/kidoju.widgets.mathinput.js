@@ -13,12 +13,12 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
-        './vendor/kendo/kendo.userevents',
-        './vendor/kendo/kendo.draganddrop'
-        // Popup
-        // staticList
-
-        // TODO: remove spreadhseet classes
+        './vendor/kendo/kendo.popup',
+        './vendor/kendo/kendo.slider',
+        './vendor/kendo/kendo.colorpicker',
+        './vendor/kendo/kendo.combobox',
+        './vendor/kendo/kendo.dropdownlist',
+        './vendor/kendo/kendo.toolbar'
     ], f);
 })(function (mq) {
 

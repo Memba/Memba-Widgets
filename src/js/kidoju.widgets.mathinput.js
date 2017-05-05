@@ -134,7 +134,7 @@
                 // messages: {},
                 toolbar: {
                     container: '#toolbar',
-                    resizable: false,
+                    resizable: true,
                     tools: TOOLBAR
                 }
             },
@@ -865,7 +865,7 @@
             ],
             options: {
                 name: 'MathInputToolBar',
-                resizable: false,
+                resizable: true,
                 tools: TOOLBAR
             },
             focused: function () {

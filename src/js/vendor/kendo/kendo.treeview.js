@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -185,7 +185,7 @@
                     $(this).addClass(KSTATEHOVER);
                 }).on('mouseleave' + NS, clickableItems, function () {
                     $(this).removeClass(KSTATEHOVER);
-                }).on(CLICK + NS, clickableItems, proxy(that._click, that)).on('dblclick' + NS, '.k-in:not(.k-state-disabled)', proxy(that._toggleButtonClick, that)).on(CLICK + NS, '.k-i-expand,.k-i-collapse', proxy(that._toggleButtonClick, that)).on('keydown' + NS, proxy(that._keydown, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that)).on('mousedown' + NS, '.k-in,.k-checkbox-wrapper :checkbox,.k-i-expand,.k-i-collapse', proxy(that._mousedown, that)).on('change' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxChange, that)).on('click' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxClick, that)).on('click' + NS, '.k-request-retry', proxy(that._retryRequest, that)).on('click' + NS, function (e) {
+                }).on(CLICK + NS, clickableItems, proxy(that._click, that)).on('dblclick' + NS, '.k-in:not(.k-state-disabled)', proxy(that._toggleButtonClick, that)).on(CLICK + NS, '.k-i-expand,.k-i-collapse', proxy(that._toggleButtonClick, that)).on('keydown' + NS, proxy(that._keydown, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that)).on('mousedown' + NS, '.k-in,.k-checkbox-wrapper :checkbox,.k-i-expand,.k-i-collapse', proxy(that._mousedown, that)).on('change' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxChange, that)).on('click' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxClick, that)).on('click' + NS, '.k-checkbox-label', proxy(that._checkboxLabelClick, that)).on('click' + NS, '.k-request-retry', proxy(that._retryRequest, that)).on('click' + NS, function (e) {
                     if (!$(e.target).is(':kendoFocusable')) {
                         that.focus();
                     }
@@ -197,6 +197,9 @@
                     checkbox.data(INDETERMINATE, false).prop(INDETERMINATE, false).prop(CHECKED, true);
                     this._checkboxChange(e);
                 }
+            },
+            _checkboxLabelClick: function (e) {
+                e.target.previousSibling.click();
             },
             _syncHtmlAndDataSource: function (root, dataSource) {
                 root = root || this.root;
@@ -218,7 +221,10 @@
                 }
             },
             _animation: function () {
-                var options = this.options, animationOptions = options.animation;
+                var options = this.options, animationOptions = options.animation, hasCollapseAnimation = animationOptions.collapse && 'effects' in animationOptions.collapse, collapse = extend({}, animationOptions.expand, animationOptions.collapse);
+                if (!hasCollapseAnimation) {
+                    collapse = extend(collapse, { reverse: true });
+                }
                 if (animationOptions === false) {
                     animationOptions = {
                         expand: { effects: {} },
@@ -227,10 +233,8 @@
                             effects: {}
                         }
                     };
-                } else if (!animationOptions.collapse || !('effects' in animationOptions.collapse)) {
-                    animationOptions.collapse = extend({ reverse: true }, animationOptions.expand);
                 }
-                extend(animationOptions.collapse, { hide: true });
+                animationOptions.collapse = extend(collapse, { hide: true });
                 options.animation = animationOptions;
             },
             _dragging: function () {
@@ -832,11 +836,11 @@
                 var checkboxes = options.checkboxes;
                 var defaultTemplate;
                 if (checkboxes) {
-                    defaultTemplate = '<input type=\'checkbox\' tabindex=\'-1\' #= (item.enabled === false) ? \'disabled\' : \'\' # #= item.checked ? \'checked\' : \'\' #';
+                    defaultTemplate = '<input aria-label=\'#=item.text#\' type=\'checkbox\' tabindex=\'-1\' #= (item.enabled === false) ? \'disabled\' : \'\' # #= item.checked ? \'checked\' : \'\' #';
                     if (checkboxes.name) {
                         defaultTemplate += ' name=\'' + checkboxes.name + '\'';
                     }
-                    defaultTemplate += ' id=\'_#= item.uid #\' class=\'k-checkbox\' /><label for=\'_#= item.uid #\' class=\'k-checkbox-label\'></label>';
+                    defaultTemplate += ' id=\'_#= item.uid #\' class=\'k-checkbox\' /><span class=\'k-checkbox-label\'></span>';
                     checkboxes = extend({ template: defaultTemplate }, options.checkboxes);
                     if (typeof checkboxes.template == STRING) {
                         checkboxes.template = template(checkboxes.template);

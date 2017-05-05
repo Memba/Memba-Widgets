@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2161,33 +2161,40 @@
                 var this$1 = this;
                 var seriesPoints = this.seriesPoints;
                 var startIdx = linePoints[0].categoryIx;
-                var endIdx = startIdx + linePoints.length;
+                var length = linePoints.length;
+                if (startIdx < 0) {
+                    startIdx = 0;
+                    length--;
+                }
+                var endIdx = startIdx + length;
+                var pointOffset = this.seriesOptions[0]._outOfRangeMinPoint ? 1 : 0;
                 var stackPoints = [];
                 this._stackPoints = this._stackPoints || [];
-                for (var idx = startIdx; idx < endIdx; idx++) {
+                for (var categoryIx = startIdx; categoryIx < endIdx; categoryIx++) {
+                    var pointIx = categoryIx + pointOffset;
                     var currentSeriesIx = seriesIx;
                     var point = void 0;
                     do {
                         currentSeriesIx--;
-                        point = seriesPoints[currentSeriesIx][idx];
+                        point = seriesPoints[currentSeriesIx][pointIx];
                     } while (currentSeriesIx > 0 && !point);
                     if (point) {
-                        if (style !== STEP && idx > startIdx && !seriesPoints[currentSeriesIx][idx - 1]) {
-                            stackPoints.push(this$1._previousSegmentPoint(idx, idx - 1, currentSeriesIx));
+                        if (style !== STEP && categoryIx > startIdx && !seriesPoints[currentSeriesIx][pointIx - 1]) {
+                            stackPoints.push(this$1._previousSegmentPoint(categoryIx, pointIx, pointIx - 1, currentSeriesIx));
                         }
                         stackPoints.push(point);
-                        if (style !== STEP && idx + 1 < endIdx && !seriesPoints[currentSeriesIx][idx + 1]) {
-                            stackPoints.push(this$1._previousSegmentPoint(idx, idx + 1, currentSeriesIx));
+                        if (style !== STEP && categoryIx + 1 < endIdx && !seriesPoints[currentSeriesIx][pointIx + 1]) {
+                            stackPoints.push(this$1._previousSegmentPoint(categoryIx, pointIx, pointIx + 1, currentSeriesIx));
                         }
                     } else {
-                        var gapStackPoint = this$1._createGapStackPoint(idx);
+                        var gapStackPoint = this$1._createGapStackPoint(categoryIx);
                         this$1._stackPoints.push(gapStackPoint);
                         stackPoints.push(gapStackPoint);
                     }
                 }
                 return stackPoints;
             },
-            _previousSegmentPoint: function (categoryIx, segmentIx, seriesIdx) {
+            _previousSegmentPoint: function (categoryIx, pointIx, segmentIx, seriesIdx) {
                 var seriesPoints = this.seriesPoints;
                 var index = seriesIdx;
                 var point;
@@ -2199,7 +2206,7 @@
                     point = this._createGapStackPoint(categoryIx);
                     this._stackPoints.push(point);
                 } else {
-                    point = seriesPoints[index][categoryIx];
+                    point = seriesPoints[index][pointIx];
                 }
                 return point;
             },
@@ -4152,7 +4159,9 @@
                 this.chartService.notify(SHOW_TOOLTIP, options);
             },
             hide: function () {
-                this.chartService.notify(HIDE_TOOLTIP);
+                if (this.chartService) {
+                    this.chartService.notify(HIDE_TOOLTIP);
+                }
             },
             destroy: function () {
                 delete this.chartService;
@@ -7068,6 +7077,7 @@
         });
         PlotAreaFactory.current = new PlotAreaFactory();
         var ZOOM_ACCELERATION = 3;
+        var SELECTOR_HEIGHT_ADJUST = 0.1;
         function createDiv(className) {
             var element = document.createElement('div');
             if (className) {
@@ -7179,7 +7189,7 @@
                 var paddingTop = ref$1.paddingTop;
                 this.options = deepExtend({}, {
                     width: categoryAxisLineBox.width(),
-                    height: valueAxisLineBox.height(),
+                    height: valueAxisLineBox.height() + SELECTOR_HEIGHT_ADJUST,
                     padding: {
                         left: paddingLeft,
                         top: paddingTop
@@ -7545,7 +7555,8 @@
                         shared: true,
                         points: points,
                         category: point.category,
-                        categoryText: this.formatService.auto(this.options.categoryFormat, point.category)
+                        categoryText: this.formatService.auto(this.options.categoryFormat, point.category),
+                        series: this.plotArea.series
                     }, this.options);
                 }
             },
@@ -9872,7 +9883,7 @@
                 this._initTheme(options, themeOptions);
                 this._initSurface();
                 this._initHandlers();
-                this._bindCategories();
+                this.bindCategories();
                 dataviz.FontLoader.preloadFonts(userOptions, function () {
                     if (!this$1._destroyed) {
                         this$1._redraw();
@@ -9899,12 +9910,12 @@
                 }
                 options.series = seriesCopies;
                 resolveAxisAliases(options);
-                this._applyDefaults(options, themeOptions);
+                this.applyDefaults(options, themeOptions);
                 if (options.seriesColors === null) {
                     delete options.seriesColors;
                 }
                 this.options = deepExtend({}, themeOptions, options);
-                this._applySeriesColors();
+                this.applySeriesColors();
             },
             getSize: function () {
                 return {
@@ -9925,8 +9936,8 @@
                 this._noTransitionsRedraw();
             },
             redraw: function (paneName) {
-                this._applyDefaults(this.options);
-                this._applySeriesColors();
+                this.applyDefaults(this.options);
+                this.applySeriesColors();
                 if (paneName) {
                     var plotArea = this._model._plotArea;
                     var pane = plotArea.findPane(paneName);
@@ -9972,10 +9983,10 @@
                     }
                 }
                 if (points) {
-                    this._togglePointsHighlight(show, points);
+                    this.togglePointsHighlight(show, points);
                 }
             },
-            _togglePointsHighlight: function (show, points) {
+            togglePointsHighlight: function (show, points) {
                 var highlight = this._highlight;
                 for (var idx = 0; idx < points.length; idx++) {
                     highlight.togglePointHighlight(points[idx], show);
@@ -10107,17 +10118,20 @@
                 var tooltipOptions = ref.options.tooltip;
                 var tooltip;
                 if (this._sharedTooltip()) {
-                    tooltip = new SharedTooltip(this._plotArea, tooltipOptions);
+                    tooltip = this._createSharedTooltip(tooltipOptions);
                 } else {
                     tooltip = new Tooltip(this.chartService, tooltipOptions);
                 }
                 return tooltip;
             },
-            _applyDefaults: function (options, themeOptions) {
+            _createSharedTooltip: function (options) {
+                return new SharedTooltip(this._plotArea, options);
+            },
+            applyDefaults: function (options, themeOptions) {
                 applyAxisDefaults(options, themeOptions);
                 applySeriesDefaults(options, themeOptions);
             },
-            _applySeriesColors: function () {
+            applySeriesColors: function () {
                 var options = this.options;
                 var series = options.series;
                 var colors = options.seriesColors || [];
@@ -10748,18 +10762,18 @@
                     this._redrawTimeout = null;
                 }
             },
-            _bindCategories: function () {
+            bindCategories: function () {
                 var this$1 = this;
                 var options = this.options;
                 var definitions = [].concat(options.categoryAxis);
                 for (var axisIx = 0; axisIx < definitions.length; axisIx++) {
                     var axis = definitions[axisIx];
                     if (axis.autoBind !== false) {
-                        this$1._bindCategoryAxisFromSeries(axis, axisIx);
+                        this$1.bindCategoryAxisFromSeries(axis, axisIx);
                     }
                 }
             },
-            _bindCategoryAxisFromSeries: function (axis, axisIx) {
+            bindCategoryAxisFromSeries: function (axis, axisIx) {
                 var this$1 = this;
                 var series = this.options.series;
                 var seriesLength = series.length;
@@ -10823,7 +10837,7 @@
                     options.transitions = false;
                     transitionsState = true;
                 }
-                this.redraw();
+                this._redraw();
                 if (transitionsState) {
                     options.transitions = true;
                 }
@@ -10870,7 +10884,7 @@
             },
             setOptions: function (options, theme) {
                 this.applyOptions(options, theme);
-                this._bindCategories();
+                this.bindCategories();
                 this.redraw();
                 this.updateMouseMoveHandler();
             },
@@ -10885,8 +10899,10 @@
                 var obj$1;
                 unbindEvents(document, (obj$1 = {}, obj$1[MOUSEMOVE] = this._mouseMoveTrackHandler, obj$1));
                 this._destroyView();
-                this.surface.destroy();
-                this.surface = null;
+                if (this.surface) {
+                    this.surface.destroy();
+                    this.surface = null;
+                }
                 this._clearRedrawTimeout();
             },
             _destroyView: function () {
@@ -11222,6 +11238,7 @@
         var services = dataviz.services;
         var proxy = $.proxy;
         var isArray = $.isArray;
+        var extend = $.extend;
         var template = kendo.template;
         var MOUSELEAVE_NS = 'mouseleave' + NS;
         var AXIS_LABEL_CLICK = constants.AXIS_LABEL_CLICK;
@@ -11287,6 +11304,7 @@
                 if (userOptions) {
                     userOptions.dataSource = dataSource;
                 }
+                this._seriesVisibility = new SeriesVisibilityState();
                 this.bind(this.events, this.options);
                 this._initDataSource(userOptions);
                 kendo.notify(this, dataviz.ui);
@@ -11341,8 +11359,8 @@
             refresh: function () {
                 var chart = this;
                 var instance = chart._instance;
-                instance._applyDefaults(chart.options);
-                instance._applySeriesColors();
+                instance.applyDefaults(chart.options);
+                instance.applySeriesColors();
                 chart._bindSeries();
                 chart._bindCategories();
                 chart.trigger(DATABOUND);
@@ -11466,7 +11484,7 @@
             },
             _getThemeOptions: function (userOptions) {
                 var themeName = (userOptions || {}).theme;
-                if (themeName === 'sass' || themeName === 'default-v2') {
+                if (themeName === 'sass' || themeName === 'default-v2' || themeName === 'bootstrap-v4') {
                     return dataviz.autoTheme().chart;
                 }
                 if (defined(themeName)) {
@@ -11584,7 +11602,7 @@
                     pointVisibility[pointIndex] = defined(visible) ? !visible : false;
                 } else {
                     currentSeries.visible = !currentSeries.visible;
-                    this._saveGroupVisibleState(currentSeries);
+                    this._seriesVisibility.save(currentSeries);
                 }
                 chart._noTransitionsRedraw();
             },
@@ -11597,19 +11615,22 @@
                 highlight.hide();
             },
             _bindData: function (e) {
-                var chart = this, options = chart.options, series = chart._sourceSeries || options.series, seriesIx, seriesLength = series.length, data = chart.dataSource.view(), grouped = (chart.dataSource.group() || []).length > 0, processedSeries = [], currentSeries;
+                var chart = this, options = chart.options, series = chart._sourceSeries || options.series, seriesIx, seriesLength = series.length, data = chart.dataSource.view(), grouped = (chart.dataSource.group() || []).length > 0, processedSeries = [], seriesVisibility = this._seriesVisibility, currentSeries, groupedSeries;
                 for (seriesIx = 0; seriesIx < seriesLength; seriesIx++) {
                     currentSeries = series[seriesIx];
                     if (chart._isBindable(currentSeries) && grouped) {
-                        processedSeries = processedSeries.concat(groupSeries(currentSeries, data));
-                        this._applyGroupVisibleState(processedSeries, e);
+                        groupedSeries = groupSeries(currentSeries, data);
+                        processedSeries = processedSeries.concat(groupedSeries);
+                        seriesVisibility.applyByGroup(groupedSeries, e);
                     } else {
-                        processedSeries.push(currentSeries || []);
+                        currentSeries = extend({}, currentSeries);
+                        processedSeries.push(currentSeries);
+                        seriesVisibility.applyByIndex(currentSeries, e);
                     }
                 }
                 chart._sourceSeries = series;
                 options.series = processedSeries;
-                this._instance._applySeriesColors();
+                this._instance.applySeriesColors();
                 chart._bindSeries();
                 chart._bindCategories();
                 this._hasData = true;
@@ -11618,26 +11639,6 @@
                 this._bindData(e);
                 this.trigger(DATABOUND);
                 this._redraw();
-            },
-            _applyGroupVisibleState: function (processedSeries, e) {
-                if (e && e.action) {
-                    var visibleState = this._groupVisibleState = this._groupVisibleState || {};
-                    for (var idx = 0; idx < processedSeries.length; idx++) {
-                        if (visibleState[processedSeries[idx]._groupValue] === false) {
-                            processedSeries[idx].visible = false;
-                        }
-                    }
-                } else {
-                    delete this._groupVisibleState;
-                }
-            },
-            _saveGroupVisibleState: function (series) {
-                if (defined(series._groupValue)) {
-                    if (!this._groupVisibleState) {
-                        this._groupVisibleState = {};
-                    }
-                    this._groupVisibleState[series._groupValue] = series.visible;
-                }
             },
             _bindSeries: function () {
                 var chart = this, data = chart.dataSource.view(), series = chart.options.series, seriesIx, seriesLength = series.length, currentSeries, groupIx, seriesData;
@@ -11682,7 +11683,7 @@
                         }
                     }
                 } else if (this._instance) {
-                    this._instance._bindCategoryAxisFromSeries(axis, axisIx);
+                    this._instance.bindCategoryAxisFromSeries(axis, axisIx);
                 }
             },
             _isBindable: function (series) {
@@ -11767,6 +11768,42 @@
             kendo.PDFMixin.extend(Chart.fn);
         }
         dataviz.ui.plugin(Chart);
+        var SeriesVisibilityState = Class.extend({
+            init: function () {
+                this.groups = {};
+                this.index = {};
+            },
+            applyByGroup: function (series, e) {
+                if (e && e.action) {
+                    for (var idx = 0; idx < series.length; idx++) {
+                        if (this.groups[series[idx]._groupValue] === false) {
+                            series[idx].visible = false;
+                        }
+                    }
+                } else {
+                    this.groups = {};
+                }
+            },
+            applyByIndex: function (series, e) {
+                if (e && e.action) {
+                    if (this.index[series.index] === false) {
+                        series.visible = false;
+                    }
+                } else {
+                    this.index = {};
+                }
+            },
+            save: function (series) {
+                if (!series) {
+                    return;
+                }
+                if (defined(series._groupValue)) {
+                    this.groups[series._groupValue] = series.visible;
+                } else {
+                    this.index[series.index] = series.visible;
+                }
+            }
+        });
         var geom = kendo.geometry;
         var Tooltip = Observable.extend({
             init: function (chartElement, options) {
@@ -11800,7 +11837,7 @@
             options: {
                 opacity: 1,
                 animation: { duration: TOOLTIP_ANIMATION_DURATION },
-                sharedTemplate: '<table>' + '<th colspan=\'3\'>#= categoryText #</th>' + '# for(var i = 0; i < points.length; i++) { #' + '# var point = points[i]; #' + '<tr>' + '<td><span class=\'k-chart-shared-tooltip-marker\' style=\'background-color:#:point.series.color#\'></span></td>' + '# if(point.series.name) { # ' + '<td> #= point.series.name #:</td>' + '# } #' + '<td>#= content(point) #</td>' + '</tr>' + '# } #' + '</table>',
+                sharedTemplate: '<table>' + '<th colspan=\'#= colspan #\'>#= categoryText #</th>' + '# for(var i = 0; i < points.length; i++) { #' + '# var point = points[i]; #' + '<tr>' + '# if(colorMarker) { # ' + '<td><span class=\'k-chart-shared-tooltip-marker\' style=\'background-color:#:point.series.color#\'></span></td>' + '# } #' + '# if(nameColumn) { # ' + '<td> #if (point.series.name) {# #: point.series.name #: #} else {# &nbsp; #}#</td>' + '# } #' + '<td>#= content(point) #</td>' + '</tr>' + '# } #' + '</table>',
                 categoryFormat: '{0:d}'
             },
             move: function () {
@@ -11889,13 +11926,27 @@
                 }
             },
             _sharedContent: function (e) {
-                var tooltip = this, template, content;
-                template = kendo.template(tooltip.options.sharedTemplate);
-                content = template({
-                    points: e.points,
+                var points = e.points;
+                var nameColumn = dataviz.grep(points, function (point) {
+                    return defined(point.series.name);
+                }).length;
+                var colorMarker = e.series.length > 1;
+                var colspan = 1;
+                if (nameColumn) {
+                    colspan++;
+                }
+                if (colorMarker) {
+                    colspan++;
+                }
+                var template = kendo.template(this.options.sharedTemplate);
+                var content = template({
+                    points: points,
                     category: e.category,
                     categoryText: e.categoryText,
-                    content: tooltip._pointContent
+                    content: this._pointContent,
+                    colorMarker: colorMarker,
+                    nameColumn: nameColumn,
+                    colspan: colspan
                 });
                 return content;
             },
@@ -12051,7 +12102,7 @@
                     if (series.categoryField) {
                         var axis = plotArea.seriesCategoryAxis(series);
                         var options = [].concat(chart.options.categoryAxis);
-                        chart._instance._bindCategoryAxisFromSeries(options[axis.axisIndex], axis.axisIndex);
+                        chart._instance.bindCategoryAxisFromSeries(options[axis.axisIndex], axis.axisIndex);
                     }
                     chart._noTransitionsRedraw();
                     this._clearFields();
@@ -12074,7 +12125,7 @@
                 } else {
                     elements = isArray(elements) ? elements : [elements];
                 }
-                this._chart._instance._togglePointsHighlight(show, elements);
+                this._chart._instance.togglePointsHighlight(show, elements);
             },
             toggleVisibility: function (visible, filter) {
                 var chart = this._chart;
@@ -12082,7 +12133,7 @@
                 var hasFilter = kendo.isFunction(filter);
                 if (!hasFilter) {
                     seriesOptions.visible = visible;
-                    chart._saveGroupVisibleState(seriesOptions);
+                    chart._seriesVisibility.save(seriesOptions);
                 } else {
                     if (inArray(seriesOptions.type, [
                             PIE,

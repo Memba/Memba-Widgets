@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -576,7 +576,13 @@
                 var that = this;
                 that.wrapper.removeClass(STATE_DEFAULT).addClass(STATE_DISABLED);
                 $(that.element).prop(DISABLED, DISABLED);
-                that.wrapper.find('.k-button').off(MOUSE_DOWN).on(MOUSE_DOWN, kendo.preventDefault).off(MOUSE_UP).on(MOUSE_UP, kendo.preventDefault).off('mouseleave' + NS).on('mouseleave' + NS, kendo.preventDefault).off(MOUSE_OVER).on(MOUSE_OVER, kendo.preventDefault);
+                that.wrapper.find('.k-button').off(MOUSE_DOWN).on(MOUSE_DOWN, function (e) {
+                    e.preventDefault();
+                    $(this).addClass('k-state-active');
+                }).off(MOUSE_UP).on(MOUSE_UP, function (e) {
+                    e.preventDefault();
+                    $(this).removeClass('k-state-active');
+                }).off('mouseleave' + NS).on('mouseleave' + NS, kendo.preventDefault).off(MOUSE_OVER).on(MOUSE_OVER, kendo.preventDefault);
                 that.wrapper.find(TICK_SELECTOR + ', ' + TRACK_SELECTOR).off(TRACK_MOUSE_DOWN).off(TRACK_MOUSE_UP);
                 that.wrapper.find(DRAG_HANDLE).attr(TABINDEX, -1).off(MOUSE_UP).off(KEY_DOWN).off(CLICK).off(FOCUS).off(BLUR);
                 that.options.enabled = false;

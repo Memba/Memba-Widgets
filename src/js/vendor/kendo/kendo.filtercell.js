@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -153,10 +153,12 @@
                 if (options.inputWidth !== null) {
                     input.width(options.inputWidth);
                 }
+                input.attr('aria-label', that._getColumnTitle());
                 that._setInputType(options, type);
                 if (type != BOOL && options.showOperators !== false) {
                     that._createOperatorDropDown(operators);
                 } else {
+                    $('<div unselectable="on" />').css('display', 'none').text('eq').appendTo(wrapper);
                     wrapper.addClass('k-operator-hidden');
                 }
                 that._createClearIcon();
@@ -199,13 +201,17 @@
                         labelFalse
                     ]);
                 } else if (type == 'number') {
-                    input.attr(kendo.attr('role'), 'numerictextbox');
+                    input.attr(kendo.attr('role'), 'numerictextbox').attr('title', that._getColumnTitle());
                 } else if (type == ENUM) {
                     input.attr(kendo.attr('role'), 'combobox').attr(kendo.attr('text-field'), 'text').attr(kendo.attr('suggest'), true).attr(kendo.attr('filter'), 'contains').attr(kendo.attr('value-field'), 'value').attr(kendo.attr('value-primitive'), true);
                 }
             },
+            _getColumnTitle: function () {
+                var column = this.options.column;
+                return column ? column.title || column.field : '';
+            },
             _createOperatorDropDown: function (operators) {
-                var items = [];
+                var items = [], viewModel = this.viewModel;
                 for (var prop in operators) {
                     items.push({
                         text: operators[prop],
@@ -222,6 +228,10 @@
                     },
                     valuePrimitive: true
                 }).data('kendoDropDownList');
+                viewModel.bind('change', function () {
+                    var ariaLabel = operators[viewModel.operator];
+                    dropdown.attr('aria-label', ariaLabel);
+                });
                 this.operatorDropDown.wrapper.find('.k-i-arrow-60-down').removeClass('k-i-arrow-60-down').addClass('k-i-filter');
             },
             initSuggestDataSource: function (options) {
@@ -337,7 +347,7 @@
             },
             _createClearIcon: function () {
                 var that = this;
-                $('<button type=\'button\' class=\'k-button k-button-icon\' title = ' + that.options.messages.clear + '/>').attr(kendo.attr('bind'), 'visible:operatorVisible').html('<span class=\'k-icon k-i-close\'/>').click(proxy(that.clearFilter, that)).appendTo(that.wrapper);
+                $('<button type=\'button\' class=\'k-button k-button-icon\' title = ' + that.options.messages.clear + '/>').attr('aria-label', that.options.messages.clear).attr(kendo.attr('bind'), 'visible:operatorVisible').html('<span class=\'k-icon k-i-close\'/>').click(proxy(that.clearFilter, that)).appendTo(that.wrapper);
             },
             clearFilter: function () {
                 this._clearInProgress = true;

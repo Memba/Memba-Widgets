@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -43,7 +43,7 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, proxy = $.proxy, POPUP = 'kendoPopup', INIT = 'init', REFRESH = 'refresh', CHANGE = 'change', NS = '.kendoFilterMenu', EQ = 'Is equal to', NEQ = 'Is not equal to', roles = {
+        var kendo = window.kendo, ui = kendo.ui, proxy = $.proxy, POPUP = 'kendoPopup', INIT = 'init', OPEN = 'open', REFRESH = 'refresh', CHANGE = 'change', NS = '.kendoFilterMenu', EQ = 'Is equal to', NEQ = 'Is not equal to', roles = {
                 'number': 'numerictextbox',
                 'date': 'datepicker'
             }, mobileRoles = {
@@ -104,7 +104,7 @@
                 if (!options.appendToElement) {
                     link = element.addClass('k-with-icon k-filterable').find('.k-grid-filter');
                     if (!link[0]) {
-                        link = element.prepend('<a class="k-grid-filter" href="#" title="' + options.messages.filter + '"><span class="k-icon k-i-filter"></span></a>').find('.k-grid-filter');
+                        link = element.prepend('<a class="k-grid-filter" href="#" title="' + options.messages.filter + '" aria-label="' + options.messages.filter + '"><span class="k-icon k-i-filter"></span></a>').find('.k-grid-filter');
                     }
                     link.attr('tabindex', -1).on('click' + NS, proxy(that._click, that));
                 }
@@ -382,7 +382,7 @@
             },
             _reset: function () {
                 this.clear();
-                if (this.options.search) {
+                if (this.options.search && this.container) {
                     this.container.find('label').parent().show();
                 }
                 this._closeForm();
@@ -417,6 +417,10 @@
             },
             _activate: function () {
                 this.form.find(':kendoFocusable:first').focus();
+                this.trigger(OPEN, {
+                    field: this.field,
+                    container: this.form
+                });
             },
             _keydown: function (e) {
                 if (e.keyCode == kendo.keys.ESC) {
@@ -425,7 +429,8 @@
             },
             events: [
                 INIT,
-                'change'
+                'change',
+                OPEN
             ],
             options: {
                 name: 'FilterMenu',
@@ -586,7 +591,7 @@
                 var element = this.element;
                 var link = element.addClass('k-with-icon k-filterable').find('.k-grid-filter');
                 if (!link[0]) {
-                    link = element.prepend('<a class="k-grid-filter" href="#"><span class="k-icon k-i-filter"/></a>').find('.k-grid-filter');
+                    link = element.prepend('<a class="k-grid-filter" href="#" aria-label="' + this.options.messages.filter + '"><span class="k-icon k-i-filter"/></a>').find('.k-grid-filter');
                 }
                 this._link = link.attr('tabindex', -1).on('click' + NS, proxy(this._click, this));
             },
@@ -670,6 +675,10 @@
             },
             _activate: function () {
                 this.form.find(':kendoFocusable:first').focus();
+                this.trigger(OPEN, {
+                    field: this.field,
+                    container: this.form
+                });
             },
             _createForm: function () {
                 var options = this.options;
@@ -937,7 +946,8 @@
             events: [
                 INIT,
                 REFRESH,
-                'change'
+                'change',
+                OPEN
             ]
         });
         $.extend(FilterMultiCheck.fn, {

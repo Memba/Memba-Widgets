@@ -51,13 +51,19 @@ html .k-upload
 
 .k-dropzone em
 {
-    visibility: hidden;
+    display: none;
     margin-left: .6em;
 }
 
-.k-dropzone-active em
-{
-    visibility: visible;
+.k-dropzone-active {
+
+    em {
+        display: inline-block;
+    }
+
+    .k-upload-status {
+        display: none;
+    }
 }
 
 .k-upload-button
@@ -70,6 +76,7 @@ html .k-upload
 .k-upload .k-upload-button
 {
     min-width: 7.167em;
+    margin-right: 1.6em;
 }
 
 .k-upload-sync .k-upload-button,
@@ -113,11 +120,15 @@ html .k-upload
 .k-upload-status-total .k-icon {
     display: inline-block;
     margin-right: 4px;
+    vertical-align: text-bottom;
 }
 
 .k-dropzone .k-upload-status-total {
     top: 50%;
     transform: translateY(-50%);
+}
+.k-ie .k-dropzone .k-upload-status-total {
+    transform: none;
 }
 
 .k-upload .k-clear-selected ,
@@ -168,17 +179,14 @@ html .k-upload
         background: 0 0;
         border-width: 0;
         box-shadow: none;
+        margin-right: 3px;
     }
 }
 
 .k-file .k-icon
 {
+    display: inline-block;
     position: relative;
-}
-
-.k-file > .k-icon
-{
-    .sprite-hoverable(7, 18);
 }
 
 .k-file-extension-wrapper,
@@ -309,22 +317,45 @@ html .k-upload
     line-height: 1.2em;
 }
 
-.k-upload-status
+.k-upload-files .k-upload-status
 {
+    line-height: 1;
     position: absolute;
     right: 10px;
-    top: 0;
+    top: 1em;
+    opacity: 0.65;
 }
 
-.k-upload-status .k-button
-{
-    vertical-align: text-bottom;
+.k-upload-action,
+.k-button.k-upload-action:hover,
+.k-button.k-upload-action:active:hover,
+.k-button.k-upload-action.k-state-active:hover {
+    color: inherit;
+    background: transparent;
+    border: 0;
+}
+
+    .k-upload-action {
+        opacity: 0.6;
+    }
+
+    .k-upload-action:hover {
+        opacity: 1;
+    }
+
+.k-upload-action .k-icon {
+    vertical-align: top;
+}
+.k-file .k-upload-status .k-button,
+.k-file .k-upload-status > .k-icon {
+    vertical-align: middle;
     border-radius: 50%;
 }
 
 .k-dropzone .k-upload-status
 {
-    line-height: 2.4;
+    position: static;
+    margin-left: 10px;
 }
 
 .k-upload-pct {

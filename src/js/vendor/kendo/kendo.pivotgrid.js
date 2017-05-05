@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -79,6 +79,8 @@
         var kendo = window.kendo, ui = kendo.ui, Class = kendo.Class, Widget = ui.Widget, DataSource = kendo.data.DataSource, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, toString = {}.toString, identity = function (o) {
                 return o;
             }, map = $.map, extend = $.extend, isFunction = kendo.isFunction, CHANGE = 'change', ERROR = 'error', MEASURES = 'Measures', PROGRESS = 'progress', STATERESET = 'stateReset', AUTO = 'auto', DIV = '<div/>', NS = '.kendoPivotGrid', ROW_TOTAL_KEY = '__row_total__', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', EXPANDMEMBER = 'expandMember', COLLAPSEMEMBER = 'collapseMember', STATE_EXPANDED = 'k-i-collapse', STATE_COLLAPSED = 'k-i-expand', HEADER_TEMPLATE = '<span>#: data.member.caption || data.member.name #</span>', KPISTATUS_TEMPLATE = '<span class="k-icon k-i-#=data.dataItem.value > 0 ? "circle" : data.dataItem.value < 0 ? "stop" : "arrow-60-up k-i-hold"#" title="#:data.dataItem.value#"></span>', KPITREND_TEMPLATE = '<span class="k-icon k-i-#=data.dataItem.value > 0 ? "arrow-60-up" : data.dataItem.value < 0 ? "arrow-60-down" : "minus"#" title="#:data.dataItem.value#"></span>', DATACELL_TEMPLATE = '#= data.dataItem ? kendo.htmlEncode(data.dataItem.fmtValue || data.dataItem.value) || "&nbsp;" : "&nbsp;" #', LAYOUT_TABLE = '<table class="k-pivot-layout">' + '<tr>' + '<td>' + '<div class="k-pivot-rowheaders"></div>' + '</td>' + '<td>' + '<div class="k-pivot-table k-state-default"></div>' + '</td>' + '</tr>' + '</table>';
+        var AXIS_ROWS = 'rows';
+        var AXIS_COLUMNS = 'columns';
         function normalizeMeasures(measure) {
             var descriptor = typeof measure === 'string' ? [{ name: measure }] : measure;
             var descriptors = toString.call(descriptor) === '[object Array]' ? descriptor : descriptor !== undefined ? [descriptor] : [];
@@ -2689,7 +2691,7 @@
                 that._refreshHandler = $.proxy(that.refresh, that);
                 that.dataSource.first(CHANGE, that._refreshHandler);
                 if (!options.template) {
-                    that.options.template = '<div data-' + kendo.ns + 'name="${data.name || data}">${data.name || data}' + (that.options.enabled ? '<a class="k-button k-button-icon k-button-bare"><span class="k-icon k-i-close k-setting-delete"></span></a>' : '') + '</div>';
+                    that.options.template = '<div data-' + kendo.ns + 'name="${data.name || data}">${data.name || data}' + (that.options.enabled ? '<a class="k-button k-button-icon k-bare"><span class="k-icon k-i-close k-setting-delete"></span></a>' : '') + '</div>';
                 }
                 that.template = kendo.template(that.options.template);
                 that.emptyTemplate = kendo.template(that.options.emptyTemplate);
@@ -3275,7 +3277,8 @@
                 if (that.trigger(DATABINDING, { action: 'rebind' })) {
                     return;
                 }
-                columnBuilder.measures = that._axisMeasures('columns');
+                columnBuilder.measures = that._axisMeasures(AXIS_COLUMNS);
+                rowBuilder.measures = that._axisMeasures(AXIS_ROWS);
                 that.columnsHeaderTree.render(columnBuilder.build(columns));
                 that.rowsHeaderTree.render(rowBuilder.build(rows));
                 columnAxis = {
@@ -3285,7 +3288,7 @@
                 };
                 rowAxis = {
                     indexes: rowBuilder._indexes,
-                    measures: this._axisMeasures('rows'),
+                    measures: rowBuilder.measures,
                     metadata: rowBuilder.metadata
                 };
                 that.contentTree.render(that._contentBuilder.build(dataSource.view(), columnAxis, rowAxis));
@@ -3927,7 +3930,10 @@
                 var length = rowIndexes.length;
                 var idx = 0;
                 for (; idx < length; idx++) {
-                    this.rows.push(this._buildRow(rowIndexes[idx]));
+                    var rowIndex = rowIndexes[idx];
+                    if (rowIndex) {
+                        this.rows.push(this._buildRow(rowIndex));
+                    }
                 }
             },
             _buildRow: function (rowInfo) {
@@ -3942,6 +3948,9 @@
                 var attr, dataItem, measure;
                 for (; idx < length; idx++) {
                     columnInfo = columnIndexes[idx];
+                    if (columnInfo === undefined) {
+                        continue;
+                    }
                     attr = {};
                     if (columnInfo.children) {
                         attr.className = 'k-alt';

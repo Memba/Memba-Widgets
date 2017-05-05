@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -235,7 +235,8 @@
     float: right;
 }
 
-.k-rtl .k-i-indent-increase 
+.k-rtl .k-i-indent-increase,
+.k-rtl .k-i-indent-decrease
 {
     transform: scaleX(-1);
 }
@@ -1099,5 +1100,22 @@
                 border-bottom-right-radius: 0;
             }
         }
+    }
+}
+
+.k-rtl .k-maskedtextbox .k-i-warning {
+    right: auto;
+    left: 0;
+}
+
+.k-rtl .k-dateinput .k-i-warning {
+    right: auto;
+    left: 0;
+}
+
+.k-rtl .k-datepicker .k-picker-wrap {
+    .k-i-warning {
+        left: 0;
+        right: auto;
     }
 }

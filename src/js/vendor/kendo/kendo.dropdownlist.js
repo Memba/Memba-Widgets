@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -560,6 +560,7 @@
                                 that._blur();
                             }
                         });
+                        e.preventDefault();
                     }
                 }
                 if (!altKey && !handled && that.filterInput) {
@@ -795,17 +796,18 @@
                 }
             },
             _focusItem: function () {
+                var options = this.options;
                 var listView = this.listView;
                 var focusedItem = listView.focus();
                 var index = listView.select();
                 index = index[index.length - 1];
-                if (index === undefined && this.options.highlightFirst && !focusedItem) {
+                if (index === undefined && options.highlightFirst && !focusedItem) {
                     index = 0;
                 }
                 if (index !== undefined) {
                     listView.focus(index);
                 } else {
-                    if (this.options.optionLabel) {
+                    if (options.optionLabel && (!options.virtual || options.virtual.mapValueTo !== 'dataItem')) {
                         this._focus(this.optionLabel);
                         this._select(this.optionLabel);
                     } else {

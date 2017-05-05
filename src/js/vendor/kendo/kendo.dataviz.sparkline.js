@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -173,6 +173,33 @@
         var Chart = dataviz.Chart;
         var elementSize = dataviz.elementSize;
         var deepExtend = dataviz.deepExtend;
+        var TOP_OFFSET = -2;
+        var SharedTooltip$1 = dataviz.SharedTooltip.extend({
+            _slotAnchor: function (coords, slot) {
+                var axis = this.plotArea.categoryAxis;
+                var vertical = axis.options.vertical;
+                var align = vertical ? {
+                    horizontal: 'left',
+                    vertical: 'center'
+                } : {
+                    horizontal: 'center',
+                    vertical: 'bottom'
+                };
+                var point;
+                if (vertical) {
+                    point = new dataviz.Point(this.plotArea.box.x2, slot.center().y);
+                } else {
+                    point = new dataviz.Point(slot.center().x, TOP_OFFSET);
+                }
+                return {
+                    point: point,
+                    align: align
+                };
+            },
+            _defaultAnchor: function (point, slot) {
+                return this._slotAnchor({}, slot);
+            }
+        });
         var DEAULT_BAR_WIDTH = 150;
         var DEAULT_BULLET_WIDTH = 150;
         var NO_CROSSHAIR = [
@@ -282,6 +309,9 @@
                     size += margin.left + margin.right;
                 }
                 return size;
+            },
+            _createSharedTooltip: function (options) {
+                return new SharedTooltip$1(this._plotArea, options);
             }
         });
         Sparkline.normalizeOptions = function (userOptions) {

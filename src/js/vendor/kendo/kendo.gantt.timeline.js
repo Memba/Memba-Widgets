@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -72,7 +72,7 @@
         var RESIZE_HINT = kendo.template('<div class="#=styles.marquee#">' + '<div class="#=styles.marqueeColor#"></div>' + '</div>');
         var RESIZE_TOOLTIP_TEMPLATE = kendo.template('<div style="z-index: 100002;" class="#=styles.tooltipWrapper#">' + '<div class="#=styles.tooltipContent#">' + '<div>#=messages.start#: #=kendo.toString(start, format)#</div>' + '<div>#=messages.end#: #=kendo.toString(end, format)#</div>' + '</div>' + '</div>');
         var PERCENT_RESIZE_TOOLTIP_TEMPLATE = kendo.template('<div style="z-index: 100002;" class="#=styles.tooltipWrapper#" >' + '<div class="#=styles.tooltipContent#">#=text#%</div>' + '<div class="#=styles.tooltipCallout#" style="left:13px;"></div>' + '</div>');
-        var TASK_TOOLTIP_TEMPLATE = kendo.template('<div class="#=styles.taskDetails#">' + '<strong>#=task.title#</strong>' + '<div class="#=styles.taskDetailsPercent#">#=kendo.toString(task.percentComplete, "p0")#</div>' + '<ul class="#=styles.reset#">' + '<li>#=messages.start#: #=kendo.toString(task.start, "h:mm tt ddd, MMM d")#</li>' + '<li>#=messages.end#: #=kendo.toString(task.end, "h:mm tt ddd, MMM d")#</li>' + '</ul>' + '</div>');
+        var TASK_TOOLTIP_TEMPLATE = kendo.template('<div class="#=kendo.htmlEncode(styles.taskDetails)#">' + '<strong>#=kendo.htmlEncode(task.title)#</strong>' + '<div class="#=styles.taskDetailsPercent#">#=kendo.toString(task.percentComplete, "p0")#</div>' + '<ul class="#=styles.reset#">' + '<li>#=messages.start#: #=kendo.toString(task.start, "h:mm tt ddd, MMM d")#</li>' + '<li>#=messages.end#: #=kendo.toString(task.end, "h:mm tt ddd, MMM d")#</li>' + '</ul>' + '</div>');
         var SIZE_CALCULATION_TEMPLATE = '<table style=\'visibility: hidden;\'>' + '<tbody>' + '<tr style=\'height:{0}\'>' + '<td>&nbsp;</td>' + '</tr>' + '</tbody>' + '</table>';
         var defaultViews = {
             day: { type: 'kendo.ui.GanttDayView' },
@@ -211,7 +211,9 @@
                 this.content.find(DOT + GanttView.styles.dependenciesWrapper).width(this._tableWidth);
             },
             _adjustHeight: function () {
-                this.content.height(this.element.height() - outerHeight(this.header));
+                if (this.content) {
+                    this.content.height(this.element.height() - outerHeight(this.header));
+                }
             },
             createLayout: function (rows) {
                 var headers = this._headers(rows);
@@ -499,7 +501,8 @@
                     if (editable.destroy !== false) {
                         content.children.push(kendoDomElement('span', { className: styles.taskActions }, [kendoDomElement('a', {
                                 className: styles.link + ' ' + styles.taskDelete,
-                                href: '#'
+                                href: '#',
+                                'aria-label': 'Delete'
                             }, [kendoDomElement('span', { className: styles.icon + ' ' + styles.iconDelete })])]));
                     }
                     if (editable.resize !== false && editable.update !== false) {

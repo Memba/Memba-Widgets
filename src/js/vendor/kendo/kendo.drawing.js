@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -776,14 +776,8 @@
         }
         var Point = Class.extend({
             init: function (x, y) {
-                if (x === void 0) {
-                    x = 0;
-                }
-                if (y === void 0) {
-                    y = 0;
-                }
-                this.x = x;
-                this.y = y;
+                this.x = x || 0;
+                this.y = y || 0;
             },
             equals: function (other) {
                 return other && other.x === this.x && other.y === this.y;
@@ -925,14 +919,8 @@
         ObserversMixin.extend(Point.prototype);
         var Size = Class.extend({
             init: function (width, height) {
-                if (width === void 0) {
-                    width = 0;
-                }
-                if (height === void 0) {
-                    height = 0;
-                }
-                this.width = width;
-                this.height = height;
+                this.width = width || 0;
+                this.height = height || 0;
             },
             equals: function (other) {
                 return other && other.width === this.width && other.height === this.height;
@@ -3908,6 +3896,8 @@
                     this.updateDefinition(field, value);
                 } else if (field === 'opacity') {
                     this.attr('opacity', value);
+                } else if (field === 'cursor') {
+                    this.css('cursor', value);
                 }
                 BaseNode.fn.optionsChange.call(this, e);
             },
@@ -5266,6 +5256,60 @@
             }
             return 0;
         }
+        var SurfaceCursor = Class.extend({
+            init: function (surface) {
+                surface.bind('mouseenter', this._mouseenter.bind(this));
+                surface.bind('mouseleave', this._mouseleave.bind(this));
+                this.element = surface.element;
+            },
+            clear: function () {
+                this._resetCursor();
+            },
+            destroy: function () {
+                this._resetCursor();
+                delete this.element;
+            },
+            _mouseenter: function (e) {
+                var cursor = this._shapeCursor(e);
+                if (!cursor) {
+                    this._resetCursor();
+                } else {
+                    if (!this._current) {
+                        this._defaultCursor = this._getCursor();
+                    }
+                    this._setCursor(cursor);
+                }
+            },
+            _mouseleave: function () {
+                this._resetCursor();
+            },
+            _shapeCursor: function (e) {
+                var shape = e.element;
+                while (shape && !defined(shape.options.cursor)) {
+                    shape = shape.parent;
+                }
+                if (shape) {
+                    return shape.options.cursor;
+                }
+            },
+            _getCursor: function () {
+                if (this.element) {
+                    return this.element.style.cursor;
+                }
+            },
+            _setCursor: function (cursor) {
+                if (this.element) {
+                    this.element.style.cursor = cursor;
+                    this._current = cursor;
+                }
+            },
+            _resetCursor: function () {
+                if (this._current) {
+                    this._setCursor(this._defaultCursor || '');
+                    delete this._current;
+                }
+            }
+        });
         var Surface$3 = Surface.extend({
             init: function (element, options) {
                 Surface.fn.init.call(this, element, options);
@@ -5292,6 +5336,10 @@
                     this._searchTree.clear();
                     delete this._searchTree;
                 }
+                if (this._cursor) {
+                    this._cursor.destroy();
+                    delete this._cursor;
+                }
                 unbindEvents(this.element, {
                     click: this._mouseTrackHandler,
                     mousemove: this._mouseTrackHandler
@@ -5309,6 +5357,9 @@
                 this._root.clear();
                 if (this._searchTree) {
                     this._searchTree.clear();
+                }
+                if (this._cursor) {
+                    this._cursor.clear();
                 }
             },
             eventTarget: function (e) {
@@ -5329,7 +5380,7 @@
                     }
                 });
                 var promise = createPromise();
-                promiseAll(loadingStates).then(function () {
+                var resolveDataURL = function () {
                     root._invalidate();
                     try {
                         var data = rootElement.toDataURL();
@@ -5337,9 +5388,8 @@
                     } catch (e) {
                         promise.reject(e);
                     }
-                }, function (e) {
-                    promise.reject(e);
-                });
+                };
+                promiseAll(loadingStates).then(resolveDataURL, resolveDataURL);
                 return promise;
             },
             suspendTracking: function () {
@@ -5371,6 +5421,7 @@
             },
             _enableTracking: function () {
                 this._searchTree = new ShapesQuadTree();
+                this._cursor = new SurfaceCursor(this);
                 Surface.fn._enableTracking.call(this);
             },
             _trackMouse: function (e) {
@@ -5758,7 +5809,7 @@
             if (el.closest) {
                 return el.closest(selector);
             }
-            while (el && el !== document) {
+            while (el && !/^\[object (?:HTML)?Document\]$/.test(String(el))) {
                 if (matches(el, selector)) {
                     return el;
                 }
@@ -5777,12 +5828,15 @@
                         }
                         if (/^canvas$/i.test(el.tagName)) {
                             clone.getContext('2d').drawImage(el, 0, 0);
-                        } else if (/^input$/i.test(el.tagName)) {
-                            el.removeAttribute('name');
-                        } else {
-                            for (i = el.firstChild; i; i = i.nextSibling) {
-                                clone.appendChild(cloneNodes(i));
-                            }
+                        } else if (/^(?:input|select|textarea|option)$/i.test(el.tagName)) {
+                            clone.removeAttribute('id');
+                            clone.removeAttribute('name');
+                            clone.value = el.value;
+                            clone.checked = el.checked;
+                            clone.selected = el.selected;
+                        }
+                        for (i = el.firstChild; i; i = i.nextSibling) {
+                            clone.appendChild(cloneNodes(i));
                         }
                     }
                     return clone;
@@ -5796,8 +5850,13 @@
                             canvas$$1.getContext('2d').drawImage(canvases[i], 0, 0);
                         });
                     }
-                    slice$1(clone.querySelectorAll('input')).forEach(function (input) {
-                        input.removeAttribute('name');
+                    var orig = el.querySelectorAll('input, select, textarea, option');
+                    slice$1(clone.querySelectorAll('input, select, textarea, option')).forEach(function (el, i) {
+                        el.removeAttribute('id');
+                        el.removeAttribute('name');
+                        el.value = orig[i].value;
+                        el.checked = orig[i].checked;
+                        el.selected = orig[i].selected;
                     });
                     return clone;
                 };
@@ -6044,6 +6103,9 @@
                     return el.getAttribute('data-kendo-chart') || /^(?:img|tr|thead|th|tfoot|iframe|svg|object|canvas|input|textarea|select|video|h[1-6])/i.test(el.tagName);
                 }
                 function splitElement(element) {
+                    if (element.tagName == 'TABLE') {
+                        setCSS(element, { tableLayout: 'fixed' });
+                    }
                     var style = getComputedStyle(element);
                     var bottomPadding = parseFloat(getPropertyValue(style, 'padding-bottom'));
                     var bottomBorder = parseFloat(getPropertyValue(style, 'border-bottom-width'));
@@ -6556,6 +6618,16 @@
                 }
             }
         }
+        function updateCounters(style) {
+            var counterReset = getPropertyValue(style, 'counter-reset');
+            if (counterReset) {
+                doCounters(splitProperty(counterReset, /^\s+/), resetCounter, 0);
+            }
+            var counterIncrement = getPropertyValue(style, 'counter-increment');
+            if (counterIncrement) {
+                doCounters(splitProperty(counterIncrement, /^\s+/), incCounter, 1);
+            }
+        }
         function parseColor$1(str, css) {
             var color = kendo.parseColor(str, true);
             if (color) {
@@ -6700,7 +6772,7 @@
         function getComputedStyle(element, pseudoElt) {
             return window.getComputedStyle(element, pseudoElt || null);
         }
-        function getPropertyValue(style, prop) {
+        function getPropertyValue(style, prop, defa) {
             var val = style.getPropertyValue(prop);
             if (val == null || val === '') {
                 if (browser.webkit) {
@@ -6713,7 +6785,11 @@
                     val = style.getPropertyValue('-ms-' + prop);
                 }
             }
-            return val;
+            if (arguments.length > 2 && (val == null || val === '')) {
+                return defa;
+            } else {
+                return val;
+            }
         }
         function pleaseSetPropertyValue(style, prop, value, important) {
             style.setProperty(prop, value, important);
@@ -7036,6 +7112,7 @@
             var fake = [];
             function pseudo(kind, place) {
                 var style = getComputedStyle(element, kind);
+                updateCounters(style);
                 if (style.content && style.content != 'normal' && style.content != 'none' && style.width != '0px') {
                     var psel = element.ownerDocument.createElement(KENDO_PSEUDO_ELEMENT);
                     psel.style.cssText = getCssText(style);
@@ -7494,57 +7571,55 @@
                 if (top.width === 0 && left.width === 0 && right.width === 0 && bottom.width === 0) {
                     return;
                 }
-                {
-                    if (top.color == right.color && top.color == bottom.color && top.color == left.color) {
-                        if (top.width == right.width && top.width == bottom.width && top.width == left.width) {
-                            if (shouldDrawLeft && shouldDrawRight) {
-                                box = innerBox(box, top.width / 2);
-                                var path = elementRoundBox(element, box, top.width / 2);
-                                path.options.stroke = {
-                                    color: top.color,
-                                    width: top.width
-                                };
-                                group.append(path);
-                                return;
-                            }
-                        }
-                    }
-                    if (rTL0.x === 0 && rTR0.x === 0 && rBR0.x === 0 && rBL0.x === 0) {
-                        if (top.width < 2 && left.width < 2 && right.width < 2 && bottom.width < 2) {
-                            if (top.width > 0) {
-                                group.append(new Path({
-                                    stroke: {
-                                        width: top.width,
-                                        color: top.color
-                                    }
-                                }).moveTo(box.left, box.top + top.width / 2).lineTo(box.right, box.top + top.width / 2));
-                            }
-                            if (bottom.width > 0) {
-                                group.append(new Path({
-                                    stroke: {
-                                        width: bottom.width,
-                                        color: bottom.color
-                                    }
-                                }).moveTo(box.left, box.bottom - bottom.width / 2).lineTo(box.right, box.bottom - bottom.width / 2));
-                            }
-                            if (shouldDrawLeft) {
-                                group.append(new Path({
-                                    stroke: {
-                                        width: left.width,
-                                        color: left.color
-                                    }
-                                }).moveTo(box.left + left.width / 2, box.top).lineTo(box.left + left.width / 2, box.bottom));
-                            }
-                            if (shouldDrawRight) {
-                                group.append(new Path({
-                                    stroke: {
-                                        width: right.width,
-                                        color: right.color
-                                    }
-                                }).moveTo(box.right - right.width / 2, box.top).lineTo(box.right - right.width / 2, box.bottom));
-                            }
+                if (top.color == right.color && top.color == bottom.color && top.color == left.color) {
+                    if (top.width == right.width && top.width == bottom.width && top.width == left.width) {
+                        if (shouldDrawLeft && shouldDrawRight) {
+                            box = innerBox(box, top.width / 2);
+                            var path = elementRoundBox(element, box, top.width / 2);
+                            path.options.stroke = {
+                                color: top.color,
+                                width: top.width
+                            };
+                            group.append(path);
                             return;
                         }
+                    }
+                }
+                if (rTL0.x === 0 && rTR0.x === 0 && rBR0.x === 0 && rBL0.x === 0) {
+                    if (top.width < 2 && left.width < 2 && right.width < 2 && bottom.width < 2) {
+                        if (top.width > 0) {
+                            group.append(new Path({
+                                stroke: {
+                                    width: top.width,
+                                    color: top.color
+                                }
+                            }).moveTo(box.left, box.top + top.width / 2).lineTo(box.right, box.top + top.width / 2));
+                        }
+                        if (bottom.width > 0) {
+                            group.append(new Path({
+                                stroke: {
+                                    width: bottom.width,
+                                    color: bottom.color
+                                }
+                            }).moveTo(box.left, box.bottom - bottom.width / 2).lineTo(box.right, box.bottom - bottom.width / 2));
+                        }
+                        if (shouldDrawLeft) {
+                            group.append(new Path({
+                                stroke: {
+                                    width: left.width,
+                                    color: left.color
+                                }
+                            }).moveTo(box.left + left.width / 2, box.top).lineTo(box.left + left.width / 2, box.bottom));
+                        }
+                        if (shouldDrawRight) {
+                            group.append(new Path({
+                                stroke: {
+                                    width: right.width,
+                                    color: right.color
+                                }
+                            }).moveTo(box.right - right.width / 2, box.top).lineTo(box.right - right.width / 2, box.bottom));
+                        }
+                        return;
                     }
                 }
                 var tmp = adjustBorderRadiusForBox(box, rTL0, rTR0, rBR0, rBL0);
@@ -7860,7 +7935,7 @@
                 renderFormField(element, group);
                 break;
             default:
-                var blocks = [], floats = [], inline = [], positioned = [];
+                var children = [], floats = [], positioned = [];
                 for (var i = element.firstChild; i; i = i.nextSibling) {
                     switch (i.nodeType) {
                     case 3:
@@ -7870,30 +7945,22 @@
                         break;
                     case 1:
                         var style = getComputedStyle(i);
-                        var display = getPropertyValue(style, 'display');
                         var floating = getPropertyValue(style, 'float');
                         var position = getPropertyValue(style, 'position');
                         if (position != 'static') {
                             positioned.push(i);
-                        } else if (display != 'inline') {
-                            if (floating != 'none') {
-                                floats.push(i);
-                            } else {
-                                blocks.push(i);
-                            }
+                        } else if (floating != 'none') {
+                            floats.push(i);
                         } else {
-                            inline.push(i);
+                            children.push(i);
                         }
                         break;
                     }
                 }
-                mergeSort(blocks, zIndexSort).forEach(function (el) {
+                mergeSort(children, zIndexSort).forEach(function (el) {
                     renderElement(el, group);
                 });
                 mergeSort(floats, zIndexSort).forEach(function (el) {
-                    renderElement(el, group);
-                });
-                mergeSort(inline, zIndexSort).forEach(function (el) {
                     renderElement(el, group);
                 });
                 mergeSort(positioned, zIndexSort).forEach(function (el) {
@@ -7933,6 +8000,7 @@
             var range = element.ownerDocument.createRange();
             var align$$1 = getPropertyValue(style, 'text-align');
             var isJustified = align$$1 == 'justify';
+            var columnCount = getPropertyValue(style, 'column-count', 1);
             var whiteSpace = getPropertyValue(style, 'white-space');
             var textOverflow, saveTextOverflow;
             if (browser.msie) {
@@ -7996,7 +8064,7 @@
                 range.setEnd(node, start + 1);
                 box = actuallyGetRangeBoundingRect(range);
                 var found = false;
-                if (isJustified) {
+                if (isJustified || columnCount > 1) {
                     pos = text.substr(start).search(/\s/);
                     if (pos >= 0) {
                         range.setEnd(node, start + pos);
@@ -8140,14 +8208,7 @@
         }
         function renderElement(element, container) {
             var style = getComputedStyle(element);
-            var counterReset = getPropertyValue(style, 'counter-reset');
-            if (counterReset) {
-                doCounters(splitProperty(counterReset, /^\s+/), resetCounter, 0);
-            }
-            var counterIncrement = getPropertyValue(style, 'counter-increment');
-            if (counterIncrement) {
-                doCounters(splitProperty(counterIncrement, /^\s+/), incCounter, 1);
-            }
+            updateCounters(style);
             if (/^(style|script|link|meta|iframe|svg|col|colgroup)$/i.test(element.tagName)) {
                 return;
             }

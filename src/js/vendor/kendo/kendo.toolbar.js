@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -252,6 +252,9 @@
                 element.addClass(OVERFLOW_BUTTON + ' ' + BUTTON);
                 if (options.hidden) {
                     this.hide();
+                }
+                if (options.togglable) {
+                    this.toggle(options.selected);
                 }
                 this.element.data({
                     type: 'button',

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -699,7 +699,7 @@
                 if (xInBounds) {
                     parent.scrollLeft += velocity.x;
                 }
-                if (isRootNode && (xInBounds || yInBounds)) {
+                if (this.hint && isRootNode && (xInBounds || yInBounds)) {
                     if (yInBounds) {
                         compensation.top += velocity.y;
                     }

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -71,7 +71,8 @@
                 allowUnsort: true,
                 compare: null,
                 filter: '',
-                initialDirection: ASC
+                initialDirection: ASC,
+                showIndexes: false
             },
             events: ['change'],
             destroy: function () {
@@ -82,23 +83,27 @@
                 that._refreshHandler = that.element = that.link = that.dataSource = null;
             },
             refresh: function () {
-                var that = this, sort = that.dataSource.sort() || [], idx, length, descriptor, dir, element = that.element, field = element.attr(kendo.attr(FIELD));
+                var that = this, sort = that.dataSource.sort() || [], idx, length, descriptor, dir, element = that.element, field = element.attr(kendo.attr(FIELD)), sortOrder;
                 element.removeAttr(kendo.attr(DIR));
                 element.removeAttr(ARIASORT);
                 for (idx = 0, length = sort.length; idx < length; idx++) {
                     descriptor = sort[idx];
                     if (field == descriptor.field) {
                         element.attr(kendo.attr(DIR), descriptor.dir);
+                        sortOrder = idx + 1;
                     }
                 }
                 dir = element.attr(kendo.attr(DIR));
-                element.find('.k-i-sort-asc-sm,.k-i-sort-desc-sm').remove();
+                element.find('.k-i-sort-asc-sm,.k-i-sort-desc-sm,.k-sort-order').remove();
                 if (dir === ASC) {
                     $('<span class="k-icon k-i-sort-asc-sm" />').appendTo(that.link);
                     element.attr(ARIASORT, 'ascending');
                 } else if (dir === DESC) {
                     $('<span class="k-icon k-i-sort-desc-sm" />').appendTo(that.link);
                     element.attr(ARIASORT, 'descending');
+                }
+                if (that.options.showIndexes && sort.length > 1 && sortOrder) {
+                    $('<span class="k-sort-order" />').html(sortOrder).appendTo(that.link);
                 }
             },
             _toggleSortDirection: function (dir) {

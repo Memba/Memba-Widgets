@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -274,7 +274,7 @@
                         toolBarElement.find('.k-mediaplayer-quality-wrap')[0],
                         this._fullscreenButton[0]
                     ]).wrapAll('<div class=\'k-align-right\' />');
-                    toolBarElement.find('.k-button').addClass('k-button-bare');
+                    toolBarElement.find('.k-button').addClass('k-bare');
                 }
             },
             _createDropDown: function () {
@@ -302,7 +302,7 @@
                         this._dropDown.setDataSource(media.source);
                         this._dropDown.select(0);
                     }
-                    this._dropDown.wrapper.addClass('k-button k-button-bare');
+                    this._dropDown.wrapper.addClass('k-button k-bare');
                     this._dropDown.wrapper.attr('title', this.options.messages.quality).hide();
                     this._dropDown.wrapper.find('span.k-i-arrow-60-down').removeClass('k-i-arrow-60-down').addClass('k-icon k-i-hd');
                     this._dropDown.list.addClass('k-quality-list');
@@ -676,14 +676,14 @@
                 this._onYouTubePlayerReady = null;
                 this._onPlayerStateChangeHandler = null;
                 this._dropDownSelectHandler = null;
-                this._media.ontimeupdate = this._mediaTimeUpdateHandler = null;
-                this._media.ondurationchange = this._mediaDurationChangeHandler = null;
-                this._media.oncanplay = this._mediaCanPlayHandler = null;
-                this._media.onplay = this._mediaPlayHandler = null;
-                this._media.onended = this._mediaEndedHandler = null;
                 if (this._youTubeVideo) {
                     this._ytmedia.destroy();
                 } else {
+                    this._media.ontimeupdate = this._mediaTimeUpdateHandler = null;
+                    this._media.ondurationchange = this._mediaDurationChangeHandler = null;
+                    this._media.oncanplay = this._mediaCanPlayHandler = null;
+                    this._media.onplay = this._mediaPlayHandler = null;
+                    this._media.onended = this._mediaEndedHandler = null;
                     this._media.src = '';
                     this._media.remove();
                 }

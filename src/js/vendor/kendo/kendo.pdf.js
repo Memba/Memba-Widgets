@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1873,7 +1873,7 @@
                 if (blob && /^image\/jpe?g$/i.test(blob.type)) {
                     var reader = new FileReader();
                     reader.onload = function () {
-                        img = new PDFJpegImage(img.width, img.height, BinaryStream(new Uint8Array(this.result)));
+                        img = new PDFJpegImage(BinaryStream(new Uint8Array(this.result)));
                         URL.revokeObjectURL(bloburl);
                         cont(IMAGE_CACHE[url] = img);
                     };
@@ -1916,8 +1916,7 @@
                     data = data.substr(data.indexOf(';base64,') + 8);
                     var stream = BinaryStream();
                     stream.writeBase64(data);
-                    stream.offset(0);
-                    img = new PDFJpegImage(img.width, img.height, stream);
+                    img = new PDFJpegImage(stream);
                 }
                 cont(IMAGE_CACHE[url] = img);
             }
@@ -2205,17 +2204,79 @@
                 this.props.Count++;
             }
         }, PDFDictionary);
-        function PDFJpegImage(width, height, data) {
+        var SOF_CODES = [
+            192,
+            193,
+            194,
+            195,
+            197,
+            198,
+            199,
+            201,
+            202,
+            203,
+            205,
+            206,
+            207
+        ];
+        function PDFJpegImage(data) {
+            data.offset(0);
+            var width, height, colorSpace, bitsPerComponent;
+            var soi = data.readShort();
+            if (soi != 65496) {
+                throw new Error('Invalid JPEG image');
+            }
+            while (!data.eof()) {
+                var ff = data.readByte();
+                if (ff != 255) {
+                    throw new Error('Invalid JPEG image');
+                }
+                var marker = data.readByte();
+                var length = data.readShort();
+                if (SOF_CODES.indexOf(marker) >= 0) {
+                    bitsPerComponent = data.readByte();
+                    height = data.readShort();
+                    width = data.readShort();
+                    colorSpace = data.readByte();
+                    break;
+                }
+                data.skip(length - 2);
+            }
+            if (colorSpace == null) {
+                throw new Error('Invalid JPEG image');
+            }
+            var props = {
+                Type: _('XObject'),
+                Subtype: _('Image'),
+                Width: width,
+                Height: height,
+                BitsPerComponent: bitsPerComponent,
+                Filter: _('DCTDecode')
+            };
+            switch (colorSpace) {
+            case 1:
+                props.ColorSpace = _('DeviceGray');
+                break;
+            case 3:
+                props.ColorSpace = _('DeviceRGB');
+                break;
+            case 4:
+                props.ColorSpace = _('DeviceCMYK');
+                props.Decode = [
+                    1,
+                    0,
+                    1,
+                    0,
+                    1,
+                    0,
+                    1,
+                    0
+                ];
+                break;
+            }
             this.asStream = function () {
-                var stream = new PDFStream(data, {
-                    Type: _('XObject'),
-                    Subtype: _('Image'),
-                    Width: width,
-                    Height: height,
-                    BitsPerComponent: 8,
-                    ColorSpace: _('DeviceRGB'),
-                    Filter: _('DCTDecode')
-                });
+                data.offset(0);
+                var stream = new PDFStream(data, props);
                 stream._resourceName = _('I' + ++RESOURCE_COUNTER);
                 return stream;
             };

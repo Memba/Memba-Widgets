@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -98,7 +98,7 @@
             comboBoxTemplate: '<select title="#= data.title #" class="#= data.cssClass #" />',
             dropDownListTemplate: '<span class="k-editor-dropdown"><select title="#= data.title #" class="#= data.cssClass #" /></span>',
             separatorTemplate: '<span class="k-separator" />',
-            overflowAnchorTemplate: '<a href="" role="button" class="k-tool k-overflow-anchor" data-popup' + ' unselectable="on"><span unselectable="on" class="k-icon k-i-more-vertical"></span></a>',
+            overflowAnchorTemplate: '<a tabindex="0" role="button" class="k-tool k-overflow-anchor" data-popup' + ' unselectable="on" title="#= data.title #" aria-haspopup="true" aria-expanded="false">' + '<span unselectable="on" class="k-icon k-i-more-vertical"></span><span class="k-tool-text">#= data.title #</span></a>',
             formatByName: function (name, format) {
                 for (var i = 0; i < format.length; i++) {
                     if ($.inArray(name, format[i].tags) >= 0) {
@@ -191,6 +191,7 @@
             emptyFolder: 'Empty Folder',
             editAreaTitle: 'Editable area. Press F10 for toolbar.',
             uploadFile: 'Upload',
+            overflowAnchor: 'More tools',
             orderBy: 'Arrange by:',
             orderBySize: 'Size',
             orderByName: 'Name',
@@ -204,6 +205,7 @@
             imageHeight: 'Height (px)',
             fileWebAddress: 'Web address',
             fileTitle: 'Title',
+            fileText: 'Text',
             linkWebAddress: 'Web address',
             linkText: 'Text',
             linkToolTip: 'ToolTip',
@@ -213,7 +215,7 @@
             dialogOk: 'Ok',
             dialogCancel: 'Cancel',
             cleanFormatting: 'Clean formatting',
-            createTable: 'Create table',
+            createTable: 'Create a table',
             createTableHint: 'Create a {0} x {1} table',
             addColumnLeft: 'Add column on the left',
             addColumnRight: 'Add column on the right',
@@ -229,6 +231,7 @@
             summary: 'Summary',
             width: 'Width',
             height: 'Height',
+            units: 'Units',
             cellSpacing: 'Cell Spacing',
             cellPadding: 'Cell Padding',
             cellMargin: 'Cell Margin',
@@ -765,10 +768,11 @@
                 var that = this;
                 if (that.textarea) {
                     that._destroyResizings();
-                    that.textarea.val(that.value());
+                    var value = that.value();
+                    that.textarea.val(value);
                     that.wrapper.find('iframe').remove();
                     that._initializeContentElement(that);
-                    that.value(that.textarea.val());
+                    that.value(value);
                 }
             },
             events: [
@@ -1105,11 +1109,7 @@
                     if (/^(undo|redo)$/i.test(name)) {
                         that.undoRedoStack[name]();
                     } else if (command) {
-                        if (!command.managesUndoRedo) {
-                            that.undoRedoStack.push(command);
-                        }
-                        command.editor = that;
-                        command.exec();
+                        that.execCommand(command);
                         if (command.async) {
                             command.change = proxy(that._selectionChange, that);
                             return;
@@ -1117,6 +1117,13 @@
                     }
                     that._selectionChange();
                 }
+            },
+            execCommand: function (command) {
+                if (!command.managesUndoRedo) {
+                    this.undoRedoStack.push(command);
+                }
+                command.editor = this;
+                command.exec();
             }
         });
         Editor.defaultTools = {
@@ -1822,7 +1829,14 @@
                 return referenceElement.parentNode.insertBefore(newElement, referenceElement.nextSibling);
             },
             remove: function (node) {
-                node.parentNode.removeChild(node);
+                if (node.parentNode) {
+                    node.parentNode.removeChild(node);
+                }
+            },
+            removeChildren: function (node) {
+                while (node.firstChild) {
+                    node.removeChild(node.firstChild);
+                }
             },
             removeTextSiblings: function (node) {
                 var parentNode = node.parentNode;
@@ -1981,7 +1995,7 @@
                 return style;
             },
             getEffectiveBackground: function (element) {
-                var backgroundStyle = element.css('background-color');
+                var backgroundStyle = element.css('background-color') || '';
                 if (backgroundStyle.indexOf('rgba(0, 0, 0, 0') < 0 && backgroundStyle !== 'transparent') {
                     return backgroundStyle;
                 } else if (element[0].tagName.toLowerCase() === 'html') {
@@ -3235,6 +3249,7 @@
             },
             restoreHtml: function () {
                 var that = this;
+                dom.removeChildren(that.body);
                 that.body.innerHTML = that.html;
                 if (that.immutables && !that.serializedImmutables.empty) {
                     Editor.Immutables.restoreImmutables(that.body, that.serializedImmutables);
@@ -3726,10 +3741,12 @@
                 this.endRestorePoint = endRestorePoint;
             },
             redo: function () {
+                dom.removeChildren(this.body);
                 this.body.innerHTML = this.endRestorePoint.html;
                 this.editor.selectRange(this.endRestorePoint.toRange());
             },
             undo: function () {
+                dom.removeChildren(this.body);
                 this.body.innerHTML = this.startRestorePoint.html;
                 this.editor.selectRange(this.startRestorePoint.toRange());
             }
@@ -3940,6 +3957,7 @@
                 var node = range.startContainer;
                 var li = dom.closestEditableOfType(node, ['li']);
                 var block = dom.closestEditableOfType(node, 'p,h1,h2,h3,h4,h5,h6'.split(','));
+                var editor = this.editor;
                 var previousSibling;
                 if (dom.isDataNode(node)) {
                     this._cleanBomBefore(range);
@@ -3950,7 +3968,7 @@
                 if (range.collapsed && range.startOffset !== range.endOffset && range.startOffset < 0) {
                     range.startOffset = 0;
                     range.endOffset = 0;
-                    this.editor.selectRange(range);
+                    editor.selectRange(range);
                 }
                 if (block && previousSibling && editorNS.RangeUtils.isStartOf(range, block)) {
                     var caret = this._addCaret(block);
@@ -3972,8 +3990,26 @@
                     } else {
                         range.setStart(child, 0);
                     }
-                    this.editor.selectRange(range);
+                    editor.selectRange(range);
                     return true;
+                }
+                var linkRange = range;
+                var previousNode = node.previousSibling;
+                if (linkRange.startOffset === 0 && previousNode && previousNode.nodeName.toLowerCase() === 'a') {
+                    linkRange = editor.createRange();
+                    linkRange.setStart(previousNode, previousNode.childNodes.length);
+                    linkRange.setEnd(previousNode, previousNode.childNodes.length);
+                }
+                var a = dom.closestEditableOfType(linkRange.startContainer, ['a']);
+                var isEndOfLink = a && editorNS.RangeUtils.isEndOf(linkRange, a);
+                if (isEndOfLink) {
+                    var command = new editorNS.UnlinkCommand({
+                        range: linkRange,
+                        body: editor.body,
+                        immutables: !!editor.immutables
+                    });
+                    editor.execCommand(command);
+                    editor._selectionChange();
                 }
                 return false;
             },
@@ -3993,7 +4029,7 @@
                 if (editor.immutables) {
                     this._handleImmutables(marker);
                 }
-                this._surroundFullySelectedAnchor(marker);
+                this._surroundFullySelectedAnchor(marker, range);
                 range.setStartAfter(marker.start);
                 range.setEndBefore(marker.end);
                 var start = range.startContainer;
@@ -4037,12 +4073,13 @@
                     dom.remove(endImmutable);
                 }
             },
-            _surroundFullySelectedAnchor: function (marker) {
-                var start = marker.start, startParent = start.parentNode, end = marker.end, anchorParent = dom.is(startParent, 'a') && startParent === end.parentNode && startParent, parent;
-                if (anchorParent && start === anchorParent.firstChild && end === anchorParent.lastChild) {
-                    parent = anchorParent.parentNode;
-                    parent.insertBefore(start, anchorParent);
-                    parent.insertBefore(end, anchorParent.nextSibling);
+            _surroundFullySelectedAnchor: function (marker, range) {
+                var start = marker.start, startParent = $(start).closest('a').get(0), end = marker.end, endParent = $(end).closest('a').get(0);
+                if (startParent && RangeUtils.isStartOf(range, startParent)) {
+                    dom.insertBefore(start, startParent);
+                }
+                if (endParent && RangeUtils.isEndOf(range, endParent)) {
+                    dom.insertAfter(end, endParent);
                 }
             },
             _root: function (node) {
@@ -4225,7 +4262,7 @@
             toolsFromShortcut: function (tools, e) {
                 var key = String.fromCharCode(e.keyCode), toolName, o, matchesKey, found = [];
                 var matchKey = function (toolKey) {
-                    return toolKey == key || toolKey == e.keyCode;
+                    return toolKey == key || toolKey == e.keyCode || toolKey == e.charCode;
                 };
                 for (toolName in tools) {
                     o = $.extend({
@@ -5246,9 +5283,14 @@
             },
             exec: function () {
                 var that = this;
-                var range = this.lockRange(true);
-                this.editor.saveAsPDF().then(function () {
+                var range = that.lockRange(true);
+                var editor = that.editor;
+                editor._destroyResizings();
+                editor.saveAsPDF().then(function () {
                     that.releaseRange(range);
+                    editor._initializeColumnResizing();
+                    editor._initializeRowResizing();
+                    editor._initializeTableResizing();
                 });
             }
         });
@@ -6957,7 +6999,7 @@
                 }
             },
             _dialogTemplate: function () {
-                return kendo.template('<div class="k-editor-dialog k-popup-edit-form k-edit-form-container">' + '<div class=\'k-edit-label\'>' + '<label for=\'k-editor-link-url\'>#: messages.linkWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type=\'text\' class=\'k-input k-textbox\' id=\'k-editor-link-url\'>' + '</div>' + '<div class=\'k-edit-label k-editor-link-text-row\'>' + '<label for=\'k-editor-link-text\'>#: messages.linkText #</label>' + '</div>' + '<div class=\'k-edit-field k-editor-link-text-row\'>' + '<input type=\'text\' class=\'k-input k-textbox\' id=\'k-editor-link-text\'>' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for=\'k-editor-link-title\'>#: messages.linkToolTip #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type=\'text\' class=\'k-input k-textbox\' id=\'k-editor-link-title\'>' + '</div>' + '<div class=\'k-edit-label\'></div>' + '<div class=\'k-edit-field\'>' + '<input type=\'checkbox\' class=\'k-checkbox\' id=\'k-editor-link-target\'>' + '<label for=\'k-editor-link-target\' class=\'k-checkbox-label\'>#: messages.linkOpenInNewWindow #</label>' + '</div>' + '<div class=\'k-edit-buttons k-state-default\'>' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>')({ messages: this.editor.options.messages });
+                return kendo.template('<div class="k-editor-dialog k-popup-edit-form">' + '<div class="k-edit-form-container">' + '<div class=\'k-edit-label\'>' + '<label for=\'k-editor-link-url\'>#: messages.linkWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type=\'text\' class=\'k-input k-textbox\' id=\'k-editor-link-url\'>' + '</div>' + '<div class=\'k-edit-label k-editor-link-text-row\'>' + '<label for=\'k-editor-link-text\'>#: messages.linkText #</label>' + '</div>' + '<div class=\'k-edit-field k-editor-link-text-row\'>' + '<input type=\'text\' class=\'k-input k-textbox\' id=\'k-editor-link-text\'>' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for=\'k-editor-link-title\'>#: messages.linkToolTip #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type=\'text\' class=\'k-input k-textbox\' id=\'k-editor-link-title\'>' + '</div>' + '<div class=\'k-edit-label\'></div>' + '<div class=\'k-edit-field\'>' + '<input type=\'checkbox\' class=\'k-checkbox\' id=\'k-editor-link-target\'>' + '<label for=\'k-editor-link-target\' class=\'k-checkbox-label\'>#: messages.linkOpenInNewWindow #</label>' + '</div>' + '<div class=\'k-edit-buttons k-state-default\'>' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>')({ messages: this.editor.options.messages });
             },
             exec: function () {
                 var messages = this.editor.options.messages;
@@ -7336,7 +7378,7 @@
     ], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, extend = $.extend, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, dom = Editor.Dom, registerTool = EditorUtils.registerTool, ToolTemplate = Editor.ToolTemplate, RangeUtils = Editor.RangeUtils, Command = Editor.Command, LinkFormatter = Editor.LinkFormatter, textNodes = RangeUtils.textNodes, keys = kendo.keys, KEDITORFILEURL = '#k-editor-file-url', KEDITORFILETITLE = '#k-editor-file-title';
+        var kendo = window.kendo, extend = $.extend, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, dom = Editor.Dom, registerTool = EditorUtils.registerTool, ToolTemplate = Editor.ToolTemplate, RangeUtils = Editor.RangeUtils, Command = Editor.Command, LinkFormatter = Editor.LinkFormatter, textNodes = RangeUtils.textNodes, keys = kendo.keys, KEDITORFILEURL = '#k-editor-file-url', KEDITORFILETEXT = '#k-editor-file-text', KEDITORFILETITLE = '#k-editor-file-title';
         var FileCommand = Command.extend({
             init: function (options) {
                 var that = this;
@@ -7352,6 +7394,7 @@
                     if (!file) {
                         file = dom.create(doc, 'a', { href: attributes.href });
                         file.innerHTML = attributes.innerHTML;
+                        file.title = attributes.title;
                         range.deleteContents();
                         range.insertNode(file);
                         if (!file.nextSibling) {
@@ -7368,7 +7411,7 @@
                 return false;
             },
             _dialogTemplate: function (showBrowser) {
-                return kendo.template('<div class="k-editor-dialog k-popup-edit-form k-edit-form-container">' + '# if (showBrowser) { #' + '<div class="k-filebrowser"></div>' + '# } #' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-url">#: messages.fileWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-url">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-title">#: messages.fileTitle #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-title">' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>')({
+                return kendo.template('<div class="k-editor-dialog k-popup-edit-form">' + '<div class="k-edit-form-container">' + '# if (showBrowser) { #' + '<div class="k-filebrowser"></div>' + '# } #' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-url">#: messages.fileWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-url">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-text">#: messages.fileText #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-text">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-title">#: messages.fileTitle #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-title">' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>')({
                     messages: this.editor.options.messages,
                     showBrowser: showBrowser
                 });
@@ -7386,10 +7429,11 @@
                     };
                 this.expandImmutablesIn(range);
                 function apply(e) {
-                    var element = dialog.element, href = element.find(KEDITORFILEURL).val().replace(/ /g, '%20'), innerHTML = element.find(KEDITORFILETITLE).val();
+                    var element = dialog.element, href = element.find(KEDITORFILEURL).val().replace(/ /g, '%20'), innerHTML = element.find(KEDITORFILETEXT).val(), title = element.find(KEDITORFILETITLE).val();
                     that.attributes = {
                         href: href,
-                        innerHTML: innerHTML !== '' ? innerHTML : href
+                        innerHTML: innerHTML !== '' ? innerHTML : href,
+                        title: title
                     };
                     applied = that.insertFile(file, range);
                     close(e);
@@ -7416,7 +7460,7 @@
                 if (showBrowser) {
                     dialogOptions.width = 750;
                 }
-                dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').click(apply).end().find('.k-dialog-close').click(close).end().find('.k-edit-field input').keydown(keyDown).end().find(KEDITORFILEURL).val(file ? file.getAttribute('href', 2) : 'http://').end().find(KEDITORFILETITLE).val(file ? file.title : '').end().data('kendoWindow');
+                dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').click(apply).end().find('.k-dialog-close').click(close).end().find('.k-edit-field input').keydown(keyDown).end().find(KEDITORFILEURL).val(file ? file.getAttribute('href', 2) : 'http://').end().find(KEDITORFILETEXT).val(file ? file.innerText : '').end().find(KEDITORFILETITLE).val(file ? file.title : '').end().data('kendoWindow');
                 if (showBrowser) {
                     that._fileBrowser = new kendo.ui.FileBrowser(dialog.element.find('.k-filebrowser'), extend({}, fileBrowser));
                     that._fileBrowser.bind('change', function (ev) {
@@ -7494,7 +7538,7 @@
                 return false;
             },
             _dialogTemplate: function (showBrowser) {
-                return kendo.template('<div class="k-editor-dialog k-popup-edit-form k-edit-form-container">' + '# if (showBrowser) { #' + '<div class="k-filebrowser k-imagebrowser"></div>' + '# } #' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-url">#: messages.imageWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-url">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-title">#: messages.imageAltText #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-title">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-width">#: messages.imageWidth #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-width">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-height">#: messages.imageHeight #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-height">' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>')({
+                return kendo.template('<div class="k-editor-dialog k-popup-edit-form">' + '<div class="k-edit-form-container">' + '# if (showBrowser) { #' + '<div class="k-filebrowser k-imagebrowser"></div>' + '# } #' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-url">#: messages.imageWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-url">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-title">#: messages.imageAltText #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-title">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-width">#: messages.imageWidth #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-width">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-height">#: messages.imageHeight #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-height">' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>')({
                     messages: this.editor.options.messages,
                     showBrowser: showBrowser
                 });
@@ -7938,7 +7982,7 @@
             }
         });
         extend(ViewHtmlCommand, {
-            template: '<div class=\'k-editor-dialog k-popup-edit-form k-edit-form-container k-viewhtml-dialog\'>' + '<textarea class=\'k-editor-textarea k-input\'></textarea>' + '<div class=\'k-edit-buttons k-state-default\'>' + '<button class=\'k-dialog-update k-button k-primary\'>#: dialogUpdate #</button>' + '<button class=\'k-dialog-close k-button\'>#: dialogCancel #</button>' + '</div>' + '</div>',
+            template: '<div class=\'k-editor-dialog k-popup-edit-form k-viewhtml-dialog\'>' + '<div class=\'k-edit-form-container\'></div>' + '<textarea class=\'k-editor-textarea k-input\'></textarea>' + '<div class=\'k-edit-buttons k-state-default\'>' + '<button class=\'k-dialog-update k-button k-primary\'>#: dialogUpdate #</button>' + '<button class=\'k-dialog-close k-button\'>#: dialogCancel #</button>' + '</div>' + '</div>' + '</div>',
             indent: function (content) {
                 return content.replace(/<\/(p|li|ul|ol|h[1-6]|table|tr|td|th)>/gi, '</$1>\n').replace(/<(ul|ol)([^>]*)><li/gi, '<$1$2>\n<li').replace(/<br \/>/gi, '<br />\n').replace(/\n$/, '');
             }
@@ -8260,7 +8304,7 @@
             initialize: function (ui, options) {
                 ui.attr({ unselectable: 'on' });
                 var toolbar = options.editor.toolbar;
-                ui.on('click', $.proxy(function () {
+                ui.attr('aria-controls', options.editor.element.attr('id')).on('click', $.proxy(function () {
                     this.overflowPopup.toggle();
                 }, toolbar));
             },
@@ -8355,7 +8399,7 @@
             ],
             _initPopup: function () {
                 var that = this;
-                this.window = $(this.element).wrap('<div class=\'editorToolbarWindow k-header\' />').parent().prepend('<button class=\'k-button k-button-bare k-editortoolbar-dragHandle\'><span class=\'k-icon k-i-handler-drag\' /></button>').kendoWindow({
+                this.window = $(this.element).wrap('<div class=\'editorToolbarWindow k-header\' />').parent().prepend('<button class=\'k-button k-bare k-editortoolbar-dragHandle\'><span class=\'k-icon k-i-handler-drag\' /></button>').kendoWindow({
                     title: false,
                     resizable: false,
                     draggable: { dragHandle: '.k-editortoolbar-dragHandle' },
@@ -8394,6 +8438,10 @@
                             e.preventDefault();
                         }
                         that._toggleOverflowStyles(this.element, true);
+                        ui.attr('aria-expanded', true);
+                    },
+                    close: function () {
+                        ui.attr('aria-expanded', false);
                     },
                     activate: proxy(that.focusOverflowPopup, that)
                 }).data('kendoPopup');
@@ -8652,6 +8700,9 @@
                         endGroup();
                         startGroup(toolName, overflowFlaseTools);
                         groupName = newGroupName;
+                    }
+                    if (toolName == OVERFLOWANCHOR) {
+                        template.options.title = that.options.messages.overflowAnchor;
                     }
                     template = stringify(template);
                     toolElement = $(template).appendTo(group);
@@ -9132,7 +9183,7 @@
                         $(this).toggleClass(SELECTEDSTATE, i % cols < size.col && i / cols < size.row);
                     });
                 } else {
-                    status.text(messages.dialogCancel);
+                    status.text(messages.createTable);
                     cells.removeClass(SELECTEDSTATE);
                 }
             },
@@ -9178,7 +9229,7 @@
             _open: function () {
                 var messages = this._editor.options.messages;
                 PopupTool.fn._open.call(this);
-                this.popup().element.find('.k-status').text(messages.dialogCancel).end().find('.k-ct-cell').removeClass(SELECTEDSTATE);
+                this.popup().element.find('.k-status').text(messages.createTable).end().find('.k-ct-cell').removeClass(SELECTEDSTATE);
             },
             _close: function () {
                 PopupTool.fn._close.call(this);
@@ -11997,7 +12048,7 @@
             template: '<span class=\'#: className #\' title=\'#: tooltip #\'></span>',
             valueTemplate: '<span class=\'k-align-group #: className #\' title=\'#: tooltip #\'></span>'
         };
-        var dialogTemplate = '<div class="k-editor-dialog k-editor-table-wizard-dialog k-action-window k-edit-form-container k-popup-edit-form">' + '<div id="k-table-wizard-tabs" class="k-root-tabs">' + '<ul>' + '<li class="k-state-active">#= messages.tableTab #</li>' + '<li>#= messages.cellTab #</li>' + '<li>#= messages.accessibilityTab #</li>' + '</ul>' + '<div id="k-table-properties">' + '<div class="k-edit-label">' + '<label for="k-editor-table-width">#= messages.width #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-width" />' + '<input id="k-editor-table-width-type" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-height">#= messages.height #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-height" />' + '<input id="k-editor-table-height-type" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-columns">#= messages.columns #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-columns" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-rows">#= messages.rows #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-rows" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-cell-spacing">#= messages.cellSpacing #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-cell-spacing" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-cell-padding">#= messages.cellPadding #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-cell-padding" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-alignment">#= messages.alignment #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-table-alignment" class="k-align" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-bg">#= messages.background #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-table-bg" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-css-class">#= messages.cssClass #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-css-class" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-id">#= messages.id #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-id" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-border-width">#= messages.border #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-border-width" />' + '<input id="k-editor-border-color" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-border-style">#= messages.borderStyle #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-border-style" />' + '</div>' + '<div class="k-edit-label">&nbsp;</div>' + '<div class="k-edit-field">' + '<input id="k-editor-collapse-borders" type="checkbox" class="k-checkbox" />' + '<label for="k-editor-collapse-borders" class="k-checkbox-label">#= messages.collapseBorders #</label>' + '</div>' + '</div>' + '<div id="k-cell-properties">' + '<div class="k-edit-field">' + '<input id="k-editor-selectAllCells" type="checkbox" class="k-checkbox" />' + '<label for="k-editor-selectAllCells" class="k-checkbox-label">#= messages.selectAllCells #</label>' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-width">#= messages.width #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-cell-width" />' + '<input id="k-editor-cell-width-type" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-height">#= messages.height #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-cell-height" />' + '<input id="k-editor-cell-height-type" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-cell-margin">#= messages.cellMargin #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-cell-margin" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-cells-padding">#= messages.cellPadding #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-cells-padding" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-alignment">#= messages.alignment #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-alignment" class="k-align" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-bg">#= messages.background #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-bg" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-css-class">#= messages.cssClass #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-css-class" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-id">#= messages.id #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-id" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-border-width">#= messages.border #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-cell-border-width" />' + '<input id="k-editor-cell-border-color" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-border-style">#= messages.borderStyle #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-border-style" />' + '</div>' + '<div class="k-edit-label">&nbsp;</div>' + '<div class="k-edit-field">' + '<input id="k-editor-wrap-text" type="checkbox" class="k-checkbox" />' + '<label for="k-editor-wrap-text" class="k-checkbox-label">#= messages.wrapText #</label>' + '</div>' + '</div>' + '<div id="k-accessibility-properties">' + '<div class="k-edit-label">' + '<label for="k-editor-table-caption">#= messages.caption #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-table-caption" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-accessibility-alignment">#= messages.alignment #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-accessibility-alignment" class="k-align" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-accessibility-summary">#= messages.summary #</label>' + '</div>' + '<div class="k-edit-field">' + '<textarea id="k-editor-accessibility-summary" class="k-input k-textbox"></textarea>' + '</div>' + '<div class="k-edit-label">&nbsp;</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cells-headers" type="checkbox" class="k-checkbox" />' + '<label for="k-editor-cells-headers" class="k-checkbox-label">#= messages.associateCellsWithHeaders #</label>' + '</div>' + '</div>' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-button k-primary k-dialog-ok">#= messages.dialogOk #</button>' + '<button class="k-button k-dialog-close">#= messages.dialogCancel #</button>' + '</div>' + '</div>';
+        var dialogTemplate = '<div class="k-editor-dialog k-editor-table-wizard-dialog k-action-window k-popup-edit-form">' + '<div class="k-edit-form-container">' + '<div id="k-table-wizard-tabs" class="k-root-tabs">' + '<ul>' + '<li class="k-state-active">#= messages.tableTab #</li>' + '<li>#= messages.cellTab #</li>' + '<li>#= messages.accessibilityTab #</li>' + '</ul>' + '<div id="k-table-properties">' + '<div class="k-edit-label">' + '<label for="k-editor-table-width">#= messages.width #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-width" />' + '<input id="k-editor-table-width-type" aria-label="#= messages.units #" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-height">#= messages.height #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-height" />' + '<input id="k-editor-table-height-type" aria-label="#= messages.units #" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-columns">#= messages.columns #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-columns" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-rows">#= messages.rows #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-rows" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-cell-spacing">#= messages.cellSpacing #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-cell-spacing" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-cell-padding">#= messages.cellPadding #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-cell-padding" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-alignment">#= messages.alignment #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-table-alignment" class="k-align" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-bg">#= messages.background #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-table-bg" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-css-class">#= messages.cssClass #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-css-class" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-id">#= messages.id #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-id" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-border-width">#= messages.border #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-border-width" />' + '<input id="k-editor-border-color" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-border-style">#= messages.borderStyle #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-border-style" />' + '</div>' + '<div class="k-edit-label">&nbsp;</div>' + '<div class="k-edit-field">' + '<input id="k-editor-collapse-borders" type="checkbox" class="k-checkbox" />' + '<label for="k-editor-collapse-borders" class="k-checkbox-label">#= messages.collapseBorders #</label>' + '</div>' + '</div>' + '<div id="k-cell-properties">' + '<div class="k-edit-field">' + '<input id="k-editor-selectAllCells" type="checkbox" class="k-checkbox" />' + '<label for="k-editor-selectAllCells" class="k-checkbox-label">#= messages.selectAllCells #</label>' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-width">#= messages.width #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-cell-width" />' + '<input id="k-editor-cell-width-type" aria-label="#= messages.units #" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-height">#= messages.height #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-cell-height" />' + '<input id="k-editor-cell-height-type" aria-label="#= messages.units #" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-cell-margin">#= messages.cellMargin #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-cell-margin" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-cells-padding">#= messages.cellPadding #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-cells-padding" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-alignment">#= messages.alignment #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-alignment" class="k-align" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-bg">#= messages.background #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-bg" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-css-class">#= messages.cssClass #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-css-class" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-id">#= messages.id #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-id" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-border-width">#= messages.border #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-cell-border-width" />' + '<input id="k-editor-cell-border-color" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-border-style">#= messages.borderStyle #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-border-style" />' + '</div>' + '<div class="k-edit-label">&nbsp;</div>' + '<div class="k-edit-field">' + '<input id="k-editor-wrap-text" type="checkbox" class="k-checkbox" />' + '<label for="k-editor-wrap-text" class="k-checkbox-label">#= messages.wrapText #</label>' + '</div>' + '</div>' + '<div id="k-accessibility-properties">' + '<div class="k-edit-label">' + '<label for="k-editor-table-caption">#= messages.caption #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-table-caption" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-accessibility-alignment">#= messages.alignment #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-accessibility-alignment" class="k-align" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-accessibility-summary">#= messages.summary #</label>' + '</div>' + '<div class="k-edit-field">' + '<textarea id="k-editor-accessibility-summary" class="k-input k-textbox"></textarea>' + '</div>' + '<div class="k-edit-label">&nbsp;</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cells-headers" type="checkbox" class="k-checkbox" />' + '<label for="k-editor-cells-headers" class="k-checkbox-label">#= messages.associateCellsWithHeaders #</label>' + '</div>' + '</div>' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-button k-primary k-dialog-ok">#= messages.dialogOk #</button>' + '<button class="k-button k-dialog-close">#= messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>';
         var TableWizardDialog = kendo.Class.extend({
             init: function (options) {
                 this.options = options;

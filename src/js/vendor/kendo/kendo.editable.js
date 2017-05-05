@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -65,7 +65,10 @@
             });
         }
         function createAttributes(options) {
-            var field = (options.model.fields || options.model)[options.field], type = fieldType(field), validation = field ? field.validation : {}, ruleName, DATATYPE = kendo.attr('type'), BINDING = kendo.attr('bind'), rule, attr = { name: options.field };
+            var field = (options.model.fields || options.model)[options.field], type = fieldType(field), validation = field ? field.validation : {}, ruleName, DATATYPE = kendo.attr('type'), BINDING = kendo.attr('bind'), rule, attr = {
+                    name: options.field,
+                    title: options.title
+                };
             for (ruleName in validation) {
                 rule = validation[ruleName];
                 if (inArray(ruleName, specialRules) >= 0) {

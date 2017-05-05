@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -117,6 +117,7 @@
                 });
                 that._resetFocusItemHandler = $.proxy(that._resetFocusItem, that);
                 kendo.notify(that);
+                that._toggleCloseVisibility();
             },
             options: {
                 name: 'AutoComplete',
@@ -229,6 +230,7 @@
                     });
                     that.one('close', $.proxy(that._unifySeparators, that));
                 }
+                that._toggleCloseVisibility();
             },
             suggest: function (word) {
                 var that = this, key = that._last, value = that._accessor(), element = that.element[0], caretIdx = caret(element)[0], separator = that._separator(), words = value.split(separator), wordIndex = indexOfWordAtCaret(caretIdx, value, separator), selectionEnd = caretIdx, idx;
@@ -311,11 +313,13 @@
                 var options = that.options;
                 var data = that.dataSource.flatView();
                 var length = data.length;
+                var groupsLength = that.dataSource._group.length;
                 var isActive = that.element[0] === activeElement();
                 var action;
                 that._renderFooter();
                 that._renderNoData();
-                that._toggleNoData(!data.length);
+                that._toggleNoData(!length);
+                that._toggleHeader(!!groupsLength && !!length);
                 that._resizePopup();
                 popup.position();
                 if (length) {
@@ -391,6 +395,7 @@
                     that.trigger(CHANGE);
                 }
                 that.typing = false;
+                that._toggleCloseVisibility();
             },
             _accessor: function (value) {
                 var that = this, element = that.element[0];
@@ -557,6 +562,13 @@
             },
             _toggleHover: function (e) {
                 $(e.currentTarget).toggleClass(HOVER, e.type === 'mouseenter');
+            },
+            _toggleCloseVisibility: function () {
+                if (this.value()) {
+                    this._showClear();
+                } else {
+                    this._hideClear();
+                }
             },
             _wrapper: function () {
                 var that = this, element = that.element, DOMelement = element[0], wrapper;

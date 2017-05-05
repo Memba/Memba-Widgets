@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -35,7 +35,7 @@
     };
     (function ($) {
         var kendo = window.kendo, ui = kendo.ui, NS = '.kendoAgendaView';
-        var EVENT_WRAPPER_FORMAT = '<div class="k-task" title="#:title.replace(/"/g,"\'")#" data-#=kendo.ns#uid="#=uid#">' + '# if (resources[0]) {#' + '<span class="k-scheduler-mark" style="background-color:#=resources[0].color#"></span>' + '# } #' + '# if (data.isException()) { #' + '<span class="k-icon k-i-warning"></span>' + '# } else if (data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '# } #' + '{0}' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete"><span class="k-icon k-i-close"></span></a>' + '#}#' + '</div>';
+        var EVENT_WRAPPER_FORMAT = '<div class="k-task" title="#:title.replace(/"/g,"\'")#" data-#=kendo.ns#uid="#=uid#">' + '# if (resources[0]) {#' + '<span class="k-scheduler-mark" style="background-color:#=resources[0].color#"></span>' + '# } #' + '# if (data.isException()) { #' + '<span class="k-icon k-i-non-recurrence"></span>' + '# } else if (data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '# } #' + '{0}' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' + '#}#' + '</div>';
         var AgendaGroupedView = kendo.Class.extend({
             init: function (view) {
                 this._view = view;
@@ -202,7 +202,7 @@
                     options.editable = $.extend({ 'delete': true }, options.editable, {
                         create: false,
                         update: false
-                    });
+                    }, { messages: options.messages });
                 }
                 this.title = options.title;
                 this._eventTemplate = this._eventTmpl(options.eventTemplate, EVENT_WRAPPER_FORMAT);
@@ -359,7 +359,10 @@
                         tableRow.push(kendo.format('<td class="k-scheduler-timecolumn"><div>{0}{1}{2}</div></td><td>{3}</td>', task.tail || task.middle ? '<span class="k-icon k-i-arrow-60-left"></span>' : '', this._timeTemplate(task.clone({
                             start: task._startTime || task.start,
                             end: task.endTime || task.end
-                        })), task.head || task.middle ? '<span class="k-icon k-i-arrow-60-right"></span>' : '', this._eventTemplate(task.clone({ showDelete: showDelete }))));
+                        })), task.head || task.middle ? '<span class="k-icon k-i-arrow-60-right"></span>' : '', this._eventTemplate(task.clone({
+                            showDelete: showDelete,
+                            messages: this.options.messages
+                        }))));
                         tableRows.push('<tr role="row" aria-selected="false"' + (today ? ' class="k-today">' : '>') + tableRow.join('') + '</tr>');
                     }
                 }

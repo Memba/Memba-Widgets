@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2017.1.223'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2017.2.504'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -2206,7 +2206,7 @@
             };
         };
         kendo.notify = noop;
-        var templateRegExp = /template$/i, jsonRegExp = /^\s*(?:\{(?:.|\r\n|\n)*\}|\[(?:.|\r\n|\n)*\])\s*$/, jsonFormatRegExp = /^\{(\d+)(:[^\}]+)?\}|^\[[A-Za-z_]*\]$/, dashRegExp = /([A-Z])/g;
+        var templateRegExp = /template$/i, jsonRegExp = /^\s*(?:\{(?:.|\r\n|\n)*\}|\[(?:.|\r\n|\n)*\])\s*$/, jsonFormatRegExp = /^\{(\d+)(:[^\}]+)?\}|^\[[A-Za-z_]+\]$/, dashRegExp = /([A-Z])/g;
         function parseOption(element, option) {
             var value;
             if (option.indexOf('data') === 0) {
@@ -2966,20 +2966,30 @@
                 }
                 return last;
             }
-            function weekInYear(date, weekStart) {
-                var year, days;
-                date = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-                adjustDST(date, 0);
-                year = date.getFullYear();
-                if (weekStart !== undefined) {
-                    setDayOfWeek(date, weekStart, -1);
-                    date.setDate(date.getDate() + 4);
-                } else {
-                    date.setDate(date.getDate() + (4 - (date.getDay() || 7)));
+            function moveDateToWeekStart(date, weekStartDay) {
+                if (weekStartDay !== 1) {
+                    return addDays(dayOfWeek(date, weekStartDay, -1), 4);
                 }
-                adjustDST(date, 0);
-                days = Math.floor((date.getTime() - new Date(year, 0, 1, -6)) / 86400000);
+                return addDays(date, 4 - (date.getDay() || 7));
+            }
+            function calcWeekInYear(date, weekStartDay) {
+                var firstWeekInYear = new Date(date.getFullYear(), 0, 1, -6);
+                var newDate = moveDateToWeekStart(date, weekStartDay);
+                var diffInMS = newDate.getTime() - firstWeekInYear.getTime();
+                var days = Math.floor(diffInMS / MS_PER_DAY);
                 return 1 + Math.floor(days / 7);
+            }
+            function weekInYear(date, weekStartDay) {
+                var prevWeekDate = addDays(date, -7);
+                var nextWeekDate = addDays(date, 7);
+                var weekNumber = calcWeekInYear(date, weekStartDay);
+                if (weekNumber === 0) {
+                    return calcWeekInYear(prevWeekDate, weekStartDay) + 1;
+                }
+                if (weekNumber === 53 && calcWeekInYear(nextWeekDate, weekStartDay) > 1) {
+                    return 1;
+                }
+                return weekNumber;
             }
             function getDate(date) {
                 date = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
@@ -3198,7 +3208,14 @@
                 if (element.selectionStart !== undefined) {
                     if (isPosition) {
                         element.focus();
-                        element.setSelectionRange(start, end);
+                        var mobile = support.mobileOS;
+                        if (mobile.wp || mobile.android) {
+                            setTimeout(function () {
+                                element.setSelectionRange(start, end);
+                            }, 0);
+                        } else {
+                            element.setSelectionRange(start, end);
+                        }
                     } else {
                         start = [
                             element.selectionStart,
@@ -6955,7 +6972,11 @@
                 }
                 return model;
             },
-            pushCreate: function (items) {
+            pushInsert: function (index, items) {
+                if (!items) {
+                    items = index;
+                    index = 0;
+                }
                 if (!isArray(items)) {
                     items = [items];
                 }
@@ -6965,13 +6986,14 @@
                 try {
                     for (var idx = 0; idx < items.length; idx++) {
                         var item = items[idx];
-                        var result = this.add(item);
+                        var result = this.insert(index, item);
                         pushed.push(result);
                         var pristine = result.toJSON();
                         if (this._isServerGrouped()) {
                             pristine = this._wrapInEmptyGroup(pristine);
                         }
                         this._pristineData.push(pristine);
+                        index++;
                     }
                 } finally {
                     this.options.autoSync = autoSync;
@@ -6982,6 +7004,9 @@
                         items: pushed
                     });
                 }
+            },
+            pushCreate: function (items) {
+                this.pushInsert(this._data.length, items);
             },
             pushUpdate: function (items) {
                 if (!isArray(items)) {
@@ -7263,6 +7288,7 @@
             _submit: function (promises, data) {
                 var that = this;
                 that.trigger(REQUESTSTART, { type: 'submit' });
+                that.trigger(PROGRESS);
                 that.transport.submit(extend({
                     success: function (response, type) {
                         var promise = $.grep(promises, function (x) {
@@ -7319,6 +7345,7 @@
                 var that = this;
                 return $.Deferred(function (deferred) {
                     that.trigger(REQUESTSTART, { type: type });
+                    that.trigger(PROGRESS);
                     that.transport[type].call(that.transport, extend({
                         success: function (response) {
                             deferred.resolve({
@@ -8393,6 +8420,13 @@
                         method = 'read';
                     }
                     children.one(CHANGE, proxy(this._childrenLoaded, this));
+                    if (this._matchFilter) {
+                        options.filter = {
+                            field: '_matchFilter',
+                            operator: 'eq',
+                            value: true
+                        };
+                    }
                     promise = children[method](options);
                 } else {
                     this.loaded(true);
@@ -8426,6 +8460,10 @@
         var HierarchicalDataSource = DataSource.extend({
             init: function (options) {
                 var node = Node.define({ children: options });
+                if (options.filter) {
+                    this._hierarchicalFilter = options.filter;
+                    options.filter = null;
+                }
                 DataSource.fn.init.call(this, extend(true, {}, {
                     schema: {
                         modelBase: node,
@@ -8439,6 +8477,13 @@
                 that._data.bind(ERROR, function (e) {
                     that.trigger(ERROR, e);
                 });
+            },
+            read: function (data) {
+                var result = DataSource.fn.read.call(this, data);
+                if (this._hierarchicalFilter) {
+                    this.filter(this._hierarchicalFilter);
+                }
+                return result;
             },
             remove: function (node) {
                 var parentNode = node.parentNode(), dataSource = this, result;
@@ -8460,6 +8505,71 @@
                     parentNode._initChildren();
                 }
                 return DataSource.fn.insert.call(this, index, model);
+            },
+            filter: function (val) {
+                if (val === undefined) {
+                    return this._filter;
+                }
+                if (!this.options.serverFiltering) {
+                    this._markHierarchicalQuery(val);
+                    val = {
+                        logic: 'or',
+                        filters: [
+                            val,
+                            {
+                                field: '_matchFilter',
+                                operator: 'equals',
+                                value: true
+                            }
+                        ]
+                    };
+                }
+                this.trigger('reset');
+                this._query({
+                    filter: val,
+                    page: 1
+                });
+            },
+            _markHierarchicalQuery: function (expressions) {
+                var compiled;
+                var predicate;
+                var fields;
+                var operators;
+                var filter;
+                expressions = normalizeFilter(expressions);
+                if (!expressions || expressions.filters.length === 0) {
+                    return this;
+                }
+                compiled = Query.filterExpr(expressions);
+                fields = compiled.fields;
+                operators = compiled.operators;
+                predicate = filter = new Function('d, __f, __o', 'return ' + compiled.expression);
+                if (fields.length || operators.length) {
+                    filter = function (d) {
+                        return predicate(d, fields, operators);
+                    };
+                }
+                this._updateHierarchicalFilter(filter);
+            },
+            _updateHierarchicalFilter: function (filter) {
+                var current;
+                var data = this._data;
+                var result = false;
+                for (var idx = 0; idx < data.length; idx++) {
+                    current = data[idx];
+                    if (current.hasChildren) {
+                        current._matchFilter = current.children._updateHierarchicalFilter(filter);
+                        if (!current._matchFilter) {
+                            current._matchFilter = filter(current);
+                        }
+                    } else {
+                        current._matchFilter = filter(current);
+                    }
+                    if (current._matchFilter) {
+                        result = true;
+                    }
+                }
+                return result;
             },
             _find: function (method, value) {
                 var idx, length, node, children;
@@ -12439,7 +12549,7 @@
                 if (xInBounds) {
                     parent.scrollLeft += velocity.x;
                 }
-                if (isRootNode && (xInBounds || yInBounds)) {
+                if (this.hint && isRootNode && (xInBounds || yInBounds)) {
                     if (yInBounds) {
                         compensation.top += velocity.y;
                     }
@@ -12616,7 +12726,7 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, support = kendo.support, getOffset = kendo.getOffset, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, OPEN = 'open', CLOSE = 'close', DEACTIVATE = 'deactivate', ACTIVATE = 'activate', CENTER = 'center', LEFT = 'left', RIGHT = 'right', TOP = 'top', BOTTOM = 'bottom', ABSOLUTE = 'absolute', HIDDEN = 'hidden', BODY = 'body', LOCATION = 'location', POSITION = 'position', VISIBLE = 'visible', EFFECTS = 'effects', ACTIVE = 'k-state-active', ACTIVEBORDER = 'k-state-border', ACTIVEBORDERREGEXP = /k-state-border-(\w+)/, ACTIVECHILDREN = '.k-picker-wrap, .k-dropdown-wrap, .k-link', MOUSEDOWN = 'down', DOCUMENT_ELEMENT = $(document.documentElement), WINDOW = $(window), SCROLL = 'scroll', cssPrefix = support.transitions.css, TRANSFORM = cssPrefix + 'transform', extend = $.extend, NS = '.kendoPopup', styles = [
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, Class = kendo.Class, support = kendo.support, getOffset = kendo.getOffset, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, OPEN = 'open', CLOSE = 'close', DEACTIVATE = 'deactivate', ACTIVATE = 'activate', CENTER = 'center', LEFT = 'left', RIGHT = 'right', TOP = 'top', BOTTOM = 'bottom', ABSOLUTE = 'absolute', HIDDEN = 'hidden', BODY = 'body', LOCATION = 'location', POSITION = 'position', VISIBLE = 'visible', EFFECTS = 'effects', ACTIVE = 'k-state-active', ACTIVEBORDER = 'k-state-border', ACTIVEBORDERREGEXP = /k-state-border-(\w+)/, ACTIVECHILDREN = '.k-picker-wrap, .k-dropdown-wrap, .k-link', MOUSEDOWN = 'down', DOCUMENT_ELEMENT = $(document.documentElement), proxy = $.proxy, WINDOW = $(window), SCROLL = 'scroll', cssPrefix = support.transitions.css, TRANSFORM = cssPrefix + 'transform', extend = $.extend, NS = '.kendoPopup', styles = [
                 'font-size',
                 'font-family',
                 'font-stretch',
@@ -12802,6 +12912,35 @@
                     }
                     element.data(EFFECTS, animation.effects).kendoStop(true).kendoAnimate(animation);
                 }
+            },
+            _location: function (isFixed) {
+                var that = this, element = that.element, options = that.options, wrapper, anchor = $(options.anchor), mobile = element[0] && element.hasClass('km-widget');
+                if (options.copyAnchorStyles) {
+                    if (mobile && styles[0] == 'font-size') {
+                        styles.shift();
+                    }
+                    element.css(kendo.getComputedStyles(anchor[0], styles));
+                }
+                that.wrapper = wrapper = kendo.wrap(element, options.autosize).css({
+                    overflow: HIDDEN,
+                    display: 'block',
+                    position: ABSOLUTE
+                });
+                if (support.mobileOS.android) {
+                    wrapper.css(TRANSFORM, 'translatez(0)');
+                }
+                wrapper.css(POSITION);
+                if ($(options.appendTo)[0] == document.body) {
+                    wrapper.css(TOP, '-10000px');
+                }
+                that._position(isFixed || {});
+                var offset = wrapper.offset();
+                return {
+                    width: kendo._outerWidth(wrapper),
+                    height: kendo._outerHeight(wrapper),
+                    left: offset.left,
+                    top: offset.top
+                };
             },
             _openAnimation: function () {
                 var animation = extend(true, {}, this.options.animation.open);
@@ -13057,6 +13196,55 @@
             }
         });
         ui.plugin(Popup);
+        var tabKeyTrapNS = 'kendoTabKeyTrap';
+        var focusableNodesSelector = 'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex], *[contenteditable]';
+        var TabKeyTrap = Class.extend({
+            init: function (element) {
+                this.element = $(element);
+                this.element.autoApplyNS(tabKeyTrapNS);
+            },
+            trap: function () {
+                this.element.on('keydown', proxy(this._keepInTrap, this));
+            },
+            removeTrap: function () {
+                this.element.kendoDestroy(tabKeyTrapNS);
+            },
+            destroy: function () {
+                this.element.kendoDestroy(tabKeyTrapNS);
+                this.element = undefined;
+            },
+            shouldTrap: function () {
+                return true;
+            },
+            _keepInTrap: function (e) {
+                if (e.which !== 9 || !this.shouldTrap()) {
+                    return;
+                }
+                var target = e.target;
+                var elements = this.element.find(focusableNodesSelector).filter(':visible[tabindex!=-1]');
+                var focusableItems = elements.sort(function (prevEl, nextEl) {
+                    return prevEl.tabIndex - nextEl.tabIndex;
+                });
+                var focusableItemsCount = focusableItems.length;
+                var lastIndex = focusableItemsCount - 1;
+                var focusedItemIndex = focusableItems.index(target);
+                if (e.shiftKey) {
+                    if (focusedItemIndex === 0) {
+                        focusableItems.get(lastIndex).focus();
+                    } else {
+                        focusableItems.get(focusedItemIndex - 1).focus();
+                    }
+                } else {
+                    if (focusedItemIndex === lastIndex) {
+                        focusableItems.get(0).focus();
+                    } else {
+                        focusableItems.get(focusedItemIndex + 1).focus();
+                    }
+                }
+                e.preventDefault();
+            }
+        });
+        ui.Popup.TabKeyTrap = TabKeyTrap;
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -18739,7 +18927,7 @@
             var onChange = function (pristine) {
                 return function () {
                     var formPristine;
-                    if (haveChangeOnElement) {
+                    if (haveChangeOnElement && !element.is('select')) {
                         return;
                     }
                     if (pristine && ngForm) {

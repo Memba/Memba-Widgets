@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -229,19 +229,23 @@
             }
         };
         var ARIA_DESCENDANT = 'aria-activedescendant';
+        var ARIA_LABEL = 'aria-label';
         var ACTIVE_CELL = 'gantt_active_cell';
         var ACTIVE_OPTION = 'action-option-focused';
         var DOT = '.';
         var TASK_DELETE_CONFIRM = 'Are you sure you want to delete this task?';
         var DEPENDENCY_DELETE_CONFIRM = 'Are you sure you want to delete this dependency?';
-        var TOGGLE_BUTTON_TEMPLATE = kendo.template('<button class="#=styles.buttonToggle#" type="button"><span class="#=styles.iconToggle#"></span></button>');
+        var TOGGLE_BUTTON_TEMPLATE = kendo.template('<button class="#=styles.buttonToggle#" type="button" ' + ARIA_LABEL + '="Toggle"><span class="#=styles.iconToggle#"></span></button>');
         var BUTTON_TEMPLATE = '<button class="#=styles.button# #=className#" type="button" ' + '#if (action) {#' + 'data-action="#=action#"' + '#}#' + '><span class="#=iconClass#"></span><span>#=text#</span></button>';
         var COMMAND_BUTTON_TEMPLATE = '<a class="#=className#" #=attr# href="\\#">#=text#</a>';
         var VIEWBUTTONTEMPLATE = kendo.template('<li class="#=styles.currentView# #=styles.viewButtonDefault#"><a href="\\#" class="#=styles.link#">&nbps;</a></li>');
         var HEADER_VIEWS_TEMPLATE = kendo.template('<ul class="#=styles.viewsWrapper#">' + '#for(var view in views){#' + '<li class="#=styles.viewButtonDefault# #=styles.viewButton#-#= view.toLowerCase() #" data-#=ns#name="#=view#"><a href="\\#" class="#=styles.link#">#=views[view].title#</a></li>' + '#}#' + '</ul>');
         var TASK_DROPDOWN_TEMPLATE = kendo.template('<div class="#=styles.popupWrapper#">' + '<ul class="#=styles.popupList#" role="listbox">' + '#for(var i = 0, l = actions.length; i < l; i++){#' + '<li class="#=styles.item#" data-action="#=actions[i].data#" role="option">#=actions[i].text#</span>' + '#}#' + '</ul>' + '</div>');
         var DATERANGEEDITOR = function (container, options) {
-            var attr = { name: options.field };
+            var attr = {
+                name: options.field,
+                title: options.title
+            };
             var validationRules = options.model.fields[options.field].validation;
             if (validationRules && isPlainObject(validationRules) && validationRules.message) {
                 attr[kendo.attr('dateCompare-msg')] = validationRules.message;

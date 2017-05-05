@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -889,21 +889,23 @@
                 this._type = options.border;
                 this._style = options.style;
             },
+            _batch: function (f) {
+                return this.range().sheet().batch(f, {});
+            },
             exec: function () {
-                this.getState();
-                this[this._type](this._style);
+                var self = this;
+                self.getState();
+                self._batch(function () {
+                    self[self._type](self._style);
+                });
             },
             noBorders: function () {
-                var range = this.range();
-                range.sheet().batch(function () {
-                    range.borderLeft(null).borderTop(null).borderRight(null).borderBottom(null);
-                }.bind(this), {});
+                this.range().insideBorders(null);
+                this.outsideBorders(null);
             },
             allBorders: function (style) {
-                var range = this.range();
-                range.sheet().batch(function () {
-                    range.borderLeft(style).borderTop(style).borderRight(style).borderBottom(style);
-                }.bind(this), {});
+                this.range().insideBorders(style);
+                this.outsideBorders(style);
             },
             leftBorder: function (style) {
                 this.range().leftColumn().borderLeft(style);
@@ -919,32 +921,20 @@
             },
             outsideBorders: function (style) {
                 var range = this.range();
-                range.sheet().batch(function () {
-                    range.leftColumn().borderLeft(style);
-                    range.topRow().borderTop(style);
-                    range.rightColumn().borderRight(style);
-                    range.bottomRow().borderBottom(style);
-                }.bind(this), {});
+                range.leftColumn().borderLeft(style);
+                range.topRow().borderTop(style);
+                range.rightColumn().borderRight(style);
+                range.bottomRow().borderBottom(style);
             },
             insideBorders: function (style) {
-                this.range().sheet().batch(function () {
-                    this.allBorders(style);
-                    this.outsideBorders(null);
-                }.bind(this), {});
+                this.range().insideBorders(style);
+                this.outsideBorders(null);
             },
             insideHorizontalBorders: function (style) {
-                var range = this.range();
-                range.sheet().batch(function () {
-                    range.borderBottom(style);
-                    range.bottomRow().borderBottom(null);
-                }.bind(this), {});
+                this.range().insideHorizontalBorders(style);
             },
             insideVerticalBorders: function (style) {
-                var range = this.range();
-                range.sheet().batch(function () {
-                    range.borderRight(style);
-                    range.rightColumn().borderRight(null);
-                }.bind(this), {});
+                this.range().insideVerticalBorders(style);
             }
         });
         kendo.spreadsheet.MergeCellCommand = Command.extend({
@@ -2438,7 +2428,7 @@
         function insert(node, value) {
             if (node === NilNode) {
                 return new RangeTreeNode(1, value, NilNode, NilNode);
-            } else if (node.value.start - value.start > 0) {
+            } else if (node.value.start > value.start) {
                 node.left = insert(node.left, value);
             } else {
                 node.right = insert(node.right, value);
@@ -2807,7 +2797,6 @@
         if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
             return;
         }
-        var $ = kendo.jQuery;
         var Property = kendo.Class.extend({
             init: function (list) {
                 this.list = list;
@@ -2841,9 +2830,8 @@
             }
         });
         var ValueProperty = Property.extend({
-            init: function (values, formats, validations) {
+            init: function (values, formats) {
                 Property.prototype.init.call(this, values);
-                this.validations = validations;
                 this.formats = formats;
             },
             set: function (start, end, value) {
@@ -2860,19 +2848,19 @@
         kendo.spreadsheet.PropertyBag = kendo.Class.extend({
             specs: [
                 {
+                    property: Property,
+                    name: 'format',
+                    value: null,
+                    sortable: true,
+                    serializable: true
+                },
+                {
                     property: ValueProperty,
                     name: 'value',
                     value: null,
                     sortable: true,
                     serializable: true,
                     depends: 'format'
-                },
-                {
-                    property: Property,
-                    name: 'format',
-                    value: null,
-                    sortable: true,
-                    serializable: true
                 },
                 {
                     property: Property,
@@ -2890,31 +2878,17 @@
                 },
                 {
                     property: JsonProperty,
-                    name: 'borderBottom',
+                    name: 'vBorders',
                     value: null,
                     sortable: false,
-                    serializable: true
+                    serializable: false
                 },
                 {
                     property: JsonProperty,
-                    name: 'borderRight',
+                    name: 'hBorders',
                     value: null,
                     sortable: false,
-                    serializable: true
-                },
-                {
-                    property: JsonProperty,
-                    name: 'borderLeft',
-                    value: null,
-                    sortable: false,
-                    serializable: true
-                },
-                {
-                    property: JsonProperty,
-                    name: 'borderTop',
-                    value: null,
-                    sortable: false,
-                    serializable: true
+                    serializable: false
                 },
                 {
                     property: Property,
@@ -3008,16 +2982,22 @@
                     serializable: true
                 }
             ],
-            init: function (cellCount, defaultValues) {
+            init: function (rowCount, columnCount, defaultValues) {
                 defaultValues = defaultValues || {};
+                var cellCount = rowCount * columnCount - 1;
+                this.rowCount = rowCount;
+                this.columnCount = columnCount;
+                this.cellCount = cellCount;
                 this.properties = {};
                 this.lists = {};
                 this.specs.forEach(function (spec) {
-                    var value = defaultValues[spec.name] !== undefined ? defaultValues[spec.name] : spec.value;
-                    this.lists[spec.name] = new kendo.spreadsheet.SparseRangeList(0, cellCount, value);
-                }, this);
-                this.specs.forEach(function (spec) {
-                    this.properties[spec.name] = new spec.property(this.lists[spec.name], this.lists[spec.depends]);
+                    var name = spec.name;
+                    var value = defaultValues[name];
+                    if (value === undefined) {
+                        value = spec.value;
+                    }
+                    this.lists[name] = new kendo.spreadsheet.SparseRangeList(0, cellCount, value);
+                    this.properties[name] = new spec.property(this.lists[name], this.lists[spec.depends]);
                 }, this);
             },
             getState: function () {
@@ -3036,10 +3016,38 @@
                 if (index === undefined) {
                     return this.lists[name];
                 }
-                return this.properties[name].get(index);
+                switch (name) {
+                case 'borderRight':
+                    index += this.rowCount;
+                case 'borderLeft':
+                    name = 'vBorders';
+                    break;
+                case 'borderBottom':
+                    index++;
+                case 'borderTop':
+                    name = 'hBorders';
+                    break;
+                }
+                return index > this.cellCount ? null : this.properties[name].get(index);
             },
             set: function (name, start, end, value) {
-                this.properties[name].set(start, end, value);
+                switch (name) {
+                case 'borderRight':
+                    start += this.rowCount;
+                    end += this.rowCount;
+                case 'borderLeft':
+                    name = 'vBorders';
+                    break;
+                case 'borderBottom':
+                    start++;
+                    end++;
+                case 'borderTop':
+                    name = 'hBorders';
+                    break;
+                }
+                if (start <= end && end <= this.cellCount) {
+                    this.properties[name].set(start, end, value);
+                }
             },
             fromJSON: function (index, value) {
                 for (var si = 0; si < this.specs.length; si++) {
@@ -3050,6 +3058,16 @@
                         }
                     }
                 }
+                [
+                    'borderLeft',
+                    'borderRight',
+                    'borderTop',
+                    'borderBottom'
+                ].forEach(function (b) {
+                    if (value[b] !== undefined) {
+                        this.set(b, index, index, value[b]);
+                    }
+                }, this);
             },
             copy: function (sourceStart, sourceEnd, targetStart) {
                 this.specs.forEach(function (spec) {
@@ -3057,7 +3075,15 @@
                 }, this);
             },
             iterator: function (name, start, end) {
-                return this.properties[name].iterator(start, end);
+                var prop = this.properties[name];
+                var iter = prop.iterator(start, end), at = iter.at;
+                var cellCount = this.cellCount;
+                iter.at = function (index) {
+                    return index > cellCount ? null : prop.parse(at.call(iter, index));
+                };
+                iter.name = name;
+                iter.value = prop.list.range.value;
+                return iter;
             },
             sortable: function () {
                 return this.specs.filter(function (spec) {
@@ -3067,30 +3093,39 @@
                 }, this);
             },
             iterators: function (start, end) {
-                var specs = this.specs.filter(function (spec) {
-                    return spec.serializable;
-                });
-                return specs.map(function (spec) {
-                    var iterator = this.iterator(spec.name, start, end);
-                    return {
-                        name: spec.name,
-                        value: spec.value,
-                        at: function (index) {
-                            return spec.property.fn.parse(iterator.at(index));
-                        }
-                    };
-                }, this);
+                return this.specs.reduce(function (ret, spec) {
+                    if (spec.serializable) {
+                        ret.push(this.iterator(spec.name, start, end));
+                    }
+                    return ret;
+                }.bind(this), []);
             },
             forEach: function (start, end, callback) {
                 var iterators = this.iterators(start, end);
-                for (var index = start; index <= end; index++) {
-                    var values = {};
+                var hBorders = this.iterator('hBorders', start, end + 1);
+                var leftBorders = this.iterator('vBorders', start, end);
+                var rightBorders = this.iterator('vBorders', start + this.rowCount, end + this.rowCount);
+                var values, index;
+                function addBorder(name, iterator, index) {
+                    var val = iterator.at(index);
+                    if (val !== iterator.value) {
+                        values[name] = val;
+                    }
+                }
+                for (index = start; index <= end; index++) {
+                    values = {};
                     for (var i = 0; i < iterators.length; i++) {
                         var iterator = iterators[i];
                         var value = iterator.at(index);
                         if (value !== iterator.value) {
                             values[iterator.name] = value;
                         }
+                    }
+                    addBorder('borderLeft', leftBorders, index);
+                    addBorder('borderRight', rightBorders, index + this.rowCount);
+                    addBorder('borderTop', hBorders, index);
+                    if ((index + 1) % this.rowCount) {
+                        addBorder('borderBottom', hBorders, index + 1);
                     }
                     callback(values);
                 }
@@ -3101,9 +3136,17 @@
                 }
             }
         });
-        kendo.spreadsheet.ALL_PROPERTIES = $.map(kendo.spreadsheet.PropertyBag.prototype.specs, function (spec) {
-            return spec.name;
-        });
+        kendo.spreadsheet.ALL_PROPERTIES = kendo.spreadsheet.PropertyBag.prototype.specs.reduce(function (a, spec) {
+            if (spec.serializable) {
+                a.push(spec.name);
+            }
+            return a;
+        }, [
+            'borderTop',
+            'borderRight',
+            'borderBottom',
+            'borderLeft'
+        ]);
     }(window.kendo));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
@@ -3780,7 +3823,13 @@
             }));
         },
         forEach: function (callback, obj) {
-            this.refs.forEach(callback, obj);
+            this.refs.forEach(function (ref) {
+                if (ref instanceof UnionRef) {
+                    ref.forEach(callback, obj);
+                } else {
+                    callback.call(obj, ref);
+                }
+            }, obj);
         },
         toRangeRef: function () {
             return this.refs[0].toRangeRef();
@@ -3791,7 +3840,11 @@
             });
         },
         map: function (callback, obj) {
-            return new UnionRef(this.refs.map(callback, obj));
+            var refs = [];
+            this.forEach(function (ref) {
+                refs.push(callback.call(obj, ref));
+            });
+            return new UnionRef(refs);
         },
         first: function () {
             return this.refs[0].first();
@@ -4590,7 +4643,9 @@
                 return this._sheet.preventInsertRow(0, rowCount);
             },
             preventAddColumn: function () {
-                return this._sheet.preventInsertColumn();
+                var range = this._sheet.select().toRangeRef();
+                var columnCount = range.width();
+                return this._sheet.preventInsertColumn(0, columnCount);
             },
             addRowAbove: function () {
                 this.forEachSelectedRow(function (sheet, index, i) {
@@ -4929,38 +4984,12 @@
             'background',
             'format',
             'link',
-            'editor'
+            'editor',
+            'borderTop',
+            'borderRight',
+            'borderBottom',
+            'borderLeft'
         ];
-        var borders = {
-            borderTop: {
-                complement: 'borderBottom',
-                direction: {
-                    top: -1,
-                    bottom: -1
-                }
-            },
-            borderLeft: {
-                complement: 'borderRight',
-                direction: {
-                    left: -1,
-                    right: -1
-                }
-            },
-            borderRight: {
-                complement: 'borderLeft',
-                direction: {
-                    left: 1,
-                    right: 1
-                }
-            },
-            borderBottom: {
-                complement: 'borderTop',
-                direction: {
-                    top: 1,
-                    bottom: 1
-                }
-            }
-        };
         var Range = kendo.Class.extend({
             init: function (ref, sheet) {
                 this._sheet = sheet;
@@ -4974,18 +5003,14 @@
                 var self = this, sheet = self._sheet;
                 var skipHiddenRows = sheet.isHiddenRow.bind(sheet);
                 var skipHiddenCols = sheet.isHiddenColumn.bind(sheet);
-                self._ref.forEach(function add(ref) {
-                    if (ref instanceof UnionRef) {
-                        ref.forEach(add);
-                    } else {
-                        ref = self._normalize(ref.toRangeRef());
-                        var tl = ref.topLeft, br = ref.bottomRight;
-                        var rows = partition(tl.row, br.row, skipHiddenRows);
-                        var cols = partition(tl.col, br.col, skipHiddenCols);
-                        for (var i = 0; i < rows.length; ++i) {
-                            for (var j = 0; j < cols.length; ++j) {
-                                refs.push(new RangeRef(new CellRef(rows[i].begin, cols[j].begin), new CellRef(rows[i].end, cols[j].end)));
-                            }
+                self._ref.forEach(function (ref) {
+                    ref = self._normalize(ref.toRangeRef());
+                    var tl = ref.topLeft, br = ref.bottomRight;
+                    var rows = partition(tl.row, br.row, skipHiddenRows);
+                    var cols = partition(tl.col, br.col, skipHiddenCols);
+                    for (var i = 0; i < rows.length; ++i) {
+                        for (var j = 0; j < cols.length; ++j) {
+                            refs.push(new RangeRef(new CellRef(rows[i].begin, cols[j].begin), new CellRef(rows[i].end, cols[j].end)));
                         }
                     }
                 });
@@ -5034,59 +5059,6 @@
                 return this._ref.map(function (ref) {
                     return ref.toRangeRef().resize(direction);
                 });
-            },
-            _border: function (property, value) {
-                var result;
-                var complement = borders[property].complement;
-                var direction = borders[property].direction;
-                var sheet = this._sheet;
-                sheet.batch(function () {
-                    result = this._property(property, value);
-                    if (value !== undefined) {
-                        this._resizedRef(direction).forEach(function (ref) {
-                            if (ref !== kendo.spreadsheet.NULLREF) {
-                                new Range(ref, sheet)._property(complement, null);
-                            }
-                        });
-                    }
-                }.bind(this), {});
-                return result;
-            },
-            _collapsedBorder: function (property) {
-                var result = this._property(property);
-                var complement = borders[property].complement;
-                var direction = borders[property].direction;
-                this._resizedRef(direction).forEach(function (ref) {
-                    if (!result && ref !== kendo.spreadsheet.NULLREF) {
-                        var range = new Range(ref, this._sheet);
-                        result = range._property(complement);
-                    }
-                }.bind(this));
-                return result;
-            },
-            borderTop: function (value) {
-                return this._border('borderTop', value);
-            },
-            borderRight: function (value) {
-                return this._border('borderRight', value);
-            },
-            borderBottom: function (value) {
-                return this._border('borderBottom', value);
-            },
-            borderLeft: function (value) {
-                return this._border('borderLeft', value);
-            },
-            collapsedBorderTop: function () {
-                return this._collapsedBorder('borderTop');
-            },
-            collapsedBorderRight: function () {
-                return this._collapsedBorder('borderRight');
-            },
-            collapsedBorderBottom: function () {
-                return this._collapsedBorder('borderBottom');
-            },
-            collapsedBorderLeft: function () {
-                return this._collapsedBorder('borderLeft');
             },
             input: function (value) {
                 var existingFormat = this._get('format'), x;
@@ -5299,9 +5271,12 @@
                         sheet._set(ref, propName, propValue);
                     };
                     for (ci = topLeftCol; ci <= bottomRightCol; ci++) {
+                        if (sheet.isHiddenColumn(ci)) {
+                            continue;
+                        }
                         for (ri = topLeftRow; ri <= bottomRightRow; ri++) {
                             var row = props[ri - topLeftRow];
-                            if (row) {
+                            if (row && !sheet.isHiddenRow(ri)) {
                                 data = row[ci - topLeftCol];
                                 if (data) {
                                     Object.keys(data).forEach(setProp);
@@ -5317,10 +5292,11 @@
                 }
             },
             clear: function (options) {
-                var clearAll = !options || !Object.keys(options).length;
+                options = options || {};
+                var clearAll = options.clearAll || !Object.keys(options).length;
                 var sheet = this._sheet;
                 var reason = {
-                    recalc: clearAll || options && options.contentsOnly === true,
+                    recalc: clearAll || options.contentsOnly,
                     ref: this._ref
                 };
                 sheet.batch(function () {
@@ -5330,9 +5306,11 @@
                     if (clearAll) {
                         this.validation(null);
                     }
-                    if (clearAll || options && options.formatOnly === true) {
+                    if (clearAll || options.formatOnly) {
                         PROPERTIES.forEach(function (x) {
-                            this[x](null);
+                            if (!(options.keepBorders && /^border/i.test(x))) {
+                                this[x](null);
+                            }
                         }.bind(this));
                         this.unmerge();
                     }
@@ -5550,13 +5528,14 @@
                         this.unmerge();
                     }
                     var row = origin.row;
+                    var hasFilter = this.hasFilter();
                     state.data.forEach(function (data, dr) {
-                        if (clipboard && !clipboard.isExternal() && sheet.isHiddenRow(state.ref.row + dr)) {
+                        if (hasFilter && clipboard && !clipboard.isExternal() && sheet.isHiddenRow(state.ref.row + dr)) {
                             return;
                         }
                         var col = origin.col;
                         data.forEach(function (cellState, dc) {
-                            if (clipboard && !clipboard.isExternal() && sheet.isHiddenColumn(state.ref.col + dc)) {
+                            if (hasFilter && clipboard && !clipboard.isExternal() && sheet.isHiddenColumn(state.ref.col + dc)) {
                                 return;
                             }
                             var range = clipboard ? sheet.range(row, col) : sheet.range(origin.row + dr, origin.col + dc);
@@ -5635,7 +5614,7 @@
                     this.forEachCell(function (row, col, cell) {
                         for (var key in cell) {
                             var val = cell[key];
-                            if (val !== undefined && val !== defStyle[key]) {
+                            if (val !== undefined && val !== null && val !== defStyle[key]) {
                                 throw yesItHas;
                             }
                         }
@@ -5685,6 +5664,29 @@
             },
             draw: function (options, callback) {
                 this._sheet.draw(this, options, callback);
+            },
+            insideBorders: function (value) {
+                return this.insideVerticalBorders(value).insideHorizontalBorders(value);
+            },
+            insideVerticalBorders: function (value) {
+                this._ref.forEach(function (ref) {
+                    if (ref instanceof RangeRef && ref.width() > 1) {
+                        ref = ref.clone();
+                        ref.topLeft.col++;
+                        this._sheet.range(ref)._set('vBorders', value);
+                    }
+                }, this);
+                return this;
+            },
+            insideHorizontalBorders: function (value) {
+                this._ref.forEach(function (ref) {
+                    if (ref instanceof RangeRef && ref.height() > 1) {
+                        ref = ref.clone();
+                        ref.topLeft.row++;
+                        this._sheet.range(ref)._set('hBorders', value);
+                    }
+                }, this);
+                return this;
             }
         });
         function partition(begin, end, predicate) {
@@ -7628,7 +7630,6 @@
                 'select'
             ],
             _reinit: function (rowCount, columnCount, rowHeight, columnWidth, headerHeight, headerWidth, defaultCellStyle) {
-                var cellCount = rowCount * columnCount - 1;
                 defaultCellStyle = defaultCellStyle || {};
                 this._defaultCellStyle = {
                     background: defaultCellStyle.background,
@@ -7651,7 +7652,7 @@
                 this._gridLinesColor = null;
                 this._grid = new kendo.spreadsheet.Grid(this._rows, this._columns, rowCount, columnCount, headerHeight, headerWidth);
                 this._sheetRef = this._grid.normalize(kendo.spreadsheet.SHEETREF);
-                this._properties = new kendo.spreadsheet.PropertyBag(cellCount, this._defaultCellStyle);
+                this._properties = new kendo.spreadsheet.PropertyBag(rowCount, columnCount, this._defaultCellStyle);
                 this._sorter = new kendo.spreadsheet.Sorter(this._grid, this._properties.sortable());
                 this._viewSelection = new Selection(this);
                 this._editSelection = new Selection(this);
@@ -7810,11 +7811,20 @@
                 }
                 return false;
             },
-            preventInsertColumn: function () {
+            preventInsertColumn: function (colIndex, count) {
                 if (this.selectedHeaders().allCols) {
                     return {
                         reason: 'error',
                         type: 'insertColumnWhenRowIsSelected'
+                    };
+                }
+                count = count || 1;
+                var grid = this._grid;
+                var range = this.range(0, grid.columnCount - count, grid.rowCount, count);
+                if (range.hasValue()) {
+                    return {
+                        reason: 'error',
+                        type: 'shiftingNonblankCells'
                     };
                 }
                 return false;
@@ -7842,7 +7852,10 @@
                         var bottomRight = grid.normalize(ref.bottomRight);
                         var nextRef = new RangeRef(new CellRef(topLeft.row, topLeft.col), new CellRef(rowCount - 2, bottomRight.col));
                         this._copyRange(nextRef, new CellRef(topLeft.row + 1, topLeft.col));
-                        new Range(ref, this).clear();
+                        new Range(ref, this).clear({
+                            clearAll: true,
+                            keepBorders: true
+                        });
                     }
                     this._adjustReferences('row', rowIndex, 1, mergedCells);
                 }, {
@@ -7875,7 +7888,10 @@
                     var mergedCells = this._mergedCells.slice();
                     for (var ci = 0; ci < columnCount; ci++) {
                         var ref = new RangeRef(new CellRef(rowIndex, ci), new CellRef(rowIndex, ci));
-                        new Range(ref, this).clear();
+                        new Range(ref, this).clear({
+                            clearAll: true,
+                            keepBorders: true
+                        });
                         var topLeft = grid.normalize(ref.topLeft);
                         var bottomRight = grid.normalize(ref.bottomRight);
                         var nextRef = new RangeRef(new CellRef(topLeft.row + 1, topLeft.col), new CellRef(Infinity, bottomRight.col));
@@ -7907,7 +7923,10 @@
                     var mergedCells = this._mergedCells.slice();
                     for (var ci = columnCount; ci >= columnIndex; ci--) {
                         var ref = new RangeRef(new CellRef(0, ci), new CellRef(Infinity, ci));
-                        new Range(ref, this).clear();
+                        new Range(ref, this).clear({
+                            clearAll: true,
+                            keepBorders: true
+                        });
                         if (ci == columnIndex) {
                             break;
                         }
@@ -7946,7 +7965,10 @@
                     var mergedCells = this._mergedCells.slice();
                     for (var ci = columnIndex; ci < columnCount; ci++) {
                         var ref = new RangeRef(new CellRef(0, ci), new CellRef(Infinity, ci));
-                        new Range(ref, this).clear();
+                        new Range(ref, this).clear({
+                            clearAll: true,
+                            keepBorders: true
+                        });
                         if (ci == columnCount - 1) {
                             break;
                         }
@@ -8841,7 +8863,7 @@
             sheetsBarKIcon: 'k-icon',
             sheetsBarKFontIcon: 'k-icon',
             sheetsBarKButton: 'k-button k-button-icon',
-            sheetsBarKButtonBare: 'k-button-bare',
+            sheetsBarKButtonBare: 'k-bare',
             sheetsBarKArrowW: 'k-i-arrow-60-left',
             sheetsBarKArrowE: 'k-i-arrow-60-right',
             sheetsBarKReset: 'k-reset k-tabstrip-items',
@@ -13295,6 +13317,7 @@
             colHeaderContextMenu: 'k-spreadsheet-col-header-context-menu'
         };
         kendo.spreadsheet.messages.view = {
+            nameBox: 'Name Box',
             errors: {
                 openUnsupported: 'Unsupported format. Please select an .xlsx file.',
                 shiftingNonblankCells: 'Cannot insert cells due to data loss possibility. Select another insert location or delete the data from the end of your worksheet.',
@@ -13333,11 +13356,7 @@
             }
         }
         function cellBorder(value) {
-            return [
-                'solid',
-                (value.size || 1) + 'px',
-                value.color || '#000'
-            ].join(' ');
+            return (value.size || 1) + 'px solid ' + (value.color || '#000');
         }
         function asURL(link) {
             if (!/:\/\//.test(link)) {
@@ -13345,7 +13364,7 @@
             }
             return link;
         }
-        function drawCell(collection, cell, cls, hBorders, vBorders, showGrid) {
+        function drawCell(collection, cell, cls, showGrid) {
             function maybeLink(el) {
                 var link = cell.link;
                 if (!link) {
@@ -13369,24 +13388,21 @@
                 }
                 return el;
             }
-            if (!cls && !kendo.spreadsheet.draw.shouldDrawCell(cell)) {
+            var shouldDraw = cell.value != null || cell.validation != null && !cell.validation.value || cell.background || cell.merged;
+            if (!cls && !shouldDraw) {
                 return;
             }
-            var left = cell.left;
-            var top = cell.top;
-            var width = cell.width + 1;
-            var height = cell.height + 1;
             var style = {};
             var background = cell.background;
-            var defaultBorder = null;
             if (background) {
-                defaultBorder = background;
+                var defaultBorder = background;
                 if (showGrid) {
                     defaultBorder = kendo.parseColor(defaultBorder).toHSV();
                     defaultBorder.v *= 0.9;
                     defaultBorder = defaultBorder.toCssRgba();
                 }
                 defaultBorder = cellBorder({ color: defaultBorder });
+                style.outline = defaultBorder;
             }
             if (background) {
                 style.backgroundColor = background;
@@ -13417,52 +13433,10 @@
                 style.overflowWrap = 'break-word';
                 style.wordWrap = 'break-word';
             }
-            if (cell.borderLeft) {
-                style.borderLeft = cellBorder(cell.borderLeft);
-                if (vBorders) {
-                    vBorders[cell.left] = true;
-                }
-            } else if (defaultBorder && vBorders && !vBorders[cell.left]) {
-                style.borderLeft = defaultBorder;
-            } else {
-                left++;
-                width--;
-            }
-            if (cell.borderTop) {
-                style.borderTop = cellBorder(cell.borderTop);
-                if (hBorders) {
-                    hBorders[cell.top] = true;
-                }
-            } else if (defaultBorder && hBorders && !hBorders[cell.top]) {
-                style.borderTop = defaultBorder;
-            } else {
-                top++;
-                height--;
-            }
-            if (cell.borderRight) {
-                style.borderRight = cellBorder(cell.borderRight);
-                if (vBorders) {
-                    vBorders[cell.right] = true;
-                }
-            } else if (defaultBorder && vBorders && !vBorders[cell.right]) {
-                style.borderRight = defaultBorder;
-            } else {
-                width--;
-            }
-            if (cell.borderBottom) {
-                style.borderBottom = cellBorder(cell.borderBottom);
-                if (hBorders) {
-                    hBorders[cell.bottom] = true;
-                }
-            } else if (defaultBorder && hBorders && !hBorders[cell.bottom]) {
-                style.borderBottom = defaultBorder;
-            } else {
-                height--;
-            }
-            style.left = left + 'px';
-            style.top = top + 'px';
-            style.width = width + 'px';
-            style.height = height + 'px';
+            style.left = cell.left + 1 + 'px';
+            style.top = cell.top + 1 + 'px';
+            style.width = cell.width - 1 + 'px';
+            style.height = cell.height - 1 + 'px';
             var data = cell.value, type = typeof data;
             if (cell.format && data != null) {
                 data = kendo.spreadsheet.formatting.format(data, cell.format);
@@ -13732,7 +13706,7 @@
             _chrome: function () {
                 var wrapper = $('<div class=\'k-spreadsheet-action-bar\' />').prependTo(this.element);
                 var nameEditor = $('<div class=\'k-spreadsheet-name-editor\' />').appendTo(wrapper);
-                this.nameEditor = new kendo.spreadsheet.NameEditor(nameEditor);
+                this.nameEditor = new kendo.spreadsheet.NameEditor(nameEditor, this.options);
                 var formulaBar = $('<div />').appendTo(wrapper);
                 this.formulaBar = new kendo.spreadsheet.FormulaBar(formulaBar);
                 if (this.options.toolbar) {
@@ -13862,8 +13836,8 @@
                     if (!pane) {
                         object = { type: 'outside' };
                     } else {
-                        var row = pane._grid.rows.index(y, this.scroller.scrollTop);
-                        var column = pane._grid.columns.index(x, this.scroller.scrollLeft);
+                        var row = pane._grid.rows.indexVisible(y, this.scroller.scrollTop);
+                        var column = pane._grid.columns.indexVisible(x, this.scroller.scrollLeft);
                         var type = 'cell';
                         var ref = new CellRef(row, column);
                         var selecting = this._sheet.selectionInProgress();
@@ -14106,9 +14080,7 @@
                 }
                 var result = this.panes.map(function (pane) {
                     return pane.render(scrollLeft, scrollTop);
-                }, this);
-                var merged = [];
-                merged = Array.prototype.concat.apply(merged, result);
+                });
                 var topCorner = kendo.dom.element('div', {
                     style: {
                         width: grid._headerWidth + 'px',
@@ -14116,11 +14088,11 @@
                     },
                     className: View.classNames.topCorner
                 });
-                merged.push(topCorner);
+                result.push(topCorner);
                 if (sheet.resizeHandlePosition() && sheet.resizeHintPosition()) {
-                    merged.push(this.renderResizeHint());
+                    result.push(this.renderResizeHint());
                 }
-                this.tree.render(merged);
+                this.tree.render(result);
                 if (this.editor.isActive()) {
                     this.editor.toggleTooltip(this.activeCellRectangle());
                 } else if (!sheet.selectionInProgress() && !sheet.resizingInProgress() && !sheet.isInEditMode()) {
@@ -14207,6 +14179,8 @@
             cell: 'k-spreadsheet-cell',
             vaxis: 'k-spreadsheet-vaxis',
             haxis: 'k-spreadsheet-haxis',
+            vborder: 'k-spreadsheet-vborder',
+            hborder: 'k-spreadsheet-hborder',
             rowHeader: 'k-spreadsheet-row-header',
             columnHeader: 'k-spreadsheet-column-header',
             pane: 'k-spreadsheet-pane',
@@ -14395,11 +14369,52 @@
                         }
                     });
                 }
-                var vBorders = {}, hBorders = {};
+                var borders = kendo.spreadsheet.draw.Borders();
                 layout.cells.forEach(function (cell) {
-                    var hb = hBorders[cell.col] || (hBorders[cell.col] = {});
-                    var vb = vBorders[cell.row] || (vBorders[cell.row] = {});
-                    drawCell(cont.children, cell, null, hb, vb, showGridLines);
+                    borders.add(cell);
+                    drawCell(cont.children, cell, null, showGridLines);
+                });
+                borders.vert.forEach(function (a) {
+                    a.forEach(function (b) {
+                        if (!b.rendered) {
+                            b.rendered = true;
+                            var style = {
+                                left: b.x + 'px',
+                                top: b.top + 'px',
+                                height: b.bottom - b.top + 1 + 'px',
+                                borderWidth: b.size + 'px',
+                                borderColor: b.color
+                            };
+                            if (b.size != 1) {
+                                style.transform = 'translateX(-' + (b.size - 1) / 2 + 'px)';
+                            }
+                            cont.children.push(kendo.dom.element('div', {
+                                className: paneClassNames.vborder,
+                                style: style
+                            }));
+                        }
+                    });
+                });
+                borders.horiz.forEach(function (a) {
+                    a.forEach(function (b) {
+                        if (!b.rendered) {
+                            b.rendered = true;
+                            var style = {
+                                top: b.y + 'px',
+                                left: b.left + 'px',
+                                width: b.right - b.left + 'px',
+                                borderWidth: b.size + 'px',
+                                borderColor: b.color
+                            };
+                            if (b.size != 1) {
+                                style.transform = 'translateY(-' + (b.size - 1) / 2 + 'px)';
+                            }
+                            cont.children.push(kendo.dom.element('div', {
+                                className: paneClassNames.hborder,
+                                style: style
+                            }));
+                        }
+                    });
                 });
                 return cont;
             },
@@ -14573,7 +14588,7 @@
                         cell.top = rectangle.top;
                         cell.width = rectangle.width;
                         cell.height = rectangle.height;
-                        drawCell(collection, cell, className, null, null, true);
+                        drawCell(collection, cell, className, true);
                         if (ed) {
                             var btn = kendo.dom.element('div', {
                                 className: 'k-button k-spreadsheet-editor-button',
@@ -15195,6 +15210,13 @@
                 }
                 return index;
             },
+            indexVisible: function (value) {
+                var index = this.index(value);
+                if (this.hidden(index)) {
+                    index = this.prevVisible(index);
+                }
+                return index;
+            },
             _refresh: function () {
                 var current = 0;
                 this._pixelValues = this.values.map(function (range) {
@@ -15241,6 +15263,9 @@
             },
             index: function (value, offset) {
                 return this._axis.index(value + (this.frozen ? 0 : offset) - this.headerSize);
+            },
+            indexVisible: function (value, offset) {
+                return this._axis.indexVisible(value + (this.frozen ? 0 : offset) - this.headerSize);
             },
             paneSegment: function () {
                 var offset = this.start();
@@ -23866,7 +23891,7 @@
             _borderTypePalette: function () {
                 var messages = BORDER_PALETTE_MESSAGES;
                 var buttons = BORDER_TYPES.map(function (type) {
-                    return '<a title="' + messages[type] + '" href="#" data-border-type="' + type + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + kendo.toHyphens(type) + '"></span>' + '</a>';
+                    return '<a title="' + messages[type] + '" aria-label="' + messages[type] + '" href="#" data-border-type="' + type + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + kendo.toHyphens(type) + '"></span>' + '</a>';
                 }).join('');
                 var element = $('<div />', {
                     'class': 'k-spreadsheet-border-type-palette',
@@ -23988,6 +24013,7 @@
             },
             exportAs: 'Export...',
             toggleGridlines: 'Toggle gridlines',
+            sort: 'Sort',
             sortAsc: 'Sort ascending',
             sortDesc: 'Sort descending',
             sortButtons: {
@@ -24272,7 +24298,10 @@
                         name: options.name || toolName,
                         text: MESSAGES[options.name || toolName],
                         icon: options.iconClass,
-                        attributes: { title: MESSAGES[options.name || toolName] }
+                        attributes: {
+                            title: MESSAGES[options.name || toolName],
+                            'aria-label': MESSAGES[options.name || toolName]
+                        }
                     }, typeDefaults[type], options);
                     if (type == 'splitButton') {
                         tool.menuButtons = tool.menuButtons.map(expandTool);
@@ -24403,7 +24432,7 @@
         kendo.spreadsheet.ToolBar = SpreadsheetToolBar;
         var DropDownTool = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
-                var dropDownList = $('<select />').kendoDropDownList({ height: 'auto' }).data('kendoDropDownList');
+                var dropDownList = $('<select />').attr('title', options.attributes.title).attr('aria-label', options.attributes.title).kendoDropDownList({ height: 'auto' }).data('kendoDropDownList');
                 this.dropDownList = dropDownList;
                 this.element = dropDownList.wrapper;
                 this.options = options;
@@ -24497,7 +24526,8 @@
             init: function (options, toolbar) {
                 this._dialogName = options.dialogName;
                 this.toolbar = toolbar;
-                this.element = $('<button class=\'k-button k-button-icon\' title=\'' + options.attributes.title + '\'>' + '<span class=\'k-icon k-i-file-excel\' />' + '</button>').data('instance', this);
+                this._title = options.attributes.title;
+                this.element = $('<button class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-file-excel\' />' + '</button>').attr('title', this._title).attr('aria-label', this._title).data('instance', this);
                 this.element.bind('click', this.open.bind(this)).data('instance', this);
             },
             open: function () {
@@ -24585,7 +24615,7 @@
         var DEFAULT_FONT_SIZE = 12;
         var FontSize = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
-                var comboBox = $('<input />').kendoComboBox({
+                var comboBox = $('<input />').attr('aria-label', options.attributes.title).kendoComboBox({
                     change: this._valueChange.bind(this),
                     clearButton: false,
                     dataSource: options.fontSizes || FONT_SIZES,
@@ -25133,7 +25163,7 @@
             },
             _reset: function () {
                 this.element.remove('input');
-                $('<input type=\'file\' autocomplete=\'off\' accept=\'.xlsx\'/>').attr('title', this._title).one('change', this._change.bind(this)).appendTo(this.element);
+                $('<input type=\'file\' autocomplete=\'off\' accept=\'.xlsx\'/>').attr('title', this._title).attr('aria-label', this._title).one('change', this._change.bind(this)).appendTo(this.element);
             },
             _change: function (e) {
                 this.toolbar.action({
@@ -25196,7 +25226,7 @@
                         action: 'redo'
                     }
                 ];
-                var buttonTemplate = kendo.template('<a href=\'\\#\' title=\'#= title #\' data-action=\'#= action #\' class=\'k-button k-button-icon\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>');
+                var buttonTemplate = kendo.template('<a href=\'\\#\' title=\'#= title #\' data-action=\'#= action #\' class=\'k-button k-button-icon\' aria-label=\'#= title #\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>');
                 this.quickAccessToolBar = $('<div />', {
                     'class': 'k-spreadsheet-quick-access-toolbar',
                     'html': kendo.render(buttonTemplate, buttons)
@@ -25427,7 +25457,7 @@
             options: { autoFocus: true },
             dialog: function () {
                 if (!this._dialog) {
-                    this._dialog = $('<div class=\'k-spreadsheet-window k-action-window\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
+                    this._dialog = $('<div class=\'k-spreadsheet-window k-action-window k-popup-edit-form\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
                         messages: kendo.spreadsheet.messages.dialogs || MESSAGES,
                         errors: this.options.errors
                     })).appendTo(document.body).kendoWindow({
@@ -25608,7 +25638,7 @@
             },
             options: {
                 className: 'k-spreadsheet-format-cells',
-                template: '<div class=\'k-root-tabs\' data-role=\'tabstrip\' ' + 'data-text-field=\'name\' ' + 'data-bind=\'source: categories, value: categoryFilter\' ' + 'data-animation=\'false\' />' + '<div class=\'k-spreadsheet-preview\' data-bind=\'text: preview\' />' + '<script type=\'text/x-kendo-template\' id=\'format-item-template\'>' + '\\#: data.name \\#' + '</script>' + '<select data-role=\'dropdownlist\' class=\'k-format-filter\' ' + 'data-text-field=\'description\' ' + 'data-value-field=\'value.name\' ' + 'data-bind=\'visible: showCurrencyFilter, value: currency, source: currencies\' />' + '<ul data-role=\'staticlist\' tabindex=\'0\' ' + 'class=\'k-list k-reset\' ' + 'data-template=\'format-item-template\' ' + 'data-value-primitive=\'true\' ' + 'data-value-field=\'value\' ' + 'data-bind=\'source: formats, value: format\' />' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#: messages.apply #</button>' + '<button class=\'k-button\' data-bind=\'click: close\'>#: messages.cancel #</button>' + '</div>'
+                template: '<div class=\'k-edit-form-container\'>' + '<div class=\'k-root-tabs\' data-role=\'tabstrip\' ' + 'data-text-field=\'name\' ' + 'data-bind=\'source: categories, value: categoryFilter\' ' + 'data-animation=\'false\' />' + '<div class=\'k-spreadsheet-preview\' data-bind=\'text: preview\' />' + '<script type=\'text/x-kendo-template\' id=\'format-item-template\'>' + '\\#: data.name \\#' + '</script>' + '<select data-role=\'dropdownlist\' class=\'k-format-filter\' ' + 'data-text-field=\'description\' ' + 'data-value-field=\'value.name\' ' + 'data-bind=\'visible: showCurrencyFilter, value: currency, source: currencies\' />' + '<ul data-role=\'staticlist\' tabindex=\'0\' ' + 'class=\'k-list k-reset\' ' + 'data-template=\'format-item-template\' ' + 'data-value-primitive=\'true\' ' + 'data-value-field=\'value\' ' + 'data-bind=\'source: formats, value: format\' />' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#: messages.apply #</button>' + '<button class=\'k-button\' data-bind=\'click: close\'>#: messages.cancel #</button>' + '</div>' + '</div>'
             },
             _generateFormats: function () {
                 var options = this.options;
@@ -27929,6 +27959,7 @@
             init: function (element, options) {
                 kendo.ui.Widget.call(this, element, options);
                 element.addClass(CLASS_NAMES.input);
+                var comboBoxTitle = options.messages.nameBox || 'Name Box';
                 var dataSource = new kendo.data.DataSource({
                     transport: {
                         read: function (options) {
@@ -27943,7 +27974,8 @@
                         cache: false
                     }
                 });
-                this.combo = $('<input />').appendTo(element).kendoComboBox({
+                var comboElement = $('<input />').attr('title', comboBoxTitle).attr('aria-label', comboBoxTitle);
+                this.combo = comboElement.appendTo(element).kendoComboBox({
                     clearButton: false,
                     dataTextField: 'name',
                     dataValueField: 'name',
@@ -28043,6 +28075,8 @@
         return out;
     }
     function doLayout(sheet, range, options) {
+        var grid = sheet._grid;
+        range = grid.normalize(range);
         var cells = [];
         var rowHeights = [];
         var colWidths = [];
@@ -28076,6 +28110,8 @@
             } else {
                 cell.empty = true;
             }
+            cell.row = relrow;
+            cell.col = relcol;
             var m = mergedCells.primary[id];
             if (m) {
                 delete mergedCells.primary[id];
@@ -28090,8 +28126,6 @@
                 cell.rowspan = 1;
                 cell.colspan = 1;
             }
-            cell.row = relrow;
-            cell.col = relcol;
             cells.push(cell);
         });
         rowHeights = rowHeights.slice(0, maxRow + 1);
@@ -28173,6 +28207,9 @@
             yCoords: yCoords
         };
     }
+    function sameBorder(a, b) {
+        return a.size === b.size && a.color === b.color;
+    }
     function sum(a, b) {
         return a + b;
     }
@@ -28244,7 +28281,7 @@
                         x = Math.min(x, endright);
                         if (x !== prev && x >= left && x <= right) {
                             prev = x;
-                            content.append(new drawing.Path().moveTo(x, top).lineTo(x, endbottom).close().stroke('#999', GUIDELINE_WIDTH));
+                            content.append(new drawing.Path().moveTo(x, top).lineTo(x, endbottom).close().stroke('#aaa', GUIDELINE_WIDTH));
                         }
                     });
                     var prev = null;
@@ -28252,19 +28289,37 @@
                         y = Math.min(y, endbottom);
                         if (y !== prev && y >= top && y <= bottom) {
                             prev = y;
-                            content.append(new drawing.Path().moveTo(left, y).lineTo(endright, y).close().stroke('#999', GUIDELINE_WIDTH));
+                            content.append(new drawing.Path().moveTo(left, y).lineTo(endright, y).close().stroke('#aaa', GUIDELINE_WIDTH));
                         }
                     });
                 }
-                var borders = new drawing.Group();
+                var borders = Borders();
                 cells.forEach(function (cell) {
-                    drawCell(cell, content, borders, options);
+                    drawCell(cell, content, options);
+                    borders.add(cell);
                 });
-                content.append(borders);
+                var bordersGroup = new drawing.Group();
+                borders.vert.forEach(function (a) {
+                    a.forEach(function (b) {
+                        if (!b.rendered) {
+                            b.rendered = true;
+                            bordersGroup.append(new drawing.Path().moveTo(b.x, b.top).lineTo(b.x, b.bottom).close().stroke(b.color, b.size));
+                        }
+                    });
+                });
+                borders.horiz.forEach(function (a) {
+                    a.forEach(function (b) {
+                        if (!b.rendered) {
+                            b.rendered = true;
+                            bordersGroup.append(new drawing.Path().moveTo(b.left, b.y).lineTo(b.right, b.y).close().stroke(b.color, b.size));
+                        }
+                    });
+                });
+                content.append(bordersGroup);
             }
         }
     }
-    function drawCell(cell, content, borders, options) {
+    function drawCell(cell, content, options) {
         var g = new drawing.Group();
         content.append(g);
         var rect = new geo.Rect([
@@ -28284,18 +28339,6 @@
                 r2d2.size.height -= GUIDELINE_WIDTH;
             }
             g.append(new drawing.Rect(r2d2).fill(cell.background || '#fff').stroke(null));
-        }
-        if (cell.borderLeft) {
-            borders.append(new drawing.Path().moveTo(cell.left, cell.top).lineTo(cell.left, cell.bottom).close().stroke(cell.borderLeft.color, cell.borderLeft.size));
-        }
-        if (cell.borderTop) {
-            borders.append(new drawing.Path().moveTo(cell.left, cell.top).lineTo(cell.right, cell.top).close().stroke(cell.borderTop.color, cell.borderTop.size));
-        }
-        if (cell.borderRight) {
-            borders.append(new drawing.Path().moveTo(cell.right, cell.top).lineTo(cell.right, cell.bottom).close().stroke(cell.borderRight.color, cell.borderRight.size));
-        }
-        if (cell.borderBottom) {
-            borders.append(new drawing.Path().moveTo(cell.left, cell.bottom).lineTo(cell.right, cell.bottom).close().stroke(cell.borderBottom.color, cell.borderBottom.size));
         }
         var val = cell.value;
         if (val != null) {
@@ -28427,8 +28470,8 @@
         var pageWidth = paper.paperSize[0];
         var pageHeight = paper.paperSize[1];
         if (paper.margin) {
-            pageWidth -= paper.margin.left + paper.margin.right;
-            pageHeight -= paper.margin.top + paper.margin.bottom;
+            pageWidth -= paper.margin.left + paper.margin.right + 1;
+            pageHeight -= paper.margin.top + paper.margin.bottom + 1;
         }
         options.pageWidth = pageWidth;
         options.pageHeight = pageHeight;
@@ -28446,10 +28489,65 @@
             draw(sheet, range, options, callback);
         }
     };
+    function Borders() {
+        var horiz = [];
+        var vert = [];
+        function add(cell) {
+            if (cell.borderLeft) {
+                addVert(cell.row, cell.col, cell.borderLeft, cell.left, cell.top, cell.bottom);
+            }
+            if (cell.borderRight) {
+                addVert(cell.row, cell.col + cell.colspan, cell.borderRight, cell.right, cell.top, cell.bottom);
+            }
+            if (cell.borderTop) {
+                addHoriz(cell.row, cell.col, cell.borderTop, cell.top, cell.left, cell.right);
+            }
+            if (cell.borderBottom) {
+                addHoriz(cell.row + cell.rowspan, cell.col, cell.borderBottom, cell.bottom, cell.left, cell.right);
+            }
+        }
+        function addVert(row, col, border, x, top, bottom) {
+            var a = vert[col] || (vert[col] = []);
+            var prev = row > 0 && a[row - 1];
+            if (prev && sameBorder(prev, border)) {
+                a[row] = prev;
+                prev.bottom = bottom;
+            } else {
+                a[row] = {
+                    size: border.size,
+                    color: border.color,
+                    x: x,
+                    top: top,
+                    bottom: bottom
+                };
+            }
+        }
+        function addHoriz(row, col, border, y, left, right) {
+            var a = horiz[row] || (horiz[row] = []);
+            var prev = col > 0 && a[col - 1];
+            if (prev && sameBorder(prev, border)) {
+                a[col] = prev;
+                prev.right = right;
+            } else {
+                a[col] = {
+                    size: border.size,
+                    color: border.color,
+                    y: y,
+                    left: left,
+                    right: right
+                };
+            }
+        }
+        return {
+            add: add,
+            horiz: horiz,
+            vert: vert
+        };
+    }
     spreadsheet.draw = {
+        Borders: Borders,
         doLayout: doLayout,
-        drawLayout: drawLayout,
-        shouldDrawCell: shouldDrawCell
+        drawLayout: drawLayout
     };
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();

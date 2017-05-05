@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -94,6 +94,7 @@
                     that.enable(false);
                 }
                 kendo.notify(that);
+                that._toggleCloseVisibility();
             },
             options: {
                 name: 'ComboBox',
@@ -168,6 +169,7 @@
                     return;
                 }
                 Select.fn._change.call(that);
+                that._toggleCloseVisibility();
             },
             _focusHandler: function () {
                 this.input.focus();
@@ -426,6 +428,13 @@
             refresh: function () {
                 this.listView.refresh();
             },
+            _toggleCloseVisibility: function () {
+                if (this.text()) {
+                    this._showClear();
+                } else {
+                    this._hideClear();
+                }
+            },
             suggest: function (word) {
                 var that = this;
                 var element = that.input[0];
@@ -486,12 +495,12 @@
                         return;
                     }
                 }
-                if (ignoreCase) {
+                if (ignoreCase && !that.listView.value().length) {
                     loweredText = loweredText.toLowerCase();
                 }
                 that._select(function (data) {
                     data = that._text(data);
-                    if (ignoreCase) {
+                    if (ignoreCase && !that.listView.value().length) {
                         data = (data + '').toLowerCase();
                     }
                     return data === loweredText;
@@ -697,6 +706,7 @@
                             that.listView.select(-1);
                         }
                         that.search(value);
+                        that._toggleCloseVisibility();
                     }
                     that._typingTimeout = null;
                 }, that.options.delay);

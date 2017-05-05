@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -280,7 +280,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, DataSource = kendo.data.DataSource, tbodySupportsInnerHtml = kendo.support.tbodyInnerHtml, activeElement = kendo._activeElement, Widget = ui.Widget, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, keys = kendo.keys, isPlainObject = $.isPlainObject, extend = $.extend, map = $.map, grep = $.grep, isArray = $.isArray, inArray = $.inArray, push = Array.prototype.push, proxy = $.proxy, isFunction = kendo.isFunction, isEmptyObject = $.isEmptyObject, math = Math, PROGRESS = 'progress', ERROR = 'error', DATA_CELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', SELECTION_CELL_SELECTOR = 'tbody>tr:not(.k-grouping-row):not(.k-detail-row):not(.k-group-footer) > td:not(.k-group-cell):not(.k-hierarchy-cell)', NAVROW = 'tr:not(.k-footer-template):visible', NAVCELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', FIRSTNAVITEM = NAVROW + ':first>' + NAVCELL + ':first', HEADERCELLS = 'th.k-header:not(.k-group-cell):not(.k-hierarchy-cell)', NS = '.kendoGrid', EDIT = 'edit', SAVE = 'save', REMOVE = 'remove', DETAILINIT = 'detailInit', FILTERMENUINIT = 'filterMenuInit', COLUMNMENUINIT = 'columnMenuInit', CHANGE = 'change', COLUMNHIDE = 'columnHide', COLUMNSHOW = 'columnShow', SAVECHANGES = 'saveChanges', DATABOUND = 'dataBound', DETAILEXPAND = 'detailExpand', DETAILCOLLAPSE = 'detailCollapse', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', NORECORDSCLASS = 'k-grid-norecords', COLUMNRESIZE = 'columnResize', COLUMNREORDER = 'columnReorder', COLUMNLOCK = 'columnLock', COLUMNUNLOCK = 'columnUnlock', NAVIGATE = 'navigate', CLICK = 'click', HEIGHT = 'height', TABINDEX = 'tabIndex', FUNCTION = 'function', STRING = 'string', DELETECONFIRM = 'Are you sure you want to delete this record?', NORECORDS = 'No records available.', CONFIRMDELETE = 'Delete', CANCELDELETE = 'Cancel', formatRegExp = /(\}|\#)/gi, templateHashRegExp = /#/gi, whitespaceRegExp = '[\\x20\\t\\r\\n\\f]', nonDataCellsRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-group-cell|k-hierarchy-cell)' + '(' + whitespaceRegExp + '|$)'), filterRowRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-filter-row)' + '(' + whitespaceRegExp + '|$)'), COMMANDBUTTONTMPL = '<a role="button" class="k-button k-button-icontext #=className#" #=attr# href="\\#"><span class="#=iconClass# #=imageClass#"></span>#=text#</a>', isRtl = false, browser = kendo.support.browser, isIE7 = browser.msie && browser.version == 7, isIE8 = browser.msie && browser.version == 8;
+        var kendo = window.kendo, ui = kendo.ui, DataSource = kendo.data.DataSource, tbodySupportsInnerHtml = kendo.support.tbodyInnerHtml, activeElement = kendo._activeElement, Widget = ui.Widget, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, keys = kendo.keys, isPlainObject = $.isPlainObject, extend = $.extend, map = $.map, grep = $.grep, isArray = $.isArray, inArray = $.inArray, push = Array.prototype.push, proxy = $.proxy, isFunction = kendo.isFunction, isEmptyObject = $.isEmptyObject, math = Math, PROGRESS = 'progress', ERROR = 'error', DATA_CELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', SELECTION_CELL_SELECTOR = 'tbody>tr:not(.k-grouping-row):not(.k-detail-row):not(.k-group-footer) > td:not(.k-group-cell):not(.k-hierarchy-cell)', NAVROW = 'tr:not(.k-footer-template):visible', NAVCELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', FIRSTNAVITEM = NAVROW + ':first>' + NAVCELL + ':first', HEADERCELLS = 'th.k-header:not(.k-group-cell):not(.k-hierarchy-cell)', NS = '.kendoGrid', EDIT = 'edit', BEFOREEDIT = 'beforeEdit', SAVE = 'save', REMOVE = 'remove', DETAILINIT = 'detailInit', FILTERMENUINIT = 'filterMenuInit', COLUMNMENUINIT = 'columnMenuInit', FILTERMENUOPEN = 'filterMenuOpen', COLUMNMENUOPEN = 'columnMenuOpen', CELLCLOSE = 'cellClose', CHANGE = 'change', COLUMNHIDE = 'columnHide', COLUMNSHOW = 'columnShow', SAVECHANGES = 'saveChanges', DATABOUND = 'dataBound', DETAILEXPAND = 'detailExpand', DETAILCOLLAPSE = 'detailCollapse', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', NORECORDSCLASS = 'k-grid-norecords', COLUMNRESIZE = 'columnResize', COLUMNREORDER = 'columnReorder', COLUMNLOCK = 'columnLock', COLUMNUNLOCK = 'columnUnlock', NAVIGATE = 'navigate', CLICK = 'click', HEIGHT = 'height', TABINDEX = 'tabIndex', FUNCTION = 'function', STRING = 'string', DELETECONFIRM = 'Are you sure you want to delete this record?', NORECORDS = 'No records available.', CONFIRMDELETE = 'Delete', CANCELDELETE = 'Cancel', COLLAPSE = 'Collapse', EXPAND = 'Expand', ARIALABEL = 'aria-label', formatRegExp = /(\}|\#)/gi, templateHashRegExp = /#/gi, whitespaceRegExp = '[\\x20\\t\\r\\n\\f]', nonDataCellsRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-group-cell|k-hierarchy-cell)' + '(' + whitespaceRegExp + '|$)'), filterRowRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-filter-row)' + '(' + whitespaceRegExp + '|$)'), COMMANDBUTTONTMPL = '<a role="button" class="k-button k-button-icontext #=className#" #=attr# href="\\#"><span class="#=iconClass# #=imageClass#"></span>#=text#</a>', isRtl = false, browser = kendo.support.browser, isIE7 = browser.msie && browser.version == 7, isIE8 = browser.msie && browser.version == 8;
         var VirtualScrollable = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -1272,11 +1272,15 @@
                 DETAILCOLLAPSE,
                 DETAILINIT,
                 FILTERMENUINIT,
+                FILTERMENUOPEN,
                 COLUMNMENUINIT,
+                COLUMNMENUOPEN,
                 EDIT,
+                BEFOREEDIT,
                 SAVE,
                 REMOVE,
                 SAVECHANGES,
+                CELLCLOSE,
                 COLUMNRESIZE,
                 COLUMNREORDER,
                 COLUMNSHOW,
@@ -1331,6 +1335,7 @@
                 allowCopy: false,
                 navigatable: false,
                 pageable: false,
+                persistSelection: false,
                 editable: false,
                 groupable: false,
                 rowTemplate: '',
@@ -1361,7 +1366,8 @@
                         excel: defaultCommands.excel.text,
                         pdf: defaultCommands.pdf.text
                     },
-                    noRecords: NORECORDS
+                    noRecords: NORECORDS,
+                    expandCollapseColumnHeader: ''
                 }
             },
             destroy: function () {
@@ -1387,6 +1393,9 @@
                 if (that.selectable && that.selectable.element) {
                     that.selectable.destroy();
                     that.clearArea();
+                    if (that.options.persistSelection === true) {
+                        that._selectedIds = null;
+                    }
                     if (that.copyHandler) {
                         that.wrapper.off('keydown', that.copyHandler);
                         that.unbind(that.copyHandler);
@@ -2226,6 +2235,9 @@
                 var that = this, column = leafColumns(that.columns)[that.cellIndex(cell)], model = that._modelForContainer(cell);
                 that.closeCell();
                 if (model && isColumnEditable(column, model) && !column.command) {
+                    if (that.trigger(BEFOREEDIT, { model: model })) {
+                        return;
+                    }
                     that._attachModelChange(model);
                     that._editContainer = cell;
                     that.editable = cell.addClass('k-edit-cell').kendoEditable({
@@ -2347,6 +2359,11 @@
                     })) {
                     return;
                 }
+                that.trigger(CELLCLOSE, {
+                    type: isCancel ? 'cancel' : 'save',
+                    model: model,
+                    container: cell
+                });
                 cell.removeClass('k-edit-cell');
                 column = leafColumns(that.columns)[that.cellIndex(cell)];
                 tr = cell.parent().removeClass('k-grid-edit-row');
@@ -2489,7 +2506,26 @@
                 }
             },
             _createPopupEditor: function (model) {
-                var that = this, html = '<div ' + kendo.attr('uid') + '="' + model.uid + '" class="k-popup-edit-form' + (that._isMobile ? ' k-mobile-list' : '') + '"><div class="k-edit-form-container">', column, command, fields = [], idx, length, tmpl, updateText, cancelText, tempCommand, columns = leafColumns(that.columns), attr, editable = that.options.editable, template = editable.template, options = isPlainObject(editable) ? editable.window : {}, settings = extend({}, kendo.Template, that.options.templateSettings);
+                var that = this;
+                var html = '<div ' + kendo.attr('uid') + '="' + model.uid + '" class="k-popup-edit-form' + (that._isMobile ? ' k-mobile-list' : '') + '"><div class="k-edit-form-container">';
+                var column;
+                var command;
+                var fields = [];
+                var idx;
+                var length;
+                var tmpl;
+                var updateText;
+                var cancelText;
+                var tempCommand;
+                var columns = leafColumns(that.columns);
+                var attr;
+                var editable = that.options.editable;
+                var template = editable.template;
+                var options = isPlainObject(editable) ? editable.window : {};
+                var settings = extend({}, kendo.Template, that.options.templateSettings);
+                if (that.trigger(BEFOREEDIT, { model: model })) {
+                    return;
+                }
                 options = options || {};
                 if (template) {
                     if (typeof template === STRING) {
@@ -2624,7 +2660,14 @@
                 }
             },
             _createInlineEditor: function (row, model) {
-                var that = this, column, cell, command, fields = [];
+                var that = this;
+                var column;
+                var cell;
+                var command;
+                var fields = [];
+                if (that.trigger(BEFOREEDIT, { model: model })) {
+                    return;
+                }
                 if (that.lockedContent) {
                     row = row.add(that._relatedRow(row));
                 }
@@ -3009,10 +3052,16 @@
                 return result;
             },
             _selectable: function () {
-                var that = this, multi, cell, notString = [], isLocked = that._isLocked(), selectable = that.options.selectable;
+                var that = this, multi, cell, notString = [], isLocked = that._isLocked(), selectable = that.options.selectable, dataSourceOptions = that.dataSource.options;
                 if (selectable) {
                     if (that.selectable) {
                         that.selectable.destroy();
+                    }
+                    if (that.options.persistSelection === true) {
+                        if (!dataSourceOptions.schema || !dataSourceOptions.schema.model || !dataSourceOptions.schema.model.id) {
+                            throw new Error('Selection persistence requires a data source with a model that has e defined id');
+                        }
+                        that._selectedIds = {};
                     }
                     selectable = kendo.ui.Selectable.parseOptions(selectable);
                     multi = selectable.multiple;
@@ -3037,6 +3086,22 @@
                         aria: true,
                         multiple: multi,
                         change: function () {
+                            if (that.options.persistSelection && !cell) {
+                                var key, dataItem, allRows = that.tbody.children(':not(.k-grouping-row,.k-detail-row)'), modelId = dataSourceOptions.schema.model.id, selectedViewIds = {};
+                                this.value().each(function () {
+                                    dataItem = that.dataItem(this);
+                                    selectedViewIds[dataItem[modelId]] = true;
+                                });
+                                for (var i = 0; i < allRows.length; i++) {
+                                    dataItem = that.dataItem(allRows[i]);
+                                    key = dataItem[modelId];
+                                    if (selectedViewIds[key]) {
+                                        that._selectedIds[key] = true;
+                                    } else {
+                                        delete that._selectedIds[key];
+                                    }
+                                }
+                            }
                             that.trigger(CHANGE);
                         },
                         useAllItems: isLocked && multi && cell,
@@ -3270,6 +3335,14 @@
                     return;
                 }
                 return selectable.value();
+            },
+            selectedKeyNames: function () {
+                var that = this, ids = [];
+                for (var property in that._selectedIds) {
+                    ids.push(property);
+                }
+                ids.sort();
+                return ids;
             },
             _updateCurrentAttr: function (current, next) {
                 var headerId = $(current).data('headerId');
@@ -3845,7 +3918,7 @@
                 if (!wrapper.is('div')) {
                     wrapper = wrapper.wrap('<div/>').parent();
                 }
-                that.wrapper = wrapper.addClass('k-grid k-widget');
+                that.wrapper = wrapper.addClass('k-grid k-widget k-display-block');
                 if (height) {
                     that.wrapper.css(HEIGHT, height);
                     table.css(HEIGHT, 'auto');
@@ -4287,6 +4360,11 @@
                             field: e.field,
                             container: e.container
                         });
+                    }, openCallback = function (e) {
+                        that.trigger(COLUMNMENUOPEN, {
+                            field: e.field,
+                            container: e.container
+                        });
                     }, closeCallback = function (element) {
                         focusTable(element.closest('table'), true);
                     }, sortHandler = function (e) {
@@ -4333,6 +4411,7 @@
                                 owner: that,
                                 closeCallback: closeCallback,
                                 init: initCallback,
+                                open: openCallback,
                                 pane: that.pane,
                                 sort: sortHandler,
                                 filtering: filterHandler,
@@ -4368,6 +4447,11 @@
                             })) {
                             e.preventDefault();
                         }
+                    }, filterOpen = function (e) {
+                        that.trigger(FILTERMENUOPEN, {
+                            field: e.field,
+                            container: e.container
+                        });
                     }, filterable = that.options.filterable;
                 if (filterable && typeof filterable.mode == STRING && filterable.mode.indexOf('menu') == -1) {
                     filterable = false;
@@ -4393,6 +4477,7 @@
                                 closeCallback: closeCallback,
                                 title: columns[idx].title || columns[idx].field,
                                 init: filterInit,
+                                open: filterOpen,
                                 pane: that.pane,
                                 change: filterHandler
                             });
@@ -4571,7 +4656,7 @@
                         rowTemplate += groupCells(groups);
                     }
                     if (hasDetails) {
-                        rowTemplate += '<td class="k-hierarchy-cell"><a class="k-icon k-i-expand" href="\\#" tabindex="-1"></a></td>';
+                        rowTemplate += '<td class="k-hierarchy-cell"><a class="k-icon k-i-expand" href="\\#" ' + ARIALABEL + '="' + EXPAND + '" tabindex="-1"></a></td>';
                     }
                     for (idx = 0; idx < length; idx++) {
                         column = columns[idx];
@@ -4796,8 +4881,8 @@
                     throw new Error('Having both detail template and locked columns is not supported');
                 }
                 that.table.on(CLICK + NS, '.k-hierarchy-cell .k-i-expand, .k-hierarchy-cell .k-i-collapse', function (e) {
-                    var button = $(this), expanding = button.hasClass('k-i-expand'), masterRow = button.closest('tr.k-master-row'), detailRow, detailTemplate = that.detailTemplate, data, hasDetails = that._hasDetails();
-                    button.toggleClass('k-i-expand', !expanding).toggleClass('k-i-collapse', expanding);
+                    var button = $(this), expanding = button.hasClass('k-i-expand'), masterRow = button.closest('tr.k-master-row'), detailRow, detailTemplate = that.detailTemplate, data, hasDetails = that._hasDetails(), ariaLabelText = expanding ? COLLAPSE : EXPAND;
+                    button.toggleClass('k-i-expand', !expanding).toggleClass('k-i-collapse', expanding).attr(ARIALABEL, ariaLabelText);
                     detailRow = masterRow.next();
                     if (hasDetails && !detailRow.hasClass('k-detail-row')) {
                         data = that.dataItem(masterRow);
@@ -5034,7 +5119,7 @@
                         for (idx = 0; idx < rows.length; idx++) {
                             html += '<tr>';
                             if (hasDetails) {
-                                html += '<th class="k-hierarchy-cell" scope="col">&nbsp;</th>';
+                                html += '<th class="k-hierarchy-cell" scope="col">' + that.options.messages.expandCollapseColumnHeader + '</th>';
                             }
                             html += that._createHeaderCells(rows[idx].cells, rows[idx].rowSpan);
                             html += '</tr>';
@@ -5248,11 +5333,12 @@
             _groupRowHtml: function (group, colspan, level, groupHeaderBuilder, templates, skipColspan) {
                 var that = this, html = '', idx, length, field = group.field, column = grep(leafColumns(that.columns), function (column) {
                         return column.field == field;
-                    })[0] || {}, template = column.groupHeaderTemplate, text = (column.title || field) + ': ' + formatGroupValue(group.value, column.format, column.values, column.encoded), footerDefaults = that._groupAggregatesDefaultObject || {}, aggregates = extend({}, footerDefaults, group.aggregates), headerData = extend({}, {
+                    })[0] || {}, template = column.groupHeaderTemplate, text = (column.title || field) + ': ' + formatGroupValue(group.value, column.format, column.values, column.encoded), footerDefaults = that._groupAggregatesDefaultObject || {}, groupItems = group.items, aggregates = extend({}, footerDefaults, group.aggregates), headerData = extend({}, {
                         field: group.field,
                         value: group.value,
+                        items: groupItems,
                         aggregates: aggregates
-                    }, group.aggregates[group.field]), groupFooterTemplate = templates.groupFooterTemplate, groupItems = group.items;
+                    }, group.aggregates[group.field]), groupFooterTemplate = templates.groupFooterTemplate;
                 if (template) {
                     text = typeof template === FUNCTION ? template(headerData) : kendo.template(template)(headerData);
                 }
@@ -5270,7 +5356,8 @@
                         footerData[aggregate] = extend({}, aggregates[aggregate], {
                             group: {
                                 field: group.field,
-                                value: group.value
+                                value: group.value,
+                                items: groupItems
                             }
                         });
                     }
@@ -5291,7 +5378,7 @@
                 }
                 level = group.find('.k-group-cell').length;
                 group.find('.k-i-collapse').addClass('k-i-expand').removeClass('k-i-collapse');
-                group.find('td[aria-expanded=\'true\']:first').attr('aria-expanded', false);
+                group.find('td[aria-expanded=\'true\']:first').attr('aria-expanded', false).find('a').attr(ARIALABEL, EXPAND);
                 group = group.nextAll('tr');
                 var toHide = [];
                 for (idx = 0, length = group.length; idx < length; idx++) {
@@ -5325,7 +5412,7 @@
                 }
                 level = group.find('.k-group-cell').length;
                 group.find('.k-i-expand').addClass('k-i-collapse').removeClass('k-i-expand');
-                group.find('td[aria-expanded=\'false\']:first').attr('aria-expanded', true);
+                group.find('td[aria-expanded=\'false\']:first').attr('aria-expanded', true).find('a').attr(ARIALABEL, COLLAPSE);
                 group = group.nextAll('tr');
                 for (idx = 0, length = group.length; idx < length; idx++) {
                     tr = group.eq(idx);
@@ -5368,7 +5455,7 @@
                         return !$(this).children(':visible').length;
                     });
                 if (groups > length) {
-                    $(new Array(groups - length + 1).join('<th class="k-group-cell k-header" scope="col">&nbsp;</th>')).prependTo(container.children('tr:not(.k-filter-row)'));
+                    $(new Array(groups - length + 1).join('<th class="k-group-cell k-header" scope="col">' + that.options.messages.expandCollapseColumnHeader + '</th>')).prependTo(container.children('tr:not(.k-filter-row)'));
                     if (that.element.is(':visible')) {
                         rows.find('th.k-group-cell').hide();
                     }
@@ -5604,7 +5691,9 @@
             },
             _progress: function (toggle) {
                 var element = this.element;
-                if (this.lockedContent) {
+                if (this._editContainer && this._editMode() === 'popup') {
+                    element = this._editContainer;
+                } else if (this.lockedContent) {
                     element = this.wrapper;
                 } else if (this.element.is('table')) {
                     element = this.element.parent();
@@ -5699,6 +5788,9 @@
                 that._muteAngularRebind(function () {
                     that._angularItems('compile');
                 });
+                if (that.options.selectable && !kendo.ui.Selectable.parseOptions(that.options.selectable).cell && that.options.persistSelection) {
+                    that._restoreSelection();
+                }
                 that.trigger(DATABOUND);
             },
             _restoreCurrent: function (currentIndex, isCurrentInHeader) {
@@ -5726,6 +5818,16 @@
                 if (this._current) {
                     focusTable(this._current.closest('table')[0], true);
                 }
+            },
+            _restoreSelection: function () {
+                var that = this, rows = that.tbody.children(':not(.k-grouping-row,.k-detail-row)');
+                rows = grep(rows, function (row) {
+                    var dataItemKey = that.dataItem(row)[that.dataSource.options.schema.model.id];
+                    if (that._selectedIds[dataItemKey]) {
+                        return row;
+                    }
+                });
+                that.select(rows);
             },
             _angularItems: function (cmd) {
                 kendo.ui.DataBoundWidget.fn._angularItems.call(this, cmd);
@@ -5866,7 +5968,7 @@
                 var result = new $.Deferred();
                 var dataSource = grid.dataSource;
                 var allPages = grid.options.pdf.allPages;
-                var origBody = grid.wrapper.find('.k-grid-content tbody');
+                var origBody = grid.wrapper.find('table[role="grid"] > tbody');
                 var cont = $('<div>').css({
                     position: 'absolute',
                     left: -10000,
@@ -5881,10 +5983,15 @@
                     width: 'auto',
                     overflow: 'visible'
                 });
+                clone.find('table[role="grid"]').css({
+                    height: 'auto',
+                    width: '100%',
+                    overflow: 'visible'
+                });
                 clone.find('.k-grid-pager, .k-grid-toolbar, .k-grouping-header').remove();
                 clone.find('.k-grid-header').css({ paddingRight: 0 });
                 this._initPDFProgress(progress);
-                var body = clone.find('.k-grid-content tbody').empty();
+                var body = clone.find('table[role="grid"] > tbody').empty();
                 var startingPage = dataSource.page();
                 function resolve() {
                     if (allPages && startingPage !== undefined) {
@@ -6137,7 +6244,7 @@
             return cell && (cell.hasClass('k-edit-cell') || cell.parent().hasClass('k-grid-edit-row'));
         }
         function groupRowBuilder(colspan, level, text) {
-            return '<tr role="row" class="k-grouping-row">' + groupCells(level) + '<td colspan="' + colspan + '" aria-expanded="true">' + '<p class="k-reset">' + '<a class="k-icon k-i-collapse" href="#" tabindex="-1"></a>' + text + '</p></td></tr>';
+            return '<tr role="row" class="k-grouping-row">' + groupCells(level) + '<td colspan="' + colspan + '" aria-expanded="true">' + '<p class="k-reset">' + '<a class="k-icon k-i-collapse" href="#" tabindex="-1" ' + ARIALABEL + '="' + COLLAPSE + '"></a>' + text + '</p></td></tr>';
         }
         function groupRowLockedContentBuilder(colspan) {
             return '<tr role="row" class="k-grouping-row">' + '<td colspan="' + colspan + '" aria-expanded="true">' + '<p class="k-reset">&nbsp;</p></td></tr>';

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -107,6 +107,7 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "style": "Styles",
   "emptyFolder": "Empty Folder",
   "uploadFile": "Upload",
+  "overflowAnchor": "More tools",
   "orderBy": "Arrange by:",
   "orderBySize": "Size",
   "orderByName": "Name",
@@ -145,6 +146,7 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "summary": "Summary",
   "width": "Width",
   "height": "Height",
+  "units": "Units",
   "cellSpacing": "Cell Spacing",
   "cellPadding": "Cell Padding",
   "cellMargin": "Cell Margin",

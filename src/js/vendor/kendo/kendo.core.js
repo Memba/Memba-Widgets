@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2017.1.223'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2017.2.504'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -2206,7 +2206,7 @@
             };
         };
         kendo.notify = noop;
-        var templateRegExp = /template$/i, jsonRegExp = /^\s*(?:\{(?:.|\r\n|\n)*\}|\[(?:.|\r\n|\n)*\])\s*$/, jsonFormatRegExp = /^\{(\d+)(:[^\}]+)?\}|^\[[A-Za-z_]*\]$/, dashRegExp = /([A-Z])/g;
+        var templateRegExp = /template$/i, jsonRegExp = /^\s*(?:\{(?:.|\r\n|\n)*\}|\[(?:.|\r\n|\n)*\])\s*$/, jsonFormatRegExp = /^\{(\d+)(:[^\}]+)?\}|^\[[A-Za-z_]+\]$/, dashRegExp = /([A-Z])/g;
         function parseOption(element, option) {
             var value;
             if (option.indexOf('data') === 0) {
@@ -2966,20 +2966,30 @@
                 }
                 return last;
             }
-            function weekInYear(date, weekStart) {
-                var year, days;
-                date = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-                adjustDST(date, 0);
-                year = date.getFullYear();
-                if (weekStart !== undefined) {
-                    setDayOfWeek(date, weekStart, -1);
-                    date.setDate(date.getDate() + 4);
-                } else {
-                    date.setDate(date.getDate() + (4 - (date.getDay() || 7)));
+            function moveDateToWeekStart(date, weekStartDay) {
+                if (weekStartDay !== 1) {
+                    return addDays(dayOfWeek(date, weekStartDay, -1), 4);
                 }
-                adjustDST(date, 0);
-                days = Math.floor((date.getTime() - new Date(year, 0, 1, -6)) / 86400000);
+                return addDays(date, 4 - (date.getDay() || 7));
+            }
+            function calcWeekInYear(date, weekStartDay) {
+                var firstWeekInYear = new Date(date.getFullYear(), 0, 1, -6);
+                var newDate = moveDateToWeekStart(date, weekStartDay);
+                var diffInMS = newDate.getTime() - firstWeekInYear.getTime();
+                var days = Math.floor(diffInMS / MS_PER_DAY);
                 return 1 + Math.floor(days / 7);
+            }
+            function weekInYear(date, weekStartDay) {
+                var prevWeekDate = addDays(date, -7);
+                var nextWeekDate = addDays(date, 7);
+                var weekNumber = calcWeekInYear(date, weekStartDay);
+                if (weekNumber === 0) {
+                    return calcWeekInYear(prevWeekDate, weekStartDay) + 1;
+                }
+                if (weekNumber === 53 && calcWeekInYear(nextWeekDate, weekStartDay) > 1) {
+                    return 1;
+                }
+                return weekNumber;
             }
             function getDate(date) {
                 date = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
@@ -3198,7 +3208,14 @@
                 if (element.selectionStart !== undefined) {
                     if (isPosition) {
                         element.focus();
-                        element.setSelectionRange(start, end);
+                        var mobile = support.mobileOS;
+                        if (mobile.wp || mobile.android) {
+                            setTimeout(function () {
+                                element.setSelectionRange(start, end);
+                            }, 0);
+                        } else {
+                            element.setSelectionRange(start, end);
+                        }
                     } else {
                         start = [
                             element.selectionStart,

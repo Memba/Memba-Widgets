@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -656,7 +656,7 @@
         var proxy = $.proxy;
         var NS = '.kendoNavigator';
         function button(dir) {
-            return kendo.format('<button class="k-button k-navigator-{0}">' + '<span class="k-icon k-i-arrow-60-{0}"/>' + '</button>', dir);
+            return kendo.format('<button class="k-button k-navigator-{0}" aria-label="move {0}">' + '<span class="k-icon k-i-arrow-60-{0}"/>' + '</button>', dir);
         }
         var BUTTONS = button('up') + button('right') + button('down') + button('left');
         var Navigator = Widget.extend({
@@ -736,7 +736,7 @@
         var keys = kendo.keys;
         var proxy = $.proxy;
         function button(dir, iconClass) {
-            return kendo.format('<button class="k-button k-zoom-{0}" title="zoom-{0}"><span class="k-icon {1}"></span></button>', dir, iconClass);
+            return kendo.format('<button class="k-button k-zoom-{0}" title="zoom-{0}" aria-label="zoom-{0}"><span class="k-icon {1}"></span></button>', dir, iconClass);
         }
         var NS = '.kendoZoomControl';
         var BUTTONS = button('in', 'k-i-plus') + button('out', 'k-i-minus');
@@ -1636,7 +1636,7 @@
                 errorUrlTemplate: ''
             },
             createElement: function () {
-                this.element = $('<img style=\'position: absolute; display: block;\' />').css({
+                this.element = $('<img style=\'position: absolute; display: block;\' alt=\'\' />').css({
                     width: this.options.size,
                     height: this.options.size
                 }).on('error', proxy(function (e) {
@@ -2074,7 +2074,7 @@
                 if (!this.element) {
                     var options = this.options;
                     var layer = this.layer;
-                    this.element = $(doc.createElement('span')).addClass('k-marker k-marker-' + kendo.toHyphens(options.shape || 'pin')).attr('title', options.title).attr(options.attributes || {}).data('kendoMarker', this).css('zIndex', options.zIndex);
+                    this.element = $(doc.createElement('span')).addClass('k-marker k-icon k-i-marker-' + kendo.toHyphens(options.shape || 'pin')).attr('title', options.title).attr(options.attributes || {}).data('kendoMarker', this).css('zIndex', options.zIndex);
                     if (layer) {
                         layer.element.append(this.element);
                     }
@@ -2342,15 +2342,20 @@
                 return this._origin;
             },
             _setExtent: function (extent) {
-                extent = Extent.create(extent);
+                var raw = Extent.create(extent);
+                var se = raw.se.clone();
+                if (this.options.wraparound && se.lng < 0 && extent.nw.lng > 0) {
+                    se.lng = 180 + (180 + se.lng);
+                }
+                extent = new Extent(raw.nw, se);
                 this.center(extent.center());
                 var width = this.element.width();
                 var height = this.element.height();
                 for (var zoom = this.options.maxZoom; zoom >= this.options.minZoom; zoom--) {
-                    var nw = this.locationToLayer(extent.nw, zoom);
-                    var se = this.locationToLayer(extent.se, zoom);
-                    var layerWidth = math.abs(se.x - nw.x);
-                    var layerHeight = math.abs(se.y - nw.y);
+                    var topLeft = this.locationToLayer(extent.nw, zoom);
+                    var bottomRight = this.locationToLayer(extent.se, zoom);
+                    var layerWidth = math.abs(bottomRight.x - topLeft.x);
+                    var layerHeight = math.abs(bottomRight.y - topLeft.y);
                     if (layerWidth <= width && layerHeight <= height) {
                         break;
                     }

@@ -894,6 +894,53 @@ html .k-grid-edit-row .k-tooltip
     display: none !important;
 }
 
+.k-grid {
+    .k-edit-cell input.k-checkbox,
+    .k-grid-edit-row input.k-checkbox {
+        position: absolute;
+        width: 14px;
+        height: 15px;
+        z-index: 1;
+        + label.k-checkbox-label {
+            cursor: default;
+        }
+    }
+
+    .k-grid-edit-row input.k-checkbox {
+        margin-left: 1px;
+        margin-top: 4px;
+    }
+
+    .k-edit-cell {
+        input[type='checkbox'],
+        input.k-checkbox {
+            margin-left: calc(.3em + 3px);
+
+            + label.k-checkbox-label {
+                margin-left: .3em;
+            }
+        }
+    }
+}
+
+.k-window .k-popup-edit-form .k-edit-field {
+    input.k-checkbox {
+        position: absolute;
+        margin-left: 1px;
+        margin-top: 0.8em;
+        width: 14px;
+        height: 14px;
+        z-index: 1;
+
+        + label.k-checkbox-label {
+            cursor: default;
+        }
+    }
+    label.k-checkbox-label {
+        margin-top: 0.6em;
+    }
+}
+
 @media only screen and (max-width: 1024px) {
     .k-webkit,
     .k-ff,

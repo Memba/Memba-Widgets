@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -41,7 +41,7 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, proxy = $.proxy, extend = $.extend, grep = $.grep, map = $.map, inArray = $.inArray, ACTIVE = 'k-state-selected', ASC = 'asc', DESC = 'desc', CHANGE = 'change', INIT = 'init', SELECT = 'select', POPUP = 'kendoPopup', FILTERMENU = 'kendoFilterMenu', MENU = 'kendoMenu', NS = '.kendoColumnMenu', Widget = ui.Widget;
+        var kendo = window.kendo, ui = kendo.ui, proxy = $.proxy, extend = $.extend, grep = $.grep, map = $.map, inArray = $.inArray, ACTIVE = 'k-state-selected', ASC = 'asc', DESC = 'desc', CHANGE = 'change', INIT = 'init', OPEN = 'open', SELECT = 'select', POPUP = 'kendoPopup', FILTERMENU = 'kendoFilterMenu', MENU = 'kendoMenu', NS = '.kendoColumnMenu', Widget = ui.Widget;
         function trim(text) {
             return $.trim(text).replace(/&nbsp;/gi, '');
         }
@@ -77,7 +77,7 @@
                 that.title = element.attr(kendo.attr('title'));
                 link = element.find('.k-header-column-menu');
                 if (!link[0]) {
-                    link = element.addClass('k-with-icon').prepend('<a class="k-header-column-menu" href="#" title="' + options.messages.settings + '"><span class="k-icon k-i-more-vertical"></span></a>').find('.k-header-column-menu');
+                    link = element.addClass('k-with-icon').prepend('<a class="k-header-column-menu" href="#" title="' + options.messages.settings + '" aria-label="' + options.messages.settings + '"><span class="k-icon k-i-more-vertical"></span></a>').find('.k-header-column-menu');
                 }
                 that.link = link.attr('tabindex', -1).on('click' + NS, proxy(that._click, that));
                 that.wrapper = $('<div class="k-column-menu"/>');
@@ -109,6 +109,7 @@
             },
             events: [
                 INIT,
+                OPEN,
                 'sort',
                 'filtering'
             ],
@@ -273,6 +274,10 @@
             },
             _activate: function () {
                 this.menu.element.focus();
+                this.trigger(OPEN, {
+                    field: this.field,
+                    container: this.wrapper
+                });
             },
             _ownerColumns: function () {
                 var columns = leafColumns(this.owner.columns), menuColumns = grep(columns, function (col) {

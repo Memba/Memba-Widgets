@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -368,6 +368,7 @@
         function interpolateValue(start, end, progress) {
             return kendo.drawing.util.round(start + (end - start) * progress, COORD_PRECISION);
         }
+        var TRIGGER = 'trigger';
         var InstanceObserver = Class.extend({
             init: function (observer, handlers) {
                 this.observer = observer;
@@ -379,11 +380,17 @@
                 var handlerMap = ref.handlerMap;
                 var isDefaultPrevented;
                 if (handlerMap[name]) {
-                    isDefaultPrevented = observer[handlerMap[name]](args);
-                } else if (observer.trigger) {
-                    isDefaultPrevented = observer.trigger(name, args);
+                    isDefaultPrevented = this.callObserver(handlerMap[name], args);
+                } else if (observer[TRIGGER]) {
+                    isDefaultPrevented = this.callObserver(TRIGGER, name, args);
                 }
                 return isDefaultPrevented;
+            },
+            callObserver: function (fnName) {
+                var args = [], len = arguments.length - 1;
+                while (len-- > 0)
+                    args[len] = arguments[len + 1];
+                return this.observer[fnName].apply(this.observer, args);
             },
             requiresHandlers: function (names) {
                 var this$1 = this;

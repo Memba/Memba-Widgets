@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -167,277 +167,276 @@
     define('dataviz/themes/chart-base-theme', ['kendo.dataviz.core'], f);
 }(function () {
     (function () {
-        (function (exports) {
-            var BAR_GAP = 1.5;
-            var BAR_SPACING = 0.4;
-            var BLACK = '#000';
-            var SANS = 'Arial, Helvetica, sans-serif';
-            var SANS11 = '11px ' + SANS;
-            var SANS12 = '12px ' + SANS;
-            var SANS16 = '16px ' + SANS;
-            var TRANSPARENT = 'transparent';
-            var WHITE = '#fff';
-            var notes = function () {
-                return {
-                    icon: { border: { width: 1 } },
-                    label: {
-                        font: SANS12,
-                        padding: 3
-                    },
-                    line: {
-                        length: 10,
+        window.kendo.dataviz = window.kendo.dataviz || {};
+        var BAR_GAP = 1.5;
+        var BAR_SPACING = 0.4;
+        var BLACK = '#000';
+        var SANS = 'Arial, Helvetica, sans-serif';
+        var SANS11 = '11px ' + SANS;
+        var SANS12 = '12px ' + SANS;
+        var SANS16 = '16px ' + SANS;
+        var TRANSPARENT = 'transparent';
+        var WHITE = '#fff';
+        var notes = function () {
+            return {
+                icon: { border: { width: 1 } },
+                label: {
+                    font: SANS12,
+                    padding: 3
+                },
+                line: {
+                    length: 10,
+                    width: 2
+                },
+                visible: true
+            };
+        };
+        var axisDefaults = function () {
+            return {
+                labels: { font: SANS12 },
+                notes: notes(),
+                title: {
+                    font: SANS16,
+                    margin: 5
+                }
+            };
+        };
+        var areaSeries = function () {
+            return {
+                highlight: { markers: { border: {} } },
+                line: {
+                    opacity: 1,
+                    width: 0
+                },
+                markers: {
+                    size: 6,
+                    visible: false
+                },
+                opacity: 0.4
+            };
+        };
+        var barSeries = function () {
+            return {
+                gap: BAR_GAP,
+                spacing: BAR_SPACING
+            };
+        };
+        var boxPlotSeries = function () {
+            return {
+                outliersField: '',
+                meanField: '',
+                border: {
+                    _brightness: 0.8,
+                    width: 1
+                },
+                downColor: WHITE,
+                gap: 1,
+                highlight: {
+                    border: {
+                        opacity: 1,
                         width: 2
                     },
-                    visible: true
-                };
-            };
-            var axisDefaults = function () {
-                return {
-                    labels: { font: SANS12 },
-                    notes: notes(),
-                    title: {
-                        font: SANS16,
-                        margin: 5
-                    }
-                };
-            };
-            var areaSeries = function () {
-                return {
-                    highlight: { markers: { border: {} } },
-                    line: {
-                        opacity: 1,
-                        width: 0
-                    },
-                    markers: {
-                        size: 6,
-                        visible: false
-                    },
-                    opacity: 0.4
-                };
-            };
-            var barSeries = function () {
-                return {
-                    gap: BAR_GAP,
-                    spacing: BAR_SPACING
-                };
-            };
-            var boxPlotSeries = function () {
-                return {
-                    outliersField: '',
-                    meanField: '',
-                    border: {
-                        _brightness: 0.8,
-                        width: 1
-                    },
-                    downColor: WHITE,
-                    gap: 1,
-                    highlight: {
-                        border: {
-                            opacity: 1,
-                            width: 2
-                        },
-                        whiskers: { width: 3 },
-                        mean: { width: 2 },
-                        median: { width: 2 }
-                    },
+                    whiskers: { width: 3 },
                     mean: { width: 2 },
-                    median: { width: 2 },
-                    spacing: 0.3,
-                    whiskers: { width: 2 }
-                };
+                    median: { width: 2 }
+                },
+                mean: { width: 2 },
+                median: { width: 2 },
+                spacing: 0.3,
+                whiskers: { width: 2 }
             };
-            var bubbleSeries = function () {
-                return {
-                    border: { width: 0 },
-                    labels: { background: TRANSPARENT },
-                    opacity: 0.6
-                };
+        };
+        var bubbleSeries = function () {
+            return {
+                border: { width: 0 },
+                labels: { background: TRANSPARENT },
+                opacity: 0.6
             };
-            var bulletSeries = function () {
-                return {
-                    gap: BAR_GAP,
-                    spacing: BAR_SPACING,
-                    target: { color: '#ff0000' }
-                };
+        };
+        var bulletSeries = function () {
+            return {
+                gap: BAR_GAP,
+                spacing: BAR_SPACING,
+                target: { color: '#ff0000' }
             };
-            var candlestickSeries = function () {
-                return {
+        };
+        var candlestickSeries = function () {
+            return {
+                border: {
+                    _brightness: 0.8,
+                    width: 1
+                },
+                downColor: WHITE,
+                gap: 1,
+                highlight: {
                     border: {
-                        _brightness: 0.8,
-                        width: 1
+                        opacity: 1,
+                        width: 2
                     },
-                    downColor: WHITE,
-                    gap: 1,
-                    highlight: {
-                        border: {
-                            opacity: 1,
-                            width: 2
-                        },
-                        line: { width: 2 }
-                    },
-                    line: {
-                        color: BLACK,
-                        width: 1
-                    },
-                    spacing: 0.3
-                };
+                    line: { width: 2 }
+                },
+                line: {
+                    color: BLACK,
+                    width: 1
+                },
+                spacing: 0.3
             };
-            var columnSeries = function () {
-                return {
-                    gap: BAR_GAP,
-                    spacing: BAR_SPACING
-                };
+        };
+        var columnSeries = function () {
+            return {
+                gap: BAR_GAP,
+                spacing: BAR_SPACING
             };
-            var donutSeries = function () {
-                return { margin: 1 };
-            };
-            var lineSeries = function () {
-                return { width: 2 };
-            };
-            var ohlcSeries = function () {
-                return {
-                    gap: 1,
-                    highlight: {
-                        line: {
-                            opacity: 1,
-                            width: 3
-                        }
-                    },
-                    line: { width: 1 },
-                    spacing: 0.3
-                };
-            };
-            var radarAreaSeries = function () {
-                return {
+        };
+        var donutSeries = function () {
+            return { margin: 1 };
+        };
+        var lineSeries = function () {
+            return { width: 2 };
+        };
+        var ohlcSeries = function () {
+            return {
+                gap: 1,
+                highlight: {
                     line: {
                         opacity: 1,
-                        width: 0
-                    },
-                    markers: {
-                        size: 6,
-                        visible: false
-                    },
-                    opacity: 0.5
-                };
-            };
-            var radarLineSeries = function () {
-                return {
-                    markers: { visible: false },
-                    width: 2
-                };
-            };
-            var rangeBarSeries = function () {
-                return {
-                    gap: BAR_GAP,
-                    spacing: BAR_SPACING
-                };
-            };
-            var rangeColumnSeries = function () {
-                return {
-                    gap: BAR_GAP,
-                    spacing: BAR_SPACING
-                };
-            };
-            var scatterLineSeries = function () {
-                return { width: 1 };
-            };
-            var waterfallSeries = function () {
-                return {
-                    gap: 0.5,
-                    line: {
-                        color: BLACK,
-                        width: 1
-                    },
-                    spacing: BAR_SPACING
-                };
-            };
-            var pieSeries = function () {
-                return {
-                    labels: {
-                        background: '',
-                        color: '',
-                        padding: {
-                            top: 5,
-                            bottom: 5,
-                            left: 7,
-                            right: 7
-                        }
+                        width: 3
                     }
-                };
+                },
+                line: { width: 1 },
+                spacing: 0.3
             };
-            var funnelSeries = function () {
-                return {
-                    labels: {
-                        background: '',
-                        color: '',
-                        padding: {
-                            top: 5,
-                            bottom: 5,
-                            left: 7,
-                            right: 7
-                        }
+        };
+        var radarAreaSeries = function () {
+            return {
+                line: {
+                    opacity: 1,
+                    width: 0
+                },
+                markers: {
+                    size: 6,
+                    visible: false
+                },
+                opacity: 0.5
+            };
+        };
+        var radarLineSeries = function () {
+            return {
+                markers: { visible: false },
+                width: 2
+            };
+        };
+        var rangeBarSeries = function () {
+            return {
+                gap: BAR_GAP,
+                spacing: BAR_SPACING
+            };
+        };
+        var rangeColumnSeries = function () {
+            return {
+                gap: BAR_GAP,
+                spacing: BAR_SPACING
+            };
+        };
+        var scatterLineSeries = function () {
+            return { width: 1 };
+        };
+        var waterfallSeries = function () {
+            return {
+                gap: 0.5,
+                line: {
+                    color: BLACK,
+                    width: 1
+                },
+                spacing: BAR_SPACING
+            };
+        };
+        var pieSeries = function () {
+            return {
+                labels: {
+                    background: '',
+                    color: '',
+                    padding: {
+                        top: 5,
+                        bottom: 5,
+                        left: 7,
+                        right: 7
                     }
-                };
-            };
-            var seriesDefaults = function (options) {
-                return {
-                    visible: true,
-                    labels: { font: SANS11 },
-                    overlay: options.gradients ? {} : { gradient: 'none' },
-                    area: areaSeries(),
-                    bar: barSeries(),
-                    boxPlot: boxPlotSeries(),
-                    bubble: bubbleSeries(),
-                    bullet: bulletSeries(),
-                    candlestick: candlestickSeries(),
-                    column: columnSeries(),
-                    pie: pieSeries(),
-                    donut: donutSeries(),
-                    funnel: funnelSeries(),
-                    horizontalWaterfall: waterfallSeries(),
-                    line: lineSeries(),
-                    notes: notes(),
-                    ohlc: ohlcSeries(),
-                    radarArea: radarAreaSeries(),
-                    radarLine: radarLineSeries(),
-                    polarArea: radarAreaSeries(),
-                    polarLine: radarLineSeries(),
-                    rangeBar: rangeBarSeries(),
-                    rangeColumn: rangeColumnSeries(),
-                    scatterLine: scatterLineSeries(),
-                    verticalArea: areaSeries(),
-                    verticalBoxPlot: boxPlotSeries(),
-                    verticalBullet: bulletSeries(),
-                    verticalLine: lineSeries(),
-                    waterfall: waterfallSeries()
-                };
-            };
-            var title = function () {
-                return { font: SANS16 };
-            };
-            var legend = function () {
-                return { labels: { font: SANS12 } };
-            };
-            var baseTheme = function (options) {
-                if (options === void 0) {
-                    options = {};
                 }
-                return {
-                    axisDefaults: axisDefaults(),
-                    categoryAxis: { majorGridLines: { visible: true } },
-                    navigator: {
-                        pane: {
-                            height: 90,
-                            margin: { top: 10 }
-                        }
-                    },
-                    seriesDefaults: seriesDefaults(options),
-                    title: title(),
-                    legend: legend()
-                };
             };
-            kendo.deepExtend(exports, { chartBaseTheme: baseTheme });
-        }(this.kendo.dataviz = this.kendo.dataviz || {}));
+        };
+        var funnelSeries = function () {
+            return {
+                labels: {
+                    background: '',
+                    color: '',
+                    padding: {
+                        top: 5,
+                        bottom: 5,
+                        left: 7,
+                        right: 7
+                    }
+                }
+            };
+        };
+        var seriesDefaults = function (options) {
+            return {
+                visible: true,
+                labels: { font: SANS11 },
+                overlay: options.gradients ? {} : { gradient: 'none' },
+                area: areaSeries(),
+                bar: barSeries(),
+                boxPlot: boxPlotSeries(),
+                bubble: bubbleSeries(),
+                bullet: bulletSeries(),
+                candlestick: candlestickSeries(),
+                column: columnSeries(),
+                pie: pieSeries(),
+                donut: donutSeries(),
+                funnel: funnelSeries(),
+                horizontalWaterfall: waterfallSeries(),
+                line: lineSeries(),
+                notes: notes(),
+                ohlc: ohlcSeries(),
+                radarArea: radarAreaSeries(),
+                radarLine: radarLineSeries(),
+                polarArea: radarAreaSeries(),
+                polarLine: radarLineSeries(),
+                rangeBar: rangeBarSeries(),
+                rangeColumn: rangeColumnSeries(),
+                scatterLine: scatterLineSeries(),
+                verticalArea: areaSeries(),
+                verticalBoxPlot: boxPlotSeries(),
+                verticalBullet: bulletSeries(),
+                verticalLine: lineSeries(),
+                waterfall: waterfallSeries()
+            };
+        };
+        var title = function () {
+            return { font: SANS16 };
+        };
+        var legend = function () {
+            return { labels: { font: SANS12 } };
+        };
+        var baseTheme = function (options) {
+            if (options === void 0) {
+                options = {};
+            }
+            return {
+                axisDefaults: axisDefaults(),
+                categoryAxis: { majorGridLines: { visible: true } },
+                navigator: {
+                    pane: {
+                        height: 90,
+                        margin: { top: 10 }
+                    }
+                },
+                seriesDefaults: seriesDefaults(options),
+                title: title(),
+                legend: legend()
+            };
+        };
+        kendo.deepExtend(kendo.dataviz, { chartBaseTheme: baseTheme });
     }());
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
@@ -478,6 +477,7 @@
             mapColor('chart.axisDefaults.notes.icon.border.color', 'chart-notes-border');
             mapColor('chart.axisDefaults.notes.line.color', 'chart-notes-lines');
             mapColor('chart.axisDefaults.title.color', 'normal-text-color');
+            mapColor('chart.chartArea.background', 'background');
             mapColor('chart.legend.inactiveItems.labels.color', 'chart-inactive');
             mapColor('chart.legend.inactiveItems.markers.color', 'chart-inactive');
             mapColor('chart.legend.labels.color', 'normal-text-color');
@@ -2996,6 +2996,87 @@
                 treeMap: { colors: fuse(SERIES, SERIES_LIGHT) }
             });
             themes.sass = themes['default-v2'];
+        }());
+        (function () {
+            var TEXT = '#292b2c';
+            var INACTIVE_SHAPE = '#bdbdbd';
+            var AXIS = 'rgba(0, 0, 0, .04)';
+            var SERIES = [
+                '#0275d8',
+                '#5bc0de',
+                '#5cb85c',
+                '#f0ad4e',
+                '#e67d4a',
+                '#d9534f'
+            ];
+            var SERIES_LIGHT = [
+                '#ffd9dc',
+                '#ffeced',
+                '#cceef3',
+                '#e6f8fb',
+                '#fff2da',
+                '#fff7e8'
+            ];
+            var PRIMARY = SERIES[0];
+            var DIAGRAM_HOVER = WHITE;
+            registerTheme('bootstrap-v4', {
+                chart: {},
+                gauge: {
+                    pointer: { color: PRIMARY },
+                    scale: {
+                        rangePlaceholderColor: AXIS,
+                        labels: { color: TEXT },
+                        minorTicks: { color: TEXT },
+                        majorTicks: { color: TEXT },
+                        line: { color: TEXT }
+                    }
+                },
+                diagram: {
+                    shapeDefaults: {
+                        fill: { color: PRIMARY },
+                        connectorDefaults: {
+                            fill: { color: TEXT },
+                            stroke: { color: DIAGRAM_HOVER },
+                            hover: {
+                                fill: { color: DIAGRAM_HOVER },
+                                stroke: { color: TEXT }
+                            }
+                        },
+                        content: { color: TEXT }
+                    },
+                    editable: {
+                        resize: {
+                            handles: {
+                                fill: { color: DIAGRAM_HOVER },
+                                stroke: { color: INACTIVE_SHAPE },
+                                hover: {
+                                    fill: { color: INACTIVE_SHAPE },
+                                    stroke: { color: INACTIVE_SHAPE }
+                                }
+                            }
+                        },
+                        rotate: {
+                            thumb: {
+                                stroke: { color: INACTIVE_SHAPE },
+                                fill: { color: INACTIVE_SHAPE }
+                            }
+                        }
+                    },
+                    selectable: { stroke: { color: INACTIVE_SHAPE } },
+                    connectionDefaults: {
+                        stroke: { color: INACTIVE_SHAPE },
+                        content: { color: INACTIVE_SHAPE },
+                        selection: {
+                            handles: {
+                                fill: { color: DIAGRAM_HOVER },
+                                stroke: { color: INACTIVE_SHAPE }
+                            },
+                            stroke: { color: INACTIVE_SHAPE }
+                        }
+                    }
+                },
+                treeMap: { colors: fuse(SERIES, SERIES_LIGHT) }
+            });
         }());
         function fuse(arr1, arr2) {
             return $.map(arr1, function (item, index) {

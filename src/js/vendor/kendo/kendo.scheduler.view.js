@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
             var tableRows = [];
             if (rowCount > 0) {
                 for (var idx = 0; idx < columnLevelCount; idx++) {
-                    tableRows.push('<th>&nbsp;</th>');
+                    tableRows.push('<th>&#8203;</th>');
                 }
             }
             if (allDaySlot) {

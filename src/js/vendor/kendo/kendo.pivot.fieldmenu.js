@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -45,7 +45,14 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, MENU = 'kendoContextMenu', proxy = $.proxy, NS = '.kendoPivotFieldMenu', Widget = ui.Widget;
+        var kendo = window.kendo;
+        var ui = kendo.ui;
+        var MENU = 'kendoContextMenu';
+        var proxy = $.proxy;
+        var NS = '.kendoPivotFieldMenu';
+        var Widget = ui.Widget;
+        var FILTER_ITEM = 'k-filter-item';
+        var ARIA_LABEL = 'aria-label';
         var PivotFieldMenu = Widget.extend({
             init: function (element, options) {
                 Widget.fn.init.call(this, element, options);
@@ -104,10 +111,11 @@
                 }
             },
             _initFilterForm: function () {
-                var filterForm = this.menu.element.find('.k-filter-item');
+                var filterForm = this.menu.element.find('.' + FILTER_ITEM);
                 var filterProxy = proxy(this._filter, this);
                 this._filterOperator = new kendo.ui.DropDownList(filterForm.find('select'));
                 this._filterValue = filterForm.find('.k-textbox');
+                this._updateFilterAriaLabel();
                 filterForm.on('submit' + NS, filterProxy).on('click' + NS, '.k-button-filter', filterProxy).on('click' + NS, '.k-button-clear', proxy(this._reset, this));
             },
             _setFilterForm: function (expression) {
@@ -165,6 +173,12 @@
                 filter.filters.push(expression);
                 that.dataSource.filter(filter);
                 that.menu.close();
+            },
+            _updateFilterAriaLabel: function () {
+                var filterForm = this.menu.element.find('.' + FILTER_ITEM);
+                var selectedOperator = this._filterOperator.value();
+                var selectedOperatorName = this.options.messages.operators[selectedOperator];
+                filterForm.find('select').attr(ARIA_LABEL, selectedOperatorName);
             },
             _reset: function (e) {
                 var that = this;
@@ -308,6 +322,8 @@
                     this._sort('asc');
                 } else if (item.hasClass('k-sort-desc')) {
                     this._sort('desc');
+                } else if (item.hasClass(FILTER_ITEM)) {
+                    this._updateFilterAriaLabel();
                 }
             },
             _windowOpen: function () {
@@ -386,8 +402,8 @@
                 }
             }
         }
-        var LABELMENUTEMPLATE = '<div class="k-filterable k-content" tabindex="-1" data-role="fieldmenu">' + '<form class="k-filter-menu">' + '<div>' + '<div class="k-filter-help-text">#=messages.info#</div>' + '<select>' + '#for(var op in messages.operators){#' + '<option value="#=op#">#=messages.operators[op]#</option>' + '#}#' + '</select>' + '<input class="k-textbox" type="text" />' + '<div>' + '<a class="k-button k-primary k-button-filter" href="\\#">#=messages.filter#</a>' + '<a class="k-button k-button-clear" href="\\#">#=messages.clear#</a>' + '</div>' + '</div>' + '</form>' + '</div>';
-        var MENUTEMPLATE = '<ul class="k-pivot-fieldmenu">' + '# if (sortable) {#' + '<li class="k-item k-sort-asc">' + '<span class="k-link">' + '<span class="k-icon k-i-sort-asc-sm"></span>' + '${messages.sortAscending}' + '</span>' + '</li>' + '<li class="k-item k-sort-desc">' + '<span class="k-link">' + '<span class="k-icon k-i-sort-desc-sm"></span>' + '${messages.sortDescending}' + '</span>' + '</li>' + '# if (filterable) {#' + '<li class="k-separator"></li>' + '# } #' + '# } #' + '# if (filterable) {#' + '<li class="k-item k-include-item">' + '<span class="k-link">' + '<span class="k-icon k-i-filter"></span>' + '${messages.include}' + '</span>' + '</li>' + '<li class="k-separator"></li>' + '<li class="k-item k-filter-item">' + '<span class="k-link">' + '<span class="k-icon k-i-filter"></span>' + '${messages.filterFields}' + '</span>' + '<ul>' + '<li>' + LABELMENUTEMPLATE + '</li>' + '</ul>' + '</li>' + '# } #' + '</ul>';
+        var LABELMENUTEMPLATE = '<div class="k-filterable k-content" tabindex="-1" data-role="fieldmenu">' + '<form class="k-filter-menu">' + '<div>' + '<div class="k-filter-help-text">#=messages.info#</div>' + '<select>' + '#for(var op in messages.operators){#' + '<option value="#=op#">#=messages.operators[op]#</option>' + '#}#' + '</select>' + '<input class="k-textbox" type="text" ' + ARIA_LABEL + '="#=messages.filter#" />' + '<div>' + '<a class="k-button k-primary k-button-filter" href="\\#">#=messages.filter#</a>' + '<a class="k-button k-button-clear" href="\\#">#=messages.clear#</a>' + '</div>' + '</div>' + '</form>' + '</div>';
+        var MENUTEMPLATE = '<ul class="k-pivot-fieldmenu">' + '# if (sortable) {#' + '<li class="k-item k-sort-asc">' + '<span class="k-link">' + '<span class="k-icon k-i-sort-asc-sm"></span>' + '${messages.sortAscending}' + '</span>' + '</li>' + '<li class="k-item k-sort-desc">' + '<span class="k-link">' + '<span class="k-icon k-i-sort-desc-sm"></span>' + '${messages.sortDescending}' + '</span>' + '</li>' + '# if (filterable) {#' + '<li class="k-separator"></li>' + '# } #' + '# } #' + '# if (filterable) {#' + '<li class="k-item k-include-item">' + '<span class="k-link">' + '<span class="k-icon k-i-filter"></span>' + '${messages.include}' + '</span>' + '</li>' + '<li class="k-separator"></li>' + '<li class="k-item ' + FILTER_ITEM + '">' + '<span class="k-link">' + '<span class="k-icon k-i-filter"></span>' + '${messages.filterFields}' + '</span>' + '<ul>' + '<li>' + LABELMENUTEMPLATE + '</li>' + '</ul>' + '</li>' + '# } #' + '</ul>';
         var WINDOWTEMPLATE = '<div class="k-popup-edit-form k-pivot-filter-window"><div class="k-edit-form-container">' + '<div class="k-treeview"></div>' + '<div class="k-edit-buttons k-state-default">' + '<a class="k-button k-primary k-button-ok" href="\\#">' + '${messages.ok}' + '</a>' + '<a class="k-button k-button-cancel" href="\\#">' + '${messages.cancel}' + '</a>' + '</div></div>';
         ui.plugin(PivotFieldMenu);
     }(window.kendo.jQuery));

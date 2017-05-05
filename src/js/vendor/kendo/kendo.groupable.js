@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,7 +39,7 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, outerWidth = kendo._outerWidth, proxy = $.proxy, isRtl = false, NS = '.kendoGroupable', CHANGE = 'change', indicatorTmpl = kendo.template('<div class="k-group-indicator" data-#=data.ns#field="${data.field}" data-#=data.ns#title="${data.title || ""}" data-#=data.ns#dir="${data.dir || "asc"}">' + '<a href="\\#" class="k-link">' + '<span class="k-icon k-i-sort-${(data.dir || "asc") == "asc" ? "asc-sm" : "desc-sm"}" title="(sorted ${(data.dir || "asc") == "asc" ? "ascending": "descending"})"></span>' + '${data.title ? data.title: data.field}' + '</a>' + '<a class="k-button k-button-icon k-button-bare">' + '<span class="k-icon k-i-close"></span>' + '</a>' + '</div>', { useWithBlock: false }), hint = function (target) {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, outerWidth = kendo._outerWidth, proxy = $.proxy, isRtl = false, NS = '.kendoGroupable', CHANGE = 'change', indicatorTmpl = kendo.template('<div class="k-group-indicator" data-#=data.ns#field="${data.field}" data-#=data.ns#title="${data.title || ""}" data-#=data.ns#dir="${data.dir || "asc"}">' + '<a href="\\#" class="k-link">' + '<span class="k-icon k-i-sort-${(data.dir || "asc") == "asc" ? "asc-sm" : "desc-sm"}" title="(sorted ${(data.dir || "asc") == "asc" ? "ascending": "descending"})"></span>' + '${data.title ? data.title: data.field}' + '</a>' + '<a class="k-button k-button-icon k-bare">' + '<span class="k-icon k-i-close"></span>' + '</a>' + '</div>', { useWithBlock: false }), hint = function (target) {
                 var title = target.attr(kendo.attr('title'));
                 if (title) {
                     title = kendo.htmlEncode(title);

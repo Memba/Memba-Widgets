@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -110,6 +110,18 @@ input.k-textbox {
     margin-right: 8px;
 }
 
+.k-colorpicker {
+    @picker-icon-height: 2.28571428em;
+    .k-selected-color {
+        width: @picker-icon-height;
+        height: @picker-icon-height;
+
+        .k-i-line {
+            font-size: @picker-icon-height;
+        }
+    }
+}
+
 .k-combobox > .k-dropdown-wrap > .k-i-close {
     right: 2.55em;
 }
@@ -200,7 +212,7 @@ input.k-textbox {
 .k-gantt .k-grid-content tr,
 .k-gantt-rows tr,
 .k-gantt-tasks tr {
-	height: 2.4em;
+    height: 2.4em;
 }
 
 .k-editor-dialog.k-editor-table-wizard-dialog .k-tabstrip-wrapper .k-content {
@@ -215,4 +227,17 @@ input.k-textbox {
 
 .k-editor-dialog.k-editor-table-wizard-dialog .k-dropdown.k-align {
     min-width: 56px;
+}
+
+.k-grid {
+    .k-edit-cell {
+        input[type='checkbox'],
+        input.k-checkbox {
+            margin-left: calc(.3em + 3px);
+
+            + label.k-checkbox-label {
+                margin-left: .3em;
+            }
+        }
+    }
 }

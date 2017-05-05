@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.1.223 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -435,6 +435,23 @@
         "noRecords": "Keine Datensätze verfügbar."
       });
   }
+
+/* ListBox messaages */
+
+if (kendo.ui.ListBox) {
+kendo.ui.ListBox.prototype.options.messages =
+$.extend(true, kendo.ui.ListBox.prototype.options.messages,{
+  "tools": {
+    "remove": "Löschen",
+    "moveUp": "Nach oben verschieben",
+    "moveDown": "Nach unten verschieben",
+    "transferTo": "Übertragen zu",
+    "transferFrom": "Übertragen von",
+    "transferAllTo": "Übertragen sie alle zu",
+    "transferAllFrom": "Übertragen sie alle von"
+  }
+});
+}
 
   /* TreeList messages */
 

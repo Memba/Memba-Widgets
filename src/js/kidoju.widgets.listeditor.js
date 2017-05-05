@@ -12,9 +12,32 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
+        // './vendor/kendo/kendo.draganddrop',
         './vendor/kendo/kendo.sortable',
         './vendor/kendo/kendo.listview',
+        './vendor/kendo/kendo.toolbar',
         './vendor/kendo/kendo.tooltip'
+        /*
+         <script src="./js/vendor/kendo/kendo.core.js"></script>
+         <script src="./js/vendor/kendo/kendo.data.js"></script>
+         <script src="./js/vendor/kendo/kendo.binder.js"></script>
+         <script src="./js/vendor/kendo/kendo.userevents.js"></script>
+         <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
+         <script src="./js/vendor/kendo/kendo.sortable.js"></script>
+         <script src="./js/vendor/kendo/kendo.popup.js"></script>
+         <script src="./js/vendor/kendo/kendo.dialog.js"></script>
+         <!--script src="./js/vendor/kendo/kendo.columnsorter.js"></script-->
+         <script src="./js/vendor/kendo/kendo.grid.js"></script>
+         <script src="./js/vendor/kendo/kendo.calendar.js"></script>
+         <script src="./js/vendor/kendo/kendo.datepicker.js"></script>
+         <script src="./js/vendor/kendo/kendo.numerictextbox.js"></script>
+         <script src="./js/vendor/kendo/kendo.validator.js"></script>
+         <script src="./js/vendor/kendo/kendo.editable.js"></script>
+         <script src="./js/vendor/kendo/kendo.listview.js"></script>
+         <script src="./js/vendor/kendo/kendo.tooltip.js"></script>
+         */
+
+
     ], f);
 })(function () {
 
@@ -180,7 +203,7 @@
                     cursor: 'move',
                     filter: '>.k-list-item',
                     handler: '.kj-handle, .kj-handle *',
-                    holdToDrag: true, // for touch screens
+                    holdToDrag: kendo.support.touch,
                     ignore: 'input',  // otherwise focus and selections won't work properly in inputs
                     placeholder: function (element) {
                         return element.clone().css('opacity', 0.4);

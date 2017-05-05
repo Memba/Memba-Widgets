@@ -14,9 +14,13 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
-        './vendor/kendo/kendo.color',
-        './vendor/kendo/kendo.drawing'
-        // TODO we also need spreadsheet toolbar for all the tools which have been registered and which we use
+        './vendor/kendo/kendo.drawing',
+        './vendor/kendo/kendo.popup',
+        './vendor/kendo/kendo.slider',
+        './vendor/kendo/kendo.colorpicker',
+        './vendor/kendo/kendo.combobox',
+        './vendor/kendo/kendo.dropdownlist',
+        './vendor/kendo/kendo.toolbar'
     ], f);
 })(function (math) {
 

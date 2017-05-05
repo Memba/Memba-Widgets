@@ -13,8 +13,13 @@
         './window.logger',
         './kidoju.data',
         './kidoju.tools',
-        './vendor/kendo/kendo.numerictextbox',
+        './vendor/kendo/kendo.resizable',
+        './vendor/kendo/kendo.slider',
+        './vendor/kendo/kendo.colorpicker',
         './vendor/kendo/kendo.datepicker',
+        './vendor/kendo/kendo.dropdownlist',
+        './vendor/kendo/kendo.numerictextbox',
+        './vendor/kendo/kendo.validator',
         './vendor/kendo/kendo.mobile.switch'
     ], f);
 })(function () {

@@ -10,6 +10,7 @@
     'use strict';
     define([
         './vendor/markdown-it/markdown-it',
+        // './vendor/markdown-it/katex',
         './vendor/markdown-it/markdown-it-katex',
         './vendor/highlight/highlight.pack', // Keep at the top considering function parameters below
         './window.assert',

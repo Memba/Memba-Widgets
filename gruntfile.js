@@ -19,6 +19,12 @@ module.exports = function (grunt) {
             files: ['<%= jshint.files %>'],
             tasks: ['lint', 'test']
         },
+        eslint: {
+            files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'src/js/messages/kidoju.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
+            options: {
+                config: '.eslintrc'
+            }
+        },
         jscs: {
             files: ['gruntfile.js', 'src/js/kidoju.*.js', 'src/js/window.*.js', 'src/js/messages/kidoju.*.js', 'test/browsers/*.js', 'test/zombie/*.js'],
             options: {
@@ -189,6 +195,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     // Linting
+    grunt.loadNpmTasks('grunt-eslint');
     grunt.loadNpmTasks('grunt-jscs');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     // grunt.loadNpmTasks('grunt-kendo-lint');
@@ -209,6 +216,7 @@ module.exports = function (grunt) {
     // grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
     grunt.registerTask('lint', ['jscs', 'jshint', 'csslint']);
+    grunt.registerTask('lint2', ['eslint', 'csslint']);
     grunt.registerTask('test', ['mocha']); // , 'mochaTest']);
     grunt.registerTask('build', ['clean', 'copy', 'concat', 'uglify', 'cssmin', 'imagemin', 'jsdoc']);
     grunt.registerTask('default', ['lint', 'test', 'build']);

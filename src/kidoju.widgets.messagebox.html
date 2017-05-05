@@ -4,21 +4,51 @@
 <head>
     <meta charset="UTF-8">
     <title>kidoju.widgets.messagebox</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.button.js"></script>
-    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
-    <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
-    <script src="./js/vendor/kendo/kendo.window.js"></script-->
-    <!-- MessageBox requirements -->
-    <link href="./styles/kidoju.widgets.messagebox.css" rel="stylesheet" />
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.messagebox.js"></script>
+    <!-- kidoju.widgets.messagebox stylesheet -->
+    <link href="./styles/kidoju.widgets.messagebox.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.messagebox.js').then(function (kendo) {
+                $(function () {
+                    kendo.init('body');
+                    var messageBox = $('#messagebox1').data('kendoMessageBox');
+                    messageBox.bind('click', function (e) {
+                        $("#console1").append(kendo.format("<div>action `{0}` at {1}</div>", e.action, new Date().toLocaleTimeString()));
+                        e.preventDefault();
+                    });
+                    $('#button1').click(function (e) {
+                        messageBox.open();
+                    });
+
+                    $('#button2').click(function (e) {
+                        kendo.alertEx({ type: 'error', title: 'Error', message: 'Hey Houston, we\'ve got a problem!', actions: [{ action: 'ok', text: 'OK', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg' }] }).done(function(result) {
+                            $("#console2").append(kendo.format("<div>action `{0}` at {1}</div>", result.action, new Date().toLocaleTimeString()));
+                        });
+                    });
+                });
+            });
+        }());
+    </script>
     <style type="text/css">
         .highlight-section {
             margin-top: 10px;
@@ -41,29 +71,5 @@
 <h2>using kendo.alert</h2>
 <button id="button2" class="k-button">Show Me!</button>
 <div id="console2" class="highlight-section k-block" style="margin-top:20px;"></div>
-
-<script>
-    $(function () {
-
-        kendo.init('body');
-
-        var messageBox = $('#messagebox1').data('kendoMessageBox');
-        messageBox.bind('click', function (e) {
-            $("#console1").append(kendo.format("<div>action `{0}` at {1}</div>", e.action, new Date().toLocaleTimeString()));
-            e.preventDefault();
-        });
-
-        $('#button1').click(function (e) {
-            messageBox.open();
-        });
-
-        $('#button2').click(function (e) {
-            kendo.alertEx({ type: 'error', title: 'Error', message: 'Hey Houston, we\'ve got a problem!', actions: [{ action: 'ok', text: 'OK', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg' }] }).done(function(result) {
-                $("#console2").append(kendo.format("<div>action `{0}` at {1}</div>", result.action, new Date().toLocaleTimeString()));
-            });
-        });
-
-    });
-</script>
 </body>
 </html>

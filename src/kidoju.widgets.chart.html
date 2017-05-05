@@ -9,11 +9,160 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <style>
-
-    </style>
+    <!-- kidoju.widgets.chart stylesheet -->
+    <!-- link href="./styles/kidoju.widgets.chart.css" rel="stylesheet" -->
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            Promise.all([
+                SystemJS.import('./js/vendor/kendo/kendo.spreadsheet.js'),
+                SystemJS.import('./js/vendor/kendo/kendo.dataviz.chart.js')
+            ]).then(function () {
+            	var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    json: {
+                        activeSheet: 'Sheet1',
+                        /*
+                         sheets: [{
+                         name: 'Sheet1',
+                         rows:[
+                         { index: 0, cells: [{ index: 1, value: 'Series 1'}]},
+                         { index: 1, cells: [{ index: 0, value: 2000 }, { index: 1, value: 200 }]},
+                         { index: 2, cells: [{ index: 0, value: 2001 }, { index: 1, value: 450 }]},
+                         { index: 3, cells: [{ index: 0, value: 2002 }, { index: 1, value: 300 }]},
+                         { index: 4, cells: [{ index: 0, value: 2003 }, { index: 1, value: 125 }]}
+                         ]
+                         }]
+                         */
+                        sheets:[{
+                            name: 'Sheet1',
+                            rows:[
+                                { index: 0, cells: [{ index: 1, value: 2000 }, { index: 2, value: 2001 }, { index: 3, value: 2002 }, { index: 4, value: 2003 }] },
+                                { index: 1, cells: [{ index: 0, value: 'Series 1' }, { index: 1, value: 200 }, { index: 2, value: 450 }, { index: 3, value: 300 }, { index: 4, value: 125 }] },
+                                { index: 2, cells: [{ index: 0, value: 'Series 2' }, { index: 1, value: 200 }, { index: 2, value: 450 }, { index: 3, value: 300 }, { index: 4, value: 125 }] }
+                            ]
+                        }]
+                    },
+                    json$: function () {
+                        return JSON.stringify(this.get('json'));
+                    },
+                    categories$: function () {
+                        var categories = [];
+                        var columnTotal = 5;
+                        var rowIndex = 0;
+                        var columnIndex;
+                        var rowFinder = function (row) { return row.index === rowIndex; };
+                        var columnFinder = function (column) { return column.index === columnIndex; };
+                        var json = this.get('json');
+                        var row = json.sheets[0].rows.find(rowFinder);
+                        for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
+                            var category = '';
+                            if (row && row.cells) {
+                                var cell = row.cells.find(columnFinder);
+                                if (cell && cell.value) {
+                                    category = cell.value;
+                                }
+                            }
+                            categories.push(category);
+                        }
+                        // return [2000, 2001, 2002, 2003]
+                        return categories;
+                    },
+                    series$: function () {
+                        var series = [];
+                        var rowTotal = 3;
+                        var columnTotal = 5;
+                        var rowIndex;
+                        var columnIndex;
+                        var rowFinder = function (row) { return row.index === rowIndex; };
+                        var columnFinder = function (column) { return column.index === columnIndex; };
+                        var json = this.get('json');
+                        for (rowIndex = 1; rowIndex < rowTotal; rowIndex++) {
+                            var serie = { name: '', data: [] };
+                            var row = json.sheets[0].rows.find(rowFinder);
+                            if (row && row.cells) {
+                                columnIndex = 0;
+                                var cell = row.cells.find(columnFinder);
+                                if (cell && cell.value) {
+                                    serie.name = cell.value;
+                                }
+                                for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
+                                    var data = 0;
+                                    cell = row.cells.find(columnFinder);
+                                    if (cell && $.type(cell.value) === 'number') {
+                                        data = cell.value;
+                                    }
+                                    serie.data.push(data);
+                                }
+                            }
+                            series.push(serie);
+                        }
+                        return series;
+                        /*
+                         return [
+                         { name: 'Series 1', data: [200, 450, 300, 125] },
+                         { name: 'Series 2', data: [200, 450, 300, 125] }
+                         ];
+                         */
+                    }
+                });
+                viewModel.bind('change', function() {
+                    var chartWidget = $("#chart").data('kendoChart');
+                    if (chartWidget instanceof kendo.dataviz.ui.Chart) {
+                        chartWidget.destroy();
+                    }
+                    // Chart
+                    $("#chart").kendoChart({
+                        title: {
+                            text: "Kendo Chart Example"
+                        },
+                        legend: {
+                            position: "bottom"
+                        },
+                        series: this.series$(),
+                        seriesDefaults: {
+                            type: 'line', // 'column', // 'line' // 'column' // 'bar'
+                            style: 'smooth'
+                        },
+                        categoryAxis: { // horizontal axis
+                            categories: this.categories$()
+                        }
+                    });
+                });
+                $(function() {
+                    kendo.bind('body', viewModel);
+                    // Spreadsheet
+                    var spreadsheetWidget = $('#spreadsheet').kendoSpreadsheet({
+                        sheetsbar: false,
+                        columns: 5,
+                        rows: 3,
+                        change: function (e) { // change is only triggered by cell data changes (not cell formatting changes)
+                            viewModel.set('json', e.sender.toJSON());
+                        },
+                        toolbar: false
+                    }).data('kendoSpreadsheet');
+                    spreadsheetWidget.fromJSON(viewModel.get('json'));
+                    // Prevent other options to add/remove/hide/merge cells
+                    $('#spreadsheet').find('.k-spreadsheet-fixed-container').off('contextmenu');
+                    // trigger change
+                    viewModel.trigger('change')
+                });
+            });
+        }());
+    </script>
 </head>
 <body>
 <h1>kidoju.widgets.chart</h1>
@@ -25,144 +174,5 @@
     <div data-bind="text: json$" style="margin-left:50px;"></div>
 }
 </pre>
-
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo;
-        var viewModel = window.viewModel = new kendo.observable({
-            json: {
-                activeSheet: 'Sheet1',
-                /*
-                sheets: [{
-                    name: 'Sheet1',
-                    rows:[
-                        { index: 0, cells: [{ index: 1, value: 'Series 1'}]},
-                        { index: 1, cells: [{ index: 0, value: 2000 }, { index: 1, value: 200 }]},
-                        { index: 2, cells: [{ index: 0, value: 2001 }, { index: 1, value: 450 }]},
-                        { index: 3, cells: [{ index: 0, value: 2002 }, { index: 1, value: 300 }]},
-                        { index: 4, cells: [{ index: 0, value: 2003 }, { index: 1, value: 125 }]}
-                    ]
-                }]
-                */
-                sheets:[{
-                    name: 'Sheet1',
-                    rows:[
-                        { index: 0, cells: [{ index: 1, value: 2000 }, { index: 2, value: 2001 }, { index: 3, value: 2002 }, { index: 4, value: 2003 }] },
-                        { index: 1, cells: [{ index: 0, value: 'Series 1' }, { index: 1, value: 200 }, { index: 2, value: 450 }, { index: 3, value: 300 }, { index: 4, value: 125 }] },
-                        { index: 2, cells: [{ index: 0, value: 'Series 2' }, { index: 1, value: 200 }, { index: 2, value: 450 }, { index: 3, value: 300 }, { index: 4, value: 125 }] }
-                    ]
-                }]
-            },
-            json$: function () {
-                return JSON.stringify(this.get('json'));
-            },
-            categories$: function () {
-                var categories = [];
-                var columnTotal = 5;
-                var rowIndex = 0;
-                var columnIndex;
-                var rowFinder = function (row) { return row.index === rowIndex; };
-                var columnFinder = function (column) { return column.index === columnIndex; };
-                var json = this.get('json');
-                var row = json.sheets[0].rows.find(rowFinder);
-                for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
-                    var category = '';
-                    if (row && row.cells) {
-                        var cell = row.cells.find(columnFinder);
-                        if (cell && cell.value) {
-                            category = cell.value;
-                        }
-                    }
-                    categories.push(category);
-                }
-                // return [2000, 2001, 2002, 2003]
-                return categories;
-            },
-            series$: function () {
-                var series = [];
-                var rowTotal = 3;
-                var columnTotal = 5;
-                var rowIndex;
-                var columnIndex;
-                var rowFinder = function (row) { return row.index === rowIndex; };
-                var columnFinder = function (column) { return column.index === columnIndex; };
-                var json = this.get('json');
-                for (rowIndex = 1; rowIndex < rowTotal; rowIndex++) {
-                    var serie = { name: '', data: [] };
-                    var row = json.sheets[0].rows.find(rowFinder);
-                    if (row && row.cells) {
-                        columnIndex = 0;
-                        var cell = row.cells.find(columnFinder);
-                        if (cell && cell.value) {
-                            serie.name = cell.value;
-                        }
-                        for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
-                            var data = 0;
-                            cell = row.cells.find(columnFinder);
-                            if (cell && $.type(cell.value) === 'number') {
-                                data = cell.value;
-                            }
-                            serie.data.push(data);
-                        }
-                    }
-                    series.push(serie);
-                }
-                return series;
-                /*
-                return [
-                    { name: 'Series 1', data: [200, 450, 300, 125] },
-                    { name: 'Series 2', data: [200, 450, 300, 125] }
-                ];
-                */
-            }
-        });
-        viewModel.bind('change', function() {
-            var chartWidget = $("#chart").data('kendoChart');
-            if (chartWidget instanceof kendo.dataviz.ui.Chart) {
-                chartWidget.destroy();
-            }
-            // Chart
-            $("#chart").kendoChart({
-                title: {
-                    text: "Kendo Chart Example"
-                },
-                legend: {
-                    position: "bottom"
-                },
-                series: this.series$(),
-                seriesDefaults: {
-                    type: 'line', // 'column', // 'line' // 'column' // 'bar'
-                    style: 'smooth'
-                },
-                categoryAxis: { // horizontal axis
-                    categories: this.categories$()
-                }
-            });
-        });
-
-        $(function() {
-            kendo.bind('body', viewModel);
-            // Spreadsheet
-            var spreadsheetWidget = $('#spreadsheet').kendoSpreadsheet({
-                sheetsbar: false,
-                columns: 5,
-                rows: 3,
-                change: function (e) { // change is only triggered by cell data changes (not cell formatting changes)
-                    viewModel.set('json', e.sender.toJSON());
-                },
-                toolbar: false
-            }).data('kendoSpreadsheet');
-            spreadsheetWidget.fromJSON(viewModel.get('json'));
-            // Prevent other options to add/remove/hide/merge cells
-            $('#spreadsheet').find('.k-spreadsheet-fixed-container').off('contextmenu');
-            // trigger change
-            viewModel.trigger('change')
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

@@ -3,19 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <title>kidoju.widgets.multiinput</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
-    <script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <!-- MultiInput requirements -->
-    <!--link href="./styles/kidoju.widgets.multiinput.css" rel="stylesheet" /-->
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.multiinput.js"></script>
+    <!-- kidoju.widgets.multiinput stylesheet -->
+    <!--link href="./styles/kidoju.widgets.multiinput.css" rel="stylesheet"-->
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.multiinput.js').then(function (kendo) {
+                var viewModel = kendo.observable({
+                    value: ['hello', 'world'],
+                    visible: true,
+                    enabled: true,
+                    value$: function() {
+                        return this.get('value').join(', ');
+                    }
+                });
+                $(function () {
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
 </head>
 <body>
 <h1>kidoju.widgets.multiinput</h1>
@@ -34,27 +60,5 @@
         enabled: <span data-bind="text: enabled"></span>,
     }
 </pre>
-
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo;
-        var viewModel = window.viewModel = kendo.observable({
-            value: ['hello', 'world'],
-            visible: true,
-            enabled: true,
-            value$: function() {
-                return this.get('value').join(', ');
-            }
-        });
-
-        $(function () {
-            kendo.bind('body', viewModel);
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

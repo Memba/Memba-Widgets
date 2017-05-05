@@ -9,19 +9,71 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <!-- table requirements -->
-    <link rel="stylesheet" href="./styles/kidoju.widgets.table.css">
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.table.js"></script>
-    <style>
+    <!-- kidoju.widgets.table stylesheet -->
+    <link href="./styles/kidoju.widgets.table.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            Promise.all([
+                SystemJS.import('./js/vendor/kendo/kendo.spreadsheet.js'),
+                SystemJS.import('./js/kidoju.widgets.table.js')
+            ]).then(function () {
+                var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    json: null,
+                    json$: function () {
+                        return JSON.stringify(this.get('json'));
+                    },
+                    visible: true,
+                    enabled: true
+                });
 
-    </style>
+                $(function() {
+                    kendo.bind('body', viewModel);
+                    var spreadsheetWidget = $('#spreadsheet').kendoSpreadsheet({
+                        sheets: [{}],
+                        sheetsbar: false,
+                        columns: 5,
+                        rows: 8,
+                        columnWidth: 150,
+                        rowHeight: 58,
+                        render: function (e) { // render is triggered by cell data and formatting changes but it occurs too often to debug
+                            // change: function (e) { // change is only triggered by cell data changes (not cell formatting changes)
+                            viewModel.set('json', e.sender.toJSON());
+                        },
+                        toolbar: {
+                            // TODO: merge and hide not included in v1
+                            home: [['bold', 'italic', 'underline'], 'backgroundColor', 'textColor', 'borders', 'fontSize', 'fontFamily', 'alignment', 'textWrap', ['formatDecreaseDecimal', 'formatIncreateDecimal'], 'format'],
+                            insert: false,
+                            data: false
+                        }
+                    }).data('kendoSpreadsheet');
+                    // Prevent other options to add/remove/hide/merge cells
+                    $('#spreadsheet').find('.k-spreadsheet-fixed-container').off('contextmenu');
+                    // Set default font size
+                    var activeSheet = spreadsheetWidget.activeSheet();
+                    activeSheet.range('R1C1:R' + spreadsheetWidget.options.rows + 'C' + spreadsheetWidget.options.columns).forEachCell(function(rowIndex, columnIndex, cell) {
+                        var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
+                        range.fontSize(range.fontSize() || 48);
+                    });
+                    spreadsheetWidget.refresh();
+                });
+            });
+        }());
+    </script>
 </head>
 <body>
 <h1>kidoju.widgets.table</h1>
@@ -29,11 +81,7 @@
     <div data-role="table" data-columns="5" data-rows="8" data-bind="value: json, visible: visible"></div>
     <!--div data-role="table" data-columns="4" data-rows="6" data-value="{&quot;activeSheet&quot;:&quot;Sheet1&quot;,&quot;sheets&quot;:[{&quot;name&quot;:&quot;Sheet1&quot;,&quot;rows&quot;:[{&quot;index&quot;:0,&quot;cells&quot;:[{&quot;value&quot;:12,&quot;format&quot;:&quot;#&quot;,&quot;background&quot;:&quot;#d6ecff&quot;,&quot;index&quot;:0},{&quot;background&quot;:&quot;#fef0cd&quot;,&quot;index&quot;:3}]},{&quot;index&quot;:1,&quot;cells&quot;:[{&quot;value&quot;:12,&quot;format&quot;:&quot;#&quot;,&quot;background&quot;:&quot;#d6ecff&quot;,&quot;index&quot;:0},{&quot;background&quot;:&quot;#fef0cd&quot;,&quot;index&quot;:3}]},{&quot;index&quot;:2,&quot;cells&quot;:[{&quot;value&quot;:14,&quot;format&quot;:&quot;#&quot;,&quot;background&quot;:&quot;#d6ecff&quot;,&quot;index&quot;:0},{&quot;background&quot;:&quot;#fef0cd&quot;,&quot;index&quot;:3}]},{&quot;index&quot;:3,&quot;cells&quot;:[{&quot;value&quot;:15,&quot;format&quot;:&quot;#&quot;,&quot;background&quot;:&quot;#d6ecff&quot;,&quot;index&quot;:0},{&quot;background&quot;:&quot;#fef0cd&quot;,&quot;index&quot;:3}]},{&quot;index&quot;:4,&quot;cells&quot;:[{&quot;background&quot;:&quot;#d6ecff&quot;,&quot;index&quot;:0},{&quot;background&quot;:&quot;#fef0cd&quot;,&quot;index&quot;:3}]},{&quot;index&quot;:5,&quot;cells&quot;:[{&quot;background&quot;:&quot;#d6ecff&quot;,&quot;index&quot;:0},{&quot;background&quot;:&quot;#fef0cd&quot;,&quot;index&quot;:3}]}],&quot;columns&quot;:[],&quot;selection&quot;:&quot;D6:D6&quot;,&quot;activeCell&quot;:&quot;D6:D6&quot;,&quot;frozenRows&quot;:0,&quot;frozenColumns&quot;:0,&quot;showGridLines&quot;:true,&quot;mergedCells&quot;:[],&quot;hyperlinks&quot;:[]}]}"></div-->
 </div>
-
 <div id="spreadsheet"></div>
-
-
-
 <pre>
 {
     json:
@@ -44,54 +92,5 @@
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
 </div>
-
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo;
-        var viewModel = window.viewModel = new kendo.observable({
-            json: null,
-            json$: function () {
-                return JSON.stringify(this.get('json'));
-            },
-            visible: true,
-            enabled: true
-        });
-
-        $(function() {
-            kendo.bind('body', viewModel);
-            var spreadsheetWidget = $('#spreadsheet').kendoSpreadsheet({
-                sheets: [{}],
-                sheetsbar: false,
-                columns: 5,
-                rows: 8,
-                columnWidth: 150,
-                rowHeight: 58,
-                render: function (e) { // render is triggered by cell data and formatting changes but it occurs too often to debug
-                // change: function (e) { // change is only triggered by cell data changes (not cell formatting changes)
-                    viewModel.set('json', e.sender.toJSON());
-                },
-                toolbar: {
-                    // TODO: merge and hide not included in v1
-                    home: [['bold', 'italic', 'underline'], 'backgroundColor', 'textColor', 'borders', 'fontSize', 'fontFamily', 'alignment', 'textWrap', ['formatDecreaseDecimal', 'formatIncreateDecimal'], 'format'],
-                    insert: false,
-                    data: false
-                }
-            }).data('kendoSpreadsheet');
-            // Prevent other options to add/remove/hide/merge cells
-            $('#spreadsheet').find('.k-spreadsheet-fixed-container').off('contextmenu');
-            // Set default font size
-            var activeSheet = spreadsheetWidget.activeSheet();
-            activeSheet.range('R1C1:R' + spreadsheetWidget.options.rows + 'C' + spreadsheetWidget.options.columns).forEachCell(function(rowIndex, columnIndex, cell) {
-                var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
-                range.fontSize(range.fontSize() || 48);
-            });
-            spreadsheetWidget.refresh();
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

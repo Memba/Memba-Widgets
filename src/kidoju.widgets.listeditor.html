@@ -9,82 +9,74 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
-    <script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
-    <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
-    <script src="./js/vendor/kendo/kendo.sortable.js"></script>
-    <script src="./js/vendor/kendo/kendo.popup.js"></script>
-    <script src="./js/vendor/kendo/kendo.dialog.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.columnsorter.js"></script-->
-    <script src="./js/vendor/kendo/kendo.grid.js"></script>
-    <script src="./js/vendor/kendo/kendo.calendar.js"></script>
-    <script src="./js/vendor/kendo/kendo.datepicker.js"></script>
-    <script src="./js/vendor/kendo/kendo.numerictextbox.js"></script>
-    <script src="./js/vendor/kendo/kendo.validator.js"></script>
-    <script src="./js/vendor/kendo/kendo.editable.js"></script>
-    <script src="./js/vendor/kendo/kendo.listview.js"></script>
-    <script src="./js/vendor/kendo/kendo.tooltip.js"></script>
-    <!-- List Editor requirements -->
+    <!-- kidoju.widgets.listeditor stylesheet -->
     <link href="./styles/kidoju.widgets.listeditor.css" rel="stylesheet">
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.listeditor.js"></script>
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            Promise.all([
+                SystemJS.import('./js/vendor/kendo/kendo.grid.js'),
+                SystemJS.import('./js/kidoju.widgets.listeditor.js')
+            ]).then(function (kendo) {
+                var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    quiz: new kendo.data.DataSource({
+                        data: [
+                            { text: 'question 1', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg' },
+                            { text: 'question 2', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg' },
+                            { text: 'question 3', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg' },
+                            { text: 'question 4', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg' }
+                        ],
+                        // Note: Without a schema, the Add button wont'work because otherwise the listView does not know the properties to create a new dataItem with
+                        schema: {
+                            model: {
+                                id: 'text',
+                                fields: {
+                                    text: {
+                                        type: 'string'
+                                    },
+                                    image: {
+                                        type: 'string'
+                                    }
+                                }
+                            }
+                        }
+                    }),
+                    onClick: function (e) {
+                        if (e.action === 'image') {
+                            // Note: this is where we should plug our asset manager
+                            var image = e.item.get('image');
+                            var prompt = window.prompt("What's your image?", image);
+                            if (prompt !== image) {
+                                e.item.set('image', prompt);
+                            }
+                        }
+                    }
+                });
+                $(function() {
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
 </head>
 <body>
 <h1>kidoju.widgets.listeditor</h1>
 <div id="listeditor" data-role="listeditor" data-bind="source:quiz, events:{ click: onClick }"></div>
 <h2>Grid</h2>
 <div id="grid" data-role="grid" data-bind="source:quiz"></div>
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo;
-        var viewModel = window.viewModel = new kendo.observable({
-            quiz: new kendo.data.DataSource({
-                data: [
-                    { text: 'question 1', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg' },
-                    { text: 'question 2', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg' },
-                    { text: 'question 3', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg' },
-                    { text: 'question 4', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg' }
-                ],
-                // Note: Without a schema, the Add button wont'work because otherwise the listView does not know the properties to create a new dataItem with
-                schema: {
-                    model: {
-                        id: 'text',
-                        fields: {
-                            text: {
-                                type: 'string'
-                            },
-                            image: {
-                                type: 'string'
-                            }
-                        }
-                    }
-                }
-            }),
-            onClick: function (e) {
-                if (e.action === 'image') {
-                    // Note: this is where we should plug our asset manager
-                    var image = e.item.get('image');
-                    var prompt = window.prompt("What's your image?", image);
-                    if (prompt !== image) {
-                        e.item.set('image', prompt);
-                    }
-                }
-            }
-        });
-
-        $(function() {
-            kendo.bind('body', viewModel);
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

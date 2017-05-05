@@ -8,17 +8,40 @@
     </script>
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
-    <!--link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet"-->
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.color.js"></script>
-    <script src="./js/vendor/kendo/kendo.drawing.js"></script-->
-    <!-- chargrid requirements -->
-    <!--link rel="stylesheet" href="./styles/kidoju.widgets.chargrid.css"-->
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.chargrid.js"></script>
+    <link href="./styles/vendor/kendo/web/kendo.mobile.all.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.chargrid stylesheet -->
+    <!-- link href="./styles/kidoju.widgets.chargrid.css" rel="stylesheet" -->
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.chargrid.js').then(function (kendo) {
+                var viewModel = kendo.observable({
+                    value: {},
+                    visible: true,
+                    enabled: true,
+                    value$: function () {
+                        return JSON.stringify(this.get('value'));
+                    }
+                });
+                $(function() {
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
     <style>
         .kj-stage {
             border: solid 1px black;
@@ -54,27 +77,5 @@
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled
 </div>
-
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo;
-        var viewModel = new kendo.observable({
-            value: {},
-            visible: true,
-            enabled: true,
-            value$: function () {
-                return JSON.stringify(this.get('value'));
-            }
-        });
-
-        $(function() {
-            kendo.bind('body', viewModel);
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

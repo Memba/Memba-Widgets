@@ -9,26 +9,71 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
-    <script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <script src="./js/vendor/kendo/kendo.color.js"></script>
-    <script src="./js/vendor/kendo/kendo.drawing.js"></script>
-    <script src="./js/vendor/kendo/kendo.mobile.buttongroup.js"></script>
-    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
-    <script src="./js/vendor/kendo/kendo.popup.js"></script>
-    <script src="./js/vendor/kendo/kendo.toolbar.js"></script>
-    <!-- selector requirements -->
-    <!--link rel="stylesheet" href="./styles/kidoju.widgets.selector.css"-->
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.selector.js"></script>
-    <style>
-
-    </style>
-
+    <!-- kidoju.widgets.selector stylesheet -->
+    <!--link href="./styles/kidoju.widgets.selector.css" rel="stylesheet"-->
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.selector.js').then(function (kendo) {
+                window.onSelect = function(e) {
+                    var EVT = 'color.kendoSelector';
+                    switch(e.index) {
+                        case 0:
+                            $(document).trigger(EVT, ['#FF0000']);
+                            break;
+                        case 1:
+                            $(document).trigger(EVT, ['#00FF00']);
+                            break;
+                        case 2:
+                            $(document).trigger(EVT, ['#0000FF']);
+                            break;
+                        case 3:
+                            $(document).trigger(EVT, ['#FF00FF']);
+                            break;
+                    }
+                };
+                var viewModel = kendo.observable({
+                    red: undefined,
+                    green: undefined,
+                    blue: undefined,
+                    magenta: undefined,
+                    source: [{ type: 'dummy', id: 'val_0000000', data: { a: 1, b: new Date(), c: 'foo'} }], // Test type filtering
+                    source2: new kendo.data.DataSource([{ type: 'dummy',  id: 'val_0000000', data: { a: 2, b: new Date(), c: 'bar'} }]),
+                    source$: function() {
+                        var ret = '';
+                        this.get('source').forEach(function(item) {
+                            switch(item.type) {
+                                case 'selection':
+                                    ret += kendo.format('{0} {1} ({2}) --> at ({3},{4})\n', item.data.shape, item.id, item.data.color, item.data.origin.x, item.data.origin.y);
+                                    break;
+                                default:
+                                    ret += 'A dummy type which should not break kendo.ui.Selector\n'
+                            }
+                        });
+                        return ret;
+                    },
+                    visible: true,
+                    enabled: true
+                });
+                $(function() {
+                    kendo.bind('body', viewModel, kendo.ui, kendo.mobile.ui);
+                });
+            });
+        }());
+    </script>
 </head>
 <body>
 <h1>kidoju.widgets.selector</h1>
@@ -89,60 +134,5 @@
         </div>
     </div>
 </div>
-
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        window.onSelect = function(e) {
-            var EVT = 'color.kendoSelector';
-            switch(e.index) {
-                case 0:
-                    $(document).trigger(EVT, ['#FF0000']);
-                    break;
-                case 1:
-                    $(document).trigger(EVT, ['#00FF00']);
-                    break;
-                case 2:
-                    $(document).trigger(EVT, ['#0000FF']);
-                    break;
-                case 3:
-                    $(document).trigger(EVT, ['#FF00FF']);
-                    break;
-            }
-        };
-
-        var kendo = window.kendo;
-        var viewModel = window.viewModel = new kendo.observable({
-            red: undefined,
-            green: undefined,
-            blue: undefined,
-            magenta: undefined,
-            source: [{ type: 'dummy', id: 'val_0000000', data: { a: 1, b: new Date(), c: 'foo'} }], // Test type filtering
-            source2: new kendo.data.DataSource([{ type: 'dummy',  id: 'val_0000000', data: { a: 2, b: new Date(), c: 'bar'} }]),
-            source$: function() {
-                var ret = '';
-                this.get('source').forEach(function(item) {
-                    switch(item.type) {
-                        case 'selection':
-                            ret += kendo.format('{0} {1} ({2}) --> at ({3},{4})\n', item.data.shape, item.id, item.data.color, item.data.origin.x, item.data.origin.y);
-                            break;
-                        default:
-                            ret += 'A dummy type which should not break kendo.ui.Selector\n'
-                    }
-                });
-                return ret;
-            },
-            visible: true,
-            enabled: true
-        });
-
-        $(function() {
-            kendo.bind('body', viewModel, kendo.ui, kendo.mobile.ui);
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

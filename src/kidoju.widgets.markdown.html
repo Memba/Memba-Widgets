@@ -3,29 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <title>kidoju.widgets.markdown</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script-->
-    <!-- Asserts and Logs -->
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <!-- Markdown requirements -->
+    <!-- kidoju.widgets.markdown stylesheet -->
     <link href="./styles/vendor/highlight/codepen-embed.css" rel="stylesheet">
-    <script src="./js/vendor/highlight/highlight.pack.js"></script>
-    <!--link href="./styles/vendor/mathquill/mathquill.css" rel="stylesheet"-->
-    <!--script src="./js/vendor/mathquill/mathquill.js"></script-->
-    <!--script src="./js/vendor/markdown-it/markdown-it-mathquill.js"></script-->
     <link href="./styles/vendor/katex/katex.css" rel="stylesheet">
-    <script src="./js/vendor/katex/katex.js"></script>
-    <script src="./js/vendor/markdown-it/markdown-it-katex.js"></script>
-    <script src="./js/vendor/markdown-it/markdown-it.js"></script>
-    <!--link href="./styles/kidoju.widgets.markdown.css" rel="stylesheet"-->
-    <script src="./js/kidoju.widgets.markdown.js"></script>
+    <link href="./styles/kidoju.widgets.markdown.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.markdown.js').then(function (kendo) {
+                var viewModel = kendo.observable({
+                    markdown: '## Markdown\nSome **Markdown**.\n## Math\n$$\\sum_{n=1}^{\\infty}2^{-n}=1$$',
+                    visible: true,
+                    enabled: true
+                });
+                $(function () {
+                    kendo.bind('body', viewModel);
+
+                    //Markdown 1
+                    var markdown1 = $('#markdown1').data('kendoMarkdown');
+                    $('#button1a').click(function(e) {
+                        markdown1.inline();
+                    });
+                    $('#button1b').click(function(e) {
+                        markdown1.value('# Test 1\n- Click on button1 named Value 1');
+                    });
+                    $('#button1c').click(function(e) {
+                        markdown1.value('# Test 2\n- Click on button2 named Value 2');
+                    });
+
+                    //Markdown 2
+                    var markdown2 = $('#markdown2').data('kendoMarkdown');
+                    markdown2.bind('change', function(e) {
+                        $('#metadata1').html(JSON.stringify(markdown1.metadata()));
+                    });
+
+                    //Markdown 3
+                    var markdown3 = $('#markdown3').data('kendoMarkdown');
+                    $('#button3a').click(function(e) {
+                        markdown3.url(markdown3.options.url);
+                    });
+                    $('#button3b').click(function(e) {
+                        markdown3.url('../test/data/markdown/markdown1.md');
+                    });
+                    $('#button3c').click(function(e) {
+                        markdown3.url('../test/data/markdown/markdown2.md');
+                    });
+
+                });
+            });
+        }());
+    </script>
 </head>
 <body>
 <h1>kidoju.widgets.markdown</h1>
@@ -47,10 +93,10 @@ Some **Markdown** here.
 ## Highlighted Code
 
 ```js
-var viewModel = window.viewModel = kendo.observable({
+var viewModel = kendo.observable({
     markdown: '## Settings\nSome **Markdown** here.'
 });
-kendo.bind($('body'), viewModel);
+kendo.bind('body', viewModel);
 ```
 
 ## Math Formulas
@@ -71,9 +117,9 @@ When $a != 0$, there are two solutions to $ax^2 + bx + c = 0$ and they are
 
 ## More Markdown
 
-Including an *Image* and a [Link](http://www.theinquirer.net/IMG/945/270945/google-logo-2013-270x167.png?1447305982).
+Including an *Image* and a [Link](http://3.bp.blogspot.com/-0mshZGdWGSE/VeXLoxBFBrI/AAAAAAADLsU/Pr2WJOSfsRw/w1014-h568-no/Gplus-2x.gif).
 
-![Google Logo](http://www.theinquirer.net/IMG/945/270945/google-logo-2013-270x167.png?1447305982)
+![Google Logo](http://lh3.googleusercontent.com/2oJu2JCjtXSjlOwJKTXHCNezRt-KzYea2w1pd8FSe22IlDzZm_UuQKNtvABcVdfVDnhxyb9VKfsO3zEGQFkJx45Mu7bVszFI2v7B-Zk=s660)
 
 
             </script>
@@ -111,56 +157,5 @@ Including an *Image* and a [Link](http://www.theinquirer.net/IMG/945/270945/goog
         <div id="markdown3" data-role="markdown" data-url="../test/data/markdown/markdown.md"></div>
     </div>
 </section>
-
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo;
-
-        var viewModel = window.viewModel = kendo.observable({
-            markdown: '## Markdown\nSome **Markdown**.\n## Math\n$$\\sum_{n=1}^{\\infty}2^{-n}=1$$',
-            visible: true,
-            enabled: true
-        });
-
-        $(function () {
-            kendo.bind($('body'), viewModel);
-
-            //Markdown 1
-            var markdown1 = $('#markdown1').data('kendoMarkdown');
-            $('#button1a').click(function(e) {
-                markdown1.inline();
-            });
-            $('#button1b').click(function(e) {
-                markdown1.value('# Test 1\n- Click on button1 named Value 1');
-            });
-            $('#button1c').click(function(e) {
-                markdown1.value('# Test 2\n- Click on button2 named Value 2');
-            });
-
-            //Markdown 2
-            var markdown2 = $('#markdown2').data('kendoMarkdown');
-            markdown2.bind('change', function(e) {
-                $('#metadata1').html(JSON.stringify(markdown1.metadata()));
-            });
-
-            //Markdown 3
-            var markdown3 = $('#markdown3').data('kendoMarkdown');
-            $('#button3a').click(function(e) {
-                markdown3.url(markdown3.options.url);
-            });
-            $('#button3b').click(function(e) {
-                markdown3.url('../test/data/markdown/markdown1.md');
-            });
-            $('#button3c').click(function(e) {
-                markdown3.url('../test/data/markdown/markdown2.md');
-            });
-
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

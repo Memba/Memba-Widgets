@@ -9,40 +9,56 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
-    <script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <script src="./js/vendor/kendo/kendo.color.js"></script>
-    <script src="./js/vendor/kendo/kendo.popup.js"></script>
-    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
-    <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
-    <script src="./js/vendor/kendo/kendo.slider.js"></script>
-    <script src="./js/vendor/kendo/kendo.colorpicker.js"></script>
-    <script src="./js/vendor/kendo/kendo.list.js"></script>
-    <script src="./js/vendor/kendo/kendo.combobox.js"></script>
-    <script src="./js/vendor/kendo/kendo.dom.js"></script>
-    <script src="./js/vendor/kendo/kendo.dropdownlist.js"></script>
-    <script src="./js/vendor/kendo/kendo.menu.js"></script>
-    <script src="./js/vendor/kendo/kendo.ooxml.js"></script>
-    <script src="./js/vendor/kendo/kendo.sortable.js"></script>
-    <script src="./js/vendor/kendo/kendo.tabstrip.js"></script>
-    <script src="./js/vendor/kendo/kendo.toolbar.js"></script>
-    <script src="./js/vendor/kendo/kendo.treeview.js"></script>
-    <script src="./js/vendor/kendo/kendo.window.js"></script>
-    <script src="./js/vendor/kendo/kendo.validator.js"></script>
-    <script src="./js/vendor/kendo/kendo.excel.js"></script>
-    <script src="./js/vendor/kendo/kendo.drawing.js"></script>
-    <script src="./js/vendor/kendo/kendo.pdf.js"></script>
-    <script src="./js/vendor/kendo/kendo.spreadsheet.js"></script>
-    <!-- FormatBar & FormatStrip requirements -->
-    <link rel="stylesheet" href="./styles/kidoju.widgets.formatstrip.css">
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.data.js"></script>
-    <script src="./js/kidoju.tools.js"></script>
-    <script src="./js/kidoju.widgets.formatstrip.js"></script>
+    <!-- kidoju.widgets.formatstrip stylesheet -->
+    <link href="./styles/kidoju.widgets.formatstrip.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.formatstrip.js').then(function (kendo) {
+                // var kendo = window.kendo;
+                var kidoju = window.kidoju;
+                var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
+                var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
+                        data: [
+                            // { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
+                            { id: kendo.guid(), tool : 'audio',top: 300, left : 500, height: 100, width: 500, rotate: 0, attributes: { autoplay: false, mp3: '', ogg: '' } },
+                            { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia; font-style: italic; color: #FF0000;', text: 'World' } },
+                            { id: kendo.guid(), tool : 'quiz', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { data: 'a\nb\nc\nd\n', activeStyle: '', itemStyle: '', groupStyle: 'font-size: 30px; text-decoration: underline;' } }
+                            // { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
+                        ]
+                    }),
+                    viewModel = window.viewModel = kendo.observable({
+                        components: pageComponentCollectionDataSource,
+                        selectedComponent: null, // For the formatstrip
+                        style: null, // For the formatbar
+                        enabled: true,
+                        visible: true,
+                        reset: function(e) {
+                            this.set('selectedComponent', null);
+                        }
+                    });
+                $(function() {
+                    kendo.bind('body', viewModel);
+                    pageComponentCollectionDataSource.fetch(function() {
+                        // viewModel.set('selectedComponent', pageComponentCollectionDataSource.at(1));
+                    });
+                });
+            });
+        }());
+    </script>
     <style>
         body>div:first-of-type {
             height: 22px;
@@ -69,43 +85,5 @@
 <div>&nbsp;</div>
 <div id="formatstrip" data-role="formatstrip" data-bind="value: selectedComponent, visible: visible, enabled: enabled" style="width:100%;" data-auto-bind="false"></div>
 <div data-bind="text: selectedComponent.id"></div>
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo,
-            kidoju = window.kidoju,
-            PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
-
-        var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({
-                data: [
-                    // { id: kendo.guid(), tool : 'image', top: 50, left: 100, height: 250, width: 250, rotate: 45, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                    { id: kendo.guid(), tool : 'audio',top: 300, left : 500, height: 100, width: 500, rotate: 0, attributes: { autoplay: false, mp3: '', ogg: '' } },
-                    { id: kendo.guid(), tool : 'label', top: 250, left: 500, height: 100, width: 300, rotate: 90, attributes: { style: 'font-family: Georgia; font-style: italic; color: #FF0000;', text: 'World' } },
-                    { id: kendo.guid(), tool : 'quiz', top: 300, left: 300, height: 250, width: 250, rotate: 315, attributes: { data: 'a\nb\nc\nd\n', activeStyle: '', itemStyle: '', groupStyle: 'font-size: 30px; text-decoration: underline;' } }
-                    // { id: kendo.guid(), tool : 'textbox', top: 20, left: 20, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
-                ]
-            }),
-            viewModel = window.viewModel = kendo.observable({
-                components: pageComponentCollectionDataSource,
-                selectedComponent: null, // For the formatstrip
-                style: null, // For the formatbar
-                enabled: true,
-                visible: true,
-                reset: function(e) {
-                    this.set('selectedComponent', null);
-                }
-            });
-
-        $(function() {
-            kendo.bind('body', viewModel);
-            pageComponentCollectionDataSource.fetch(function() {
-                // viewModel.set('selectedComponent', pageComponentCollectionDataSource.at(1));
-            });
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

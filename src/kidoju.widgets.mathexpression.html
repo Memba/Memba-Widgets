@@ -9,20 +9,41 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.mathexpression stylesheet -->
     <link href="./styles/vendor/katex/katex.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
-    <script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <!-- mathexpression requirements -->
-    <link rel="stylesheet" href="./styles/kidoju.widgets.mathexpression.css">
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/vendor/katex/katex.js"></script>
-    <script src="./js/kidoju.widgets.mathexpression.js"></script>
-    <style>
-    </style>
+    <link href="./styles/kidoju.widgets.mathexpression.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.mathexpression.js').then(function (kendo) {
+                var viewModel = kendo.observable({
+                    formula: '\\int_{a}^{b}x^2dx',
+                    visible: true,
+                    enabled: true
+                });
+                $(function() {
+                    $('#math1').kendoMathExpression({
+                        value: '\\sum_{n=1}^{\\infty}2^{-n}=1',
+                        inlineMode: true
+                    });
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
 </head>
 <body>
 <h1>kidoju.widgets.mathexpression</h1>
@@ -42,28 +63,5 @@
     <input type="checkbox" data-bind="checked: visible" />Visible
 </div>
 <textarea data-bind="value: formula" class="k-textbox" rows="5" style="width:500px;"></textarea>
-
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo;
-        var viewModel = new kendo.observable({
-            formula: '\\int_{a}^{b}x^2dx',
-            visible: true,
-            enabled: true
-        });
-
-        $(function() {
-            $('#math1').kendoMathExpression({
-                value: '\\sum_{n=1}^{\\infty}2^{-n}=1',
-                inlineMode: true
-            });
-            kendo.bind('body', viewModel);
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

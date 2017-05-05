@@ -2,156 +2,147 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Asset Manager</title>
+    <title>kidoju.widgets.assetmanager</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.mobile.all.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
-    <!-- Kendo UI Sources -->
-    <script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <script src="./js/vendor/kendo/kendo.popup.js"></script>
-    <script src="./js/vendor/kendo/kendo.list.js"></script>
-    <script src="./js/vendor/kendo/kendo.dropdownlist.js"></script>
-    <script src="./js/vendor/kendo/kendo.pager.js"></script>
-    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
-    <script src="./js/vendor/kendo/kendo.selectable.js"></script>
-    <script src="./js/vendor/kendo/kendo.listview.js"></script>
-    <script src="./js/vendor/kendo/kendo.progressbar.js"></script>
-    <script src="./js/vendor/kendo/kendo.tabstrip.js"></script>
-    <!-- Asset Manager requirements -->
+    <!-- kidoju.widgets.assetmanager stylesheet -->
     <link href="./styles/kidoju.widgets.assetmanager.css" rel="stylesheet">
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.assetmanager.js"></script>
-</head>
-<body>
-<h1>Asset Manager</h1>
-<div id="assets"></div>
-<div data-bind="text: url" ></div>
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo,
-            viewModel = kendo.observable({
-                url: undefined
-            });
-        var SCHEMES = {
-            cdn: 'https://cdn.kidoju.com/',
-            data: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/'
-        };
-
-        $(function(){
-            $('#assets').kendoAssetManager({
-                change: function(e) {
-                    viewModel.set('url', e.sender.value());
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
                 },
-                collections: [
-                    {
-                        name: 'O-Collection',
-                        transport: {
-                            read: 'https://cdn.kidoju.com/images/o_collection/svg/office/index.json'
-                        }
-                    }
-                ],
-                extensions: ['.svg'],
-                /*
-                collections: [
-                    {
-                        name: 'O-Collection',
-                        transport: {
-                            read: function (options) {
-                                options.success({
-                                    total: 1,
-                                    data: [
-                                        { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/add.svg", "size": 580 },
-                                        { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/airship.svg", "size": 779 },
-                                        { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/apple.svg", "size": 842 },
-                                        { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/atom.svg", "size": 1090 },
-                                        { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/baseball.svg", "size": 1930 },
-                                        { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/typewriter.svg", "size": 895 },
-                                        { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/user.svg", "size": 591 }
-                                    ]
-                                });
-                            }
-                        }
-                    },
-                    {
-                        name: 'V-Collection',
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.assetmanager.js').then(function (kendo) {
+                var viewModel = kendo.observable({
+                        url: undefined
+                    });
+                var SCHEMES = {
+                    cdn: 'https://cdn.kidoju.com/',
+                    data: '../test/data/images/miscellaneous/'
+                };
+                $(function(){
+                    $('#assets').kendoAssetManager({
+                        change: function(e) {
+                            viewModel.set('url', e.sender.value());
+                        },
                         collections: [
                             {
-                                name: 'Dark Grey',
+                                name: 'O-Collection',
                                 transport: {
-                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/dark_grey/index.json'
-                                }
-                            },
-                            {
-                                name: 'Office',
-                                transport: {
-                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/office/index.json'
-                                }
-                            },
-                            {
-                                name: 'White',
-                                transport: {
-                                    read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/white/index.json'
+                                    // read: 'https://cdn.kidoju.com/images/o_collection/svg/office/index.json'
+                                    read: '../test/data/images/o_collection/svg/office/index.json'
                                 }
                             }
-                        ]
-                    }
-                ],
-                extensions: ['.gif', '.jpg', '.png', '.svg'],
-                */
-                schemes: SCHEMES,
-                transport: null
-                /*
-                transport: {
-                    read: function(options) {
-                        options.success({
-                            total: 3,
-                            data: [
-                                { "url": "data://Elvis.jpg", "size": 69057 },
-                                { "url": "data://France-Fleuves-1.png", "size": 35886 },
-                                { "url": "data://self-portrait-1907.jpg", "size": 292974 }
-                            ]
-                        });
-                    },
-                    create: function(options) {
-                        // TODO: What if there is already a file with the same name?
-                        // TODO: Where do we check the file extension and file size and reject inadequate files?
-                        // Note: if there is an error, this is the place where to display notifications...
-                        // options.error(new Error('Oops'));
-                        if (options.data && options.data.file instanceof window.File) {
-                            // Make sure we are asynchronous to simulate a file upload...
-                            setTimeout(function () {
-                                options.data.file = null;
-                                options.data.url = 'https://cdn.kidoju.com/images/o_collection/svg/office/add.svg';
-                                // VERY IMPORTANT: it won't work without total + data which are both expected
+                        ],
+                        extensions: ['.svg'],
+                        /*
+                        collections: [
+                            {
+                                name: 'O-Collection',
+                                transport: {
+                                    read: function (options) {
+                                        options.success({
+                                            total: 1,
+                                            data: [
+                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/add.svg", "size": 580 },
+                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/airship.svg", "size": 779 },
+                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/apple.svg", "size": 842 },
+                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/atom.svg", "size": 1090 },
+                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/baseball.svg", "size": 1930 },
+                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/typewriter.svg", "size": 895 },
+                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/user.svg", "size": 591 }
+                                            ]
+                                        });
+                                    }
+                                }
+                            },
+                            {
+                                name: 'V-Collection',
+                                collections: [
+                                    {
+                                        name: 'Dark Grey',
+                                        transport: {
+                                            read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/dark_grey/index.json'
+                                        }
+                                    },
+                                    {
+                                        name: 'Office',
+                                        transport: {
+                                            read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/office/index.json'
+                                        }
+                                    },
+                                    {
+                                        name: 'White',
+                                        transport: {
+                                            read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/white/index.json'
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        extensions: ['.gif', '.jpg', '.png', '.svg'],
+                        */
+                        schemes: SCHEMES,
+                        transport: null // ,
+                        /*
+                        transport: {
+                            read: function(options) {
+                                options.success({
+                                    total: 3,
+                                    data: [
+                                        { "url": "data://Elvis.jpg", "size": 69057 },
+                                        { "url": "data://France-Fleuves-1.png", "size": 35886 },
+                                        { "url": "data://self-portrait-1907.jpg", "size": 292974 }
+                                    ]
+                                });
+                            },
+                            create: function(options) {
+                                // TODO: What if there is already a file with the same name?
+                                // TODO: Where do we check the file extension and file size and reject inadequate files?
+                                // Note: if there is an error, this is the place where to display notifications...
+                                // options.error(new Error('Oops'));
+                                if (options.data && options.data.file instanceof window.File) {
+                                    // Make sure we are asynchronous to simulate a file upload...
+                                    setTimeout(function () {
+                                        options.data.file = null;
+                                        options.data.url = 'https://cdn.kidoju.com/images/o_collection/svg/office/add.svg';
+                                        // VERY IMPORTANT: it won't work without total + data which are both expected
+                                        options.success({ total: 1, data: [options.data] });
+                                    }, 1000);
+                                }
+                            },
+                            destroy: function(options) {
+                                // options.error(new Error('Oops'));
                                 options.success({ total: 1, data: [options.data] });
-                            }, 1000);
+                            }
+                            // update is same as create
                         }
-                    },
-                    destroy: function(options) {
-                        // options.error(new Error('Oops'));
-                        options.success({ total: 1, data: [options.data] });
-                    }
-                    // update is same as create
-                }
-                */
-
+                        */
+                    });
+                    kendo.bind('body', viewModel);
+                });
             });
-            kendo.bind('body', viewModel);
-        });
-
-
-    }(this, jQuery));
-</script>
+        }());
+    </script>
+</head>
+<body>
+<h1>kidoju.widgets.assetmanager</h1>
+<div id="assets"></div>
+<div data-bind="text: url" ></div>
 </body>
 </html>

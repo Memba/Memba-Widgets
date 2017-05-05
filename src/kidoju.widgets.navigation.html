@@ -9,26 +9,120 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
-    <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
-    <script src="./js/vendor/kendo/kendo.sortable.js"></script>
-    <script src="./js/vendor/kendo/kendo.popup.js"></script>
-    <script src="./js/vendor/kendo/kendo.menu.js"></script>
-    <script src="./js/vendor/kendo/kendo.resizable.js"></script>
-    <script src="./js/vendor/kendo/kendo.splitter.js"></script-->
-    <!-- Navigation requirements -->
-    <link rel="stylesheet" href="./styles/kidoju.widgets.navigation.css">
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.data.js"></script>
-    <script src="./js/kidoju.tools.js"></script>
-    <script src="./js/kidoju.widgets.stage.js"></script>
-    <script src="./js/kidoju.widgets.navigation.js"></script>
+    <!-- kidoju.widgets.navigation stylesheet -->
+    <link href="./styles/kidoju.widgets.stage.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.navigation.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            Promise.all([
+                SystemJS.import('./js/vendor/kendo/kendo.splitter.js'),
+                SystemJS.import('./js/kidoju.widgets.navigation.js')
+            ]).then(function () {
+                var kendo = window.kendo;
+                var kidoju = window.kidoju;
+                var Page = kidoju.data.Page;
+                var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+
+                var pageCollectionData = [
+                    {
+                        id: kendo.guid(),
+                        instructions: 'Company?',
+                        components: [
+                            { id: kendo.guid(), tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
+                            { id: kendo.guid(), tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
+                            { id: kendo.guid(), tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield1' } }
+                        ]
+                    },
+                    {
+                        id: kendo.guid(),
+                        instructions: 'Marignan?',
+                        components: [
+                            { id: kendo.guid(), tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
+                            { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield2' } }
+                        ]
+                    },
+                    {
+                        id: kendo.guid(),
+                        instructions: 'Cheval IV?',
+                        components: [
+                            { id: kendo.guid(), tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
+                            { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
+                        ]
+                    }
+                ];
+                var pageCollectionDataSource = new PageCollectionDataSource({ data: pageCollectionData });
+                var viewModel = window.viewModel = kendo.observable({
+                    current: undefined,
+                    pages: pageCollectionDataSource
+                });
+                var onResize = window.onResize = function() {
+                    var navigationWidget = $('[data-role="navigation"]').data('kendoNavigation'),
+                        stage = $('#right [data-role="stage"]'),
+                        stageWidget = stage.data('kendoStage');
+                    if (navigationWidget instanceof kendo.ui.Navigation) {
+                        navigationWidget.resize();
+                    }
+                    if (stageWidget instanceof kendo.ui.Stage) {
+                        var width = $('#right').width(),
+                            height = $('#right').height(),
+                            scale = Math.min(0.90*width/1024, 0.90*height/768);
+                        stageWidget.scale(scale);
+                        $('.centered')
+                        .width(scale*stage.outerWidth())
+                        .height(scale*stage.outerHeight())
+                        .css('position', 'absolute')
+                        .css('top', '50%')
+                        .css('left', '50%')
+                        .css('margin-left', '-' + scale*stage.outerWidth()/2 + 'px')
+                        .css('margin-top', '-' + scale*stage.outerHeight()/2 + 'px');
+                    }
+                };
+
+                $(function() {
+                    var splitter = $('.kj-splitter').kendoSplitter({
+                        orientation: 'horizontal',
+                        resize: window.onResize,
+                        panes: [
+                            { size: '300px' /*, min: '50px', max: '500px'*/ },
+                            {}
+                        ]
+                    }).data("kendoSplitter");
+
+                    kendo.bind('body', viewModel);
+
+                    $(window).on('resize', window.onResize);
+
+                    $(document).on('keypress', function(e) {
+                        //Add empty pages when pressing the space bar
+                        if (e.type === 'keypress' && e.keyCode === 32) {
+                            var page = new Page();
+                            //TODO: consider adding a label on the page
+                            viewModel.pages.add(page);
+                        }
+                    });
+
+                    pageCollectionDataSource.fetch(function() {
+                        window.viewModel.set('current', pageCollectionDataSource.at(0));
+                        window.onResize();
+                    });
+                });
+            });
+        }());
+    </script>
     <style>
         html {
             /*See: http://www.telerik.com/forums/100-window-height-splitter*/
@@ -60,101 +154,5 @@
         </div>
     </div>
 </div>
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo,
-            kidoju = window.kidoju,
-            Page = kidoju.data.Page,
-            PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
-
-        var pageCollectionData = [
-                {
-                    id: kendo.guid(),
-                    instructions: 'Company?',
-                    components: [
-                        { id: kendo.guid(), tool : 'image', top: 50, left: 370, height: 250, width: 250, rotate: 0, attributes: { src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png' } },
-                        { id: kendo.guid(), tool : 'label', top: 300, left: 300, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #0000FF;', text: 'Company?' } },
-                        { id: kendo.guid(), tool : 'textbox', top: 450, left: 350, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield1' } }
-                    ]
-                },
-                {
-                    id: kendo.guid(),
-                    instructions: 'Marignan?',
-                    components: [
-                        { id: kendo.guid(), tool : 'label', top: 150, left: 280, height: 100, width: 300, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #FF0000;', text: 'Marignan?' } },
-                        { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield2' } }
-                    ]
-                },
-                {
-                    id: kendo.guid(),
-                    instructions: 'Cheval IV?',
-                    components: [
-                        { id: kendo.guid(), tool : 'label', top: 120, left: 280, height: 150, width: 400, rotate: 0, attributes: { style: 'font-family: Georgia, serif; color: #00FF00;', text: 'Couleur du cheval blanc d\'Henri IV?' } },
-                        { id: kendo.guid(), tool : 'textbox', top: 300, left: 330, height: 100, width: 300, rotate: 0, attributes: {}, properties: { name: 'textfield3' } }
-                    ]
-                }
-            ],
-            pageCollectionDataSource = new PageCollectionDataSource({ data: pageCollectionData }),
-            viewModel = window.viewModel = kendo.observable({
-                current: undefined,
-                pages: pageCollectionDataSource
-            }),
-            onResize = window.onResize = function() {
-                var navigationWidget = $('[data-role="navigation"]').data('kendoNavigation'),
-                        stage = $('#right [data-role="stage"]'),
-                        stageWidget = stage.data('kendoStage');
-                if (navigationWidget instanceof kendo.ui.Navigation) {
-                    navigationWidget.resize();
-                }
-                if (stageWidget instanceof kendo.ui.Stage) {
-                    var width = $('#right').width(),
-                            height = $('#right').height(),
-                            scale = Math.min(0.90*width/1024, 0.90*height/768);
-                    stageWidget.scale(scale);
-                    $('.centered')
-                            .width(scale*stage.outerWidth())
-                            .height(scale*stage.outerHeight())
-                            .css('position', 'absolute')
-                            .css('top', '50%')
-                            .css('left', '50%')
-                            .css('margin-left', '-' + scale*stage.outerWidth()/2 + 'px')
-                            .css('margin-top', '-' + scale*stage.outerHeight()/2 + 'px');
-                }
-            };
-
-        $(function() {
-            var splitter = $('.kj-splitter').kendoSplitter({
-                orientation: 'horizontal',
-                resize: window.onResize,
-                panes: [
-                    { size: '300px' /*, min: '50px', max: '500px'*/ },
-                    {}
-                ]
-            }).data("kendoSplitter");
-
-            kendo.bind('body', viewModel);
-
-            $(window).on('resize', window.onResize);
-
-            $(document).on('keypress', function(e) {
-                //Add empty pages when pressing the space bar
-                if (e.type === 'keypress' && e.keyCode === 32) {
-                   var page = new Page();
-                   //TODO: consider adding a label on the page
-                   viewModel.pages.add(page);
-                }
-            });
-
-            pageCollectionDataSource.fetch(function() {
-                window.viewModel.set('current', pageCollectionDataSource.at(0));
-                window.onResize();
-            });
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

@@ -3,23 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <title>kidoju.widgets.multiquiz</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
-    <script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.button.js"></script-->
-    <script src="./js/vendor/kendo/kendo.popup.js"></script>
-    <script src="./js/vendor/kendo/kendo.list.js"></script>
-    <script src="./js/vendor/kendo/kendo.multiselect.js"></script>
-    <!-- MultiQuiz requirements -->
+    <!-- kidoju.widgets.multiquiz stylesheet -->
     <link href="./styles/kidoju.widgets.multiquiz.css" rel="stylesheet">
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.multiquiz.js"></script>
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.multiquiz.js').then(function (kendo) {
+                var data = [
+                    { text: 'question 1', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg' },
+                    { text: 'question 2', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg' },
+                    { text: 'question 3', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg' },
+                    { text: 'question 4', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg' }
+                ];
+                var model = kendo.data.Model.define({
+                    id: 'text',
+                    fields: {
+                        text: { type: 'string' },
+                        image: { type: 'string' }
+                    }
+                });
+                var viewModel = kendo.observable({
+                    value: [], // Note: value  always contains the text (not the image) in the following source items
+                    value$: function () {
+                        return (this.get('value') || []).join(', ');
+                    },
+                    source: '1974[http://www.acardandagift.com/images/1974_C1871_I_HEART_IMAGE1.png]\n' +
+                    '1982[http://www.acardandagift.com/images/1982_C1879_I_HEART_IMAGE1.png]\n' +
+                    '1993[http://www.acardandagift.com/images/1993_C1890_I_HEART_IMAGE1.png]',
+                    visible: true,
+                    enabled: true,
+                    readonly: true,
+                    source$: function() {
+                        var ret = [];
+                        var source = this.get('source');
+                        var match = source.match(/([^\[\]]+)\[([^\[\]]*)\]/g);
+                        for (var i = 0, length = match.length; i < length ; i++) {
+                            var item = match[i].replace('\n', '').trim();
+                            var pos = item.indexOf('[');
+                            ret.push({
+                                text: item.substr(0, pos),
+                                image: item.substr(pos + 1, item.length - pos - 2)
+                            });
+                        }
+                        return ret;
+                    }
+                });
+                $(function () {
+
+                    // MultiQuiz initiated from code
+                    $('#multiquiz1').kendoMultiQuiz({
+                        value: null,
+                        mode: kendo.ui.MultiQuiz.fn.modes.checkbox,
+                        shuffle: true,
+                        itemStyle: {
+                            color: '#FF0000'
+                        },
+                        selectedStyle: {
+                            backgroundColor: '#00FF00'
+                        },
+                        dataSource: new kendo.data.DataSource({
+                            data: data,
+                            schema: {
+                                model: model
+                            }
+                        })
+                    });
+
+                    $('#multiquiz2').kendoMultiQuiz({
+                        value: null,
+                        mode: kendo.ui.MultiQuiz.fn.modes.button,
+                        itemStyle: {
+                            color: '#FF0000'
+                        },
+                        selectedStyle: {
+                            backgroundColor: '#00FF00'
+                        },
+                        dataSource: new kendo.data.DataSource({
+                            data: data,
+                            schema: {
+                                model: model
+                            }
+                        })
+                    });
+
+                    $('#multiquiz3').kendoMultiQuiz({
+                        value: null,
+                        mode: kendo.ui.MultiQuiz.fn.modes.multiselect,
+                        itemStyle: {
+                            color: '#FF0000'
+                        },
+                        selectedStyle: {
+                            backgroundColor: '#00FF00'
+                        },
+                        dataSource: new kendo.data.DataSource({
+                            data: data,
+                            schema: {
+                                model: model
+                            }
+                        })
+                    });
+
+                    // Other multiquizzes bound to observable
+                    kendo.bind('body', viewModel);
+
+                });
+            });
+        }());
+    </script>
 </head>
 <body>
 <h1>kidoju.widgets.multiquiz</h1>
@@ -53,114 +162,5 @@
     }
 </pre>
 <textarea data-bind="value: source" class="k-textbox" rows="5" style="width:100%;"></textarea>
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo;
-        var data = [
-            { text: 'question 1', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg' },
-            { text: 'question 2', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg' },
-            { text: 'question 3', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg' },
-            { text: 'question 4', image: 'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg' }
-        ];
-        var model = kendo.data.Model.define({
-            id: 'text',
-            fields: {
-                text: { type: 'string' },
-                image: { type: 'string' }
-            }
-        });
-
-        $(function () {
-
-            // MultiQuiz initiated from code
-            $('#multiquiz1').kendoMultiQuiz({
-                value: null,
-                mode: kendo.ui.MultiQuiz.fn.modes.checkbox,
-                shuffle: true,
-                itemStyle: {
-                    color: '#FF0000'
-                },
-                selectedStyle: {
-                    backgroundColor: '#00FF00'
-                },
-                dataSource: new kendo.data.DataSource({
-                    data: data,
-                    schema: {
-                        model: model
-                    }
-                })
-            });
-
-            $('#multiquiz2').kendoMultiQuiz({
-                value: null,
-                mode: kendo.ui.MultiQuiz.fn.modes.button,
-                itemStyle: {
-                    color: '#FF0000'
-                },
-                selectedStyle: {
-                    backgroundColor: '#00FF00'
-                },
-                dataSource: new kendo.data.DataSource({
-                    data: data,
-                    schema: {
-                        model: model
-                    }
-                })
-            });
-
-            $('#multiquiz3').kendoMultiQuiz({
-                value: null,
-                mode: kendo.ui.MultiQuiz.fn.modes.multiselect,
-                itemStyle: {
-                    color: '#FF0000'
-                },
-                selectedStyle: {
-                    backgroundColor: '#00FF00'
-                },
-                dataSource: new kendo.data.DataSource({
-                    data: data,
-                    schema: {
-                        model: model
-                    }
-                })
-            });
-
-            // Other multiquizzes bound to observable
-            var viewModel = window.viewModel = kendo.observable({
-                value: [], // Note: value  always contains the text (not the image) in the following source items
-                value$: function () {
-                    return (this.get('value') || []).join(', ');
-                },
-                source: '1974[http://www.acardandagift.com/images/1974_C1871_I_HEART_IMAGE1.png]\n' +
-                '1982[http://www.acardandagift.com/images/1982_C1879_I_HEART_IMAGE1.png]\n' +
-                '1993[http://www.acardandagift.com/images/1993_C1890_I_HEART_IMAGE1.png]',
-                visible: true,
-                enabled: true,
-                readonly: true,
-                source$: function() {
-                    var ret = [];
-                    var source = this.get('source');
-                    var match = source.match(/([^\[\]]+)\[([^\[\]]*)\]/g);
-                    for (var i = 0, length = match.length; i < length ; i++) {
-                        var item = match[i].replace('\n', '').trim();
-                        var pos = item.indexOf('[');
-                        ret.push({
-                            text: item.substr(0, pos),
-                            image: item.substr(pos + 1, item.length - pos - 2)
-                        });
-                    }
-                    return ret;
-                }
-            });
-
-            kendo.bind($('body'), viewModel);
-
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

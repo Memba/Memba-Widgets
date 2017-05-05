@@ -9,18 +9,49 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script-->
-    <!-- ToolBox requirements -->
-    <!--link rel="stylesheet" href="./styles/kidoju.widgets.toolbox.css"-->
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.data.js"></script>
-    <script src="./js/kidoju.tools.js"></script>
-    <script src="./js/kidoju.widgets.toolbox.js"></script>
+    <!-- kidoju.widgets.toolbox stylesheet -->
+    <link href="./styles/kidoju.widgets.toolbox.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.toolbox.js').then(function (kendo) {
+                var kidoju = window.kidoju;
+                var Tool = kidoju.Tool;
+                var tools = kidoju.tools;
+
+                // Use kidoju.tools as viewModel and update for bindings
+                kidoju.tools.visible = true;
+                kidoju.tools.enabled = true;
+                kidoju.tools.getIds = function() {
+                    var ret = [], tools = kidoju.tools;
+                    for (var prop in tools) {
+                        if (tools.hasOwnProperty(prop) && tools[prop] instanceof Tool) {
+                            ret.push(prop);
+                        }
+                    }
+                    return ret;
+                };
+
+                $(function() {
+                    $('#toolbox1').kendoToolBox();
+                    kendo.bind('body', kidoju.tools);
+                });
+            });
+        }());
+    </script>
 </head>
 <body>
 <div id="toolbox1"></div>
@@ -37,35 +68,5 @@
         enabled: <span data-bind="text: enabled"></span>
     }
 </pre>
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo,
-            kidoju = window.kidoju,
-            Tool = kidoju.Tool,
-            tools = kidoju.tools;
-
-        // Use kidoju.tools as viewModel and update for bindings
-        kidoju.tools.visible = true;
-        kidoju.tools.enabled = true;
-        kidoju.tools.getIds = function() {
-            var ret = [], tools = kidoju.tools;
-            for (var prop in tools) {
-                if (tools.hasOwnProperty(prop) && tools[prop] instanceof Tool) {
-                    ret.push(prop);
-                }
-            }
-            return ret;
-        };
-
-        $(function() {
-            $('#toolbox1').kendoToolBox();
-            kendo.bind('body', kidoju.tools);
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

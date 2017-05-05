@@ -6,16 +6,36 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script-->
-    <!-- Rating requirements -->
+    <!-- kidoju.widgets.rating stylesheet -->
     <link href="./styles/kidoju.widgets.rating.css" rel="stylesheet" />
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.rating.js"></script>
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+        	'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.rating.js').then(function (kendo) {
+                $(function () {
+                    var viewModel = kendo.observable({
+                        rating: 3,
+                        visible: true,
+                        enabled: true
+                    });
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
     <style>
         .big {
             font-size: 32px;
@@ -46,27 +66,5 @@
         enabled: <span data-bind="text: enabled"></span>
     }
 </pre>
-
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo;
-
-        $(function () {
-
-            var viewModel = kendo.observable({
-                rating: 3,
-                visible: true,
-                enabled: true
-            });
-
-            kendo.bind($('body'), viewModel);
-        });
-
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

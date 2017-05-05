@@ -9,37 +9,45 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
-    <script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <script src="./js/vendor/kendo/kendo.color.js"></script>
-    <script src="./js/vendor/kendo/kendo.popup.js"></script>
-    <script src="./js/vendor/kendo/kendo.drawing.js"></script>
-    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
-    <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
-    <script src="./js/vendor/kendo/kendo.slider.js"></script>
-    <script src="./js/vendor/kendo/kendo.button.js"></script>
-    <script src="./js/vendor/kendo/kendo.colorpicker.js"></script>
-    <script src="./js/vendor/kendo/kendo.list.js"></script>
-    <script src="./js/vendor/kendo/kendo.combobox.js"></script>
-    <script src="./js/vendor/kendo/kendo.dropdownlist.js"></script>
-    <script src="./js/vendor/kendo/kendo.columnsorter.js"></script>
-    <script src="./js/vendor/kendo/kendo.grid.js"></script>
-    <script src="./js/vendor/kendo/kendo.toolbar.js"></script>
-    <script src="./js/vendor/kendo/kendo.window.js"></script>
-    <!-- mathinput requirements -->
-    <link rel="stylesheet" type="text/css" href="./styles/vendor/mathquill/mathquill.css">
+    <!-- kidoju.widgets.mathinput stylesheet -->
     <link rel="stylesheet" href="./styles/fonts/kidoju.css">
+    <link rel="stylesheet" type="text/css" href="./styles/vendor/mathquill/mathquill.css">
     <link rel="stylesheet" href="./styles/kidoju.widgets.mathinput.css">
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/vendor/mathquill/mathquill.js"></script>
-    <script src="./js/kidoju.widgets.mathinput.js"></script>
-    <style>
-
-    </style>
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.mathinput.js').then(function (kendo) {
+                var viewModel = kendo.observable({
+                    value1: [],
+                    value1$: function() {
+                        return '\t' + this.get('value1').join('\n\t');
+                    },
+                    value2: [],
+                    value2$: function() {
+                        return '\t' + this.get('value2').join('<br/>');
+                    },
+                    visible: true,
+                    enabled: true
+                });
+                $(function() {
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
 </head>
 <body>
 <h1>kidoju.widgets.mathinput</h1>
@@ -74,31 +82,5 @@
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />enabled
 </div>
-
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo;
-        var viewModel = window.viewModel = new kendo.observable({
-            value1: [],
-            value1$: function() {
-                return '\t' + this.get('value1').join('\n\t');
-            },
-            value2: [],
-            value2$: function() {
-                return '\t' + this.get('value2').join('<br/>');
-            },
-            visible: true,
-            enabled: true
-        });
-
-        $(function() {
-            kendo.bind('body', viewModel);
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

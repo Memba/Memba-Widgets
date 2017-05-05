@@ -9,23 +9,147 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <script src="./js/vendor/kendo/kendo.color.js"></script>
-    <script src="./js/vendor/kendo/kendo.drawing.js"></script-->
-    <!-- mathgraph requirements -->
-    <!--link rel="stylesheet" href="./styles/kidoju.widgets.mathgraph.css"-->
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/vendor/silentmatt/expr-eval.js"></script>
-    <!--script src="./js/vendor/mathjs/math.js"></script-->
-    <script src="./js/kidoju.widgets.mathgraph.js"></script>
-    <style>
-
-    </style>
+    <!-- kidoju.widgets.mathgraph stylesheet -->
+    <!--link href="./styles/kidoju.widgets.mathgraph.css" rel="stylesheet"-->
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            Promise.all([
+                SystemJS.import('./js/vendor/kendo/kendo.grid.js'),
+                SystemJS.import('./js/kidoju.widgets.mathgraph.js')
+            ]).then(function () {
+            	var kendo = window.kendo;
+                var pt1 = kendo.guid();
+                var pt2 = kendo.guid();
+                var pt3 = kendo.guid();
+                var pt4 = kendo.guid();
+                var viewModel = kendo.observable({
+                    source: new kendo.data.DataSource({
+                        data: [
+                            {
+                                id: kendo.guid(),
+                                type: 'function',
+                                name: 'f(x)',
+                                code: 'x^2',
+                                configuration: { stroke: { color: '#FF0000', dashType: 'dash' } }
+                            },
+                            {
+                                id: kendo.guid(),
+                                type: 'function',
+                                name: 'g(x)',
+                                code: 'cos(x)',
+                                configuration: { stroke: { color: '#00FF00', dashType: 'dot' } }
+                            },
+                            {
+                                id: kendo.guid(),
+                                type: 'function',
+                                name: 'h(x)',
+                                code: '1/x',
+                                configuration: { stroke: { color: '#0000FF', dashType: 'dash' } }
+                            },
+                            {
+                                id: pt1,
+                                type: 'point',
+                                name: 'A',
+                                x: 1,
+                                y: 1,
+                                configuration: { fill: { color: '#FF00FF' } }
+                            },
+                            {
+                                id: pt2,
+                                type: 'point',
+                                name: 'B',
+                                x: 4,
+                                y: -3,
+                                configuration: { fill: { color: '#FF00FF' } }
+                            },
+                            {
+                                id: kendo.guid(),
+                                type: 'segment',
+                                name: '[AB]',
+                                pt1: pt1,
+                                pt2: pt2,
+                                configuration: { stroke: { color: '#FF00FF' } }
+                            },
+                            {
+                                id: pt3,
+                                type: 'point',
+                                name: 'C',
+                                x: -4,
+                                y: 2,
+                                configuration: { fill: { color: '#00FFFF' } }
+                            },
+                            {
+                                id: pt4,
+                                type: 'point',
+                                name: 'D',
+                                x: -4,
+                                y: 4,
+                                configuration: { fill: { color: '#00FFFF' } }
+                            },
+                            {
+                                id: kendo.guid(),
+                                type: 'circle',
+                                name: '(CD)',
+                                pt1: pt3,
+                                pt2: pt4,
+                                configuration: { stroke: { color: '#00FFFF' } }
+                            },
+                            {
+                                id: kendo.guid(),
+                                type: 'line',
+                                name: ']BD[',
+                                pt1: pt2,
+                                pt2: pt4,
+                                configuration: { stroke: { color: '#25AAAA' } }
+                            },
+                            {
+                                id: kendo.guid(),
+                                type: 'ray',
+                                name: ']AC]',
+                                pt1: pt1,
+                                pt2: pt3,
+                                configuration: { stroke: { color: '#AAAA25' } }
+                            }
+                        ]
+                    }),
+                    visible: true,
+                    enabled: true
+                });
+                $(function() {
+                    $('#grid').kendoGrid({
+                        dataSource: viewModel.source,
+                        columns: [
+                            { field: 'id', title: 'id' },
+                            { field: 'type', title: 'type' },
+                            { field: 'name', title: 'name' },
+                            { field: 'x', title: 'x' },
+                            { field: 'y', title: 'y' },
+                            { field: 'pt1', title: 'Point 1' },
+                            { field: 'pt2', title: 'Point 2' },
+                            { field: 'code', title: 'code' },
+                            { field: 'configuration', title: 'configuration' }
+                        ],
+                        editable: true
+                    });
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
 </head>
 <body>
 <h1>kidoju.widgets.mathgraph</h1>
@@ -50,131 +174,5 @@
 </div>
 
 <div id="grid"></div>
-
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo;
-        var pt1 = kendo.guid();
-        var pt2 = kendo.guid();
-        var pt3 = kendo.guid();
-        var pt4 = kendo.guid();
-        var viewModel = window.viewModel = new kendo.observable({
-            source: new kendo.data.DataSource({
-                data: [
-                    {
-                        id: kendo.guid(),
-                        type: 'function',
-                        name: 'f(x)',
-                        code: 'x^2',
-                        configuration: { stroke: { color: '#FF0000', dashType: 'dash' } }
-                    },
-                    {
-                        id: kendo.guid(),
-                        type: 'function',
-                        name: 'g(x)',
-                        code: 'cos(x)',
-                        configuration: { stroke: { color: '#00FF00', dashType: 'dot' } }
-                    },
-                    {
-                        id: kendo.guid(),
-                        type: 'function',
-                        name: 'h(x)',
-                        code: '1/x',
-                        configuration: { stroke: { color: '#0000FF', dashType: 'dash' } }
-                    },
-                    {
-                        id: pt1,
-                        type: 'point',
-                        name: 'A',
-                        x: 1,
-                        y: 1,
-                        configuration: { fill: { color: '#FF00FF' } }
-                    },
-                    {
-                        id: pt2,
-                        type: 'point',
-                        name: 'B',
-                        x: 4,
-                        y: -3,
-                        configuration: { fill: { color: '#FF00FF' } }
-                    },
-                    {
-                        id: kendo.guid(),
-                        type: 'segment',
-                        name: '[AB]',
-                        pt1: pt1,
-                        pt2: pt2,
-                        configuration: { stroke: { color: '#FF00FF' } }
-                    },
-                    {
-                        id: pt3,
-                        type: 'point',
-                        name: 'C',
-                        x: -4,
-                        y: 2,
-                        configuration: { fill: { color: '#00FFFF' } }
-                    },
-                    {
-                        id: pt4,
-                        type: 'point',
-                        name: 'D',
-                        x: -4,
-                        y: 4,
-                        configuration: { fill: { color: '#00FFFF' } }
-                    },
-                    {
-                        id: kendo.guid(),
-                        type: 'circle',
-                        name: '(CD)',
-                        pt1: pt3,
-                        pt2: pt4,
-                        configuration: { stroke: { color: '#00FFFF' } }
-                    },
-                    {
-                        id: kendo.guid(),
-                        type: 'line',
-                        name: ']BD[',
-                        pt1: pt2,
-                        pt2: pt4,
-                        configuration: { stroke: { color: '#25AAAA' } }
-                    },
-                    {
-                        id: kendo.guid(),
-                        type: 'ray',
-                        name: ']AC]',
-                        pt1: pt1,
-                        pt2: pt3,
-                        configuration: { stroke: { color: '#AAAA25' } }
-                    }
-                ]
-            }),
-            visible: true,
-            enabled: true
-        });
-
-        $(function() {
-            $('#grid').kendoGrid({
-                dataSource: viewModel.source,
-                columns: [
-                    { field: 'id', title: 'id' },
-                    { field: 'type', title: 'type' },
-                    { field: 'name', title: 'name' },
-                    { field: 'x', title: 'x' },
-                    { field: 'y', title: 'y' },
-                    { field: 'pt1', title: 'Point 1' },
-                    { field: 'pt2', title: 'Point 2' },
-                    { field: 'code', title: 'code' },
-                    { field: 'configuration', title: 'configuration' }
-                ],
-                editable: true
-            });
-            kendo.bind('body', viewModel);
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

@@ -9,26 +9,66 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
-    <script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <script src="./js/vendor/kendo/kendo.fx.js"></script>
-    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
-    <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
-    <script src="./js/vendor/kendo/kendo.mobile.scroller.js"></script>
-    <script src="./js/vendor/kendo/kendo.popup.js"></script>
-    <script src="./js/vendor/kendo/kendo.list.js"></script>
-    <script src="./js/vendor/kendo/kendo.dropdownlist.js"></script>
-    <script src="./js/vendor/kendo/kendo.toolbar.js"></script>
-    <!-- Playbar requirements -->
+    <!-- kidoju.widgets.playbar stylesheet -->
     <link href="./styles/kidoju.widgets.playbar.css" rel="stylesheet">
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.data.js"></script>
-    <script src="./js/kidoju.tools.js"></script>
-    <script src="./js/kidoju.widgets.playbar.js"></script>
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            Promise.all([
+                SystemJS.import('./js/vendor/kendo/kendo.dropdownlist.js'),
+                SystemJS.import('./js/vendor/kendo/kendo.toolbar.js'),
+                SystemJS.import('./js/kidoju.widgets.playbar.js')
+            ]).then(function () {
+                var kendo = window.kendo;
+            	var kidoju = window.kidoju;
+                var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
+                var pageCollectionData = [];
+                for (var i = 0; i < 16; i++) {
+                    pageCollectionData.push({
+                        id: kendo.guid(),
+                        components: []
+                    });
+                }
+                var pageCollectionDataSource = new PageCollectionDataSource({ data:pageCollectionData });
+                var viewModel = kendo.observable({
+                    pages: pageCollectionDataSource,
+                    current: undefined,
+                    isVisible: true,
+                    reset: function() {
+                        this.set('current', null);
+                    }
+                });
+                $(function() {
+                    $('#toolbar').kendoToolBar({
+                        items: [
+                            { template: '<div id="playbar" data-role="playbar" data-bind="source: pages, value: page, visible: isVisible" data-button-count="5" class="kj-top" style="border:none;background:none;" ></div>' },
+                            { type: "separator" },
+                            { type: "button", text: "Submit" },
+                            { type: "button", text: "Review" }
+                        ],
+                        click: function (e) {
+                            window.alert($(e.target).text());
+                        }
+                    });
+                    // kendo.bind('body', viewModel);
+                    kendo.bind('body', viewModel, kendo.ui, kendo.mobile.ui);
+                });
+            });
+        }());
+    </script>
     <style>
         body>div:first-of-type {
             height: 22px;
@@ -45,49 +85,4 @@
 <div id="toolbar" style="overflow: visible"></div>
 <input data-role="dropdownlist" data-bind="source: pages, value: page" data-text-field="id" data-value-field="id" style="width: 400px"></select>
 </body>
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo,
-            kidoju = window.kidoju,
-            PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
-
-        var pageCollectionData = [];
-        for (var i = 0; i < 16; i++) {
-            pageCollectionData.push({
-                id: kendo.guid(),
-                components: []
-            });
-        }
-        var pageCollectionDataSource = new PageCollectionDataSource({ data:pageCollectionData });
-        var viewModel = window.viewModel = kendo.observable({
-            pages: pageCollectionDataSource,
-            current: undefined,
-            isVisible: true,
-            reset: function() {
-                this.set('current', null);
-            }
-        });
-
-        $(function() {
-            $('#toolbar').kendoToolBar({
-                items: [
-                    { template: '<div id="playbar" data-role="playbar" data-bind="source: pages, value: page, visible: isVisible" data-button-count="5" class="kj-top" style="border:none;background:none;" ></div>' },
-                    { type: "separator" },
-                    { type: "button", text: "Submit" },
-                    { type: "button", text: "Review" }
-                ],
-                click: function (e) {
-                    window.alert($(e.target).text());
-                }
-            });
-            // kendo.bind('body', viewModel);
-            kendo.bind('body', viewModel, kendo.ui, kendo.mobile.ui);
-        });
-
-
-    }(this, jQuery));
-</script>
 </html>

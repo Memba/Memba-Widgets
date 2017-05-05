@@ -7,19 +7,64 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.button.js"></script>
-    <script src="./js/vendor/kendo/kendo.userevents.js"></script>
-    <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
-    <script src="./js/vendor/kendo/kendo.draggable.js"></script>
-    <script src="./js/vendor/kendo/kendo.window.js"></script-->
-    <!-- PlayTools requirements -->
-    <link href="./styles/kidoju.widgets.floating.css" rel="stylesheet" />
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.floating.js"></script>
+    <!-- kidoju.widgets.floating stylesheet -->
+    <link href="./styles/kidoju.widgets.floating.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            Promise.all([
+                SystemJS.import('./js/vendor/kendo/kendo.toolbar.js'),
+                SystemJS.import('./js/kidoju.widgets.floating.js')
+            ]).then(function () {
+            	var kendo = window.kendo;
+            	$(function() {
+                    kendo.init('body');
+                    // floating1 > toolbar 1
+                    var toolbarElement1 = $('<div/>');
+                    toolbarElement1.appendTo($('#floating1>.kj-floating-content'));
+                    toolbarElement1.kendoToolBar({
+                        items: [
+                            { type: "button", text: "Foo1" },
+                            { type: "button", text: "Bar1" }
+                        ],
+                        resizable: false
+                    });
+                    // toolbarElement1.hide();
+
+                    // floating1 > toolbar 2
+                    var toolbarElement2 = $('<div/>');
+                    toolbarElement2.appendTo($('#floating1>.kj-floating-content'));
+                    toolbarElement2.kendoToolBar({
+                        items: [
+                            { type: "button", text: "Foo2" },
+                            { type: "button", text: "Bar2" }
+                        ],
+                        resizable: false
+                    });
+                    // toolbarElement2.hide();
+
+                    $('input[type="checkbox"]').on('change', function (e) {
+                        var index = $('input[type="checkbox"]').index(e.currentTarget);
+                        var toolbar = $($('.kj-floating-content>.k-toolbar').get(index));
+                        toolbar.toggle(!toolbar.is(':visible'));
+                    });
+                });
+            });
+        }());
+    </script>
 </head>
 
 <body>
@@ -33,41 +78,5 @@
 <div id="floating1" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
 <!-- second one has no toolbar and should be hidden -->
 <div id="floating2" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
-
-<script>
-    $(function () {
-        kendo.init('body');
-
-        // floating1 > toolbar 1
-        var toolbarElement1 = $('<div/>');
-        toolbarElement1.appendTo($('#floating1>.kj-floating-content'));
-        toolbarElement1.kendoToolBar({
-            items: [
-                { type: "button", text: "Foo1" },
-                { type: "button", text: "Bar1" }
-            ],
-            resizable: false
-        });
-        // toolbarElement1.hide();
-
-        // floating1 > toolbar 2
-        var toolbarElement2 = $('<div/>');
-        toolbarElement2.appendTo($('#floating1>.kj-floating-content'));
-        toolbarElement2.kendoToolBar({
-            items: [
-                { type: "button", text: "Foo2" },
-                { type: "button", text: "Bar2" }
-            ],
-            resizable: false
-        });
-        // toolbarElement2.hide();
-
-        $('input[type="checkbox"]').on('change', function (e) {
-            var index = $('input[type="checkbox"]').index(e.currentTarget);
-            var toolbar = $($('.kj-floating-content>.k-toolbar').get(index));
-            toolbar.toggle(!toolbar.is(':visible'));
-        });
-    });
-</script>
 </body>
 </html>

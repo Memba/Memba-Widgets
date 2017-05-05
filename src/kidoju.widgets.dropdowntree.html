@@ -2,27 +2,66 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>DropDown TreeView</title>
+    <title>kidoju.widgets.dropdowntree</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <script src="./js/vendor/kendo/kendo.popup.js"></script>
-    <script src="./js/vendor/kendo/kendo.list.js"></script>
-    <script src="./js/vendor/kendo/kendo.dropdownlist.js"></script>
-    <script src="./js/vendor/kendo/kendo.treeview.js"></script-->
-    <!--script src="./js/vendor/kendo/kendo.multiselect.js"></script-->
-    <!-- Code Input requirements -->
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.dropdowntree.js"></script>
+    <!-- kidoju.widgets.dropdowntree stylesheet -->
+    <!--link href="./styles/kidoju.widgets.dropdowntree.css" rel="stylesheet"-->
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.dropdowntree.js').then(function (kendo) {
+                var library = [
+                    { id: 1, name: 'abc', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                    { id: 11, parentId: 1, name: 'abc1', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg' },
+                    { id: 12, parentId: 1, name: 'abc2', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                    { id: 13, parentId: 1, name: 'abc3', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                    { id: 2, name: 'def', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                    { id: 21, parentId: 2, name: 'def1', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                    { id: 22, parentId: 2, name: 'def2', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                    { id: 23, parentId: 2, name: 'def3', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                    { id: 3, name: 'ghi', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                    { id: 31, parentId: 3, name: 'ghi1', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                    { id: 32, parentId: 3, name: 'ghi2', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
+                    { id: 33, parentId: 3, name: 'ghi3', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  }
+                ];
+                var viewModel = kendo.observable({
+                    library: library,
+                    selection: 21,
+                    visible: true,
+                    enabled: true
+                });
+                $(function(){
+
+                    $('#dropdowntree1').kendoDropDownTree({
+                        dataSource: library,
+                        dataTextField: 'name',
+                        dataValueField: 'id',
+                        dataParentField: 'parentId'
+                    });
+
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
     <style>
         .k-image {
             height: 20px;
@@ -35,7 +74,7 @@
     </style>
 </head>
 <body>
-<h1>DropDownTree</h1>
+<h1>kidoju.widgets.dropdowntree</h1>
 <h2>DropDownTree initialized by Code</h2>
 <input id="dropdowntree1">
 <h2>DropDownTree set declaratively</h2>
@@ -61,46 +100,5 @@
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled
 </div>
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo,
-            library = [
-                { id: 1, name: 'abc', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
-                { id: 11, parentId: 1, name: 'abc1', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg' },
-                { id: 12, parentId: 1, name: 'abc2', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
-                { id: 13, parentId: 1, name: 'abc3', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
-                { id: 2, name: 'def', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
-                { id: 21, parentId: 2, name: 'def1', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
-                { id: 22, parentId: 2, name: 'def2', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
-                { id: 23, parentId: 2, name: 'def3', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
-                { id: 3, name: 'ghi', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
-                { id: 31, parentId: 3, name: 'ghi1', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
-                { id: 32, parentId: 3, name: 'ghi2', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  },
-                { id: 33, parentId: 3, name: 'ghi3', icon: 'https://cdn.kidoju.com/images/o_collection/svg/office/garbage.svg'  }
-            ],
-            viewModel = kendo.observable({
-                library: library,
-                selection: 21,
-                visible: true,
-                enabled: true
-            });
-
-        $(function(){
-
-            $('#dropdowntree1').kendoDropDownTree({
-                dataSource: library,
-                dataTextField: 'name',
-                dataValueField: 'id',
-                dataParentField: 'parentId'
-            });
-
-            kendo.bind('body', viewModel);
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

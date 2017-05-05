@@ -3,19 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>kidoju.widgets.mediaplayer</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <script src="./js/vendor/kendo/kendo.all.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script-->
-    <!-- MediaPlayer requirements -->
+    <!-- kidoju.widgets.mediaplayer stylesheet -->
     <link href="./styles/kidoju.widgets.mediaplayer.css" rel="stylesheet">
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.mediaplayer.js"></script>
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.mediaplayer.js').then(function (kendo) {
+                var viewModel = kendo.observable({
+                    visible: true,
+                    enabled: true
+                });
+                $(function () {
+                    $(window).on('resize', function(e) {
+                        var mediaPlayer = $('#video').data('kendoMediaPlayer');
+                        if (mediaPlayer instanceof kendo.ui.MediaPlayer) {
+                            mediaPlayer.resize();
+                        }
+                    });
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
 </head>
 <body>
 <h1>kidoju.widgets.mediaplayer</h1>
@@ -61,12 +89,12 @@
                 }
             });
 
-            var viewModel = window.viewModel = kendo.observable({
+            var viewModel = kendo.observable({
                 visible: true,
                 enabled: true
             });
 
-            kendo.bind($('body'), viewModel);
+            kendo.bind('body', viewModel);
         });
 
     }(this, jQuery));

@@ -9,16 +9,57 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <script src="./js/vendor/jquery/jquery-3.2.1.min.js"></script>
-    <!--script src="./js/vendor/kendo/kendo.all.min.js"></script-->
-    <script src="./js/vendor/kendo/kendo.core.js"></script>
-    <script src="./js/vendor/kendo/kendo.data.js"></script>
-    <script src="./js/vendor/kendo/kendo.binder.js"></script>
-    <!-- dropzone requirements -->
-    <!--link rel="stylesheet" href="./styles/kidoju.widgets.dropzone.css"-->
-    <script src="./js/window.assert.js"></script>
-    <script src="./js/window.logger.js"></script>
-    <script src="./js/kidoju.widgets.dropzone.js"></script>
+    <!-- kidoju.widgets.dropzone stylesheet -->
+    <!-- link href="./styles/kidoju.widgets.dropzone.css" rel="stylesheet" -->
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.dropzone.js').then(function (kendo) {
+                var viewModel = kendo.observable({
+                    value1: undefined,
+                    value2: undefined,
+                    source: [{ type: 'dummy', id: 'val_0000000', data: { a: 1, b: new Date(), c: 'foo'} }], // Test type filtering
+                    // source2: new kendo.data.DataSource([{ type: 'dummy',  id: 'val_0000000', data: { a: 2, b: new Date(), c: 'bar'} }]),
+                    source$: function() {
+                        var ret = '';
+                        this.get('source').forEach(function(item) {
+                            ret += kendo.format('{0} {1} at ({2}, {3})\n', item.type, item.id, item.data.top, item.data.left);
+                        });
+                        return ret;
+                    },
+                    visible: true,
+                    enabled: true,
+                    value1$: function () {
+                        return (this.get('value1') || []).join(',');
+                    },
+                    value2$: function () {
+                        return (this.get('value2') || []).join(',');
+                    }
+                });
+                $(function() {
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
+    <style>
+        .kj-stage {
+            border: solid 1px black;
+        }
+    </style>
     <style>
         .kj-stage {
             border: solid 1px black;
@@ -63,40 +104,5 @@
     enabled: <span data-bind="text: enabled"></span>
 }
 </pre>
-
-<script>
-    ;(function(window, $, undefined){
-
-        'use strict';
-
-        var kendo = window.kendo;
-        var viewModel = new kendo.observable({
-            value1: undefined,
-            value2: undefined,
-            source: [{ type: 'dummy', id: 'val_0000000', data: { a: 1, b: new Date(), c: 'foo'} }], // Test type filtering
-            // source2: new kendo.data.DataSource([{ type: 'dummy',  id: 'val_0000000', data: { a: 2, b: new Date(), c: 'bar'} }]),
-            source$: function() {
-                var ret = '';
-                this.get('source').forEach(function(item) {
-                    ret += kendo.format('{0} {1} at ({2}, {3})\n', item.type, item.id, item.data.top, item.data.left);
-                });
-                return ret;
-            },
-            visible: true,
-            enabled: true,
-            value1$: function () {
-                return (this.get('value1') || []).join(',');
-            },
-            value2$: function () {
-                return (this.get('value2') || []).join(',');
-            }
-        });
-
-        $(function() {
-            kendo.bind('body', viewModel);
-        });
-
-    }(this, jQuery));
-</script>
 </body>
 </html>

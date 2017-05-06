@@ -17,12 +17,6 @@
 
     'use strict';
 
-    // TODO: check touch interfaces
-    // TODO: Add tooltip with value and/or description
-    // TODO: Display half stars
-    // TODO: Should we bind to the DOM change event to be notified when input value changes?????
-    // TODO: https://developers.google.com/structured-data/rich-snippets/reviews
-
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -137,8 +131,8 @@
                             item.prepend(kendo.format(ICON_TEMPLATE, buttons[i].icon));
                             item.addClass('k-button-icontext');
                         }
+                        // TODO consider also imageUrl
                         that.ul.append(item);
-
                     }
                 } else {
                     // Without buttons in options, parse ul for any li

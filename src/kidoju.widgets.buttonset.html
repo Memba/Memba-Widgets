@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kidoju.widgets.buttonset</title>
+    <!--link href="http://kendo.cdn.telerik.com/2017.2.504/styles/kendo.common.min.css" rel="stylesheet">
+    <link href="http://kendo.cdn.telerik.com/2017.2.504/styles/kendo.flat.min.css" rel="stylesheet">
+    <link href="http://kendo.cdn.telerik.com/2017.2.504/styles/kendo.flat.mobile.min.css" rel="stylesheet"-->
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.buttonset stylesheet -->
+    <link href="./styles/kidoju.widgets.buttonset.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.buttonset.js').then(function (kendo) {
+                var viewModel = kendo.observable({
+                    value: 3,
+                    visible: true,
+                    enabled: true
+                });
+                $(function () {
+                	$('#buttonset').kendoButtonSet({
+                        buttons: [
+                            { text: 'Button 1', icon: 'heart' },
+                            { text: 'Button 2', icon: 'heart' },
+                            { text: 'Button 3', icon: 'heart' }
+                        ],
+                        selection: 'single',
+                        value: 2
+                    });
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>kidoju.widgets.buttonset</h1>
+<h2>ButtonSet unbound</h2>
+<div id="buttonset" class="km-ios7"></div>
+<h2>ButtonSet unbound</h2>
+<ul data-role="buttonset" data-value="3">
+    <li>Option 1</li>
+    <li>Option 2</li>
+    <li>Option 3</li>
+    <li>Option 4</li>
+</ul>
+<h2>ButtonSet bound to observable</h2>
+<ul data-role="buttonset" data-bind="value: value, visible: visible, enabled: enabled">
+    <li>Group 1</li>
+    <li>Group 2</li>
+    <li>Group 3</li>
+    <li>Group 4</li>
+</ul>
+<div>Value:&nbsp;<input id="numbox" type="number" data-bind="value: value"></div>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled
+</div>
+<pre>
+    {
+        value: <span data-bind="text: value"></span>,
+        visible: <span data-bind="text: visible"></span>,
+        enabled: <span data-bind="text: enabled"></span>
+    }
+</pre>
+</body>
+</html>

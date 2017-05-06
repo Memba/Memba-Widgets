@@ -1,0 +1,17 @@
+.kj-buttonset {
+    .k-button:not(.k-state-active) {
+        color:inherit;
+    }
+    &.k-state-disabled {
+        opacity: 1;
+        .k-button {
+            color: inherit;
+            background-color: inherit;
+        }
+        .k-button:not(.k-state-active) {
+            span.k-text, span.k-icon {
+                opacity: 0.5;
+            }
+        }
+    }
+}

@@ -156,12 +156,12 @@
              */
             enable: function (enable) {
                 var that = this;
-                var element = that.element;
+                var buttonList = that.ul;
                 var enabled = that._enabled = !!enable;
-                element.off(NS);
-                element.toggleClass(STATE_DISABLED, !enabled);
+                buttonList.off(NS);
+                buttonList.toggleClass(STATE_DISABLED, !enabled);
                 if (enabled) {
-                    element.on(CLICK + NS, 'li.k-button.km-button', $.proxy(that._onButtonClick, that));
+                    buttonList.on(CLICK + NS, 'li.k-button.km-button', $.proxy(that._onButtonClick, that));
                 }
             },
 
@@ -234,6 +234,9 @@
              */
             destroy: function () {
                 var that = this;
+                var element = this.element;
+                that.ul.off(NS);
+                that.ul = undefined;
                 Widget.fn.destroy.call(that);
                 kendo.destroy(that.element);
             }

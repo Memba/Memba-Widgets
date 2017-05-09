@@ -13,14 +13,8 @@
         // './vendor/mathjs/math',
         './window.assert',
         './window.logger',
-        './vendor/kendo/kendo.binder',
-        './vendor/kendo/kendo.drawing',
-        './vendor/kendo/kendo.popup',
-        './vendor/kendo/kendo.slider',
-        './vendor/kendo/kendo.colorpicker',
-        './vendor/kendo/kendo.combobox',
-        './vendor/kendo/kendo.dropdownlist',
-        './vendor/kendo/kendo.toolbar'
+        './kidoju.widgets.mathgraph.tools',
+        './kidoju.widgets.mathgraph.toolbar',
     ], f);
 })(function (math) {
 
@@ -227,10 +221,10 @@
         });
 
         /*********************************************************************************
-         * MathGraph Widget
+         * OldMathGraph Widget
          *********************************************************************************/
 
-        var MathGraph = Widget.extend({
+        var OldMathGraph = Widget.extend({
 
             /**
              * Initializes the widget
@@ -255,7 +249,7 @@
              * @property options
              */
             options: {
-                name: 'MathGraph',
+                name: 'OldMathGraph',
                 autoBind: true,
                 dataSource: [],
                 scaler: 'div.kj-stage',
@@ -460,7 +454,7 @@
             _getMousePosition: function (e) {
                 var element = $(e.currentTarget);
                 var widget = element.data(WIDGET);
-                assert.instanceof(MathGraph, widget, kendo.format(assert.messages.instanceof.default, 'widget', 'kendo.ui.MathGraph'));
+                assert.instanceof(OldMathGraph, widget, kendo.format(assert.messages.instanceof.default, 'widget', 'kendo.ui.OldMathGraph'));
                 assert.equal(this, widget, kendo.format(assert.messages.equal.default, 'widget', 'this'));
                 assert.ok(this._enabled, kendo.format(assert.messages.ok.default, 'this._enabled'));
                 var scaler = element.closest(widget.options.scaler);
@@ -1199,7 +1193,7 @@
             }
         });
 
-        kendo.ui.plugin(MathGraph);
+        kendo.ui.plugin(OldMathGraph);
 
         /*********************************************************************************
          * MathGraphToolBar Widget

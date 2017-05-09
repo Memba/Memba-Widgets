@@ -1,0 +1,839 @@
+/**
+ * Copyright (c) 2013-2017 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/* jshint browser: true, jquery: true */
+/* globals define: false */
+
+(function (f, define) {
+    'use strict';
+    define([
+        './window.assert',
+        './window.logger',
+        './vendor/kendo/kendo.popup',
+        './vendor/kendo/kendo.slider',
+        './vendor/kendo/kendo.colorpicker',
+        './vendor/kendo/kendo.combobox',
+        './vendor/kendo/kendo.dropdownlist',
+        './vendor/kendo/kendo.toolbar'
+    ], f);
+})(function (math) {
+
+    'use strict';
+
+    // Eval is evil, besides x ^ 2 is better than Math.pow(x, 2)
+    // So we have identified two proper math parsers:
+    // https://github.com/silentmatt/expr-eval (small and simple)
+    // https://github.com/josdejong/mathjs (big and feature-rich)
+    // See also https://github.com/pegjs/pegjs
+    math = math || window.exprEval || window.math;
+
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
+    (function ($, undefined) {
+
+        var kendo = window.kendo;
+        var data = kendo.data;
+        var ToolBar = kendo.ui.ToolBar;
+        var assert = window.assert;
+        var logger = new window.Logger('kidoju.widgets.mathgraph.toolbar');
+        var TOOLBAR = [
+            'select',
+            'point',
+            'line',
+            'circle',
+            'function',
+            'text',
+            [
+                'bold',
+                'italic'
+            ],
+            'backgroundColor',
+            'textColor',
+            'fontSize',
+            'fontFamily'
+        ];
+
+        /*********************************************************************************
+         * MathGraphToolBar Widget
+         *********************************************************************************/
+
+        var MESSAGES = {
+            alignment: 'Alignment',
+            alignmentButtons: {
+                justtifyLeft: 'Align left',
+                justifyCenter: 'Center',
+                justifyRight: 'Align right',
+                justifyFull: 'Justify',
+                alignTop: 'Align top',
+                alignMiddle: 'Align middle',
+                alignBottom: 'Align bottom'
+            },
+            backgroundColor: 'Background',
+            bold: 'Bold',
+            borders: 'Borders',
+            colorPicker: {
+                reset: 'Reset color',
+                customColor: 'Custom color...'
+            },
+            copy: 'Copy',
+            cut: 'Cut',
+            fontFamily: 'Font',
+            fontSize: 'Font size',
+            format: 'Custom format...',
+            formatTypes: {
+                automatic: 'Automatic',
+                number: 'Number',
+                percent: 'Percent',
+                financial: 'Financial',
+                currency: 'Currency',
+                date: 'Date',
+                time: 'Time',
+                dateTime: 'Date time',
+                duration: 'Duration',
+                moreFormats: 'More formats...'
+            },
+            formatDecreaseDecimal: 'Decrease decimal',
+            formatIncreaseDecimal: 'Increase decimal',
+            italic: 'Italic',
+            merge: 'Merge cells',
+            mergeButtons: {
+                mergeCells: 'Merge all',
+                mergeHorizontally: 'Merge horizontally',
+                mergeVertically: 'Merge vertically',
+                unmerge: 'Unmerge'
+            },
+            open: 'Open...',
+            paste: 'Paste',
+            quickAccess: {
+                redo: 'Redo',
+                undo: 'Undo'
+            },
+            textColor: 'Text Color',
+            textWrap: 'Wrap text',
+            underline: 'Underline',
+            validation: 'Data validation...',
+            hyperlink: 'Link'
+        };
+        var toolDefaults = {
+            separator: { type: 'separator' },
+            select: {
+                type: 'button',
+                command: 'PropertyChangeCommand',
+                group: 'tool',
+                property: 'tool',
+                value: 'select',
+                iconClass: 'arrow-up',
+                togglable: true
+            },
+            point: {
+                type: 'button',
+                command: 'PropertyChangeCommand',
+                group: 'tool',
+                property: 'tool',
+                value: 'point',
+                iconClass: 'circle',
+                togglable: true
+            },
+            line: {
+                type: 'button',
+                command: 'PropertyChangeCommand',
+                group: 'tool',
+                property: 'tool',
+                value: 'line',
+                iconClass: 'shape-line',
+                togglable: true
+            },
+            circle: {
+                type: 'button',
+                command: 'PropertyChangeCommand',
+                group: 'tool',
+                property: 'tool',
+                value: 'circle',
+                iconClass: 'shape-circle',
+                togglable: true
+            },
+            function: {
+                type: 'button',
+                command: 'PropertyChangeCommand',
+                group: 'tool',
+                property: 'tool',
+                value: 'function',
+                iconClass: 'formula-fx',
+                togglable: true
+            },
+            text: {
+                type: 'button',
+                command: 'PropertyChangeCommand',
+                group: 'tool',
+                property: 'tool',
+                value: 'text',
+                iconClass: 'font-family',
+                togglable: true
+            },
+            bold: {
+                type: 'button',
+                command: 'PropertyChangeCommand',
+                property: 'bold',
+                value: true,
+                iconClass: 'bold',
+                togglable: true
+            },
+            italic: {
+                type: 'button',
+                command: 'PropertyChangeCommand',
+                property: 'italic',
+                value: true,
+                iconClass: 'italic',
+                togglable: true
+            },
+            backgroundColor: {
+                type: 'colorPicker',
+                property: 'background',
+                iconClass: 'background'
+            },
+            textColor: {
+                type: 'colorPicker',
+                property: 'color',
+                iconClass: 'foreground-color'
+            },
+            fontSize: {
+                type: 'fontSize',
+                property: 'fontSize',
+                iconClass: 'font-size'
+            },
+            fontFamily: {
+                type: 'fontFamily',
+                property: 'fontFamily',
+                iconClass: 'text'
+            },
+            alignment: {
+                type: 'alignment',
+                iconClass: 'align-left'
+            }
+        };
+
+        var MathGraphToolBar = ToolBar.extend({
+            init: function (element, options) {
+                options = options || {};
+                options.items = this._expandTools(options.tools || MathGraphToolBar.prototype.options.tools);
+                ToolBar.fn.init.call(this, element, options);
+                var handleClick = this._click.bind(this);
+                this.element.addClass('k-spreadsheet-toolbar');
+                this._addSeparators(this.element);
+                this.bind({
+                    click: handleClick,
+                    toggle: handleClick
+                });
+            },
+            _addSeparators: function (element) {
+                var groups = element.children('.k-widget, a.k-button, .k-button-group');
+                groups.before('<span class=\'k-separator\' />');
+            },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            _expandTools: function (tools) {
+                function expandTool(toolName) {
+                    var options = $.isPlainObject(toolName) ? toolName : toolDefaults[toolName] || {};
+                    var spriteCssClass = 'k-icon k-font-icon k-i-' + options.iconClass;
+                    var type = options.type;
+                    var typeDefaults = {
+                        splitButton: { spriteCssClass: spriteCssClass },
+                        button: { showText: 'overflow' },
+                        colorPicker: { toolIcon: spriteCssClass }
+                    };
+                    var tool = $.extend({
+                        name: options.name || toolName,
+                        text: MESSAGES[options.name || toolName],
+                        spriteCssClass: spriteCssClass,
+                        attributes: { title: MESSAGES[options.name || toolName] }
+                    }, typeDefaults[type], options);
+                    if (type === 'splitButton') {
+                        tool.menuButtons = tool.menuButtons.map(expandTool);
+                    }
+                    tool.attributes[kendo.attr('tool')] = toolName;
+                    if (options.property) {
+                        tool.attributes[kendo.attr('property')] = options.property;
+                    }
+                    return tool;
+                }
+                return tools.reduce(function (tools, tool) {
+                    if ($.isArray(tool)) {
+                        tools.push({
+                            type: 'buttonGroup',
+                            buttons: tool.map(expandTool)
+                        });
+                    } else {
+                        tools.push(expandTool.call(this, tool));
+                    }
+                    return tools;
+                }, []);
+            },
+
+            /* jshint +W074 */
+
+            _click: function (e) {
+                var toolName = e.target.attr(kendo.attr('tool'));
+                var tool = toolDefaults[toolName] || {};
+                var commandType = tool.command;
+                if (!commandType) {
+                    return;
+                }
+                var args = {
+                    command: commandType,
+                    options: {
+                        property: tool.property || null,
+                        value: tool.value || null
+                    }
+                };
+                if (typeof args.options.value === 'boolean') {
+                    args.options.value = e.checked ? true : null;
+                }
+                this.action(args);
+            },
+            events: [
+                'click',
+                'toggle',
+                'open',
+                'close',
+                'overflowOpen',
+                'overflowClose',
+                'action',
+                'dialog'
+            ],
+            options: {
+                name: 'MathGraphToolBar',
+                resizable: false,
+                tools: TOOLBAR
+            },
+            action: function (args) {
+                this.trigger('action', args);
+            },
+            dialog: function (args) {
+                this.trigger('dialog', args);
+            },
+            refresh: function (activeCell) {
+                var range = activeCell;
+                var tools = this._tools();
+                function setToggle(tool, value) {
+                    var toolbar = tool.toolbar;
+                    var overflow = tool.overflow;
+                    var togglable = toolbar && toolbar.options.togglable || overflow && overflow.options.togglable;
+                    if (!togglable) {
+                        return;
+                    }
+                    var toggle = false;
+                    if (typeof value === 'boolean') {
+                        toggle = value;
+                    } else if (typeof value === 'string') {
+                        toggle = toolbar.options.value === value;
+                    }
+                    toolbar.toggle(toggle);
+                    if (overflow) {
+                        overflow.toggle(toggle);
+                    }
+                }
+                function update(tool, value) {
+                    var toolbar = tool.toolbar;
+                    var overflow = tool.overflow;
+                    if (toolbar && toolbar.update) {
+                        toolbar.update(value);
+                    }
+                    if (overflow && overflow.update) {
+                        overflow.update(value);
+                    }
+                }
+                for (var i = 0; i < tools.length; i++) {
+                    var property = tools[i].property;
+                    var tool = tools[i].tool;
+                    var value = kendo.isFunction(range[property]) ? range[property]() : range;
+                    if (property === 'gridLines') {
+                        value = range.sheet().showGridLines();
+                    }
+                    if (tool.type === 'button') {
+                        setToggle(tool, value);
+                    } else {
+                        update(tool, value);
+                    }
+                }
+            },
+            _tools: function () {
+                return this.element.find('[' + kendo.attr('property') + ']').toArray().map(function (element) {
+                    element = $(element);
+                    return {
+                        property: element.attr('data-property'),
+                        tool: this._getItem(element)
+                    };
+                }.bind(this));
+            },
+            destroy: function () {
+                this.element.find('[data-command],.k-button').each(function () {
+                    var element = $(this);
+                    var instance = element.data('instance');
+                    if (instance && instance.destroy) {
+                        instance.destroy();
+                    }
+                });
+                ToolBar.fn.destroy.call(this);
+            }
+        });
+
+        kendo.ui.plugin(MathGraphToolBar);
+
+        /*********************************************************************************
+         * MathGraphToolBar Tools
+         *********************************************************************************/
+
+        var DropDownTool = kendo.toolbar.Item.extend({
+            init: function (options, toolbar) {
+                var dropDownList = $('<select />').kendoDropDownList({ height: 'auto' }).data('kendoDropDownList');
+                this.dropDownList = dropDownList;
+                this.element = dropDownList.wrapper;
+                this.options = options;
+                this.toolbar = toolbar;
+                this.attributes();
+                this.addUidAttr();
+                this.addOverflowAttr();
+                dropDownList.bind('open', this._open.bind(this));
+                dropDownList.bind('change', this._change.bind(this));
+                this.element.width(options.width).attr({
+                    'data-command': 'PropertyChangeCommand',
+                    'data-property': options.property
+                });
+            },
+            _open: function () {
+                var ddl = this.dropDownList;
+                var list = ddl.list;
+                var listWidth;
+                list.css({
+                    whiteSpace: 'nowrap',
+                    width: 'auto'
+                });
+                listWidth = list.width();
+                if (listWidth) {
+                    listWidth += 20;
+                } else {
+                    listWidth = ddl._listWidth;
+                }
+                list.css('width', listWidth + kendo.support.scrollbar());
+                ddl._listWidth = listWidth;
+            },
+            _change: function (e) {
+                var instance = e.sender;
+                var value = instance.value();
+                var dataItem = instance.dataItem();
+                var popupName = dataItem ? dataItem.popup : undefined;
+                if (popupName) {
+                    this.toolbar.dialog({ name: popupName });
+                } else {
+                    this.toolbar.action({
+                        command: 'PropertyChangeCommand',
+                        options: {
+                            property: this.options.property,
+                            value: value === 'null' ? null : value
+                        }
+                    });
+                }
+            },
+            value: function (value) {
+                if (value !== undefined) {
+                    this.dropDownList.value(value);
+                } else {
+                    return this.dropDownList.value();
+                }
+            }
+        });
+        var PopupTool = kendo.toolbar.Item.extend({
+            init: function (options, toolbar) {
+                this.element = $('<a href=\'#\' class=\'k-button k-button-icon\'>' + '<span class=\'' + options.spriteCssClass + '\'>' + '</span><span class=\'k-icon k-i-arrow-s\'></span>' + '</a>');
+                this.element.on('click touchend', this.open.bind(this)).attr('data-command', options.command);
+                this.options = options;
+                this.toolbar = toolbar;
+                this.attributes();
+                this.addUidAttr();
+                this.addOverflowAttr();
+                this._popup();
+            },
+            destroy: function () {
+                this.popup.destroy();
+            },
+            open: function (ev) {
+                ev.preventDefault();
+                this.popup.toggle();
+            },
+            _popup: function () {
+                var element = this.element;
+                this.popup = $('<div class=\'k-spreadsheet-popup\' />').appendTo(element).kendoPopup({ anchor: element }).data('kendoPopup');
+            }
+        });
+
+        /*
+         kendo.toolbar.registerComponent('dialog', kendo.toolbar.ToolBarButton.extend({
+         init: function (options, toolbar) {
+         kendo.toolbar.ToolBarButton.fn.init.call(this, options, toolbar);
+         this._dialogName = options.dialogName;
+         this.element.bind('click touchend', this.open.bind(this)).data('instance', this);
+         },
+         open: function () {
+         this.toolbar.dialog({ name: this._dialogName });
+         }
+         }));
+         kendo.toolbar.registerComponent('exportAsDialog', kendo.toolbar.Item.extend({
+         init: function (options, toolbar) {
+         this._dialogName = options.dialogName;
+         this.toolbar = toolbar;
+         this.element = $('<button class=\'k-button k-button-icon\' title=\'' + options.attributes.title + '\'>' + '<span class=\'k-icon k-font-icon k-i-xls\' />' + '</button>').data('instance', this);
+         this.element.bind('click', this.open.bind(this)).data('instance', this);
+         },
+         open: function () {
+         this.toolbar.dialog({ name: this._dialogName });
+         }
+         }));
+         */
+
+        var OverflowDialogButton = kendo.toolbar.OverflowButton.extend({
+            init: function (options, toolbar) {
+                kendo.toolbar.OverflowButton.fn.init.call(this, options, toolbar);
+                this.element.on('click touchend', this._click.bind(this));
+                this.message = this.options.text;
+                var instance = this.element.data('button');
+                this.element.data(this.options.type, instance);
+            },
+            _click: $.noop
+        });
+
+        // Color Picker
+        /*
+         var ColorPicker = PopupTool.extend({
+         init: function (options, toolbar) {
+         PopupTool.fn.init.call(this, options, toolbar);
+         this.popup.element.addClass('k-spreadsheet-colorpicker');
+         this.colorChooser = new kendo.spreadsheet.ColorChooser(this.popup.element, { change: this._colorChange.bind(this) });
+         this.element.attr({ 'data-property': options.property });
+         this.element.data({
+         type: 'colorPicker',
+         colorPicker: this,
+         instance: this
+         });
+         },
+         destroy: function () {
+         this.colorChooser.destroy();
+         PopupTool.fn.destroy.call(this);
+         },
+         update: function (value) {
+         this.value(value);
+         },
+         value: function (value) {
+         this.colorChooser.value(value);
+         },
+         _colorChange: function (e) {
+         this.toolbar.action({
+         command: 'PropertyChangeCommand',
+         options: {
+         property: this.options.property,
+         value: e.sender.value()
+         }
+         });
+         this.popup.close();
+         }
+         });
+         var ColorPickerButton = OverflowDialogButton.extend({
+         init: function (options, toolbar) {
+         options.iconName = 'text';
+         OverflowDialogButton.fn.init.call(this, options, toolbar);
+         },
+         _click: function () {
+         this.toolbar.dialog({
+         name: 'colorPicker',
+         options: {
+         title: this.options.property,
+         property: this.options.property
+         }
+         });
+         }
+         });
+         kendo.toolbar.registerComponent('colorPicker', ColorPicker, ColorPickerButton);
+         */
+
+        // Font sizes
+        var FONT_SIZES = [
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            16,
+            18,
+            20,
+            22,
+            24,
+            26,
+            28,
+            36,
+            48,
+            72
+        ];
+        var DEFAULT_FONT_SIZE = 12;
+        var FontSize = kendo.toolbar.Item.extend({
+            init: function (options, toolbar) {
+                var comboBox = $('<input />').kendoComboBox({
+                    change: this._valueChange.bind(this),
+                    clearButton: false,
+                    dataSource: options.fontSizes || FONT_SIZES,
+                    value: DEFAULT_FONT_SIZE
+                }).data('kendoComboBox');
+                this.comboBox = comboBox;
+                this.element = comboBox.wrapper;
+                this.options = options;
+                this.toolbar = toolbar;
+                this.attributes();
+                this.addUidAttr();
+                this.addOverflowAttr();
+                this.element.width(options.width).attr({
+                    'data-command': 'PropertyChangeCommand',
+                    'data-property': options.property
+                });
+                this.element.data({
+                    type: 'fontSize',
+                    fontSize: this
+                });
+            },
+            _valueChange: function (e) {
+                this.toolbar.action({
+                    command: 'PropertyChangeCommand',
+                    options: {
+                        property: this.options.property,
+                        value: kendo.parseInt(e.sender.value())
+                    }
+                });
+            },
+            update: function (value) {
+                this.value(kendo.parseInt(value) || DEFAULT_FONT_SIZE);
+            },
+            value: function (value) {
+                if (value !== undefined) {
+                    this.comboBox.value(value);
+                } else {
+                    return this.comboBox.value();
+                }
+            }
+        });
+        var FontSizeButton = OverflowDialogButton.extend({
+            _click: function () {
+                this.toolbar.dialog({
+                    name: 'fontSize',
+                    options: {
+                        sizes: FONT_SIZES,
+                        defaultSize: DEFAULT_FONT_SIZE
+                    }
+                });
+            },
+            update: function (value) {
+                this._value = value || DEFAULT_FONT_SIZE;
+                this.element.find('.k-text').text(this.message + ' (' + this._value + ') ...');
+            }
+        });
+        kendo.toolbar.registerComponent('fontSize', FontSize, FontSizeButton);
+
+        // Font families
+        var FONT_FAMILIES = [
+            'Arial',
+            'Courier New',
+            'Georgia',
+            'Times New Roman',
+            'Trebuchet MS',
+            'Verdana'
+        ];
+        var DEFAULT_FONT_FAMILY = 'Arial';
+        var FontFamily = DropDownTool.extend({
+            init: function (options, toolbar) {
+                DropDownTool.fn.init.call(this, options, toolbar);
+                var ddl = this.dropDownList;
+                ddl.setDataSource(options.fontFamilies || FONT_FAMILIES);
+                ddl.value(DEFAULT_FONT_FAMILY);
+                this.element.data({
+                    type: 'fontFamily',
+                    fontFamily: this
+                });
+            },
+            update: function (value) {
+                this.value(value || DEFAULT_FONT_FAMILY);
+            }
+        });
+        var FontFamilyButton = OverflowDialogButton.extend({
+            _click: function () {
+                this.toolbar.dialog({
+                    name: 'fontFamily',
+                    options: {
+                        fonts: FONT_FAMILIES,
+                        defaultFont: DEFAULT_FONT_FAMILY
+                    }
+                });
+            },
+            update: function (value) {
+                this._value = value || DEFAULT_FONT_FAMILY;
+                this.element.find('.k-text').text(this.message + ' (' + this._value + ') ...');
+            }
+        });
+        kendo.toolbar.registerComponent('fontFamily', FontFamily, FontFamilyButton);
+
+        // border
+        /*
+         var BorderChangeTool = PopupTool.extend({
+         init: function (options, toolbar) {
+         PopupTool.fn.init.call(this, options, toolbar);
+         this._borderPalette();
+         this.element.data({
+         type: 'borders',
+         instance: this
+         });
+         },
+         destroy: function () {
+         this.borderPalette.destroy();
+         PopupTool.fn.destroy.call(this);
+         },
+         _borderPalette: function () {
+         var element = $('<div />').appendTo(this.popup.element);
+         this.borderPalette = new kendo.spreadsheet.BorderPalette(element, { change: this._action.bind(this) });
+         },
+         _action: function (e) {
+         this.toolbar.action({
+         command: 'BorderChangeCommand',
+         options: {
+         border: e.type,
+         style: {
+         size: 1,
+         color: e.color
+         }
+         }
+         });
+         }
+         });
+         var BorderChangeButton = OverflowDialogButton.extend({
+         _click: function () {
+         this.toolbar.dialog({ name: 'borders' });
+         }
+         });
+         kendo.toolbar.registerComponent('borders', BorderChangeTool, BorderChangeButton);
+         */
+
+        // Alignment
+        /*
+         var AlignmentTool = PopupTool.extend({
+         init: function (options, toolbar) {
+         PopupTool.fn.init.call(this, options, toolbar);
+         this.element.attr({ 'data-property': 'alignment' });
+         this._commandPalette();
+         this.popup.element.on('click', '.k-button', function (e) {
+         this._action($(e.currentTarget));
+         }.bind(this));
+         this.element.data({
+         type: 'alignment',
+         alignment: this,
+         instance: this
+         });
+         },
+         buttons: [
+         {
+         property: 'textAlign',
+         value: 'left',
+         iconClass: 'justify-left',
+         text: MESSAGES.alignmentButtons.justtifyLeft
+         },
+         {
+         property: 'textAlign',
+         value: 'center',
+         iconClass: 'justify-center',
+         text: MESSAGES.alignmentButtons.justifyCenter
+         },
+         {
+         property: 'textAlign',
+         value: 'right',
+         iconClass: 'justify-right',
+         text: MESSAGES.alignmentButtons.justifyRight
+         },
+         {
+         property: 'textAlign',
+         value: 'justify',
+         iconClass: 'justify-full',
+         text: MESSAGES.alignmentButtons.justifyFull
+         },
+         {
+         property: 'verticalAlign',
+         value: 'top',
+         iconClass: 'align-top',
+         text: MESSAGES.alignmentButtons.alignTop
+         },
+         {
+         property: 'verticalAlign',
+         value: 'center',
+         iconClass: 'align-middle',
+         text: MESSAGES.alignmentButtons.alignMiddle
+         },
+         {
+         property: 'verticalAlign',
+         value: 'bottom',
+         iconClass: 'align-bottom',
+         text: MESSAGES.alignmentButtons.alignBottom
+         }
+         ],
+         destroy: function () {
+         this.popup.element.off();
+         PopupTool.fn.destroy.call(this);
+         },
+         update: function (range) {
+         var textAlign = range.textAlign();
+         var verticalAlign = range.verticalAlign();
+         var element = this.popup.element;
+         element.find('.k-button').removeClass('k-state-active');
+         if (textAlign) {
+         element.find('[data-property=textAlign][data-value=' + textAlign + ']').addClass('k-state-active');
+         }
+         if (verticalAlign) {
+         element.find('[data-property=verticalAlign][data-value=' + verticalAlign + ']').addClass('k-state-active');
+         }
+         },
+         _commandPalette: function () {
+         var buttons = this.buttons;
+         var element = $('<div />').appendTo(this.popup.element);
+         buttons.forEach(function (options, index) {
+         var button = '<a title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-font-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+         if (index !== 0 && buttons[index - 1].property !== options.property) {
+         element.append($('<span class=\'k-separator\' />'));
+         }
+         element.append(button);
+         });
+         },
+         _action: function (button) {
+         var property = button.attr('data-property');
+         var value = button.attr('data-value');
+         this.toolbar.action({
+         command: 'PropertyChangeCommand',
+         options: {
+         property: property,
+         value: value
+         }
+         });
+         }
+         });
+         var AlignmentButton = OverflowDialogButton.extend({
+         _click: function () {
+         this.toolbar.dialog({ name: 'alignment' });
+         }
+         });
+         kendo.toolbar.registerComponent('alignment', AlignmentTool, AlignmentButton);
+         */
+
+    }(window.jQuery));
+
+    /* jshint +W071 */
+
+    return window.kendo;
+
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

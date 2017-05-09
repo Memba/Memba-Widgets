@@ -1,0 +1,542 @@
+/**
+ * Copyright (c) 2013-2017 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/* jshint browser: true, jquery: true */
+/* globals define: false */
+
+(function (f, define) {
+    'use strict';
+    define([
+        './window.assert',
+        './window.logger',
+        './vendor/kendo/kendo.drawing'
+    ], f);
+})(function () {
+
+    'use strict';
+
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
+    (function ($, undefined) {
+
+        var kendo = window.kendo;
+        var drawing = kendo.drawing;
+        var geometry = kendo.geometry;
+        var diagram = kendo.dataviz.diagram;
+        var VisualBase = diagram.VisualBase;
+        var MarkerBase = diagram.MarkerBase;
+        var Utils = diagram.Utils;
+        var deepExtend = kendo.deepExtend;
+
+        var assert = window.assert;
+        var logger = new window.Logger('kidoju.widgets.mathgraph.tools');
+        var NUMBER = 'number';
+
+        var vectordrawing = kendo.verctordrawing = kendo.verctordrawing || {};
+
+        /*********************************************************************************
+         * Tools
+         *********************************************************************************/
+
+        var util = {
+
+            /**
+             * Get the mouse (or touch) position
+             * @param e
+             * @param stage
+             * @returns {{x: *, y: *}}
+             */
+            getMousePosition: function (e, stage) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($, stage, kendo.format(assert.messages.instanceof.default, 'stage', 'jQuery'));
+                // See http://www.jacklmoore.com/notes/mouse-position/
+                // See http://www.jqwidgets.com/community/topic/dragend-event-properties-clientx-and-clienty-are-undefined-on-ios/
+                // See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
+                // ATTENTION: e.originalEvent.changedTouches instanceof TouchList, not Array
+                var originalEvent = e.originalEvent;
+                var clientX = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientX : e.clientX;
+                var clientY = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientY : e.clientY;
+                // IMPORTANT: Position is relative to the stage and e.offsetX / e.offsetY do not work in Firefox
+                // var stage = $(e.target).closest('.kj-stage').find(kendo.roleSelector('stage'));
+                var ownerDocument = $(stage.get(0).ownerDocument);
+                var stageOffset = stage.offset();
+                var mouse = {
+                    x: clientX - stageOffset.left + ownerDocument.scrollLeft(),
+                    y: clientY - stageOffset.top + ownerDocument.scrollTop()
+                };
+                return mouse;
+            },
+
+            /**
+             * Get the position of the center of an element
+             * @param element
+             * @param stage
+             * @param scale
+             */
+            getElementCenter: function (element, stage, scale) {
+                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
+                assert.instanceof($, stage, kendo.format(assert.messages.instanceof.default, 'stage', 'jQuery'));
+                assert.type(NUMBER, scale, kendo.format(assert.messages.type.default, 'scale', NUMBER));
+                // We need getBoundingClientRect to especially account for rotation
+                var rect = element[0].getBoundingClientRect();
+                var ownerDocument = $(stage.get(0).ownerDocument);
+                var stageOffset = stage.offset();
+                return {
+                    left: (rect.left - stageOffset.left + rect.width / 2  + ownerDocument.scrollLeft()) / scale,
+                    top: (rect.top - stageOffset.top + rect.height / 2 + ownerDocument.scrollTop()) / scale
+                };
+            },
+
+            /**
+             * Get the scale of an element's CSS transformation
+             * Note: the same function is used in kidoju.widgets.stage
+             * @param element
+             * @returns {Number|number}
+             */
+            getTransformScale: function (element) {
+                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
+                // element.css('transform') returns a matrix, so we have to read the style attribute
+                var match = (element.attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
+                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
+            }
+
+        };
+
+        /**
+         * A Configuration class to represent the configuration that is bound to the toolbar and the selected shape
+         * @see http://docs.telerik.com/kendo-ui/api/javascript/drawing/text#configuration
+         */
+        var Configuration = kendo.Observable.extend({
+            // clip,
+            // cursor
+            fill: {
+                color: ''
+                // opacity: 1
+            },
+            font: {
+                fontFamily: '',
+                fontSize: '',
+                fontStyle: ''
+            },
+            opacity: 1,
+            stroke: {
+                color: '#000',
+                dashType: 'solid',
+                // lineCap: 'butt',
+                // lineJoin: 'miter',
+                // opacity: 1,
+                width: 1
+            },
+            // tooltip,
+            // tramsform,
+            // visible
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            toJSON: function (withFont) {
+                /* jshint maxcomplexity: 11 */
+                var configuration = {};
+                // Fill color
+                if (RX_COLOR.test(this.fill.color)) {
+                    configuration.fill = configuration.fill || {};
+                    configuration.fill.color = this.fill.color;
+                }
+                // Font (only applies to text)
+                if (!!withFont) {
+                    // TODO Improve after checking default values
+                    configuration.font = this.font.fontStyle + ' ' + this.font.fontSize + ' ' + this.font.fontFamily;
+                }
+                // Opacity
+                if ($.type(this.opacity) === NUMBER && this.opacity >= 0 && this.opacity < 1) {
+                    configuration.opacity = this.opacity;
+                }
+                // Stroke color
+                if (RX_COLOR.test(this.stroke.color)) {
+                    configuration.stroke = configuration.stroke || {};
+                    configuration.stroke.color = this.stroke.color;
+                }
+                // Stroke dashType
+                if (RX_DASHTYPE.test(this.stroke.dashType)) {
+                    configuration.stroke = configuration.stroke || {};
+                    configuration.stroke.dashType = this.stroke.dashType;
+                }
+                // Stroke width
+                if ($.type(this.stroke.width) === NUMBER && this.stroke.width > 0) {
+                    configuration.stroke = configuration.stroke || {};
+                    configuration.stroke.width = this.stroke.width;
+                }
+                return configuration;
+            }
+
+            /* jshint +W074 */
+        });
+
+        /**
+         * List of Elements to draw
+         */
+        var MathGraphNameMarker = MarkerBase.extend({
+            options: {
+                radius: 4,
+                anchor: {
+                    x: 0,
+                    y: 0
+                }
+            },
+            createElement: function () {
+                var options = this.options;
+                this.drawingElement = new d.Circle(new g.Circle(this.anchor, options.radius), {
+                    fill: options.fill,
+                    stroke: options.stroke
+                });
+            },
+            positionMarker: function (path) {
+                var options = this.options;
+                var position = options.position;
+                var segments = path.segments;
+                var targetSegment;
+                var point;
+                if (position == START) {
+                    targetSegment = segments[0];
+                } else {
+                    targetSegment = segments[segments.length - 1];
+                }
+                if (targetSegment) {
+                    point = this._transformToPath(targetSegment.anchor(), path);
+                    this.drawingElement.transform(g.transform().translate(point.x, point.y));
+                }
+            }
+        });
+        var MathGraphPoint = VisualBase.extend({
+            init: function (options) {
+                VisualBase.fn.init.call(this, options);
+                this._initPath();
+                this._setPosition();
+            },
+            _setPosition: function () {
+                var options = this.options;
+                var x = options.x;
+                var y = options.y;
+                if (defined(x) || defined(y)) {
+                    this.position(x || 0, y || 0);
+                }
+            },
+            redraw: function (options) {
+                if (options) {
+                    VisualBase.fn.redraw.call(this, options);
+                    if (this._diffNumericOptions(options, [
+                            WIDTH,
+                            HEIGHT
+                        ])) {
+                        this._drawPath();
+                    }
+                    if (this._diffNumericOptions(options, [
+                            X,
+                            Y
+                        ])) {
+                        this._setPosition();
+                    }
+                }
+            },
+            _initPath: function () {
+                var options = this.options;
+                this.drawingElement = new d.Path({
+                    stroke: options.stroke,
+                    closed: true
+                });
+                this._fill();
+                this._drawPath();
+            },
+            _drawPath: function () {
+                var drawingElement = this.drawingElement;
+                var sizeOptions = sizeOptionsOrDefault(this.options);
+                var width = sizeOptions.width;
+                var height = sizeOptions.height;
+                drawingElement.segments.elements([
+                    createSegment(0, 0),
+                    createSegment(width, 0),
+                    createSegment(width, height),
+                    createSegment(0, height)
+                ]);
+            }
+        });
+        var MathGraphLine  = VisualBase.extend({
+            init: function (options) {
+                VisualBase.fn.init.call(this, options);
+                this._initPath();
+                this._setPosition();
+            },
+            _setPosition: function () {
+                var options = this.options;
+                var x = options.x;
+                var y = options.y;
+                if (defined(x) || defined(y)) {
+                    this.position(x || 0, y || 0);
+                }
+            },
+            redraw: function (options) {
+                if (options) {
+                    VisualBase.fn.redraw.call(this, options);
+                    if (this._diffNumericOptions(options, [
+                            WIDTH,
+                            HEIGHT
+                        ])) {
+                        this._drawPath();
+                    }
+                    if (this._diffNumericOptions(options, [
+                            X,
+                            Y
+                        ])) {
+                        this._setPosition();
+                    }
+                }
+            },
+            _initPath: function () {
+                var options = this.options;
+                this.drawingElement = new d.Path({
+                    stroke: options.stroke,
+                    closed: true
+                });
+                this._fill();
+                this._drawPath();
+            },
+            _drawPath: function () {
+                var drawingElement = this.drawingElement;
+                var sizeOptions = sizeOptionsOrDefault(this.options);
+                var width = sizeOptions.width;
+                var height = sizeOptions.height;
+                drawingElement.segments.elements([
+                    createSegment(0, 0),
+                    createSegment(width, 0),
+                    createSegment(width, height),
+                    createSegment(0, height)
+                ]);
+            }
+        });
+        var MathGraphSegment  = VisualBase.extend({
+            init: function (options) {
+                VisualBase.fn.init.call(this, options);
+                this._initPath();
+                this._setPosition();
+            },
+            _setPosition: function () {
+                var options = this.options;
+                var x = options.x;
+                var y = options.y;
+                if (defined(x) || defined(y)) {
+                    this.position(x || 0, y || 0);
+                }
+            },
+            redraw: function (options) {
+                if (options) {
+                    VisualBase.fn.redraw.call(this, options);
+                    if (this._diffNumericOptions(options, [
+                            WIDTH,
+                            HEIGHT
+                        ])) {
+                        this._drawPath();
+                    }
+                    if (this._diffNumericOptions(options, [
+                            X,
+                            Y
+                        ])) {
+                        this._setPosition();
+                    }
+                }
+            },
+            _initPath: function () {
+                var options = this.options;
+                this.drawingElement = new d.Path({
+                    stroke: options.stroke,
+                    closed: true
+                });
+                this._fill();
+                this._drawPath();
+            },
+            _drawPath: function () {
+                var drawingElement = this.drawingElement;
+                var sizeOptions = sizeOptionsOrDefault(this.options);
+                var width = sizeOptions.width;
+                var height = sizeOptions.height;
+                drawingElement.segments.elements([
+                    createSegment(0, 0),
+                    createSegment(width, 0),
+                    createSegment(width, height),
+                    createSegment(0, height)
+                ]);
+            }
+        });
+        var MathGraphRay  = VisualBase.extend({
+            init: function (options) {
+                VisualBase.fn.init.call(this, options);
+                this._initPath();
+                this._setPosition();
+            },
+            _setPosition: function () {
+                var options = this.options;
+                var x = options.x;
+                var y = options.y;
+                if (defined(x) || defined(y)) {
+                    this.position(x || 0, y || 0);
+                }
+            },
+            redraw: function (options) {
+                if (options) {
+                    VisualBase.fn.redraw.call(this, options);
+                    if (this._diffNumericOptions(options, [
+                            WIDTH,
+                            HEIGHT
+                        ])) {
+                        this._drawPath();
+                    }
+                    if (this._diffNumericOptions(options, [
+                            X,
+                            Y
+                        ])) {
+                        this._setPosition();
+                    }
+                }
+            },
+            _initPath: function () {
+                var options = this.options;
+                this.drawingElement = new d.Path({
+                    stroke: options.stroke,
+                    closed: true
+                });
+                this._fill();
+                this._drawPath();
+            },
+            _drawPath: function () {
+                var drawingElement = this.drawingElement;
+                var sizeOptions = sizeOptionsOrDefault(this.options);
+                var width = sizeOptions.width;
+                var height = sizeOptions.height;
+                drawingElement.segments.elements([
+                    createSegment(0, 0),
+                    createSegment(width, 0),
+                    createSegment(width, height),
+                    createSegment(0, height)
+                ]);
+            }
+        });
+        var MathGraphCircle  = VisualBase.extend({
+            init: function (options) {
+                VisualBase.fn.init.call(this, options);
+                this._initPath();
+                this._setPosition();
+            },
+            _setPosition: function () {
+                var options = this.options;
+                var x = options.x;
+                var y = options.y;
+                if (defined(x) || defined(y)) {
+                    this.position(x || 0, y || 0);
+                }
+            },
+            redraw: function (options) {
+                if (options) {
+                    VisualBase.fn.redraw.call(this, options);
+                    if (this._diffNumericOptions(options, [
+                            WIDTH,
+                            HEIGHT
+                        ])) {
+                        this._drawPath();
+                    }
+                    if (this._diffNumericOptions(options, [
+                            X,
+                            Y
+                        ])) {
+                        this._setPosition();
+                    }
+                }
+            },
+            _initPath: function () {
+                var options = this.options;
+                this.drawingElement = new d.Path({
+                    stroke: options.stroke,
+                    closed: true
+                });
+                this._fill();
+                this._drawPath();
+            },
+            _drawPath: function () {
+                var drawingElement = this.drawingElement;
+                var sizeOptions = sizeOptionsOrDefault(this.options);
+                var width = sizeOptions.width;
+                var height = sizeOptions.height;
+                drawingElement.segments.elements([
+                    createSegment(0, 0),
+                    createSegment(width, 0),
+                    createSegment(width, height),
+                    createSegment(0, height)
+                ]);
+            }
+        });
+        var MathGraphPlot  = VisualBase.extend({
+            init: function (options) {
+                VisualBase.fn.init.call(this, options);
+                this._initPath();
+                this._setPosition();
+            },
+            _setPosition: function () {
+                var options = this.options;
+                var x = options.x;
+                var y = options.y;
+                if (defined(x) || defined(y)) {
+                    this.position(x || 0, y || 0);
+                }
+            },
+            redraw: function (options) {
+                if (options) {
+                    VisualBase.fn.redraw.call(this, options);
+                    if (this._diffNumericOptions(options, [
+                            WIDTH,
+                            HEIGHT
+                        ])) {
+                        this._drawPath();
+                    }
+                    if (this._diffNumericOptions(options, [
+                            X,
+                            Y
+                        ])) {
+                        this._setPosition();
+                    }
+                }
+            },
+            _initPath: function () {
+                var options = this.options;
+                this.drawingElement = new d.Path({
+                    stroke: options.stroke,
+                    closed: true
+                });
+                this._fill();
+                this._drawPath();
+            },
+            _drawPath: function () {
+                var drawingElement = this.drawingElement;
+                var sizeOptions = sizeOptionsOrDefault(this.options);
+                var width = sizeOptions.width;
+                var height = sizeOptions.height;
+                drawingElement.segments.elements([
+                    createSegment(0, 0),
+                    createSegment(width, 0),
+                    createSegment(width, height),
+                    createSegment(0, height)
+                ]);
+            }
+        });
+
+        deepExtend(diagram, {
+
+        });
+
+    }(window.jQuery));
+
+    /* jshint +W071 */
+
+    return window.kendo;
+
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

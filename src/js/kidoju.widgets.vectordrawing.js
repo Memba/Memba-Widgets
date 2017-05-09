@@ -130,7 +130,123 @@
                 this.type = 'PenTool';
             },
             tryActivate: function () {
-                return this.toolService._selectedTool === 'PenTool';
+                return this.toolService._selectedTool && this.toolService._selectedTool.type === 'PenTool';
+            },
+            start: function (p, meta) {
+                var toolService = this.toolService;
+                var diagram = toolService.diagram;
+                // var connector = toolService._hoveredConnector;
+                // var connection = diagram._createConnection({}, connector._c, p);
+                var shape = diagram._createShape({}, {
+                    type: 'path',
+                    x: p.x,
+                    y: p.y,
+                    radius: 0,
+                    // height: 0,
+                    // width: 0,
+                    minHeight: 0,
+                    maxHeight: 0,
+                    fill: {
+                        color: '#0000ff'
+                    },
+                    stroke: {
+                        color: '#000000',
+                        width: 5
+                    }
+                });
+                if (canDrag(shape) && !diagram.trigger(DRAG_START, {
+                        shapes: [shape],
+                        connections: []
+                    }) && diagram._addShape(shape)) {
+                    // toolService._connectionManipulation(connection, connector._c.shape, true);
+                    toolService.activeShape = shape;
+                    toolService._removeHover();
+                    toolService.selectSingle(toolService.activeShape, meta);
+                    /*
+                     if (meta.type == 'touchmove') {
+                     diagram._cachedTouchTarget = connector.visual;
+                     }
+                     */
+                } else {
+                    // connection.source(null);
+                    toolService.end(p);
+                }
+            },
+            move: function (p) {
+                var toolService = this.toolService;
+                var shape = toolService.activeShape;
+                var x = p.x > shape._bounds.x ? shape._bounds.x : p.x;
+                var y = p.y > shape._bounds.y ? shape._bounds.y : p.y;
+                var width = p.x > shape._bounds.x ? p.x - shape._bounds.x : shape._bounds.x + shape._bounds.width - p.x;
+                var height = p.y > shape._bounds.y ? p.y - shape._bounds.y : shape._bounds.y + shape._bounds.height - p.y;
+                shape._setOptionsFromModel({ x: x, y: y, width: width, height: height });
+                // connection.target(p);
+                toolService.diagram.trigger(DRAG, {
+                    shapes: [shape],
+                    connections: []
+                });
+                return true;
+            },
+            end: function (p) {
+                var toolService = this.toolService;
+                var d = toolService.diagram;
+                /*
+                 var connection = toolService.activeConnection;
+                 var hoveredItem = toolService.hoveredItem;
+                 var connector = toolService._hoveredConnector;
+                 var target;
+                 var cachedTouchTarget = d._cachedTouchTarget;
+                 if (!connection) {
+                 return;
+                 }
+                 if (connector && connector._c != connection.sourceConnector) {
+                 target = connector._c;
+                 } else if (hoveredItem && hoveredItem instanceof diagram.Shape) {
+                 target = hoveredItem.getConnector(AUTO) || hoveredItem.getConnector(p);
+                 } else {
+                 target = p;
+                 }
+                 connection.target(target);
+                 */
+                var shape = toolService.activeShape;
+                // Modify position
+                if (!shape) {
+                    return;
+                }
+                if (!d.trigger(DRAG_END, {
+                        shapes: [shape],
+                        connections: []
+                    })) {
+                    shape.updateModel();
+                    d._syncShapeChanges();
+                } else {
+                    d.remove(shape, false);
+                    d.undoRedoService.pop();
+                }
+                /*
+                 toolService._connectionManipulation();
+                 if (cachedTouchTarget) {
+                 d._connectorsAdorner.visual.remove(cachedTouchTarget);
+                 d._cachedTouchTarget = null;
+                 }
+                 */
+                toolService._selectedTool = undefined;
+            },
+            getCursor: function () {
+                return Cursors.crosshair;
+            }
+        });
+
+        /**
+         * PolyLine tool
+         */
+        var PolyLineTool = Class.extend({
+            init: function (toolService) {
+                this.toolService = toolService;
+                this.type = 'PolyLineTool';
+            },
+            tryActivate: function () {
+                return this.toolService._selectedTool && this.toolService._selectedTool.type === 'PolyLineTool';
             },
             start: function (p, meta) {
                 var toolService = this.toolService;
@@ -246,31 +362,25 @@
                 this.type = 'ShapeTool';
             },
             tryActivate: function () {
-                return this.toolService._selectedTool === 'ShapeTool';
+                return this.toolService._selectedTool && this.toolService._selectedTool.type === 'ShapeTool';
             },
             start: function (p, meta) {
                 var toolService = this.toolService;
                 var diagram = toolService.diagram;
                 // var connector = toolService._hoveredConnector;
                 // var connection = diagram._createConnection({}, connector._c, p);
-                var shape = diagram._createShape({}, {
-                    type: 'circle',
-                    // type: 'rectangle',
-                    x: p.x,
-                    y: p.y,
-                    radius: 0,
-                    // height: 0,
-                    // width: 0,
-                    minHeight: 0,
-                    maxHeight: 0,
-                    fill: {
-                        color: '#0000ff'
-                    },
-                    stroke: {
-                        color: '#000000',
-                        width: 5
+                var shape = diagram._createShape({}, deepExtend(
+                    this.toolService._selectedTool.options,
+                    {
+                        x: p.x,
+                        y: p.y,
+                        minWidth: 0,
+                        width: 0,
+                        minHeight: 0,
+                        height: 0,
+                        radius: 0
                     }
-                });
+                ));
                 if (canDrag(shape) && !diagram.trigger(DRAG_START, {
                         shapes: [shape],
                         connections: []
@@ -362,9 +472,8 @@
                 ToolService.fn.init.call(this, diagram);
                 // Add new tools here
                 this.tools.unshift(new PenTool(this));
+                this.tools.unshift(new PolyLineTool(this));
                 this.tools.unshift(new ShapeTool(this));
-                // this._selectedTool = 'ShapeTool';
-                // this._selectedTool = 'PenTool';
             }
         });
 
@@ -579,6 +688,7 @@
                 })
                 .data('kendoVectorDrawingToolBar');
                 this._resize();
+                // TODO implement toolBarClick!!!!!!!!!!!!!!!!
             },
             _onToolBarDialog: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
@@ -603,34 +713,38 @@
             },
             _onToolBarAction: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                // Note: as long as it is not too complex, we can use a dispatcher like below
+                // In the future, maybe consider Command classes with execute methods that apply to a selection like in kendo.ui.spreadsheet
                 switch (e.command) {
+                    case 'DrawingToolChangeCommand':
+                        // TODO: Extend e.params.options with formatting configuration from toolbar here
+                        deepExtend(e.params.options, { fill: { color: 'red'} })
+                        this._onToolChange(e.params);
+                        break;
                     case 'PropertyChangeCommand':
-                        this._onPropertyChange(e.options);
+                        this._onPropertyChange(e.params);
                         break;
                     case 'ToolbarArrangeCommand':
-                        this._onToolbarArrange(e.options);
-                        break;
-                    case 'ToolbarImageCommand':
-                        this._onToolbarImage(e.options);
+                        this._onToolbarArrange(e.params);
                         break;
                     case 'ToolbarRemoveCommand':
-                        this._onToolbarRemove(e.options);
+                        this._onToolbarRemove(e.params);
                         break;
                     default:
                         $.noop();
                 }
             },
-            _onToolChange: function (options) {
-
+            _onToolChange: function (params) {
+                this.toolService._selectedTool = {
+                    type: params.value,
+                    options: params.options
+                };
             },
             _onPropertyChange: function (options) {
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 var that = this;
                 if (options.property === 'tool')
                     switch (options.property) {
-                        case 'tool':
-                            this.toolService._selectedTool = options.value;
-                            break;
                         case 'fillColor':
                             that._configuration.fill.color = options.value;
                             break;
@@ -671,9 +785,6 @@
                         // TODO
                         break;
                 }
-            },
-            _onToolbarImage: function (options) {
-                debugger;
             },
             _onToolbarRemove: function (options) {
                 this.remove(this.select());

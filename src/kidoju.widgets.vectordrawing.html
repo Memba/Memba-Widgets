@@ -43,7 +43,7 @@
                     }).data('kendoVectorDrawing');
                     $('button').click(function (e) {
                         switch ($('button').index(e.target)) {
-                            case 0: // Size 1
+                            case 0: // Resize
                                 var stage = $('.kj-stage');
                                 var element = vectorDrawingWidget.element;
                                 var parent = vectorDrawingWidget.wrapper.parent();
@@ -60,37 +60,21 @@
                                 });
                                 vectorDrawingWidget.resize();
                                 break;
-                            case 1: // Size 2
-                                var stage = $('.kj-stage');
-                                var element = vectorDrawingWidget.element;
-                                var parent = vectorDrawingWidget.wrapper.parent();
-                                stage.css({ transform: 'scale(0.9)' });
-                                parent.css({
-                                    top: 75,
-                                    left: 200,
-                                    height: 500,
-                                    width: 400
-                                });
-                                element.css({
-                                    height: 500,
-                                    width: 400
-                                });
-                                vectorDrawingWidget.resize();
-                                break;
-                            case 2: // Open
+                            case 1: // Open
                                 window.alert('TODO: Check SVG roundtrips');
                                 break;
-                            case 3: // Save
-                                vectorDrawingWidget.save()
+                            case 2: // Save
+                                vectorDrawingWidget.exportSVG()
                                 .done(function (data) {
+                                	debugger;
                                     kendo.saveAs({
                                         dataURI: data,
                                         fileName: "vectordrawing.svg"
                                     });
                                 });
                                 break;
-                            case 4: // Export
-                                vectorDrawingWidget.export()
+                            case 3: // Export
+                                vectorDrawingWidget.exportImage()
                                 .done(function (data) {
                                     kendo.saveAs({
                                         dataURI: data,

@@ -265,49 +265,33 @@
             separator: { type: 'separator' },
             select: {
                 type: 'button',
-                command: 'PropertyChangeCommand',
+                command: 'DrawingToolChangeCommand',
                 group: 'tool',
                 property: 'tool',
-                value: TOOLS.SELECT,
+                value: undefined,
                 iconClass: 'select',
                 togglable: true
             },
             pen: {
                 type: 'button',
-                command: 'PropertyChangeCommand',
+                command: 'DrawingToolChangeCommand',
                 group: 'tool',
                 property: 'tool',
-                value: TOOLS.PEN,
+                value: 'PenTool',
+                options: {},
                 iconClass: 'pencil',
                 togglable: true
             },
             line: {
                 type: 'button',
-                command: 'PropertyChangeCommand',
+                command: 'DrawingToolChangeCommand',
                 group: 'tool',
                 property: 'tool',
-                value: TOOLS.LINE,
+                value: 'PolyLineTool',
+                options: {},
                 iconClass: 'shape-line',
                 togglable: true
             },
-            rect: {
-                type: 'button',
-                command: 'PropertyChangeCommand',
-                group: 'tool',
-                property: 'tool',
-                value: TOOLS.RECT,
-                iconClass: 'shape-rect',
-                togglable: true
-            }, // TODO: Move underneath shape
-            circle: {
-                type: 'button',
-                command: 'PropertyChangeCommand',
-                group: 'tool',
-                property: 'tool',
-                value: TOOLS.CIRCLE,
-                iconClass: 'shape-circle',
-                togglable: true
-            }, // TODO: Move underneath shape
             shape: {
                 type: 'shapeEx',
                 iconClass: 'shape'
@@ -323,7 +307,7 @@
             },
             text: {
                 type: 'button',
-                command: 'PropertyChangeCommand',
+                command: 'DrawingToolChangeCommand',
                 group: 'tool',
                 property: 'tool',
                 value: TOOLS.TEXT,
@@ -738,7 +722,7 @@
                 } else {
                     this.toolbar.action({
                         command: 'PropertyChangeCommand',
-                        options: {
+                        params: {
                             property: this.options.property,
                             value: value === 'null' ? null : value
                         }
@@ -806,24 +790,28 @@
             },
             buttons: [
                 {
-                    value: 'TODO SVG Path',
+                    value: 'rectangle',
                     iconClass: 'shape-rect',
-                    text: TOOLBAR_MESSAGES.shapeButtons.rect
+                    text: TOOLBAR_MESSAGES.shapeButtons.rect,
+                    path: ''
                 },
                 {
-                    value: 'TODO SVG Path',
+                    value: 'circle',
                     iconClass: 'shape-circle',
-                    text: TOOLBAR_MESSAGES.shapeButtons.circle
+                    text: TOOLBAR_MESSAGES.shapeButtons.circle,
+                    path: ''
                 },
                 {
-                    value: 'TODO SVG Path',
+                    value: 'path',
                     iconClass: 'star-outline',
-                    text: TOOLBAR_MESSAGES.shapeButtons.star
+                    text: TOOLBAR_MESSAGES.shapeButtons.star,
+                    path: 'M 50.000 70.000 L 79.389 90.451 L 69.021 56.180 L 97.553 34.549 L 61.756 33.820 L 50.000 0.000 L 38.244 33.820 L 2.447 34.549 L 30.979 56.180 L 20.611 90.451 Z'
                 },
                 {
-                    value: 'TODO SVG Path',
+                    value: 'path',
                     iconClass: 'heart-outline',
-                    text: TOOLBAR_MESSAGES.shapeButtons.heart
+                    text: TOOLBAR_MESSAGES.shapeButtons.heart,
+                    path: 'M 0,0 L 100,100 L 300,0 Z' // TODO Make a heart
                 }
                 // TODO: add roundRect, triangle, pentagon, hexagon, octogon, arrows, 3d shapes, ...
             ],
@@ -835,7 +823,7 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' data-path=\'' + options.path + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
                         element.append($('<span class=\'k-separator\' />'));
                     }
@@ -844,9 +832,17 @@
             },
             _action: function (button) {
                 var value = button.attr('data-value');
+                var path = button.attr('data-path');
                 this.toolbar.action({
-                    command: 'ToolbarShapeCommand',
-                    options: { value: value }
+                    command: 'DrawingToolChangeCommand',
+                    params: {
+                        property: 'tool',
+                        value: 'ShapeTool',
+                        options: {
+                            type: value,
+                            path: path
+                        }
+                    }
                 });
             }
         });
@@ -1051,7 +1047,7 @@
             _colorChange: function (e) {
                 this.toolbar.action({
                     command: 'PropertyChangeCommand',
-                    options: {
+                    params: {
                         property: this.options.property,
                         value: e.sender.value()
                     }
@@ -1139,7 +1135,7 @@
             _valueChange: function (e) {
                 this.toolbar.action({
                     command: 'PropertyChangeCommand',
-                    options: {
+                    params: {
                         property: this.options.property,
                         value: kendo.parseInt(e.sender.value())
                     }
@@ -1274,7 +1270,7 @@
                 var value = button.attr('data-value');
                 this.toolbar.action({
                     command: 'ToolbarArrangeCommand',
-                    options: { value: value }
+                    params: { value: value }
                 });
             }
         });
@@ -1507,15 +1503,22 @@
                 VectorDrawingDialog.fn.open.apply(self, arguments);
                 var element = self.dialog().element;
                 var model = kendo.observable({
-                    url: 'https://cdn.kidoju.com/s/en/570cc7f46d1dd91900729417/image.png', // TODO url,
+                    url: 'https://cdn.kidoju.com/s/en/570cc7f46d1dd91900729417/image.png',
                     // url: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/Elvis.jpg',
                     apply: function () {
                         if (!/\S/.test(model.url)) {
                             model.url = null;
                         }
                         self.trigger('action', {
-                            command: 'ToolbarImageCommand',
-                            options: { url: model.url }
+                            command: 'DrawingToolChangeCommand',
+                            params: {
+                                property: 'tool',
+                                value: 'ShapeTool',
+                                options: {
+                                    type: 'image',
+                                    source: model.url
+                                }
+                            }
                         });
                         self.close();
                     },

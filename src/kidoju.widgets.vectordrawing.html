@@ -28,48 +28,20 @@
                     './js/vendor/kendo/kendo.*.js': { format: 'amd' }
                 }
             });
-            Promise.all([ // Note: IE requires a Promise polyfill
-                SystemJS.import('./js/vendor/kendo/kendo.grid.js'),
-                SystemJS.import('./js/kidoju.widgets.vectordrawing.js')
-            ]).then(function () {
-            	var kendo = window.kendo;
-                var viewModel = kendo.observable({
-                    source: [
-                        {
-                            id: kendo.guid(),
-                            type: 'path',
-                            svg: 'M 0,0 L 100,100',
-                            configuration: { stroke: { color: '#FF0000', width: 3 } }
-                        },
-                        {
-                            id: kendo.guid(),
-                            type: 'rect',
-                            origin: [200, 200],
-                            size: [150, 150],
-                            configuration: { stroke: { color: '#00FF00', width: 5 } }
-                        },
-                        {
-                            id: kendo.guid(),
-                            type: 'circle',
-                            center: [300, 300],
-                            radius: 180,
-                            configuration: { stroke: { color: '#0000FF', width: 5 } }
-                        },
-                        {
-                            id: kendo.guid(),
-                            type: 'text',
-                            text: 'Foo',
-                            position: [400, 400],
-                            configuration: { font: 'italic 5em \'Open Sans\', sans-serif', stroke: { color: '#00FFFF' } }
-                        }
-                        // TODO image
-                    ],
-                    visible: true,
-                    enabled: true
-                });
+            SystemJS.import('./js/kidoju.widgets.vectordrawing.js').then(function () {
+                var kendo = window.kendo;
                 $(function() {
+                    // $('#toolbar').kendoVectorDrawingToolBar({});
+                    var vectorDrawingWidget = $('#drawing').kendoVectorDrawing({
+                        shapes: [
+                            { type: 'Rectangle', x: 50, y: 40, height: 200, width: 300, fill: { color: '#ff0000' } },
+                            { type: 'Text', x: 100, y: 500, text: 'Hello', fill: { color: '#0000ff' } },
+                            { type: 'Image', x: 300, y: 200, height: 300, width: 400, source: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/Elvis.jpg' },
+                            { type: 'Circle', x: 300, y: 400, radius: 150, fill: { color: '#00ff00' } },
+                            { type: 'Path', x: 300, y: 200, path: 'M 0,0 L300,400', stroke: { color: '#808080', width: 5 }, startCap: { type: "FilledCircle", fill: { color: "red" }, stroke: { width: 5 } }, endCap: { type: "ArrowEnd", fill: { color: "red" }, stroke: { width: 5 } } }
+                        ]
+                    }).data('kendoVectorDrawing');
                     $('button').click(function (e) {
-                        var vectorDrawingWidget  = $(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
                         switch ($('button').index(e.target)) {
                             case 0: // Size 1
                                 var stage = $('.kj-stage');
@@ -129,22 +101,14 @@
                         }
                     });
                     $('#hook').change(function (e) {
-                        var vectorDrawingWidget  = $(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
                         if ($(e.target).prop('checked')) {
-                            // TODO
+                            vectorDrawingWidget.bind('toolbarClick', function (e) {
+                                alert('hook!');
+                            });
                         } else {
-                            // TODO
+                            vectorDrawingWidget.unbind('toolbarClick');
                         }
                     });
-                    $('#grid').kendoGrid({
-                        dataSource: viewModel.source,
-                        columns: [
-                            { field: 'id', title: 'id' },
-                            { field: 'type', title: 'type' }
-                        ],
-                        editable: true
-                    });
-                    kendo.bind('body', viewModel);
                 });
             });
         }());
@@ -153,16 +117,7 @@
 <body>
 <h1>kidoju.widgets.vectordrawing</h1>
 <div id="toolbar"></div>
-<div class="kj-stage" style="position:relative;height:600px;width:800px;border:solid 1px black;transform: scale(0.75);">
-    <div data-role="stage" style="height:600px;width:800px;">
-        <div class="kj-element" style="position:absolute;top:50px;left:100px;height:480px;width:640px;">
-            <div data-role="vectordrawing" data-bind="source: source, visible: visible, enabled: enabled" style="height:480px;width:640px;border: solid 1px #808080;"></div>
-        </div>
-        <!--div class="kj-element" style="position:absolute;top:530px;left:740px;height:100px;width:150px;">
-            <div data-role="vectordrawing" data-bind="source: source, visible: visible, enabled: enabled" style="height:480px;width:640px;border: solid 1px #808080;"></div>
-        </div-->
-    </div>
-</div>
+<div id="drawing"></div>
 <pre>
 {
     visible: <span data-bind="text: visible"></span>
@@ -170,9 +125,8 @@
 }
 </pre>
 <div>
-    <button>Size 1</button>&nbsp;
-    <button>Size 2</button>&nbsp;
-    <button>Open</button>&nbsp;
+    <button>Resize</button>&nbsp;
+    <button>Open</button>
     <button>Save</button>&nbsp;
     <button>Export</button>&nbsp;
 </div>
@@ -181,6 +135,6 @@
     <input type="checkbox" data-bind="checked: enabled" />Enabled
     <input id="hook" type="checkbox" />Hook Images
 </div>
-<div id="grid"></div>
+<div id="diagram"></div>
 </body>
 </html>

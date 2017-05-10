@@ -38,42 +38,23 @@
                             { type: 'Text', x: 100, y: 500, text: 'Hello', fill: { color: '#0000ff' } },
                             { type: 'Image', x: 300, y: 200, height: 300, width: 400, source: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/Elvis.jpg' },
                             { type: 'Circle', x: 300, y: 400, radius: 150, fill: { color: '#00ff00' } },
-                            { type: 'Path', x: 300, y: 200, path: 'M 0,0 L300,400', stroke: { color: '#808080', width: 5 }, startCap: { type: "FilledCircle", fill: { color: "red" }, stroke: { width: 5 } }, endCap: { type: "ArrowEnd", fill: { color: "red" }, stroke: { width: 5 } } }
+                            { type: 'Path', x: 300, y: 200, path: 'M 0,0 L100,100', stroke: { color: '#808080', width: 5 }, startCap: { type: "FilledCircle", fill: { color: "red" }, stroke: { width: 5 } }, endCap: { type: "ArrowEnd", fill: { color: "red" }, stroke: { width: 5 } } }
                         ]
                     }).data('kendoVectorDrawing');
                     $('button').click(function (e) {
                         switch ($('button').index(e.target)) {
-                            case 0: // Resize
-                                var stage = $('.kj-stage');
+                            case 0: // New
+                                vectorDrawingWidget.clear();
+                                break;
+                            case 1: // Resize - Test that the file saved or exported is WYSIWYG after zooming and panning
                                 var element = vectorDrawingWidget.element;
-                                var parent = vectorDrawingWidget.wrapper.parent();
-                                stage.css({ transform: 'scale(0.75)' });
-                                parent.css({
-                                    top: 50,
-                                    left: 100,
-                                    height: 480,
-                                    width: 640
-                                });
                                 element.css({
                                     height: 480,
                                     width: 640
                                 });
                                 vectorDrawingWidget.resize();
                                 break;
-                            case 1: // Open
-                                window.alert('TODO: Check SVG roundtrips');
-                                break;
-                            case 2: // Save
-                                vectorDrawingWidget.exportSVG()
-                                .done(function (data) {
-                                	debugger;
-                                    kendo.saveAs({
-                                        dataURI: data,
-                                        fileName: "vectordrawing.svg"
-                                    });
-                                });
-                                break;
-                            case 3: // Export
+                            case 2: // Export
                                 vectorDrawingWidget.exportImage()
                                 .done(function (data) {
                                     kendo.saveAs({
@@ -84,7 +65,46 @@
                                 break;
                         }
                     });
-                    $('#hook').change(function (e) {
+                    $('input[type="file"]').on('change', function (e) {
+                        vectorDrawingWidget.clear();
+                        var file = e.target.files[0];
+                        if (!file.type.match(/^image\//)) {
+                            return;
+                        }
+                        var reader = new FileReader();
+                        // Closure to capture the file information.
+                        reader.onload = (function(f) {
+                            return function(e) {
+                            	var img = $('<img/>')
+                                    .appendTo('body')
+                                    .css({
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: -10000
+                                    })
+                                    .attr('src', e.target.result);
+                                setTimeout(function () {
+                                    vectorDrawingWidget.element.css({
+                                        height: img.height() + vectorDrawingWidget.toolBar.element.height(),
+                                        width: img.width()
+                                    });
+                                    vectorDrawingWidget.addShape({
+                                        type: 'image',
+                                        x: 0,
+                                        y: 0,
+                                        height: img.height(),
+                                        width: img.width(),
+                                        source: e.target.result
+                                    });
+                                    vectorDrawingWidget.resize();
+                                    vectorDrawingWidget.toolBar.resize();
+                                }, 0);
+                            };
+                        })(file);
+                        // Read in the image file as a data URL.
+                        reader.readAsDataURL(file);
+                    });
+                    $('#hook_image').change(function (e) {
                         if ($(e.target).prop('checked')) {
                             vectorDrawingWidget.bind('toolbarClick', function (e) {
                                 alert('hook!');
@@ -109,15 +129,16 @@
 }
 </pre>
 <div>
-    <button>Resize</button>&nbsp;
-    <button>Open</button>
-    <button>Save</button>&nbsp;
-    <button>Export</button>&nbsp;
+    <button>New</button>&nbsp;
+    <input type="file" />
+    <button>Resize</button>
+    <button>Export PNG</button>&nbsp;
 </div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
     <input type="checkbox" data-bind="checked: enabled" />Enabled
-    <input id="hook" type="checkbox" />Hook Images
+    <input id="hook_image" type="checkbox" />Hook Image
+    <input id="hook_save" type="checkbox" />Hook Save
 </div>
 <div id="diagram"></div>
 </body>

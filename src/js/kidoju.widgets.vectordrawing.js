@@ -31,6 +31,12 @@
         var deepExtend = kendo.deepExtend;
         var isFunction = kendo.isFunction;
         var Class = kendo.Class;
+        var drawing = kendo.drawing;
+        var createPromise = drawing.util.createPromise;
+        var encodeBase64 = drawing.util.encodeBase64;
+        var geometry = kendo.geometry;
+        var Transformation = geometry.Transformation;
+        var RootNode = drawing.svg.RootNode;
         var dataviz = kendo.dataviz;
         var diagram = dataviz.diagram;
         var ui = dataviz.ui;
@@ -42,6 +48,7 @@
         var Group = diagram.Group;
         var Image = diagram.Image;
         var Path = diagram.Path;
+        var Polyline = diagram.Polyline
         var Point = diagram.Point;
         var Rectangle = diagram.Rectangle;
         var Selector = diagram.Selector;
@@ -55,11 +62,84 @@
         var DRAG = 'drag';
         var DRAG_END = 'dragEnd';
         var DRAG_START = 'dragStart';
+        var SVG_NS = 'http://www.w3.org/2000/svg';
 
         /*********************************************************************************
          * Helpers
          *********************************************************************************/
 
+        // From kendo.drawing.js
+        function transform(matrix) {
+            if (matrix === null) {
+                return null;
+            }
+            if (matrix instanceof Transformation) {
+                return matrix;
+            }
+            return new Transformation(matrix);
+        }
+        function exportGroup(group) {
+            var root = new RootNode();
+            var bbox = group.clippedBBox();
+            var rootGroup = group;
+            if (bbox) {
+                var origin = bbox.getOrigin();
+                var exportRoot = new drawing.Group();
+                exportRoot.transform(transform().translate(-origin.x, -origin.y));
+                exportRoot.children.push(group);
+                rootGroup = exportRoot;
+            }
+            root.load([rootGroup]);
+            var svg = '<?xml version=\'1.0\' ?><svg xmlns=\'' + SVG_NS + '\' xmlns:xlink=\'http://www.w3.org/1999/xlink\' version=\'1.1\'>' + root.render() + '</svg>';
+            // TODO add viewBox
+            // TODO add <script type:"application/json"> to <defs> so as to reopen with all shapes and connections
+            root.destroy();
+            return svg;
+        }
+        function exportImage(group, options) {
+            var defaults = {
+                width: '800px',
+                height: '600px',
+                cors: 'Anonymous'
+            };
+            var exportRoot = group;
+            var bbox = group.clippedBBox();
+            if (bbox) {
+                var origin = bbox.getOrigin();
+                exportRoot = new drawing.Group(); // new Group();
+                exportRoot.transform(transform().translate(-origin.x, -origin.y));
+                exportRoot.children.push(group);
+                var size = bbox.getSize();
+                defaults.width = size.width + 'px';
+                defaults.height = size.height + 'px';
+            }
+            var surfaceOptions = $.extend(defaults, options);
+            var container = document.createElement('div');
+            var style = container.style;
+            style.display = 'none';
+            style.width = surfaceOptions.width;
+            style.height = surfaceOptions.height;
+            document.body.appendChild(container);
+            // var surface = new Surface$3(container, surfaceOptions);
+            var surface = new drawing.canvas.Surface(container, surfaceOptions);
+            surface.suspendTracking();
+            surface.draw(exportRoot);
+            var promise = surface.image();
+            var destroy = function () {
+                surface.destroy();
+                document.body.removeChild(container);
+            };
+            promise.then(destroy, destroy);
+            return promise;
+        }
+        function exportSVG (group, options) {
+            var svg = exportGroup(group);
+            if (!options || !options.raw) {
+                svg = 'data:image/svg+xml;base64,' + encodeBase64(svg);
+            }
+            return createPromise().resolve(svg);
+        }
+        // From kendo.dataviz.diagram.js
         function canDrag(element) {
             var editable = element.options.editable;
             return editable && editable.drag !== false;
@@ -86,6 +166,7 @@
                 return deepExtend(
                     Shape.fn._visualOptions.call(this, options),
                     {
+                        points: options.points,
                         text: options.text,
                         startCap: options.startCap,
                         endCap: options.endCap
@@ -113,6 +194,10 @@
                     shapeVisual = new TextBlock(visualOptions);
                 } else if (type == 'image') {
                     shapeVisual = new Image(visualOptions);
+                // BEGIN Added polyline
+                } else if (type == 'polyline') {
+                    shapeVisual = new Polyline(visualOptions);
+                    // END Added polyline
                 } else {
                     shapeVisual = new Path(visualOptions);
                 }
@@ -135,17 +220,14 @@
             start: function (p, meta) {
                 var toolService = this.toolService;
                 var diagram = toolService.diagram;
-                // var connector = toolService._hoveredConnector;
-                // var connection = diagram._createConnection({}, connector._c, p);
-                var shape = diagram._createShape({}, {
-                    type: 'path',
-                    x: p.x,
-                    y: p.y,
-                    radius: 0,
-                    // height: 0,
-                    // width: 0,
-                    minHeight: 0,
-                    maxHeight: 0,
+                var shape = toolService.activeShape = diagram._createShape({}, {
+                    type: 'polyline',
+                    points: [{x: p.x, y: p.y}],
+                    x:0,
+                    y:0,
+                    height: 500,
+                    width: 500,
+                    // TODO configuration options
                     fill: {
                         color: '#0000ff'
                     },
@@ -153,15 +235,16 @@
                         color: '#000000',
                         width: 5
                     }
+                    // startCap
+                    // endCap
                 });
                 if (canDrag(shape) && !diagram.trigger(DRAG_START, {
                         shapes: [shape],
                         connections: []
                     }) && diagram._addShape(shape)) {
-                    // toolService._connectionManipulation(connection, connector._c.shape, true);
                     toolService.activeShape = shape;
-                    toolService._removeHover();
-                    toolService.selectSingle(toolService.activeShape, meta);
+                    // toolService._removeHover();
+                    // toolService.selectSingle(toolService.activeShape, meta);
                     /*
                      if (meta.type == 'touchmove') {
                      diagram._cachedTouchTarget = connector.visual;
@@ -175,20 +258,18 @@
             move: function (p) {
                 var toolService = this.toolService;
                 var shape = toolService.activeShape;
-                var x = p.x > shape._bounds.x ? shape._bounds.x : p.x;
-                var y = p.y > shape._bounds.y ? shape._bounds.y : p.y;
-                var width = p.x > shape._bounds.x ? p.x - shape._bounds.x : shape._bounds.x + shape._bounds.width - p.x;
-                var height = p.y > shape._bounds.y ? p.y - shape._bounds.y : shape._bounds.y + shape._bounds.height - p.y;
-                shape._setOptionsFromModel({ x: x, y: y, width: width, height: height });
-                // connection.target(p);
-                toolService.diagram.trigger(DRAG, {
-                    shapes: [shape],
-                    connections: []
-                });
+                var polyline = shape.shapeVisual;
+                var points = polyline.points();
+                points.push({x: p.x, y: p.y});
+                shape.redraw({ points: points }); // TODO
+                // TODO: should we update model?
+                // shape._setOptionsFromModel({ x: x, y: y, width: width, height: height });
+
                 return true;
             },
             end: function (p) {
                 var toolService = this.toolService;
+                var shape = toolService.activeShape;
                 var d = toolService.diagram;
                 /*
                  var connection = toolService.activeConnection;
@@ -223,13 +304,6 @@
                     d.remove(shape, false);
                     d.undoRedoService.pop();
                 }
-                /*
-                 toolService._connectionManipulation();
-                 if (cachedTouchTarget) {
-                 d._connectorsAdorner.visual.remove(cachedTouchTarget);
-                 d._cachedTouchTarget = null;
-                 }
-                 */
                 toolService._selectedTool = undefined;
             },
             getCursor: function () {
@@ -240,19 +314,17 @@
         /**
          * PolyLine tool
          */
-        var PolyLineTool = Class.extend({
+        var PolylineTool = Class.extend({
             init: function (toolService) {
                 this.toolService = toolService;
-                this.type = 'PolyLineTool';
+                this.type = 'PolylineTool';
             },
             tryActivate: function () {
-                return this.toolService._selectedTool && this.toolService._selectedTool.type === 'PolyLineTool';
+                return this.toolService._selectedTool && this.toolService._selectedTool.type === 'PolylineTool';
             },
             start: function (p, meta) {
                 var toolService = this.toolService;
                 var diagram = toolService.diagram;
-                // var connector = toolService._hoveredConnector;
-                // var connection = diagram._createConnection({}, connector._c, p);
                 var shape = diagram._createShape({}, {
                     type: 'path',
                     x: p.x,
@@ -472,7 +544,7 @@
                 ToolService.fn.init.call(this, diagram);
                 // Add new tools here
                 this.tools.unshift(new PenTool(this));
-                this.tools.unshift(new PolyLineTool(this));
+                this.tools.unshift(new PolylineTool(this));
                 this.tools.unshift(new ShapeTool(this));
             }
         });
@@ -688,7 +760,7 @@
                 })
                 .data('kendoVectorDrawingToolBar');
                 this._resize();
-                // TODO implement toolBarClick!!!!!!!!!!!!!!!!
+                // TODO implement toolBarClick for hooks!!!!!!!!!!!!!!!!
             },
             _onToolBarDialog: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
@@ -713,19 +785,25 @@
             },
             _onToolBarAction: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                // Note: as long as it is not too complex, we can use a dispatcher like below
+                // Note: as long as it is not too complex, we can use a dispatcher as below
                 // In the future, maybe consider Command classes with execute methods that apply to a selection like in kendo.ui.spreadsheet
                 switch (e.command) {
+                    case 'ToolbarSaveCommand':
+                        this._onToolbarSave(e.params);
+                        break;
                     case 'DrawingToolChangeCommand':
                         // TODO: Extend e.params.options with formatting configuration from toolbar here
                         deepExtend(e.params.options, { fill: { color: 'red'} })
-                        this._onToolChange(e.params);
+                        this._onDrawingToolChage(e.params);
                         break;
                     case 'PropertyChangeCommand':
                         this._onPropertyChange(e.params);
                         break;
                     case 'ToolbarArrangeCommand':
                         this._onToolbarArrange(e.params);
+                        break;
+                    case 'ToolbarGridCommand':
+                        this._onToolbarGrid(e.params);
                         break;
                     case 'ToolbarRemoveCommand':
                         this._onToolbarRemove(e.params);
@@ -734,7 +812,17 @@
                         $.noop();
                 }
             },
-            _onToolChange: function (params) {
+            _onToolbarSave: function (params) {
+                // TODO This is a bit more complex than that
+                this.exportSVG()
+                    .done(function (data) {
+                        kendo.saveAs({
+                            dataURI: data,
+                            fileName: "vectordrawing.svg"
+                        });
+                    });
+            },
+            _onDrawingToolChage: function (params) {
                 this.toolService._selectedTool = {
                     type: params.value,
                     options: params.options
@@ -773,7 +861,7 @@
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 switch (options.value) {
                     case 'forward':
-                        // TODO
+                        alert('Not yet implemented!');
                         break;
                     case 'front':
                         this.toFront(this.select());
@@ -782,9 +870,12 @@
                         this.toBack(this.select());
                         break;
                     case 'backward':
-                        // TODO
+                        alert('Not yet implemented!');
                         break;
                 }
+            },
+            _onToolbarGrid: function (options) {
+                alert('Not yet implemented!');
             },
             _onToolbarRemove: function (options) {
                 this.remove(this.select());
@@ -798,6 +889,40 @@
                     this.toolBar.destroy();
                     this.toolBar = null;
                 }
+            },
+            /**
+             * Export functions
+             * Note: we need our own export functions:
+             * 1) To add an svg viewBox, otherwise preserveAspectRatio won't woirk to resize images
+             * 2) To account for panning and zooming so as to export WYSIWYG
+             * 3) To add a <script type:"application/json"> tags within <defs> so as to roundtrip persisted files
+             * @param group
+             * @returns {string}
+             * @private
+             */
+            exportSVG: function (options) {
+                // return drawing.exportSVG(this.exportVisual(), options);
+                return exportSVG(this.exportVisual(), options);
+            },
+            exportImage: function (options) {
+                // return drawing.exportImage(this.exportVisual(options), options);
+                return exportImage(this.exportVisual(options), options);
+            },
+            /*
+            exportPDF: function (options) {
+                return draw.exportPDF(this.exportVisual(), options);
+            }
+            */
+            /**
+             * Import function
+             * Preferably we have one import function which detects svg from other image file formats (gif, png, jpg)
+             * 1) If an svg file contains a <script type:"application/json">, shapes and connectiosn are read from json and svg is discarded
+             * 2) Otherwise (svg without script) or any other image format, a new image shape is added to the canvas/surface
+             * @returns {string}
+             * @private
+             */
+            import: function (/*params*/) {
+
             }
         });
 

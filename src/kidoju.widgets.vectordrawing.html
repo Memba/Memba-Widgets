@@ -30,6 +30,12 @@
             });
             SystemJS.import('./js/kidoju.widgets.vectordrawing.js').then(function () {
                 var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    type: null,
+                    name: null,
+                    height: 0,
+                    width: 0
+                });
                 $(function() {
                     // $('#toolbar').kendoVectorDrawingToolBar({});
                     var vectorDrawingWidget = $('#drawing').kendoVectorDrawing({
@@ -41,20 +47,25 @@
                             { type: 'Path', x: 300, y: 200, path: 'M 0,0 L100,100', stroke: { color: '#808080', width: 5 }, startCap: { type: "FilledCircle", fill: { color: "red" }, stroke: { width: 5 } }, endCap: { type: "ArrowEnd", fill: { color: "red" }, stroke: { width: 5 } } }
                         ]
                     }).data('kendoVectorDrawing');
+                    $('#window').css({ overflow: 'hidden' }).kendoWindow({
+                        title: 'Vector Drawing',
+                        actions: [],
+                        draggable: true,
+                        resizable: true,
+                        resize: function (e) {
+                        	var container = e.sender.element;
+                            vectorDrawingWidget.element
+                                .outerWidth(container.width())
+                                .outerHeight(container.height());
+                            vectorDrawingWidget.resize();
+                        }
+                    });
                     $('button').click(function (e) {
                         switch ($('button').index(e.target)) {
                             case 0: // New
                                 vectorDrawingWidget.clear();
                                 break;
-                            case 1: // Resize - Test that the file saved or exported is WYSIWYG after zooming and panning
-                                var element = vectorDrawingWidget.element;
-                                element.css({
-                                    height: 480,
-                                    width: 640
-                                });
-                                vectorDrawingWidget.resize();
-                                break;
-                            case 2: // Export
+                            case 1: // Export
                                 vectorDrawingWidget.exportImage()
                                 .done(function (data) {
                                     kendo.saveAs({
@@ -67,44 +78,18 @@
                     });
                     $('input[type="file"]').on('change', function (e) {
                         vectorDrawingWidget.clear();
-                        var file = e.target.files[0];
-                        if (!file.type.match(/^image\//)) {
-                            return;
-                        }
-                        var reader = new FileReader();
-                        // Closure to capture the file information.
-                        reader.onload = (function(f) {
-                            return function(e) {
-                            	var img = $('<img/>')
-                                    .appendTo('body')
-                                    .css({
-                                        position: 'absolute',
-                                        top: 0,
-                                        left: -10000
-                                    })
-                                    .attr('src', e.target.result);
-                                setTimeout(function () {
-                                    vectorDrawingWidget.element.css({
-                                        height: img.height() + vectorDrawingWidget.toolBar.element.height(),
-                                        width: img.width()
-                                    });
-                                    vectorDrawingWidget.addShape({
-                                        type: 'image',
-                                        x: 0,
-                                        y: 0,
-                                        height: img.height(),
-                                        width: img.width(),
-                                        source: e.target.result
-                                    });
-                                    vectorDrawingWidget.resize();
-                                    vectorDrawingWidget.toolBar.resize();
-                                }, 0);
-                            };
-                        })(file);
-                        // Read in the image file as a data URL.
-                        reader.readAsDataURL(file);
+                        vectorDrawingWidget.open(e.target.files[0]);
                     });
                     $('#hook_image').change(function (e) {
+                        if ($(e.target).prop('checked')) {
+                            vectorDrawingWidget.bind('toolbarClick', function (e) {
+                                alert('hook!');
+                            });
+                        } else {
+                            vectorDrawingWidget.unbind('toolbarClick');
+                        }
+                    });
+                    $('#hook_save').change(function (e) {
                         if ($(e.target).prop('checked')) {
                             vectorDrawingWidget.bind('toolbarClick', function (e) {
                                 alert('hook!');
@@ -120,14 +105,6 @@
 </head>
 <body>
 <h1>kidoju.widgets.vectordrawing</h1>
-<div id="toolbar"></div>
-<div id="drawing"></div>
-<pre>
-{
-    visible: <span data-bind="text: visible"></span>
-    enabled: <span data-bind="text: enabled"></span>
-}
-</pre>
 <div>
     <button>New</button>&nbsp;
     <input type="file" />
@@ -135,11 +112,11 @@
     <button>Export PNG</button>&nbsp;
 </div>
 <div>
-    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
-    <input type="checkbox" data-bind="checked: enabled" />Enabled
     <input id="hook_image" type="checkbox" />Hook Image
     <input id="hook_save" type="checkbox" />Hook Save
 </div>
-<div id="diagram"></div>
+<div id="window" style="padding:0;">
+    <div id="drawing"></div>
+</div>
 </body>
 </html>

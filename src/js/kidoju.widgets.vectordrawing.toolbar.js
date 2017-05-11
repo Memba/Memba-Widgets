@@ -52,8 +52,9 @@
             'image',
             'text',
             // Configuration
+            'background',
             'fillColor',
-            // TODO opacity -> open slider
+            'opacity',
             'strokeColor',
             'strokeWidth',
             'strokeDashType',
@@ -63,7 +64,7 @@
                 'bold',
                 'italic'
             ],
-            // 'fontSize', // Not sure we actually need it?
+            /* 'fontSize', // Not sure we actually need it? */
             'fontFamily',
             // Commands
             'arrange',
@@ -236,19 +237,27 @@
             text: {
                 type: 'vectorDialog',
                 dialogName: 'vectorText',
-                iconClass: 'textbox',
+                iconClass: 'edit-tools',
                 overflow: 'never', // TODO: Review as commenting raises `component.overflow is not a constructor`
                 text: false,
                 group: 'tool',
                 togglable: true
             },
-            // TODO Canvas Background
+            background: {
+                type: 'vectorColorPicker',
+                property: 'background',
+                iconClass: 'paint'
+            },
             fillColor: {
                 type: 'vectorColorPicker',
                 property: 'fillColor',
                 iconClass: 'apply-format'
             },
-            // TODO Opacity
+            opacity: {
+                type: 'vectorOpacity',
+                property: 'opacity',
+                iconClass: 'greyscale'
+            },
             strokeColor: {
                 type: 'vectorColorPicker',
                 property: 'strokeColor',
@@ -503,7 +512,7 @@
             dialog: function (args) {
                 this.trigger('dialog', args);
             },
-            refresh: function (activeCell) {
+            refresh: function (selection) {
                 // TODO check kendo.vectordrawing.js to hook refresh method and replace activeCell with drawing element
                 debugger;
                 var range = activeCell;
@@ -1765,10 +1774,10 @@
         var TextDialog = VectorDrawingDialog.extend({
             options: {
                 template: '<div class=\'k-edit-label\'><label>#: messages.textDialog.labels.text #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: text\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
-                title: DIALOG_MESSAGES.imageDialog.title,
+                title: DIALOG_MESSAGES.textDialog.title,
                 autoFocus: false
             },
-            open: function (url) { // TODO: url especially for edit mode
+            open: function (text) { // TODO: text especially for edit mode
                 var self = this;
                 VectorDrawingDialog.fn.open.apply(self, arguments);
                 var element = self.dialog().element;

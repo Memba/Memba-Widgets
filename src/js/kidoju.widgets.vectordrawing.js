@@ -53,6 +53,7 @@
         var Rectangle = diagram.Rectangle;
         var Selector = diagram.Selector;
         var Shape = diagram.Shape;
+        var CompositeTransform = diagram.CompositeTransform;
         var ShapesQuadTree = diagram.ShapesQuadTree;
         var TextBlock = diagram.TextBlock;
         var ToolService = diagram.ToolService;
@@ -63,6 +64,10 @@
         var DRAG_END = 'dragEnd';
         var DRAG_START = 'dragStart';
         var SVG_NS = 'http://www.w3.org/2000/svg';
+        var RX_URL = /^https?:\/\//;
+        var BORDER = 10;
+        var DEFAULT_SNAP_SIZE = 10;
+        var MIN_SNAP_SIZE = 5;
 
         /*********************************************************************************
          * Helpers
@@ -92,7 +97,6 @@
             root.load([rootGroup]);
             var svg = '<?xml version=\'1.0\' ?><svg xmlns=\'' + SVG_NS + '\' xmlns:xlink=\'http://www.w3.org/1999/xlink\' version=\'1.1\'>' + root.render() + '</svg>';
             // TODO add viewBox
-            // TODO add <script type:"application/json"> to <defs> so as to reopen with all shapes and connections
             root.destroy();
             return svg;
         }
@@ -134,8 +138,19 @@
         }
         function exportSVG (group, options) {
             var svg = exportGroup(group);
+            // BEGIN: Add json of shapes and connections
+            if (options.json) {
+                var defs = '<defs>';
+                var pos = svg.indexOf(defs);
+                if (pos > -1) {
+                    svg = svg.substr(0, pos + defs.length) +
+                        '<script type="application/json">' + JSON.stringify(options.json) + '</script>' +
+                        svg.substr(pos + defs.length);
+                }
+            }
+            // END: Add json
             if (!options || !options.raw) {
-                svg = 'data:image/svg+xml;base64,' + encodeBase64(svg);
+                svg = 'data:image/svg+xml;base64,' + window.btoa(svg);
             }
             return createPromise().resolve(svg);
         }
@@ -439,13 +454,14 @@
             start: function (p, meta) {
                 var toolService = this.toolService;
                 var diagram = toolService.diagram;
+                var pos = this._truncateDistance(p);
                 // var connector = toolService._hoveredConnector;
                 // var connection = diagram._createConnection({}, connector._c, p);
                 var shape = diagram._createShape({}, deepExtend(
                     this.toolService._selectedTool.options,
                     {
-                        x: p.x,
-                        y: p.y,
+                        x: pos.x,
+                        y: pos.y,
                         minWidth: 0,
                         width: 0,
                         minHeight: 0,
@@ -474,10 +490,11 @@
             move: function (p) {
                 var toolService = this.toolService;
                 var shape = toolService.activeShape;
-                var x = p.x > shape._bounds.x ? shape._bounds.x : p.x;
-                var y = p.y > shape._bounds.y ? shape._bounds.y : p.y;
-                var width = p.x > shape._bounds.x ? p.x - shape._bounds.x : shape._bounds.x + shape._bounds.width - p.x;
-                var height = p.y > shape._bounds.y ? p.y - shape._bounds.y : shape._bounds.y + shape._bounds.height - p.y;
+                var pos = this._truncateDistance(p);
+                var x = pos.x > shape._bounds.x ? shape._bounds.x : pos.x;
+                var y = pos.y > shape._bounds.y ? shape._bounds.y : pos.y;
+                var width = pos.x > shape._bounds.x ? pos.x - shape._bounds.x : shape._bounds.x + shape._bounds.width - pos.x;
+                var height = pos.y > shape._bounds.y ? pos.y - shape._bounds.y : shape._bounds.y + shape._bounds.height - pos.y;
                 shape._setOptionsFromModel({ x: x, y: y, width: width, height: height });
                 // connection.target(p);
                 toolService.diagram.trigger(DRAG, {
@@ -530,6 +547,26 @@
                  }
                  */
                 toolService._selectedTool = undefined;
+            },
+            _truncateDistance: function (d) {
+                if (d instanceof diagram.Point) {
+                    return new diagram.Point(this._truncateDistance(d.x), this._truncateDistance(d.y));
+                } else {
+                    var snap = this.snapOptions() || {};
+                    var snapSize = Math.max(snap.size || DEFAULT_SNAP_SIZE, MIN_SNAP_SIZE);
+                    return snap ? Math.floor(d / snapSize) * snapSize : d;
+                }
+            },
+            snapOptions: function () {
+                var editable = this.toolService.diagram.options.editable;
+                var snap = ((editable || {}).drag || {}).snap || {};
+                return snap;
+            },
+            shouldSnap: function () {
+                var editable = this.toolService.diagram.options.editable;
+                var drag = (editable || {}).drag;
+                var snap = (drag || {}).snap;
+                return editable !== false && drag !== false && snap !== false;
             },
             getCursor: function () {
                 return Cursors.crosshair;
@@ -634,6 +671,10 @@
                 that._initDefaults(options);
                 that._interactionDefaults();
                 that._initCanvas();
+                // BEGIN: Add background layer
+                that.backgroundLayer = new Group({ id: 'background-layer' });
+                that.canvas.append(that.backgroundLayer);
+                // END: Add background layer
                 that.mainLayer = new Group({ id: 'main-layer' });
                 that.canvas.append(that.mainLayer);
                 that._shapesQuadTree = new ShapesQuadTree(that);
@@ -643,9 +684,9 @@
                 that.canvas.append(that.adornerLayer);
                 that._createHandlers();
                 that._initialize();
-                // BEGIN Replaced ResizingAdorner by VectorResizingAdorner
+                // BEGIN Replace ResizingAdorner by VectorResizingAdorner
                 that._resizingAdorner = new VectorResizingAdorner(that, { editable: that.options.editable });
-                // END Replaced ResizingAdorner by VectorResizingAdorner
+                // END Replace ResizingAdorner by VectorResizingAdorner
                 that._connectorsAdorner = new ConnectorsAdorner(that);
                 that._adorn(that._resizingAdorner, true);
                 that._adorn(that._connectorsAdorner, true);
@@ -655,12 +696,76 @@
                 that._fetchFreshData();
                 that._createGlobalToolBar();
                 that._createOptionElements();
+                // BEGIN Update background layer
+                that.scrollable.addClass('k-group');
+                that._updateBackgroundLayer();
+                // END Update background layer
                 that.zoom(that.options.zoom);
                 that.canvas.draw();
             },
             options: {
                 name: 'VectorDrawing',
                 toolbar: {}
+            },
+            /**
+             * Update background layer showing image size
+             * @private
+             */
+            _drag: function (e) {
+                Diagram.fn._drag.call(this, e);
+                this._updateBackgroundLayer();
+            },
+            _updateBackgroundLayer: function () {
+                var bounds = this.mainLayer.drawingElement.bbox();
+                if (this._layerMatrixInvert) {
+                    bounds = bounds.bbox(this._layerMatrixInvert);
+                }
+                bounds.expand(BORDER);
+                var rectOptions = {
+                    x: bounds.origin.x,
+                    y: bounds.origin.y,
+                    height: bounds.size.height,
+                    width: bounds.size.width,
+                    fill: {
+                        color: '#afeeee' // TODO background color
+                    }/*,
+                    stroke: {
+                        color: 'transparent',
+                        width: 0
+                    }*/
+                };
+                var textOptions = {
+                    x: bounds.origin.x,
+                    y: bounds.origin.y + bounds.size.height + BORDER,
+                    text: kendo.format('{0}x{1}', bounds.size.width, bounds.size.height),
+                    fill: {
+                        color: '#afeeee' // TODO background color
+                    }/*,
+                    stroke: {
+                        color: 'transparent',
+                        width: 0
+                    }*/
+                };
+                if (this.backgroundLayer.children.length === 0) {
+                    this.backgroundLayer.append(new Rectangle(rectOptions));
+                    this.backgroundLayer.append(new TextBlock(textOptions));
+                } else {
+                    this.backgroundLayer.children[0].redraw(rectOptions);
+                    this.backgroundLayer.children[1].redraw(textOptions);
+                }
+            },
+            _zoomMainLayer: function () {
+                var zoom = this._zoom;
+                var transform = new CompositeTransform(0, 0, zoom, zoom);
+                transform.render(this.backgroundLayer);
+                Diagram.fn._zoomMainLayer.call(this);
+            },
+            _transformMainLayer: function () {
+                var pan = this._pan;
+                var zoom = this._zoom;
+                var transform = new CompositeTransform(pan.x, pan.y, zoom, zoom);
+                transform.render(this.backgroundLayer);
+                Diagram.fn._transformMainLayer.call(this);
             },
             /**
              * Replace ToolService with VectorToolService
@@ -812,13 +917,12 @@
                         $.noop();
                 }
             },
-            _onToolbarSave: function (params) {
-                // TODO This is a bit more complex than that
-                this.exportSVG()
+            _onToolbarSave: function () {
+                this.exportSVG({ json: true })
                     .done(function (data) {
                         kendo.saveAs({
                             dataURI: data,
-                            fileName: "vectordrawing.svg"
+                            fileName: "vectordrawing.svg" // TODO: fileName????
                         });
                     });
             },
@@ -833,6 +937,9 @@
                 var that = this;
                 if (options.property === 'tool')
                     switch (options.property) {
+                        case 'background':
+                            that._configuration.fill.color = options.value;
+                            break;
                         case 'fillColor':
                             that._configuration.fill.color = options.value;
                             break;
@@ -875,20 +982,18 @@
                 }
             },
             _onToolbarGrid: function (options) {
-                alert('Not yet implemented!');
+                // TODO Remember snap options.
+                this.options.editable.drag.snap = false;
             },
             _onToolbarRemove: function (options) {
                 this.remove(this.select());
             },
-            _destroyDialog: function () {
-                this._dialogs.pop();
-            },
-            _destroyGlobalToolBar: function () {
-                if (this.toolBar) {
-                    this.toolBar.hide();
-                    this.toolBar.destroy();
-                    this.toolBar = null;
-                }
+            /**
+             * Resizing
+             */
+            _resize: function () {
+                Diagram.fn._resize.call(this);
+                this.toolBar.resize();
             },
             /**
              * Export functions
@@ -900,8 +1005,21 @@
              * @returns {string}
              * @private
              */
+            exportVisual: function () {
+                var scale = geometry.transform().scale(1 / this._zoom);
+                var wrap = new drawing.Group({ transform: scale });
+                var root = this.mainLayer.drawingElement;
+                var bbox = root.bbox().expand(BORDER);
+                var rect = new drawing.Rect(bbox, { fill: { color: '#afeeee' }, stroke: { width: 0} } ); // TODO: background color
+                wrap.children.push(rect);
+                wrap.children.push(root);
+                return wrap;
+            },
             exportSVG: function (options) {
                 // return drawing.exportSVG(this.exportVisual(), options);
+                if (options.json) {
+                    options.json = this.save();
+                }
                 return exportSVG(this.exportVisual(), options);
             },
             exportImage: function (options) {
@@ -914,15 +1032,131 @@
             }
             */
             /**
-             * Import function
+             * Open function
              * Preferably we have one import function which detects svg from other image file formats (gif, png, jpg)
              * 1) If an svg file contains a <script type:"application/json">, shapes and connectiosn are read from json and svg is discarded
              * 2) Otherwise (svg without script) or any other image format, a new image shape is added to the canvas/surface
              * @returns {string}
              * @private
              */
-            import: function (/*params*/) {
-
+            open: function (source) {
+                // this.clear();
+                if (source instanceof window.File) {
+                    return this._openFile(source);
+                } else if (RX_URL.test(source)) {
+                    return this._openUrl(source);
+                }
+            },
+            _openFile: function (file) {
+                assert.instanceof(window.File, file, kendo.format(assert.messages.instanceof.default, 'file', 'window.File'));
+                var dfd = $.Deferred();
+                var that = this;
+                if (file.type.match(/^image\//)) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        var source = e.target.result;
+                        var json = false;
+                        var prefix = 'data:image/svg+xml;base64,';
+                        var pos0 = source.indexOf(prefix);
+                        if (file.type === 'image/svg+xml' && pos0 === 0) {
+                            var svg = window.atob(source.substr(prefix.length));
+                            var tag1 = '<defs><script type="application/json">';
+                            var tag2 = '</script></defs>';
+                            var pos1 = svg.indexOf(tag1);
+                            var pos2 = svg.indexOf(tag2);
+                            if (pos1 > -1 && pos2 > pos1 + tag1.length) {
+                                json = svg.substr(pos1 + tag1.length, pos2 - pos1 - tag1.length);
+                            }
+                        }
+                        if (json) {
+                            try {
+                                that.load(JSON.parse(json));
+                                dfd.resolve();
+                            } catch (e) {
+                                dfd.reject(e);
+                            }
+                        }
+                        else {
+                            that._loadImage(source)
+                                .done(dfd.resolve)
+                                .fail(dfd.reject);
+                        }
+                    };
+                    // Read in the image file as a data URL.
+                    reader.readAsDataURL(file);
+                } else {
+                    dfd.reject(new Error(kendo.format('`[0]` has unsupported type `{1}`', file.name, file.type)));
+                }
+                return dfd.promise();
+            },
+            _openUrl: function (url) {
+                assert.match(RX_URL, url, kendo.format(assert.messages.match.default, 'url', RX_URL));
+                var that = this;
+                var dfd = $.deferred();
+                $.get({
+                    url: url
+                    // TODO cache and cors
+                })
+                    .done(function (data) {
+                        debugger;
+                    })
+                    fail(function (xhr, status, error) {
+                        debugger;
+                    });
+                return dfd.promise();
+            },
+            _loadImage: function (source) {
+                var that = this;
+                var dfd = $.Deferred();
+                var img = $('<img/>')
+                    .appendTo('body')
+                    .css({
+                        position: 'absolute',
+                        top: 0,
+                        left: -10000
+                    })
+                    .on('load', function (e) {
+                        /*
+                         viewModel.set('type', f.type);
+                         viewModel.set('name', f.name);
+                         viewModel.set('height', img.height());
+                         viewModel.set('width', img.width());
+                         */
+                        that.element.css({
+                            height: img.height() + that.toolBar.element.height(),
+                            width: img.width()
+                        });
+                        that.addShape({
+                            type: 'image',
+                            x: 0,
+                            y: 0,
+                            height: img.height(),
+                            width: img.width(),
+                            source: source
+                        });
+                        that.resize();
+                        img.off().remove();
+                        dfd.resolve();
+                    })
+                    .on('error', function () {
+                        dfd.reject(new Error('Unable to load image content'));
+                    })
+                    .attr('src', source);
+                return dfd.promise();
+            },
+            /**
+             * Destroy functions
+             * @private
+             */
+            _destroyDialog: function () {
+                this._dialogs.pop();
+            },
+            _destroyGlobalToolBar: function () {
+                if (this.toolBar) {
+                    this.toolBar.hide();
+                    this.toolBar.destroy();
+                    this.toolBar = null;
+                }
             }
         });
 

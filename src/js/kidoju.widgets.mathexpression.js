@@ -32,7 +32,7 @@
         var STRING = 'string';
         var NULL = 'null';
         var UNDEFINED = 'undefined';
-        var CHANGE = 'change';
+        // var CHANGE = 'change';
         // var NS = '.kendoMathExpression';
         var WIDGET_CLASS = 'kj-mathexpression'; // 'k-widget kj-mathexpression';
 
@@ -56,7 +56,6 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug({ method: 'init', message: 'widget initialized' });
-                that.bind(CHANGE, $.proxy(that.refresh, that));
                 that._layout();
                 that.value(that.options.value);
                 // see http://www.telerik.com/forums/kendo-notify()
@@ -75,14 +74,6 @@
             },
 
             /**
-             * Widget events
-             * @property events
-             */
-            events: [
-                CHANGE
-            ],
-
-            /**
              * Value for MVVM binding
              * @param value
              */
@@ -91,7 +82,7 @@
                 if ($.type(value) === STRING || $.type(value) === NULL) {
                     if (that._value !== value) {
                         that._value = value;
-                        that.trigger(CHANGE, { value: that._value });
+                        that.refresh();
                     }
                 } else if ($.type(value) === UNDEFINED) {
                     return that._value;
@@ -114,7 +105,7 @@
              * Refresh the widget
              */
             refresh: function () {
-                assert.type(FUNCTION, katex.render, 'Make sure KaTeX is available.');
+                assert.type(FUNCTION, katex && katex.render, 'Make sure KaTeX is available.');
                 var that = this;
                 var element = that.element;
                 var options = that.options;
@@ -124,7 +115,7 @@
                 } catch (ex) {
                     element.html('<span style="color:' + options.errorColor + '">' + kendo.htmlEncode(ex.message) + '</span>');
                 }
-                logger.debug('widget refreshed');
+                logger.debug({ method: 'refresh', message: 'widget refreshed' });
             },
 
             /**
@@ -135,7 +126,6 @@
                 var that = this;
                 var element = that.element;
                 // Unbind events
-                that.unbind(CHANGE);
                 // Release references
                 // Destroy kendo
                 Widget.fn.destroy.call(that);

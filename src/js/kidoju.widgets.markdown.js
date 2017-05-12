@@ -34,8 +34,6 @@
         var NULL = 'null';
         var UNDEFINED = 'undefined';
         var EMPTY = '';
-        // var CHANGE = 'change';
-        // var NS = '.kendoMarkdown';
         var WIDGET_CLASS = 'kj-markdown'; // 'k-widget kj-markdown';
         var RX_YML = /^---\n([\s\S]*)\n---/;
         var RX_KEYVAL = /([^:\n]+):([^\n]+)/g;
@@ -101,7 +99,7 @@
                 logger.debug({ method: 'init', message: 'widget initialized' });
                 that._initMarkdownIt();
                 that._layout();
-                // kendo.notify(that);
+                kendo.notify(that);
             },
 
             /**
@@ -115,16 +113,6 @@
             },
 
             /**
-             * Widget events
-             * @property events
-             */
-            /*
-             events: [
-             CHANGE
-             ],
-             */
-
-            /**
              * Value for MVVM binding
              * Returns either a JS function as a string or a library formula name prefixed as a Javascript comment
              * @param value
@@ -134,7 +122,6 @@
                 if ($.type(value) === STRING || $.type(value) === NULL) {
                     if (that._value !== value) {
                         that._value = value;
-                        // that.trigger(CHANGE, { value: that._value });
                         that.refresh();
                     }
                 } else if ($.type(value) === UNDEFINED) {
@@ -357,32 +344,16 @@
             },
 
             /**
-             * Clears the widget
-             * @method _clear
-             * @private
-             */
-            _clear: function () {
-                var that = this;
-                var element = that.element;
-                // unbind kendo
-                // kendo.unbind(element);
-                // unbind all other events
-                element.find('*').off();
-                element.off();
-                // remove descendants
-                element.empty();
-                // remove element classes
-                element.removeClass(WIDGET_CLASS);
-            },
-
-            /**
              * Destroys the widget including all DOM modifications
              * @method destroy
              */
             destroy: function () {
                 var that = this;
+                // Unbind events
+                // Clear references
+                this.md = undefined;
+                // Destroy widget
                 Widget.fn.destroy.call(that);
-                that._clear();
                 kendo.destroy(that.element);
             }
 

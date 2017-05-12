@@ -32,8 +32,6 @@
         var STRING = 'string';
         var NULL = 'null';
         var UNDEFINED = 'undefined';
-        // var CHANGE = 'change';
-        // var NS = '.kendoMathExpression';
         var WIDGET_CLASS = 'kj-mathexpression'; // 'k-widget kj-mathexpression';
 
         /*********************************************************************************

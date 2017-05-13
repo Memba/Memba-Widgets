@@ -316,113 +316,7 @@
                 ]);
             }
         });
-        var MathGraphSegment  = VisualBase.extend({
-            init: function (options) {
-                VisualBase.fn.init.call(this, options);
-                this._initPath();
-                this._setPosition();
-            },
-            _setPosition: function () {
-                var options = this.options;
-                var x = options.x;
-                var y = options.y;
-                if (defined(x) || defined(y)) {
-                    this.position(x || 0, y || 0);
-                }
-            },
-            redraw: function (options) {
-                if (options) {
-                    VisualBase.fn.redraw.call(this, options);
-                    if (this._diffNumericOptions(options, [
-                            WIDTH,
-                            HEIGHT
-                        ])) {
-                        this._drawPath();
-                    }
-                    if (this._diffNumericOptions(options, [
-                            X,
-                            Y
-                        ])) {
-                        this._setPosition();
-                    }
-                }
-            },
-            _initPath: function () {
-                var options = this.options;
-                this.drawingElement = new d.Path({
-                    stroke: options.stroke,
-                    closed: true
-                });
-                this._fill();
-                this._drawPath();
-            },
-            _drawPath: function () {
-                var drawingElement = this.drawingElement;
-                var sizeOptions = sizeOptionsOrDefault(this.options);
-                var width = sizeOptions.width;
-                var height = sizeOptions.height;
-                drawingElement.segments.elements([
-                    createSegment(0, 0),
-                    createSegment(width, 0),
-                    createSegment(width, height),
-                    createSegment(0, height)
-                ]);
-            }
-        });
-        var MathGraphRay  = VisualBase.extend({
-            init: function (options) {
-                VisualBase.fn.init.call(this, options);
-                this._initPath();
-                this._setPosition();
-            },
-            _setPosition: function () {
-                var options = this.options;
-                var x = options.x;
-                var y = options.y;
-                if (defined(x) || defined(y)) {
-                    this.position(x || 0, y || 0);
-                }
-            },
-            redraw: function (options) {
-                if (options) {
-                    VisualBase.fn.redraw.call(this, options);
-                    if (this._diffNumericOptions(options, [
-                            WIDTH,
-                            HEIGHT
-                        ])) {
-                        this._drawPath();
-                    }
-                    if (this._diffNumericOptions(options, [
-                            X,
-                            Y
-                        ])) {
-                        this._setPosition();
-                    }
-                }
-            },
-            _initPath: function () {
-                var options = this.options;
-                this.drawingElement = new d.Path({
-                    stroke: options.stroke,
-                    closed: true
-                });
-                this._fill();
-                this._drawPath();
-            },
-            _drawPath: function () {
-                var drawingElement = this.drawingElement;
-                var sizeOptions = sizeOptionsOrDefault(this.options);
-                var width = sizeOptions.width;
-                var height = sizeOptions.height;
-                drawingElement.segments.elements([
-                    createSegment(0, 0),
-                    createSegment(width, 0),
-                    createSegment(width, height),
-                    createSegment(0, height)
-                ]);
-            }
-        });
-        var MathGraphCircle  = VisualBase.extend({
+        var MathGraphEllipsis  = VisualBase.extend({
             init: function (options) {
                 VisualBase.fn.init.call(this, options);
                 this._initPath();
@@ -528,6 +422,9 @@
                 ]);
             }
         });
+        // TODO Angle
+
+
 
         deepExtend(diagram, {
 

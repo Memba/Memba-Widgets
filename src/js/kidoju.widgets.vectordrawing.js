@@ -693,8 +693,9 @@
                 that.selector = new Selector(that);
                 that._clipboard = [];
                 that.pauseMouseHandlers = false;
-                that._fetchFreshData();
                 that._createGlobalToolBar();
+                that._fetchFreshData();
+                // that._createGlobalToolBar(); // Moved above
                 that._createOptionElements();
                 // BEGIN Update background layer
                 that.scrollable.addClass('k-group');
@@ -856,16 +857,22 @@
              */
             _createGlobalToolBar: function () {
                 this.toolBar = $('<div/>')
-                .prependTo(this.element)
-                .kendoVectorDrawingToolBar({
-                    tools: this.options.toolbar.tools,
-                    resizable: this.options.toolbar.resizable,
-                    action: $.proxy(this._onToolBarAction, this),
-                    dialog: $.proxy(this._onToolBarDialog, this)
-                })
-                .data('kendoVectorDrawingToolBar');
+                    .prependTo(this.element)
+                    .kendoVectorDrawingToolBar({
+                        tools: this.options.toolbar.tools,
+                        resizable: this.options.toolbar.resizable,
+                        action: $.proxy(this._onToolBarAction, this),
+                        dialog: $.proxy(this._onToolBarDialog, this),
+                        connectionDefaults: this.options.connectionDefaults,
+                        shapeDefaults: this.options.shapeDefaults
+                    })
+                    .data('kendoVectorDrawingToolBar');
                 this._resize();
                 // TODO implement toolBarClick for hooks!!!!!!!!!!!!!!!!
+            },
+            _selectionChanged: function (selected, deselected) {
+                this.toolBar.refresh(selected);
+                Diagram.fn._selectionChanged.call(this, selected, deselected);
             },
             _onToolBarDialog: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
@@ -934,35 +941,12 @@
             },
             _onPropertyChange: function (options) {
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                var that = this;
-                if (options.property === 'tool')
-                    switch (options.property) {
-                        case 'background':
-                            that._configuration.fill.color = options.value;
-                            break;
-                        case 'fillColor':
-                            that._configuration.fill.color = options.value;
-                            break;
-                        case 'strokeColor':
-                            that._configuration.stroke.color = options.value;
-                            break;
-                        case 'strokeWidth':
-                            that._configuration.stroke.width = options.value;
-                            break;
-                        case 'strokeType':
-                            that._configuration.stroke.dashType = options.value;
-                            break;
-                        case 'bold':
-                        case 'italic':
-                            that._configuration.fontStyle = options.property;
-                            break;
-                        case 'fontSize':
-                            that._configuration.font.fontSize = options.value;
-                            break;
-                        case 'fontFamily':
-                            that._configuration.font.fontFamily = options.value;
-                            break;
-                    }
+                var toolBar = this.toolBar;
+                toolBar._configuration[options.property] = options.value;
+                var selected = this.select();
+                for (var i = 0, length = selected.length; i < length; i++) {
+                    selected[i].redraw(toolBar.getConfiguration(selected[i]));
+                }
             },
             _onToolbarArrange: function (options) {
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));

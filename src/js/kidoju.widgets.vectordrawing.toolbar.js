@@ -33,15 +33,17 @@
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.vectordrawing.toolbar');
         var kendo = window.kendo;
-        var deepExtend = kendo.deepExtend;
-        // var Class = kendo.Class;
-        var data = kendo.data;
+        var isFunction = kendo.isFunction;
+        var DataSource = kendo.data.DataSource;
         var ToolBar = kendo.ui.ToolBar;
+        var StaticList = kendo.ui.StaticList;
+        var dataviz = kendo.dataviz;
+        var Connection = kendo.dataviz.diagram.Connection
+        var Shape = kendo.dataviz.diagram.Shape
         var NUMBER = 'number';
-        var RX_COLOR = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
         var RX_DASHTYPE = /^(dash|dashDot|dot|longDash|longDashDot|longDashDotDot|solid)$/;
         var RX_FONT = /^(normal\s+|italic\s+|oblique\s+|initial\s+|inherit\s+)?([0-9\.]+[a-z]+\s+)?(.+)$/;
-        kendo.vectordrawing = { messages: {} };
+        kendo.vectordrawing = {messages: {}};
         var TOOLBAR = [
             'save',
             // Tools
@@ -61,8 +63,8 @@
             'startCap',
             'endCap',
             [
-                'bold',
-                'italic'
+                'fontWeight',
+                'fontStyle'
             ],
             /* 'fontSize', // Not sure we actually need it? */
             'fontFamily',
@@ -72,118 +74,98 @@
             'remove'
         ];
 
-        /**
-         * Be Careful: configDefaults are not the same for paths, plain shapes (rect, circle) and text
-         * @type {{fill: {color: undefined}, font: {fontFamily: string, fontSize: number, fontStyle: string}, opacity: number, stroke: {color: string, dashType: string, width: number}}}
-         */
-        var configDefaults = {
-            fill: {
-                color: undefined
-                // opacity: 1
-            },
-            font: {
-                fontFamily: 'sans-serif',
-                fontSize: 12,
-                fontStyle: ''
-            },
-            opacity: 1,
-            stroke: {
-                color: '#000',
-                dashType: 'solid',
-                // lineCap: 'butt',
-                // lineJoin: 'miter',
-                // opacity: 1,
-                width: 1
-            }
-        }
+        /*********************************************************************************
+         * Mixins
+         *********************************************************************************/
 
         /**
-         * A Configuration class to represent the configuration that is bound to the toolbar and the selected shape
-         * @see http://docs.telerik.com/kendo-ui/api/javascript/drawing/text#configuration
-         * @see http://docs.telerik.com/kendo-ui/api/javascript/drawing/text#configuration
+         * DiagramElementMixIn for toolbar refresh method
+         * @type {{extend: extend, canDo: canDo, fillColor: fillColor, opacity: opacity, strokeColor: strokeColor, strokeWidth: strokeWidth, strokeDashType: strokeDashType, startCap: startCap, endCap: endCap, fontWeight: fontWeight, fontStyle: fontStyle, fontSize: fontSize, fontFamily: fontFamily}}
          */
-        var Configuration = kendo.Observable.extend(
-            kendo.deepExtend(
-                configDefaults,
-                {
-                    /* This function's cyclomatic complexity is too high. */
-                    /* jshint -W074 */
-
-                    /**
-                     * Parses an element configuration
-                     * @param element
-                     */
-                    parse: function (element) {
-                        this.fill.color = (element.options.fill && element.options.fill.color) || configDefaults.fill.color;
-                        var matches = (element.options.font || '').match(RX_FONT);
-                        if ($.isArray(matches)) {
-                            this.font.fontFamily = (matches[3] || '').trim() || configDefaults.font.fontFamily;
-                            this.font.fontSize = parseInt((matches[2] || '').trim(), 10) || configDefaults.font.fontSize;
-                            this.font.fontStyle = (matches[1] || '').trim() || configDefaults.font.fontStyle;
-                        } else {
-                            this.font.fontFamily = configDefaults.font.fontFamily;
-                            this.font.fontSize = configDefaults.font.fontSize;
-                            this.font.fontStyle = configDefaults.font.fontStyle;
-                        }
-                        this.opacity = element.options.opacity || configDefaults.opacity;
-                        this.stroke.color = (element.options.stroke && element.options.stroke.color) || configDefaults.stroke.color;
-                        this.stroke.dashType = (element.options.stroke && element.options.stroke.dashType) || configDefaults.stroke.dashType;
-                        this.stroke.width = (element.options.stroke && element.options.stroke.width) || configDefaults.stroke.width;
-                    },
-
-                    /**
-                     * TODO we need a dataType parameter because path, image and text do not have the same configuration options.
-                     * @returns {{}}
-                     */
-                    toJSON: function (/*TODO dataType*/) {
-                        /* jshint maxcomplexity: 11 */
-
-                        function normalizeFont(style, size, family) {
-                            var ret;
-                            ret = (style || '').trim();
-                            ret = (ret + ' ' + (size || '')).trim() + 'px';
-                            ret = (ret + ' ' + (family || '')).trim();
-                            return ret;
-                        }
-
-                        var json = {};
-                        // Fill color
-                        if (RX_COLOR.test(this.fill.color)&& this.fill.color !== configDefaults.fill.color) {
-                            json.fill = json.fill || {};
-                            json.fill.color = this.fill.color;
-                        }
-                        // Font (only applies to text)
-                        var font = normalizeFont(this.font.fontStyle, this.font.fontSize, this.font.fontFamily);
-                        var defont = normalizeFont(configDefaults.font.fontStyle, configDefaults.font.fontSize, configDefaults.font.fontFamily);
-                        if (font !== defont) {
-                            json.font = font;
-                        }
-                        // Opacity
-                        if ($.type(this.opacity) === NUMBER && this.opacity >= 0 && this.opacity < configDefaults.opacity) {
-                            json.opacity = this.opacity;
-                        }
-                        // Stroke color (TODO: parse colors)
-                        if (RX_COLOR.test(this.stroke.color)&& this.stroke.color !== configDefaults.stroke.color) {
-                            json.stroke = json.stroke || {};
-                            json.stroke.color = this.stroke.color;
-                        }
-                        // Stroke dashType
-                        if (RX_DASHTYPE.test(this.stroke.dashType) && this.stroke.dashType !== configDefaults.stroke.dashType) {
-                            json.stroke = json.stroke || {};
-                            json.stroke.dashType = this.stroke.dashType;
-                        }
-                        // Stroke width
-                        if ($.type(this.stroke.width) === NUMBER && this.stroke.width > 0 && this.stroke.width !== configDefaults.stroke.width) {
-                            json.stroke = json.stroke || {};
-                            json.stroke.width = this.stroke.width;
-                        }
-                        return json;
-                    }
-
-                    /* jshint +W074 */
+        var DiagramElementMixIn = {
+            extend: function (proto) {
+                if (!proto.select || !proto.redraw) {
+                    throw new Error(
+                        'Mixin target isnot a kendo.dataviz.diagram.DrawingElement.');
                 }
-            )
-        );
+                proto.canDo = this.canDo;
+                proto.fillColor = this.fillColor;
+                proto.opacity = this.opacity;
+                proto.strokeColor = this.strokeColor;
+                proto.strokeWidth = this.strokeWidth;
+                proto.strokeDashType = this.strokeDashType;
+                proto.startCap = this.startCap;
+                proto.endCap = this.endCap;
+                proto.fontWeight = this.fontWeight;
+                proto.fontStyle = this.fontStyle;
+                // proto.fontSize = this.fontSize;
+                proto.fontFamily = this.fontFamily;
+            },
+            canDo: function () {
+                var isConnection = this instanceof Connection;
+                var isShape = this instanceof Shape;
+                var hasFill = isShape && this.type.toLowerCase() !== 'image';
+                var hasStroke = isConnection || (isShape && this.type.toLowerCase() !== 'text' && this.type.toLowerCase() !== 'image');
+                var hasCap = isConnection;
+                var hasFont = isShape && this.type.toLowerCase() === 'text'
+                return {
+                    fillColor: hasFill,
+                    opacity: hasFill,
+                    strokeColor: hasStroke,
+                    strokeWidth: hasStroke,
+                    strokeDashType: hasStroke,
+                    startCap: hasCap,
+                    endCap: hasCap,
+                    fontWeight: hasFont,
+                    fontStyle: hasFont,
+                    fontSize: hasFont,
+                    fontFamily: hasFont
+                };
+            },
+            fillColor: function () {
+                return this.options.fill && this.options.fill.color;
+                // TODO || toolDefaults.... --->
+            },
+            opacity: function () {
+                return this.options.fill && this.options.fill.opacity;
+            },
+            strokeColor: function () {
+                return this.options.stroke && this.options.stroke.color;
+            },
+            strokeWidth: function () {
+                return this.options.stroke && this.options.stroke.width;
+            },
+            strokeDashType: function () {
+                return this.options.stroke && this.options.stroke.dashType;
+            },
+            startCap: function () {
+                return this.options.startCap; // or .type
+            },
+            endCap: function () {
+                return this.options.endCap; // or .type
+            },
+            // Consider content.color
+            fontWeight: function () {
+                return this.options.content && this.options.content.fontWeight;
+            },
+            fontStyle: function () {
+                return this.options.content && this.options.content.fontStyle;
+            },
+            fontSize: function () {
+                return this.options.content && this.options.content.fontSize;
+            },
+            fontFamily: function () {
+                return this.options.content && this.options.content.fontFamily;
+            }
+            // See VectorDrawing._onPropertyChange for applying toolbar values to a shape or connection
+        };
+        // DiagramElementMixIn.extend(kendo.dataviz.diagram.DiagramElement); // The base class is not public, so we have to do
+        DiagramElementMixIn.extend(Connection.fn);
+        DiagramElementMixIn.extend(Shape.fn);
+
+        /*********************************************************************************
+         * VectorDrawingToolBar Widget
+         *********************************************************************************/
 
         var toolDefaults = {
             separator: { type: 'separator' },
@@ -283,18 +265,18 @@
                 property: 'endCap',
                 iconClass: 'arrow-right'
             },
-            bold: {
+            fontWeight: {
                 type: 'button',
                 command: 'PropertyChangeCommand',
-                property: 'bold',
+                property: 'fontWeight',
                 value: true,
                 iconClass: 'bold',
                 togglable: true
             },
-            italic: {
+            fontStyle: {
                 type: 'button',
                 command: 'PropertyChangeCommand',
-                property: 'italic',
+                property: 'fontStyle',
                 value: true,
                 iconClass: 'italic',
                 togglable: true
@@ -302,12 +284,14 @@
             fontSize: {
                 type: 'vectorFontSize',
                 property: 'fontSize',
-                iconClass: 'font-size'
+                iconClass: 'font-size',
+                value: 12
             },
             fontFamily: {
                 type: 'vectorFontFamily',
                 property: 'fontFamily',
-                iconClass: 'text'
+                iconClass: 'text',
+                value: 'Arial'
             },
             arrange: {
                 type: 'vectorArrange',
@@ -327,11 +311,6 @@
                 iconClass: 'close'
             }
         };
-
-        /*********************************************************************************
-         * VectorDrawingToolBar Widget
-         *********************************************************************************/
-
         var TOOLBAR_MESSAGES = kendo.vectordrawing.messages.toolbar = {
             save: 'Save',
             // Tools
@@ -348,6 +327,7 @@
             image: 'Image',
             text: 'Text',
             // Configuration
+            background: 'Background',
             fillColor: 'Fill Color',
             opacity: 'Opacity',
             strokeColor: 'Stroke Color',
@@ -362,13 +342,6 @@
                 customColor: 'Custom color...'
             },
             strokeWidth: 'Stroke Width',
-            strokeWidthButtons: {
-                w1: '1 pt',
-                w2: '2 pt',
-                w3: '3 pt',
-                w4: '4 pt',
-                w5: '5 pt'
-            },
             strokeDashType: 'Dash Type',
             strokeDashTypeButtons: {
                 dash: 'dash',
@@ -379,20 +352,20 @@
                 longDashDotDot:	'long-dash dot-dot',
                 solid: 'solid'
             },
-            startCap: 'StartCap',
+            startCap: 'Start Cap',
             startCapButtons: {
                 none: 'None',
                 arrow: 'Arrow',
                 circle: 'Circle'
             },
             endCap: 'End Cap',
-            enCapButtons: {
+            endCapButtons: {
                 none: 'None',
                 arrow: 'Arrow',
                 circle: 'Circle'
             },
-            bold: 'Bold',
-            italic: 'Italic',
+            fontWeight: 'Bold',
+            fontStyle: 'Italic',
             fontSize: 'Font size',
             fontFamily: 'Font',
             // Commands
@@ -411,8 +384,19 @@
          * VectorDrawingToolBar
          */
         var VectorDrawingToolBar = ToolBar.extend({
+
+            /**
+             * Initialization
+             * @param element
+             * @param options
+             */
             init: function (element, options) {
                 options = options || {};
+                // BEGIN Add configuration defaults
+                options.connectionDefaults = this._copyConnectionDefaults(options.connectionDefaults);
+                options.shapeDefaults = this._copyShapeDefaults(options.shapeDefaults);
+                this._resetConfiguration();
+                // END Add configuration defaults
                 options.items = this._expandTools(options.tools || VectorDrawingToolBar.prototype.options.tools);
                 ToolBar.fn.init.call(this, element, options);
                 var handleClick = this._click.bind(this);
@@ -423,6 +407,43 @@
                     toggle: handleClick
                 });
             },
+
+            /**
+             * Copy connection defaults from VectorDrawing widget
+             * @param defaults
+             * @returns {{}}
+             * @private
+             */
+            _copyConnectionDefaults: function (defaults) {
+                var ret = {};
+                // ret.content = defaults.content; // Not used
+                ret.endCap = defaults.endCap;
+                // ret.hover = defaults.hover; // Not used
+                ret.stroke = defaults.stroke;
+                ret.startCap = defaults.startCap;
+                return ret;
+            },
+
+            /**
+             * Copy shape defaults from VectorDrawing widget
+             * @param defaults
+             * @returns {{}}
+             * @private
+             */
+            _copyShapeDefaults: function (defaults) {
+                var ret = {};
+                ret.content = defaults.content;
+                ret.fill = defaults.fill;
+                // ret.hover = defaults.hover; // Not used
+                ret.stroke = defaults.stroke;
+                return ret;
+            },
+
+            /**
+             * Add separators
+             * @param element
+             * @private
+             */
             _addSeparators: function (element) {
                 var groups = element.children('.k-widget, a.k-button, .k-button-group');
                 groups.before('<span class=\'k-separator\' />');
@@ -431,21 +452,33 @@
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
+            /**
+             * Layout the toolbar
+             * @param tools
+             * @private
+             */
             _expandTools: function (tools) {
                 function expandTool(toolName) {
                     var options = $.isPlainObject(toolName) ? toolName : toolDefaults[toolName] || {};
-                    var spriteCssClass = 'k-icon k-font-icon k-i-' + options.iconClass;
+                    var spriteCssClass = 'k-icon k-i-' + options.iconClass;
                     var type = options.type;
                     var typeDefaults = {
-                        splitButton: { spriteCssClass: spriteCssClass },
                         button: { showText: 'overflow' },
-                        colorPicker: { toolIcon: spriteCssClass }
+                        splitButton: { spriteCssClass: spriteCssClass },
+                        colorPicker: {
+                            toolIcon: spriteCssClass,
+                            spriteCssClass: spriteCssClass
+                        }
                     };
                     var tool = $.extend({
                         name: options.name || toolName,
                         text: TOOLBAR_MESSAGES[options.name || toolName],
+                        icon: options.iconClass,
                         spriteCssClass: spriteCssClass,
-                        attributes: { title: TOOLBAR_MESSAGES[options.name || toolName] }
+                        attributes: {
+                            title: TOOLBAR_MESSAGES[options.name || toolName],
+                            'aria-label': TOOLBAR_MESSAGES[options.name || toolName]
+                        }
                     }, typeDefaults[type], options);
                     if (type === 'splitButton') {
                         tool.menuButtons = tool.menuButtons.map(expandTool);
@@ -471,6 +504,11 @@
 
             /* jshint +W074 */
 
+            /**
+             * Click event handler
+             * @param e
+             * @private
+             */
             _click: function (e) {
                 var toolName = e.target.attr(kendo.attr('tool'));
                 var tool = toolDefaults[toolName] || {};
@@ -491,6 +529,10 @@
                 }
                 this.action(args);
             },
+
+            /**
+             * Events
+             */
             events: [
                 'click',
                 'toggle',
@@ -501,26 +543,51 @@
                 'action',
                 'dialog'
             ],
+
+            /**
+             * Options
+             */
             options: {
                 name: 'VectorDrawingToolBar',
                 resizable: true,
-                tools: TOOLBAR
+                tools: TOOLBAR,
+                connectionDefaults: {},
+                shapeDefaults: {}
             },
+
+            /**
+             *
+             * @param args
+             */
             action: function (args) {
                 this.trigger('action', args);
             },
+
+            /**
+             *
+             * @param args
+             */
             dialog: function (args) {
                 this.trigger('dialog', args);
             },
-            refresh: function (selection) {
-                // TODO check kendo.vectordrawing.js to hook refresh method and replace activeCell with drawing element
-                debugger;
-                var range = activeCell;
-                var tools = this._tools();
-                function setToggle(tool, value) {
-                    var toolbar = tool.toolbar;
-                    var overflow = tool.overflow;
-                    var togglable = toolbar && toolbar.options.togglable || overflow && overflow.options.togglable;
+
+            /**
+             * Refresh the toolbar on a new selection
+             * @param selected
+             */
+            refresh: function (selected) {
+                if ($.isArray(selected) && selected.length !== 1) {
+                    // For now, we disable fill and stroke buttons on multiple selections
+                    // TODO: Disable toolbar options
+                    return;
+                }
+                selected = selected[0];
+                var that = this;
+                var tools = that._tools();
+                function toggle(tool, value) {
+                    var toolbarItem = tool.toolbar;
+                    var overflowItem = tool.overflow;
+                    var togglable = toolbarItem && toolbarItem.options.togglable || overflowItem && overflowItem.options.togglable;
                     if (!togglable) {
                         return;
                     }
@@ -528,37 +595,109 @@
                     if (typeof value === 'boolean') {
                         toggle = value;
                     } else if (typeof value === 'string') {
-                        toggle = toolbar.options.value === value;
+                        toggle = toolbarItem.options.value === value;
                     }
-                    toolbar.toggle(toggle);
-                    if (overflow) {
-                        overflow.toggle(toggle);
+                    that._configuration[toolbarItem.options.name] = toggle;
+                    toolbarItem.toggle(toggle);
+                    if (overflowItem) {
+                        overflowItem.toggle(toggle);
                     }
                 }
                 function update(tool, value) {
+                    var toolbarItem = tool.toolbar;
+                    var overflowItem = tool.overflow;
+                    if (toolbarItem && toolbarItem.update) {
+                        that._configuration[toolbarItem.options.name] = value;
+                        toolbarItem.update(value);
+                    }
+                    if (overflowItem && overflowItem.update) {
+                        overflowItem.update(value);
+                    }
+                }
+                function enable(tool, value) {
                     var toolbar = tool.toolbar;
                     var overflow = tool.overflow;
-                    if (toolbar && toolbar.update) {
-                        toolbar.update(value);
+                    if (toolbar && toolbar.enable) {
+                        toolbar.enable(value);
                     }
-                    if (overflow && overflow.update) {
-                        overflow.update(value);
+                    if (overflow && overflow.enable) {
+                        overflow.enable(value);
                     }
                 }
                 for (var i = 0; i < tools.length; i++) {
                     var property = tools[i].property;
                     var tool = tools[i].tool;
-                    var value = kendo.isFunction(range[property]) ? range[property]() : range;
-                    if (property === 'gridLines') {
-                        value = range.sheet().showGridLines();
+                    if (property === 'background') {
+                        continue;
                     }
+                    // This is what the SpreadSheetToolbar does and we can do it thanks to our DiagramElementMixIn
+                    var value = isFunction(selected[property]) ? selected[property]() : selected;
                     if (tool.type === 'button') {
-                        setToggle(tool, value);
+                        toggle(tool, value);
                     } else {
                         update(tool, value);
                     }
+                    var canDo = isFunction(selected.canDo) && selected.canDo();
+                    enable(tool, canDo && canDo[property]);
                 }
             },
+
+            /**
+             * Use options to reset configuration
+             * @private
+             */
+            _resetConfiguration: function () {
+                var connectionDefaults = this.options.connectionDefaults;
+                var shapeDefaults = this.options.shapeDefaults;
+                this._configuration = {
+                    background: 'transparent',
+                    fillColor: shapeDefaults.fill && shapeDefaults.fill.color,
+                    opacity: shapeDefaults.fill && shapeDefaults.fill.opacity,
+                    strokeColor: shapeDefaults.stroke && shapeDefaults.stroke.color,
+                    strokeWidth: shapeDefaults.stroke && shapeDefaults.stroke.opacity,
+                    strokeDashType: shapeDefaults.stroke && shapeDefaults.stroke.opacity,
+                    startCap: connectionDefaults.startCap,
+                    endCap: connectionDefaults.endCap,
+                    fontFamily: shapeDefaults.content && shapeDefaults.content.fontFamily,
+                    fontSize: shapeDefaults.content && sshapeDefaults.content.fontSize,
+                    fontStyle: shapeDefaults.content && sshapeDefaults.content.fontStyle,
+                    fontWeight: shapeDefaults.content && sshapeDefaults.content.fontWeight
+                };
+            },
+
+            /**
+             * Export the configuration set by toolbar to redraw an element
+             * @param element
+             */
+            getConfiguration: function (element) {
+                // TODO use element.canDo();
+                var configuration = this._configuration;
+                return {
+                    content: {
+                        color: configuration.fillColor,
+                        fontFamily: configuration.fontFamily,
+                        fontSize: configuration.fontSize,
+                        fontStyle: configuration.fontStyle,
+                        fontWeight: configuration.fontWeight
+                    },
+                    fill: {
+                        color: configuration.fillColor,
+                        opacity: configuration.opacity
+                    },
+                    stroke: {
+                        color: configuration.strokeColor,
+                        width: configuration.strokeWidth,
+                        dashType: configuration.strokeDashType
+                    },
+                    startCap: configuration.startCap,
+                    endCap: configuration.endCap
+                };
+            },
+
+            /**
+             * List tools (in view of refreshing theme)
+             * @private
+             */
             _tools: function () {
                 return this.element.find('[' + kendo.attr('property') + ']').toArray().map(function (element) {
                     element = $(element);
@@ -568,6 +707,10 @@
                     };
                 }.bind(this));
             },
+
+            /**
+             * Destroy
+             */
             destroy: function () {
                 this.element.find('[data-command],.k-button').each(function () {
                     var element = $(this);
@@ -587,7 +730,7 @@
 
         var DropDownTool = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
-                var dropDownList = $('<select />').kendoDropDownList({ height: 'auto' }).data('kendoDropDownList');
+                var dropDownList = $('<select />').attr('title', options.attributes.title).attr('aria-label', options.attributes.title).kendoDropDownList({ height: 'auto' }).data('kendoDropDownList');
                 this.dropDownList = dropDownList;
                 this.element = dropDownList.wrapper;
                 this.options = options;
@@ -646,7 +789,7 @@
         });
         var PopupTool = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
-                this.element = $('<a href=\'#\' class=\'k-button k-button-icon\'>' + '<span class=\'' + options.spriteCssClass + '\'>' + '</span><span class=\'k-icon k-i-arrow-s\'></span>' + '</a>');
+                this.element = $('<a href=\'#\' class=\'k-button k-button-icon\'>' + '<span class=\'' + options.spriteCssClass + '\'>' + '</span><span class=\'k-icon k-i-arrow-60-down\'></span>' + '</a>');
                 this.element.on('click touchend', this.open.bind(this)).attr('data-command', options.command);
                 this.options = options;
                 this.toolbar = toolbar;
@@ -691,7 +834,7 @@
                 }.bind(this));
                 this.element.data({
                     type: 'vectorShape',
-                    keypad: this,
+                    vectorShape: this,
                     instance: this
                 });
             },
@@ -937,7 +1080,7 @@
                 this.element.attr({ 'data-property': options.property });
                 this.element.data({
                     type: 'vectorColorPicker',
-                    colorPicker: this,
+                    vectorColorPicker: this,
                     instance: this
                 });
             },
@@ -986,10 +1129,9 @@
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
                 this._commandPalette();
-                // TODO: What is this element.data() for?
                 this.element.data({
-                    type: 'vectorStrokeWidth',
-                    vectorStrokeWidth: this,
+                    type: 'vectorOpacity',
+                    vectorOpacity: this,
                     instance: this
                 });
             },
@@ -997,27 +1139,31 @@
                 this.slider.destroy();
                 PopupTool.fn.destroy.call(this);
             },
+            update: function (value) {
+                this.value(value);
+            },
+            value: function (value) {
+                this.slider.value(value);
+            },
             _commandPalette: function () {
-                var element = $('<div style="padding:2em 1em 1em 1em" />').appendTo(this.popup.element);
+                var element = $('<div style="padding:2em 1em 1em 1em" />').appendTo(this.popup.element); // TODO make it a class
+                // TODO: Add label???
                 this.slider = $('<input>').appendTo(element).kendoSlider({
-                    // precision: 4,
-                    smallStep: 1,
-                    largeStep: 5,
-                    min: 1,
-                    max: 20,
+                    smallStep: 0.01,
+                    largeStep: 0.1,
+                    min: 0,
+                    max: 1,
                     value: 1,
                     showButtons: false,
                     tickPlacement: 'none',
                     tooltip: {
-                        format: "{0} pt"
+                        format: "{0:p0}"
                     },
-                    change: $.proxy(this._action, this)
-                    // slide: $.proxy(this._action, this)
+                    // change: this._action.bind(this)
+                    slide: this._action.bind(this)
                 }).getKendoSlider();
             },
-            _action: function (button) {
-                var property = button.attr('data-property');
-                var value = button.attr('data-value');
+            _action: function (e) {
                 this.toolbar.action({
                     command: 'PropertyChangeCommand',
                     params: {
@@ -1041,7 +1187,6 @@
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
                 this._commandPalette();
-                // TODO: What is this element.data() for?
                 this.element.data({
                     type: 'vectorStrokeWidth',
                     vectorStrokeWidth: this,
@@ -1052,8 +1197,14 @@
                 this.slider.destroy();
                 PopupTool.fn.destroy.call(this);
             },
+            update: function (value) {
+                this.value(value);
+            },
+            value: function (value) {
+                this.slider.value(value);
+            },
             _commandPalette: function () {
-                var element = $('<div style="padding:2em 1em 1em 1em" />').appendTo(this.popup.element);
+                var element = $('<div style="padding:2em 1em 1em 1em" />').appendTo(this.popup.element); // TODO make it a class
                 this.slider = $('<input>').appendTo(element).kendoSlider({
                     smallStep: 1,
                     largeStep: 5,
@@ -1065,13 +1216,11 @@
                     tooltip: {
                         format: "{0} pt"
                     },
-                    change: $.proxy(this._action, this)
-                    // slide: $.proxy(this._action, this)
+                    // change: this._action.bind(this)
+                    slide: this._action.bind(this)
                 }).getKendoSlider();
             },
-            _action: function (button) {
-                var property = button.attr('data-property');
-                var value = button.attr('data-value');
+            _action: function (e) {
                 this.toolbar.action({
                     command: 'PropertyChangeCommand',
                     params: {
@@ -1094,47 +1243,85 @@
         var StrokeDashTypeTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
+                this.element.attr({ 'data-property': 'strokeDashType' });
                 this._commandPalette();
                 this.popup.element.on('click', '.k-button', function (e) {
                     this._action($(e.currentTarget));
                 }.bind(this));
                 this.element.data({
-                    type: 'merge', // TODO
-                    merge: this,
+                    type: 'vectorStrokeDashType',
+                    vectorStrokeDashType: this,
                     instance: this
                 });
             },
             // TODO: Replace icons with SVG built dynamicaly en embedded and beware themes!
             buttons: [
                 {
-                    value: 1,
+                    property: 'strokeDashType',
+                    value: 'solid',
                     iconClass: 'cells-merge', // TODO
-                    text: TOOLBAR_MESSAGES.strokeWidthButtons.w1
+                    text: TOOLBAR_MESSAGES.strokeDashTypeButtons.solid
                 },
                 {
-                    value: 2,
-                    iconClass: 'cells-merge-horizontally', // TODO
-                    text: TOOLBAR_MESSAGES.strokeWidthButtons.w2
+                    property: 'strokeDashType',
+                    value: 'dash',
+                    iconClass: 'cells-merge', // TODO
+                    text: TOOLBAR_MESSAGES.strokeDashTypeButtons.dash
                 },
                 {
-                    value: 3,
-                    iconClass: 'cells-merge-vertically', // TODO
-                    text: TOOLBAR_MESSAGES.strokeWidthButtons.w3
+                    property: 'strokeDashType',
+                    value: 'dashDot',
+                    iconClass: 'cells-merge', // TODO
+                    text: TOOLBAR_MESSAGES.strokeDashTypeButtons.dashDot
                 },
                 {
-                    value: 5,
-                    iconClass: 'table-unmerge', // TODO
-                    text: TOOLBAR_MESSAGES.strokeWidthButtons.w5
+                    property: 'strokeDashType',
+                    value: 'dot',
+                    iconClass: 'cells-merge', // TODO
+                    text: TOOLBAR_MESSAGES.strokeDashTypeButtons.dot
+                },
+                {
+                    property: 'strokeDashType',
+                    value: 'longDash',
+                    iconClass: 'cells-merge', // TODO
+                    text: TOOLBAR_MESSAGES.strokeDashTypeButtons.longDash
+                },
+                {
+                    property: 'strokeDashType',
+                    value: 'longDashDot',
+                    iconClass: 'cells-merge', // TODO
+                    text: TOOLBAR_MESSAGES.strokeDashTypeButtons.longDashDot
+                },
+                {
+                    property: 'strokeDashType',
+                    value: 'longDashDotDot',
+                    iconClass: 'cells-merge', // TODO
+                    text: TOOLBAR_MESSAGES.strokeDashTypeButtons.longDashDotDot
                 }
             ],
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
             },
+            update: function (selected) {
+                // TODO
+                debugger;
+                throw new Error('Not yet implemented');
+                var textAlign = range.textAlign();
+                var verticalAlign = range.verticalAlign();
+                var element = this.popup.element;
+                element.find('.k-button').removeClass('k-state-active');
+                if (textAlign) {
+                    element.find('[data-property=textAlign][data-value=' + textAlign + ']').addClass('k-state-active');
+                }
+                if (verticalAlign) {
+                    element.find('[data-property=verticalAlign][data-value=' + verticalAlign + ']').addClass('k-state-active');
+                }
+            },
             _commandPalette: function () {
                 var element = $('<div />').appendTo(this.popup.element);
                 this.buttons.forEach(function (options) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icontext\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + options.text + '</a>';
+                    var button = '<a title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icontext\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + options.text + '</a>';
                     element.append(button);
                 });
             },
@@ -1144,8 +1331,8 @@
                 this.toolbar.action({
                     command: 'PropertyChangeCommand',
                     params: {
-                        property: this.options.property,
-                        value: e.sender.value()
+                        property: property,
+                        value: value
                     }
                 });
             }
@@ -1163,6 +1350,7 @@
         var StartCapTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
+                this.element.attr({ 'data-property': 'startCap' });
                 this._commandPalette();
                 this.popup.element.on('click', '.k-button', function (e) {
                     this._action($(e.currentTarget));
@@ -1170,23 +1358,26 @@
                 }.bind(this));
                 this.element.data({
                     type: 'vectorStartCap',
-                    keypad: this, // TODO
-                    instance: this // TODO
+                    vectorStartCap: this,
+                    instance: this
                 });
             },
             buttons: [
                 {
+                    property: 'startCap',
                     value: 'none',
                     iconClass: 'window-minimize',
                     text: TOOLBAR_MESSAGES.startCapButtons.none
                 },
                 {
-                    value: 'arrow',
+                    property: 'startCap',
+                    value: 'ArrowStart',
                     iconClass: 'arrow-60-left',
                     text: TOOLBAR_MESSAGES.startCapButtons.arrow
                 },
                 {
-                    value: 'circle',
+                    property: 'startCap',
+                    value: 'FilledCircle',
                     iconClass: 'circle',
                     text: TOOLBAR_MESSAGES.startCapButtons.circle
                 }
@@ -1195,11 +1386,26 @@
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
             },
+            update: function (selected) {
+                // TODO
+                debugger;
+                throw new Error('Not yet implemented');
+                var textAlign = range.textAlign();
+                var verticalAlign = range.verticalAlign();
+                var element = this.popup.element;
+                element.find('.k-button').removeClass('k-state-active');
+                if (textAlign) {
+                    element.find('[data-property=textAlign][data-value=' + textAlign + ']').addClass('k-state-active');
+                }
+                if (verticalAlign) {
+                    element.find('[data-property=verticalAlign][data-value=' + verticalAlign + ']').addClass('k-state-active');
+                }
+            },
             _commandPalette: function () {
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
                         element.append($('<span class=\'k-separator\' />'));
                     }
@@ -1207,10 +1413,12 @@
                 });
             },
             _action: function (button) {
+                var property = button.attr('data-property');
                 var value = button.attr('data-value');
                 this.toolbar.action({
                     command: 'PropertyChangeCommand',
                     params: {
+                        property: property,
                         value: value
                     }
                 });
@@ -1229,6 +1437,7 @@
         var EndCapTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
+                this.element.attr({ 'data-property': 'startCap' });
                 this._commandPalette();
                 this.popup.element.on('click', '.k-button', function (e) {
                     this._action($(e.currentTarget));
@@ -1236,36 +1445,54 @@
                 }.bind(this));
                 this.element.data({
                     type: 'vectorEndCap',
-                    keypad: this, // TODO
-                    instance: this // TODO
+                    vectorEndCap: this,
+                    instance: this
                 });
             },
             buttons: [
                 {
+                    property: 'endCap',
                     value: 'none',
                     iconClass: 'window-minimize',
-                    text: TOOLBAR_MESSAGES.enCapButtons.none
+                    text: TOOLBAR_MESSAGES.endCapButtons.none
                 },
                 {
-                    value: 'arrow',
+                    property: 'endCap',
+                    value: 'ArrowEnd',
                     iconClass: 'arrow-60-right',
-                    text: TOOLBAR_MESSAGES.enCapButtons.arrow
+                    text: TOOLBAR_MESSAGES.endCapButtons.arrow
                 },
                 {
-                    value: 'circle',
+                    property: 'endCap',
+                    value: 'FilledCircle',
                     iconClass: 'circle',
-                    text: TOOLBAR_MESSAGES.enCapButtons.circle
+                    text: TOOLBAR_MESSAGES.endCapButtons.circle
                 }
             ],
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
             },
+            update: function (selected) {
+                // TODO
+                debugger;
+                throw new Error('Not yet implemented');
+                var textAlign = range.textAlign();
+                var verticalAlign = range.verticalAlign();
+                var element = this.popup.element;
+                element.find('.k-button').removeClass('k-state-active');
+                if (textAlign) {
+                    element.find('[data-property=textAlign][data-value=' + textAlign + ']').addClass('k-state-active');
+                }
+                if (verticalAlign) {
+                    element.find('[data-property=verticalAlign][data-value=' + verticalAlign + ']').addClass('k-state-active');
+                }
+            },
             _commandPalette: function () {
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
                         element.append($('<span class=\'k-separator\' />'));
                     }
@@ -1273,10 +1500,12 @@
                 });
             },
             _action: function (button) {
+                var property = button.attr('data-property');
                 var value = button.attr('data-value');
                 this.toolbar.action({
                     command: 'PropertyChangeCommand',
                     params: {
+                        property: property,
                         value: value
                     }
                 });
@@ -1313,7 +1542,7 @@
                     change: this._valueChange.bind(this),
                     clearButton: false,
                     dataSource: options.fontSizes || FONT_SIZES,
-                    value: configDefaults.font.fontSize
+                    value: toolDefaults.fontFamily.value
                 }).data('kendoComboBox');
                 this.comboBox = comboBox;
                 this.element = comboBox.wrapper;
@@ -1328,7 +1557,8 @@
                 });
                 this.element.data({
                     type: 'vectorFontSize',
-                    fontSize: this
+                    vectorFontSize: this,
+                    instance: this
                 });
             },
             _valueChange: function (e) {
@@ -1341,7 +1571,7 @@
                 });
             },
             update: function (value) {
-                this.value(kendo.parseInt(value) || configDefaults.font.fontSize);
+                this.value(kendo.parseInt(value) || toolDefaults.fontSize.value);
             },
             value: function (value) {
                 if (value !== undefined) {
@@ -1357,12 +1587,12 @@
                     name: 'vectorFontSize',
                     options: {
                         sizes: FONT_SIZES,
-                        defaultSize: configDefaults.font.fontSize
+                        defaultSize: toolDefaults.fontSize.value
                     }
                 });
             },
             update: function (value) {
-                this._value = value || configDefaults.font.fontSize;
+                this._value = value || toolDefaults.fontSize.value;
                 this.element.find('.k-text').text(this.message + ' (' + this._value + ') ...');
             }
         });
@@ -1384,14 +1614,15 @@
                 DropDownTool.fn.init.call(this, options, toolbar);
                 var ddl = this.dropDownList;
                 ddl.setDataSource(options.fontFamilies || FONT_FAMILIES);
-                ddl.value(configDefaults.font.fontFamily);
+                ddl.value(toolDefaults.fontFamily.value);
                 this.element.data({
-                    type: 'fontFamily',
-                    fontFamily: this
+                    type: 'vectorFontFamily',
+                    vectorFontFamily: this,
+                    instance: this
                 });
             },
             update: function (value) {
-                this.value(value || configDefaults.font.fontFamily);
+                this.value(value || toolDefaults.fontFamily.value);
             }
         });
         var FontFamilyButton = OverflowDialogButton.extend({
@@ -1400,12 +1631,12 @@
                     name: 'vectorFontFamily',
                     options: {
                         fonts: FONT_FAMILIES,
-                        defaultFont: configDefaults.font.fontFamily
+                        defaultFont: toolDefaults.fontFamily.value
                     }
                 });
             },
             update: function (value) {
-                this._value = value || configDefaults.font.fontFamily;
+                this._value = value || toolDefaults.fontFamily.value;
                 this.element.find('.k-text').text(this.message + ' (' + this._value + ') ...');
             }
         });
@@ -1424,8 +1655,8 @@
                 }.bind(this));
                 this.element.data({
                     type: 'vectorArrange',
-                    keypad: this, // TODO
-                    instance: this // TODO
+                    vectorArrange: this,
+                    instance: this
                 });
             },
             buttons: [
@@ -1515,7 +1746,7 @@
                     text: 'Text'
                 }
             },
-            // TODO : fill and stroke????
+            // TODO : color dialogs miss a title
             opacityDialog: {
                 title: 'Stroke Width'
             },
@@ -1525,7 +1756,13 @@
             strokeDashTypeDialog: {
                 title: 'Dash Type',
                 buttons: {
-
+                    dash: 'dash',
+                    dashDot: 'dash-dot',
+                    dot: 'dot',
+                    longDash: 'long-dash',
+                    longDashDot: 'long-dash dot',
+                    longDashDotDot:	'long-dash dot-dot',
+                    solid: 'solid'
                 }
             },
             startCapDialog: {
@@ -1698,8 +1935,8 @@
             options: { template: '<ul class=\'k-list k-reset\'></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
-                this.list = new kendo.ui.StaticList(ul, {
-                    dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
+                this.list = new StaticList(ul, {
+                    dataSource: new DataSource({ data: this.options.buttons }),
                     template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
                     change: this.apply.bind(this)
                 });
@@ -1946,6 +2183,52 @@
         */
 
         /**
+         * Opacity
+         */
+        var OpacityDialog = VectorDrawingDialog.extend({
+            init: function (options) {
+                var messages = kendo.vectordrawing.messages.dialogs.strokeWidthDialog || DIALOG_MESSAGES;
+                var defaultOptions = {
+                    title: messages.title
+                };
+                VectorDrawingDialog.fn.init.call(this, $.extend(defaultOptions, options));
+                this._list();
+            },
+            options: { template: '<div><input></div>' }, // TODO add class?
+            _list: function () {
+                var input = this.dialog().element.find('input');
+                this.slider = new kendo.ui.Slider(input[0], {
+                    smallStep: 0.01,
+                    largeStep: 0.1,
+                    min: 0,
+                    max: 1,
+                    value: 1,
+                    showButtons: false,
+                    tickPlacement: 'none',
+                    tooltip: {
+                        format: "{0:p0}"
+                    },
+                    // change: this.apply.bind(this)
+                    slide: this.apply.bind(this)
+                });
+            },
+            apply: function (e) {
+                // TODO: SLider value
+                debugger;
+                var dataItem = e.sender.value()[0];
+                VectorDrawingDialog.fn.apply.call(this);
+                this.trigger('action', {
+                    command: 'PropertyChangeCommand',
+                    params: {
+                        // property
+                        value: dataItem.value
+                    }
+                });
+            }
+        });
+        kendo.vectordrawing.dialogs.register('vectorOpacity', OpacityDialog);
+
+        /**
          * Stroke Width
          */
         var StrokeWidthDialog = VectorDrawingDialog.extend({
@@ -1971,16 +2254,21 @@
                     tooltip: {
                         format: "{0} pt"
                     },
-                    change: this.apply.bind(this)
-                    // slide: this.apply.bind(this)
+                    // change: this.apply.bind(this)
+                    slide: this.apply.bind(this)
                 });
             },
             apply: function (e) {
+                // TODO: SLider value
+                debugger;
                 var dataItem = e.sender.value()[0];
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'PropertyChangeCommand',
-                    options: { value: dataItem.value } // TODO: SLider value
+                    params: {
+                        // property
+                        value: dataItem.value
+                    }
                 });
             }
         });
@@ -1996,24 +2284,46 @@
                     title: messages.title,
                     buttons: [
                         {
-                            value: 'cells',
-                            iconClass: 'cells-merge',
-                            text: messages.buttons.mergeCells
+                            property: 'strokeDashType',
+                            value: 'solid',
+                            iconClass: 'cells-merge', // TODO
+                            text: messages.buttons.solid
                         },
                         {
-                            value: 'horizontally',
-                            iconClass: 'cells-merge-horizontally',
-                            text: messages.buttons.mergeHorizontally
+                            property: 'strokeDashType',
+                            value: 'dash',
+                            iconClass: 'cells-merge', // TODO
+                            text: messages.buttons.dash
                         },
                         {
-                            value: 'vertically',
-                            iconClass: 'cells-merge-vertically',
-                            text: messages.buttons.mergeVertically
+                            property: 'strokeDashType',
+                            value: 'dashDot',
+                            iconClass: 'cells-merge', // TODO
+                            text: messages.buttons.dashDot
                         },
                         {
-                            value: 'unmerge',
-                            iconClass: 'table-unmerge',
-                            text: messages.buttons.unmerge
+                            property: 'strokeDashType',
+                            value: 'dot',
+                            iconClass: 'cells-merge', // TODO
+                            text: messages.buttons.dot
+                        },
+                        {
+                            property: 'strokeDashType',
+                            value: 'longDash',
+                            iconClass: 'cells-merge', // TODO
+                            text: messages.buttons.longDash
+                        },
+                        {
+                            property: 'strokeDashType',
+                            value: 'longDashDot',
+                            iconClass: 'cells-merge', // TODO
+                            text: messages.buttons.longDashDot
+                        },
+                        {
+                            property: 'strokeDashType',
+                            value: 'longDashDotDot',
+                            iconClass: 'cells-merge', // TODO
+                            text: messages.buttons.longDashDotDot
                         }
                     ]
                 };
@@ -2023,9 +2333,9 @@
             options: { template: '<ul class=\'k-list k-reset\'></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
-                this.list = new kendo.ui.StaticList(ul, {
-                    dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    template: '<a title=\'#=text#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-icon k-i-#=iconClass#\'></span>#=text#' + '</a>',
+                this.list = new StaticList(ul, {
+                    dataSource: new DataSource({ data: this.options.buttons }),
+                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-icon k-i-#=iconClass#\'></span>#=text#' + '</a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -2034,18 +2344,127 @@
                 var dataItem = e.sender.value()[0];
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
-                    command: 'MergeCellCommand',
-                    options: { value: dataItem.value }
+                    command: 'PropertyChangeCommand',
+                    params: {
+                        property: dataItem.property,
+                        value: dataItem.value
+                    }
                 });
             }
         });
         kendo.vectordrawing.dialogs.register('vectorStrokeDashType', StrokeDashTypeDialog);
 
         /**
-         * Opacity
+         * Start Cap
          */
-        // TODO Display a popup with a slider from 0 to 100% to represent opacity
-        // see http://docs.telerik.com/kendo-ui/api/javascript/drawing/element#methods-opacity
+        var StartCapDialog = VectorDrawingDialog.extend({
+            init: function (options) {
+                var messages = kendo.vectordrawing.messages.dialogs.startCapDialog || DIALOG_MESSAGES;
+                var defaultOptions = {
+                    title: messages.title,
+                    buttons: [
+                        {
+                            property: 'startCap',
+                            value: 'none',
+                            iconClass: 'window-minimize',
+                            text: messages.buttons.none
+                        },
+                        {
+                            property: 'startCap',
+                            value: 'ArrowStart',
+                            iconClass: 'arrow-60-left',
+                            text: messages.buttons.arrow
+                        },
+                        {
+                            property: 'startCap',
+                            value: 'FilledCircle',
+                            iconClass: 'circle',
+                            text: messages.buttons.circle
+                        }
+                    ]
+                };
+                VectorDrawingDialog.fn.init.call(this, $.extend(defaultOptions, options));
+                this._list();
+            },
+            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            _list: function () {
+                var ul = this.dialog().element.find('ul');
+                this.list = new StaticList(ul, {
+                    dataSource: new DataSource({ data: this.options.buttons }),
+                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-icon k-i-#=iconClass#\'></span>#=text#' + '</a>',
+                    change: this.apply.bind(this)
+                });
+                this.list.dataSource.fetch();
+            },
+            apply: function (e) {
+                var dataItem = e.sender.value()[0];
+                VectorDrawingDialog.fn.apply.call(this);
+                this.trigger('action', {
+                    command: 'PropertyChangeCommand',
+                    params: {
+                        property: dataItem.property,
+                        value: dataItem.value
+                    }
+                });
+            }
+        });
+        kendo.vectordrawing.dialogs.register('vectorStartCap', StartCapDialog);
+
+        /**
+         * End Cap
+         */
+        var EndCapDialog = VectorDrawingDialog.extend({
+            init: function (options) {
+                var messages = kendo.vectordrawing.messages.dialogs.endCapDialog || DIALOG_MESSAGES;
+                var defaultOptions = {
+                    title: messages.title,
+                    buttons: [
+                        {
+                            property: 'endCap',
+                            value: 'none',
+                            iconClass: 'window-minimize',
+                            text: messages.buttons.none
+                        },
+                        {
+                            property: 'endCap',
+                            value: 'ArrowStart',
+                            iconClass: 'arrow-60-right',
+                            text: messages.buttons.arrow
+                        },
+                        {
+                            property: 'endCap',
+                            value: 'FilledCircle',
+                            iconClass: 'circle',
+                            text: messages.buttons.circle
+                        }
+                    ]
+                };
+                VectorDrawingDialog.fn.init.call(this, $.extend(defaultOptions, options));
+                this._list();
+            },
+            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            _list: function () {
+                var ul = this.dialog().element.find('ul');
+                this.list = new StaticList(ul, {
+                    dataSource: new DataSource({ data: this.options.buttons }),
+                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-icon k-i-#=iconClass#\'></span>#=text#' + '</a>',
+                    change: this.apply.bind(this)
+                });
+                this.list.dataSource.fetch();
+            },
+            apply: function (e) {
+                var dataItem = e.sender.value()[0];
+                VectorDrawingDialog.fn.apply.call(this);
+                this.trigger('action', {
+                    command: 'PropertyChangeCommand',
+                    params: {
+                        property: dataItem.property,
+                        value: dataItem.value
+                    }
+                });
+            }
+        });
+        kendo.vectordrawing.dialogs.register('vectorEndCap', EndCapDialog);
 
         /**
          * Font Size
@@ -2061,8 +2480,8 @@
                 var ul = this.dialog().element.find('ul');
                 var sizes = this.options.sizes;
                 var defaultSize = this.options.defaultSize;
-                this.list = new kendo.ui.StaticList(ul, {
-                    dataSource: new kendo.data.DataSource({ data: sizes }),
+                this.list = new StaticList(ul, {
+                    dataSource: new DataSource({ data: sizes }),
                     template: '#: data #',
                     value: defaultSize,
                     change: this.apply.bind(this)
@@ -2096,8 +2515,8 @@
                 var ul = this.dialog().element.find('ul');
                 var fonts = this.options.fonts;
                 var defaultFont = this.options.defaultFont;
-                this.list = new kendo.ui.StaticList(ul, {
-                    dataSource: new kendo.data.DataSource({ data: fonts }),
+                this.list = new StaticList(ul, {
+                    dataSource: new DataSource({ data: fonts }),
                     template: '#: data #',
                     value: defaultFont,
                     change: this.apply.bind(this)
@@ -2158,8 +2577,8 @@
             options: { template: '<ul class=\'k-list k-reset\'></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
-                this.list = new kendo.ui.StaticList(ul, {
-                    dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
+                this.list = new StaticList(ul, {
+                    dataSource: new DataSource({ data: this.options.buttons }),
                     template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
                     change: this.apply.bind(this)
                 });

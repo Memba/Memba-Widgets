@@ -30,6 +30,7 @@
         var kendo = window.kendo;
         var deepExtend = kendo.deepExtend;
         var isFunction = kendo.isFunction;
+        var Widget = kendo.ui.Widget;
         var Class = kendo.Class;
         var drawing = kendo.drawing;
         var createPromise = drawing.util.createPromise;
@@ -40,7 +41,6 @@
         var dataviz = kendo.dataviz;
         var diagram = dataviz.diagram;
         var ui = dataviz.ui;
-        var Widget = kendo.ui.Widget;
         var Diagram = ui.Diagram;
         var Cursors = diagram.Cursors;
         Cursors.crosshair = 'crosshair';
@@ -65,9 +65,10 @@
         var DRAG_START = 'dragStart';
         var SVG_NS = 'http://www.w3.org/2000/svg';
         var RX_URL = /^https?:\/\//;
-        var BORDER = 10;
         var DEFAULT_SNAP_SIZE = 10;
         var MIN_SNAP_SIZE = 5;
+        var LINE_PATH =  'M {0} {1} L {2} {3}';
+        var ARTBOARD_GUIDE = 20;
 
         /*********************************************************************************
          * Helpers
@@ -178,15 +179,25 @@
                 Shape.fn.init.call(this, options, diagram);
             },
             _visualOptions: function (options) {
-                return deepExtend(
-                    Shape.fn._visualOptions.call(this, options),
-                    {
-                        points: options.points,
-                        text: options.text,
-                        startCap: options.startCap,
-                        endCap: options.endCap
-                    }
-                );
+                 return {
+                     // From Shape.fn._visualOptions
+                     data: options.path,
+                     source: options.source,
+                     hover: options.hover,
+                     fill: options.fill,
+                     stroke: options.stroke,
+                     // For text blocks
+                     text: options.text,
+                     color: options.content.color,
+                     fontFamily: options.content.fontFamily,
+                     fontSize: options.content.fontSize,
+                     fontStyle: options.content.fontStyle,
+                     fontWeight: options.content.fontWeight
+                     // For pen and polyline
+                     // points: options.points,
+                     // startCap: options.startCap,
+                     // endCap: options.endCap
+                 };
             },
             createShapeVisual: function () {
                 var options = this.options;
@@ -677,6 +688,10 @@
                 // END: Add background layer
                 that.mainLayer = new Group({ id: 'main-layer' });
                 that.canvas.append(that.mainLayer);
+                // BEGIN: Add guide layer
+                that.guideLayer = new Group({ id: 'guide-layer' });
+                that.canvas.append(that.guideLayer);
+                // END: Add guide layer
                 that._shapesQuadTree = new ShapesQuadTree(that);
                 that._pan = new Point();
                 that._adorners = [];
@@ -700,59 +715,89 @@
                 // BEGIN Update background layer
                 that.scrollable.addClass('k-group');
                 that._updateBackgroundLayer();
+                that._updateGuideLayer();
                 // END Update background layer
                 that.zoom(that.options.zoom);
                 that.canvas.draw();
             },
             options: {
                 name: 'VectorDrawing',
-                toolbar: {}
+                toolbar: {},
+                artboard: {
+                    height: 480,
+                    width: 640,
+                    stroke: { // stroke is not exported to SVG or PNG
+                        width: 1,
+                        color: '#808080'
+                    },
+                    fill: { // fill is exported to SVG and PNG
+                        color: 'transparent'
+                    }
+                }
             },
             /**
-             * Update background layer showing image size
+             * Update background layer
              * @private
              */
-            _drag: function (e) {
-                Diagram.fn._drag.call(this, e);
-                this._updateBackgroundLayer();
-            },
             _updateBackgroundLayer: function () {
-                var bounds = this.mainLayer.drawingElement.bbox();
-                if (this._layerMatrixInvert) {
-                    bounds = bounds.bbox(this._layerMatrixInvert);
-                }
-                bounds.expand(BORDER);
-                var rectOptions = {
-                    x: bounds.origin.x,
-                    y: bounds.origin.y,
-                    height: bounds.size.height,
-                    width: bounds.size.width,
-                    fill: {
-                        color: '#afeeee' // TODO background color
-                    }/*,
-                    stroke: {
-                        color: 'transparent',
-                        width: 0
-                    }*/
-                };
-                var textOptions = {
-                    x: bounds.origin.x,
-                    y: bounds.origin.y + bounds.size.height + BORDER,
-                    text: kendo.format('{0}x{1}', bounds.size.width, bounds.size.height),
-                    fill: {
-                        color: '#afeeee' // TODO background color
-                    }/*,
-                    stroke: {
-                        color: 'transparent',
-                        width: 0
-                    }*/
+                var height = this.options.artboard.height;
+                var width = this.options.artboard.width;
+                var fill = this.options.artboard.fill;
+                var noStroke = { width: 0 };
+                var backgroundOptions = {
+                    x: 0,
+                    y: 0,
+                    height: height,
+                    width: width,
+                    fill: fill,
+                    stroke: noStroke
                 };
                 if (this.backgroundLayer.children.length === 0) {
-                    this.backgroundLayer.append(new Rectangle(rectOptions));
-                    this.backgroundLayer.append(new TextBlock(textOptions));
+                    this.backgroundLayer.append(new Rectangle(backgroundOptions));
                 } else {
-                    this.backgroundLayer.children[0].redraw(rectOptions);
-                    this.backgroundLayer.children[1].redraw(textOptions);
+                    this.backgroundLayer.children[0].redraw(backgroundOptions);
+                }
+            },
+            _updateGuideLayer: function () {
+                var height = this.options.artboard.height;
+                var width = this.options.artboard.width;
+                var stroke = this.options.artboard.stroke;
+                var topGuideOptions = {
+                    data: kendo.format(LINE_PATH, -ARTBOARD_GUIDE, 0, width + ARTBOARD_GUIDE, 0),
+                    stroke: stroke
+                }
+                var rightGuideOptions = {
+                    data: kendo.format(LINE_PATH, width, -ARTBOARD_GUIDE, width, height + ARTBOARD_GUIDE),
+                    stroke: stroke
+                }
+                var bottomGuideOptions = {
+                    data: kendo.format(LINE_PATH, -ARTBOARD_GUIDE, height, width + ARTBOARD_GUIDE, height),
+                    stroke: stroke
+                }
+                var leftGuideOptions = {
+                    data: kendo.format(LINE_PATH, 0, -ARTBOARD_GUIDE, 0, height + ARTBOARD_GUIDE),
+                    stroke: stroke
+                }
+                var size = kendo.format('{0}x{1}', width, height);
+                var sizeBox = new TextBlock({ text: size }).drawingElement.bbox();
+                var sizeOptions = {
+                    x: width - sizeBox.width() - ARTBOARD_GUIDE + sizeBox.height(),
+                    y: height + ARTBOARD_GUIDE - sizeBox.height(),
+                    text: size,
+                    fill: { color: stroke.color } // Yep! same color as artboard guides
+                };
+                if (this.guideLayer.children.length === 0) {
+                    this.guideLayer.append(new Path(topGuideOptions));
+                    this.guideLayer.append(new Path(rightGuideOptions));
+                    this.guideLayer.append(new Path(bottomGuideOptions));
+                    this.guideLayer.append(new Path(leftGuideOptions));
+                    this.guideLayer.append(new TextBlock(sizeOptions));
+                } else {
+                    this.guideLayer.children[0].redraw(topGuideOptions);
+                    this.guideLayer.children[1].redraw(rightGuideOptions);
+                    this.guideLayer.children[2].redraw(bottomGuideOptions);
+                    this.guideLayer.children[3].redraw(leftGuideOptions);
+                    this.guideLayer.children[4].redraw(sizeOptions);
                 }
             },
             _zoomMainLayer: function () {
@@ -887,11 +932,7 @@
                     dialog.bind('action', this._onToolBarAction.bind(this));
                     dialog.bind('deactivate', this._destroyDialog.bind(this));
                     this._dialogs.push(dialog);
-                    var element;
-                    if ($.isPlainObject(this._selection)) {
-                        element = this._getElementByUid(this._selection.uid);
-                    }
-                    dialog.open(element);
+                    dialog.open();
                     return dialog;
                 }
             },
@@ -982,9 +1023,10 @@
             /**
              * Export functions
              * Note: we need our own export functions:
-             * 1) To add an svg viewBox, otherwise preserveAspectRatio won't woirk to resize images
+             * 1) To add an svg viewBox, otherwise preserveAspectRatio won't work to resize images
              * 2) To account for panning and zooming so as to export WYSIWYG
-             * 3) To add a <script type:"application/json"> tags within <defs> so as to roundtrip persisted files
+             * 3) To clip to the bounds of the artboard
+             * 4) To add a <script type:"application/json"> tag within <defs> so as to roundtrip persisted files
              * @param group
              * @returns {string}
              * @private
@@ -993,10 +1035,16 @@
                 var scale = geometry.transform().scale(1 / this._zoom);
                 var wrap = new drawing.Group({ transform: scale });
                 var root = this.mainLayer.drawingElement;
-                var bbox = root.bbox().expand(BORDER);
-                var rect = new drawing.Rect(bbox, { fill: { color: '#afeeee' }, stroke: { width: 0} } ); // TODO: background color
-                wrap.children.push(rect);
+                var height = this.options.artboard.height;
+                var width = this.options.artboard.width;
+                var background = new drawing.Rect(
+                    new geometry.Rect([0, 0], [width, height]),
+                    { fill: this.options.artboard.fill, stroke: { width: 0 } }
+                );
+                var clipPath = new drawing.Path().moveTo(0, 0).lineTo(width, 0).lineTo(width, height).lineTo(0, height).close();
+                wrap.children.push(background);
                 wrap.children.push(root);
+                wrap.clip(clipPath);
                 return wrap;
             },
             exportSVG: function (options) {

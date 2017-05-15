@@ -1,23 +1,20 @@
-.kj-vectordrawing circle.r {
-    cursor: url('images/rotation.cur'), crosshair;
-}
 .kj-vectordrawing-toolbar .k-icon.k-i-select,
-.kj-vectordrawing-popup .k-icon.k-i-select,
+.k-animation-container .k-icon.k-i-select,
 .kj-vectordrawing-toolbar .k-icon.k-i-stroke-width,
-.kj-vectordrawing-popup .k-icon.k-i-stroke-width,
+.k-animation-container .k-icon.k-i-stroke-width,
 .kj-vectordrawing-toolbar .k-icon.k-i-stroke-dashes,
-.kj-vectordrawing-popup .k-icon.k-i-stroke-dashes {
+.k-animation-container .k-icon.k-i-stroke-dashes {
     font: 16px/1 kidoju !important;
 }
 .kj-vectordrawing-toolbar .k-i-select:before,
-.kj-vectordrawing-popup .k-i-select:before {
+.k-animation-container .k-i-select:before {
     content: "\e800";
 }
 .kj-vectordrawing-toolbar .k-i-stroke-width:before,
-.kj-vectordrawing-popup .k-i-stroke-width:before {
+.k-animation-container .k-i-stroke-width:before {
     content: "\e801";
 }
 .kj-vectordrawing-toolbar .k-i-stroke-dashes:before,
-.kj-vectordrawing-popup .k-i-stroke-dashes:before {
+.k-animation-container .k-i-stroke-dashes:before {
     content: "\e802";
 }

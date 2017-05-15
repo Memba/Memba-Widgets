@@ -60,8 +60,8 @@
             'strokeColor',
             'strokeWidth',
             'strokeDashType',
-            'startCap',
-            'endCap',
+            'startCapType',
+            'endCapType',
             [
                 'fontWeight',
                 'fontStyle'
@@ -106,7 +106,7 @@
                 var isShape = this instanceof Shape;
                 var hasFill = isShape && this.type.toLowerCase() !== 'image';
                 var hasStroke = isConnection || (isShape && this.type.toLowerCase() !== 'text' && this.type.toLowerCase() !== 'image');
-                var hasCap = isConnection;
+                var hasCapType = isConnection;
                 var hasFont = isShape && this.type.toLowerCase() === 'text'
                 return {
                     fillColor: hasFill,
@@ -114,8 +114,8 @@
                     strokeColor: hasStroke,
                     strokeWidth: hasStroke,
                     strokeDashType: hasStroke,
-                    startCap: hasCap,
-                    endCap: hasCap,
+                    startCapType: hasCapType,
+                    endCapType: hasCapType,
                     fontWeight: hasFont,
                     fontStyle: hasFont,
                     fontSize: hasFont,
@@ -138,11 +138,11 @@
             strokeDashType: function () {
                 return this.options.stroke && this.options.stroke.dashType;
             },
-            startCap: function () {
-                return this.options.startCap; // or .type
+            startCapType: function () {
+                return this.options.startCap && this.options.startCap.type;
             },
-            endCap: function () {
-                return this.options.endCap; // or .type
+            endCapType: function () {
+                return this.options.endCap && this.options.endCap.type;
             },
             // Consider content.color
             fontWeight: function () {
@@ -255,14 +255,14 @@
                 property: 'strokeDashType',
                 iconClass: 'stroke-dashes'
             },
-            startCap: {
-                type: 'vectorStartCap',
-                property: 'startCap',
+            startCapType: {
+                type: 'vectorStartCapType',
+                property: 'startCapType',
                 iconClass: 'arrow-left'
             },
-            endCap: {
-                type: 'vectorEndCap',
-                property: 'endCap',
+            endCapType: {
+                type: 'vectorEndCapType',
+                property: 'endCapType',
                 iconClass: 'arrow-right'
             },
             fontWeight: {
@@ -290,7 +290,7 @@
             fontFamily: {
                 type: 'vectorFontFamily',
                 property: 'fontFamily',
-                iconClass: 'text',
+                iconClass: 'font-family',
                 value: 'Arial'
             },
             arrange: {
@@ -352,14 +352,14 @@
                 longDashDotDot:	'long-dash dot-dot',
                 solid: 'solid'
             },
-            startCap: 'Start Cap',
-            startCapButtons: {
+            startCapType: 'Start Cap',
+            startCapTypeButtons: {
                 none: 'None',
                 arrow: 'Arrow',
                 circle: 'Circle'
             },
-            endCap: 'End Cap',
-            endCapButtons: {
+            endCapType: 'End Cap',
+            endCapTypeButtons: {
                 none: 'None',
                 arrow: 'Arrow',
                 circle: 'Circle'
@@ -656,8 +656,8 @@
                     strokeColor: shapeDefaults.stroke && shapeDefaults.stroke.color,
                     strokeWidth: shapeDefaults.stroke && shapeDefaults.stroke.opacity,
                     strokeDashType: shapeDefaults.stroke && shapeDefaults.stroke.opacity,
-                    startCap: connectionDefaults.startCap,
-                    endCap: connectionDefaults.endCap,
+                    startCapType: connectionDefaults.startCap && connectionDefaults.startCap.type,
+                    endCapType: connectionDefaults.endCap && connectionDefaults.endCap.type,
                     fontFamily: shapeDefaults.content && shapeDefaults.content.fontFamily,
                     fontSize: shapeDefaults.content && sshapeDefaults.content.fontSize,
                     fontStyle: shapeDefaults.content && sshapeDefaults.content.fontStyle,
@@ -677,8 +677,8 @@
                         color: configuration.fillColor,
                         fontFamily: configuration.fontFamily,
                         fontSize: configuration.fontSize,
-                        fontStyle: configuration.fontStyle,
-                        fontWeight: configuration.fontWeight
+                        fontStyle: configuration.fontStyle ? 'italic' : 'normal',
+                        fontWeight: configuration.fontWeight ? 'bold' : 'normal'
                     },
                     fill: {
                         color: configuration.fillColor,
@@ -689,8 +689,22 @@
                         width: configuration.strokeWidth,
                         dashType: configuration.strokeDashType
                     },
-                    startCap: configuration.startCap,
-                    endCap: configuration.endCap
+                    startCap: {
+                        type: configuration.startCapType,
+                        stroke: {
+                            color: configuration.strokeColor,
+                            width: configuration.strokeWidth
+                        }
+                        // fill: { color: configuration.strokeColor }
+                    },
+                    endCap: {
+                        type: configuration.endCapType,
+                        stroke: {
+                            color: configuration.strokeColor,
+                            width: configuration.strokeWidth
+                        }
+                        // fill: { color: configuration.strokeColor }
+                    }
                 };
             },
 
@@ -807,7 +821,7 @@
             },
             _popup: function () {
                 var element = this.element;
-                this.popup = $('<div class=\'k-spreadsheet-popup\' />').appendTo(element).kendoPopup({ anchor: element }).data('kendoPopup');
+                this.popup = $('<div class=\'k-spreadsheet-popup kj-vectordrawing-popup\' />').appendTo(element).kendoPopup({ anchor: element }).data('kendoPopup');
             }
         });
         var OverflowDialogButton = kendo.toolbar.OverflowButton.extend({
@@ -1140,7 +1154,7 @@
                 PopupTool.fn.destroy.call(this);
             },
             update: function (value) {
-                this.value(value);
+                this.value($.type(value) !== NUMBER ? 1 : value);
             },
             value: function (value) {
                 this.slider.value(value);
@@ -1159,8 +1173,8 @@
                     tooltip: {
                         format: "{0:p0}"
                     },
-                    // change: this._action.bind(this)
-                    slide: this._action.bind(this)
+                    change: this._action.bind(this)
+                    // slide: this._action.bind(this)
                 }).getKendoSlider();
             },
             _action: function (e) {
@@ -1216,8 +1230,8 @@
                     tooltip: {
                         format: "{0} pt"
                     },
-                    // change: this._action.bind(this)
-                    slide: this._action.bind(this)
+                    change: this._action.bind(this)
+                    // slide: this._action.bind(this)
                 }).getKendoSlider();
             },
             _action: function (e) {
@@ -1254,49 +1268,48 @@
                     instance: this
                 });
             },
-            // TODO: Replace icons with SVG built dynamicaly en embedded and beware themes!
             buttons: [
                 {
                     property: 'strokeDashType',
                     value: 'solid',
-                    iconClass: 'cells-merge', // TODO
+                    dashArray: '0',
                     text: TOOLBAR_MESSAGES.strokeDashTypeButtons.solid
                 },
                 {
                     property: 'strokeDashType',
-                    value: 'dash',
-                    iconClass: 'cells-merge', // TODO
-                    text: TOOLBAR_MESSAGES.strokeDashTypeButtons.dash
-                },
-                {
-                    property: 'strokeDashType',
-                    value: 'dashDot',
-                    iconClass: 'cells-merge', // TODO
-                    text: TOOLBAR_MESSAGES.strokeDashTypeButtons.dashDot
-                },
-                {
-                    property: 'strokeDashType',
-                    value: 'dot',
-                    iconClass: 'cells-merge', // TODO
-                    text: TOOLBAR_MESSAGES.strokeDashTypeButtons.dot
-                },
-                {
-                    property: 'strokeDashType',
                     value: 'longDash',
-                    iconClass: 'cells-merge', // TODO
+                    dashArray: '8 3.5',
                     text: TOOLBAR_MESSAGES.strokeDashTypeButtons.longDash
                 },
                 {
                     property: 'strokeDashType',
+                    value: 'dash',
+                    dashArray: '4 3.5',
+                    text: TOOLBAR_MESSAGES.strokeDashTypeButtons.dash
+                },
+                {
+                    property: 'strokeDashType',
+                    value: 'dot',
+                    dashArray: '1.5 3.5',
+                    text: TOOLBAR_MESSAGES.strokeDashTypeButtons.dot
+                },
+                {
+                    property: 'strokeDashType',
                     value: 'longDashDot',
-                    iconClass: 'cells-merge', // TODO
+                    dashArray: '8 3.5 1.5 3.5',
                     text: TOOLBAR_MESSAGES.strokeDashTypeButtons.longDashDot
                 },
                 {
                     property: 'strokeDashType',
                     value: 'longDashDotDot',
-                    iconClass: 'cells-merge', // TODO
+                    dashArray: '8 3.5 1.5 3.5 1.5 3.5',
                     text: TOOLBAR_MESSAGES.strokeDashTypeButtons.longDashDotDot
+                },
+                {
+                    property: 'strokeDashType',
+                    value: 'dashDot',
+                    dashArray: '3.5 3.5 1.5 3.5',
+                    text: TOOLBAR_MESSAGES.strokeDashTypeButtons.dashDot
                 }
             ],
             destroy: function () {
@@ -1304,24 +1317,22 @@
                 PopupTool.fn.destroy.call(this);
             },
             update: function (selected) {
-                // TODO
-                debugger;
-                throw new Error('Not yet implemented');
-                var textAlign = range.textAlign();
-                var verticalAlign = range.verticalAlign();
+                var strokeDashType = selected && selected.options && selected.options.stroke && selected.options.stroke.dashType;
                 var element = this.popup.element;
                 element.find('.k-button').removeClass('k-state-active');
-                if (textAlign) {
-                    element.find('[data-property=textAlign][data-value=' + textAlign + ']').addClass('k-state-active');
-                }
-                if (verticalAlign) {
-                    element.find('[data-property=verticalAlign][data-value=' + verticalAlign + ']').addClass('k-state-active');
+                if (strokeDashType) {
+                    element.find('[data-property=strokeDashType][data-value=' + strokeDashType + ']').addClass('k-state-active');
                 }
             },
             _commandPalette: function () {
                 var element = $('<div />').appendTo(this.popup.element);
                 this.buttons.forEach(function (options) {
-                    var button = '<a title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icontext\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + options.text + '</a>';
+                    var button = '<a title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icontext\'>' +
+                        '<span><svg height="16" width="100"><g><path stroke="#808080" stroke-width="2" stroke-dasharray="' + options.dashArray + '" d="M0 10 L100 10" /></g></svg></span>' +
+                        '</a>';
+
+                    // TODO #808080 might not be a good fit for all themes
+
                     element.append(button);
                 });
             },
@@ -1345,41 +1356,41 @@
         kendo.toolbar.registerComponent('vectorStrokeDashType', StrokeDashTypeTool, StrokeDashTypeButton);
 
         /**
-         * Start Cap
+         * Start Cap Type
          */
-        var StartCapTool = PopupTool.extend({
+        var StartCapTypeTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
-                this.element.attr({ 'data-property': 'startCap' });
+                this.element.attr({ 'data-property': 'startCapType' });
                 this._commandPalette();
                 this.popup.element.on('click', '.k-button', function (e) {
                     this._action($(e.currentTarget));
                     this.popup.close();
                 }.bind(this));
                 this.element.data({
-                    type: 'vectorStartCap',
-                    vectorStartCap: this,
+                    type: 'vectorStartCapType',
+                    vectorStartCapType: this,
                     instance: this
                 });
             },
             buttons: [
                 {
-                    property: 'startCap',
+                    property: 'startCapType',
                     value: 'none',
                     iconClass: 'window-minimize',
-                    text: TOOLBAR_MESSAGES.startCapButtons.none
+                    text: TOOLBAR_MESSAGES.startCapTypeButtons.none
                 },
                 {
-                    property: 'startCap',
+                    property: 'startCapType',
                     value: 'ArrowStart',
                     iconClass: 'arrow-60-left',
-                    text: TOOLBAR_MESSAGES.startCapButtons.arrow
+                    text: TOOLBAR_MESSAGES.startCapTypeButtons.arrow
                 },
                 {
-                    property: 'startCap',
+                    property: 'startCapType',
                     value: 'FilledCircle',
                     iconClass: 'circle',
-                    text: TOOLBAR_MESSAGES.startCapButtons.circle
+                    text: TOOLBAR_MESSAGES.startCapTypeButtons.circle
                 }
             ],
             destroy: function () {
@@ -1387,18 +1398,11 @@
                 PopupTool.fn.destroy.call(this);
             },
             update: function (selected) {
-                // TODO
-                debugger;
-                throw new Error('Not yet implemented');
-                var textAlign = range.textAlign();
-                var verticalAlign = range.verticalAlign();
+                var startCapType = selected && selected.options && selected.options.startCap && selected.options.startCap.type;
                 var element = this.popup.element;
                 element.find('.k-button').removeClass('k-state-active');
-                if (textAlign) {
-                    element.find('[data-property=textAlign][data-value=' + textAlign + ']').addClass('k-state-active');
-                }
-                if (verticalAlign) {
-                    element.find('[data-property=verticalAlign][data-value=' + verticalAlign + ']').addClass('k-state-active');
+                if (startCapType) {
+                    element.find('[data-property=startCapType][data-value=' + startCapType + ']').addClass('k-state-active');
                 }
             },
             _commandPalette: function () {
@@ -1424,49 +1428,49 @@
                 });
             }
         });
-        var StartCapButton = OverflowDialogButton.extend({
+        var StartCapTypeButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'vectorStartCap' });
+                this.toolbar.dialog({ name: 'vectorStartCapType' });
             }
         });
-        kendo.toolbar.registerComponent('vectorStartCap', StartCapTool, StartCapButton);
+        kendo.toolbar.registerComponent('vectorStartCapType', StartCapTypeTool, StartCapTypeButton);
 
         /**
-         * End Cap
+         * End Cap Type
          */
-        var EndCapTool = PopupTool.extend({
+        var EndCapTypeTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
-                this.element.attr({ 'data-property': 'startCap' });
+                this.element.attr({ 'data-property': 'endCapType' });
                 this._commandPalette();
                 this.popup.element.on('click', '.k-button', function (e) {
                     this._action($(e.currentTarget));
                     this.popup.close();
                 }.bind(this));
                 this.element.data({
-                    type: 'vectorEndCap',
-                    vectorEndCap: this,
+                    type: 'vectorEndCapType',
+                    vectorEndCapType: this,
                     instance: this
                 });
             },
             buttons: [
                 {
-                    property: 'endCap',
+                    property: 'endCapType',
                     value: 'none',
                     iconClass: 'window-minimize',
-                    text: TOOLBAR_MESSAGES.endCapButtons.none
+                    text: TOOLBAR_MESSAGES.endCapTypeButtons.none
                 },
                 {
-                    property: 'endCap',
+                    property: 'endCapType',
                     value: 'ArrowEnd',
                     iconClass: 'arrow-60-right',
-                    text: TOOLBAR_MESSAGES.endCapButtons.arrow
+                    text: TOOLBAR_MESSAGES.endCapTypeButtons.arrow
                 },
                 {
-                    property: 'endCap',
+                    property: 'endCapType',
                     value: 'FilledCircle',
                     iconClass: 'circle',
-                    text: TOOLBAR_MESSAGES.endCapButtons.circle
+                    text: TOOLBAR_MESSAGES.endCapTypeButtons.circle
                 }
             ],
             destroy: function () {
@@ -1474,18 +1478,11 @@
                 PopupTool.fn.destroy.call(this);
             },
             update: function (selected) {
-                // TODO
-                debugger;
-                throw new Error('Not yet implemented');
-                var textAlign = range.textAlign();
-                var verticalAlign = range.verticalAlign();
+                var endCapType = selected && selected.options && selected.options.endCap && selected.options.endCap.type;
                 var element = this.popup.element;
                 element.find('.k-button').removeClass('k-state-active');
-                if (textAlign) {
-                    element.find('[data-property=textAlign][data-value=' + textAlign + ']').addClass('k-state-active');
-                }
-                if (verticalAlign) {
-                    element.find('[data-property=verticalAlign][data-value=' + verticalAlign + ']').addClass('k-state-active');
+                if (endCapType) {
+                    element.find('[data-property=endCapType][data-value=' + endCapType + ']').addClass('k-state-active');
                 }
             },
             _commandPalette: function () {
@@ -1511,12 +1508,12 @@
                 });
             }
         });
-        var EndCapButton = OverflowDialogButton.extend({
+        var EndCapTypeButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'vectorEndCap' });
+                this.toolbar.dialog({ name: 'vectorEndCapType' });
             }
         });
-        kendo.toolbar.registerComponent('vectorEndCap', EndCapTool, EndCapButton);
+        kendo.toolbar.registerComponent('vectorEndCapType', EndCapTypeTool, EndCapTypeButton);
 
         /**
          * Font Sizes
@@ -1765,7 +1762,7 @@
                     solid: 'solid'
                 }
             },
-            startCapDialog: {
+            startCapTypeDialog: {
                 title: 'Start Cap',
                 buttons: {
                     none: 'None',
@@ -1773,7 +1770,7 @@
                     circle: 'Circle'
                 }
             },
-            endCapDialog: {
+            endCapTypeDialog: {
                 title: 'End Cap',
                 buttons: {
                     none: 'None',
@@ -1848,6 +1845,7 @@
             options: { autoFocus: true },
             dialog: function () {
                 if (!this._dialog) {
+                    // this._dialog = $('<div class=\'k-spreadsheet-window k-action-window k-popup-edit-form\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
                     this._dialog = $('<div class=\'k-spreadsheet-window k-action-window\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
                         messages: kendo.vectordrawing.messages.dialogs || DIALOG_MESSAGES,
                         errors: this.options.errors
@@ -1947,7 +1945,10 @@
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'ToolbarShapeCommand',
-                    options: { value: dataItem.value }
+                    options: {
+                        // property // TODO?????
+                        value: dataItem.value
+                    }
                 });
             }
         });
@@ -2189,12 +2190,13 @@
             init: function (options) {
                 var messages = kendo.vectordrawing.messages.dialogs.strokeWidthDialog || DIALOG_MESSAGES;
                 var defaultOptions = {
-                    title: messages.title
+                    title: messages.title,
+                    property: 'opacity'
                 };
                 VectorDrawingDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<div><input></div>' }, // TODO add class?
+            options: { template: '<div><input style="width:100%;"></div>' }, // TODO add class?
             _list: function () {
                 var input = this.dialog().element.find('input');
                 this.slider = new kendo.ui.Slider(input[0], {
@@ -2208,20 +2210,17 @@
                     tooltip: {
                         format: "{0:p0}"
                     },
-                    // change: this.apply.bind(this)
-                    slide: this.apply.bind(this)
+                    change: this.apply.bind(this)
+                    // slide: this.apply.bind(this)
                 });
             },
             apply: function (e) {
-                // TODO: SLider value
-                debugger;
-                var dataItem = e.sender.value()[0];
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'PropertyChangeCommand',
                     params: {
-                        // property
-                        value: dataItem.value
+                        property: this.options.property,
+                        value: e.sender.value()
                     }
                 });
             }
@@ -2235,7 +2234,8 @@
             init: function (options) {
                 var messages = kendo.vectordrawing.messages.dialogs.strokeWidthDialog || DIALOG_MESSAGES;
                 var defaultOptions = {
-                    title: messages.title
+                    title: messages.title,
+                    property: 'strokeWidth'
                 };
                 VectorDrawingDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
@@ -2254,20 +2254,17 @@
                     tooltip: {
                         format: "{0} pt"
                     },
-                    // change: this.apply.bind(this)
-                    slide: this.apply.bind(this)
+                    change: this.apply.bind(this)
+                    // slide: this.apply.bind(this)
                 });
             },
             apply: function (e) {
-                // TODO: SLider value
-                debugger;
-                var dataItem = e.sender.value()[0];
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'PropertyChangeCommand',
                     params: {
-                        // property
-                        value: dataItem.value
+                        property: this.options.property,
+                        value: e.sender.value()
                     }
                 });
             }
@@ -2279,51 +2276,51 @@
          */
         var StrokeDashTypeDialog = VectorDrawingDialog.extend({
             init: function (options) {
-                var messages = kendo.vectordrawing.messages.dialogs.strokeWidthDialog || DIALOG_MESSAGES;
+                var messages = kendo.vectordrawing.messages.dialogs.strokeDashTypeDialog || DIALOG_MESSAGES;
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
                         {
                             property: 'strokeDashType',
                             value: 'solid',
-                            iconClass: 'cells-merge', // TODO
+                            dashArray: '0',
                             text: messages.buttons.solid
                         },
                         {
                             property: 'strokeDashType',
-                            value: 'dash',
-                            iconClass: 'cells-merge', // TODO
-                            text: messages.buttons.dash
-                        },
-                        {
-                            property: 'strokeDashType',
-                            value: 'dashDot',
-                            iconClass: 'cells-merge', // TODO
-                            text: messages.buttons.dashDot
-                        },
-                        {
-                            property: 'strokeDashType',
-                            value: 'dot',
-                            iconClass: 'cells-merge', // TODO
-                            text: messages.buttons.dot
-                        },
-                        {
-                            property: 'strokeDashType',
                             value: 'longDash',
-                            iconClass: 'cells-merge', // TODO
+                            dashArray: '8 3.5',
                             text: messages.buttons.longDash
                         },
                         {
                             property: 'strokeDashType',
+                            value: 'dash',
+                            dashArray: '4 3.5',
+                            text: messages.buttons.dash
+                        },
+                        {
+                            property: 'strokeDashType',
+                            value: 'dot',
+                            dashArray: '1.5 3.5',
+                            text: messages.buttons.dot
+                        },
+                        {
+                            property: 'strokeDashType',
                             value: 'longDashDot',
-                            iconClass: 'cells-merge', // TODO
+                            dashArray: '8 3.5 1.5 3.5',
                             text: messages.buttons.longDashDot
                         },
                         {
                             property: 'strokeDashType',
                             value: 'longDashDotDot',
-                            iconClass: 'cells-merge', // TODO
+                            dashArray: '8 3.5 1.5 3.5 1.5 3.5',
                             text: messages.buttons.longDashDotDot
+                        },
+                        {
+                            property: 'strokeDashType',
+                            value: 'dashDot',
+                            dashArray: '3.5 3.5 1.5 3.5',
+                            text: messages.buttons.dashDot
                         }
                     ]
                 };
@@ -2335,13 +2332,21 @@
                 var ul = this.dialog().element.find('ul');
                 this.list = new StaticList(ul, {
                     dataSource: new DataSource({ data: this.options.buttons }),
-                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-icon k-i-#=iconClass#\'></span>#=text#' + '</a>',
+                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' +
+                        '<svg height=\'16\' width=\'100\'><g><path stroke=\'grey\' stroke-width=\'2\' stroke-dasharray=\'#=dashArray#\' d=\'M0 10 L100 10\' /></g></svg>' +
+
+                        // TODO Beware themes noting that I could not get #808080 and \#808080 to work instead of grey
+
+                        '</a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
             },
             apply: function (e) {
                 var dataItem = e.sender.value()[0];
+                if (!dataItem) {
+                    debugger; // TODO
+                }
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'PropertyChangeCommand',
@@ -2355,28 +2360,28 @@
         kendo.vectordrawing.dialogs.register('vectorStrokeDashType', StrokeDashTypeDialog);
 
         /**
-         * Start Cap
+         * Start Cap Type
          */
-        var StartCapDialog = VectorDrawingDialog.extend({
+        var StartCapTypeDialog = VectorDrawingDialog.extend({
             init: function (options) {
-                var messages = kendo.vectordrawing.messages.dialogs.startCapDialog || DIALOG_MESSAGES;
+                var messages = kendo.vectordrawing.messages.dialogs.startCapTypeDialog || DIALOG_MESSAGES;
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
                         {
-                            property: 'startCap',
+                            property: 'startCapType',
                             value: 'none',
                             iconClass: 'window-minimize',
                             text: messages.buttons.none
                         },
                         {
-                            property: 'startCap',
+                            property: 'startCapType',
                             value: 'ArrowStart',
                             iconClass: 'arrow-60-left',
                             text: messages.buttons.arrow
                         },
                         {
-                            property: 'startCap',
+                            property: 'startCapType',
                             value: 'FilledCircle',
                             iconClass: 'circle',
                             text: messages.buttons.circle
@@ -2398,6 +2403,9 @@
             },
             apply: function (e) {
                 var dataItem = e.sender.value()[0];
+                if (!dataItem) {
+                    debugger; // TODO
+                }
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'PropertyChangeCommand',
@@ -2408,31 +2416,31 @@
                 });
             }
         });
-        kendo.vectordrawing.dialogs.register('vectorStartCap', StartCapDialog);
+        kendo.vectordrawing.dialogs.register('vectorStartCapType', StartCapTypeDialog);
 
         /**
-         * End Cap
+         * End Cap Type
          */
-        var EndCapDialog = VectorDrawingDialog.extend({
+        var EndCapTypeDialog = VectorDrawingDialog.extend({
             init: function (options) {
-                var messages = kendo.vectordrawing.messages.dialogs.endCapDialog || DIALOG_MESSAGES;
+                var messages = kendo.vectordrawing.messages.dialogs.endCapTypeDialog || DIALOG_MESSAGES;
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
                         {
-                            property: 'endCap',
+                            property: 'endCapType',
                             value: 'none',
                             iconClass: 'window-minimize',
                             text: messages.buttons.none
                         },
                         {
-                            property: 'endCap',
+                            property: 'endCapType',
                             value: 'ArrowStart',
                             iconClass: 'arrow-60-right',
                             text: messages.buttons.arrow
                         },
                         {
-                            property: 'endCap',
+                            property: 'endCapType',
                             value: 'FilledCircle',
                             iconClass: 'circle',
                             text: messages.buttons.circle
@@ -2454,6 +2462,9 @@
             },
             apply: function (e) {
                 var dataItem = e.sender.value()[0];
+                if (!dataItem) {
+                    debugger; // TODO
+                }
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'PropertyChangeCommand',
@@ -2464,7 +2475,7 @@
                 });
             }
         });
-        kendo.vectordrawing.dialogs.register('vectorEndCap', EndCapDialog);
+        kendo.vectordrawing.dialogs.register('vectorEndCapType', EndCapTypeDialog);
 
         /**
          * Font Size
@@ -2489,12 +2500,26 @@
                 this.list.dataSource.fetch();
             },
             apply: function (e) {
+                /*
+                 var dataItem = e.sender.value()[0];
+                 if (!dataItem) {
+                 debugger; // TODO
+                 }
+                 VectorDrawingDialog.fn.apply.call(this);
+                 this.trigger('action', {
+                 command: 'PropertyChangeCommand',
+                 params: {
+                 property: dataItem.property,
+                 value: dataItem.value
+                 }
+                 });
+                */
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'PropertyChangeCommand',
                     options: {
-                        property: 'fontSize',
-                        value: kendo.parseInt(e.sender.value()[0])
+                        property: 'fontSize', // this.property
+                        value: kendo.parseInt(e.sender.value()[0]) // this.value()[0]
                     }
                 });
             }
@@ -2528,8 +2553,8 @@
                 this.trigger('action', {
                     command: 'PropertyChangeCommand',
                     options: {
-                        property: 'fontFamily',
-                        value: e.sender.value()[0]
+                        property: 'fontFamily', // this.property
+                        value: e.sender.value()[0] // this.value()[0]
                     }
                 });
             }
@@ -2586,10 +2611,13 @@
             },
             apply: function (e) {
                 var dataItem = e.sender.value()[0];
+                if (!dataItem) {
+                    debugger; // TODO
+                }
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'ToolbarArrangeCommand',
-                    options: {
+                    params: {
                         property: dataItem.property,
                         value: dataItem.value
                     }

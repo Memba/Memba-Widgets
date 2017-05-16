@@ -47,7 +47,7 @@
                             { type: 'Path', x: 300, y: 200, path: 'M 0,0 L100,100', stroke: { color: '#808080', width: 5 }, startCap: { type: "FilledCircle", fill: { color: "red" }, stroke: { width: 5 } }, endCap: { type: "ArrowEnd", fill: { color: "red" }, stroke: { width: 5 } } }
                         ]
                     }).data('kendoVectorDrawing');
-                    $('#window').css({ overflow: 'hidden' }).kendoWindow({
+                    var windowWidget = $('#window').css({ overflow: 'hidden' }).kendoWindow({
                         title: 'Vector Drawing',
                         actions: [],
                         draggable: true,
@@ -59,26 +59,16 @@
                                 .outerHeight(container.height());
                             vectorDrawingWidget.resize();
                         }
-                    });
+                    }).data('kendoWindow');
+                    windowWidget.resize(); // Important!
                     $('button').click(function (e) {
-                        switch ($('button').index(e.target)) {
-                            case 0: // New
-                                vectorDrawingWidget.clear();
-                                break;
-                            case 1: // Export
-                                vectorDrawingWidget.exportImage()
-                                .done(function (data) {
-                                    kendo.saveAs({
-                                        dataURI: data,
-                                        fileName: "vectordrawing.png"
-                                    });
-                                });
-                                break;
-                        }
-                    });
-                    $('input[type="file"]').on('change', function (e) {
-                        vectorDrawingWidget.clear();
-                        vectorDrawingWidget.open(e.target.files[0]);
+                        vectorDrawingWidget.exportImage()
+                        .done(function (data) {
+                            kendo.saveAs({
+                                dataURI: data,
+                                fileName: "vectordrawing.png"
+                            });
+                        });
                     });
                     $('#hook_image').change(function (e) {
                         if ($(e.target).prop('checked')) {
@@ -106,9 +96,6 @@
 <body>
 <h1>kidoju.widgets.vectordrawing</h1>
 <div>
-    <button>New</button>&nbsp;
-    <input type="file" />
-    <button>Resize</button>
     <button>Export PNG</button>&nbsp;
 </div>
 <div>

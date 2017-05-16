@@ -59,6 +59,7 @@
         var ToolService = diagram.ToolService;
         var ConnectorsAdorner = diagram.ConnectorsAdorner;
         var ResizingAdorner = diagram.ResizingAdorner;
+        var STRING = 'string';
         var CHANGE = 'change';
         var DRAG = 'drag';
         var DRAG_END = 'dragEnd';
@@ -683,6 +684,7 @@
                 that._interactionDefaults();
                 that._initCanvas();
                 // BEGIN: Add background layer
+                this._artboard = $.extend(true, {}, this.options.artboard);
                 that.backgroundLayer = new Group({ id: 'background-layer' });
                 that.canvas.append(that.backgroundLayer);
                 // END: Add background layer
@@ -719,19 +721,41 @@
                 // END Update background layer
                 that.zoom(that.options.zoom);
                 that.canvas.draw();
+                // Resize after drawing especially to center
+                that._resize();
             },
             options: {
                 name: 'VectorDrawing',
                 toolbar: {},
+                // TODO: fileName
                 artboard: {
                     height: 480,
                     width: 640,
-                    stroke: { // stroke is not exported to SVG or PNG
+                    stroke: { // stroke is not exported to SVG or PNG, just shown for screen guides
                         width: 1,
                         color: '#808080'
                     },
                     fill: { // fill is exported to SVG and PNG
                         color: 'transparent'
+                    }
+                },
+                connectionDefaults: {
+                    stroke: {
+                        color: '#808080',
+                        width: 1
+                    }
+                },
+                shapeDefaults: {
+                    content: {
+                        color: '#808080'
+                    },
+                    fill: {
+                        color: 'transparent',
+                        opacity: 1
+                    },
+                    stroke: {
+                        color: '#808080',
+                        width: 1
                     }
                 }
             },
@@ -740,9 +764,9 @@
              * @private
              */
             _updateBackgroundLayer: function () {
-                var height = this.options.artboard.height;
-                var width = this.options.artboard.width;
-                var fill = this.options.artboard.fill;
+                var height = this._artboard.height;
+                var width = this._artboard.width;
+                var fill = this._artboard.fill;
                 var noStroke = { width: 0 };
                 var backgroundOptions = {
                     x: 0,
@@ -759,9 +783,9 @@
                 }
             },
             _updateGuideLayer: function () {
-                var height = this.options.artboard.height;
-                var width = this.options.artboard.width;
-                var stroke = this.options.artboard.stroke;
+                var height = this._artboard.height;
+                var width = this._artboard.width;
+                var stroke = this._artboard.stroke;
                 var topGuideOptions = {
                     data: kendo.format(LINE_PATH, -ARTBOARD_GUIDE, 0, width + ARTBOARD_GUIDE, 0),
                     stroke: stroke
@@ -800,10 +824,20 @@
                     this.guideLayer.children[4].redraw(sizeOptions);
                 }
             },
+            _panToCenter: function () {
+                if (this.backgroundLayer && $.isArray(this.backgroundLayer.children) && this.backgroundLayer.children.length) {
+                    var viewportBox = this.viewport();
+                    var backgroundBox = this.backgroundLayer.drawingElement.bbox();
+                    this.pan(
+                        new diagram.Point(-(viewportBox.width - backgroundBox.width()) / 2, -(viewportBox.height - backgroundBox.height()) / 2)
+                    );
+                }
+            },
             _zoomMainLayer: function () {
                 var zoom = this._zoom;
                 var transform = new CompositeTransform(0, 0, zoom, zoom);
                 transform.render(this.backgroundLayer);
+                transform.render(this.guideLayer);
                 Diagram.fn._zoomMainLayer.call(this);
             },
             _transformMainLayer: function () {
@@ -811,7 +845,14 @@
                 var zoom = this._zoom;
                 var transform = new CompositeTransform(pan.x, pan.y, zoom, zoom);
                 transform.render(this.backgroundLayer);
+                transform.render(this.guideLayer);
                 Diagram.fn._transformMainLayer.call(this);
+            },
+            clear: function () {
+                Diagram.fn.clear.call(this);
+                // Keep the current artboard height/width
+                this._artboard.fill.color = this.options.artboard.fill.color;
+                this._updateBackgroundLayer();
             },
             /**
              * Replace ToolService with VectorToolService
@@ -906,13 +947,13 @@
                     .kendoVectorDrawingToolBar({
                         tools: this.options.toolbar.tools,
                         resizable: this.options.toolbar.resizable,
+                        // click: $.proxy(this._toolBarClick, this),
                         action: $.proxy(this._onToolBarAction, this),
                         dialog: $.proxy(this._onToolBarDialog, this),
                         connectionDefaults: this.options.connectionDefaults,
                         shapeDefaults: this.options.shapeDefaults
                     })
                     .data('kendoVectorDrawingToolBar');
-                this._resize();
                 // TODO implement toolBarClick for hooks!!!!!!!!!!!!!!!!
             },
             _selectionChanged: function (selected, deselected) {
@@ -941,13 +982,18 @@
                 // Note: as long as it is not too complex, we can use a dispatcher as below
                 // In the future, maybe consider Command classes with execute methods that apply to a selection like in kendo.ui.spreadsheet
                 switch (e.command) {
+                    case 'ToolbarNewCommand':
+                        this._onToolbarNew(e.params);
+                        break;
+                    case 'ToolbarOpenCommand':
+                        this._onToolbarOpen(e.params);
+                        break;
                     case 'ToolbarSaveCommand':
                         this._onToolbarSave(e.params);
                         break;
                     case 'DrawingToolChangeCommand':
-                        // TODO: Extend e.params.options with formatting configuration from toolbar here
-                        deepExtend(e.params.options, { fill: { color: 'red'} })
-                        this._onDrawingToolChage(e.params);
+                        deepExtend(e.params.options, this.toolBar.getConfiguration(new Shape({ type: e.params.options.type })));
+                        this._onDrawingToolChange(e.params);
                         break;
                     case 'PropertyChangeCommand':
                         this._onPropertyChange(e.params);
@@ -955,43 +1001,57 @@
                     case 'ToolbarArrangeCommand':
                         this._onToolbarArrange(e.params);
                         break;
-                    case 'ToolbarGridCommand':
-                        this._onToolbarGrid(e.params);
-                        break;
                     case 'ToolbarRemoveCommand':
                         this._onToolbarRemove(e.params);
+                        break;
+                    case 'GuidesChangeCommand':
+                        this._onGuidesChange(e.params);
                         break;
                     default:
                         $.noop();
                 }
             },
+            _onToolbarNew: function () {
+                this.clear();
+            },
+            _onToolbarOpen: function (params) {
+                this.clear();
+                this.open(params.file);
+            },
             _onToolbarSave: function () {
-                this.exportSVG({ json: true })
+                var that = this;
+                that.exportSVG({ json: true })
                     .done(function (data) {
                         kendo.saveAs({
                             dataURI: data,
-                            fileName: "vectordrawing.svg" // TODO: fileName????
+                            fileName: that._file && that._file.name || 'untitle.svg'
                         });
                     });
             },
-            _onDrawingToolChage: function (params) {
+            _onDrawingToolChange: function (params) {
                 this.toolService._selectedTool = {
                     type: params.value,
                     options: params.options
                 };
             },
-            _onPropertyChange: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                var toolBar = this.toolBar;
-                toolBar._configuration[options.property] = options.value;
-                var selected = this.select();
-                for (var i = 0, length = selected.length; i < length; i++) {
-                    selected[i].redraw(toolBar.getConfiguration(selected[i]));
+            _onPropertyChange: function (params) {
+                assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
+                if (params.property === 'background') {
+                    this._artboard.fill.color = $.type(params.value) === STRING ? params.value : this.options.artboard.fill.color;
+                    this._updateBackgroundLayer();
+                } else {
+                    var toolBar = this.toolBar;
+                    toolBar._configuration[params.property] = params.value;
+                    var selected = this.select();
+                    for (var i = 0, length = selected.length; i < length; i++) {
+                        selected[i].redraw(
+                            toolBar.getConfiguration(selected[i]));
+                    }
                 }
             },
-            _onToolbarArrange: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                switch (options.value) {
+            _onToolbarArrange: function (params) {
+                assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
+                switch (params.value) {
                     case 'forward':
                         alert('Not yet implemented!');
                         break;
@@ -1006,19 +1066,20 @@
                         break;
                 }
             },
-            _onToolbarGrid: function (options) {
-                // TODO Remember snap options.
-                this.options.editable.drag.snap = false;
-            },
-            _onToolbarRemove: function (options) {
+            _onToolbarRemove: function (params) {
                 this.remove(this.select());
+            },
+            _onGuidesChange: function (params) {
+                // TODO Remember snap params.
+                this.options.editable.drag.snap = false;
             },
             /**
              * Resizing
              */
             _resize: function () {
-                Diagram.fn._resize.call(this);
                 this.toolBar.resize();
+                Diagram.fn._resize.call(this);
+                this._panToCenter();
             },
             /**
              * Export functions
@@ -1035,11 +1096,11 @@
                 var scale = geometry.transform().scale(1 / this._zoom);
                 var wrap = new drawing.Group({ transform: scale });
                 var root = this.mainLayer.drawingElement;
-                var height = this.options.artboard.height;
-                var width = this.options.artboard.width;
+                var height = this._artboard.height;
+                var width = this._artboard.width;
                 var background = new drawing.Rect(
                     new geometry.Rect([0, 0], [width, height]),
-                    { fill: this.options.artboard.fill, stroke: { width: 0 } }
+                    { fill: this._artboard.fill, stroke: { width: 0 } }
                 );
                 var clipPath = new drawing.Path().moveTo(0, 0).lineTo(width, 0).lineTo(width, height).lineTo(0, height).close();
                 wrap.children.push(background);
@@ -1049,8 +1110,14 @@
             },
             exportSVG: function (options) {
                 // return drawing.exportSVG(this.exportVisual(), options);
-                if (options.json) {
+                if (options.json) { // options.json === true
                     options.json = this.save();
+                    options.json.artboard = {
+                        fill: this._artboard.fill,
+                        height: this._artboard.height,
+                        // stroke: this._artboard.stroke,
+                        width: this._artboard.width
+                    };
                 }
                 return exportSVG(this.exportVisual(), options);
             },
@@ -1072,11 +1139,15 @@
              * @private
              */
             open: function (source) {
+                var that = this;
                 // this.clear();
                 if (source instanceof window.File) {
-                    return this._openFile(source);
+                    return that._openFile(source)
+                        .always(function () {
+                            that.toolBar._resetFileInput();
+                        });
                 } else if (RX_URL.test(source)) {
-                    return this._openUrl(source);
+                    return that._openUrl(source);
                 }
             },
             _openFile: function (file) {
@@ -1092,8 +1163,8 @@
                         var pos0 = source.indexOf(prefix);
                         if (file.type === 'image/svg+xml' && pos0 === 0) {
                             var svg = window.atob(source.substr(prefix.length));
-                            var tag1 = '<defs><script type="application/json">';
-                            var tag2 = '</script></defs>';
+                            var tag1 = '<script type="application/json">';
+                            var tag2 = '</script>';
                             var pos1 = svg.indexOf(tag1);
                             var pos2 = svg.indexOf(tag2);
                             if (pos1 > -1 && pos2 > pos1 + tag1.length) {
@@ -1103,6 +1174,9 @@
                         if (json) {
                             try {
                                 that.load(JSON.parse(json));
+                                that._updateBackgroundLayer();
+                                that._updateGuideLayer();
+                                that._resize();
                                 dfd.resolve();
                             } catch (e) {
                                 dfd.reject(e);
@@ -1113,6 +1187,9 @@
                                 .done(dfd.resolve)
                                 .fail(dfd.reject);
                         }
+                    };
+                    reader.onerror = function (e) {
+                        dfd.reject(new Error('Unable to load file'));
                     };
                     // Read in the image file as a data URL.
                     reader.readAsDataURL(file);
@@ -1140,6 +1217,8 @@
             _loadImage: function (source) {
                 var that = this;
                 var dfd = $.Deferred();
+                // Note: we could have added the shape directly
+                // but we would not have detected a load error
                 var img = $('<img/>')
                     .appendTo('body')
                     .css({
@@ -1148,16 +1227,9 @@
                         left: -10000
                     })
                     .on('load', function (e) {
-                        /*
-                         viewModel.set('type', f.type);
-                         viewModel.set('name', f.name);
-                         viewModel.set('height', img.height());
-                         viewModel.set('width', img.width());
-                         */
-                        that.element.css({
-                            height: img.height() + that.toolBar.element.height(),
-                            width: img.width()
-                        });
+                        that._artboard.height = img.height();
+                        that._artboard.width = img.width();
+                        that._artboard.fill.color = that.options.artboard.fill.color;
                         that.addShape({
                             type: 'image',
                             x: 0,
@@ -1166,12 +1238,14 @@
                             width: img.width(),
                             source: source
                         });
-                        that.resize();
+                        that._updateBackgroundLayer();
+                        that._updateGuideLayer();
+                        that.resize(true);
                         img.off().remove();
                         dfd.resolve();
                     })
                     .on('error', function () {
-                        dfd.reject(new Error('Unable to load image content'));
+                        dfd.reject(new Error('Unable to load image data'));
                     })
                     .attr('src', source);
                 return dfd.promise();

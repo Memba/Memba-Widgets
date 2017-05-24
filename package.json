@@ -59,7 +59,7 @@
     "karma-sinon": "^1.0.5",
     "mocha": "^3.4.1",
     "phantomjs-prebuilt": "^2.1.14",
-    "sinon": "^2.2.0",
+    "sinon": "^2.3.1",
     "systemjs-plugin-babel": "0.0.21",
     "zombie": "^5.0.5"
   },

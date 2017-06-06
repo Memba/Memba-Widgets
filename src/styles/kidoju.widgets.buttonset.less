@@ -1,16 +1,23 @@
-.kj-buttonset {
-    .k-button:not(.k-state-active) {
-        color:inherit;
+.km-widget.km-buttongroup.kj-buttonset {
+    display: flex;
+    flex-wrap: wrap;
+    padding-left: 1px;
+    border: none;
+    .km-button.k-button {
+        display: initial;
+        border-width: 1px;
+        margin-left: -1px;
     }
     &.k-state-disabled {
         opacity: 1;
-        .k-button {
+        .km-button.k-button, .km-button.k-button:hover {
             color: inherit;
             background-color: inherit;
+            background-image: inherit;
         }
-        .k-button:not(.k-state-active) {
+        .km-button.k-button:not(.k-state-active) {
             span.k-text, span.k-icon {
-                opacity: 0.5;
+                opacity: 0.25;
             }
         }
     }

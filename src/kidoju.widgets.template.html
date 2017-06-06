@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kidoju.widgets.template</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.template stylesheet -->
+    <!--link href="./styles/kidoju.widgets.template.css" rel="stylesheet"-->
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.template.js').then(function () {
+                var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    visible: true,
+                    data1: 'Todd',
+                    data2: ['Apple', 'Orange', 'Tomato'],
+                    data4a: 2,
+                    data4b: [
+                        { id: 1, name: 'London' },
+                        { id: 2, name: 'New York' },
+                        { id: 3, name: 'Paris' }
+                    ]
+                });
+                window.app = { title: 'My App' };
+                $(function() {
+                    $('#template2').kendoTemplate({
+                        template: 'script2',
+                        value: ['Todd', 'Steve', 'Burke']
+                    });
+                    $('#template3').kendoTemplate({
+                        template: 'script3',
+                        value: 'Click me if you dare!'
+                    });
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>Template</h1>
+
+<h2>Template with MVVM data-bound values</h2>
+<div data-role="template" data-template="script1" data-bind="value: data1, visible: visible"></div>
+<input type="text" data-bind="value: data1" data-value-update="keyup" />&nbsp;
+Visible: &nbsp;<input type="checkbox" data-bind="checked: visible" />
+
+<h2>Template with declarative binding</h2>
+<div data-role="template" data-template="script2" data-bind="value: data2"></div>
+
+<h2>Template initilalized in code</h2>
+<div id="template2"></div>
+
+<h2>Template with embedded kendo controls</h2>
+<div id="template3"></div>
+
+<h2>Template with dataSource</h2>
+<div data-role="template" data-template="script4" data-value-field="id" data-bind="value: data4a, source: data4b"></div>
+
+<script id="script1" type="text/x-kendo-template">
+    <div style="color: red;">#: data #</div>
+</script>
+
+<script id="script2" type="text/x-kendo-template">
+    <ul style="color: green;">
+        # for (var i = 0; i < data.length; i++) { #
+        <li>#= data[i] #</li>
+        # } #
+    </ul>
+</script>
+
+<script id="script3" type="text/x-kendo-template">
+    <h3 style="color: blue;">#= app.title #</h3>
+    <button id="button1" data-role="button" data-icon="funnel" disabled>#: data #</button>
+</script>
+
+<script id="script4" type="text/x-kendo-template">
+    <span style="color: cyan;">#: data.name #</span>
+</script>
+
+</body>
+</html>

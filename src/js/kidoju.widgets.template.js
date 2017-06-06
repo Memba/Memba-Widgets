@@ -1,0 +1,221 @@
+/**
+ * Copyright (c) 2013-2017 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/* jshint browser: true, jquery: true */
+/* globals define: false */
+
+(function (f, define) {
+    'use strict';
+    define([
+        './window.assert',
+        './window.logger',
+        './vendor/kendo/kendo.binder'
+    ], f);
+})(function () {
+    'use strict';
+
+    (function ($, undefined) {
+
+        var kendo = window.kendo;
+        var ui = kendo.ui;
+        var Widget = ui.Widget;
+        var STRING = 'string';
+        var UNDEFINED = 'undefined';
+        var CHANGE = 'change';
+        var DATABINDING = 'dataBinding';
+        var DATABOUND = 'dataBound';
+        var WIDGET_CLASS = 'kj-template'; // 'k-widget kj-template';
+
+        /*******************************************************************************************
+         * Template Widget
+         *******************************************************************************************/
+
+        /**
+         * Template (kendoTemplate)
+         * @class Template
+         * @extend Widget
+         */
+        var Template = Widget.extend({
+
+            /**
+             * Initializes the widget
+             * @method init
+             * @param element
+             * @param options
+             */
+            init: function (element, options) {
+                var that = this;
+                Widget.fn.init.call(that, element, options);
+                that._initTemplate();
+                that._layout();
+                that._dataSource();
+                that.value(that.options.value);
+                kendo.notify(that);
+            },
+
+            /**
+             * Widget options
+             * @property options
+             */
+            options: {
+                autoBind: true,
+                dataSource: [],
+                name: 'Template',
+                template: '',
+                value: {},
+                valueField: null
+            },
+
+            // events are used by other widgets / developers - API for other purposes
+            // these events support MVVM bound items in the template. for loose coupling with MVVM.
+            events: [
+                // call before mutating DOM.
+                // mvvm will traverse DOM, unbind any bound elements or widgets
+                DATABINDING,
+                // call after mutating DOM
+                // traverses DOM and binds ALL THE THINGS
+                DATABOUND
+            ],
+
+            /**
+             * Data to be merged with the template
+             * @method value
+             * @param value
+             * @return {*}
+             */
+            value: function (value) {
+                var that = this;
+                if ($.type(value) === UNDEFINED) {
+                    return that._value;
+                } else {
+                    if(that._value !== value) {
+                        that._value = value;
+                        that.refresh();
+                    }
+                }
+            },
+
+            /**
+             * Return items
+             * mvvm expects an array of dom elements that represent each item of the datasource - should be the outermost element's children
+             */
+            items: function() {
+                return this.element.children();
+            },
+
+            /**
+             * Initialize template
+             * TODO: also consider loading external templates designated by a URL
+             * @private
+             */
+            _initTemplate: function () {
+                var template = this.options.template;
+                if ($.type(template) === STRING) {
+                    // try to find a script tag on the page
+                    var script = $('#' + template);
+                    if (script.length > 0) {
+                        this._template = kendo.template(script.html());
+                    } else {
+                        this._template = kendo.template(template);
+                    }
+                } else if ($.isFunction(template)) {
+                    this._template = template;
+                }
+            },
+
+            /**
+             * Builds the widget layout
+             * @method _layout
+             * @private
+             */
+            _layout: function () {
+                var that = this;
+                that.wrapper = that.element;
+                that.element.addClass(WIDGET_CLASS);
+            },
+
+            /**
+             * Sets teh dataSOurce
+             * @private
+             */
+            _dataSource: function() {
+                var that = this;
+
+                // if the DataSource is defined and the _refreshHandler is wired up, unbind because
+                // we need to rebuild the DataSource
+                if ( that.dataSource && that._refreshHandler ) {
+                    that.dataSource.unbind(CHANGE, that._refreshHandler);
+                } else {
+                    that._refreshHandler = $.proxy(that.refresh, that);
+                }
+
+                // returns the datasource OR creates one if using array or configuration object
+                that.dataSource = kendo.data.DataSource.create(that.options.dataSource);
+                // bind to the change event to refresh the widget
+                that.dataSource.bind(CHANGE, that._refreshHandler);
+
+                if (that.options.autoBind) {
+                    that.dataSource.fetch();
+                }
+            },
+
+            /**
+             * For supporting changing the datasource via MVVM
+             * @param dataSource
+             */
+            setDataSource: function(dataSource) {
+                // set the internal datasource equal to the one passed in by MVVM
+                this.options.dataSource = dataSource;
+                // rebuild the datasource if necessary, or just reassign
+                this._dataSource();
+            },
+
+            /**
+             * Refreshes the widget
+             * @method refresh
+             */
+            refresh: function() {
+                var that = this;
+                var options = that.options;
+                var data;
+                // trigger the dataBinding event
+                that.trigger(DATABINDING);
+                if ($.type(options.valueField) === STRING) {
+                    data = that.dataSource.data().find(function (item) {
+                        return item[options.valueField] === that.value();
+                    });
+                } else {
+                    data = that.value();
+                }
+                if ($.type(data) === UNDEFINED) {
+                    that.element.empty();
+                } else {
+                    var html = that._template(data);
+                    that.element.html(html);
+                }
+                // trigger the dataBound event
+                that.trigger(DATABOUND);
+            },
+
+            /**
+             * Destroys the widget
+             * @method destroy
+             */
+            destroy: function () {
+                var that = this;
+                // Destroy widget
+                Widget.fn.destroy.call(that);
+                kendo.destroy(that.element);
+            }
+
+        });
+
+        ui.plugin(Template);
+
+    }(window.jQuery));
+
+    return window.kendo;
+
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

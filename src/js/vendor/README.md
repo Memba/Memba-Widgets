@@ -3,7 +3,8 @@
 ## CodeMirror
 
 1. Download archive from https://github.com/codemirror/CodeMirror and copy required files
-2. Get [jshint.js](https://raw.githubusercontent.com/jshint/jshint/master/dist/jshint.js) from https://github.com/jshint/jshint
+2. run npm install && npm build
+3. Get [jshint.js](https://raw.githubusercontent.com/jshint/jshint/master/dist/jshint.js) from https://github.com/jshint/jshint
 
 ## HighlighJS
 

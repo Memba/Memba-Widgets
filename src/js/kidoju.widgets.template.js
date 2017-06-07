@@ -21,6 +21,7 @@
         var kendo = window.kendo;
         var ui = kendo.ui;
         var Widget = ui.Widget;
+        var DataSource = kendo.data.DataSource;
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
@@ -68,8 +69,9 @@
                 valueField: null
             },
 
-            // events are used by other widgets / developers - API for other purposes
-            // these events support MVVM bound items in the template. for loose coupling with MVVM.
+            /**
+             * Events
+             */
             events: [
                 // call before mutating DOM.
                 // mvvm will traverse DOM, unbind any bound elements or widgets
@@ -102,7 +104,7 @@
              * mvvm expects an array of dom elements that represent each item of the datasource - should be the outermost element's children
              */
             items: function() {
-                return this.element.children();
+                return []; // this.element.children();
             },
 
             /**
@@ -112,7 +114,7 @@
              */
             _initTemplate: function () {
                 var template = this.options.template;
-                if ($.type(template) === STRING) {
+                if ($.type(template) === STRING && template.length) {
                     // try to find a script tag on the page
                     var script = $('#' + template);
                     if (script.length > 0) {
@@ -145,14 +147,14 @@
 
                 // if the DataSource is defined and the _refreshHandler is wired up, unbind because
                 // we need to rebuild the DataSource
-                if ( that.dataSource && that._refreshHandler ) {
+                if (that.dataSource instanceof DataSource && $.isFunction(that._refreshHandler)) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 } else {
                     that._refreshHandler = $.proxy(that.refresh, that);
                 }
 
                 // returns the datasource OR creates one if using array or configuration object
-                that.dataSource = kendo.data.DataSource.create(that.options.dataSource);
+                that.dataSource = DataSource.create(that.options.dataSource);
                 // bind to the change event to refresh the widget
                 that.dataSource.bind(CHANGE, that._refreshHandler);
 
@@ -179,24 +181,28 @@
             refresh: function() {
                 var that = this;
                 var options = that.options;
-                var data;
-                // trigger the dataBinding event
-                that.trigger(DATABINDING);
-                if ($.type(options.valueField) === STRING) {
-                    data = that.dataSource.data().find(function (item) {
-                        return item[options.valueField] === that.value();
-                    });
-                } else {
-                    data = that.value();
+                // that.element.children().each(function () { kendo.destroy(this) });
+                // that.element.find('*').off();
+                that.element.empty();
+                if ($.isFunction(that._template)) {
+                    if ($.type(options.valueField) === STRING &&
+                        that.dataSource instanceof DataSource) {
+                        that.trigger(DATABINDING);
+                        var data = that.dataSource.data().find(function (item) {
+                            return item[options.valueField] === that.value();
+                        });
+                        if ($.type(data) !== UNDEFINED) {
+                            var html = that._template(data);
+                            that.element.html(html);
+                        }
+                        that.trigger(DATABOUND);
+                    } else {
+                        var value = that.value();
+                        if ($.type(value) !== UNDEFINED) {
+                            that.element.html(that._template(value));
+                        }
+                    }
                 }
-                if ($.type(data) === UNDEFINED) {
-                    that.element.empty();
-                } else {
-                    var html = that._template(data);
-                    that.element.html(html);
-                }
-                // trigger the dataBound event
-                that.trigger(DATABOUND);
             },
 
             /**
@@ -205,6 +211,13 @@
              */
             destroy: function () {
                 var that = this;
+                // Unbind events
+                if (that.dataSource instanceof DataSource && $.isFunction(that._refreshHandler)) {
+                    that.dataSource.unbind(CHANGE, that._refreshHandler);
+                }
+                // Clear references
+                that.dataSource = undefined;
+                that._template = undefined;
                 // Destroy widget
                 Widget.fn.destroy.call(that);
                 kendo.destroy(that.element);

@@ -32,9 +32,11 @@
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.multiinput');
         var STRING = 'string';
+        var UNDEFINED = 'undefined';
         var NS = '.kendoMultiInput';
         var CHANGE = 'change';
         var CLICK = 'click' + NS;
+        var KEYDOWN = 'keydown' + NS;
         var KEYPRESS = 'keypress' + NS;
         var FOCUSOUT = 'focusout' + NS;
         var MOUSEENTER = 'mouseenter' + NS;
@@ -49,6 +51,17 @@
         var STATEDISABLED = 'k-state-disabled';
         var DISABLED = 'disabled';
         var READONLY = 'readonly';
+        var INITIAL_WIDTH = 25;
+        var STYLES = [
+            'font-family',
+            'font-size',
+            'font-stretch',
+            'font-style',
+            'font-weight',
+            'letter-spacing',
+            'text-transform',
+            'line-height'
+        ];
 
         /*******************************************************************************************
          * Helpers
@@ -106,6 +119,7 @@
                 options = $.extend(options, that.options);
                 that._initValue();
                 that._layout();
+                that._addTextSpan();
                 that.refresh();
                 that._editable(options);
                 kendo.notify(that);
@@ -166,7 +180,7 @@
              */
             value: function (value) {
                 var that = this;
-                if ($.type(value) !== 'undefined') {
+                if ($.type(value) !== UNDEFINED) {
                     if (value === null) {
                         value = [];
                     }
@@ -191,26 +205,60 @@
             _layout: function () {
                 var that = this;
                 // var options = that.options,
-                var element = $(that.element); // the <input> element
+                var element = that.element; // the <input> element
                 var id = element.attr(ID);
-                that._clear();
-                element.attr({
-                    class: 'k-input',
-                    accesskey: '',
-                    autocomplete: 'off',
-                    tabindex : 0,
-                    role: 'listbox',
-                    'aria-owns': id ? id + '_taglist' : ''
-                });
+                element
+                    .width(INITIAL_WIDTH)
+                    .attr({
+                        class: 'k-input',
+                        accesskey: '',
+                        autocomplete: 'off',
+                        tabindex : 0,
+                        role: 'listbox',
+                        'aria-owns': id ? id + '_taglist' : ''
+                    });
                 element.wrap('<div class="k-multiselect-wrap k-floatwrap" unselectable="on"/>');
                 that._innerWrapper = element.parent();
                 that._innerWrapper.wrap('<div class="k-widget k-multiselect k-header kj-multiinput" unselectable="on">');
                 that.wrapper = that._innerWrapper.parent();
                 that.tagList = $('<ul role="listbox" unselectable="on" class="k-reset"/>');
                 if (id) {
-                    that.tagList.attr('id', id + '_taglist');
+                    that.tagList.attr(ID, id + '_taglist');
                 }
                 that._innerWrapper.prepend(that.tagList);
+            },
+
+            /**
+             * Add text span used to scale input
+             * @private
+             */
+            _addTextSpan: function () {
+                var computedStyles = kendo.getComputedStyles(this.element[0], STYLES);
+                computedStyles.position = 'absolute';
+                computedStyles.visibility = 'hidden';
+                computedStyles.top = -3333;
+                computedStyles.left = -3333;
+                this._span = $('<span/>').css(computedStyles).appendTo(this.wrapper);
+            },
+
+            /**
+             * Scale input field
+             * @private
+             */
+            _scaleInput: function () {
+                var that = this;
+                var wrapper = that.wrapper;
+                var wrapperWidth = wrapper.width();
+                var span = that._span.text(that.element.val());
+                var textWidth;
+                if (!wrapper.is(':visible')) {
+                    span.appendTo(document.documentElement);
+                    wrapperWidth = textWidth = span.width() + INITIAL_WIDTH;
+                    span.appendTo(wrapper);
+                } else {
+                    textWidth = span.width() + INITIAL_WIDTH;
+                }
+                that.element.width(textWidth > wrapperWidth ? wrapperWidth : textWidth);
             },
 
             /**
@@ -245,6 +293,7 @@
                         .removeAttr(READONLY)
                         .attr(ARIA_DISABLED, false)
                         .attr(ARIA_READONLY, false)
+                        .on(KEYDOWN, $.proxy(that._onInputKeyDown, that))
                         .on(KEYPRESS, $.proxy(that._onInputKeyPress, that))
                         .on(FOCUSOUT, $.proxy(that._onInputFocusOut, that));
 
@@ -366,6 +415,18 @@
              * @param e
              * @private
              */
+            _onInputKeyDown: function () {
+                var that = this;
+                setTimeout(function () {
+                    that._scaleInput();
+                }, 0);
+            },
+
+            /**
+             * Event handler triggered when pressing a key when the input has the focus
+             * @param e
+             * @private
+             */
             _onInputKeyPress: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
@@ -416,37 +477,22 @@
             },
 
             /**
-             * Clears the DOM from modifications made by the widget
-             * @method _clear
-             * @private
-             */
-            _clear: function () {
-                var that = this;
-                if (that.wrapper instanceof $ && that.tagList instanceof $) {
-                    // Unbind kendo
-                    kendo.unbind(that.element);
-                    // Unbind all other events
-                    that.element.find('*').off(NS);
-                    that.element.off(NS);
-                    // Remove tag list
-                    that.tagList.remove();
-                    // Unwrap and remove class
-                    that.element
-                        .unwrap()
-                        .unwrap()
-                        .removeClass('k-widget k-multiinput');
-                }
-            },
-
-            /**
              * Destroys the widget
              * @method destroy
              */
             destroy: function () {
                 var that = this;
+                var element = that.element;
+                // Unbind events
+                that.wrapper.off(NS);
+                that.tagList.off(NS);
+                element.off(NS);
+                // Clear references
+                that._innerWrapper = undefined;
+                that.tagList = undefined;
+                // Destroy widget
                 Widget.fn.destroy.call(that);
-                that._clear();
-                kendo.destroy(that.element);
+                kendo.destroy(element);
             }
 
         });

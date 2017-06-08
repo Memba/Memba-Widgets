@@ -107,19 +107,22 @@
              * @param value
              */
             value: function (value) {
+                return DropDownList.fn.value.call(this, value);
+                /*
                 var that = this;
                 if ($.type(value) === UNDEFINED) {
                     return DropDownList.fn.value.call(this);
                 } else {
                     var options = that.options;
-                    // DropDownList.fn.value.call(this, value);
                     var dataItem = that.dataSource.data().find(function (record) { return record[options.dataValueField] === value; });
                     if (dataItem) {
+                        // This does not work because several categories at different places in the hierarchy have the same name
                         that.text(dataItem[options.dataTextField]);
                     } else {
                         that.text('');
                     }
                 }
+                */
             },
 
             /**

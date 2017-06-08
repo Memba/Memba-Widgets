@@ -3830,7 +3830,7 @@
                 var stageElement = $(e.currentTarget);
                 assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                var content = stageElement.children('input');
+                var content = stageElement.find('input'); // span > input
                 if ($.type(component.width) === NUMBER) {
                     content.outerWidth(component.get('width')  - content.outerWidth(true) + content.outerWidth());
                 }

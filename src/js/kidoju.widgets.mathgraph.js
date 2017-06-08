@@ -1520,7 +1520,6 @@
                 ToolBar.fn.destroy.call(this);
             }
         });
-
         kendo.ui.plugin(MathGraphToolBar);
 
         /*********************************************************************************

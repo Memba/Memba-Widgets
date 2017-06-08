@@ -52,21 +52,11 @@
 <body>
 <h1>kidoju.widgets.buttonset</h1>
 <h2>ButtonSet unbound</h2>
-<div id="buttonset" class="km-ios7"></div>
+<input id="buttonset" class="km-ios7">
 <h2>ButtonSet unbound</h2>
-<ul data-role="buttonset" data-value="3">
-    <li>Option 1</li>
-    <li>Option 2</li>
-    <li>Option 3</li>
-    <li>Option 4</li>
-</ul>
+<input data-role="buttonset" data-buttons="[{&quot;text&quot;:&quot;Options1&quot;},{&quot;text&quot;:&quot;Options2&quot;},{&quot;text&quot;:&quot;Options3&quot;},{&quot;text&quot;:&quot;Options4&quot;}]" data-value="3">
 <h2>ButtonSet bound to observable</h2>
-<ul data-role="buttonset" data-bind="value: value, visible: visible, enabled: enabled">
-    <li>Group 1</li>
-    <li>Group 2</li>
-    <li>Group 3</li>
-    <li>Group 4</li>
-</ul>
+<input data-role="buttonset" data-buttons="[{&quot;text&quot;:&quot;Group1&quot;},{&quot;text&quot;:&quot;Group2&quot;},{&quot;text&quot;:&quot;Group3&quot;},{&quot;text&quot;:&quot;Group4&quot;}]" data-bind="value: value, visible: visible, enabled: enabled">
 <div>Value:&nbsp;<input id="numbox" type="number" data-bind="value: value"></div>
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;

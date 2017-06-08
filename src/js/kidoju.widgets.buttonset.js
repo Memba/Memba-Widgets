@@ -30,9 +30,12 @@
         var STATE_DISABLED = 'k-state-disabled km-state-disabled';
         var NS = '.kendoButtonSet';
         var CLICK = 'click' + NS;
-        var BUTTON_TEMPLATE = '<li class="k-button km-button"><span class="k-text km-text">{0}</span></li>';
+        var ID = 'id';
+        var WRAP_TEMPLATE = '<div class="kj-buttonset"></div>'
+        var UL_TEMPLATE = '<ul class="km-widget km-buttongroup k-widget k-button-group" role="group"></ul>';
+        // TODO: Add keyboard events to check buttons with Tab + Space or Tab + Enter
+        var BUTTON_TEMPLATE = '<li class="k-button km-button" tabindex="0" role="button"><span class="k-text km-text">{0}</span></li>';
         var ICON_TEMPLATE = '<span class="k-icon k-i-{0}"></span>';
-        var UL_CLASS = 'km-widget km-buttongroup k-widget k-button-group kj-buttonset';
         var CHANGE = 'change';
 
         /*******************************************************************************************
@@ -95,11 +98,13 @@
             value: function (value) {
                 var that = this;
                 if ($.type(value) === UNDEFINED) {
-                    return that._value;
+                    // Read value form html input
+                    return parseInt(that.element.val(), 10);
                 } else if ($.type(value) === NUMBER) {
-                    if (that._value !== value) {
-                        that._value = value;
-                        that._setStateAsBits(that._value);
+                    // Set value into html input
+                    if (parseInt(that.element.val(), 10) !== value) {
+                        that.element.val(value);
+                        that._setStateAsBits(value);
                     }
                 } else {
                     throw new TypeError('`value` is expected to be a number that is a sum of powers of 2 where the max exponential is the total number of buttons minus 1');
@@ -115,32 +120,29 @@
                 var that = this;
                 var element = that.element;
                 var buttons = that.options.buttons;
-                that.wrapper = element;
-                if (element.is('ul')) {
-                    that.ul = that.element;
-                } else {
-                    that.ul = $('<ul/>').appendTo(that.element);
+                if (!element.is('input')) {
+                    throw new Error('A button set should wrap an input for kendo validators to work.')
                 }
-                that.ul.addClass(UL_CLASS);
+                var id = element.attr(ID);
+                that.element
+                    .attr('aria-owns', id ? id + '_buttonset' : '')
+                    .hide();
+                that.wrapper = element.wrap(WRAP_TEMPLATE).parent();
+                that.ul = $(UL_TEMPLATE)
+                    .appendTo(that.wrapper);
+                if (id) {
+                    that.ul.attr(ID, id + '_buttonset');
+                }
                 if ($.isArray(buttons) && buttons.length) {
-                    // We have buttons in options so discard ul content
-                    that.ul.empty();
                     for (var i = 0, length = buttons.length; i < length; i++) {
                         var item = $(kendo.format(BUTTON_TEMPLATE, buttons[i].text));
                         if (buttons[i].icon) {
                             item.prepend(kendo.format(ICON_TEMPLATE, buttons[i].icon));
                             item.addClass('k-button-icontext');
                         }
-                        // TODO consider also imageUrl
+                        // TODO add imageUrl (we already have icons)
                         that.ul.append(item);
                     }
-                } else {
-                    // Without buttons in options, parse ul for any li
-                    that.ul.children('li').each(function (index, element) {
-                        element = $(element);
-                        that.ul.append(kendo.format(BUTTON_TEMPLATE, element.text()));
-                        element.remove();
-                    });
                 }
             },
 
@@ -150,12 +152,12 @@
              */
             enable: function (enable) {
                 var that = this;
-                var buttonList = that.ul;
+                var ul = that.ul;
                 var enabled = that._enabled = !!enable;
-                buttonList.off(NS);
-                buttonList.toggleClass(STATE_DISABLED, !enabled);
+                ul.off(NS);
+                ul.toggleClass(STATE_DISABLED, !enabled);
                 if (enabled) {
-                    buttonList.on(CLICK + NS, 'li.k-button.km-button', $.proxy(that._onButtonClick, that));
+                    ul.on(CLICK + NS, 'li.k-button.km-button', $.proxy(that._onButtonClick, that));
                 }
             },
 
@@ -171,7 +173,7 @@
                     this._reset();
                 }
                 $(e.currentTarget).toggleClass(STATE_ACTIVE);
-                this._value = this._getStateAsBits();
+                this.value(this._getStateAsBits());
                 this.trigger(CHANGE);
             },
 
@@ -209,7 +211,7 @@
              * @private
              */
             _reset: function () {
-                this._value = 0;
+                this.value(0);
                 this.ul.children('li').removeClass(STATE_ACTIVE);
             },
 
@@ -219,7 +221,7 @@
              */
             refresh: function () {
                 assert.instanceof($, this.ul, kendo.format(assert.messages.instanceof.default, 'this.ul', 'jQuery'));
-                this._setStateAsBits(this._value);
+                this._setStateAsBits(this.value());
             },
 
             /**

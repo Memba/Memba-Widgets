@@ -1,22 +1,28 @@
-.km-widget.km-buttongroup.kj-buttonset {
+.kj-buttonset {
+    display: inline-block;
+}
+.kj-buttonset .km-widget.km-buttongroup.k-widget.k-button-group {
     display: flex;
     flex-wrap: wrap;
     padding-left: 1px;
+    border: none;
 }
-.km-widget.km-buttongroup.kj-buttonset .km-button.k-button {
+.kj-buttonset .km-widget.km-buttongroup.k-widget.k-button-group .km-button.k-button {
     display: initial;
     border-width: 1px;
     margin-left: -1px;
+    padding: .25em .8em;
 }
-.km-widget.km-buttongroup.kj-buttonset.k-state-disabled {
+.kj-buttonset .km-widget.km-buttongroup.k-widget.k-button-group.k-state-disabled {
     opacity: 1;
 }
-.km-widget.km-buttongroup.kj-buttonset.k-state-disabled .km-button.k-button,
-.km-widget.km-buttongroup.kj-buttonset.k-state-disabled .km-button.k-button:hover {
+.kj-buttonset .km-widget.km-buttongroup.k-widget.k-button-group.k-state-disabled .km-button.k-button,
+.kj-buttonset .km-widget.km-buttongroup.k-widget.k-button-group.k-state-disabled .km-button.k-button:hover {
     color: inherit;
     background-color: inherit;
+    background-image: inherit;
 }
-.km-widget.km-buttongroup.kj-buttonset.k-state-disabled .km-button.k-button:not(.k-state-active) span.k-text,
-.km-widget.km-buttongroup.kj-buttonset.k-state-disabled .km-button.k-button:not(.k-state-active) span.k-icon {
-    opacity: 0.25;
+.kj-buttonset .km-widget.km-buttongroup.k-widget.k-button-group.k-state-disabled .km-button.k-button:not(.k-state-active) span.k-text,
+.kj-buttonset .km-widget.km-buttongroup.k-widget.k-button-group.k-state-disabled .km-button.k-button:not(.k-state-active) span.k-icon {
+    opacity: 0.5;
 }

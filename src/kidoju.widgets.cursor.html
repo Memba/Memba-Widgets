@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kidoju.widgets.cursor</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.cursor stylesheet -->
+    <!--link href="./styles/kidoju.widgets.cursir.css" rel="stylesheet"-->
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.cursor.js').then(function () {
+                var kendo = window.kendo;
+                $(function() {
+                    kendo.init('body');
+                });
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>kidoju.widgets.cursor</h1>
+<div id="toolbar"></div>
+<div class="kj-stage" style="position:relative;height:600px;width:800px;border:solid 1px black;transform: scale(0.75);">
+    <div data-role="stage" style="height:600px;width:800px;">
+        <div class="kj-element" style="position:absolute;top:50px;left:100px;height:480px;width:640px;">
+            <input type="text">
+        </div>
+    </div>
+</div>
+<div data-role="cursor"></div>
+</body>
+</html>

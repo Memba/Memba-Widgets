@@ -180,25 +180,26 @@
                 Shape.fn.init.call(this, options, diagram);
             },
             _visualOptions: function (options) {
-                 return {
-                     // From Shape.fn._visualOptions
+                return {
+                    // From Shape.fn._visualOptions
                      data: options.path,
                      source: options.source,
                      hover: options.hover,
                      fill: options.fill,
                      stroke: options.stroke,
-                     // For text blocks
-                     text: options.text,
-                     color: options.content.color,
-                     fontFamily: options.content.fontFamily,
-                     fontSize: options.content.fontSize,
-                     fontStyle: options.content.fontStyle,
-                     fontWeight: options.content.fontWeight
-                     // For pen and polyline
-                     // points: options.points,
-                     // startCap: options.startCap,
-                     // endCap: options.endCap
+		                 // For text blocks
+		                 text: options.text,
+		                 // color: options.content.color,
+		                 // fontFamily: options.content.fontFamily,
+		                 // fontSize: options.content.fontSize,
+		                 // fontStyle: options.content.fontStyle,
+		                 // fontWeight: options.content.fontWeight,
+		                 // For pen and polyline
+		                 points: options.points,
+		                 startCap: options.startCap,
+		                 endCap: options.endCap
                  };
+                 // return options;
             },
             createShapeVisual: function () {
                 var options = this.options;
@@ -241,19 +242,24 @@
                 this.toolService = toolService;
                 this.type = 'PenTool';
             },
-            tryActivate: function () {
-                return this.toolService._selectedTool && this.toolService._selectedTool.type === 'PenTool';
+            tryActivate: function (p, meta) {
+                if (meta.type === this.type) {
+                    this.options === meta.options;
+                    return true;
+                }
             },
             start: function (p, meta) {
                 var toolService = this.toolService;
                 var diagram = toolService.diagram;
                 var shape = toolService.activeShape = diagram._createShape({}, {
                     type: 'polyline',
-                    points: [{x: p.x, y: p.y}],
-                    x:0,
-                    y:0,
-                    height: 500,
-                    width: 500,
+                    points: [{x: 0, y: 0}],
+                    x: p.x,
+                    y: p.y,
+                    height: 0,
+                    width: 0,
+                    minHeight: 0,
+                    minWidth: 0,
                     // TODO configuration options
                     fill: {
                         color: '#0000ff'
@@ -270,8 +276,8 @@
                         connections: []
                     }) && diagram._addShape(shape)) {
                     toolService.activeShape = shape;
-                    // toolService._removeHover();
-                    // toolService.selectSingle(toolService.activeShape, meta);
+                    toolService._removeHover();
+                    toolService.selectSingle(toolService.activeShape, meta);
                     /*
                      if (meta.type == 'touchmove') {
                      diagram._cachedTouchTarget = connector.visual;
@@ -285,19 +291,51 @@
             move: function (p) {
                 var toolService = this.toolService;
                 var shape = toolService.activeShape;
-                var polyline = shape.shapeVisual;
-                var points = polyline.points();
-                points.push({x: p.x, y: p.y});
-                shape.redraw({ points: points }); // TODO
+                var bounds = shape.bounds();
+                var left = Math.min(bounds.x, p.x);
+                var right = Math.max(bounds.x + bounds.width, p.x);
+                var top = Math.min(bounds.y, p.y);
+                var bottom = Math.max(bounds.y + bounds.height, p.y);
+                var newBounds = new diagram.Rect(left, top, right - left, bottom - top);
+                var offset = new diagram.Point(
+                    bounds.x - newBounds.x,
+                    bounds.y - newBounds.y
+                );
+                var points = shape.shapeVisual.points().slice();
+                for (var i = 0, length = points.length; i < length; i++) {
+                    points[i].x += offset.x;
+                    points[i].y += offset.y;
+                }
+                points.push(p.minus(newBounds.topLeft()));
+                shape.redraw({
+                    type: 'polyline',
+                    points: points,
+                    x: newBounds.x,
+                    y: newBounds.y,
+                    minHeight: 0,
+                    height: newBounds.height,
+                    minWidth: 0,
+                    width: newBounds.width,
+                    // TODO configuration options
+                    fill: {
+                        color: '#0000ff'
+                    },
+                    stroke: {
+                        color: '#000000',
+                        width: 5
+                    }
+                    // startCap
+                    // endCap); // TODO
+                });
                 // TODO: should we update model?
                 // shape._setOptionsFromModel({ x: x, y: y, width: width, height: height });
-
                 return true;
             },
             end: function (p) {
                 var toolService = this.toolService;
                 var shape = toolService.activeShape;
                 var d = toolService.diagram;
+                // TODO close the shape when applicable!
                 /*
                  var connection = toolService.activeConnection;
                  var hoveredItem = toolService.hoveredItem;
@@ -327,11 +365,12 @@
                     })) {
                     shape.updateModel();
                     d._syncShapeChanges();
+                    toolService.selectSingle(shape, {});
                 } else {
                     d.remove(shape, false);
                     d.undoRedoService.pop();
                 }
-                toolService._selectedTool = undefined;
+                toolService._resetTool(); // Sets the pointer tool
             },
             getCursor: function () {
                 return Cursors.crosshair;
@@ -346,21 +385,25 @@
                 this.toolService = toolService;
                 this.type = 'PolylineTool';
             },
-            tryActivate: function () {
-                return this.toolService._selectedTool && this.toolService._selectedTool.type === 'PolylineTool';
+            tryActivate: function (p, meta) {
+                if (meta.type === this.type) {
+                    this.options === meta.options;
+                    return true;
+                }
             },
             start: function (p, meta) {
                 var toolService = this.toolService;
                 var diagram = toolService.diagram;
-                var shape = diagram._createShape({}, {
-                    type: 'path',
+                var shape = toolService.activeShape = diagram._createShape({}, {
+                    type: 'polyline',
+                    points: [{x: 0, y: 0}],
                     x: p.x,
                     y: p.y,
-                    radius: 0,
-                    // height: 0,
-                    // width: 0,
+                    height: 0,
+                    width: 0,
                     minHeight: 0,
-                    maxHeight: 0,
+                    minWidth: 0,
+                    // TODO configuration options
                     fill: {
                         color: '#0000ff'
                     },
@@ -368,12 +411,13 @@
                         color: '#000000',
                         width: 5
                     }
+                    // startCap
+                    // endCap
                 });
                 if (canDrag(shape) && !diagram.trigger(DRAG_START, {
                         shapes: [shape],
                         connections: []
                     }) && diagram._addShape(shape)) {
-                    // toolService._connectionManipulation(connection, connector._c.shape, true);
                     toolService.activeShape = shape;
                     toolService._removeHover();
                     toolService.selectSingle(toolService.activeShape, meta);
@@ -390,20 +434,49 @@
             move: function (p) {
                 var toolService = this.toolService;
                 var shape = toolService.activeShape;
-                var x = p.x > shape._bounds.x ? shape._bounds.x : p.x;
-                var y = p.y > shape._bounds.y ? shape._bounds.y : p.y;
-                var width = p.x > shape._bounds.x ? p.x - shape._bounds.x : shape._bounds.x + shape._bounds.width - p.x;
-                var height = p.y > shape._bounds.y ? p.y - shape._bounds.y : shape._bounds.y + shape._bounds.height - p.y;
-                shape._setOptionsFromModel({ x: x, y: y, width: width, height: height });
-                // connection.target(p);
-                toolService.diagram.trigger(DRAG, {
-                    shapes: [shape],
-                    connections: []
+                var bounds = shape.bounds();
+                var left = Math.min(bounds.x, p.x);
+                var right = Math.max(bounds.x + bounds.width, p.x);
+                var top = Math.min(bounds.y, p.y);
+                var bottom = Math.max(bounds.y + bounds.height, p.y);
+                var newBounds = new diagram.Rect(left, top, right - left, bottom - top);
+                var offset = new diagram.Point(
+                    bounds.x - newBounds.x,
+                    bounds.y - newBounds.y
+                );
+                var points = shape.shapeVisual.points().slice();
+                for (var i = 0, length = points.length; i < length; i++) {
+                    points[i].x += offset.x;
+                    points[i].y += offset.y;
+                }
+                points.push(p.minus(newBounds.topLeft()));
+                shape.redraw({
+                    type: 'polyline',
+                    points: points,
+                    x: newBounds.x,
+                    y: newBounds.y,
+                    minHeight: 0,
+                    height: newBounds.height,
+                    minWidth: 0,
+                    width: newBounds.width,
+                    // TODO configuration options
+                    fill: {
+                        color: '#0000ff'
+                    },
+                    stroke: {
+                        color: '#000000',
+                        width: 5
+                    }
+                    // startCap
+                    // endCap); // TODO
                 });
+                // TODO: should we update model?
+                // shape._setOptionsFromModel({ x: x, y: y, width: width, height: height });
                 return true;
             },
             end: function (p) {
                 var toolService = this.toolService;
+                var shape = toolService.activeShape;
                 var d = toolService.diagram;
                 /*
                  var connection = toolService.activeConnection;
@@ -434,18 +507,12 @@
                     })) {
                     shape.updateModel();
                     d._syncShapeChanges();
+                    toolService.selectSingle(shape, {});
                 } else {
                     d.remove(shape, false);
                     d.undoRedoService.pop();
                 }
-                /*
-                 toolService._connectionManipulation();
-                 if (cachedTouchTarget) {
-                 d._connectorsAdorner.visual.remove(cachedTouchTarget);
-                 d._cachedTouchTarget = null;
-                 }
-                 */
-                toolService._selectedTool = undefined;
+                toolService._resetTool(); // Sets the pointer tool
             },
             getCursor: function () {
                 return Cursors.crosshair;
@@ -460,8 +527,11 @@
                 this.toolService = toolService;
                 this.type = 'ShapeTool';
             },
-            tryActivate: function () {
-                return this.toolService._selectedTool && this.toolService._selectedTool.type === 'ShapeTool';
+            tryActivate: function (p, meta) {
+                if (meta.type === this.type) {
+                    this.options === meta.options;
+                    return true;
+                }
             },
             start: function (p, meta) {
                 var toolService = this.toolService;
@@ -470,7 +540,7 @@
                 // var connector = toolService._hoveredConnector;
                 // var connection = diagram._createConnection({}, connector._c, p);
                 var shape = diagram._createShape({}, deepExtend(
-                    this.toolService._selectedTool.options,
+                    this.toolService.options,
                     {
                         x: pos.x,
                         y: pos.y,
@@ -491,7 +561,7 @@
                     toolService.selectSingle(toolService.activeShape, meta);
                     /*
                      if (meta.type == 'touchmove') {
-                     diagram._cachedTouchTarget = connector.visual;
+                        diagram._cachedTouchTarget = connector.visual;
                      }
                      */
                 } else {
@@ -558,7 +628,7 @@
                  d._cachedTouchTarget = null;
                  }
                  */
-                toolService._selectedTool = undefined;
+                toolService._resetTool(); // Sets the pointer tool
             },
             _truncateDistance: function (d) {
                 if (d instanceof diagram.Point) {
@@ -589,12 +659,38 @@
          * VectorToolService
          */
         var VectorToolService = ToolService.extend({
+
+            /**
+             * Constructor
+             * @param diagram
+             */
             init: function (diagram) {
                 ToolService.fn.init.call(this, diagram);
                 // Add new tools here
                 this.tools.unshift(new PenTool(this));
                 this.tools.unshift(new PolylineTool(this));
                 this.tools.unshift(new ShapeTool(this));
+            },
+
+            /**
+             * The base class _activeTool functoin only determines the tool to be used form mous e event corrdinates and keyboard options (meta ctrlKey, shiftKey, altKey)
+             * We need to enrich meta with the the selected tool and configuration from the toolbar
+             * @param p
+             * @param meta
+             * @private
+             */
+            _activateTool: function (p, meta) {
+                meta = meta || {};
+
+                ToolService.fn._activateTool.call(this, p, meta);
+            },
+
+            /**
+             * Reset tool
+             * @private
+             */
+            _resetTool: function () {
+                // TODO
             }
         });
 
@@ -992,7 +1088,6 @@
                         this._onToolbarSave(e.params);
                         break;
                     case 'DrawingToolChangeCommand':
-                        deepExtend(e.params.options, this.toolBar.getConfiguration(new Shape({ type: e.params.options.type })));
                         this._onDrawingToolChange(e.params);
                         break;
                     case 'PropertyChangeCommand':
@@ -1029,10 +1124,7 @@
                     });
             },
             _onDrawingToolChange: function (params) {
-                this.toolService._selectedTool = {
-                    type: params.value,
-                    options: params.options
-                };
+                // the tool to be used is set by this.toolService._activateTool which is triggered by mouse events
             },
             _onPropertyChange: function (params) {
                 assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));

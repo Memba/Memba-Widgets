@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kidoju.widgets.multiimage</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.multiimage stylesheet -->
+    <!--link href="./styles/kidoju.widgets.multiimage.css" rel="stylesheet"-->
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.multiimage.js').then(function () {
+                var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    visible: true,
+                    enabled: true,
+                    image: 0
+                });
+                $(function() {
+                    $('#multiimage').kendoMultiImage({
+                        value: 1,
+                        images: [
+                        	'https://cdn.kidoju.com/images/twemoji/svg/all/aubergine.svg',
+                            'https://cdn.kidoju.com/images/twemoji/svg/all/banana.svg',
+                            'https://cdn.kidoju.com/images/twemoji/svg/all/cherries.svg',
+                            'https://cdn.kidoju.com/images/twemoji/svg/all/green_apple.svg',
+                            'https://cdn.kidoju.com/images/twemoji/svg/all/pear.svg',
+                        	'https://cdn.kidoju.com/images/twemoji/svg/all/tomato.svg'
+                        ]
+                    });
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>MultiImage</h1>
+
+<h2>MultiImage with MVVM data-bound values</h2>
+<img data-role="multiimage" data-bind="value: image, visible: visible, enabled: enabled" data-images="[&quot;https://cdn.kidoju.com/images/twemoji/svg/all/ambulance.svg&quot;,&quot;https://cdn.kidoju.com/images/twemoji/svg/all/oncoming_police_car.svg&quot;,&quot;https://cdn.kidoju.com/images/twemoji/svg/all/fire_engine.svg&quot;]" style="height:100px; width:100px">
+
+<div>
+    <input type="number" data-bind="value: image"><br/>
+    Visible: &nbsp;<input type="checkbox" data-bind="checked: visible">
+    Enabled: &nbsp;<input type="checkbox" data-bind="checked: enabled">
+</div>
+
+<h2>MultiImage initilalized in code</h2>
+<img id="multiimage" style="height:100px; width:100px">
+
+</body>
+</html>

@@ -58,7 +58,7 @@
             init: function (element, options) {
                 var that = this;
                 Widget.fn.init.call(that, element, options);
-                logger.debug({ method: 'init', message: 'widget initialized' });
+                logger.debug({ method: 'init', message: 'Widget initialized' });
                 that._layout();
                 that.enable(!!options.enabled || !that.element.prop('disabled'));
                 that.value(options.value || 0);
@@ -222,6 +222,7 @@
             refresh: function () {
                 assert.instanceof($, this.ul, kendo.format(assert.messages.instanceof.default, 'this.ul', 'jQuery'));
                 this._setStateAsBits(this.value());
+                logger.debug({ method: 'refresh', message: 'Widget refreshed' });
             },
 
             /**

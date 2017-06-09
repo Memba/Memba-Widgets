@@ -30,7 +30,7 @@
         var KEYDOWN = 'keydown';
         var CHANGE = 'change';
         var WIDGET_CLASS = 'kj-multiimage kj-interactive';
-        var KEYS = {
+        var KEYSTROKES = {
             ARROW_DOWN: 40,
             ARROW_LEFT: 37,
             ARROW_RIGHT: 39,
@@ -60,7 +60,7 @@
             init: function (element, options) {
                 var that = this;
                 Widget.fn.init.call(that, element, options);
-                logger.debug({ method: 'init', message: 'widget initialized' });
+                logger.debug({ method: 'init', message: 'Widget initialized' });
                 that._preload();
                 that._layout();
                 that.value(that.options.value);
@@ -187,19 +187,20 @@
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var images = this.options.images;
                 switch (e.which) {
-                    case KEYS.ARROW_DOWN:
-                    case KEYS.ARROW_LEFT:
+                    // TODO Consider handling numbers to display an image
+                    case KEYSTROKES.ARROW_DOWN:
+                    case KEYSTROKES.ARROW_LEFT:
                         this.value(this.value() === 0 ? images.length - 1 : this.value() - 1);
                         break;
-                    case KEYS.ARROW_RIGHT:
-                    case KEYS.ARROW_UP:
-                    case KEYS.SPACE:
+                    case KEYSTROKES.ARROW_RIGHT:
+                    case KEYSTROKES.ARROW_UP:
+                    case KEYSTROKES.SPACE:
                         this.value(this.value() === images.length - 1 ? 0 : this.value() + 1);
                         break;
-                    case KEYS.PAGE_UP:
+                    case KEYSTROKES.PAGE_UP:
                         this.value(images.length - 1);
                         break;
-                    case KEYS.PAGE_DOWN:
+                    case KEYSTROKES.PAGE_DOWN:
                         this.value(0);
                         break;
                 }
@@ -216,7 +217,7 @@
                 var element = this.element;
                 var options = this.options;
                 element.attr('src', options.images[this._value]);
-                logger.debug({ method: 'refresh', message: 'widget refreshed' });
+                logger.debug({ method: 'refresh', message: 'Widget refreshed' });
             },
 
             /**

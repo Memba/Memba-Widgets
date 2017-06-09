@@ -22,6 +22,8 @@
         var ui = kendo.ui;
         var Widget = ui.Widget;
         var DataSource = kendo.data.DataSource;
+        var assert = window.assert;
+        var logger = new window.Logger('kidoju.widgets.template');
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
@@ -49,6 +51,7 @@
             init: function (element, options) {
                 var that = this;
                 Widget.fn.init.call(that, element, options);
+                logger.debug({ method: 'init', message: 'Widget initialized' });
                 that._initTemplate();
                 that._layout();
                 that._dataSource();
@@ -203,6 +206,7 @@
                         }
                     }
                 }
+                logger.debug({ method: 'refresh', message: 'Widget refreshed' });
             },
 
             /**

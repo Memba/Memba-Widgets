@@ -199,7 +199,7 @@
                 var segments = path.segments;
                 var targetSegment;
                 var point;
-                if (position == START) {
+                if (position === START) {
                     targetSegment = segments[0];
                 } else {
                     targetSegment = segments[segments.length - 1];

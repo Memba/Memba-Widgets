@@ -31,7 +31,7 @@
         var NS = '.kendoButtonSet';
         var CLICK = 'click' + NS;
         var ID = 'id';
-        var WRAP_TEMPLATE = '<div class="kj-buttonset"></div>'
+        var WRAP_TEMPLATE = '<div class="kj-buttonset"></div>';
         var UL_TEMPLATE = '<ul class="km-widget km-buttongroup k-widget k-button-group" role="group"></ul>';
         // TODO: Add keyboard events to check buttons with Tab + Space or Tab + Enter
         var BUTTON_TEMPLATE = '<li class="k-button km-button" tabindex="0" role="button"><span class="k-text km-text">{0}</span></li>';
@@ -121,7 +121,7 @@
                 var element = that.element;
                 var buttons = that.options.buttons;
                 if (!element.is('input')) {
-                    throw new Error('A button set should wrap an input for kendo validators to work.')
+                    throw new Error('A button set should wrap an input for kendo validators to work.');
                 }
                 var id = element.attr(ID);
                 that.element

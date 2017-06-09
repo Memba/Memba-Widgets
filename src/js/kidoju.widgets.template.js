@@ -92,7 +92,7 @@
                 if ($.type(value) === UNDEFINED) {
                     return that._value;
                 } else {
-                    if(that._value !== value) {
+                    if (that._value !== value) {
                         that._value = value;
                         that.refresh();
                     }
@@ -103,7 +103,7 @@
              * Return items
              * mvvm expects an array of dom elements that represent each item of the datasource - should be the outermost element's children
              */
-            items: function() {
+            items: function () {
                 return []; // this.element.children();
             },
 
@@ -142,7 +142,7 @@
              * Sets teh dataSOurce
              * @private
              */
-            _dataSource: function() {
+            _dataSource: function () {
                 var that = this;
 
                 // if the DataSource is defined and the _refreshHandler is wired up, unbind because
@@ -167,7 +167,7 @@
              * For supporting changing the datasource via MVVM
              * @param dataSource
              */
-            setDataSource: function(dataSource) {
+            setDataSource: function (dataSource) {
                 // set the internal datasource equal to the one passed in by MVVM
                 this.options.dataSource = dataSource;
                 // rebuild the datasource if necessary, or just reassign
@@ -178,7 +178,7 @@
              * Refreshes the widget
              * @method refresh
              */
-            refresh: function() {
+            refresh: function () {
                 var that = this;
                 var options = that.options;
                 // that.element.children().each(function () { kendo.destroy(this) });

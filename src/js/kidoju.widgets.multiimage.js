@@ -21,6 +21,8 @@
         var kendo = window.kendo;
         var ui = kendo.ui;
         var Widget = ui.Widget;
+        var assert = window.assert;
+        var logger = new window.Logger('kidoju.widgets.multiimage');
         var NUMBER = 'number';
         var UNDEFINED = 'undefined';
         var NS = '.kendoMultiImage';
@@ -58,6 +60,7 @@
             init: function (element, options) {
                 var that = this;
                 Widget.fn.init.call(that, element, options);
+                logger.debug({ method: 'init', message: 'widget initialized' });
                 that._preload();
                 that._layout();
                 that.value(that.options.value);
@@ -95,7 +98,7 @@
                     return that._value;
                 } else if ($.type(value) === NUMBER) {
                     value = Math.round(Math.abs(value)) % that.options.images.length;
-                    if(that._value !== value) {
+                    if (that._value !== value) {
                         that._value = value;
                         that.refresh();
                     }
@@ -172,6 +175,9 @@
                 this.trigger(CHANGE);
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Event handler for the keydown event (which is enabled by tabindex=0)
              * @param e
@@ -200,14 +206,17 @@
                 this.trigger(CHANGE);
             },
 
+            /* jshint +W074 */
+
             /**
              * Refresh the widget
              * @method refresh
              */
-            refresh: function() {
+            refresh: function () {
                 var element = this.element;
                 var options = this.options;
                 element.attr('src', options.images[this._value]);
+                logger.debug({ method: 'refresh', message: 'widget refreshed' });
             },
 
             /**

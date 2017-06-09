@@ -14,7 +14,7 @@
         './window.assert',
         './window.logger',
         './kidoju.widgets.mathgraph.tools',
-        './kidoju.widgets.mathgraph.toolbar',
+        './kidoju.widgets.mathgraph.toolbar'
     ], f);
 })(function (math) {
 

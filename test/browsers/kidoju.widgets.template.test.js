@@ -52,7 +52,7 @@
             });
 
             it('from code with options', function () {
-                $(SCRIPT1).appendTo(FIXTURES)
+                $(SCRIPT1).appendTo(FIXTURES);
                 var element = $(TEMPLATE1).appendTo(FIXTURES);
                 var options = {
                     template: 'script1',
@@ -66,16 +66,16 @@
             });
 
             it('from code with options and dataSource', function () {
-                $(SCRIPT2).appendTo(FIXTURES)
+                $(SCRIPT2).appendTo(FIXTURES);
                 var element = $(TEMPLATE1).appendTo(FIXTURES);
                 var options = {
                     template: 'script2',
                     value: 2,
                     valueField: 'id',
                     dataSource: [
-                        { id: 1, name: 'London'},
-                        { id: 2, name: 'New York'},
-                        { id: 3, name: 'Paris'}
+                        { id: 1, name: 'London' },
+                        { id: 2, name: 'New York' },
+                        { id: 3, name: 'Paris' }
                     ]
                 };
                 var template = element.kendoTemplate(options).data('kendoTemplate');
@@ -102,7 +102,7 @@
             });
 
             it('from markup with attributes', function () {
-                $(SCRIPT1).appendTo(FIXTURES)
+                $(SCRIPT1).appendTo(FIXTURES);
                 var attributes = {
                     'data-template': 'script1',
                     'data-value': 'Todd'

@@ -50,7 +50,6 @@
             });
 
             it('from code with options', function () {
-                $(SCRIPT1).appendTo(FIXTURES)
                 var element = $(BUTTONSET1).appendTo(FIXTURES);
                 var options = {
                     buttonset: 'script1',
@@ -64,16 +63,15 @@
             });
 
             it('from code with options and dataSource', function () {
-                $(SCRIPT2).appendTo(FIXTURES)
                 var element = $(BUTTONSET1).appendTo(FIXTURES);
                 var options = {
                     buttonset: 'script2',
                     value: 2,
                     valueField: 'id',
                     dataSource: [
-                        { id: 1, name: 'London'},
-                        { id: 2, name: 'New York'},
-                        { id: 3, name: 'Paris'}
+                        { id: 1, name: 'London' },
+                        { id: 2, name: 'New York' },
+                        { id: 3, name: 'Paris' }
                     ]
                 };
                 var buttonset = element.kendoButtonSet(options).data('kendoButtonSet');
@@ -100,7 +98,6 @@
             });
 
             it('from markup with attributes', function () {
-                $(SCRIPT1).appendTo(FIXTURES)
                 var attributes = {
                     'data-buttonset': 'script1',
                     'data-value': 'Todd'

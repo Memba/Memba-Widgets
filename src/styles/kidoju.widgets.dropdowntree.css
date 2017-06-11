@@ -1,3 +1,9 @@
-.k-flat .k-list-container .k-treeview {
+.k-list-container .k-treeview.kj-dropdowntree-treeview {
+    overflow-x: hidden;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    user-select: none;
+}
+.k-flat .k-list-container .k-treeview.kj-dropdowntree-treeview {
     color: #ffffff;
 }

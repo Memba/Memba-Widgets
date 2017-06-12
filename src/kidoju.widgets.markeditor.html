@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kidoju.widgets.markeditor</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.markeditor stylesheet -->
+    <!--link rel="stylesheet" href="./styles/kidoju.widgets.markeditor.css"-->
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.markeditor.js').then(function (kendo) {
+                var viewModel = kendo.observable({
+                    markdown: '',
+                    visible: true,
+                    enabled: true
+                });
+                $(function() {
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>kidoju.widgets.markeditor</h1>
+<h2>MarkEditor with MVVM data-bound values</h2>
+<textarea data-role="markeditor" data-bind="value: markdown, visible: visible, enabled: enabled"></textarea>
+
+<pre>
+{
+    markdown:
+    <span data-bind="text: markdown"></span>
+    visible: <span data-bind="text: visible"></span>
+    enabled: <span data-bind="text: enabled"></span>
+}
+</pre>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />enabled
+</div>
+</body>
+</html>

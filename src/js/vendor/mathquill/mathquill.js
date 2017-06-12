@@ -2344,7 +2344,8 @@ Controller.open(function(_) {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
       textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
-    this.container.prepend('<span class="mq-selectable">$'+ctrlr.exportLatex()+'$</span>');
+    this.container.prepend(jQuery('<span class="mq-selectable">')
+      .text('$'+ctrlr.exportLatex()+'$'));
     ctrlr.blurred = true;
     textarea.bind('cut paste', false)
     .bind('copy', function() { ctrlr.setTextareaSelection(); })
@@ -3304,7 +3305,7 @@ LatexCmds['\u2248'] = LatexCmds.asymp = LatexCmds.approx = bind(BinaryOperator,'
 LatexCmds.isin = LatexCmds['in'] = bind(BinaryOperator,'\\in ','&isin;');
 
 // BEGIN - Added by JLC
-LatexCmds.notin = LatexCmds.nisin = LatexCmds.nin = bind(BinaryOperator,'\\notin ','&notin;');
+// LatexCmds.notin = LatexCmds.nisin = LatexCmds.nin = bind(BinaryOperator,'\\notin ','&notin;');
 // END - Added by JLC
 
 LatexCmds.ni = LatexCmds.contains = bind(BinaryOperator,'\\ni ','&ni;');
@@ -4988,7 +4989,9 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   _.registerInnerField = function(innerFields, MathField) {
     innerFields.push(innerFields[this.name] = MathField(this.ends[L].controller));
   };
-  _.latex = function(){ return this.ends[L].latex(); };
+  // BEGIN JLC - Do not remove \MathQuillMathField from exported latex
+  // _.latex = function(){ return this.ends[L].latex(); };
+	// BEGIN JLC - Do not remove \MathQuillMathField from exported latex
   _.text = function(){ return this.ends[L].text(); };
 });
 

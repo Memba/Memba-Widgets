@@ -30,9 +30,11 @@
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.dropdowntree');
         // var STRING = 'string';
-        var UNDEFINED = 'undefined';
+        // var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var DIV = '<div/>';
+        var WIDGET_CLASS = 'kj-dropdowntree';
+        var TREE_CLASS= 'kj-dropdowntree-treeview';
 
         /*********************************************************************************
          * Helpers
@@ -77,6 +79,7 @@
             init: function (element, options) {
                 var that = this;
                 DropDownList.fn.init.call(that, element, options);
+                logger.debug({ method: 'init', message: 'Widget initialized '});
                 that._layout();
                 that.refresh();
             },
@@ -134,6 +137,9 @@
                 var options = this.options;
                 assert.instanceof($, that.list, kendo.format(assert.messages.instanceof.default, 'this.list', 'jQuery'));
 
+                that.element
+                    .addClass(WIDGET_CLASS);
+
                 // Find the popup list
                 var popupList = $('ul', that.list);
                 if (popupList.length) {
@@ -146,7 +152,8 @@
 
                     // Replace it with a div
                     var popupTreeView = $(DIV)
-                        .css({ maxHeight: options.height, overflowX: 'hidden', overflowY: 'scroll' });
+                        .css({ maxHeight: options.height })
+                        .addClass(TREE_CLASS);
                     popupList.replaceWith(popupTreeView);
 
                     // Create the treeView
@@ -260,6 +267,7 @@
                     // this.treeView.setDataSource(hierarchize(that.dataSource._pristineData, options.dataValueField, options.dataParentField));
                     this.treeView.setDataSource(hierarchize(that.dataSource, options.dataValueField, options.dataParentField));
                 }
+                logger.debug({ method: refresh, message: 'Widget refreshed' });
             },
 
             /**

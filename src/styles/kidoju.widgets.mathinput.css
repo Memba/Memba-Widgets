@@ -1,3 +1,7 @@
+.kj-mathinput {
+    /* also adds empty block styling to elements with .mq-hasCursor but without a cursor element (this happens where the cursor is when the math input loses focus) */
+    /* also adds empty block styling to elements with .mq-hasCursor but without a cursor element (this happens where the cursor is when the math input loses focus) */
+}
 .kj-mathinput .mq-editable-field .mq-cursor {
     border-left: 2px solid #78c008 !important;
     border-radius: 1px;
@@ -6,9 +10,21 @@
     margin-bottom: 2px;
 }
 .kj-mathinput .mq-editable-field .mq-non-leaf .mq-cursor:only-child {
+    visibility: visible !important;
+    /* disable default blink behavior */
     border: 2px solid #78c008 !important;
     /* bright-green color */
     padding: 0 4px 0 4px;
+}
+.kj-mathinput .mq-editable-field .mq-selection .mq-non-leaf {
+    background: #78c008 !important;
+    color: white !important;
+    border-color: white !important;
+}
+.kj-mathinput .mq-editable-field .mq-selection .mq-scaled {
+    background: transparent !important;
+    color: white !important;
+    border-color: transparent !important;
 }
 .kj-mathinput .mq-empty {
     background: transparent !important;
@@ -25,19 +41,9 @@
     margin-right: -1px;
     margin-bottom: 2px;
 }
-.kj-mathinput .mq-editable-field .mq-non-leaf .mq-cursor:only-child {
-    visibility: visible !important;
-    /* disable default blink behavior */
-    border: 2px solid #78c008 !important;
-    /* bright-green color */
-    padding: 0 4px 0 4px;
-}
-.kj-mathinput .mq-empty {
-    background: transparent !important;
-}
-/* also adds empty block styling to elements with .mq-hasCursor but without a cursor element (this happens where the cursor is when the math input loses focus) */
-.kj-mathinput .mq-empty:not(.mq-root-block):after,
 .kj-mathinput .mq-hasCursor:empty:not(.mq-root-block):after {
+    /* place a c inside for sizing the cursor (for the case explained above); normally, MathQuill already does this for .mq-cursor */
+    content: 'c';
     visibility: visible !important;
     /* hides the 'c' content added by MathQuill to measure the width */
     color: transparent;
@@ -48,21 +54,12 @@
     margin-left: -1px;
     margin-right: -1px;
 }
-.kj-mathinput .mq-selection .mq-empty:not(.mq-root-block):after {
-    border-color: #ffffff;
-}
-.kj-mathinput .mq-hasCursor:empty:not(.mq-root-block):after {
-    /* place a c inside for sizing the cursor (for the case explained above); normally, MathQuill already does this for .mq-cursor */
-    content: 'c';
-}
-.kj-mathinput .mq-math-mode .mq-selection .mq-non-leaf,
-.kj-mathinput .mq-editable-field .mq-selection .mq-non-leaf {
+.kj-mathinput .mq-math-mode .mq-selection .mq-non-leaf {
     background: #78c008 !important;
     color: white !important;
     border-color: white !important;
 }
-.kj-mathinput .mq-math-mode .mq-selection .mq-scaled,
-.kj-mathinput .mq-editable-field .mq-selection .mq-scaled {
+.kj-mathinput .mq-math-mode .mq-selection .mq-scaled {
     background: transparent !important;
     color: white !important;
     border-color: transparent !important;
@@ -73,726 +70,1141 @@
     color: white !important;
     border-color: white !important;
 }
+.kj-mathinput .mq-selection .mq-empty:not(.mq-root-block):after {
+    border-color: #ffffff;
+}
 .kj-mathinput-popup {
     max-width: 242px;
 }
+.kj-mathinput-dialog .k-list {
+    display: flex;
+    flex-wrap: wrap;
+}
 .kj-mathinput-toolbar .k-icon,
 .kj-mathinput-popup .k-icon,
+.kj-mathinput-dialog .k-icon,
+.k-overflow-container .k-icon,
 .kj-mathinput-toolbar .k-font-icon,
-.kj-mathinput-popup .k-font-icon {
+.kj-mathinput-popup .k-font-icon,
+.kj-mathinput-dialog .k-font-icon,
+.k-overflow-container .k-font-icon {
     font: 16px/1 Symbola !important;
 }
-.kj-mathinput-toolbar .k-icon.k-i-arrow-s,
-.kj-mathinput-popup .k-icon.k-i-arrow-s {
+.kj-mathinput-toolbar .k-icon.k-i-arrow-60-down,
+.kj-mathinput-popup .k-icon.k-i-arrow-60-down,
+.kj-mathinput-dialog .k-icon.k-i-arrow-60-down,
+.k-overflow-container .k-icon.k-i-arrow-60-down {
     font: 16px/1 WebComponentsIcons !important;
 }
 .kj-mathinput-toolbar .k-icon.k-i-field,
 .kj-mathinput-popup .k-icon.k-i-field,
+.kj-mathinput-dialog .k-icon.k-i-field,
+.k-overflow-container .k-icon.k-i-field,
 .kj-mathinput-toolbar .k-icon.k-i-backspace,
 .kj-mathinput-popup .k-icon.k-i-backspace,
+.kj-mathinput-dialog .k-icon.k-i-backspace,
+.k-overflow-container .k-icon.k-i-backspace,
 .kj-mathinput-toolbar .k-icon.k-i-keypad,
 .kj-mathinput-popup .k-icon.k-i-keypad,
+.kj-mathinput-dialog .k-icon.k-i-keypad,
+.k-overflow-container .k-icon.k-i-keypad,
 .kj-mathinput-toolbar .k-icon.k-i-basic,
 .kj-mathinput-popup .k-icon.k-i-basic,
+.kj-mathinput-dialog .k-icon.k-i-basic,
+.k-overflow-container .k-icon.k-i-basic,
 .kj-mathinput-toolbar .k-icon.k-i-lowergreek,
 .kj-mathinput-popup .k-icon.k-i-lowergreek,
+.kj-mathinput-dialog .k-icon.k-i-lowergreek,
+.k-overflow-container .k-icon.k-i-lowergreek,
 .kj-mathinput-toolbar .k-icon.k-i-uppergreek,
 .kj-mathinput-popup .k-icon.k-i-uppergreek,
+.kj-mathinput-dialog .k-icon.k-i-uppergreek,
+.k-overflow-container .k-icon.k-i-uppergreek,
 .kj-mathinput-toolbar .k-icon.k-i-operator,
 .kj-mathinput-popup .k-icon.k-i-operator,
+.kj-mathinput-dialog .k-icon.k-i-operator,
+.k-overflow-container .k-icon.k-i-operator,
 .kj-mathinput-toolbar .k-icon.k-i-expression,
 .kj-mathinput-popup .k-icon.k-i-expression,
+.kj-mathinput-dialog .k-icon.k-i-expression,
+.k-overflow-container .k-icon.k-i-expression,
 .kj-mathinput-toolbar .k-icon.k-i-group,
 .kj-mathinput-popup .k-icon.k-i-group,
+.kj-mathinput-dialog .k-icon.k-i-group,
+.k-overflow-container .k-icon.k-i-group,
 .kj-mathinput-toolbar .k-icon.k-i-matrix,
 .kj-mathinput-popup .k-icon.k-i-matrix,
+.kj-mathinput-dialog .k-icon.k-i-matrix,
+.k-overflow-container .k-icon.k-i-matrix,
 .kj-mathinput-toolbar .k-icon.k-i-statistics,
 .kj-mathinput-popup .k-icon.k-i-statistics,
+.kj-mathinput-dialog .k-icon.k-i-statistics,
+.k-overflow-container .k-icon.k-i-statistics,
 .kj-mathinput-toolbar .k-icon.k-i-chemistry,
 .kj-mathinput-popup .k-icon.k-i-chemistry,
+.kj-mathinput-dialog .k-icon.k-i-chemistry,
+.k-overflow-container .k-icon.k-i-chemistry,
 .kj-mathinput-toolbar .k-icon.k-i-sqrt,
 .kj-mathinput-popup .k-icon.k-i-sqrt,
+.kj-mathinput-dialog .k-icon.k-i-sqrt,
+.k-overflow-container .k-icon.k-i-sqrt,
 .kj-mathinput-toolbar .k-icon.k-i-cbrt,
 .kj-mathinput-popup .k-icon.k-i-cbrt,
+.kj-mathinput-dialog .k-icon.k-i-cbrt,
+.k-overflow-container .k-icon.k-i-cbrt,
 .kj-mathinput-toolbar .k-icon.k-i-nthroot,
 .kj-mathinput-popup .k-icon.k-i-nthroot,
+.kj-mathinput-dialog .k-icon.k-i-nthroot,
+.k-overflow-container .k-icon.k-i-nthroot,
 .kj-mathinput-toolbar .k-icon.k-i-frac,
 .kj-mathinput-popup .k-icon.k-i-frac,
+.kj-mathinput-dialog .k-icon.k-i-frac,
+.k-overflow-container .k-icon.k-i-frac,
 .kj-mathinput-toolbar .k-icon.k-i-subscript,
 .kj-mathinput-popup .k-icon.k-i-subscript,
+.kj-mathinput-dialog .k-icon.k-i-subscript,
+.k-overflow-container .k-icon.k-i-subscript,
 .kj-mathinput-toolbar .k-icon.k-i-pow,
 .kj-mathinput-popup .k-icon.k-i-pow,
+.kj-mathinput-dialog .k-icon.k-i-pow,
+.k-overflow-container .k-icon.k-i-pow,
 .kj-mathinput-toolbar .k-icon.k-i-pow2,
 .kj-mathinput-popup .k-icon.k-i-pow2,
+.kj-mathinput-dialog .k-icon.k-i-pow2,
+.k-overflow-container .k-icon.k-i-pow2,
 .kj-mathinput-toolbar .k-icon.k-i-pow3,
 .kj-mathinput-popup .k-icon.k-i-pow3,
+.kj-mathinput-dialog .k-icon.k-i-pow3,
+.k-overflow-container .k-icon.k-i-pow3,
 .kj-mathinput-toolbar .k-icon.k-i-log,
 .kj-mathinput-popup .k-icon.k-i-log,
+.kj-mathinput-dialog .k-icon.k-i-log,
+.k-overflow-container .k-icon.k-i-log,
 .kj-mathinput-toolbar .k-icon.k-i-log10,
 .kj-mathinput-popup .k-icon.k-i-log10,
+.kj-mathinput-dialog .k-icon.k-i-log10,
+.k-overflow-container .k-icon.k-i-log10,
 .kj-mathinput-toolbar .k-icon.k-i-ln,
 .kj-mathinput-popup .k-icon.k-i-ln,
+.kj-mathinput-dialog .k-icon.k-i-ln,
+.k-overflow-container .k-icon.k-i-ln,
 .kj-mathinput-toolbar .k-icon.k-i-sin,
 .kj-mathinput-popup .k-icon.k-i-sin,
+.kj-mathinput-dialog .k-icon.k-i-sin,
+.k-overflow-container .k-icon.k-i-sin,
 .kj-mathinput-toolbar .k-icon.k-i-cos,
 .kj-mathinput-popup .k-icon.k-i-cos,
+.kj-mathinput-dialog .k-icon.k-i-cos,
+.k-overflow-container .k-icon.k-i-cos,
 .kj-mathinput-toolbar .k-icon.k-i-tan,
 .kj-mathinput-popup .k-icon.k-i-tan,
+.kj-mathinput-dialog .k-icon.k-i-tan,
+.k-overflow-container .k-icon.k-i-tan,
 .kj-mathinput-toolbar .k-icon.k-i-arcsin,
 .kj-mathinput-popup .k-icon.k-i-arcsin,
+.kj-mathinput-dialog .k-icon.k-i-arcsin,
+.k-overflow-container .k-icon.k-i-arcsin,
 .kj-mathinput-toolbar .k-icon.k-i-arccos,
 .kj-mathinput-popup .k-icon.k-i-arccos,
+.kj-mathinput-dialog .k-icon.k-i-arccos,
+.k-overflow-container .k-icon.k-i-arccos,
 .kj-mathinput-toolbar .k-icon.k-i-arctan,
 .kj-mathinput-popup .k-icon.k-i-arctan,
+.kj-mathinput-dialog .k-icon.k-i-arctan,
+.k-overflow-container .k-icon.k-i-arctan,
 .kj-mathinput-toolbar .k-icon.k-i-deriv,
 .kj-mathinput-popup .k-icon.k-i-deriv,
+.kj-mathinput-dialog .k-icon.k-i-deriv,
+.k-overflow-container .k-icon.k-i-deriv,
 .kj-mathinput-toolbar .k-icon.k-i-partial,
 .kj-mathinput-popup .k-icon.k-i-partial,
+.kj-mathinput-dialog .k-icon.k-i-partial,
+.k-overflow-container .k-icon.k-i-partial,
 .kj-mathinput-toolbar .k-icon.k-i-int,
 .kj-mathinput-popup .k-icon.k-i-int,
+.kj-mathinput-dialog .k-icon.k-i-int,
+.k-overflow-container .k-icon.k-i-int,
 .kj-mathinput-toolbar .k-icon.k-i-sum,
 .kj-mathinput-popup .k-icon.k-i-sum,
+.kj-mathinput-dialog .k-icon.k-i-sum,
+.k-overflow-container .k-icon.k-i-sum,
 .kj-mathinput-toolbar .k-icon.k-i-prod,
 .kj-mathinput-popup .k-icon.k-i-prod,
+.kj-mathinput-dialog .k-icon.k-i-prod,
+.k-overflow-container .k-icon.k-i-prod,
 .kj-mathinput-toolbar .k-icon.k-i-lim,
 .kj-mathinput-popup .k-icon.k-i-lim,
+.kj-mathinput-dialog .k-icon.k-i-lim,
+.k-overflow-container .k-icon.k-i-lim,
 .kj-mathinput-toolbar .k-icon.k-i-matrix2x2,
-.kj-mathinput-popup .k-icon.k-i-matrix2x2 {
+.kj-mathinput-popup .k-icon.k-i-matrix2x2,
+.kj-mathinput-dialog .k-icon.k-i-matrix2x2,
+.k-overflow-container .k-icon.k-i-matrix2x2 {
     font: 16px/1 kidoju !important;
 }
 .kj-mathinput-toolbar .k-i-field:before,
-.kj-mathinput-popup .k-i-field:before {
+.kj-mathinput-popup .k-i-field:before,
+.kj-mathinput-dialog .k-i-field:before,
+.k-overflow-container .k-i-field:before {
     content: "\e700";
 }
 .kj-mathinput-toolbar .k-i-backspace:before,
-.kj-mathinput-popup .k-i-backspace:before {
+.kj-mathinput-popup .k-i-backspace:before,
+.kj-mathinput-dialog .k-i-backspace:before,
+.k-overflow-container .k-i-backspace:before {
     content: "\232b";
 }
 .kj-mathinput-toolbar .k-i-keypad:before,
-.kj-mathinput-popup .k-i-keypad:before {
+.kj-mathinput-popup .k-i-keypad:before,
+.kj-mathinput-dialog .k-i-keypad:before,
+.k-overflow-container .k-i-keypad:before {
     content: "\2328";
 }
 .kj-mathinput-toolbar .k-i-basic:before,
-.kj-mathinput-popup .k-i-basic:before {
+.kj-mathinput-popup .k-i-basic:before,
+.kj-mathinput-dialog .k-i-basic:before,
+.k-overflow-container .k-i-basic:before {
     content: "\e701";
 }
 .kj-mathinput-toolbar .k-i-lowergreek:before,
-.kj-mathinput-popup .k-i-lowergreek:before {
+.kj-mathinput-popup .k-i-lowergreek:before,
+.kj-mathinput-dialog .k-i-lowergreek:before,
+.k-overflow-container .k-i-lowergreek:before {
     content: "\03b1";
 }
 .kj-mathinput-toolbar .k-i-uppergreek:before,
-.kj-mathinput-popup .k-i-uppergreek:before {
+.kj-mathinput-popup .k-i-uppergreek:before,
+.kj-mathinput-dialog .k-i-uppergreek:before,
+.k-overflow-container .k-i-uppergreek:before {
     content: "\03a9";
 }
 .kj-mathinput-toolbar .k-i-operator:before,
-.kj-mathinput-popup .k-i-operator:before {
+.kj-mathinput-popup .k-i-operator:before,
+.kj-mathinput-dialog .k-i-operator:before,
+.k-overflow-container .k-i-operator:before {
     content: "\00b1";
 }
 .kj-mathinput-toolbar .k-i-expression:before,
-.kj-mathinput-popup .k-i-expression:before {
+.kj-mathinput-popup .k-i-expression:before,
+.kj-mathinput-dialog .k-i-expression:before,
+.k-overflow-container .k-i-expression:before {
     content: "\e702";
 }
 .kj-mathinput-toolbar .k-i-group:before,
-.kj-mathinput-popup .k-i-group:before {
+.kj-mathinput-popup .k-i-group:before,
+.kj-mathinput-dialog .k-i-group:before,
+.k-overflow-container .k-i-group:before {
     content: "\26ad";
 }
 .kj-mathinput-toolbar .k-i-matrix:before,
-.kj-mathinput-popup .k-i-matrix:before {
+.kj-mathinput-popup .k-i-matrix:before,
+.kj-mathinput-dialog .k-i-matrix:before,
+.k-overflow-container .k-i-matrix:before {
     content: "\e750";
 }
 .kj-mathinput-toolbar .k-i-statistics:before,
-.kj-mathinput-popup .k-i-statistics:before {
+.kj-mathinput-popup .k-i-statistics:before,
+.kj-mathinput-dialog .k-i-statistics:before,
+.k-overflow-container .k-i-statistics:before {
     content: "\2680";
 }
 .kj-mathinput-toolbar .k-i-chemistry:before,
-.kj-mathinput-popup .k-i-chemistry:before {
+.kj-mathinput-popup .k-i-chemistry:before,
+.kj-mathinput-dialog .k-i-chemistry:before,
+.k-overflow-container .k-i-chemistry:before {
     content: "\e703";
 }
 .kj-mathinput-toolbar .k-i-comma:before,
-.kj-mathinput-popup .k-i-comma:before {
+.kj-mathinput-popup .k-i-comma:before,
+.kj-mathinput-dialog .k-i-comma:before,
+.k-overflow-container .k-i-comma:before {
     content: "\002c";
 }
 .kj-mathinput-toolbar .k-i-stop:before,
-.kj-mathinput-popup .k-i-stop:before {
+.kj-mathinput-popup .k-i-stop:before,
+.kj-mathinput-dialog .k-i-stop:before,
+.k-overflow-container .k-i-stop:before {
     content: "\002e";
 }
 .kj-mathinput-toolbar .k-i-n0:before,
-.kj-mathinput-popup .k-i-n0:before {
+.kj-mathinput-popup .k-i-n0:before,
+.kj-mathinput-dialog .k-i-n0:before,
+.k-overflow-container .k-i-n0:before {
     content: "\0030";
 }
 .kj-mathinput-toolbar .k-i-n1:before,
-.kj-mathinput-popup .k-i-n1:before {
+.kj-mathinput-popup .k-i-n1:before,
+.kj-mathinput-dialog .k-i-n1:before,
+.k-overflow-container .k-i-n1:before {
     content: "\0031";
 }
 .kj-mathinput-toolbar .k-i-n2:before,
-.kj-mathinput-popup .k-i-n2:before {
+.kj-mathinput-popup .k-i-n2:before,
+.kj-mathinput-dialog .k-i-n2:before,
+.k-overflow-container .k-i-n2:before {
     content: "\0032";
 }
 .kj-mathinput-toolbar .k-i-n3:before,
-.kj-mathinput-popup .k-i-n3:before {
+.kj-mathinput-popup .k-i-n3:before,
+.kj-mathinput-dialog .k-i-n3:before,
+.k-overflow-container .k-i-n3:before {
     content: "\0033";
 }
 .kj-mathinput-toolbar .k-i-n4:before,
-.kj-mathinput-popup .k-i-n4:before {
+.kj-mathinput-popup .k-i-n4:before,
+.kj-mathinput-dialog .k-i-n4:before,
+.k-overflow-container .k-i-n4:before {
     content: "\0034";
 }
 .kj-mathinput-toolbar .k-i-n5:before,
-.kj-mathinput-popup .k-i-n5:before {
+.kj-mathinput-popup .k-i-n5:before,
+.kj-mathinput-dialog .k-i-n5:before,
+.k-overflow-container .k-i-n5:before {
     content: "\0035";
 }
 .kj-mathinput-toolbar .k-i-n6:before,
-.kj-mathinput-popup .k-i-n6:before {
+.kj-mathinput-popup .k-i-n6:before,
+.kj-mathinput-dialog .k-i-n6:before,
+.k-overflow-container .k-i-n6:before {
     content: "\0036";
 }
 .kj-mathinput-toolbar .k-i-n7:before,
-.kj-mathinput-popup .k-i-n7:before {
+.kj-mathinput-popup .k-i-n7:before,
+.kj-mathinput-dialog .k-i-n7:before,
+.k-overflow-container .k-i-n7:before {
     content: "\0037";
 }
 .kj-mathinput-toolbar .k-i-n8:before,
-.kj-mathinput-popup .k-i-n8:before {
+.kj-mathinput-popup .k-i-n8:before,
+.kj-mathinput-dialog .k-i-n8:before,
+.k-overflow-container .k-i-n8:before {
     content: "\0038";
 }
 .kj-mathinput-toolbar .k-i-n9:before,
-.kj-mathinput-popup .k-i-n9:before {
+.kj-mathinput-popup .k-i-n9:before,
+.kj-mathinput-dialog .k-i-n9:before,
+.k-overflow-container .k-i-n9:before {
     content: "\0039";
 }
 .kj-mathinput-toolbar .k-i-a:before,
-.kj-mathinput-popup .k-i-a:before {
+.kj-mathinput-popup .k-i-a:before,
+.kj-mathinput-dialog .k-i-a:before,
+.k-overflow-container .k-i-a:before {
     content: "\0061";
 }
 .kj-mathinput-toolbar .k-i-b:before,
-.kj-mathinput-popup .k-i-b:before {
+.kj-mathinput-popup .k-i-b:before,
+.kj-mathinput-dialog .k-i-b:before,
+.k-overflow-container .k-i-b:before {
     content: "\0062";
 }
 .kj-mathinput-toolbar .k-i-c:before,
-.kj-mathinput-popup .k-i-c:before {
+.kj-mathinput-popup .k-i-c:before,
+.kj-mathinput-dialog .k-i-c:before,
+.k-overflow-container .k-i-c:before {
     content: "\0063";
 }
 .kj-mathinput-toolbar .k-i-i:before,
-.kj-mathinput-popup .k-i-i:before {
+.kj-mathinput-popup .k-i-i:before,
+.kj-mathinput-dialog .k-i-i:before,
+.k-overflow-container .k-i-i:before {
     content: "\0069";
 }
 .kj-mathinput-toolbar .k-i-j:before,
-.kj-mathinput-popup .k-i-j:before {
+.kj-mathinput-popup .k-i-j:before,
+.kj-mathinput-dialog .k-i-j:before,
+.k-overflow-container .k-i-j:before {
     content: "\006a";
 }
 .kj-mathinput-toolbar .k-i-k:before,
-.kj-mathinput-popup .k-i-k:before {
+.kj-mathinput-popup .k-i-k:before,
+.kj-mathinput-dialog .k-i-k:before,
+.k-overflow-container .k-i-k:before {
     content: "\006b";
 }
 .kj-mathinput-toolbar .k-i-n:before,
-.kj-mathinput-popup .k-i-n:before {
+.kj-mathinput-popup .k-i-n:before,
+.kj-mathinput-dialog .k-i-n:before,
+.k-overflow-container .k-i-n:before {
     content: "\006e";
 }
 .kj-mathinput-toolbar .k-i-p:before,
-.kj-mathinput-popup .k-i-p:before {
+.kj-mathinput-popup .k-i-p:before,
+.kj-mathinput-dialog .k-i-p:before,
+.k-overflow-container .k-i-p:before {
     content: "\0070";
 }
 .kj-mathinput-toolbar .k-i-q:before,
-.kj-mathinput-popup .k-i-q:before {
+.kj-mathinput-popup .k-i-q:before,
+.kj-mathinput-dialog .k-i-q:before,
+.k-overflow-container .k-i-q:before {
     content: "\0071";
 }
 .kj-mathinput-toolbar .k-i-x:before,
-.kj-mathinput-popup .k-i-x:before {
+.kj-mathinput-popup .k-i-x:before,
+.kj-mathinput-dialog .k-i-x:before,
+.k-overflow-container .k-i-x:before {
     content: "\0078";
 }
 .kj-mathinput-toolbar .k-i-y:before,
-.kj-mathinput-popup .k-i-y:before {
+.kj-mathinput-popup .k-i-y:before,
+.kj-mathinput-dialog .k-i-y:before,
+.k-overflow-container .k-i-y:before {
     content: "\0079";
 }
 .kj-mathinput-toolbar .k-i-z:before,
-.kj-mathinput-popup .k-i-z:before {
+.kj-mathinput-popup .k-i-z:before,
+.kj-mathinput-dialog .k-i-z:before,
+.k-overflow-container .k-i-z:before {
     content: "\007a";
 }
-.kj-mathinput-toolbar .k-i-infinity:before,
-.kj-mathinput-popup .k-i-infinity:before {
+.kj-mathinput-toolbar .k-i-infty:before,
+.kj-mathinput-popup .k-i-infty:before,
+.kj-mathinput-dialog .k-i-infty:before,
+.k-overflow-container .k-i-infty:before {
     content: "\221e";
 }
 .kj-mathinput-toolbar .k-i-space:before,
-.kj-mathinput-popup .k-i-space:before {
+.kj-mathinput-popup .k-i-space:before,
+.kj-mathinput-dialog .k-i-space:before,
+.k-overflow-container .k-i-space:before {
     content: "\fe48";
 }
 .kj-mathinput-toolbar .k-i-sqrt:before,
-.kj-mathinput-popup .k-i-sqrt:before {
+.kj-mathinput-popup .k-i-sqrt:before,
+.kj-mathinput-dialog .k-i-sqrt:before,
+.k-overflow-container .k-i-sqrt:before {
     content: "\221a";
 }
 .kj-mathinput-toolbar .k-i-cbrt:before,
-.kj-mathinput-popup .k-i-cbrt:before {
+.kj-mathinput-popup .k-i-cbrt:before,
+.kj-mathinput-dialog .k-i-cbrt:before,
+.k-overflow-container .k-i-cbrt:before {
     content: "\221b";
 }
 .kj-mathinput-toolbar .k-i-nthroot:before,
-.kj-mathinput-popup .k-i-nthroot:before {
+.kj-mathinput-popup .k-i-nthroot:before,
+.kj-mathinput-dialog .k-i-nthroot:before,
+.k-overflow-container .k-i-nthroot:before {
     content: "\221c";
 }
 .kj-mathinput-toolbar .k-i-frac:before,
-.kj-mathinput-popup .k-i-frac:before {
+.kj-mathinput-popup .k-i-frac:before,
+.kj-mathinput-dialog .k-i-frac:before,
+.k-overflow-container .k-i-frac:before {
     content: "\e710";
 }
 .kj-mathinput-toolbar .k-i-subscript:before,
-.kj-mathinput-popup .k-i-subscript:before {
+.kj-mathinput-popup .k-i-subscript:before,
+.kj-mathinput-dialog .k-i-subscript:before,
+.k-overflow-container .k-i-subscript:before {
     content: "\e711";
 }
 .kj-mathinput-toolbar .k-i-pow:before,
-.kj-mathinput-popup .k-i-pow:before {
+.kj-mathinput-popup .k-i-pow:before,
+.kj-mathinput-dialog .k-i-pow:before,
+.k-overflow-container .k-i-pow:before {
     content: "\e721";
 }
 .kj-mathinput-toolbar .k-i-pow2:before,
-.kj-mathinput-popup .k-i-pow2:before {
+.kj-mathinput-popup .k-i-pow2:before,
+.kj-mathinput-dialog .k-i-pow2:before,
+.k-overflow-container .k-i-pow2:before {
     content: "\e722";
 }
 .kj-mathinput-toolbar .k-i-pow3:before,
-.kj-mathinput-popup .k-i-pow3:before {
+.kj-mathinput-popup .k-i-pow3:before,
+.kj-mathinput-dialog .k-i-pow3:before,
+.k-overflow-container .k-i-pow3:before {
     content: "\e723";
 }
 .kj-mathinput-toolbar .k-i-log:before,
-.kj-mathinput-popup .k-i-log:before {
+.kj-mathinput-popup .k-i-log:before,
+.kj-mathinput-dialog .k-i-log:before,
+.k-overflow-container .k-i-log:before {
     content: "\e726";
 }
 .kj-mathinput-toolbar .k-i-log10:before,
-.kj-mathinput-popup .k-i-log10:before {
+.kj-mathinput-popup .k-i-log10:before,
+.kj-mathinput-dialog .k-i-log10:before,
+.k-overflow-container .k-i-log10:before {
     content: "\e727";
 }
 .kj-mathinput-toolbar .k-i-ln:before,
-.kj-mathinput-popup .k-i-ln:before {
+.kj-mathinput-popup .k-i-ln:before,
+.kj-mathinput-dialog .k-i-ln:before,
+.k-overflow-container .k-i-ln:before {
     content: "\e728";
 }
 .kj-mathinput-toolbar .k-i-sin:before,
-.kj-mathinput-popup .k-i-sin:before {
+.kj-mathinput-popup .k-i-sin:before,
+.kj-mathinput-dialog .k-i-sin:before,
+.k-overflow-container .k-i-sin:before {
     content: "\e730";
 }
 .kj-mathinput-toolbar .k-i-cos:before,
-.kj-mathinput-popup .k-i-cos:before {
+.kj-mathinput-popup .k-i-cos:before,
+.kj-mathinput-dialog .k-i-cos:before,
+.k-overflow-container .k-i-cos:before {
     content: "\e731";
 }
 .kj-mathinput-toolbar .k-i-tan:before,
-.kj-mathinput-popup .k-i-tan:before {
+.kj-mathinput-popup .k-i-tan:before,
+.kj-mathinput-dialog .k-i-tan:before,
+.k-overflow-container .k-i-tan:before {
     content: "\e732";
 }
 .kj-mathinput-toolbar .k-i-arcsin:before,
-.kj-mathinput-popup .k-i-arcsin:before {
+.kj-mathinput-popup .k-i-arcsin:before,
+.kj-mathinput-dialog .k-i-arcsin:before,
+.k-overflow-container .k-i-arcsin:before {
     content: "\e733";
 }
 .kj-mathinput-toolbar .k-i-arccos:before,
-.kj-mathinput-popup .k-i-arccos:before {
+.kj-mathinput-popup .k-i-arccos:before,
+.kj-mathinput-dialog .k-i-arccos:before,
+.k-overflow-container .k-i-arccos:before {
     content: "\e734";
 }
 .kj-mathinput-toolbar .k-i-arctan:before,
-.kj-mathinput-popup .k-i-arctan:before {
+.kj-mathinput-popup .k-i-arctan:before,
+.kj-mathinput-dialog .k-i-arctan:before,
+.k-overflow-container .k-i-arctan:before {
     content: "\e735";
 }
 .kj-mathinput-toolbar .k-i-deriv:before,
-.kj-mathinput-popup .k-i-deriv:before {
+.kj-mathinput-popup .k-i-deriv:before,
+.kj-mathinput-dialog .k-i-deriv:before,
+.k-overflow-container .k-i-deriv:before {
     content: "\e740";
 }
 .kj-mathinput-toolbar .k-i-partial:before,
-.kj-mathinput-popup .k-i-partial:before {
+.kj-mathinput-popup .k-i-partial:before,
+.kj-mathinput-dialog .k-i-partial:before,
+.k-overflow-container .k-i-partial:before {
     content: "\e741";
 }
 .kj-mathinput-toolbar .k-i-int:before,
-.kj-mathinput-popup .k-i-int:before {
+.kj-mathinput-popup .k-i-int:before,
+.kj-mathinput-dialog .k-i-int:before,
+.k-overflow-container .k-i-int:before {
     content: "\e742";
 }
 .kj-mathinput-toolbar .k-i-sum:before,
-.kj-mathinput-popup .k-i-sum:before {
+.kj-mathinput-popup .k-i-sum:before,
+.kj-mathinput-dialog .k-i-sum:before,
+.k-overflow-container .k-i-sum:before {
     content: "\e743";
 }
 .kj-mathinput-toolbar .k-i-prod:before,
-.kj-mathinput-popup .k-i-prod:before {
+.kj-mathinput-popup .k-i-prod:before,
+.kj-mathinput-dialog .k-i-prod:before,
+.k-overflow-container .k-i-prod:before {
     content: "\e744";
 }
 .kj-mathinput-toolbar .k-i-lim:before,
-.kj-mathinput-popup .k-i-lim:before {
+.kj-mathinput-popup .k-i-lim:before,
+.kj-mathinput-dialog .k-i-lim:before,
+.k-overflow-container .k-i-lim:before {
     content: "\e745";
 }
 .kj-mathinput-toolbar .k-i-matrix2x2:before,
-.kj-mathinput-popup .k-i-matrix2x2:before {
+.kj-mathinput-popup .k-i-matrix2x2:before,
+.kj-mathinput-dialog .k-i-matrix2x2:before,
+.k-overflow-container .k-i-matrix2x2:before {
     content: "\e750";
 }
 .kj-mathinput-toolbar .k-i-leftpar:before,
-.kj-mathinput-popup .k-i-leftpar:before {
+.kj-mathinput-popup .k-i-leftpar:before,
+.kj-mathinput-dialog .k-i-leftpar:before,
+.k-overflow-container .k-i-leftpar:before {
     content: "\003b";
 }
 .kj-mathinput-toolbar .k-i-rightpar:before,
-.kj-mathinput-popup .k-i-rightpar:before {
+.kj-mathinput-popup .k-i-rightpar:before,
+.kj-mathinput-dialog .k-i-rightpar:before,
+.k-overflow-container .k-i-rightpar:before {
     content: "\003d";
 }
 .kj-mathinput-toolbar .k-i-leftsb:before,
-.kj-mathinput-popup .k-i-leftsb:before {
+.kj-mathinput-popup .k-i-leftsb:before,
+.kj-mathinput-dialog .k-i-leftsb:before,
+.k-overflow-container .k-i-leftsb:before {
     content: "\005b";
 }
 .kj-mathinput-toolbar .k-i-rightsb:before,
-.kj-mathinput-popup .k-i-rightsb:before {
+.kj-mathinput-popup .k-i-rightsb:before,
+.kj-mathinput-dialog .k-i-rightsb:before,
+.k-overflow-container .k-i-rightsb:before {
     content: "\005d";
 }
 .kj-mathinput-toolbar .k-i-leftcb:before,
-.kj-mathinput-popup .k-i-leftcb:before {
+.kj-mathinput-popup .k-i-leftcb:before,
+.kj-mathinput-dialog .k-i-leftcb:before,
+.k-overflow-container .k-i-leftcb:before {
     content: "\007b";
 }
 .kj-mathinput-toolbar .k-i-rightcb:before,
-.kj-mathinput-popup .k-i-rightcb:before {
+.kj-mathinput-popup .k-i-rightcb:before,
+.kj-mathinput-dialog .k-i-rightcb:before,
+.k-overflow-container .k-i-rightcb:before {
     content: "\007d";
 }
 .kj-mathinput-toolbar .k-i-leftvl:before,
-.kj-mathinput-popup .k-i-leftvl:before {
+.kj-mathinput-popup .k-i-leftvl:before,
+.kj-mathinput-dialog .k-i-leftvl:before,
+.k-overflow-container .k-i-leftvl:before {
     content: "\009b";
 }
 .kj-mathinput-toolbar .k-i-rightvl:before,
-.kj-mathinput-popup .k-i-rightvl:before {
+.kj-mathinput-popup .k-i-rightvl:before,
+.kj-mathinput-dialog .k-i-rightvl:before,
+.k-overflow-container .k-i-rightvl:before {
     content: "\009d";
 }
 .kj-mathinput-toolbar .k-i-alpha:before,
-.kj-mathinput-popup .k-i-alpha:before {
+.kj-mathinput-popup .k-i-alpha:before,
+.kj-mathinput-dialog .k-i-alpha:before,
+.k-overflow-container .k-i-alpha:before {
     content: "\03b1";
 }
 .kj-mathinput-toolbar .k-i-beta:before,
-.kj-mathinput-popup .k-i-beta:before {
+.kj-mathinput-popup .k-i-beta:before,
+.kj-mathinput-dialog .k-i-beta:before,
+.k-overflow-container .k-i-beta:before {
     content: "\03b2";
 }
 .kj-mathinput-toolbar .k-i-gamma:before,
-.kj-mathinput-popup .k-i-gamma:before {
+.kj-mathinput-popup .k-i-gamma:before,
+.kj-mathinput-dialog .k-i-gamma:before,
+.k-overflow-container .k-i-gamma:before {
     content: "\03b3";
 }
 .kj-mathinput-toolbar .k-i-delta:before,
-.kj-mathinput-popup .k-i-delta:before {
+.kj-mathinput-popup .k-i-delta:before,
+.kj-mathinput-dialog .k-i-delta:before,
+.k-overflow-container .k-i-delta:before {
     content: "\03b4";
 }
 .kj-mathinput-toolbar .k-i-epsilon:before,
-.kj-mathinput-popup .k-i-epsilon:before {
+.kj-mathinput-popup .k-i-epsilon:before,
+.kj-mathinput-dialog .k-i-epsilon:before,
+.k-overflow-container .k-i-epsilon:before {
     content: "\03b5";
 }
 .kj-mathinput-toolbar .k-i-zeta:before,
-.kj-mathinput-popup .k-i-zeta:before {
+.kj-mathinput-popup .k-i-zeta:before,
+.kj-mathinput-dialog .k-i-zeta:before,
+.k-overflow-container .k-i-zeta:before {
     content: "\03b6";
 }
 .kj-mathinput-toolbar .k-i-eta:before,
-.kj-mathinput-popup .k-i-eta:before {
+.kj-mathinput-popup .k-i-eta:before,
+.kj-mathinput-dialog .k-i-eta:before,
+.k-overflow-container .k-i-eta:before {
     content: "\03b7";
 }
 .kj-mathinput-toolbar .k-i-theta:before,
-.kj-mathinput-popup .k-i-theta:before {
+.kj-mathinput-popup .k-i-theta:before,
+.kj-mathinput-dialog .k-i-theta:before,
+.k-overflow-container .k-i-theta:before {
     content: "\03b8";
 }
 .kj-mathinput-toolbar .k-i-iota:before,
-.kj-mathinput-popup .k-i-iota:before {
+.kj-mathinput-popup .k-i-iota:before,
+.kj-mathinput-dialog .k-i-iota:before,
+.k-overflow-container .k-i-iota:before {
     content: "\03b9";
 }
 .kj-mathinput-toolbar .k-i-kappa:before,
-.kj-mathinput-popup .k-i-kappa:before {
+.kj-mathinput-popup .k-i-kappa:before,
+.kj-mathinput-dialog .k-i-kappa:before,
+.k-overflow-container .k-i-kappa:before {
     content: "\03ba";
 }
 .kj-mathinput-toolbar .k-i-lambda:before,
-.kj-mathinput-popup .k-i-lambda:before {
+.kj-mathinput-popup .k-i-lambda:before,
+.kj-mathinput-dialog .k-i-lambda:before,
+.k-overflow-container .k-i-lambda:before {
     content: "\03bb";
 }
 .kj-mathinput-toolbar .k-i-mu:before,
-.kj-mathinput-popup .k-i-mu:before {
+.kj-mathinput-popup .k-i-mu:before,
+.kj-mathinput-dialog .k-i-mu:before,
+.k-overflow-container .k-i-mu:before {
     content: "\03bc";
 }
 .kj-mathinput-toolbar .k-i-nu:before,
-.kj-mathinput-popup .k-i-nu:before {
+.kj-mathinput-popup .k-i-nu:before,
+.kj-mathinput-dialog .k-i-nu:before,
+.k-overflow-container .k-i-nu:before {
     content: "\03bd";
 }
 .kj-mathinput-toolbar .k-i-xi:before,
-.kj-mathinput-popup .k-i-xi:before {
+.kj-mathinput-popup .k-i-xi:before,
+.kj-mathinput-dialog .k-i-xi:before,
+.k-overflow-container .k-i-xi:before {
     content: "\03be";
 }
 .kj-mathinput-toolbar .k-i-omicron:before,
-.kj-mathinput-popup .k-i-omicron:before {
+.kj-mathinput-popup .k-i-omicron:before,
+.kj-mathinput-dialog .k-i-omicron:before,
+.k-overflow-container .k-i-omicron:before {
     content: "\03bf";
 }
 .kj-mathinput-toolbar .k-i-pi:before,
-.kj-mathinput-popup .k-i-pi:before {
+.kj-mathinput-popup .k-i-pi:before,
+.kj-mathinput-dialog .k-i-pi:before,
+.k-overflow-container .k-i-pi:before {
     content: "\03c0";
 }
 .kj-mathinput-toolbar .k-i-rho:before,
-.kj-mathinput-popup .k-i-rho:before {
+.kj-mathinput-popup .k-i-rho:before,
+.kj-mathinput-dialog .k-i-rho:before,
+.k-overflow-container .k-i-rho:before {
     content: "\03c1";
 }
 .kj-mathinput-toolbar .k-i-sigma:before,
-.kj-mathinput-popup .k-i-sigma:before {
+.kj-mathinput-popup .k-i-sigma:before,
+.kj-mathinput-dialog .k-i-sigma:before,
+.k-overflow-container .k-i-sigma:before {
     content: "\03c3";
 }
 .kj-mathinput-toolbar .k-i-tau:before,
-.kj-mathinput-popup .k-i-tau:before {
+.kj-mathinput-popup .k-i-tau:before,
+.kj-mathinput-dialog .k-i-tau:before,
+.k-overflow-container .k-i-tau:before {
     content: "\03c4";
 }
 .kj-mathinput-toolbar .k-i-upsilon:before,
-.kj-mathinput-popup .k-i-upsilon:before {
+.kj-mathinput-popup .k-i-upsilon:before,
+.kj-mathinput-dialog .k-i-upsilon:before,
+.k-overflow-container .k-i-upsilon:before {
     content: "\03c5";
 }
 .kj-mathinput-toolbar .k-i-phi:before,
-.kj-mathinput-popup .k-i-phi:before {
+.kj-mathinput-popup .k-i-phi:before,
+.kj-mathinput-dialog .k-i-phi:before,
+.k-overflow-container .k-i-phi:before {
     content: "\03c6";
 }
 .kj-mathinput-toolbar .k-i-chi:before,
-.kj-mathinput-popup .k-i-chi:before {
+.kj-mathinput-popup .k-i-chi:before,
+.kj-mathinput-dialog .k-i-chi:before,
+.k-overflow-container .k-i-chi:before {
     content: "\03c7";
 }
 .kj-mathinput-toolbar .k-i-psi:before,
-.kj-mathinput-popup .k-i-psi:before {
+.kj-mathinput-popup .k-i-psi:before,
+.kj-mathinput-dialog .k-i-psi:before,
+.k-overflow-container .k-i-psi:before {
     content: "\03c8";
 }
 .kj-mathinput-toolbar .k-i-omega:before,
-.kj-mathinput-popup .k-i-omega:before {
+.kj-mathinput-popup .k-i-omega:before,
+.kj-mathinput-dialog .k-i-omega:before,
+.k-overflow-container .k-i-omega:before {
     content: "\03c9";
 }
 .kj-mathinput-toolbar .k-i-alpha-maj:before,
-.kj-mathinput-popup .k-i-alpha-maj:before {
+.kj-mathinput-popup .k-i-alpha-maj:before,
+.kj-mathinput-dialog .k-i-alpha-maj:before,
+.k-overflow-container .k-i-alpha-maj:before {
     content: "\0391";
 }
 .kj-mathinput-toolbar .k-i-beta-maj:before,
-.kj-mathinput-popup .k-i-beta-maj:before {
+.kj-mathinput-popup .k-i-beta-maj:before,
+.kj-mathinput-dialog .k-i-beta-maj:before,
+.k-overflow-container .k-i-beta-maj:before {
     content: "\0392";
 }
 .kj-mathinput-toolbar .k-i-gamma-maj:before,
-.kj-mathinput-popup .k-i-gamma-maj:before {
+.kj-mathinput-popup .k-i-gamma-maj:before,
+.kj-mathinput-dialog .k-i-gamma-maj:before,
+.k-overflow-container .k-i-gamma-maj:before {
     content: "\0393";
 }
 .kj-mathinput-toolbar .k-i-delta-maj:before,
-.kj-mathinput-popup .k-i-delta-maj:before {
+.kj-mathinput-popup .k-i-delta-maj:before,
+.kj-mathinput-dialog .k-i-delta-maj:before,
+.k-overflow-container .k-i-delta-maj:before {
     content: "\0394";
 }
 .kj-mathinput-toolbar .k-i-epsilon-maj:before,
-.kj-mathinput-popup .k-i-epsilon-maj:before {
+.kj-mathinput-popup .k-i-epsilon-maj:before,
+.kj-mathinput-dialog .k-i-epsilon-maj:before,
+.k-overflow-container .k-i-epsilon-maj:before {
     content: "\0395";
 }
 .kj-mathinput-toolbar .k-i-zeta-maj:before,
-.kj-mathinput-popup .k-i-zeta-maj:before {
+.kj-mathinput-popup .k-i-zeta-maj:before,
+.kj-mathinput-dialog .k-i-zeta-maj:before,
+.k-overflow-container .k-i-zeta-maj:before {
     content: "\0396";
 }
 .kj-mathinput-toolbar .k-i-eta-maj:before,
-.kj-mathinput-popup .k-i-eta-maj:before {
+.kj-mathinput-popup .k-i-eta-maj:before,
+.kj-mathinput-dialog .k-i-eta-maj:before,
+.k-overflow-container .k-i-eta-maj:before {
     content: "\0397";
 }
 .kj-mathinput-toolbar .k-i-theta-maj:before,
-.kj-mathinput-popup .k-i-theta-maj:before {
+.kj-mathinput-popup .k-i-theta-maj:before,
+.kj-mathinput-dialog .k-i-theta-maj:before,
+.k-overflow-container .k-i-theta-maj:before {
     content: "\0398";
 }
 .kj-mathinput-toolbar .k-i-iota-maj:before,
-.kj-mathinput-popup .k-i-iota-maj:before {
+.kj-mathinput-popup .k-i-iota-maj:before,
+.kj-mathinput-dialog .k-i-iota-maj:before,
+.k-overflow-container .k-i-iota-maj:before {
     content: "\0399";
 }
 .kj-mathinput-toolbar .k-i-kappa-maj:before,
-.kj-mathinput-popup .k-i-kappa-maj:before {
+.kj-mathinput-popup .k-i-kappa-maj:before,
+.kj-mathinput-dialog .k-i-kappa-maj:before,
+.k-overflow-container .k-i-kappa-maj:before {
     content: "\039a";
 }
 .kj-mathinput-toolbar .k-i-lambda-maj:before,
-.kj-mathinput-popup .k-i-lambda-maj:before {
+.kj-mathinput-popup .k-i-lambda-maj:before,
+.kj-mathinput-dialog .k-i-lambda-maj:before,
+.k-overflow-container .k-i-lambda-maj:before {
     content: "\039b";
 }
 .kj-mathinput-toolbar .k-i-mu-maj:before,
-.kj-mathinput-popup .k-i-mu-maj:before {
+.kj-mathinput-popup .k-i-mu-maj:before,
+.kj-mathinput-dialog .k-i-mu-maj:before,
+.k-overflow-container .k-i-mu-maj:before {
     content: "\039c";
 }
 .kj-mathinput-toolbar .k-i-nu-maj:before,
-.kj-mathinput-popup .k-i-nu-maj:before {
+.kj-mathinput-popup .k-i-nu-maj:before,
+.kj-mathinput-dialog .k-i-nu-maj:before,
+.k-overflow-container .k-i-nu-maj:before {
     content: "\039d";
 }
 .kj-mathinput-toolbar .k-i-xi-maj:before,
-.kj-mathinput-popup .k-i-xi-maj:before {
+.kj-mathinput-popup .k-i-xi-maj:before,
+.kj-mathinput-dialog .k-i-xi-maj:before,
+.k-overflow-container .k-i-xi-maj:before {
     content: "\039e";
 }
 .kj-mathinput-toolbar .k-i-omicron-maj:before,
-.kj-mathinput-popup .k-i-omicron-maj:before {
+.kj-mathinput-popup .k-i-omicron-maj:before,
+.kj-mathinput-dialog .k-i-omicron-maj:before,
+.k-overflow-container .k-i-omicron-maj:before {
     content: "\039f";
 }
 .kj-mathinput-toolbar .k-i-pi-maj:before,
-.kj-mathinput-popup .k-i-pi-maj:before {
+.kj-mathinput-popup .k-i-pi-maj:before,
+.kj-mathinput-dialog .k-i-pi-maj:before,
+.k-overflow-container .k-i-pi-maj:before {
     content: "\03a0";
 }
 .kj-mathinput-toolbar .k-i-rho-maj:before,
-.kj-mathinput-popup .k-i-rho-maj:before {
+.kj-mathinput-popup .k-i-rho-maj:before,
+.kj-mathinput-dialog .k-i-rho-maj:before,
+.k-overflow-container .k-i-rho-maj:before {
     content: "\03a1";
 }
 .kj-mathinput-toolbar .k-i-sigma-maj:before,
-.kj-mathinput-popup .k-i-sigma-maj:before {
+.kj-mathinput-popup .k-i-sigma-maj:before,
+.kj-mathinput-dialog .k-i-sigma-maj:before,
+.k-overflow-container .k-i-sigma-maj:before {
     content: "\03a3";
 }
 .kj-mathinput-toolbar .k-i-tau-maj:before,
-.kj-mathinput-popup .k-i-tau-maj:before {
+.kj-mathinput-popup .k-i-tau-maj:before,
+.kj-mathinput-dialog .k-i-tau-maj:before,
+.k-overflow-container .k-i-tau-maj:before {
     content: "\03a4";
 }
 .kj-mathinput-toolbar .k-i-upsilon-maj:before,
-.kj-mathinput-popup .k-i-upsilon-maj:before {
+.kj-mathinput-popup .k-i-upsilon-maj:before,
+.kj-mathinput-dialog .k-i-upsilon-maj:before,
+.k-overflow-container .k-i-upsilon-maj:before {
     content: "\03a5";
 }
 .kj-mathinput-toolbar .k-i-phi-maj:before,
-.kj-mathinput-popup .k-i-phi-maj:before {
+.kj-mathinput-popup .k-i-phi-maj:before,
+.kj-mathinput-dialog .k-i-phi-maj:before,
+.k-overflow-container .k-i-phi-maj:before {
     content: "\03a6";
 }
 .kj-mathinput-toolbar .k-i-chi-maj:before,
-.kj-mathinput-popup .k-i-chi-maj:before {
+.kj-mathinput-popup .k-i-chi-maj:before,
+.kj-mathinput-dialog .k-i-chi-maj:before,
+.k-overflow-container .k-i-chi-maj:before {
     content: "\03a7";
 }
 .kj-mathinput-toolbar .k-i-psi-maj:before,
-.kj-mathinput-popup .k-i-psi-maj:before {
+.kj-mathinput-popup .k-i-psi-maj:before,
+.kj-mathinput-dialog .k-i-psi-maj:before,
+.k-overflow-container .k-i-psi-maj:before {
     content: "\03a8";
 }
 .kj-mathinput-toolbar .k-i-omega-maj:before,
-.kj-mathinput-popup .k-i-omega-maj:before {
+.kj-mathinput-popup .k-i-omega-maj:before,
+.kj-mathinput-dialog .k-i-omega-maj:before,
+.k-overflow-container .k-i-omega-maj:before {
     content: "\03a9";
 }
 .kj-mathinput-toolbar .k-i-equal:before,
-.kj-mathinput-popup .k-i-equal:before {
+.kj-mathinput-popup .k-i-equal:before,
+.kj-mathinput-dialog .k-i-equal:before,
+.k-overflow-container .k-i-equal:before {
     content: "\003d";
 }
 .kj-mathinput-toolbar .k-i-plus:before,
-.kj-mathinput-popup .k-i-plus:before {
+.kj-mathinput-popup .k-i-plus:before,
+.kj-mathinput-dialog .k-i-plus:before,
+.k-overflow-container .k-i-plus:before {
     content: "\002b";
 }
 .kj-mathinput-toolbar .k-i-minus:before,
-.kj-mathinput-popup .k-i-minus:before {
+.kj-mathinput-popup .k-i-minus:before,
+.kj-mathinput-dialog .k-i-minus:before,
+.k-overflow-container .k-i-minus:before {
     content: "\002d";
 }
 .kj-mathinput-toolbar .k-i-times:before,
-.kj-mathinput-popup .k-i-times:before {
+.kj-mathinput-popup .k-i-times:before,
+.kj-mathinput-dialog .k-i-times:before,
+.k-overflow-container .k-i-times:before {
     content: "\00d7";
 }
 .kj-mathinput-toolbar .k-i-cdot:before,
-.kj-mathinput-popup .k-i-cdot:before {
+.kj-mathinput-popup .k-i-cdot:before,
+.kj-mathinput-dialog .k-i-cdot:before,
+.k-overflow-container .k-i-cdot:before {
     content: "\00b7";
 }
 .kj-mathinput-toolbar .k-i-div:before,
-.kj-mathinput-popup .k-i-div:before {
+.kj-mathinput-popup .k-i-div:before,
+.kj-mathinput-dialog .k-i-div:before,
+.k-overflow-container .k-i-div:before {
     content: "\00f7";
 }
 .kj-mathinput-toolbar .k-i-plusminus:before,
-.kj-mathinput-popup .k-i-plusminus:before {
+.kj-mathinput-popup .k-i-plusminus:before,
+.kj-mathinput-dialog .k-i-plusminus:before,
+.k-overflow-container .k-i-plusminus:before {
     content: "\00b1";
 }
 .kj-mathinput-toolbar .k-i-percent:before,
-.kj-mathinput-popup .k-i-percent:before {
+.kj-mathinput-popup .k-i-percent:before,
+.kj-mathinput-dialog .k-i-percent:before,
+.k-overflow-container .k-i-percent:before {
     content: "\0025";
 }
 .kj-mathinput-toolbar .k-i-factorial:before,
-.kj-mathinput-popup .k-i-factorial:before {
+.kj-mathinput-popup .k-i-factorial:before,
+.kj-mathinput-dialog .k-i-factorial:before,
+.k-overflow-container .k-i-factorial:before {
     content: "\0021";
 }
 .kj-mathinput-toolbar .k-i-lt:before,
-.kj-mathinput-popup .k-i-lt:before {
+.kj-mathinput-popup .k-i-lt:before,
+.kj-mathinput-dialog .k-i-lt:before,
+.k-overflow-container .k-i-lt:before {
     content: "\003c";
 }
 .kj-mathinput-toolbar .k-i-le:before,
-.kj-mathinput-popup .k-i-le:before {
+.kj-mathinput-popup .k-i-le:before,
+.kj-mathinput-dialog .k-i-le:before,
+.k-overflow-container .k-i-le:before {
     content: "\2264";
 }
 .kj-mathinput-toolbar .k-i-gt:before,
-.kj-mathinput-popup .k-i-gt:before {
+.kj-mathinput-popup .k-i-gt:before,
+.kj-mathinput-dialog .k-i-gt:before,
+.k-overflow-container .k-i-gt:before {
     content: "\003e";
 }
 .kj-mathinput-toolbar .k-i-ge:before,
-.kj-mathinput-popup .k-i-ge:before {
+.kj-mathinput-popup .k-i-ge:before,
+.kj-mathinput-dialog .k-i-ge:before,
+.k-overflow-container .k-i-ge:before {
     content: "\2265";
 }
 .kj-mathinput-toolbar .k-i-approx:before,
-.kj-mathinput-popup .k-i-approx:before {
+.kj-mathinput-popup .k-i-approx:before,
+.kj-mathinput-dialog .k-i-approx:before,
+.k-overflow-container .k-i-approx:before {
     content: "\2248";
 }
+.kj-mathinput-toolbar .k-i-propto:before,
+.kj-mathinput-popup .k-i-propto:before,
+.kj-mathinput-dialog .k-i-propto:before,
+.k-overflow-container .k-i-propto:before {
+    content: "\221d";
+}
 .kj-mathinput-toolbar .k-i-neq:before,
-.kj-mathinput-popup .k-i-neq:before {
+.kj-mathinput-popup .k-i-neq:before,
+.kj-mathinput-dialog .k-i-neq:before,
+.k-overflow-container .k-i-neq:before {
     content: "\2260";
 }
 .kj-mathinput-toolbar .k-i-and:before,
-.kj-mathinput-popup .k-i-and:before {
+.kj-mathinput-popup .k-i-and:before,
+.kj-mathinput-dialog .k-i-and:before,
+.k-overflow-container .k-i-and:before {
     content: "\2227";
 }
 .kj-mathinput-toolbar .k-i-or:before,
-.kj-mathinput-popup .k-i-or:before {
+.kj-mathinput-popup .k-i-or:before,
+.kj-mathinput-dialog .k-i-or:before,
+.k-overflow-container .k-i-or:before {
     content: "\2228";
 }
+.kj-mathinput-toolbar .k-i-circ:before,
+.kj-mathinput-popup .k-i-circ:before,
+.kj-mathinput-dialog .k-i-circ:before,
+.k-overflow-container .k-i-circ:before {
+    content: "\2218";
+}
 .kj-mathinput-toolbar .k-i-nabla:before,
-.kj-mathinput-popup .k-i-nabla:before {
+.kj-mathinput-popup .k-i-nabla:before,
+.kj-mathinput-dialog .k-i-nabla:before,
+.k-overflow-container .k-i-nabla:before {
     content: "\2207";
 }
 .kj-mathinput-toolbar .k-i-cset:before,
-.kj-mathinput-popup .k-i-cset:before {
+.kj-mathinput-popup .k-i-cset:before,
+.kj-mathinput-dialog .k-i-cset:before,
+.k-overflow-container .k-i-cset:before {
     content: "\2102";
 }
 .kj-mathinput-toolbar .k-h-iset:before,
-.kj-mathinput-popup .k-h-iset:before {
+.kj-mathinput-popup .k-h-iset:before,
+.kj-mathinput-dialog .k-h-iset:before,
+.k-overflow-container .k-h-iset:before {
     content: "\210d";
 }
 .kj-mathinput-toolbar .k-i-nset:before,
-.kj-mathinput-popup .k-i-nset:before {
+.kj-mathinput-popup .k-i-nset:before,
+.kj-mathinput-dialog .k-i-nset:before,
+.k-overflow-container .k-i-nset:before {
     content: "\2115";
 }
 .kj-mathinput-toolbar .k-i-pset:before,
-.kj-mathinput-popup .k-i-pset:before {
+.kj-mathinput-popup .k-i-pset:before,
+.kj-mathinput-dialog .k-i-pset:before,
+.k-overflow-container .k-i-pset:before {
     content: "\2119";
 }
 .kj-mathinput-toolbar .k-i-qset:before,
-.kj-mathinput-popup .k-i-qset:before {
+.kj-mathinput-popup .k-i-qset:before,
+.kj-mathinput-dialog .k-i-qset:before,
+.k-overflow-container .k-i-qset:before {
     content: "\211a";
 }
 .kj-mathinput-toolbar .k-i-rset:before,
-.kj-mathinput-popup .k-i-rset:before {
+.kj-mathinput-popup .k-i-rset:before,
+.kj-mathinput-dialog .k-i-rset:before,
+.k-overflow-container .k-i-rset:before {
     content: "\211d";
 }
 .kj-mathinput-toolbar .k-i-zset:before,
-.kj-mathinput-popup .k-i-zset:before {
+.kj-mathinput-popup .k-i-zset:before,
+.kj-mathinput-dialog .k-i-zset:before,
+.k-overflow-container .k-i-zset:before {
     content: "\2124";
 }
 .kj-mathinput-toolbar .k-i-emptyset:before,
-.kj-mathinput-popup .k-i-emptyset:before {
+.kj-mathinput-popup .k-i-emptyset:before,
+.kj-mathinput-dialog .k-i-emptyset:before,
+.k-overflow-container .k-i-emptyset:before {
     content: "\2205";
 }
 .kj-mathinput-toolbar .k-i-forall:before,
-.kj-mathinput-popup .k-i-forall:before {
+.kj-mathinput-popup .k-i-forall:before,
+.kj-mathinput-dialog .k-i-forall:before,
+.k-overflow-container .k-i-forall:before {
     content: "\2200";
 }
 .kj-mathinput-toolbar .k-i-exists:before,
-.kj-mathinput-popup .k-i-exists:before {
+.kj-mathinput-popup .k-i-exists:before,
+.kj-mathinput-dialog .k-i-exists:before,
+.k-overflow-container .k-i-exists:before {
     content: "\2203";
 }
 .kj-mathinput-toolbar .k-i-nexists:before,
-.kj-mathinput-popup .k-i-nexists:before {
+.kj-mathinput-popup .k-i-nexists:before,
+.kj-mathinput-dialog .k-i-nexists:before,
+.k-overflow-container .k-i-nexists:before {
     content: "\2204";
 }
 .kj-mathinput-toolbar .k-i-in:before,
-.kj-mathinput-popup .k-i-in:before {
+.kj-mathinput-popup .k-i-in:before,
+.kj-mathinput-dialog .k-i-in:before,
+.k-overflow-container .k-i-in:before {
     content: "\220a";
 }
 .kj-mathinput-toolbar .k-i-nin:before,
-.kj-mathinput-popup .k-i-nin:before {
+.kj-mathinput-popup .k-i-nin:before,
+.kj-mathinput-dialog .k-i-nin:before,
+.k-overflow-container .k-i-nin:before {
     content: "\2209";
 }
 .kj-mathinput-toolbar .k-i-subset:before,
-.kj-mathinput-popup .k-i-subset:before {
+.kj-mathinput-popup .k-i-subset:before,
+.kj-mathinput-dialog .k-i-subset:before,
+.k-overflow-container .k-i-subset:before {
     content: "\2282";
 }
 .kj-mathinput-toolbar .k-i-supset:before,
-.kj-mathinput-popup .k-i-supset:before {
+.kj-mathinput-popup .k-i-supset:before,
+.kj-mathinput-dialog .k-i-supset:before,
+.k-overflow-container .k-i-supset:before {
     content: "\2283";
 }
 .kj-mathinput-toolbar .k-i-nsubset:before,
-.kj-mathinput-popup .k-i-nsubset:before {
+.kj-mathinput-popup .k-i-nsubset:before,
+.kj-mathinput-dialog .k-i-nsubset:before,
+.k-overflow-container .k-i-nsubset:before {
     content: "\2284";
 }
 .kj-mathinput-toolbar .k-i-nsupset:before,
-.kj-mathinput-popup .k-i-nsupset:before {
+.kj-mathinput-popup .k-i-nsupset:before,
+.kj-mathinput-dialog .k-i-nsupset:before,
+.k-overflow-container .k-i-nsupset:before {
     content: "\2285";
 }
 .kj-mathinput-toolbar .k-i-intersection:before,
-.kj-mathinput-popup .k-i-intersection:before {
+.kj-mathinput-popup .k-i-intersection:before,
+.kj-mathinput-dialog .k-i-intersection:before,
+.k-overflow-container .k-i-intersection:before {
     content: "\2229";
 }
 .kj-mathinput-toolbar .k-i-union:before,
-.kj-mathinput-popup .k-i-union:before {
+.kj-mathinput-popup .k-i-union:before,
+.kj-mathinput-dialog .k-i-union:before,
+.k-overflow-container .k-i-union:before {
     content: "\222a";
 }
 .kj-mathinput-toolbar .k-i-to:before,
-.kj-mathinput-popup .k-i-to:before {
+.kj-mathinput-popup .k-i-to:before,
+.kj-mathinput-dialog .k-i-to:before,
+.k-overflow-container .k-i-to:before {
     content: "\2192";
 }
 .kj-mathinput-toolbar .k-i-implies:before,
-.kj-mathinput-popup .k-i-implies:before {
+.kj-mathinput-popup .k-i-implies:before,
+.kj-mathinput-dialog .k-i-implies:before,
+.k-overflow-container .k-i-implies:before {
     content: "\21d2";
 }
 .kj-mathinput-toolbar .k-i-nimplies:before,
-.kj-mathinput-popup .k-i-nimplies:before {
+.kj-mathinput-popup .k-i-nimplies:before,
+.kj-mathinput-dialog .k-i-nimplies:before,
+.k-overflow-container .k-i-nimplies:before {
     content: "\21cf";
 }
 .kj-mathinput-toolbar .k-i-iff:before,
-.kj-mathinput-popup .k-i-iff:before {
+.kj-mathinput-popup .k-i-iff:before,
+.kj-mathinput-dialog .k-i-iff:before,
+.k-overflow-container .k-i-iff:before {
     content: "\21d4";
 }

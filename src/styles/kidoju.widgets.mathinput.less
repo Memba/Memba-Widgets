@@ -1,91 +1,85 @@
-.kj-mathinput .mq-editable-field .mq-cursor {
-    border-left: 2px solid #78c008 !important;
-    border-radius: 1px;
-
-    margin-left: -1px !important;
-    margin-right: -1px !important;
-    margin-bottom: 2px;
-}
-
-.kj-mathinput .mq-editable-field .mq-non-leaf .mq-cursor:only-child {
-    border: 2px solid #78c008 !important; /* bright-green color */
-    padding: 0 4px 0 4px;
-}
-
-.kj-mathinput .mq-empty {
-    background: transparent !important;
-}
-
-.kj-mathinput .mq-empty:not(.mq-root-block):after {
-    visibility: visible !important;
-
-    /* hides the 'c' content added by MathQuill to measure the width */
-    color: transparent;
-
-    display: inline-block;
-    border: 2px solid #ccc;
-    border-radius: 1px;
-    padding: 0 4px 0 4px;
-    margin-left: -1px;
-    margin-right: -1px;
-    margin-bottom: 2px;
-}
-
-.kj-mathinput .mq-editable-field .mq-non-leaf .mq-cursor:only-child {
-    visibility: visible !important; /* disable default blink behavior */
-    border: 2px solid #78c008 !important; /* bright-green color */
-    padding: 0 4px 0 4px;
-}
-
-.kj-mathinput .mq-empty {
-    background: transparent !important;
-}
-
-/* also adds empty block styling to elements with .mq-hasCursor but without a cursor element (this happens where the cursor is when the math input loses focus) */
-.kj-mathinput .mq-empty:not(.mq-root-block):after, .kj-mathinput .mq-hasCursor:empty:not(.mq-root-block):after {
-    visibility: visible !important;
-
-    /* hides the 'c' content added by MathQuill to measure the width */
-    color: transparent;
-
-    display: inline-block;
-    border: 2px solid #ccc;
-    border-radius: 1px;
-    padding: 0 4px 0 4px;
-    margin-left: -1px;
-    margin-right: -1px;
-}
-
-.kj-mathinput .mq-selection .mq-empty:not(.mq-root-block):after {
-    border-color: #ffffff;
-}
-
-.kj-mathinput .mq-hasCursor:empty:not(.mq-root-block):after {
-    /* place a c inside for sizing the cursor (for the case explained above); normally, MathQuill already does this for .mq-cursor */
-    content: 'c';
-}
-
-.kj-mathinput .mq-math-mode .mq-selection .mq-non-leaf,
-.kj-mathinput .mq-editable-field .mq-selection .mq-non-leaf
-{
-    background: #78c008 !important;
-    color: white !important;
-    border-color: white !important;
-}
-
-.kj-mathinput .mq-math-mode .mq-selection .mq-scaled,
-.kj-mathinput .mq-editable-field .mq-selection .mq-scaled
-{
-    background: transparent !important;
-    color: white !important;
-    border-color: transparent !important;
-}
-
-.kj-mathinput .mq-selection {
-    display: inline-block !important;
-    background: #78c008 !important;
-    color: white !important;
-    border-color: white !important;
+.kj-mathinput {
+    .mq-editable-field {
+        .mq-cursor {
+            border-left: 2px solid #78c008 !important;
+            border-radius: 1px;
+            margin-left: -1px !important;
+            margin-right: -1px !important;
+            margin-bottom: 2px;
+        }
+        .mq-non-leaf {
+            .mq-cursor:only-child {
+                visibility: visible !important; /* disable default blink behavior */
+                border: 2px solid #78c008 !important; /* bright-green color */
+                padding: 0 4px 0 4px;
+            }
+        }
+        .mq-selection {
+            .mq-non-leaf {
+                background: #78c008 !important;
+                color: white !important;
+                border-color: white !important;
+            }
+            .mq-scaled {
+                background: transparent !important;
+                color: white !important;
+                border-color: transparent !important;
+            }
+        }
+    }
+    .mq-empty {
+        background: transparent !important;
+    }
+    /* also adds empty block styling to elements with .mq-hasCursor but without a cursor element (this happens where the cursor is when the math input loses focus) */
+    .mq-empty:not(.mq-root-block):after {
+        visibility: visible !important;
+        /* hides the 'c' content added by MathQuill to measure the width */
+        color: transparent;
+        display: inline-block;
+        border: 2px solid #ccc;
+        border-radius: 1px;
+        padding: 0 4px 0 4px;
+        margin-left: -1px;
+        margin-right: -1px;
+        margin-bottom: 2px;
+    }
+    /* also adds empty block styling to elements with .mq-hasCursor but without a cursor element (this happens where the cursor is when the math input loses focus) */
+    .mq-hasCursor:empty:not(.mq-root-block):after {
+        /* place a c inside for sizing the cursor (for the case explained above); normally, MathQuill already does this for .mq-cursor */
+        content: 'c';
+        visibility: visible !important;
+        /* hides the 'c' content added by MathQuill to measure the width */
+        color: transparent;
+        display: inline-block;
+        border: 2px solid #ccc;
+        border-radius: 1px;
+        padding: 0 4px 0 4px;
+        margin-left: -1px;
+        margin-right: -1px;
+    }
+    .mq-math-mode {
+        .mq-selection {
+            .mq-non-leaf {
+                background: #78c008 !important;
+                color: white !important;
+                border-color: white !important;
+            }
+            .mq-scaled {
+                background: transparent !important;
+                color: white !important;
+                border-color: transparent !important;
+            }
+        }
+    }
+    .mq-selection {
+        display: inline-block !important;
+        background: #78c008 !important;
+        color: white !important;
+        border-color: white !important;
+        .mq-empty:not(.mq-root-block):after {
+            border-color: #ffffff;
+        }
+    }
 }
 
 
@@ -104,7 +98,19 @@
     max-width: 242px;
 }
 
-.kj-mathinput-toolbar, .kj-mathinput-popup {
+.kj-mathinput-dialog {
+    .k-list {
+        display: flex;
+        flex-wrap: wrap;
+        .k-item {
+        }
+    }
+}
+
+.kj-mathinput-toolbar,
+.kj-mathinput-popup,
+.kj-mathinput-dialog,
+.k-overflow-container {
 
     .k-icon, .k-font-icon {
         font: 16px/1 Symbola !important;
@@ -116,7 +122,7 @@
     .k-icon
     {
         // Toolbar
-        &.k-i-arrow-s {
+        &.k-i-arrow-60-down {
             font: 16px/1 WebComponentsIcons !important;
         }
         &.k-i-field,
@@ -205,7 +211,7 @@
     .k-i-z:before {content:"\007a";}
     // Add Euler/Napier constant Math.E
     // Unicode has special glyphs for these symbols: 0x2148 for imaginary i, 0x2149 for imaginary j, 0x2107 for Euler's constant, etc (although on most fonts they look ugly).
-    .k-i-infinity:before {content:"\221e";}
+    .k-i-infty:before {content:"\221e";}
     .k-i-space:before {content:"\fe48";}
 
     // ------------------
@@ -329,12 +335,13 @@
     .k-i-gt:before {content:"\003e";}
     .k-i-ge:before {content:"\2265";}
     .k-i-approx:before {content:"\2248";}
+    .k-i-propto:before {content:"\221d";}
     .k-i-neq:before {content:"\2260";}
     .k-i-and:before {content:"\2227";}
     .k-i-or:before {content:"\2228";}
+    .k-i-circ:before {content:"\2218";}
     .k-i-nabla:before {content:"\2207";}
-    // TODO add \neg
-    // Other negations, gcd and lcm
+    // TODO add \neg, \gcd, \lcm, and other negations
 
     // ------------------
     // Expressions (functions)
@@ -369,6 +376,7 @@
     .k-i-implies:before {content:"\21d2";}
     .k-i-nimplies:before {content:"\21cf";}
     .k-i-iff:before {content:"\21d4";}
+    // TODO undeline and upperline vectors
 
     // ------------------
     // Matrices
@@ -379,6 +387,7 @@
     // Statistics
     // ------------------
     // Binomial (nk) \binom{n}{k}
+    // Factorial
 
     // ------------------
     // Units

@@ -3935,6 +3935,9 @@ LatexCmds.kappa =
 LatexCmds.mu =
 LatexCmds.nu =
 LatexCmds.xi =
+// BEGIN - Added by JLC
+LatexCmds.omicron =
+// END - Added by JLC
 LatexCmds.rho =
 LatexCmds.sigma =
 LatexCmds.tau =

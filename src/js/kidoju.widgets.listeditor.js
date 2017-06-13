@@ -12,32 +12,10 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
-        // './vendor/kendo/kendo.draganddrop',
         './vendor/kendo/kendo.sortable',
         './vendor/kendo/kendo.listview',
         './vendor/kendo/kendo.toolbar',
         './vendor/kendo/kendo.tooltip'
-        /*
-         <script src="./js/vendor/kendo/kendo.core.js"></script>
-         <script src="./js/vendor/kendo/kendo.data.js"></script>
-         <script src="./js/vendor/kendo/kendo.binder.js"></script>
-         <script src="./js/vendor/kendo/kendo.userevents.js"></script>
-         <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
-         <script src="./js/vendor/kendo/kendo.sortable.js"></script>
-         <script src="./js/vendor/kendo/kendo.popup.js"></script>
-         <script src="./js/vendor/kendo/kendo.dialog.js"></script>
-         <!--script src="./js/vendor/kendo/kendo.columnsorter.js"></script-->
-         <script src="./js/vendor/kendo/kendo.grid.js"></script>
-         <script src="./js/vendor/kendo/kendo.calendar.js"></script>
-         <script src="./js/vendor/kendo/kendo.datepicker.js"></script>
-         <script src="./js/vendor/kendo/kendo.numerictextbox.js"></script>
-         <script src="./js/vendor/kendo/kendo.validator.js"></script>
-         <script src="./js/vendor/kendo/kendo.editable.js"></script>
-         <script src="./js/vendor/kendo/kendo.listview.js"></script>
-         <script src="./js/vendor/kendo/kendo.tooltip.js"></script>
-         */
-
-
     ], f);
 })(function () {
 
@@ -231,7 +209,10 @@
                     // autoHide: true,
                     content: function (e) {
                         var target = e.target;
-                        return kendo.format(TOOLTIP_TMPL, target.attr('alt'), target.attr('src'));
+                        // The following is required to fix https://github.com/kidoju/Kidoju-Widgets/issues/175
+                        // Noting that popup is not available until the tooltip has been fully initialized, but there is no init event to hook
+                        e.sender.popup.element.children('.k-tooltip-content').css({ padding: 0});
+                        return kendo.format(options.tooltipTemplate, target.attr('alt'), target.attr('src'));
                     }
                 }).data('kendoTooltip');
             },

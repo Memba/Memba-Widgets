@@ -267,7 +267,7 @@
                     // this.treeView.setDataSource(hierarchize(that.dataSource._pristineData, options.dataValueField, options.dataParentField));
                     this.treeView.setDataSource(hierarchize(that.dataSource, options.dataValueField, options.dataParentField));
                 }
-                logger.debug({ method: refresh, message: 'Widget refreshed' });
+                logger.debug({ method: 'refresh', message: 'Widget refreshed' });
             },
 
             /**

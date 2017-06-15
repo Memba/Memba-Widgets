@@ -135,7 +135,7 @@
                 enabled: true,
                 readonly: false,
                 match: null, // RegExp match, e.g. for email addresses: separator does not trigger a new tag element unless there is a match
-                separators: ',;', // string of separators
+                separators: ',;\r\n\t', // string of separators
                 messages: {
                     delete: 'Delete'
                 }

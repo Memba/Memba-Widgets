@@ -1475,13 +1475,13 @@
                 that.editor = function (container, settings) {
                     var binding = {};
                     binding[kendo.attr('bind')] = 'source: ' + settings.field;
-                    var listEditor = $('<div/>').attr(binding).appendTo(container);
-                    var listEditorWidget = listEditor.kendoListEditor({
+                    var imageList = $('<div/>').attr(binding).appendTo(container);
+                    var imageListWidget = imageList.kendoImageList({
                         schemes: assets.image.schemes,
                         click: $.proxy(that.showDialog, that, settings)
-                    }).data('kendoListEditor');
-                    assert.instanceof(kendo.ui.ListEditor, listEditorWidget, kendo.format(assert.messages.instanceof.default, 'listEditorWidget', 'kendo.ui.ListEditor'));
-                    listEditorWidget.dataSource.bind('change', function (e) {
+                    }).data('kendoImageList');
+                    assert.instanceof(kendo.ui.ImageList, imageListWidget, kendo.format(assert.messages.instanceof.default, 'imageListWidget', 'kendo.ui.ImageList'));
+                    imageListWidget.dataSource.bind('change', function (e) {
                         // When the dataSource raises a change event on any of the quiz data items that is added, changed or removed
                         // We need to trigger a change event on the model field to ensure the stage element (which is not databound) is redrawn
                         if ($.type(e.action) === STRING) {

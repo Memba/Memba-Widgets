@@ -2,15 +2,15 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>kidoju.widgets.listeditor</title>
+    <title>kidoju.widgets.imagelist</title>
     <script>
         window.app = { DEBUG: true };
     </script>
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.listeditor stylesheet -->
-    <link href="./styles/kidoju.widgets.listeditor.css" rel="stylesheet">
+    <!-- kidoju.widgets.imagelist stylesheet -->
+    <link href="./styles/kidoju.widgets.imagelist.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../test/vendor/system.js"></script>
     <script>
@@ -29,7 +29,7 @@
             });
             Promise.all([
                 SystemJS.import('./js/vendor/kendo/kendo.grid.js'),
-                SystemJS.import('./js/kidoju.widgets.listeditor.js')
+                SystemJS.import('./js/kidoju.widgets.imagelist.js')
             ]).then(function (kendo) {
                 var kendo = window.kendo;
                 var viewModel = kendo.observable({
@@ -74,8 +74,8 @@
     </script>
 </head>
 <body>
-<h1>kidoju.widgets.listeditor</h1>
-<div id="listeditor" data-role="listeditor" data-bind="source:quiz, events:{ click: onClick }"></div>
+<h1>kidoju.widgets.imagelist</h1>
+<div id="imagelist" data-role="imagelist" data-bind="source:quiz, events:{ click: onClick }"></div>
 <h2>Grid</h2>
 <div id="grid" data-role="grid" data-bind="source:quiz"></div>
 </body>

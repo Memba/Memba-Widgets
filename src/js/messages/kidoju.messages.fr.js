@@ -82,12 +82,15 @@
             });
         }
 
-        /* kidoju.widgets.listeditor */
-        if (ui.ListEditor) {
-            options = ui.ListEditor.prototype.options;
+        /* kidoju.widgets.imagelist */
+        if (ui.ImageList) {
+            options = ui.ImageList.prototype.options;
             options.messages = $.extend(true, options.messages, {
                 toolbar: {
                     add: 'Ajouter'
+                },
+                validation: {
+                    required: 'Du texte est requis.'
                 }
             });
         }

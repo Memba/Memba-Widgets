@@ -56,7 +56,7 @@
         }
 
         function getEditTemplate (textField, imageField, validationMessage) {
-            var t = '<li class="k-list-item">' +
+            var template = '<li class="k-list-item">' +
                 '<div class="kj-handle"><span class="k-icon k-i-handler-drag"></span></div>' +
                 '<div class="kj-text"><input class="k-textbox" data-bind="value:{0}" name="{0}" required="required" validationMessage="{1}"/><span data-for="{0}" class="k-invalid-msg"></span></div>' +
                 '<div class="kj-buttons">' +
@@ -64,7 +64,7 @@
                 '<a class="k-button k-update-button" href="\\#"><span class="k-icon k-i-check"></span></a>' +
                 '<a class="k-button k-cancel-button" href="\\#"><span class="k-icon k-i-cancel"></span></a>' +
                 '</div></li>';
-            return kendo.format(textField, validationMessage);
+            return kendo.format(template, textField, validationMessage);
         }
 
         /*********************************************************************************

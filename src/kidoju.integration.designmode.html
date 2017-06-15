@@ -57,7 +57,7 @@
     <link href="./styles/kidoju.widgets.assetmanager.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.codeeditor.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.explorer.css" rel="stylesheet">
-    <link href="./styles/kidoju.widgets.listeditor.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.imagelist.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.mathexpression.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.multiquiz.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.mediaplayer.css" rel="stylesheet">
@@ -77,7 +77,7 @@
     <script src="./js/kidoju.widgets.connector.js"></script>
     <script src="./js/kidoju.widgets.dropzone.js"></script>
     <script src="./js/kidoju.widgets.explorer.js"></script>
-    <script src="./js/kidoju.widgets.listeditor.js"></script>
+    <script src="./js/kidoju.widgets.imagelist.js"></script>
     <script src="./js/kidoju.widgets.mathexpression.js"></script>
     <script src="./js/kidoju.widgets.mediaplayer.js"></script>
     <script src="./js/kidoju.widgets.multiquiz.js"></script>
@@ -719,6 +719,11 @@
                     viewModel.set('selectedPage', viewModel.stream.pages.at(0));
                     kendo.bind('body', viewModel, kendo.ui, kendo.mobile.ui, kendo.dataviz.ui);
 
+                    //Bind resize events and resize (splitter is not available before kendo.bind)
+                    $('main').find(kendo.roleSelector('splitter')).data('kendoSplitter').bind('resize', onResize);
+                    $(window).on('resize', onResize);
+                    onResize();
+
                     // Init sliders
                     $('#snap-angle').data('kendoSlider').bind('change', function (e) {
                         var stage = $('#center-pane').find(kendo.roleSelector('stage'));
@@ -732,11 +737,6 @@
                     });
 
                 });
-
-                //Bind resize events and resize
-                $('main').find(kendo.roleSelector('splitter')).data('kendoSplitter').bind('resize', onResize);
-                $(window).on('resize', onResize);
-                onResize();
             });
 
         }(this, jQuery));

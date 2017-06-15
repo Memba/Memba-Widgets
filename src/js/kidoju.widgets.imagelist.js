@@ -149,12 +149,11 @@
                 // Add click event handler for the Add button
                 $('.k-button', that.toolbar).on(CLICK + NS, function (e) {
                     assert.instanceof(ListView, that.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                    // that.listView.add(); // Requires a model to know the fields to create a new data item with
-                    var item = {};
-                    item[options.textField] = '';
-                    item[options.imageField] = '';
-                    that.dataSource.add(item);
-                    that.listView.edit(that.listView.element.children().last());
+                    // that.listView.add(); // insert at index = 0
+                    that.listView.cancel();
+                    // var item = {}; item[options.textField] = ''; item[options.imageField] = '';
+                    var dataItem = that.dataSource.add({}); // Requires a model to know the fields to create a new data item with
+                    that.listView.edit(that.element.find('[data-uid=\'' + dataItem.uid + '\']'));
                     e.preventDefault();
                 });
             },

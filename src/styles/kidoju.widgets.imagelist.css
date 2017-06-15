@@ -37,6 +37,8 @@ body > .k-list-item > .kj-text input,
 body > .k-list-item > .kj-text .k-tooltip-validation,
 .kj-imagelist > .k-listview > .k-list-item > .kj-text .k-tooltip-validation {
     position: absolute;
+    top: 36px;
+    left: 20px;
 }
 body > .k-list-item > .kj-buttons,
 .kj-imagelist > .k-listview > .k-list-item > .kj-buttons {

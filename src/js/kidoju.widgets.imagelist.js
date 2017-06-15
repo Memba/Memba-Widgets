@@ -44,7 +44,7 @@
         function getTemplate (textField, imageField, schemes) {
             var template = '<li class="k-list-item">' +
                 '<div class="kj-handle"><span class="k-icon k-i-handler-drag"></span></div>' +
-                '<div class="kj-text"><input class="k-textbox k-state-disabled" name="{0}" value="#:{0}#" /></div>' +
+                '<div class="kj-text"><input class="k-textbox k-state-disabled" name="{0}" value="#:{0}#" disabled /></div>' +
                 '<div class="kj-buttons">' +
                 '# if (!!{1}) { #' +
                 '<img class="k-image" alt="#:{0}#" src="#:{1}#">' +

@@ -55,16 +55,18 @@
             return kendo.format(template, textField, imageField + ($.isEmptyObject(schemes) ? '' : '$()'));
         }
 
-        function getEditTemplate (textField, imageField, validationMessage) {
+        function getEditTemplate (textField, imageField, messages) {
             var template = '<li class="k-list-item">' +
                 '<div class="kj-handle"><span class="k-icon k-i-handler-drag"></span></div>' +
-                '<div class="kj-text"><input class="k-textbox" data-bind="value:{0}" name="{0}" required="required" validationMessage="{1}"/><span data-for="{0}" class="k-invalid-msg"></span></div>' +
-                '<div class="kj-buttons">' +
+                '<div class="kj-text">' +
+                '<input class="k-textbox" data-bind="value:{0}" name="{0}" required="required" validationMessage="{2}"/><span data-for="{0}" class="k-invalid-msg"></span>' +
+                // '<input type="hidden" data-bind="value:{1}" name="{1}" required="required" validationMessage="{3}"/><span data-for="{1}" class="k-invalid-msg"></span>' +
+                '</div><div class="kj-buttons">' +
                 '<a class="k-button k-image-button" href="\\#"><span class="k-icon k-i-image-insert"></span></a>' +
                 '<a class="k-button k-update-button" href="\\#"><span class="k-icon k-i-check"></span></a>' +
                 '<a class="k-button k-cancel-button" href="\\#"><span class="k-icon k-i-cancel"></span></a>' +
                 '</div></li>';
-            return kendo.format(template, textField, validationMessage);
+            return kendo.format(template, textField, imageField, messages.validation.text); // , messages.validation.image);
         }
 
         /*********************************************************************************
@@ -106,7 +108,8 @@
                         add: 'Add'
                     },
                     validation: {
-                        required: 'Some text is required.'
+                        // image: 'An image url is required.',
+                        text: 'Some text is required.'
                     }
                 }
             },
@@ -175,7 +178,7 @@
 
                 // Templates
                 var template = getTemplate(options.textField, options.imageField, options.schemes);
-                var editTemplate = getEditTemplate(options.textField, options.imageField, options.messages.validation.required);
+                var editTemplate = getEditTemplate(options.textField, options.imageField, options.messages);
 
                 // Create the listview
                 that.listView = list.kendoListView({
@@ -226,7 +229,7 @@
             },
 
             /**
-             * _dataSource function to bind refresh to the change event
+             * _dataSource function
              * @private
              */
             _dataSource: function () {

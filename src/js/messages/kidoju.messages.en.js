@@ -90,7 +90,8 @@
                     add: 'Add'
                 },
                 validation: {
-                    required: 'Some text is required.'
+                    image: 'An image url is required.',
+                    text: 'Some text is required.'
                 }
             });
         }

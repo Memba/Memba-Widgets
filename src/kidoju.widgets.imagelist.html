@@ -55,14 +55,20 @@
                             }
                         }
                     }),
+                    urls: [
+                        'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-mac_3095333k.jpg',
+                        'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-owl_3095337k.jpg',
+                        'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-wha_3095332k.jpg',
+                        'http://i.telegraph.co.uk/multimedia/archive/03095/hybrid-animals-bir_3095339k.jpg'
+                    ],
                     onClick: function (e) {
                         if (e.action === 'image') {
                             // Note: this is where we should plug our asset manager
                             var image = e.item.get('image');
                             var prompt = window.prompt("What's your image?", image);
-                            if (prompt !== image) {
-                                e.item.set('image', prompt);
-                            }
+                            // We need an input to get a validator, and we need to update it before the model otherwise validation fails an the model is not updated
+                            // e.sender.element.find('input[type="hidden"][data-bind*="image"]').val(prompt);
+                            e.item.set('image', prompt);
                         }
                     }
                 });
@@ -75,8 +81,10 @@
 </head>
 <body>
 <h1>kidoju.widgets.imagelist</h1>
-<div id="imagelist" data-role="imagelist" data-bind="source:quiz, events:{ click: onClick }"></div>
+<div data-role="imagelist" data-bind="source:quiz, events:{ click: onClick }" data-text-field="text" data-image-field="image"></div>
 <h2>Grid</h2>
 <div id="grid" data-role="grid" data-bind="source:quiz"></div>
+<!--h2>Array of image urls</h2>
+<div data-role="imagelist" data-bind="source:urls, events:{ click: onClick }" data-text-field="text" data-image-field="image"></div-->
 </body>
 </html>

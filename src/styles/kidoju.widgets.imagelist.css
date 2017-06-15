@@ -25,6 +25,7 @@ body > .k-list-item > .kj-handle,
 }
 body > .k-list-item > .kj-text,
 .kj-imagelist > .k-listview > .k-list-item > .kj-text {
+    position: relative;
     flex: 1 1 auto;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -37,8 +38,8 @@ body > .k-list-item > .kj-text input,
 body > .k-list-item > .kj-text .k-tooltip-validation,
 .kj-imagelist > .k-listview > .k-list-item > .kj-text .k-tooltip-validation {
     position: absolute;
-    top: 36px;
-    left: 20px;
+    top: 0;
+    right: 0;
 }
 body > .k-list-item > .kj-buttons,
 .kj-imagelist > .k-listview > .k-list-item > .kj-buttons {

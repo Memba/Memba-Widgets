@@ -90,7 +90,8 @@
                     add: 'Ajouter'
                 },
                 validation: {
-                    required: 'Du texte est requis.'
+                    image: 'Une image est requise.',
+                    text: 'Du texte est requis.'
                 }
             });
         }

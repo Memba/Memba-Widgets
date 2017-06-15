@@ -33,8 +33,8 @@
                 var viewModel = kendo.observable({
                     fields: [],
                     fields$: function () { return '\t' + this.get('fields').join(', '); },
-                    latex: [],
-                    latex$: function () { return '\t' + this.get('latex').join(', '); },
+                    latex: '',
+                    // latex$: function () { return '\t' + this.get('latex').join(', '); },
                     visible: true,
                     enabled: true,
                     onChange: function (e) {
@@ -54,7 +54,7 @@
 <div class="kj-stage" style="position:relative;height:600px;width:800px;border:solid 1px black;transform: scale(0.75);">
     <div data-role="stage" style="height:600px;width:800px;">
         <div class="kj-element" style="position:absolute;top:50px;left:100px;height:50px;width:200px;">
-            <span data-role="mathinput" data-bind="value: fields, visible: visible, enabled: enabled" style="min-height:50px;width:200px;">
+            <span data-role="mathinput" data-bind="value: fields, visible: visible, enabled: enabled" data-value="[]" style="min-height:50px;width:200px;">
                 \sqrt{ \MathQuillMathField[x]{x}^2 + \MathQuillMathField[y]{y}^2 }
             </span>
         </div>
@@ -70,7 +70,7 @@
 <pre>
 {
     fields: <span data-bind="text: fields$"></span>
-    latex: <span data-bind="text: latex$"></span>
+    latex: <span data-bind="text: latex"></span>
     text: <span id="text"></span>
     visible: <span data-bind="text: visible"></span>
     enabled: <span data-bind="text: enabled"></span>

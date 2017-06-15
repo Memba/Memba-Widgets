@@ -107,7 +107,7 @@
              */
             options: {
                 name: 'MathInput',
-                value: [],
+                value: '',
                 enable: true,
                 errorColor: '#cc0000',
                 inline: false,
@@ -143,14 +143,38 @@
                 CHANGE
             ],
 
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
-
             /**
              * Value for MVVM binding
              * @param value
              */
             value: function (value) {
+                if (this._hasInnerFields()) {
+                    return this._arrayValue(value);
+                } else {
+                    return this._stringValue(value);
+                }
+            },
+
+            /**
+             * Checks when value should be an array
+             * @returns {boolean}
+             * @private
+             */
+            _hasInnerFields: function () {
+                // Make sure RX_INNERFIELD does not have the /g option
+                return RX_INNERFIELD.test(this.innerHTML);
+            },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            /**
+             * Handles value as an array
+             * @param value
+             * @returns {Array}
+             * @private
+             */
+            _arrayValue: function (value) {
                 var that = this;
                 var i;
                 var length;
@@ -166,8 +190,7 @@
                         }
                     }
                 } else if ($.type(value) === NULL) {
-                    // null is the same as [] but we allow it for data bindings
-                    that.value([]);
+                    that._arrayValue([]);
                 } else if ($.type(value) === UNDEFINED) {
                     var ret = that.mathFields.map(function (mathField) { return mathField.latex(); });
                     var isDefault = true;
@@ -182,11 +205,26 @@
                     }
                     return ret;
                 } else {
-                    throw new TypeError('`value` is expected to be a string if not undefined');
+                    throw new TypeError('`value` is expected to be an array if not undefined');
                 }
             },
 
             /* jshint +W074 */
+
+            /**
+             * Handles value as string
+             * @param value
+             * @private
+             */
+            _stringValue: function (value) {
+                if ($.type(value) === STRING) {
+                    this.mathFields[0].latex(value);
+                } else if ($.type(value) === UNDEFINED) {
+                    return this.mathFields[0].latex();
+                } else {
+                    throw new TypeError('`value` is expected to be a string if not undefined');
+                }
+            },
 
             /**
              * Builds the widget layout
@@ -242,8 +280,8 @@
                 var element = that.element;
                 var options = that.options;
                 // Get initial layout within <div></div> or <span></span>
-                that.layout = that.element.text().trim();
-                if ($.type(that.layout) === STRING && RX_INNERFIELD.test(that.layout)) {
+                that.innerHTML = that.element.text().trim();
+                if (this._hasInnerFields()) {
                     // If the initial layout contains embedded fields
                     that.staticMath = MQ.StaticMath(element.get(0));
                     that.mathFields = that.staticMath.innerFields;

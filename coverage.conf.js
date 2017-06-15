@@ -48,7 +48,7 @@ module.exports = function(config) {
             { pattern: 'src/js/kidoju.widgets.explorer.js', served: true, included: true },
             { pattern: 'src/js/kidoju.widgets.floating.js', served: true, included: true },
             { pattern: 'src/js/kidoju.widgets.formatstrip.js', served: true, included: true },
-            { pattern: 'src/js/kidoju.widgets.listeditor.js', served: true, included: true },
+            { pattern: 'src/js/kidoju.widgets.imagelist.js', served: true, included: true },
             { pattern: 'src/js/kidoju.widgets.markdown.js', served: true, included: true },
             { pattern: 'src/js/kidoju.widgets.mathexpression.js', served: true, included: true },
             { pattern: 'src/js/kidoju.widgets.mediaplayer.js', served: true, included: true },

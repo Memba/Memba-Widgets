@@ -13,12 +13,12 @@
     var sinon = window.sinon;
     var kendo = window.kendo;
     var ui = kendo.ui;
-    var MultiImage = ui.MultiImage;
+    var ImageSet = ui.ImageSet;
     var FIXTURES = '#fixtures';
-    var MULTIIMAGE1 = '<div id="multiimage1"></div>';
-    var MULTIIMAGE2 = '<div id="multiimage2" data-role="multiimage"></div>';
+    var IMAGESET1 = '<div id="imageset1"></div>';
+    var IMAGESET2 = '<div id="imageset2" data-role="imageset"></div>';
 
-    describe('kidoju.widgets.multiimage', function () {
+    describe('kidoju.widgets.imageset', function () {
 
         before(function () {
             if (window.__karma__ && $(FIXTURES).length === 0) {
@@ -32,7 +32,7 @@
                 expect($).not.to.be.undefined;
                 expect(kendo).not.to.be.undefined;
                 expect(kendo.version).to.be.a('string');
-                expect($.fn.kendoMultiImage).to.be.an.instanceof(Function);
+                expect($.fn.kendoImageSet).to.be.an.instanceof(Function);
             });
 
         });
@@ -40,32 +40,32 @@
         describe('Initialization', function () {
 
             it('from code', function () {
-                var element = $(MULTIIMAGE1).appendTo(FIXTURES);
-                var multiimage = element.kendoMultiImage().data('kendoMultiImage');
-                expect(multiimage).to.be.an.instanceof(MultiImage);
+                var element = $(IMAGESET1).appendTo(FIXTURES);
+                var imageset = element.kendoImageSet().data('kendoImageSet');
+                expect(imageset).to.be.an.instanceof(ImageSet);
                 // expect(element).to.have.class('k-widget');
-                expect(element).to.have.class('kj-multiimage');
+                expect(element).to.have.class('kj-imageset');
             });
 
             it('from code with options', function () {
-                var element = $(MULTIIMAGE1).appendTo(FIXTURES);
+                var element = $(IMAGESET1).appendTo(FIXTURES);
                 var options = {
-                    multiimage: 'script1',
+                    imageset: 'script1',
                     value: 'Todd'
                 };
-                var multiimage = element.kendoMultiImage(options).data('kendoMultiImage');
-                expect(multiimage).to.be.an.instanceof(MultiImage);
+                var imageset = element.kendoImageSet(options).data('kendoImageSet');
+                expect(imageset).to.be.an.instanceof(ImageSet);
                 // expect(element).to.have.class('k-widget');
-                expect(element).to.have.class('kj-multiimage');
+                expect(element).to.have.class('kj-imageset');
             });
 
             it('from markup', function () {
-                var element = $(MULTIIMAGE2).appendTo(FIXTURES);
+                var element = $(IMAGESET2).appendTo(FIXTURES);
                 kendo.init(FIXTURES);
-                var multiimage = element.data('kendoMultiImage');
-                expect(multiimage).to.be.an.instanceof(MultiImage);
+                var imageset = element.data('kendoImageSet');
+                expect(imageset).to.be.an.instanceof(ImageSet);
                 // expect(element).to.have.class('k-widget');
-                expect(element).to.have.class('kj-multiimage');
+                expect(element).to.have.class('kj-imageset');
             });
 
             afterEach(function () {
@@ -80,16 +80,16 @@
         describe('Methods', function () {
 
             var element;
-            var multiimage;
+            var imageset;
             var options = {};
 
             beforeEach(function () {
-                element = $(MULTIIMAGE1).appendTo(FIXTURES);
-                multiimage = element.kendoMultiImage(options).data('kendoMultiImage');
+                element = $(IMAGESET1).appendTo(FIXTURES);
+                imageset = element.kendoImageSet(options).data('kendoImageSet');
             });
 
             xit('value', function (done) {
-                expect(multiimage).to.be.an.instanceof(MultiImage);
+                expect(imageset).to.be.an.instanceof(ImageSet);
             });
 
             xit('setOptions', function () {
@@ -97,9 +97,9 @@
             });
 
             xit('destroy', function () {
-                expect(multiimage).to.be.an.instanceof(MultiImage);
-                multiimage.destroy();
-                expect(multiimage.element).to.be.empty;
+                expect(imageset).to.be.an.instanceof(ImageSet);
+                imageset.destroy();
+                expect(imageset.element).to.be.empty;
             });
 
             afterEach(function () {
@@ -114,15 +114,15 @@
         describe('MVVM (and UI interactions)', function () {
 
             var element;
-            var multiimage;
+            var imageset;
             var options = {};
             var viewModel;
             var change;
             var destroy;
 
             beforeEach(function () {
-                element = $(MULTIIMAGE1).appendTo(FIXTURES);
-                multiimage = element.kendoMultiImage(options).data('kendoMultiImage');
+                element = $(IMAGESET1).appendTo(FIXTURES);
+                imageset = element.kendoImageSet(options).data('kendoImageSet');
                 viewModel = kendo.observable({
                     // TODO
                 });
@@ -146,13 +146,13 @@
         describe('Events', function () {
 
             var element;
-            var multiimage;
+            var imageset;
             var options = {};
             var event;
 
             beforeEach(function () {
-                element = $(MULTIIMAGE1).appendTo(FIXTURES);
-                multiimage = element.kendoMultiImage(options).data('kendoMultiImage');
+                element = $(IMAGESET1).appendTo(FIXTURES);
+                imageset = element.kendoImageSet(options).data('kendoImageSet');
                 event = sinon.spy();
             });
 

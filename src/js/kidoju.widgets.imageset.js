@@ -22,34 +22,38 @@
         var ui = kendo.ui;
         var Widget = ui.Widget;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.multiimage');
-        var NUMBER = 'number';
+        var logger = new window.Logger('kidoju.widgets.imageset');
+        // var NUMBER = 'number';
+        var STRING = 'string';
+        var NULL = 'null';
         var UNDEFINED = 'undefined';
-        var NS = '.kendoMultiImage';
+        var NS = '.kendoImageSet';
         var CLICK = 'click';
         var KEYDOWN = 'keydown';
         var CHANGE = 'change';
-        var WIDGET_CLASS = 'kj-multiimage kj-interactive';
+        var WIDGET_CLASS = 'kj-imageset kj-interactive';
         var KEYSTROKES = {
             ARROW_DOWN: 40,
             ARROW_LEFT: 37,
             ARROW_RIGHT: 39,
             ARROW_UP: 38,
+            END: 35,
+            HOME: 36,
             PAGE_DOWN: 34,
             PAGE_UP: 33,
             SPACE: 32
         };
 
         /*******************************************************************************************
-         * MultiImage Widget
+         * ImageSet Widget
          *******************************************************************************************/
 
         /**
-         * MultiImage (kendoMultiImage)
-         * @class MultiImage
+         * ImageSet (kendoImageSet)
+         * @class ImageSet
          * @extend Widget
          */
-        var MultiImage = Widget.extend({
+        var ImageSet = Widget.extend({
 
             /**
              * Initializes the widget
@@ -63,7 +67,7 @@
                 logger.debug({ method: 'init', message: 'Widget initialized' });
                 that._preload();
                 that._layout();
-                that.value(that.options.value);
+                that.value(that.options.value || '');
                 that.enable(that.element.prop('disabled') ? false : that.options.enabled);
                 kendo.notify(that);
             },
@@ -73,8 +77,8 @@
              * @property options
              */
             options: {
-                name: 'MultiImage',
-                value: 0,
+                name: 'ImageSet',
+                value: null,
                 images: [],
                 enabled: true
             },
@@ -94,16 +98,22 @@
              */
             value: function (value) {
                 var that = this;
+                var images = that.options.images;
                 if ($.type(value) === UNDEFINED) {
-                    return that._value;
-                } else if ($.type(value) === NUMBER) {
-                    value = Math.round(Math.abs(value)) % that.options.images.length;
-                    if (that._value !== value) {
-                        that._value = value;
-                        that.refresh();
+                    if ($.isArray(images) && images[that._index]) {
+                        return images[that._index].text;
                     }
+                } else if ($.type(value) === STRING || $.type(value) === NULL) {
+                    that._index = 0;
+                    for (var i = 0, length = images.length; i < length; i++) {
+                        if (value === images[i].text) {
+                            that._index = i;
+                            break;
+                        }
+                    }
+                    that.refresh();
                 } else {
-                    throw new TypeError('`value` should be a number.');
+                    throw new TypeError('`value` should be a nullable string or undefined.');
                 }
             },
 
@@ -114,7 +124,8 @@
             _preload: function () {
                 var images = this.options.images;
                 for (var i = 0, length = images.length; i < length; i++) {
-                    $('<img>').attr('src', images[i]);
+                    $('<img>')
+                        .attr('src', images[i].image);
                     /*
                     .on('load', function () {
                         debugger; // Yippy! they load
@@ -131,13 +142,16 @@
             _layout: function () {
                 var that = this;
                 var element = that.element;
-                if (!element.is('img')) {
-                    throw new Error('Use an img tag to instantiate a MultiImage widget.');
+                if (!element.is('div')) {
+                    throw new Error('Use a div tag to instantiate an ImageSet widget.');
                 }
                 that.wrapper = element
                     .css({
                         cursor: 'pointer',
-                        outline: 0
+                        outline: 0,
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: 'cover'
                     })
                     .attr({
                         role: 'button',
@@ -168,10 +182,11 @@
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var images = this.options.images;
                 if (e.altKey || e.ctrlKey || e.shiftKey) {
-                    this.value(this.value() === 0 ? images.length - 1 : this.value() - 1);
+                    this._index = (this._index === 0 ? images.length - 1 : this._index - 1);
                 } else {
-                    this.value(this.value() === images.length - 1 ? 0 : this.value() + 1);
+                    this._index = (this._index === images.length - 1 ? 0 : this._index + 1);
                 }
+                this.refresh();
                 this.trigger(CHANGE);
             },
 
@@ -190,20 +205,23 @@
                     // TODO Consider handling numbers to display an image
                     case KEYSTROKES.ARROW_DOWN:
                     case KEYSTROKES.ARROW_LEFT:
-                        this.value(this.value() === 0 ? images.length - 1 : this.value() - 1);
+                        this._index = (this._index === 0 ? images.length - 1 : this._index - 1);
                         break;
                     case KEYSTROKES.ARROW_RIGHT:
                     case KEYSTROKES.ARROW_UP:
                     case KEYSTROKES.SPACE:
-                        this.value(this.value() === images.length - 1 ? 0 : this.value() + 1);
+                        this._index = (this._index === images.length - 1 ? 0 : this._index + 1);
                         break;
+                    case KEYSTROKES.END:
                     case KEYSTROKES.PAGE_UP:
-                        this.value(images.length - 1);
+                        this._index = images.length - 1;
                         break;
+                    case KEYSTROKES.HOME:
                     case KEYSTROKES.PAGE_DOWN:
-                        this.value(0);
+                        this._index = 0;
                         break;
                 }
+                this.refresh();
                 this.trigger(CHANGE);
             },
 
@@ -215,8 +233,15 @@
              */
             refresh: function () {
                 var element = this.element;
-                var options = this.options;
-                element.attr('src', options.images[this._value]);
+                var images = this.options.images;
+                this._index = (Math.round(Math.abs(this._index)) % images.length) || 0;
+                if ($.isArray(images) && images[this._index]) {
+                    // element.attr('alt', images[this._index].text);
+                    // element.attr('src', images[this._index].image);
+                    element.css({
+                        backgroundImage: 'url(' + images[this._index].image + ')'
+                    });
+                }
                 logger.debug({ method: 'refresh', message: 'Widget refreshed' });
             },
 
@@ -237,7 +262,7 @@
 
         });
 
-        ui.plugin(MultiImage);
+        ui.plugin(ImageSet);
 
     }(window.jQuery));
 

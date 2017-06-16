@@ -60,7 +60,7 @@
     "mocha": "^3.4.2",
     "phantomjs-prebuilt": "^2.1.14",
     "sinon": "^2.3.4",
-    "systemjs-plugin-babel": "0.0.21",
+    "systemjs-plugin-babel": "0.0.23",
     "zombie": "^5.0.5"
   },
   "engines": {

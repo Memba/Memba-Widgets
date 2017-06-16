@@ -30,6 +30,9 @@
     <!-- KaTeX -->
     <link rel="stylesheet" type="text/css" href="../src/styles/vendor/katex/katex.css">
     <script src="../src/js/vendor/katex/katex.js"></script>
+    <!-- MathQuill -->
+    <link rel="stylesheet" type="text/css" href="../src/styles/vendor/mathquill/mathquill.css">
+    <script src="../src/js/vendor/mathquill/mathquill.js"></script>
     <!-- Play mode requirements -->
     <link rel="stylesheet" href="./styles/kidoju.widgets.floating.css">
     <link rel="stylesheet" href="./styles/kidoju.widgets.mathexpression.css">
@@ -49,7 +52,9 @@
     <script src="./js/kidoju.widgets.connector.js"></script>
     <script src="./js/kidoju.widgets.dropzone.js"></script>
     <script src="./js/kidoju.widgets.floating.js"></script>
+    <script src="./js/kidoju.widgets.imageset.js"></script>
     <script src="./js/kidoju.widgets.mathexpression.js"></script>
+    <script src="./js/kidoju.widgets.mathinput.js"></script>
     <script src="./js/kidoju.widgets.mediaplayer.js"></script>
     <script src="./js/kidoju.widgets.quiz.js"></script>
     <script src="./js/kidoju.widgets.selector.js"></script>
@@ -139,7 +144,7 @@
         // var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
         // var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
 
-        //LocalStream with localStorage methods
+        // LocalStream with localStorage methods
         var storageKey = 'kidoju.integration';
         var LocalStream = Stream.define({
                 _fetchAll: function() {
@@ -536,13 +541,13 @@
             transport: {}
         });
 
-        //Create some dummy data
+        // Create some dummy data
         if (!window.localStorage.getItem(storageKey)) {
             window.localStorage.setItem(storageKey, kendo.stringify(streamData));
         }
 
-        //Define viewModel
-        var viewModel = kendo.observable({
+        // Define viewModel
+        var viewModel = window.viewModel = kendo.observable({
             stream: new LocalStream(),
             selectedPage: undefined,
             test: undefined,

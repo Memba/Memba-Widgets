@@ -1025,7 +1025,9 @@
                     text: TOOLBAR_MESSAGES.lowergreek.buttons.xi
                 },
                 {
-                    value: '\\omicron',
+                    // Omicron does not exist in LaTeX
+                    // see https://tex.stackexchange.com/questions/233257/omicron-not-working-in-latex
+                    value: 'o', // \\omicron',
                     iconClass: 'omicron',
                     text: TOOLBAR_MESSAGES.lowergreek.buttons.omicron
                 },

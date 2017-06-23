@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -908,44 +908,6 @@
             } else {
                 self.value(val);
             }
-        });
-        defadvice('ui.AutoComplete', '$angular_getLogicValue', function () {
-            var options = this.self.options;
-            var values = this.self.value().split(options.separator);
-            var valuePrimitive = options.valuePrimitive;
-            var data = this.self.listView.selectedDataItems();
-            var dataItems = [];
-            for (var idx = 0, length = data.length; idx < length; idx++) {
-                var item = data[idx];
-                var dataValue = options.dataTextField ? item[options.dataTextField] : item;
-                for (var j = 0; j < values.length; j++) {
-                    if (dataValue === values[j]) {
-                        if (valuePrimitive) {
-                            dataItems.push(dataValue);
-                        } else {
-                            dataItems.push(item.toJSON());
-                        }
-                        break;
-                    }
-                }
-            }
-            return dataItems;
-        });
-        defadvice('ui.AutoComplete', '$angular_setLogicValue', function (value) {
-            if (value == null) {
-                value = [];
-            }
-            var self = this.self, dataTextField = self.options.dataTextField;
-            if (dataTextField && !self.options.valuePrimitive) {
-                if (value.length !== undefined) {
-                    value = $.map(value, function (item) {
-                        return item[dataTextField];
-                    });
-                } else {
-                    value = value[dataTextField];
-                }
-            }
-            self.value(value);
         });
         defadvice('ui.Widget', '$angular_init', function (element, options) {
             var self = this.self;

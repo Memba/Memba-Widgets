@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -183,6 +183,7 @@
         var Segment = geometry.Segment;
         var dataviz = kendo.dataviz;
         var deepExtend = kendo.deepExtend;
+        var isFunction = kendo.isFunction;
         var __common_getter_js = kendo.getter;
         var X = 'x';
         var Y = 'y';
@@ -217,6 +218,7 @@
         var OBJECT = 'object';
         var DATE = 'date';
         var FORMAT_REGEX = /\{\d+:?/;
+        var HIGHLIGHT_ZINDEX = 100;
         var constants = {
             X: X,
             Y: Y,
@@ -250,7 +252,8 @@
             OBJECT: OBJECT,
             DATE: DATE,
             ARC: ARC,
-            FORMAT_REGEX: FORMAT_REGEX
+            FORMAT_REGEX: FORMAT_REGEX,
+            HIGHLIGHT_ZINDEX: HIGHLIGHT_ZINDEX
         };
         function isArray(value) {
             return Array.isArray(value);
@@ -340,6 +343,134 @@
             }
             return spacing;
         }
+        var defaultImplementation = {
+            format: function (format, value) {
+                return value;
+            },
+            toString: function (value) {
+                return value;
+            },
+            parseDate: function (value) {
+                return new Date(value);
+            }
+        };
+        var current = defaultImplementation;
+        var IntlService = Class.extend({});
+        IntlService.register = function (userImplementation) {
+            current = userImplementation;
+        };
+        if (Object.defineProperties) {
+            Object.defineProperties(IntlService, {
+                implementation: {
+                    get: function () {
+                        return current;
+                    }
+                }
+            });
+        }
+        var FORMAT_REPLACE_REGEX = /\{(\d+)(:[^\}]+)?\}/g;
+        var FormatService = Class.extend({
+            init: function (intlService) {
+                this._intlService = intlService;
+            },
+            auto: function (formatString) {
+                var values = [], len = arguments.length - 1;
+                while (len-- > 0)
+                    values[len] = arguments[len + 1];
+                var intl = this.intlService;
+                if (isString(formatString) && formatString.match(FORMAT_REGEX)) {
+                    return intl.format.apply(intl, [formatString].concat(values));
+                }
+                return intl.toString(values[0], formatString);
+            },
+            localeAuto: function (formatString, values, locale) {
+                var intl = this.intlService;
+                var result;
+                if (isString(formatString) && formatString.match(FORMAT_REGEX)) {
+                    result = formatString.replace(FORMAT_REPLACE_REGEX, function (match, index, placeholderFormat) {
+                        var value = values[parseInt(index, 10)];
+                        return intl.toString(value, placeholderFormat ? placeholderFormat.substring(1) : '', locale);
+                    });
+                } else {
+                    result = intl.toString(values[0], formatString, locale);
+                }
+                return result;
+            }
+        });
+        if (Object.defineProperties) {
+            Object.defineProperties(FormatService.fn, {
+                intlService: {
+                    get: function () {
+                        return this._intlService || IntlService.implementation;
+                    }
+                }
+            });
+        }
+        var ChartService = Class.extend({
+            init: function (chart, context) {
+                if (context === void 0) {
+                    context = {};
+                }
+                this._intlService = context.intlService;
+                this.sender = context.sender || chart;
+                this.format = new FormatService(context.intlService);
+                this.chart = chart;
+                this.rtl = context.rtl;
+            },
+            notify: function (name, args) {
+                this.chart.trigger(name, args);
+            }
+        });
+        if (Object.defineProperties) {
+            Object.defineProperties(ChartService.fn, {
+                intl: {
+                    get: function () {
+                        return this._intlService || IntlService.implementation;
+                    }
+                }
+            });
+        }
+        var current$1;
+        var DomEventsBuilder = Class.extend({});
+        DomEventsBuilder.register = function (userImplementation) {
+            current$1 = userImplementation;
+        };
+        DomEventsBuilder.create = function (element, events) {
+            if (current$1) {
+                return current$1.create(element, events);
+            }
+        };
+        var current$2 = {
+            compile: function (template) {
+                return template;
+            }
+        };
+        var TemplateService = Class.extend({});
+        TemplateService.register = function (userImplementation) {
+            current$2 = userImplementation;
+        };
+        TemplateService.compile = function (template) {
+            return current$2.compile(template);
+        };
+        var services = {
+            ChartService: ChartService,
+            DomEventsBuilder: DomEventsBuilder,
+            FormatService: FormatService,
+            IntlService: IntlService,
+            TemplateService: TemplateService
+        };
+        function getTemplate(options) {
+            if (options === void 0) {
+                options = {};
+            }
+            var template;
+            if (options.template) {
+                options.template = template = TemplateService.compile(options.template);
+            } else if (isFunction(options.content)) {
+                template = options.content;
+            }
+            return template;
+        }
         function grep(array, callback) {
             var length = array.length;
             var result = [];
@@ -404,9 +535,6 @@
                 }
             }
         });
-        function isFunction(fn) {
-            return typeof fn === 'function';
-        }
         function map(array, callback) {
             var length = array.length;
             var result = [];
@@ -1054,8 +1182,8 @@
             },
             toggleHighlight: function (show) {
                 var this$1 = this;
-                var options = (this.options || {}).highlight;
-                var customVisual = (options || {}).visual;
+                var options = (this.options || {}).highlight || {};
+                var customVisual = options.visual;
                 var highlight = this._highlight;
                 if (!highlight) {
                     var highlightOptions = {
@@ -1089,7 +1217,9 @@
                     } else {
                         highlight = this._highlight = this.createHighlight(highlightOptions);
                     }
-                    highlight.options.zIndex = this.options.zIndex;
+                    if (!defined(highlight.options.zIndex)) {
+                        highlight.options.zIndex = valueOrDefault(options.zIndex, HIGHLIGHT_ZINDEX);
+                    }
                     this.appendVisual(highlight);
                 }
                 highlight.visible(show);
@@ -1989,121 +2119,6 @@
             }
         });
         setDefaultOptions(AxisLabel, { _autoReflow: false });
-        var defaultImplementation = {
-            format: function (format, value) {
-                return value;
-            },
-            toString: function (value) {
-                return value;
-            },
-            parseDate: function (value) {
-                return new Date(value);
-            }
-        };
-        var current = defaultImplementation;
-        var IntlService = Class.extend({});
-        IntlService.register = function (userImplementation) {
-            current = userImplementation;
-        };
-        if (Object.defineProperties) {
-            Object.defineProperties(IntlService, {
-                implementation: {
-                    get: function () {
-                        return current;
-                    }
-                }
-            });
-        }
-        var FORMAT_REPLACE_REGEX = /\{(\d+)(:[^\}]+)?\}/g;
-        var FormatService = Class.extend({
-            init: function (intlService) {
-                this._intlService = intlService;
-            },
-            auto: function (formatString) {
-                var values = [], len = arguments.length - 1;
-                while (len-- > 0)
-                    values[len] = arguments[len + 1];
-                var intl = this.intlService;
-                if (formatString.match(FORMAT_REGEX)) {
-                    return intl.format.apply(intl, [formatString].concat(values));
-                }
-                return intl.toString(values[0], formatString);
-            },
-            localeAuto: function (formatString, values, locale) {
-                var intl = this.intlService;
-                var result;
-                if (formatString.match(FORMAT_REGEX)) {
-                    result = formatString.replace(FORMAT_REPLACE_REGEX, function (match, index, placeholderFormat) {
-                        var value = values[parseInt(index, 10)];
-                        return intl.toString(value, placeholderFormat ? placeholderFormat.substring(1) : '', locale);
-                    });
-                } else {
-                    result = intl.toString(values[0], formatString, locale);
-                }
-                return result;
-            }
-        });
-        if (Object.defineProperties) {
-            Object.defineProperties(FormatService.fn, {
-                intlService: {
-                    get: function () {
-                        return this._intlService || IntlService.implementation;
-                    }
-                }
-            });
-        }
-        var ChartService = Class.extend({
-            init: function (chart, context) {
-                if (context === void 0) {
-                    context = {};
-                }
-                this._intlService = context.intlService;
-                this.sender = context.sender || chart;
-                this.format = new FormatService(context.intlService);
-                this.chart = chart;
-            },
-            notify: function (name, args) {
-                this.chart.trigger(name, args);
-            }
-        });
-        if (Object.defineProperties) {
-            Object.defineProperties(ChartService.fn, {
-                intl: {
-                    get: function () {
-                        return this._intlService || IntlService.implementation;
-                    }
-                }
-            });
-        }
-        var current$1;
-        var DomEventsBuilder = Class.extend({});
-        DomEventsBuilder.register = function (userImplementation) {
-            current$1 = userImplementation;
-        };
-        DomEventsBuilder.create = function (element, events) {
-            if (current$1) {
-                return current$1.create(element, events);
-            }
-        };
-        var current$2 = {
-            compile: function (template) {
-                return template;
-            }
-        };
-        var TemplateService = Class.extend({});
-        TemplateService.register = function (userImplementation) {
-            current$2 = userImplementation;
-        };
-        TemplateService.compile = function (template) {
-            return current$2.compile(template);
-        };
-        var services = {
-            ChartService: ChartService,
-            DomEventsBuilder: DomEventsBuilder,
-            FormatService: FormatService,
-            IntlService: IntlService,
-            TemplateService: TemplateService
-        };
         var DEFAULT_ICON_SIZE = 7;
         var DEFAULT_LABEL_COLOR = '#fff';
         var Note = BoxElement.extend({
@@ -2129,8 +2144,8 @@
                     var text = this.fields.text;
                     var width, height;
                     if (defined(label) && label.visible) {
-                        if (label.template) {
-                            var noteTemplate = TemplateService.compile(label.template);
+                        var noteTemplate = getTemplate(label);
+                        if (noteTemplate) {
                             text = noteTemplate(this.fields);
                         } else if (label.format) {
                             text = this.chartService.format.auto(label.format, text);
@@ -2867,9 +2882,9 @@
                 this.box[pos + 2] -= this.lineBox()[pos + 2] - lineBox[pos + 2];
             },
             axisLabelText: function (value, dataItem, options) {
+                var tmpl = getTemplate(options);
                 var text = value;
-                if (options.template) {
-                    var tmpl = TemplateService.compile(options.template);
+                if (tmpl) {
                     text = tmpl({
                         value: value,
                         dataItem: dataItem,
@@ -2985,7 +3000,239 @@
             _alignLines: true,
             _deferLabels: false
         });
+        var MILLISECONDS = 'milliseconds';
+        var SECONDS = 'seconds';
+        var MINUTES = 'minutes';
+        var HOURS = 'hours';
+        var DAYS = 'days';
+        var WEEKS = 'weeks';
+        var MONTHS = 'months';
+        var YEARS = 'years';
+        var TIME_PER_MILLISECOND = 1;
+        var TIME_PER_SECOND = 1000;
+        var TIME_PER_MINUTE = 60 * TIME_PER_SECOND;
+        var TIME_PER_HOUR = 60 * TIME_PER_MINUTE;
+        var TIME_PER_DAY = 24 * TIME_PER_HOUR;
+        var TIME_PER_WEEK = 7 * TIME_PER_DAY;
+        var TIME_PER_MONTH = 31 * TIME_PER_DAY;
+        var TIME_PER_YEAR = 365 * TIME_PER_DAY;
+        var TIME_PER_UNIT = {
+            'years': TIME_PER_YEAR,
+            'months': TIME_PER_MONTH,
+            'weeks': TIME_PER_WEEK,
+            'days': TIME_PER_DAY,
+            'hours': TIME_PER_HOUR,
+            'minutes': TIME_PER_MINUTE,
+            'seconds': TIME_PER_SECOND,
+            'milliseconds': TIME_PER_MILLISECOND
+        };
+        function absoluteDateDiff(a, b) {
+            var diff = a.getTime() - b;
+            var offsetDiff = a.getTimezoneOffset() - b.getTimezoneOffset();
+            return diff - offsetDiff * TIME_PER_MINUTE;
+        }
+        function addTicks(date, ticks) {
+            return new Date(date.getTime() + ticks);
+        }
+        function toDate(value) {
+            var result;
+            if (value instanceof Date) {
+                result = value;
+            } else if (value) {
+                result = new Date(value);
+            }
+            return result;
+        }
+        function startOfWeek(date, weekStartDay) {
+            if (weekStartDay === void 0) {
+                weekStartDay = 0;
+            }
+            var daysToSubtract = 0;
+            var day = date.getDay();
+            if (!isNaN(day)) {
+                while (day !== weekStartDay) {
+                    if (day === 0) {
+                        day = 6;
+                    } else {
+                        day--;
+                    }
+                    daysToSubtract++;
+                }
+            }
+            return addTicks(date, -daysToSubtract * TIME_PER_DAY);
+        }
+        function adjustDST(date, hours) {
+            if (hours === 0 && date.getHours() === 23) {
+                date.setHours(date.getHours() + 2);
+                return true;
+            }
+            return false;
+        }
+        function addHours(date, hours) {
+            var roundedDate = new Date(date);
+            roundedDate.setMinutes(0, 0, 0);
+            var tzDiff = (date.getTimezoneOffset() - roundedDate.getTimezoneOffset()) * TIME_PER_MINUTE;
+            return addTicks(roundedDate, tzDiff + hours * TIME_PER_HOUR);
+        }
+        function addDuration(dateValue, value, unit, weekStartDay) {
+            var result = dateValue;
+            if (dateValue) {
+                var date = toDate(dateValue);
+                var hours = date.getHours();
+                if (unit === YEARS) {
+                    result = new Date(date.getFullYear() + value, 0, 1);
+                    adjustDST(result, 0);
+                } else if (unit === MONTHS) {
+                    result = new Date(date.getFullYear(), date.getMonth() + value, 1);
+                    adjustDST(result, hours);
+                } else if (unit === WEEKS) {
+                    result = addDuration(startOfWeek(date, weekStartDay), value * 7, DAYS);
+                    adjustDST(result, hours);
+                } else if (unit === DAYS) {
+                    result = new Date(date.getFullYear(), date.getMonth(), date.getDate() + value);
+                    adjustDST(result, hours);
+                } else if (unit === HOURS) {
+                    result = addHours(date, value);
+                } else if (unit === MINUTES) {
+                    result = addTicks(date, value * TIME_PER_MINUTE);
+                    if (result.getSeconds() > 0) {
+                        result.setSeconds(0);
+                    }
+                } else if (unit === SECONDS) {
+                    result = addTicks(date, value * TIME_PER_SECOND);
+                } else if (unit === MILLISECONDS) {
+                    result = addTicks(date, value);
+                }
+                if (unit !== MILLISECONDS && result.getMilliseconds() > 0) {
+                    result.setMilliseconds(0);
+                }
+            }
+            return result;
+        }
+        function floorDate(date, unit, weekStartDay) {
+            return addDuration(toDate(date), 0, unit, weekStartDay);
+        }
+        function ceilDate(dateValue, unit, weekStartDay) {
+            var date = toDate(dateValue);
+            if (date && floorDate(date, unit, weekStartDay).getTime() === date.getTime()) {
+                return date;
+            }
+            return addDuration(date, 1, unit, weekStartDay);
+        }
+        function dateComparer(a, b) {
+            if (a && b) {
+                return a.getTime() - b.getTime();
+            }
+            return -1;
+        }
+        function dateDiff(a, b) {
+            return a.getTime() - b;
+        }
+        function toTime(value) {
+            if (isArray(value)) {
+                var result = [];
+                for (var idx = 0; idx < value.length; idx++) {
+                    result.push(toTime(value[idx]));
+                }
+                return result;
+            } else if (value) {
+                return toDate(value).getTime();
+            }
+        }
+        function dateEquals(a, b) {
+            if (a && b) {
+                return toTime(a) === toTime(b);
+            }
+            return a === b;
+        }
+        function timeIndex(date, start, baseUnit) {
+            return absoluteDateDiff(date, start) / TIME_PER_UNIT[baseUnit];
+        }
+        function dateIndex(value, start, baseUnit, baseUnitStep) {
+            var date = toDate(value);
+            var startDate = toDate(start);
+            var index;
+            if (baseUnit === MONTHS) {
+                index = date.getMonth() - startDate.getMonth() + (date.getFullYear() - startDate.getFullYear()) * 12 + timeIndex(date, new Date(date.getFullYear(), date.getMonth()), DAYS) / new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+            } else if (baseUnit === YEARS) {
+                index = date.getFullYear() - startDate.getFullYear() + dateIndex(date, new Date(date.getFullYear(), 0), MONTHS, 1) / 12;
+            } else if (baseUnit === DAYS || baseUnit === WEEKS) {
+                index = timeIndex(date, startDate, baseUnit);
+            } else {
+                index = dateDiff(date, start) / TIME_PER_UNIT[baseUnit];
+            }
+            return index / baseUnitStep;
+        }
+        function duration(a, b, unit) {
+            var diff;
+            if (unit === YEARS) {
+                diff = b.getFullYear() - a.getFullYear();
+            } else if (unit === MONTHS) {
+                diff = duration(a, b, YEARS) * 12 + b.getMonth() - a.getMonth();
+            } else if (unit === DAYS) {
+                diff = Math.floor(dateDiff(b, a) / TIME_PER_DAY);
+            } else {
+                diff = Math.floor(dateDiff(b, a) / TIME_PER_UNIT[unit]);
+            }
+            return diff;
+        }
+        function lteDateIndex(date, sortedDates) {
+            var low = 0;
+            var high = sortedDates.length - 1;
+            var index;
+            while (low <= high) {
+                index = Math.floor((low + high) / 2);
+                var currentDate = sortedDates[index];
+                if (currentDate < date) {
+                    low = index + 1;
+                    continue;
+                }
+                if (currentDate > date) {
+                    high = index - 1;
+                    continue;
+                }
+                while (dateEquals(sortedDates[index - 1], date)) {
+                    index--;
+                }
+                return index;
+            }
+            if (sortedDates[index] <= date) {
+                return index;
+            }
+            return index - 1;
+        }
+        function parseDate(intlService, date) {
+            var result;
+            if (isString(date)) {
+                result = intlService.parseDate(date) || toDate(date);
+            } else {
+                result = toDate(date);
+            }
+            return result;
+        }
+        function parseDates(intlService, dates) {
+            if (isArray(dates)) {
+                var result = [];
+                for (var idx = 0; idx < dates.length; idx++) {
+                    result.push(parseDate(intlService, dates[idx]));
+                }
+                return result;
+            }
+            return parseDate(intlService, dates);
+        }
         var MIN_CATEGORY_POINTS_RANGE = 0.01;
+        function indexOf(value, arr) {
+            if (value instanceof Date) {
+                var length = arr.length;
+                for (var idx = 0; idx < length; idx++) {
+                    if (dateEquals(arr[idx], value)) {
+                        return idx;
+                    }
+                }
+                return -1;
+            }
+            return arr.indexOf(value);
+        }
         var CategoryAxis = Axis.extend({
             init: function (options, chartService) {
                 Axis.fn.init.call(this, options, chartService);
@@ -3230,7 +3477,7 @@
             },
             categoryIndex: function (value) {
                 var options = this.options;
-                var index = (options.srcCategories || options.categories).indexOf(value);
+                var index = indexOf(value, options.srcCategories || options.categories);
                 return index - Math.floor(options.min || 0);
             },
             translateRange: function (delta) {
@@ -3381,228 +3628,9 @@
             justified: false,
             _deferLabels: true
         });
-        var MILLISECONDS = 'milliseconds';
-        var SECONDS = 'seconds';
-        var MINUTES = 'minutes';
-        var HOURS = 'hours';
-        var DAYS = 'days';
-        var WEEKS = 'weeks';
-        var MONTHS = 'months';
-        var YEARS = 'years';
-        var TIME_PER_MILLISECOND = 1;
-        var TIME_PER_SECOND = 1000;
-        var TIME_PER_MINUTE = 60 * TIME_PER_SECOND;
-        var TIME_PER_HOUR = 60 * TIME_PER_MINUTE;
-        var TIME_PER_DAY = 24 * TIME_PER_HOUR;
-        var TIME_PER_WEEK = 7 * TIME_PER_DAY;
-        var TIME_PER_MONTH = 31 * TIME_PER_DAY;
-        var TIME_PER_YEAR = 365 * TIME_PER_DAY;
-        var TIME_PER_UNIT = {
-            'years': TIME_PER_YEAR,
-            'months': TIME_PER_MONTH,
-            'weeks': TIME_PER_WEEK,
-            'days': TIME_PER_DAY,
-            'hours': TIME_PER_HOUR,
-            'minutes': TIME_PER_MINUTE,
-            'seconds': TIME_PER_SECOND,
-            'milliseconds': TIME_PER_MILLISECOND
-        };
-        function absoluteDateDiff(a, b) {
-            var diff = a.getTime() - b;
-            var offsetDiff = a.getTimezoneOffset() - b.getTimezoneOffset();
-            return diff - offsetDiff * TIME_PER_MINUTE;
-        }
-        function addTicks(date, ticks) {
-            return new Date(date.getTime() + ticks);
-        }
-        function toDate(value) {
-            var result;
-            if (value instanceof Date) {
-                result = value;
-            } else if (value) {
-                result = new Date(value);
-            }
-            return result;
-        }
-        function startOfWeek(date, weekStartDay) {
-            if (weekStartDay === void 0) {
-                weekStartDay = 0;
-            }
-            var daysToSubtract = 0;
-            var day = date.getDay();
-            if (!isNaN(day)) {
-                while (day !== weekStartDay) {
-                    if (day === 0) {
-                        day = 6;
-                    } else {
-                        day--;
-                    }
-                    daysToSubtract++;
-                }
-            }
-            return addTicks(date, -daysToSubtract * TIME_PER_DAY);
-        }
-        function adjustDST(date, hours) {
-            if (hours === 0 && date.getHours() === 23) {
-                date.setHours(date.getHours() + 2);
-                return true;
-            }
-            return false;
-        }
-        function addHours(date, hours) {
-            var roundedDate = new Date(date);
-            roundedDate.setMinutes(0, 0, 0);
-            var tzDiff = (date.getTimezoneOffset() - roundedDate.getTimezoneOffset()) * TIME_PER_MINUTE;
-            return addTicks(roundedDate, tzDiff + hours * TIME_PER_HOUR);
-        }
-        function addDuration(dateValue, value, unit, weekStartDay) {
-            var result = dateValue;
-            if (dateValue) {
-                var date = toDate(dateValue);
-                var hours = date.getHours();
-                if (unit === YEARS) {
-                    result = new Date(date.getFullYear() + value, 0, 1);
-                    adjustDST(result, 0);
-                } else if (unit === MONTHS) {
-                    result = new Date(date.getFullYear(), date.getMonth() + value, 1);
-                    adjustDST(result, hours);
-                } else if (unit === WEEKS) {
-                    result = addDuration(startOfWeek(date, weekStartDay), value * 7, DAYS);
-                    adjustDST(result, hours);
-                } else if (unit === DAYS) {
-                    result = new Date(date.getFullYear(), date.getMonth(), date.getDate() + value);
-                    adjustDST(result, hours);
-                } else if (unit === HOURS) {
-                    result = addHours(date, value);
-                } else if (unit === MINUTES) {
-                    result = addTicks(date, value * TIME_PER_MINUTE);
-                    if (result.getSeconds() > 0) {
-                        result.setSeconds(0);
-                    }
-                } else if (unit === SECONDS) {
-                    result = addTicks(date, value * TIME_PER_SECOND);
-                } else if (unit === MILLISECONDS) {
-                    result = addTicks(date, value);
-                }
-                if (unit !== MILLISECONDS && result.getMilliseconds() > 0) {
-                    result.setMilliseconds(0);
-                }
-            }
-            return result;
-        }
-        function floorDate(date, unit, weekStartDay) {
-            return addDuration(toDate(date), 0, unit, weekStartDay);
-        }
-        function ceilDate(dateValue, unit, weekStartDay) {
-            var date = toDate(dateValue);
-            if (date && floorDate(date, unit, weekStartDay).getTime() === date.getTime()) {
-                return date;
-            }
-            return addDuration(date, 1, unit, weekStartDay);
-        }
-        function dateComparer(a, b) {
-            if (a && b) {
-                return a.getTime() - b.getTime();
-            }
-            return -1;
-        }
-        function dateDiff(a, b) {
-            return a.getTime() - b;
-        }
-        function toTime(value) {
-            if (isArray(value)) {
-                var result = [];
-                for (var idx = 0; idx < value.length; idx++) {
-                    result.push(toTime(value[idx]));
-                }
-                return result;
-            } else if (value) {
-                return toDate(value).getTime();
-            }
-        }
-        function dateEquals(a, b) {
-            if (a && b) {
-                return toTime(a) === toTime(b);
-            }
-            return a === b;
-        }
-        function timeIndex(date, start, baseUnit) {
-            return absoluteDateDiff(date, start) / TIME_PER_UNIT[baseUnit];
-        }
-        function dateIndex(value, start, baseUnit, baseUnitStep) {
-            var date = toDate(value);
-            var startDate = toDate(start);
-            var index;
-            if (baseUnit === MONTHS) {
-                index = date.getMonth() - startDate.getMonth() + (date.getFullYear() - startDate.getFullYear()) * 12 + timeIndex(date, new Date(date.getFullYear(), date.getMonth()), DAYS) / new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-            } else if (baseUnit === YEARS) {
-                index = date.getFullYear() - startDate.getFullYear() + dateIndex(date, new Date(date.getFullYear(), 0), MONTHS, 1) / 12;
-            } else if (baseUnit === DAYS || baseUnit === WEEKS) {
-                index = timeIndex(date, startDate, baseUnit);
-            } else {
-                index = dateDiff(date, start) / TIME_PER_UNIT[baseUnit];
-            }
-            return index / baseUnitStep;
-        }
-        function duration(a, b, unit) {
-            var diff;
-            if (unit === YEARS) {
-                diff = b.getFullYear() - a.getFullYear();
-            } else if (unit === MONTHS) {
-                diff = duration(a, b, YEARS) * 12 + b.getMonth() - a.getMonth();
-            } else if (unit === DAYS) {
-                diff = Math.floor(dateDiff(b, a) / TIME_PER_DAY);
-            } else {
-                diff = Math.floor(dateDiff(b, a) / TIME_PER_UNIT[unit]);
-            }
-            return diff;
-        }
-        function lteDateIndex(date, sortedDates) {
-            var low = 0;
-            var high = sortedDates.length - 1;
-            var index;
-            while (low <= high) {
-                index = Math.floor((low + high) / 2);
-                var currentDate = sortedDates[index];
-                if (currentDate < date) {
-                    low = index + 1;
-                    continue;
-                }
-                if (currentDate > date) {
-                    high = index - 1;
-                    continue;
-                }
-                while (dateEquals(sortedDates[index - 1], date)) {
-                    index--;
-                }
-                return index;
-            }
-            if (sortedDates[index] <= date) {
-                return index;
-            }
-            return index - 1;
-        }
-        function parseDate(intlService, date) {
-            var result;
-            if (isString(date)) {
-                result = intlService.parseDate(date) || toDate(date);
-            } else {
-                result = toDate(date);
-            }
-            return result;
-        }
-        function parseDates(intlService, dates) {
-            if (isArray(dates)) {
-                var result = [];
-                for (var idx = 0; idx < dates.length; idx++) {
-                    result.push(parseDate(intlService, dates[idx]));
-                }
-                return result;
-            }
-            return parseDate(intlService, dates);
-        }
         var COORDINATE_LIMIT = 300000;
         var DateLabelFormats = {
+            milliseconds: 'HH:mm:ss.fff',
             seconds: 'HH:mm:ss',
             minutes: 'HH:mm',
             hours: 'HH:mm',
@@ -5861,6 +5889,7 @@
             deepExtend: deepExtend,
             elementStyles: elementStyles,
             getSpacing: getSpacing,
+            getTemplate: getTemplate,
             getter: __common_getter_js,
             grep: grep,
             hasClasses: hasClasses,

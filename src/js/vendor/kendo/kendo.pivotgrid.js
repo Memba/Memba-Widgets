@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1802,14 +1802,11 @@
             }
             var measuresLength = Math.max(measures.length, 1);
             var tuples = tuple.members.slice(0, memberIndex);
-            var counter = measuresLength;
             var current = tuples.shift();
-            if (measuresLength > 1) {
-                measuresLength += 1;
-            }
+            var counter = measuresLength;
             while (current) {
                 if (current.name === MEASURES) {
-                    counter += measuresLength;
+                    counter += measuresLength - 1;
                 } else if (current.children) {
                     [].push.apply(tuples, current.children);
                 } else {

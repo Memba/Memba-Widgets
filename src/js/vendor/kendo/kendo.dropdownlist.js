@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -859,7 +859,7 @@
                     idx = -1;
                 }
                 this._resetOptionLabel(' k-state-selected');
-                if (dataItem) {
+                if (dataItem || dataItem === 0) {
                     text = dataItem;
                     value = that._dataValue(dataItem);
                     if (optionLabel) {

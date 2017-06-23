@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3362,7 +3362,12 @@
                     hasChildren = kendo.getter(hasChildren);
                 }
                 if (isFunction(hasChildren)) {
-                    that.hasChildren = !!hasChildren.call(that, that);
+                    var hasChildrenObject = hasChildren.call(that, that);
+                    if (hasChildrenObject && hasChildrenObject.length === 0) {
+                        that.hasChildren = false;
+                    } else {
+                        that.hasChildren = !!hasChildrenObject;
+                    }
                 }
                 that._childrenOptions = childrenOptions;
                 if (that.hasChildren) {
@@ -3476,7 +3481,7 @@
         var HierarchicalDataSource = DataSource.extend({
             init: function (options) {
                 var node = Node.define({ children: options });
-                if (options.filter) {
+                if (options.filter && !options.serverFiltering) {
                     this._hierarchicalFilter = options.filter;
                     options.filter = null;
                 }

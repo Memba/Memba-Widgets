@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -94,6 +94,18 @@
                     }
                 }
                 dir = element.attr(kendo.attr(DIR));
+                if (element.is('th')) {
+                    var table = element.closest('table');
+                    if (table.parent().hasClass('k-grid-header-wrap')) {
+                        table = table.closest('.k-grid').find('.k-grid-content > table');
+                    } else if (!table.parent().hasClass('k-grid')) {
+                        table = null;
+                    }
+                    if (table) {
+                        element.toggleClass('k-sorted', dir !== undefined);
+                        table.children('colgroup').children().eq(element.index()).toggleClass('k-sorted', dir !== undefined);
+                    }
+                }
                 element.find('.k-i-sort-asc-sm,.k-i-sort-desc-sm,.k-sort-order').remove();
                 if (dir === ASC) {
                     $('<span class="k-icon k-i-sort-asc-sm" />').appendTo(that.link);

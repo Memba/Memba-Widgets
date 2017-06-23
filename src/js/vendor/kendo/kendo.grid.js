@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -280,7 +280,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, DataSource = kendo.data.DataSource, tbodySupportsInnerHtml = kendo.support.tbodyInnerHtml, activeElement = kendo._activeElement, Widget = ui.Widget, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, keys = kendo.keys, isPlainObject = $.isPlainObject, extend = $.extend, map = $.map, grep = $.grep, isArray = $.isArray, inArray = $.inArray, push = Array.prototype.push, proxy = $.proxy, isFunction = kendo.isFunction, isEmptyObject = $.isEmptyObject, math = Math, PROGRESS = 'progress', ERROR = 'error', DATA_CELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', SELECTION_CELL_SELECTOR = 'tbody>tr:not(.k-grouping-row):not(.k-detail-row):not(.k-group-footer) > td:not(.k-group-cell):not(.k-hierarchy-cell)', NAVROW = 'tr:not(.k-footer-template):visible', NAVCELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', FIRSTNAVITEM = NAVROW + ':first>' + NAVCELL + ':first', HEADERCELLS = 'th.k-header:not(.k-group-cell):not(.k-hierarchy-cell)', NS = '.kendoGrid', EDIT = 'edit', BEFOREEDIT = 'beforeEdit', SAVE = 'save', REMOVE = 'remove', DETAILINIT = 'detailInit', FILTERMENUINIT = 'filterMenuInit', COLUMNMENUINIT = 'columnMenuInit', FILTERMENUOPEN = 'filterMenuOpen', COLUMNMENUOPEN = 'columnMenuOpen', CELLCLOSE = 'cellClose', CHANGE = 'change', COLUMNHIDE = 'columnHide', COLUMNSHOW = 'columnShow', SAVECHANGES = 'saveChanges', DATABOUND = 'dataBound', DETAILEXPAND = 'detailExpand', DETAILCOLLAPSE = 'detailCollapse', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', NORECORDSCLASS = 'k-grid-norecords', COLUMNRESIZE = 'columnResize', COLUMNREORDER = 'columnReorder', COLUMNLOCK = 'columnLock', COLUMNUNLOCK = 'columnUnlock', NAVIGATE = 'navigate', CLICK = 'click', HEIGHT = 'height', TABINDEX = 'tabIndex', FUNCTION = 'function', STRING = 'string', DELETECONFIRM = 'Are you sure you want to delete this record?', NORECORDS = 'No records available.', CONFIRMDELETE = 'Delete', CANCELDELETE = 'Cancel', COLLAPSE = 'Collapse', EXPAND = 'Expand', ARIALABEL = 'aria-label', formatRegExp = /(\}|\#)/gi, templateHashRegExp = /#/gi, whitespaceRegExp = '[\\x20\\t\\r\\n\\f]', nonDataCellsRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-group-cell|k-hierarchy-cell)' + '(' + whitespaceRegExp + '|$)'), filterRowRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-filter-row)' + '(' + whitespaceRegExp + '|$)'), COMMANDBUTTONTMPL = '<a role="button" class="k-button k-button-icontext #=className#" #=attr# href="\\#"><span class="#=iconClass# #=imageClass#"></span>#=text#</a>', isRtl = false, browser = kendo.support.browser, isIE7 = browser.msie && browser.version == 7, isIE8 = browser.msie && browser.version == 8;
+        var kendo = window.kendo, ui = kendo.ui, DataSource = kendo.data.DataSource, tbodySupportsInnerHtml = kendo.support.tbodyInnerHtml, activeElement = kendo._activeElement, Widget = ui.Widget, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, keys = kendo.keys, isPlainObject = $.isPlainObject, extend = $.extend, map = $.map, grep = $.grep, isArray = $.isArray, inArray = $.inArray, push = Array.prototype.push, proxy = $.proxy, isFunction = kendo.isFunction, isEmptyObject = $.isEmptyObject, math = Math, PROGRESS = 'progress', ERROR = 'error', DATA_CELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', SELECTION_CELL_SELECTOR = 'tbody>tr:not(.k-grouping-row):not(.k-detail-row):not(.k-group-footer) > td:not(.k-group-cell):not(.k-hierarchy-cell)', NAVROW = 'tr:not(.k-footer-template):visible', NAVCELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', ITEMROW = 'tr:not(.k-grouping-row):not(.k-detail-row):not(.k-footer-template):not(.k-group-footer):visible', FIRSTNAVITEM = NAVROW + ':first>' + NAVCELL + ':first', HEADERCELLS = 'th.k-header:not(.k-group-cell):not(.k-hierarchy-cell)', NS = '.kendoGrid', EDIT = 'edit', BEFOREEDIT = 'beforeEdit', SAVE = 'save', REMOVE = 'remove', DETAILINIT = 'detailInit', FILTERMENUINIT = 'filterMenuInit', COLUMNMENUINIT = 'columnMenuInit', FILTERMENUOPEN = 'filterMenuOpen', COLUMNMENUOPEN = 'columnMenuOpen', CELLCLOSE = 'cellClose', CHANGE = 'change', COLUMNHIDE = 'columnHide', COLUMNSHOW = 'columnShow', SAVECHANGES = 'saveChanges', DATABOUND = 'dataBound', DETAILEXPAND = 'detailExpand', DETAILCOLLAPSE = 'detailCollapse', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', CHECKBOX = 'k-checkbox', CHECKBOXINPUT = 'input[data-role=\'checkbox\'].' + CHECKBOX, NORECORDSCLASS = 'k-grid-norecords', COLUMNRESIZE = 'columnResize', COLUMNREORDER = 'columnReorder', COLUMNLOCK = 'columnLock', COLUMNUNLOCK = 'columnUnlock', NAVIGATE = 'navigate', CLICK = 'click', HEIGHT = 'height', TABINDEX = 'tabIndex', FUNCTION = 'function', STRING = 'string', DELETECONFIRM = 'Are you sure you want to delete this record?', NORECORDS = 'No records available.', CONFIRMDELETE = 'Delete', CANCELDELETE = 'Cancel', COLLAPSE = 'Collapse', EXPAND = 'Expand', ARIALABEL = 'aria-label', formatRegExp = /(\}|\#)/gi, templateHashRegExp = /#/gi, whitespaceRegExp = '[\\x20\\t\\r\\n\\f]', nonDataCellsRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-group-cell|k-hierarchy-cell)' + '(' + whitespaceRegExp + '|$)'), filterRowRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-filter-row)' + '(' + whitespaceRegExp + '|$)'), COMMANDBUTTONTMPL = '# if (iconClass) {#' + '<a role="button" class="k-button k-button-icontext #=className#" #=attr# href="\\#"><span class="#=iconClass# #=imageClass#"></span>#=text#</a>' + '# } else { #' + '<a role="button" class="k-button k-button-icontext #=className#" #=attr# href="\\#">#=text#</a>' + '# } #', SELECTCOLUMNTMPL = '<input class="' + CHECKBOX + '" data-role="checkbox" aria-label="Select row" aria-checked="false" type="checkbox"><label class="k-checkbox-label k-no-text">&\\#8203;</label>', SELECTCOLUMNHEADERTMPL = '<input class="' + CHECKBOX + '" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox"><label class="k-checkbox-label k-no-text">&#8203;</label>', isRtl = false, browser = kendo.support.browser, isIE7 = browser.msie && browser.version == 7, isIE8 = browser.msie && browser.version == 8;
         var VirtualScrollable = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -2461,7 +2461,7 @@
                             var cell = $(this);
                             var column = leafColumns(that.columns)[that.cellIndex(cell)];
                             model = that._modelForContainer(cell);
-                            if (model && (!model.editable || model.editable(column.field)) && column.field) {
+                            if (model && (!model.editable || model.editable(column.field)) && column.field && !column.selectable) {
                                 that.editCell(cell);
                                 return false;
                             }
@@ -2544,6 +2544,9 @@
                 } else {
                     for (idx = 0, length = columns.length; idx < length; idx++) {
                         column = columns[idx];
+                        if (column.selectable) {
+                            continue;
+                        }
                         if (!column.command) {
                             html += '<div class="k-edit-label"><label for="' + column.field + '">' + (column.title || column.field || '') + '</label></div>';
                             if (isColumnEditable(column, model)) {
@@ -2795,7 +2798,9 @@
                             data: angularData
                         };
                     });
-                    if (isSelected && that.options.selectable) {
+                    if (isSelected && (that.options.selectable || !!$.grep(leafColumns(that.columns), function (col) {
+                            return col.selectable;
+                        }).length)) {
                         that.select(newRow.add(related));
                     }
                     if (related) {
@@ -3087,20 +3092,7 @@
                         multiple: multi,
                         change: function () {
                             if (that.options.persistSelection && !cell) {
-                                var key, dataItem, allRows = that.tbody.children(':not(.k-grouping-row,.k-detail-row)'), modelId = dataSourceOptions.schema.model.id, selectedViewIds = {};
-                                this.value().each(function () {
-                                    dataItem = that.dataItem(this);
-                                    selectedViewIds[dataItem[modelId]] = true;
-                                });
-                                for (var i = 0; i < allRows.length; i++) {
-                                    dataItem = that.dataItem(allRows[i]);
-                                    key = dataItem[modelId];
-                                    if (selectedViewIds[key]) {
-                                        that._selectedIds[key] = true;
-                                    } else {
-                                        delete that._selectedIds[key];
-                                    }
-                                }
+                                that._persistSelectedRows();
                             }
                             that.trigger(CHANGE);
                         },
@@ -3127,7 +3119,7 @@
                         elements.on('keydown' + NS, function (e) {
                             var current = that.current();
                             var target = e.target;
-                            if (e.keyCode === keys.SPACEBAR && $.inArray(target, elements) > -1 && !current.is('.k-edit-cell,.k-header') && current.parent().is(':not(.k-grouping-row,.k-detail-row,.k-group-footer)')) {
+                            if (e.keyCode === keys.SPACEBAR && !e.shiftKey && $.inArray(target, elements) > -1 && !current.is('.k-edit-cell,.k-header') && current.parent().is(':not(.k-grouping-row,.k-detail-row,.k-group-footer)')) {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 current = cell ? current : current.parent();
@@ -3147,7 +3139,26 @@
                                 } else {
                                     that.selectable.clear();
                                 }
+                                if (!cell) {
+                                    that.selectable._lastActive = current;
+                                }
                                 that.selectable.value(current);
+                            } else if (!cell && (e.shiftKey && e.keyCode == keys.LEFT || e.shiftKey && e.keyCode == keys.RIGHT || e.shiftKey && e.keyCode == keys.UP || e.shiftKey && e.keyCode == keys.DOWN || e.keyCode === keys.SPACEBAR && e.shiftKey)) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                current = current.parent();
+                                if (isLocked) {
+                                    current = current.add(that._relatedRow(current));
+                                }
+                                if (multi) {
+                                    if (!that.selectable._lastActive) {
+                                        that.selectable._lastActive = current;
+                                    }
+                                    that.selectable.selectRange(that.selectable._firstSelectee(), current);
+                                } else {
+                                    that.selectable.clear();
+                                    that.selectable.value(current);
+                                }
                             }
                         });
                     }
@@ -3315,14 +3326,24 @@
             },
             clearSelection: function () {
                 var that = this;
-                that.selectable.clear();
+                if (that.selectable) {
+                    that.selectable.clear();
+                }
+                if ($.grep(leafColumns(that.columns), function (col) {
+                        return col.selectable;
+                    }).length) {
+                    that._deselectCheckRows(that.select());
+                }
+                if (that.options.persistSelection) {
+                    that._persistSelectedRows();
+                }
                 that.trigger(CHANGE);
             },
             select: function (items) {
                 var that = this, selectable = that.selectable;
                 items = that.table.add(that.lockedTable).find(items);
                 if (items.length) {
-                    if (!selectable.options.multiple) {
+                    if (selectable && !selectable.options.multiple) {
                         selectable.clear();
                         items = items.first();
                     }
@@ -3331,10 +3352,59 @@
                             return that._relatedRow(this);
                         }));
                     }
-                    selectable.value(items);
+                    if (selectable) {
+                        selectable.value(items);
+                    } else {
+                        items.each(function () {
+                            $(this).addClass(SELECTED).find(CHECKBOXINPUT).prop('checked', true).attr('aria-label', 'Deselect row').attr('aria-checked', true);
+                        });
+                        if (that.select().length === that.items().length) {
+                            that._toggleHeaderCheckState(true);
+                        }
+                        if (that.options.persistSelection) {
+                            that._persistSelectedRows();
+                        }
+                        that.trigger(CHANGE);
+                    }
                     return;
                 }
-                return selectable.value();
+                return selectable ? selectable.value() : that.items().filter('.' + SELECTED);
+            },
+            _toggleHeaderCheckState: function (checked) {
+                var that = this;
+                if (checked) {
+                    that.thead.add(that.lockedHeader).find('tr ' + CHECKBOXINPUT).prop('checked', true).attr('aria-checked', true).attr('aria-label', 'Deselect all rows');
+                } else {
+                    that.thead.add(that.lockedHeader).find('tr ' + CHECKBOXINPUT).prop('checked', false).attr('aria-checked', false).attr('aria-label', 'Select all rows');
+                }
+            },
+            _deselectCheckRows: function (items) {
+                var that = this;
+                items = that.table.add(that.lockedTable).find(items);
+                items.each(function () {
+                    $(this).removeClass(SELECTED).find(CHECKBOXINPUT).attr('aria-checked', false).prop('checked', false).attr('aria-label', 'Select row');
+                });
+                that._toggleHeaderCheckState(false);
+                if (that.options.persistSelection) {
+                    that._persistSelectedRows();
+                }
+                that.trigger(CHANGE);
+            },
+            _persistSelectedRows: function () {
+                var that = this, key, dataItem, allRows = that.items(), dataSourceOptions = that.dataSource.options, modelId = dataSourceOptions.schema.model.id, selectedViewIds = {};
+                that.select().each(function () {
+                    dataItem = that.dataItem(this);
+                    selectedViewIds[dataItem[modelId]] = true;
+                });
+                for (var i = 0; i < allRows.length; i++) {
+                    dataItem = that.dataItem(allRows[i]);
+                    key = dataItem[modelId];
+                    if (selectedViewIds[key]) {
+                        that._selectedIds[key] = true;
+                    } else {
+                        delete that._selectedIds[key];
+                    }
+                }
             },
             selectedKeyNames: function () {
                 var that = this, ids = [];
@@ -3506,16 +3576,16 @@
                 }
                 var handled = false;
                 if (canHandle && e.keyCode == keys.UP) {
-                    handled = this._moveUp(current);
+                    handled = this._moveUp(current, e.shiftKey);
                 }
                 if (canHandle && e.keyCode == keys.DOWN) {
-                    handled = this._moveDown(current);
+                    handled = this._moveDown(current, e.shiftKey);
                 }
                 if (canHandle && e.keyCode == (isRtl ? keys.LEFT : keys.RIGHT)) {
-                    handled = this._moveRight(current, e.altKey);
+                    handled = this._moveRight(current, e.altKey, e.shiftKey, e.currentTarget);
                 }
                 if (canHandle && e.keyCode == (isRtl ? keys.RIGHT : keys.LEFT)) {
-                    handled = this._moveLeft(current, e.altKey);
+                    handled = this._moveLeft(current, e.altKey, e.shiftKey, e.currentTarget);
                 }
                 if (canHandle && e.keyCode == keys.PAGEDOWN) {
                     handled = this._handlePageDown();
@@ -3537,7 +3607,7 @@
                     e.stopPropagation();
                 }
             },
-            _moveLeft: function (current, altKey) {
+            _moveLeft: function (current, altKey, shiftKey, currentTable) {
                 var next, index;
                 var row = current.parent();
                 var container = row.parent();
@@ -3547,17 +3617,29 @@
                     index = container.find(NAVROW).index(row);
                     next = this._prevHorizontalCell(container, current, index);
                     if (!next[0]) {
-                        container = this._horizontalContainer(container);
-                        next = this._prevHorizontalCell(container, current, index);
-                        if (next[0] !== current[0]) {
-                            focusTable(container.parent(), true);
+                        if (shiftKey) {
+                            if (this.lockedTable) {
+                                next = this._relatedRow(row);
+                                if ($.contains(this.lockedTable[0], row[0])) {
+                                    next = next.prevAll(ITEMROW + ':first');
+                                }
+                                next = next.children(DATA_CELL + ':last');
+                            } else {
+                                next = this._tabNext(current, currentTable, true);
+                            }
+                        } else {
+                            container = this._horizontalContainer(container);
+                            next = this._prevHorizontalCell(container, current, index);
+                            if (next[0] !== current[0]) {
+                                focusTable(container.parent(), true);
+                            }
                         }
                     }
                     this._setCurrent(next);
                 }
                 return true;
             },
-            _moveRight: function (current, altKey) {
+            _moveRight: function (current, altKey, shiftKey, currentTable) {
                 var next, index;
                 var row = current.parent();
                 var container = row.parent();
@@ -3567,37 +3649,63 @@
                     index = container.find(NAVROW).index(row);
                     next = this._nextHorizontalCell(container, current, index);
                     if (!next[0]) {
-                        container = this._horizontalContainer(container, true);
-                        next = this._nextHorizontalCell(container, current, index);
-                        if (next[0] !== current[0]) {
-                            focusTable(container.parent(), true);
+                        if (shiftKey) {
+                            if (this.lockedTable) {
+                                next = this._relatedRow(row);
+                                if ($.contains(this.table[0], row[0])) {
+                                    next = next.nextAll(ITEMROW + ':first');
+                                }
+                                next = next.children(DATA_CELL + ':first');
+                            } else {
+                                next = this._tabNext(current, currentTable, false);
+                            }
+                        } else {
+                            container = this._horizontalContainer(container, true);
+                            next = this._nextHorizontalCell(container, current, index);
+                            if (next[0] !== current[0]) {
+                                focusTable(container.parent(), true);
+                            }
                         }
                     }
                     this._setCurrent(next);
                 }
                 return true;
             },
-            _moveUp: function (current) {
+            _moveUp: function (current, shiftKey) {
                 var container = current.parent().parent();
-                var next = this._prevVerticalCell(container, current);
-                if (!next[0]) {
-                    container = this._verticalContainer(container, true);
+                var next;
+                if (shiftKey) {
+                    next = current.parent();
+                    next = next.prevAll(ITEMROW + ':first');
+                    next = current.parent().is(ITEMROW) ? next.children().eq(current.index()) : next.children(DATA_CELL + ':last');
+                } else {
                     next = this._prevVerticalCell(container, current);
-                    if (next[0]) {
-                        focusTable(container.parent(), true);
+                    if (!next[0]) {
+                        container = this._verticalContainer(container, true);
+                        next = this._prevVerticalCell(container, current);
+                        if (next[0]) {
+                            focusTable(container.parent(), true);
+                        }
                     }
                 }
                 this._setCurrent(next);
                 return true;
             },
-            _moveDown: function (current) {
+            _moveDown: function (current, shiftKey) {
                 var container = current.parent().parent();
-                var next = this._nextVerticalCell(container, current);
-                if (!next[0]) {
-                    container = this._verticalContainer(container);
+                var next;
+                if (shiftKey) {
+                    next = current.parent();
+                    next = next.nextAll(ITEMROW + ':first');
+                    next = current.parent().is(ITEMROW) ? next.children().eq(current.index()) : next.children(DATA_CELL + ':first');
+                } else {
                     next = this._nextVerticalCell(container, current);
-                    if (next[0]) {
-                        focusTable(container.parent(), true);
+                    if (!next[0]) {
+                        container = this._verticalContainer(container);
+                        next = this._nextVerticalCell(container, current);
+                        if (next[0]) {
+                            focusTable(container.parent(), true);
+                        }
                     }
                 }
                 this._setCurrent(next);
@@ -4627,6 +4735,37 @@
                     columns = lockedCols.concat(columns);
                 }
                 that.columns = normalizeColumns(columns, encoded);
+                if ($.grep(leafColumns(that.columns), function (col) {
+                        return col.selectable;
+                    }).length) {
+                    if (that.options.persistSelection) {
+                        that._selectedIds = {};
+                    }
+                    that.wrapper.on(CLICK + NS, 'tbody > tr ' + CHECKBOXINPUT, proxy(that._checkboxClick, that));
+                    that.wrapper.on(CLICK + NS, 'thead > tr ' + CHECKBOXINPUT, proxy(that._headerCheckboxClick, that));
+                }
+            },
+            _headerCheckboxClick: function (e) {
+                var that = this, checkBox = $(e.target), checked = checkBox.prop('checked'), parentGrid = checkBox.closest('.k-grid.k-widget').getKendoGrid();
+                if (that !== parentGrid) {
+                    return;
+                }
+                if (checked) {
+                    that.select(parentGrid.items());
+                } else {
+                    that.clearSelection();
+                }
+            },
+            _checkboxClick: function (e) {
+                var that = this, row = $(e.target).closest('tr'), isSelecting = !row.hasClass(SELECTED);
+                if (that !== row.closest('.k-grid.k-widget').getKendoGrid()) {
+                    return;
+                }
+                if (isSelecting) {
+                    that.select(row);
+                } else {
+                    that._deselectCheckRows(row);
+                }
             },
             _groups: function () {
                 var group = this.dataSource.group();
@@ -4701,6 +4840,9 @@
                         return html;
                     }
                     return that._createButton(column.command).replace(templateHashRegExp, '\\#');
+                }
+                if (column.selectable) {
+                    return SELECTCOLUMNTMPL;
                 }
                 if (type === FUNCTION) {
                     state.storage['tmpl' + state.count] = template;
@@ -4939,7 +5081,26 @@
                     text = that._headerCellText(th);
                     field = '';
                     var index = inArray(th, leafs);
-                    if (!th.command) {
+                    if (th.selectable) {
+                        html += '<th scope=\'col\'' + stringifyAttributes(th.headerAttributes);
+                        if (rowSpan && !columns[idx].colSpan) {
+                            html += ' rowspan=\'' + rowSpan + '\'';
+                        }
+                        if (index > -1) {
+                            html += kendo.attr('index') + '=\'' + index + '\'';
+                        }
+                        text = th.headerTemplate ? text : SELECTCOLUMNHEADERTMPL;
+                        html += '>' + text + '</th>';
+                    } else if (th.command) {
+                        html += '<th scope=\'col\'' + stringifyAttributes(th.headerAttributes);
+                        if (rowSpan && !columns[idx].colSpan) {
+                            html += ' rowspan=\'' + rowSpan + '\'';
+                        }
+                        if (index > -1) {
+                            html += kendo.attr('index') + '=\'' + index + '\'';
+                        }
+                        html += '>' + text + '</th>';
+                    } else {
                         if (th.field) {
                             field = kendo.attr('field') + '=\'' + th.field + '\' ';
                         }
@@ -4965,15 +5126,6 @@
                             html += kendo.attr('index') + '=\'' + index + '\'';
                         }
                         html += stringifyAttributes(th.headerAttributes);
-                        html += '>' + text + '</th>';
-                    } else {
-                        html += '<th scope=\'col\'' + stringifyAttributes(th.headerAttributes);
-                        if (rowSpan && !columns[idx].colSpan) {
-                            html += ' rowspan=\'' + rowSpan + '\'';
-                        }
-                        if (index > -1) {
-                            html += kendo.attr('index') + '=\'' + index + '\'';
-                        }
                         html += '>' + text + '</th>';
                     }
                 }
@@ -5724,7 +5876,9 @@
                 return this.table[0] === active || $.contains(this.table[0], active) || this._isLocked() && (this.lockedTable[0] === active || $.contains(this.lockedTable[0], active));
             },
             refresh: function (e) {
-                var that = this, data = that.dataSource.view(), navigatable = that.options.navigatable, currentIndex, current = $(that.current()), isCurrentInHeader = false, groups = (that.dataSource.group() || []).length, colspan = groups + visibleLeafColumns(visibleColumns(that.columns)).length;
+                var that = this, data = that.dataSource.view(), navigatable = that.options.navigatable, currentIndex, current = $(that.current()), isCurrentInHeader = false, hasCheckBoxColumn = !!$.grep(leafColumns(that.columns), function (col) {
+                        return col.selectable;
+                    }).length, groups = (that.dataSource.group() || []).length, colspan = groups + visibleLeafColumns(visibleColumns(that.columns)).length;
                 if (e && e.action === 'itemchange' && that.editable) {
                     return;
                 }
@@ -5788,7 +5942,10 @@
                 that._muteAngularRebind(function () {
                     that._angularItems('compile');
                 });
-                if (that.options.selectable && !kendo.ui.Selectable.parseOptions(that.options.selectable).cell && that.options.persistSelection) {
+                if (hasCheckBoxColumn) {
+                    that._toggleHeaderCheckState(false);
+                }
+                if (that.options.persistSelection && (that.selectable && !kendo.ui.Selectable.parseOptions(that.options.selectable).cell || hasCheckBoxColumn)) {
                     that._restoreSelection();
                 }
                 that.trigger(DATABOUND);
@@ -5820,14 +5977,14 @@
                 }
             },
             _restoreSelection: function () {
-                var that = this, rows = that.tbody.children(':not(.k-grouping-row,.k-detail-row)');
-                rows = grep(rows, function (row) {
+                var that = this, allRows = that.items(), selectedRows;
+                selectedRows = grep(allRows, function (row) {
                     var dataItemKey = that.dataItem(row)[that.dataSource.options.schema.model.id];
                     if (that._selectedIds[dataItemKey]) {
                         return row;
                     }
                 });
-                that.select(rows);
+                that.select(selectedRows);
             },
             _angularItems: function (cmd) {
                 kendo.ui.DataBoundWidget.fn._angularItems.call(this, cmd);
@@ -6195,7 +6352,7 @@
             }
         }
         function isColumnEditable(column, model) {
-            if (!column.field) {
+            if (!column.field || column.selectable) {
                 return false;
             }
             if (model.editable && !model.editable(column.field)) {

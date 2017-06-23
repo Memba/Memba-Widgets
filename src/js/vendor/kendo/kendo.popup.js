@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -406,7 +406,8 @@
                     viewportHeight = viewport.height();
                 }
                 if (isWindow && docEl.scrollHeight - docEl.clientHeight > 0) {
-                    viewportWidth -= kendo.support.scrollbar();
+                    var sign = options.isRtl ? -1 : 1;
+                    viewportWidth -= sign * kendo.support.scrollbar();
                 }
                 siblingContainer = anchor.parents().filter(wrapper.siblings());
                 if (siblingContainer[0]) {

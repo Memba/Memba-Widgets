@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2017.2.504'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2017.2.621'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1284,7 +1284,7 @@
                 var width = element[0].style.width, height = element[0].style.height, percentWidth = percentRegExp.test(width), percentHeight = percentRegExp.test(height);
                 percentage = percentWidth || percentHeight;
                 if (!percentWidth && (!autosize || autosize && width)) {
-                    width = outerWidth(element);
+                    width = autosize ? outerWidth(element) + 1 : outerWidth(element);
                 }
                 if (!percentHeight && (!autosize || autosize && height)) {
                     height = outerHeight(element);
@@ -1310,7 +1310,7 @@
                 percentage = percentRegExp.test(wrapperStyle.width) || percentRegExp.test(wrapperStyle.height);
                 if (!percentage) {
                     wrapper.css({
-                        width: outerWidth(element),
+                        width: autosize ? outerWidth(element) + 1 : outerWidth(element),
                         height: outerHeight(element),
                         boxSizing: 'content-box',
                         mozBoxSizing: 'content-box',
@@ -1746,7 +1746,7 @@
             };
             if (support.browser.msie && (support.pointers || support.msPointers) && !positioned) {
                 var sign = support.isRtl(element) ? 1 : -1;
-                result.top -= window.pageYOffset + sign * document.documentElement.scrollTop;
+                result.top -= window.pageYOffset - document.documentElement.scrollTop;
                 result.left -= window.pageXOffset + sign * document.documentElement.scrollLeft;
             }
             return result;
@@ -8346,7 +8346,12 @@
                     hasChildren = kendo.getter(hasChildren);
                 }
                 if (isFunction(hasChildren)) {
-                    that.hasChildren = !!hasChildren.call(that, that);
+                    var hasChildrenObject = hasChildren.call(that, that);
+                    if (hasChildrenObject && hasChildrenObject.length === 0) {
+                        that.hasChildren = false;
+                    } else {
+                        that.hasChildren = !!hasChildrenObject;
+                    }
                 }
                 that._childrenOptions = childrenOptions;
                 if (that.hasChildren) {
@@ -8460,7 +8465,7 @@
         var HierarchicalDataSource = DataSource.extend({
             init: function (options) {
                 var node = Node.define({ children: options });
-                if (options.filter) {
+                if (options.filter && !options.serverFiltering) {
                     this._hierarchicalFilter = options.filter;
                     options.filter = null;
                 }
@@ -13099,7 +13104,8 @@
                     viewportHeight = viewport.height();
                 }
                 if (isWindow && docEl.scrollHeight - docEl.clientHeight > 0) {
-                    viewportWidth -= kendo.support.scrollbar();
+                    var sign = options.isRtl ? -1 : 1;
+                    viewportWidth -= sign * kendo.support.scrollbar();
                 }
                 siblingContainer = anchor.parents().filter(wrapper.siblings());
                 if (siblingContainer[0]) {
@@ -19470,44 +19476,6 @@
             } else {
                 self.value(val);
             }
-        });
-        defadvice('ui.AutoComplete', '$angular_getLogicValue', function () {
-            var options = this.self.options;
-            var values = this.self.value().split(options.separator);
-            var valuePrimitive = options.valuePrimitive;
-            var data = this.self.listView.selectedDataItems();
-            var dataItems = [];
-            for (var idx = 0, length = data.length; idx < length; idx++) {
-                var item = data[idx];
-                var dataValue = options.dataTextField ? item[options.dataTextField] : item;
-                for (var j = 0; j < values.length; j++) {
-                    if (dataValue === values[j]) {
-                        if (valuePrimitive) {
-                            dataItems.push(dataValue);
-                        } else {
-                            dataItems.push(item.toJSON());
-                        }
-                        break;
-                    }
-                }
-            }
-            return dataItems;
-        });
-        defadvice('ui.AutoComplete', '$angular_setLogicValue', function (value) {
-            if (value == null) {
-                value = [];
-            }
-            var self = this.self, dataTextField = self.options.dataTextField;
-            if (dataTextField && !self.options.valuePrimitive) {
-                if (value.length !== undefined) {
-                    value = $.map(value, function (item) {
-                        return item[dataTextField];
-                    });
-                } else {
-                    value = value[dataTextField];
-                }
-            }
-            self.value(value);
         });
         defadvice('ui.Widget', '$angular_init', function (element, options) {
             var self = this.self;

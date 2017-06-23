@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -581,6 +581,7 @@
                     retry: 'k-i-reload-sm',
                     pause: 'k-i-pause-sm'
                 };
+                var firstActionButton;
                 if (!classDictionary.hasOwnProperty(actionKey)) {
                     return;
                 }
@@ -593,7 +594,12 @@
                     }
                     fileElement.find('.k-upload-status').append(this._renderAction(classDictionary[actionKey], this.localization[actionKey], iconsClassDictionary[actionKey]));
                 } else {
-                    fileElement.find('.k-upload-action').addClass('k-button').append('<span class=\'k-icon ' + iconsClassDictionary[actionKey] + ' ' + classDictionary[actionKey] + '\' title=\'' + this.localization[actionKey] + '\'' + 'aria-label=\'' + this.localization[actionKey] + '\'></span>').show();
+                    firstActionButton = fileElement.find('.k-upload-action').first();
+                    if (!firstActionButton.find('.k-icon').length) {
+                        firstActionButton.addClass('k-button').append('<span class=\'k-icon ' + iconsClassDictionary[actionKey] + ' ' + classDictionary[actionKey] + '\' title=\'' + this.localization[actionKey] + '\'' + 'aria-label=\'' + this.localization[actionKey] + '\'></span>').show();
+                    } else if (firstActionButton.next('.k-upload-action').length) {
+                        firstActionButton.next('.k-upload-action').addClass('k-button').append('<span class=\'k-icon ' + iconsClassDictionary[actionKey] + ' ' + classDictionary[actionKey] + '\' title=\'' + this.localization[actionKey] + '\'' + 'aria-label=\'' + this.localization[actionKey] + '\'></span>').show();
+                    }
                 }
             },
             _fileState: function (fileEntry, stateKey) {

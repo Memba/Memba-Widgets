@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2017.2.504'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2017.2.621'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1284,7 +1284,7 @@
                 var width = element[0].style.width, height = element[0].style.height, percentWidth = percentRegExp.test(width), percentHeight = percentRegExp.test(height);
                 percentage = percentWidth || percentHeight;
                 if (!percentWidth && (!autosize || autosize && width)) {
-                    width = outerWidth(element);
+                    width = autosize ? outerWidth(element) + 1 : outerWidth(element);
                 }
                 if (!percentHeight && (!autosize || autosize && height)) {
                     height = outerHeight(element);
@@ -1310,7 +1310,7 @@
                 percentage = percentRegExp.test(wrapperStyle.width) || percentRegExp.test(wrapperStyle.height);
                 if (!percentage) {
                     wrapper.css({
-                        width: outerWidth(element),
+                        width: autosize ? outerWidth(element) + 1 : outerWidth(element),
                         height: outerHeight(element),
                         boxSizing: 'content-box',
                         mozBoxSizing: 'content-box',
@@ -1746,7 +1746,7 @@
             };
             if (support.browser.msie && (support.pointers || support.msPointers) && !positioned) {
                 var sign = support.isRtl(element) ? 1 : -1;
-                result.top -= window.pageYOffset + sign * document.documentElement.scrollTop;
+                result.top -= window.pageYOffset - document.documentElement.scrollTop;
                 result.left -= window.pageXOffset + sign * document.documentElement.scrollLeft;
             }
             return result;
@@ -8773,7 +8773,12 @@
                     hasChildren = kendo.getter(hasChildren);
                 }
                 if (isFunction(hasChildren)) {
-                    that.hasChildren = !!hasChildren.call(that, that);
+                    var hasChildrenObject = hasChildren.call(that, that);
+                    if (hasChildrenObject && hasChildrenObject.length === 0) {
+                        that.hasChildren = false;
+                    } else {
+                        that.hasChildren = !!hasChildrenObject;
+                    }
                 }
                 that._childrenOptions = childrenOptions;
                 if (that.hasChildren) {
@@ -8887,7 +8892,7 @@
         var HierarchicalDataSource = DataSource.extend({
             init: function (options) {
                 var node = Node.define({ children: options });
-                if (options.filter) {
+                if (options.filter && !options.serverFiltering) {
                     this._hierarchicalFilter = options.filter;
                     options.filter = null;
                 }
@@ -13295,7 +13300,8 @@
                     viewportHeight = viewport.height();
                 }
                 if (isWindow && docEl.scrollHeight - docEl.clientHeight > 0) {
-                    viewportWidth -= kendo.support.scrollbar();
+                    var sign = options.isRtl ? -1 : 1;
+                    viewportWidth -= sign * kendo.support.scrollbar();
                 }
                 siblingContainer = anchor.parents().filter(wrapper.siblings());
                 if (siblingContainer[0]) {
@@ -15855,6 +15861,7 @@
                 this.startAngle = options.startAngle;
                 this.endAngle = options.endAngle;
                 this.anticlockwise = options.anticlockwise || false;
+                this.xRotation = options.xRotation;
             },
             clone: function () {
                 return new Arc$2(this.center, {
@@ -15888,9 +15895,13 @@
                 var subIntervalsCount = Math.ceil(intervalAngle / MAX_INTERVAL);
                 var subIntervalAngle = intervalAngle / subIntervalsCount;
                 var currentAngle = startAngle;
+                var transformation;
+                if (this.xRotation) {
+                    transformation = transform().rotate(this.xRotation, this.center);
+                }
                 for (var i = 1; i <= subIntervalsCount; i++) {
                     var nextAngle = currentAngle + dir * subIntervalAngle;
-                    var points = this$1._intervalCurvePoints(currentAngle, nextAngle);
+                    var points = this$1._intervalCurvePoints(currentAngle, nextAngle, transformation);
                     curvePoints.push(points.cp1, points.cp2, points.p2);
                     currentAngle = nextAngle;
                 }
@@ -15945,7 +15956,7 @@
                     endAngle: endAngle
                 };
             },
-            _intervalCurvePoints: function (startAngle, endAngle) {
+            _intervalCurvePoints: function (startAngle, endAngle, transformation) {
                 var p1 = this.pointAt(startAngle);
                 var p2 = this.pointAt(endAngle);
                 var p1Derivative = this._derivativeAt(startAngle);
@@ -15953,6 +15964,12 @@
                 var t = (rad(endAngle) - rad(startAngle)) / 3;
                 var cp1 = new Point(p1.x + t * p1Derivative.x, p1.y + t * p1Derivative.y);
                 var cp2 = new Point(p2.x - t * p2Derivative.x, p2.y - t * p2Derivative.y);
+                if (transformation) {
+                    p1.transform(transformation);
+                    p2.transform(transformation);
+                    cp1.transform(transformation);
+                    cp2.transform(transformation);
+                }
                 return {
                     p1: p1,
                     cp1: cp1,
@@ -16001,7 +16018,7 @@
                 return inAngleRange && this.pointAt(angle).distanceTo(point) <= width;
             }
         });
-        Arc$2.fromPoints = function (start, end, rx, ry, largeArc, swipe) {
+        Arc$2.fromPoints = function (start, end, rx, ry, largeArc, swipe, rotation) {
             var arcParameters = normalizeArcParameters({
                 x1: start.x,
                 y1: start.y,
@@ -16010,13 +16027,15 @@
                 rx: rx,
                 ry: ry,
                 largeArc: largeArc,
-                swipe: swipe
+                swipe: swipe,
+                rotation: rotation
             });
             return new Arc$2(arcParameters.center, {
                 startAngle: arcParameters.startAngle,
                 endAngle: arcParameters.endAngle,
-                radiusX: rx,
-                radiusY: ry,
+                radiusX: arcParameters.radiusX,
+                radiusY: arcParameters.radiusY,
+                xRotation: arcParameters.xRotation,
                 anticlockwise: swipe === 0
             });
         };
@@ -16028,17 +16047,6 @@
             'anticlockwise'
         ]);
         ObserversMixin.extend(Arc$2.prototype);
-        function elipseAngle(start, end, swipe) {
-            var endAngle = end;
-            if (start > endAngle) {
-                endAngle += 360;
-            }
-            var alpha = Math.abs(endAngle - start);
-            if (!swipe) {
-                alpha = 360 - alpha;
-            }
-            return alpha;
-        }
         function calculateAngle(cx, cy, rx, ry, x, y) {
             var cos = round((x - cx) / rx, 3);
             var sin = round((y - cy) / ry, 3);
@@ -16053,47 +16061,59 @@
             var ry = parameters.ry;
             var largeArc = parameters.largeArc;
             var swipe = parameters.swipe;
-            var cx, cy;
-            var cx1, cy1;
-            var a, b, c, sqrt;
-            if (y1 !== y2) {
-                var x21 = x2 - x1;
-                var y21 = y2 - y1;
-                var rx2 = pow$1(rx, 2), ry2 = pow$1(ry, 2);
-                var k = (ry2 * x21 * (x1 + x2) + rx2 * y21 * (y1 + y2)) / (2 * rx2 * y21);
-                var yk2 = k - y2;
-                var l = -(x21 * ry2) / (rx2 * y21);
-                a = 1 / rx2 + pow$1(l, 2) / ry2;
-                b = 2 * (l * yk2 / ry2 - x2 / rx2);
-                c = pow$1(x2, 2) / rx2 + pow$1(yk2, 2) / ry2 - 1;
-                sqrt = Math.sqrt(pow$1(b, 2) - 4 * a * c);
-                cx = (-b - sqrt) / (2 * a);
-                cy = k + l * cx;
-                cx1 = (-b + sqrt) / (2 * a);
-                cy1 = k + l * cx1;
-            } else if (x1 !== x2) {
-                b = -2 * y2;
-                c = pow$1((x2 - x1) * ry / (2 * rx), 2) + pow$1(y2, 2) - pow$1(ry, 2);
-                sqrt = Math.sqrt(pow$1(b, 2) - 4 * c);
-                cx = cx1 = (x1 + x2) / 2;
-                cy = (-b - sqrt) / 2;
-                cy1 = (-b + sqrt) / 2;
-            } else {
-                return false;
+            var rotation = parameters.rotation;
+            if (rotation === void 0) {
+                rotation = 0;
             }
-            var start = calculateAngle(cx, cy, rx, ry, x1, y1);
-            var end = calculateAngle(cx, cy, rx, ry, x2, y2);
-            var alpha = elipseAngle(start, end, swipe);
-            if (largeArc && alpha <= 180 || !largeArc && alpha > 180) {
-                cx = cx1;
-                cy = cy1;
-                start = calculateAngle(cx, cy, rx, ry, x1, y1);
-                end = calculateAngle(cx, cy, rx, ry, x2, y2);
+            var radians = rad(rotation);
+            var cosine = Math.cos(radians);
+            var sine = Math.sin(radians);
+            var xT = cosine * (x1 - x2) / 2 + sine * (y1 - y2) / 2;
+            var yT = -sine * (x1 - x2) / 2 + cosine * (y1 - y2) / 2;
+            var sign = largeArc !== swipe ? 1 : -1;
+            var xt2 = Math.pow(xT, 2);
+            var yt2 = Math.pow(yT, 2);
+            var rx2 = Math.pow(rx, 2);
+            var ry2 = Math.pow(ry, 2);
+            var delta = xt2 / rx2 + yt2 / ry2;
+            if (delta > 1) {
+                delta = Math.sqrt(xt2 / rx2 + yt2 / ry2);
+                rx = delta * rx;
+                rx2 = Math.pow(rx, 2);
+                ry = delta * ry;
+                ry2 = Math.pow(ry, 2);
             }
+            var constT = sign * Math.sqrt((rx2 * ry2 - rx2 * yt2 - ry2 * xt2) / (rx2 * yt2 + ry2 * xt2));
+            if (isNaN(constT)) {
+                constT = 0;
+            }
+            var cxT = constT * (rx * yT) / ry;
+            var cyT = -constT * (ry * xT) / rx;
+            var cx = cosine * cxT - sine * cyT + (x1 + x2) / 2;
+            var cy = sine * cxT + cosine * cyT + (y1 + y2) / 2;
+            var uX = (xT - cxT) / rx;
+            var uY = (yT - cyT) / ry;
+            var vX = -(xT + cxT) / rx;
+            var vY = -(yT + cyT) / ry;
+            var startAngle = (uY >= 0 ? 1 : -1) * deg(Math.acos(uX / Math.sqrt(uX * uX + uY * uY)));
+            var angleCosine = round((uX * vX + uY * vY) / (Math.sqrt(uX * uX + uY * uY) * Math.sqrt(vX * vX + vY * vY)), 10);
+            var angle = (uX * vY - uY * vX >= 0 ? 1 : -1) * deg(Math.acos(angleCosine));
+            if (!swipe && angle > 0) {
+                angle -= 360;
+            }
+            if (swipe && angle < 0) {
+                angle += 360;
+            }
+            var endAngle = startAngle + angle;
+            var signEndAngle = endAngle >= 0 ? 1 : -1;
+            endAngle = Math.abs(endAngle) % 360 * signEndAngle;
             return {
                 center: new Point(cx, cy),
-                startAngle: start,
-                endAngle: end
+                startAngle: startAngle,
+                endAngle: endAngle,
+                radiusX: rx,
+                radiusY: ry,
+                xRotation: rotation
             };
         }
         function bboxStartAngle(angle, start) {
@@ -16589,11 +16609,11 @@
                 }
                 return this;
             },
-            arcTo: function (end, rx, ry, largeArc, swipe) {
+            arcTo: function (end, rx, ry, largeArc, swipe, rotation) {
                 if (this.segments.length > 0) {
                     var lastSegment = last(this.segments);
                     var anchor = lastSegment.anchor();
-                    var arc = Arc$2.fromPoints(anchor, end, rx, ry, largeArc, swipe);
+                    var arc = Arc$2.fromPoints(anchor, end, rx, ry, largeArc, swipe, rotation);
                     this._addArcSegments(arc);
                 }
                 return this;
@@ -16810,9 +16830,9 @@
                 }
                 return this;
             },
-            arcTo: function (end, rx, ry, largeArc, swipe) {
+            arcTo: function (end, rx, ry, largeArc, swipe, rotation) {
                 if (this.paths.length > 0) {
-                    last(this.paths).arcTo(end, rx, ry, largeArc, swipe);
+                    last(this.paths).arcTo(end, rx, ry, largeArc, swipe, rotation);
                 }
                 return this;
             },
@@ -17683,15 +17703,18 @@
                 for (var i = 0; i < parameters.length; i += 7) {
                     var radiusX = parameters[i];
                     var radiusY = parameters[i + 1];
+                    var rotation = parameters[i + 2];
                     var largeArc = parameters[i + 3];
                     var swipe = parameters[i + 4];
                     var endPoint = new Point(parameters[i + 5], parameters[i + 6]);
                     if (options.isRelative) {
                         endPoint.translateWith(position);
                     }
-                    path.arcTo(endPoint, radiusX, radiusY, largeArc, swipe);
-                    position.x = endPoint.x;
-                    position.y = endPoint.y;
+                    if (position.x !== endPoint.x || position.y !== endPoint.y) {
+                        path.arcTo(endPoint, radiusX, radiusY, largeArc, swipe, rotation);
+                        position.x = endPoint.x;
+                        position.y = endPoint.y;
+                    }
                 }
             },
             s: function (path, options) {
@@ -18142,13 +18165,15 @@
             }
             return url;
         }
-        function refUrl(id) {
-            return 'url(' + baseUrl() + '#' + id + ')';
+        function refUrl(id, skipBaseHref) {
+            var base = skipBaseHref ? '' : baseUrl();
+            return 'url(' + base + '#' + id + ')';
         }
         var Node = BaseNode.extend({
-            init: function (srcElement) {
+            init: function (srcElement, options) {
                 BaseNode.fn.init.call(this, srcElement);
                 this.definitions = {};
+                this.options = options;
             },
             destroy: function () {
                 if (this.element) {
@@ -18163,7 +18188,7 @@
                 for (var i = 0; i < elements.length; i++) {
                     var srcElement = elements[i];
                     var children = srcElement.children;
-                    var childNode = new NODE_MAP[srcElement.nodeType](srcElement);
+                    var childNode = new NODE_MAP[srcElement.nodeType](srcElement, this$1.options);
                     if (defined(pos)) {
                         this$1.insertAt(childNode, pos);
                     } else {
@@ -18377,7 +18402,7 @@
                         definitions: definition
                     });
                     definitions[type] = value;
-                    this.attr(attr, refUrl(value.id));
+                    this.attr(attr, this.refUrl(value.id));
                 }
             },
             clearDefinitions: function () {
@@ -18392,15 +18417,20 @@
                 return renderAllAttr(this.mapDefinitions());
             },
             mapDefinitions: function () {
+                var this$1 = this;
                 var definitions = this.definitions;
                 var attrs = [];
                 for (var field in definitions) {
                     attrs.push([
                         DefinitionMap[field],
-                        refUrl(definitions[field].id)
+                        this$1.refUrl(definitions[field].id)
                     ]);
                 }
                 return attrs;
+            },
+            refUrl: function (id) {
+                var skipBaseHref = (this.options || {}).skipBaseHref;
+                return refUrl(id, skipBaseHref);
             }
         });
         var GradientStopNode = Node.extend({
@@ -18632,6 +18662,7 @@
                 this.defs.definitionChange(e);
             }
         });
+        var RTL = 'rtl';
         function alignToScreen(element) {
             var ctm;
             try {
@@ -18651,7 +18682,7 @@
         var Surface$1 = Surface.extend({
             init: function (element, options) {
                 Surface.fn.init.call(this, element, options);
-                this._root = new RootNode(this.options);
+                this._root = new RootNode($.extend({ rtl: elementStyles(element, 'direction').direction === RTL }, this.options));
                 renderSVG$1(this.element, this._template());
                 this._rootElement = this.element.firstElementChild;
                 alignToScreen(this._rootElement);
@@ -19099,8 +19130,15 @@
                 content = kendo.htmlEncode(content);
                 return content;
             },
+            renderTextAnchor: function () {
+                var anchor;
+                if ((this.options || {}).rtl) {
+                    anchor = 'end';
+                }
+                return renderAttr('text-anchor', anchor);
+            },
             template: function () {
-                return '<text ' + this.renderStyle() + ' ' + this.renderOpacity() + ' x=\'' + this.pos().x + '\' y=\'' + this.pos().y + '\'' + this.renderStroke() + ' ' + this.renderTransform() + ' ' + this.renderDefinitions() + this.renderFill() + '>' + this.renderContent() + '</text>';
+                return '<text ' + this.renderTextAnchor() + ' ' + this.renderStyle() + ' ' + this.renderOpacity() + ' x=\'' + this.pos().x + '\' y=\'' + this.pos().y + '\'' + this.renderStroke() + ' ' + this.renderTransform() + ' ' + this.renderDefinitions() + this.renderFill() + '>' + this.renderContent() + '</text>';
             }
         });
         NODE_MAP.Text = TextNode;
@@ -19131,7 +19169,7 @@
             transform: transform
         };
         function exportGroup(group) {
-            var root = new RootNode();
+            var root = new RootNode({ skipBaseHref: true });
             var bbox = group.clippedBBox();
             var rootGroup = group;
             if (bbox) {
@@ -20020,6 +20058,7 @@
                 this.setOpacity(ctx);
                 ctx.beginPath();
                 ctx.font = text.options.font;
+                ctx.textAlign = 'left';
                 if (this.setFill(ctx)) {
                     ctx.fillText(text.content(), pos.x, pos.y + size.baseline);
                 }
@@ -20528,7 +20567,7 @@
                     colgroup = table && table.querySelector('colgroup');
                     if (options.repeatHeaders) {
                         thead = table && table.querySelector('thead');
-                        grid = closest(el, '.k-grid[data-role="grid"]');
+                        grid = closest(el, '.k-grid.k-widget');
                         if (grid && grid.querySelector('.k-auto-scrollable')) {
                             gridHead = grid.querySelector('.k-grid-header');
                         }
@@ -20550,7 +20589,7 @@
                         }
                     }
                     if (options.repeatHeaders && gridHead) {
-                        grid = closest(el, '.k-grid[data-role="grid"]');
+                        grid = closest(el, '.k-grid.k-widget');
                         grid.insertBefore(gridHead.cloneNode(true), grid.firstChild);
                     }
                 }
@@ -23174,6 +23213,7 @@
         var Segment = geometry.Segment;
         var dataviz = kendo.dataviz;
         var deepExtend = kendo.deepExtend;
+        var isFunction = kendo.isFunction;
         var __common_getter_js = kendo.getter;
         var X = 'x';
         var Y = 'y';
@@ -23208,6 +23248,7 @@
         var OBJECT = 'object';
         var DATE = 'date';
         var FORMAT_REGEX = /\{\d+:?/;
+        var HIGHLIGHT_ZINDEX = 100;
         var constants = {
             X: X,
             Y: Y,
@@ -23241,7 +23282,8 @@
             OBJECT: OBJECT,
             DATE: DATE,
             ARC: ARC,
-            FORMAT_REGEX: FORMAT_REGEX
+            FORMAT_REGEX: FORMAT_REGEX,
+            HIGHLIGHT_ZINDEX: HIGHLIGHT_ZINDEX
         };
         function isArray(value) {
             return Array.isArray(value);
@@ -23331,6 +23373,134 @@
             }
             return spacing;
         }
+        var defaultImplementation = {
+            format: function (format, value) {
+                return value;
+            },
+            toString: function (value) {
+                return value;
+            },
+            parseDate: function (value) {
+                return new Date(value);
+            }
+        };
+        var current = defaultImplementation;
+        var IntlService = Class.extend({});
+        IntlService.register = function (userImplementation) {
+            current = userImplementation;
+        };
+        if (Object.defineProperties) {
+            Object.defineProperties(IntlService, {
+                implementation: {
+                    get: function () {
+                        return current;
+                    }
+                }
+            });
+        }
+        var FORMAT_REPLACE_REGEX = /\{(\d+)(:[^\}]+)?\}/g;
+        var FormatService = Class.extend({
+            init: function (intlService) {
+                this._intlService = intlService;
+            },
+            auto: function (formatString) {
+                var values = [], len = arguments.length - 1;
+                while (len-- > 0)
+                    values[len] = arguments[len + 1];
+                var intl = this.intlService;
+                if (isString(formatString) && formatString.match(FORMAT_REGEX)) {
+                    return intl.format.apply(intl, [formatString].concat(values));
+                }
+                return intl.toString(values[0], formatString);
+            },
+            localeAuto: function (formatString, values, locale) {
+                var intl = this.intlService;
+                var result;
+                if (isString(formatString) && formatString.match(FORMAT_REGEX)) {
+                    result = formatString.replace(FORMAT_REPLACE_REGEX, function (match, index, placeholderFormat) {
+                        var value = values[parseInt(index, 10)];
+                        return intl.toString(value, placeholderFormat ? placeholderFormat.substring(1) : '', locale);
+                    });
+                } else {
+                    result = intl.toString(values[0], formatString, locale);
+                }
+                return result;
+            }
+        });
+        if (Object.defineProperties) {
+            Object.defineProperties(FormatService.fn, {
+                intlService: {
+                    get: function () {
+                        return this._intlService || IntlService.implementation;
+                    }
+                }
+            });
+        }
+        var ChartService = Class.extend({
+            init: function (chart, context) {
+                if (context === void 0) {
+                    context = {};
+                }
+                this._intlService = context.intlService;
+                this.sender = context.sender || chart;
+                this.format = new FormatService(context.intlService);
+                this.chart = chart;
+                this.rtl = context.rtl;
+            },
+            notify: function (name, args) {
+                this.chart.trigger(name, args);
+            }
+        });
+        if (Object.defineProperties) {
+            Object.defineProperties(ChartService.fn, {
+                intl: {
+                    get: function () {
+                        return this._intlService || IntlService.implementation;
+                    }
+                }
+            });
+        }
+        var current$1;
+        var DomEventsBuilder = Class.extend({});
+        DomEventsBuilder.register = function (userImplementation) {
+            current$1 = userImplementation;
+        };
+        DomEventsBuilder.create = function (element, events) {
+            if (current$1) {
+                return current$1.create(element, events);
+            }
+        };
+        var current$2 = {
+            compile: function (template) {
+                return template;
+            }
+        };
+        var TemplateService = Class.extend({});
+        TemplateService.register = function (userImplementation) {
+            current$2 = userImplementation;
+        };
+        TemplateService.compile = function (template) {
+            return current$2.compile(template);
+        };
+        var services = {
+            ChartService: ChartService,
+            DomEventsBuilder: DomEventsBuilder,
+            FormatService: FormatService,
+            IntlService: IntlService,
+            TemplateService: TemplateService
+        };
+        function getTemplate(options) {
+            if (options === void 0) {
+                options = {};
+            }
+            var template;
+            if (options.template) {
+                options.template = template = TemplateService.compile(options.template);
+            } else if (isFunction(options.content)) {
+                template = options.content;
+            }
+            return template;
+        }
         function grep(array, callback) {
             var length = array.length;
             var result = [];
@@ -23395,9 +23565,6 @@
                 }
             }
         });
-        function isFunction(fn) {
-            return typeof fn === 'function';
-        }
         function map(array, callback) {
             var length = array.length;
             var result = [];
@@ -24045,8 +24212,8 @@
             },
             toggleHighlight: function (show) {
                 var this$1 = this;
-                var options = (this.options || {}).highlight;
-                var customVisual = (options || {}).visual;
+                var options = (this.options || {}).highlight || {};
+                var customVisual = options.visual;
                 var highlight = this._highlight;
                 if (!highlight) {
                     var highlightOptions = {
@@ -24080,7 +24247,9 @@
                     } else {
                         highlight = this._highlight = this.createHighlight(highlightOptions);
                     }
-                    highlight.options.zIndex = this.options.zIndex;
+                    if (!defined(highlight.options.zIndex)) {
+                        highlight.options.zIndex = valueOrDefault(options.zIndex, HIGHLIGHT_ZINDEX);
+                    }
                     this.appendVisual(highlight);
                 }
                 highlight.visible(show);
@@ -24980,121 +25149,6 @@
             }
         });
         setDefaultOptions(AxisLabel, { _autoReflow: false });
-        var defaultImplementation = {
-            format: function (format, value) {
-                return value;
-            },
-            toString: function (value) {
-                return value;
-            },
-            parseDate: function (value) {
-                return new Date(value);
-            }
-        };
-        var current = defaultImplementation;
-        var IntlService = Class.extend({});
-        IntlService.register = function (userImplementation) {
-            current = userImplementation;
-        };
-        if (Object.defineProperties) {
-            Object.defineProperties(IntlService, {
-                implementation: {
-                    get: function () {
-                        return current;
-                    }
-                }
-            });
-        }
-        var FORMAT_REPLACE_REGEX = /\{(\d+)(:[^\}]+)?\}/g;
-        var FormatService = Class.extend({
-            init: function (intlService) {
-                this._intlService = intlService;
-            },
-            auto: function (formatString) {
-                var values = [], len = arguments.length - 1;
-                while (len-- > 0)
-                    values[len] = arguments[len + 1];
-                var intl = this.intlService;
-                if (formatString.match(FORMAT_REGEX)) {
-                    return intl.format.apply(intl, [formatString].concat(values));
-                }
-                return intl.toString(values[0], formatString);
-            },
-            localeAuto: function (formatString, values, locale) {
-                var intl = this.intlService;
-                var result;
-                if (formatString.match(FORMAT_REGEX)) {
-                    result = formatString.replace(FORMAT_REPLACE_REGEX, function (match, index, placeholderFormat) {
-                        var value = values[parseInt(index, 10)];
-                        return intl.toString(value, placeholderFormat ? placeholderFormat.substring(1) : '', locale);
-                    });
-                } else {
-                    result = intl.toString(values[0], formatString, locale);
-                }
-                return result;
-            }
-        });
-        if (Object.defineProperties) {
-            Object.defineProperties(FormatService.fn, {
-                intlService: {
-                    get: function () {
-                        return this._intlService || IntlService.implementation;
-                    }
-                }
-            });
-        }
-        var ChartService = Class.extend({
-            init: function (chart, context) {
-                if (context === void 0) {
-                    context = {};
-                }
-                this._intlService = context.intlService;
-                this.sender = context.sender || chart;
-                this.format = new FormatService(context.intlService);
-                this.chart = chart;
-            },
-            notify: function (name, args) {
-                this.chart.trigger(name, args);
-            }
-        });
-        if (Object.defineProperties) {
-            Object.defineProperties(ChartService.fn, {
-                intl: {
-                    get: function () {
-                        return this._intlService || IntlService.implementation;
-                    }
-                }
-            });
-        }
-        var current$1;
-        var DomEventsBuilder = Class.extend({});
-        DomEventsBuilder.register = function (userImplementation) {
-            current$1 = userImplementation;
-        };
-        DomEventsBuilder.create = function (element, events) {
-            if (current$1) {
-                return current$1.create(element, events);
-            }
-        };
-        var current$2 = {
-            compile: function (template) {
-                return template;
-            }
-        };
-        var TemplateService = Class.extend({});
-        TemplateService.register = function (userImplementation) {
-            current$2 = userImplementation;
-        };
-        TemplateService.compile = function (template) {
-            return current$2.compile(template);
-        };
-        var services = {
-            ChartService: ChartService,
-            DomEventsBuilder: DomEventsBuilder,
-            FormatService: FormatService,
-            IntlService: IntlService,
-            TemplateService: TemplateService
-        };
         var DEFAULT_ICON_SIZE = 7;
         var DEFAULT_LABEL_COLOR = '#fff';
         var Note = BoxElement.extend({
@@ -25120,8 +25174,8 @@
                     var text = this.fields.text;
                     var width, height;
                     if (defined(label) && label.visible) {
-                        if (label.template) {
-                            var noteTemplate = TemplateService.compile(label.template);
+                        var noteTemplate = getTemplate(label);
+                        if (noteTemplate) {
                             text = noteTemplate(this.fields);
                         } else if (label.format) {
                             text = this.chartService.format.auto(label.format, text);
@@ -25858,9 +25912,9 @@
                 this.box[pos + 2] -= this.lineBox()[pos + 2] - lineBox[pos + 2];
             },
             axisLabelText: function (value, dataItem, options) {
+                var tmpl = getTemplate(options);
                 var text = value;
-                if (options.template) {
-                    var tmpl = TemplateService.compile(options.template);
+                if (tmpl) {
                     text = tmpl({
                         value: value,
                         dataItem: dataItem,
@@ -25976,7 +26030,239 @@
             _alignLines: true,
             _deferLabels: false
         });
+        var MILLISECONDS = 'milliseconds';
+        var SECONDS = 'seconds';
+        var MINUTES = 'minutes';
+        var HOURS = 'hours';
+        var DAYS = 'days';
+        var WEEKS = 'weeks';
+        var MONTHS = 'months';
+        var YEARS = 'years';
+        var TIME_PER_MILLISECOND = 1;
+        var TIME_PER_SECOND = 1000;
+        var TIME_PER_MINUTE = 60 * TIME_PER_SECOND;
+        var TIME_PER_HOUR = 60 * TIME_PER_MINUTE;
+        var TIME_PER_DAY = 24 * TIME_PER_HOUR;
+        var TIME_PER_WEEK = 7 * TIME_PER_DAY;
+        var TIME_PER_MONTH = 31 * TIME_PER_DAY;
+        var TIME_PER_YEAR = 365 * TIME_PER_DAY;
+        var TIME_PER_UNIT = {
+            'years': TIME_PER_YEAR,
+            'months': TIME_PER_MONTH,
+            'weeks': TIME_PER_WEEK,
+            'days': TIME_PER_DAY,
+            'hours': TIME_PER_HOUR,
+            'minutes': TIME_PER_MINUTE,
+            'seconds': TIME_PER_SECOND,
+            'milliseconds': TIME_PER_MILLISECOND
+        };
+        function absoluteDateDiff(a, b) {
+            var diff = a.getTime() - b;
+            var offsetDiff = a.getTimezoneOffset() - b.getTimezoneOffset();
+            return diff - offsetDiff * TIME_PER_MINUTE;
+        }
+        function addTicks(date, ticks) {
+            return new Date(date.getTime() + ticks);
+        }
+        function toDate(value) {
+            var result;
+            if (value instanceof Date) {
+                result = value;
+            } else if (value) {
+                result = new Date(value);
+            }
+            return result;
+        }
+        function startOfWeek(date, weekStartDay) {
+            if (weekStartDay === void 0) {
+                weekStartDay = 0;
+            }
+            var daysToSubtract = 0;
+            var day = date.getDay();
+            if (!isNaN(day)) {
+                while (day !== weekStartDay) {
+                    if (day === 0) {
+                        day = 6;
+                    } else {
+                        day--;
+                    }
+                    daysToSubtract++;
+                }
+            }
+            return addTicks(date, -daysToSubtract * TIME_PER_DAY);
+        }
+        function adjustDST(date, hours) {
+            if (hours === 0 && date.getHours() === 23) {
+                date.setHours(date.getHours() + 2);
+                return true;
+            }
+            return false;
+        }
+        function addHours(date, hours) {
+            var roundedDate = new Date(date);
+            roundedDate.setMinutes(0, 0, 0);
+            var tzDiff = (date.getTimezoneOffset() - roundedDate.getTimezoneOffset()) * TIME_PER_MINUTE;
+            return addTicks(roundedDate, tzDiff + hours * TIME_PER_HOUR);
+        }
+        function addDuration(dateValue, value, unit, weekStartDay) {
+            var result = dateValue;
+            if (dateValue) {
+                var date = toDate(dateValue);
+                var hours = date.getHours();
+                if (unit === YEARS) {
+                    result = new Date(date.getFullYear() + value, 0, 1);
+                    adjustDST(result, 0);
+                } else if (unit === MONTHS) {
+                    result = new Date(date.getFullYear(), date.getMonth() + value, 1);
+                    adjustDST(result, hours);
+                } else if (unit === WEEKS) {
+                    result = addDuration(startOfWeek(date, weekStartDay), value * 7, DAYS);
+                    adjustDST(result, hours);
+                } else if (unit === DAYS) {
+                    result = new Date(date.getFullYear(), date.getMonth(), date.getDate() + value);
+                    adjustDST(result, hours);
+                } else if (unit === HOURS) {
+                    result = addHours(date, value);
+                } else if (unit === MINUTES) {
+                    result = addTicks(date, value * TIME_PER_MINUTE);
+                    if (result.getSeconds() > 0) {
+                        result.setSeconds(0);
+                    }
+                } else if (unit === SECONDS) {
+                    result = addTicks(date, value * TIME_PER_SECOND);
+                } else if (unit === MILLISECONDS) {
+                    result = addTicks(date, value);
+                }
+                if (unit !== MILLISECONDS && result.getMilliseconds() > 0) {
+                    result.setMilliseconds(0);
+                }
+            }
+            return result;
+        }
+        function floorDate(date, unit, weekStartDay) {
+            return addDuration(toDate(date), 0, unit, weekStartDay);
+        }
+        function ceilDate(dateValue, unit, weekStartDay) {
+            var date = toDate(dateValue);
+            if (date && floorDate(date, unit, weekStartDay).getTime() === date.getTime()) {
+                return date;
+            }
+            return addDuration(date, 1, unit, weekStartDay);
+        }
+        function dateComparer(a, b) {
+            if (a && b) {
+                return a.getTime() - b.getTime();
+            }
+            return -1;
+        }
+        function dateDiff(a, b) {
+            return a.getTime() - b;
+        }
+        function toTime(value) {
+            if (isArray(value)) {
+                var result = [];
+                for (var idx = 0; idx < value.length; idx++) {
+                    result.push(toTime(value[idx]));
+                }
+                return result;
+            } else if (value) {
+                return toDate(value).getTime();
+            }
+        }
+        function dateEquals(a, b) {
+            if (a && b) {
+                return toTime(a) === toTime(b);
+            }
+            return a === b;
+        }
+        function timeIndex(date, start, baseUnit) {
+            return absoluteDateDiff(date, start) / TIME_PER_UNIT[baseUnit];
+        }
+        function dateIndex(value, start, baseUnit, baseUnitStep) {
+            var date = toDate(value);
+            var startDate = toDate(start);
+            var index;
+            if (baseUnit === MONTHS) {
+                index = date.getMonth() - startDate.getMonth() + (date.getFullYear() - startDate.getFullYear()) * 12 + timeIndex(date, new Date(date.getFullYear(), date.getMonth()), DAYS) / new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+            } else if (baseUnit === YEARS) {
+                index = date.getFullYear() - startDate.getFullYear() + dateIndex(date, new Date(date.getFullYear(), 0), MONTHS, 1) / 12;
+            } else if (baseUnit === DAYS || baseUnit === WEEKS) {
+                index = timeIndex(date, startDate, baseUnit);
+            } else {
+                index = dateDiff(date, start) / TIME_PER_UNIT[baseUnit];
+            }
+            return index / baseUnitStep;
+        }
+        function duration(a, b, unit) {
+            var diff;
+            if (unit === YEARS) {
+                diff = b.getFullYear() - a.getFullYear();
+            } else if (unit === MONTHS) {
+                diff = duration(a, b, YEARS) * 12 + b.getMonth() - a.getMonth();
+            } else if (unit === DAYS) {
+                diff = Math.floor(dateDiff(b, a) / TIME_PER_DAY);
+            } else {
+                diff = Math.floor(dateDiff(b, a) / TIME_PER_UNIT[unit]);
+            }
+            return diff;
+        }
+        function lteDateIndex(date, sortedDates) {
+            var low = 0;
+            var high = sortedDates.length - 1;
+            var index;
+            while (low <= high) {
+                index = Math.floor((low + high) / 2);
+                var currentDate = sortedDates[index];
+                if (currentDate < date) {
+                    low = index + 1;
+                    continue;
+                }
+                if (currentDate > date) {
+                    high = index - 1;
+                    continue;
+                }
+                while (dateEquals(sortedDates[index - 1], date)) {
+                    index--;
+                }
+                return index;
+            }
+            if (sortedDates[index] <= date) {
+                return index;
+            }
+            return index - 1;
+        }
+        function parseDate(intlService, date) {
+            var result;
+            if (isString(date)) {
+                result = intlService.parseDate(date) || toDate(date);
+            } else {
+                result = toDate(date);
+            }
+            return result;
+        }
+        function parseDates(intlService, dates) {
+            if (isArray(dates)) {
+                var result = [];
+                for (var idx = 0; idx < dates.length; idx++) {
+                    result.push(parseDate(intlService, dates[idx]));
+                }
+                return result;
+            }
+            return parseDate(intlService, dates);
+        }
         var MIN_CATEGORY_POINTS_RANGE = 0.01;
+        function indexOf(value, arr) {
+            if (value instanceof Date) {
+                var length = arr.length;
+                for (var idx = 0; idx < length; idx++) {
+                    if (dateEquals(arr[idx], value)) {
+                        return idx;
+                    }
+                }
+                return -1;
+            }
+            return arr.indexOf(value);
+        }
         var CategoryAxis = Axis.extend({
             init: function (options, chartService) {
                 Axis.fn.init.call(this, options, chartService);
@@ -26221,7 +26507,7 @@
             },
             categoryIndex: function (value) {
                 var options = this.options;
-                var index = (options.srcCategories || options.categories).indexOf(value);
+                var index = indexOf(value, options.srcCategories || options.categories);
                 return index - Math.floor(options.min || 0);
             },
             translateRange: function (delta) {
@@ -26372,228 +26658,9 @@
             justified: false,
             _deferLabels: true
         });
-        var MILLISECONDS = 'milliseconds';
-        var SECONDS = 'seconds';
-        var MINUTES = 'minutes';
-        var HOURS = 'hours';
-        var DAYS = 'days';
-        var WEEKS = 'weeks';
-        var MONTHS = 'months';
-        var YEARS = 'years';
-        var TIME_PER_MILLISECOND = 1;
-        var TIME_PER_SECOND = 1000;
-        var TIME_PER_MINUTE = 60 * TIME_PER_SECOND;
-        var TIME_PER_HOUR = 60 * TIME_PER_MINUTE;
-        var TIME_PER_DAY = 24 * TIME_PER_HOUR;
-        var TIME_PER_WEEK = 7 * TIME_PER_DAY;
-        var TIME_PER_MONTH = 31 * TIME_PER_DAY;
-        var TIME_PER_YEAR = 365 * TIME_PER_DAY;
-        var TIME_PER_UNIT = {
-            'years': TIME_PER_YEAR,
-            'months': TIME_PER_MONTH,
-            'weeks': TIME_PER_WEEK,
-            'days': TIME_PER_DAY,
-            'hours': TIME_PER_HOUR,
-            'minutes': TIME_PER_MINUTE,
-            'seconds': TIME_PER_SECOND,
-            'milliseconds': TIME_PER_MILLISECOND
-        };
-        function absoluteDateDiff(a, b) {
-            var diff = a.getTime() - b;
-            var offsetDiff = a.getTimezoneOffset() - b.getTimezoneOffset();
-            return diff - offsetDiff * TIME_PER_MINUTE;
-        }
-        function addTicks(date, ticks) {
-            return new Date(date.getTime() + ticks);
-        }
-        function toDate(value) {
-            var result;
-            if (value instanceof Date) {
-                result = value;
-            } else if (value) {
-                result = new Date(value);
-            }
-            return result;
-        }
-        function startOfWeek(date, weekStartDay) {
-            if (weekStartDay === void 0) {
-                weekStartDay = 0;
-            }
-            var daysToSubtract = 0;
-            var day = date.getDay();
-            if (!isNaN(day)) {
-                while (day !== weekStartDay) {
-                    if (day === 0) {
-                        day = 6;
-                    } else {
-                        day--;
-                    }
-                    daysToSubtract++;
-                }
-            }
-            return addTicks(date, -daysToSubtract * TIME_PER_DAY);
-        }
-        function adjustDST(date, hours) {
-            if (hours === 0 && date.getHours() === 23) {
-                date.setHours(date.getHours() + 2);
-                return true;
-            }
-            return false;
-        }
-        function addHours(date, hours) {
-            var roundedDate = new Date(date);
-            roundedDate.setMinutes(0, 0, 0);
-            var tzDiff = (date.getTimezoneOffset() - roundedDate.getTimezoneOffset()) * TIME_PER_MINUTE;
-            return addTicks(roundedDate, tzDiff + hours * TIME_PER_HOUR);
-        }
-        function addDuration(dateValue, value, unit, weekStartDay) {
-            var result = dateValue;
-            if (dateValue) {
-                var date = toDate(dateValue);
-                var hours = date.getHours();
-                if (unit === YEARS) {
-                    result = new Date(date.getFullYear() + value, 0, 1);
-                    adjustDST(result, 0);
-                } else if (unit === MONTHS) {
-                    result = new Date(date.getFullYear(), date.getMonth() + value, 1);
-                    adjustDST(result, hours);
-                } else if (unit === WEEKS) {
-                    result = addDuration(startOfWeek(date, weekStartDay), value * 7, DAYS);
-                    adjustDST(result, hours);
-                } else if (unit === DAYS) {
-                    result = new Date(date.getFullYear(), date.getMonth(), date.getDate() + value);
-                    adjustDST(result, hours);
-                } else if (unit === HOURS) {
-                    result = addHours(date, value);
-                } else if (unit === MINUTES) {
-                    result = addTicks(date, value * TIME_PER_MINUTE);
-                    if (result.getSeconds() > 0) {
-                        result.setSeconds(0);
-                    }
-                } else if (unit === SECONDS) {
-                    result = addTicks(date, value * TIME_PER_SECOND);
-                } else if (unit === MILLISECONDS) {
-                    result = addTicks(date, value);
-                }
-                if (unit !== MILLISECONDS && result.getMilliseconds() > 0) {
-                    result.setMilliseconds(0);
-                }
-            }
-            return result;
-        }
-        function floorDate(date, unit, weekStartDay) {
-            return addDuration(toDate(date), 0, unit, weekStartDay);
-        }
-        function ceilDate(dateValue, unit, weekStartDay) {
-            var date = toDate(dateValue);
-            if (date && floorDate(date, unit, weekStartDay).getTime() === date.getTime()) {
-                return date;
-            }
-            return addDuration(date, 1, unit, weekStartDay);
-        }
-        function dateComparer(a, b) {
-            if (a && b) {
-                return a.getTime() - b.getTime();
-            }
-            return -1;
-        }
-        function dateDiff(a, b) {
-            return a.getTime() - b;
-        }
-        function toTime(value) {
-            if (isArray(value)) {
-                var result = [];
-                for (var idx = 0; idx < value.length; idx++) {
-                    result.push(toTime(value[idx]));
-                }
-                return result;
-            } else if (value) {
-                return toDate(value).getTime();
-            }
-        }
-        function dateEquals(a, b) {
-            if (a && b) {
-                return toTime(a) === toTime(b);
-            }
-            return a === b;
-        }
-        function timeIndex(date, start, baseUnit) {
-            return absoluteDateDiff(date, start) / TIME_PER_UNIT[baseUnit];
-        }
-        function dateIndex(value, start, baseUnit, baseUnitStep) {
-            var date = toDate(value);
-            var startDate = toDate(start);
-            var index;
-            if (baseUnit === MONTHS) {
-                index = date.getMonth() - startDate.getMonth() + (date.getFullYear() - startDate.getFullYear()) * 12 + timeIndex(date, new Date(date.getFullYear(), date.getMonth()), DAYS) / new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-            } else if (baseUnit === YEARS) {
-                index = date.getFullYear() - startDate.getFullYear() + dateIndex(date, new Date(date.getFullYear(), 0), MONTHS, 1) / 12;
-            } else if (baseUnit === DAYS || baseUnit === WEEKS) {
-                index = timeIndex(date, startDate, baseUnit);
-            } else {
-                index = dateDiff(date, start) / TIME_PER_UNIT[baseUnit];
-            }
-            return index / baseUnitStep;
-        }
-        function duration(a, b, unit) {
-            var diff;
-            if (unit === YEARS) {
-                diff = b.getFullYear() - a.getFullYear();
-            } else if (unit === MONTHS) {
-                diff = duration(a, b, YEARS) * 12 + b.getMonth() - a.getMonth();
-            } else if (unit === DAYS) {
-                diff = Math.floor(dateDiff(b, a) / TIME_PER_DAY);
-            } else {
-                diff = Math.floor(dateDiff(b, a) / TIME_PER_UNIT[unit]);
-            }
-            return diff;
-        }
-        function lteDateIndex(date, sortedDates) {
-            var low = 0;
-            var high = sortedDates.length - 1;
-            var index;
-            while (low <= high) {
-                index = Math.floor((low + high) / 2);
-                var currentDate = sortedDates[index];
-                if (currentDate < date) {
-                    low = index + 1;
-                    continue;
-                }
-                if (currentDate > date) {
-                    high = index - 1;
-                    continue;
-                }
-                while (dateEquals(sortedDates[index - 1], date)) {
-                    index--;
-                }
-                return index;
-            }
-            if (sortedDates[index] <= date) {
-                return index;
-            }
-            return index - 1;
-        }
-        function parseDate(intlService, date) {
-            var result;
-            if (isString(date)) {
-                result = intlService.parseDate(date) || toDate(date);
-            } else {
-                result = toDate(date);
-            }
-            return result;
-        }
-        function parseDates(intlService, dates) {
-            if (isArray(dates)) {
-                var result = [];
-                for (var idx = 0; idx < dates.length; idx++) {
-                    result.push(parseDate(intlService, dates[idx]));
-                }
-                return result;
-            }
-            return parseDate(intlService, dates);
-        }
         var COORDINATE_LIMIT = 300000;
         var DateLabelFormats = {
+            milliseconds: 'HH:mm:ss.fff',
             seconds: 'HH:mm:ss',
             minutes: 'HH:mm',
             hours: 'HH:mm',
@@ -28852,6 +28919,7 @@
             deepExtend: deepExtend,
             elementStyles: elementStyles,
             getSpacing: getSpacing,
+            getTemplate: getTemplate,
             getter: __common_getter_js,
             grep: grep,
             hasClasses: hasClasses,
@@ -29288,7 +29356,7 @@
             return cache;
         }
         var theme = { chart: kendo.dataviz.chartBaseTheme() };
-        var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-widget">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series">' + '    <div class="k-var--series-a"></div>' + '    <div class="k-var--series-b"></div>' + '    <div class="k-var--series-c"></div>' + '    <div class="k-var--series-d"></div>' + '    <div class="k-var--series-e"></div>' + '    <div class="k-var--series-f"></div>' + '  </div>' + '</div>').appendTo(document.body);
+        var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-widget">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series">' + '    <div class="k-var--series-a"></div>' + '    <div class="k-var--series-b"></div>' + '    <div class="k-var--series-c"></div>' + '    <div class="k-var--series-d"></div>' + '    <div class="k-var--series-e"></div>' + '    <div class="k-var--series-f"></div>' + '  </div>' + '</div>').appendTo(document.body);
         function mapColor(key, varName) {
             set(key, queryStyle(varName, 'backgroundColor'));
         }
@@ -29342,6 +29410,22 @@
             mapColor('chart.seriesDefaults.waterfall.line.color', 'chart-major-lines');
             mapColor('chart.title.color', 'normal-text-color');
             set('chart.seriesDefaults.labels.opacity', queryStyle('chart-area-opacity', 'opacity'));
+            mapColor('diagram.shapeDefaults.fill.color', 'accent');
+            mapColor('diagram.shapeDefaults.content.color', 'accent-contrast');
+            mapColor('diagram.shapeDefaults.connectorDefaults.fill.color', 'normal-text-color');
+            mapColor('diagram.shapeDefaults.connectorDefaults.stroke.color', 'accent-contrast');
+            mapColor('diagram.shapeDefaults.connectorDefaults.hover.fill.color', 'accent-contrast');
+            mapColor('diagram.shapeDefaults.connectorDefaults.hover.stroke.color', 'normal-text-color');
+            mapColor('diagram.editable.resize.handles.stroke.color', 'normal-text-color');
+            mapColor('diagram.editable.resize.handles.fill.color', 'normal-background');
+            mapColor('diagram.editable.resize.handles.hover.stroke.color', 'normal-text-color');
+            mapColor('diagram.editable.resize.handles.hover.fill.color', 'normal-text-color');
+            mapColor('diagram.selectable.stroke.color', 'normal-text-color');
+            mapColor('diagram.connectionDefaults.stroke.color', 'normal-text-color');
+            mapColor('diagram.connectionDefaults.content.color', 'normal-text-color');
+            mapColor('diagram.connectionDefaults.selection.handles.fill.color', 'accent-contrast');
+            mapColor('diagram.connectionDefaults.selection.handles.stroke.color', 'normal-text-color');
+            mapColor('diagram.connectionDefaults.selection.stroke.color', 'normal-text-color');
         }());
         (function setFonts() {
             function font(varName) {
@@ -31755,7 +31839,6 @@
         }());
         (function () {
             var TEXT = '#656565';
-            var INACTIVE_SHAPE = '#bdbdbd';
             var AXIS = 'rgba(0, 0, 0, .04)';
             var SERIES = [
                 '#ff6358',
@@ -31774,7 +31857,6 @@
                 '#fff7e8'
             ];
             var PRIMARY = SERIES[0];
-            var DIAGRAM_HOVER = WHITE;
             registerTheme('default-v2', {
                 chart: {},
                 gauge: {
@@ -31787,57 +31869,13 @@
                         line: { color: TEXT }
                     }
                 },
-                diagram: {
-                    shapeDefaults: {
-                        fill: { color: PRIMARY },
-                        connectorDefaults: {
-                            fill: { color: TEXT },
-                            stroke: { color: DIAGRAM_HOVER },
-                            hover: {
-                                fill: { color: DIAGRAM_HOVER },
-                                stroke: { color: TEXT }
-                            }
-                        },
-                        content: { color: TEXT }
-                    },
-                    editable: {
-                        resize: {
-                            handles: {
-                                fill: { color: DIAGRAM_HOVER },
-                                stroke: { color: INACTIVE_SHAPE },
-                                hover: {
-                                    fill: { color: INACTIVE_SHAPE },
-                                    stroke: { color: INACTIVE_SHAPE }
-                                }
-                            }
-                        },
-                        rotate: {
-                            thumb: {
-                                stroke: { color: INACTIVE_SHAPE },
-                                fill: { color: INACTIVE_SHAPE }
-                            }
-                        }
-                    },
-                    selectable: { stroke: { color: INACTIVE_SHAPE } },
-                    connectionDefaults: {
-                        stroke: { color: INACTIVE_SHAPE },
-                        content: { color: INACTIVE_SHAPE },
-                        selection: {
-                            handles: {
-                                fill: { color: DIAGRAM_HOVER },
-                                stroke: { color: INACTIVE_SHAPE }
-                            },
-                            stroke: { color: INACTIVE_SHAPE }
-                        }
-                    }
-                },
+                diagram: {},
                 treeMap: { colors: fuse(SERIES, SERIES_LIGHT) }
             });
             themes.sass = themes['default-v2'];
         }());
         (function () {
             var TEXT = '#292b2c';
-            var INACTIVE_SHAPE = '#bdbdbd';
             var AXIS = 'rgba(0, 0, 0, .04)';
             var SERIES = [
                 '#0275d8',
@@ -31856,7 +31894,6 @@
                 '#fff7e8'
             ];
             var PRIMARY = SERIES[0];
-            var DIAGRAM_HOVER = WHITE;
             registerTheme('bootstrap-v4', {
                 chart: {},
                 gauge: {
@@ -31869,50 +31906,7 @@
                         line: { color: TEXT }
                     }
                 },
-                diagram: {
-                    shapeDefaults: {
-                        fill: { color: PRIMARY },
-                        connectorDefaults: {
-                            fill: { color: TEXT },
-                            stroke: { color: DIAGRAM_HOVER },
-                            hover: {
-                                fill: { color: DIAGRAM_HOVER },
-                                stroke: { color: TEXT }
-                            }
-                        },
-                        content: { color: TEXT }
-                    },
-                    editable: {
-                        resize: {
-                            handles: {
-                                fill: { color: DIAGRAM_HOVER },
-                                stroke: { color: INACTIVE_SHAPE },
-                                hover: {
-                                    fill: { color: INACTIVE_SHAPE },
-                                    stroke: { color: INACTIVE_SHAPE }
-                                }
-                            }
-                        },
-                        rotate: {
-                            thumb: {
-                                stroke: { color: INACTIVE_SHAPE },
-                                fill: { color: INACTIVE_SHAPE }
-                            }
-                        }
-                    },
-                    selectable: { stroke: { color: INACTIVE_SHAPE } },
-                    connectionDefaults: {
-                        stroke: { color: INACTIVE_SHAPE },
-                        content: { color: INACTIVE_SHAPE },
-                        selection: {
-                            handles: {
-                                fill: { color: DIAGRAM_HOVER },
-                                stroke: { color: INACTIVE_SHAPE }
-                            },
-                            stroke: { color: INACTIVE_SHAPE }
-                        }
-                    }
-                },
+                diagram: {},
                 treeMap: { colors: fuse(SERIES, SERIES_LIGHT) }
             });
         }());
@@ -31992,8 +31986,7 @@
         var isObject = dataviz.isObject;
         var deepExtend = dataviz.deepExtend;
         var eventElement = dataviz.eventElement;
-        var services = dataviz.services;
-        var TemplateService = services.TemplateService;
+        var getTemplate = dataviz.getTemplate;
         var TextBox = dataviz.TextBox;
         var ShapeElement = dataviz.ShapeElement;
         var getSpacing = dataviz.getSpacing;
@@ -32011,6 +32004,7 @@
         var elementStyles = dataviz.elementStyles;
         var hasClasses = dataviz.hasClasses;
         var bindEvents = dataviz.bindEvents;
+        var services = dataviz.services;
         var unbindEvents = dataviz.unbindEvents;
         var support = kendo.support;
         var drawing = kendo.drawing;
@@ -32922,8 +32916,10 @@
                 if (point) {
                     $.extend(point, fields);
                     point.owner = this;
-                    point.dataItem = series.data[categoryIx];
                     point.noteText = data.fields.noteText;
+                    if (!defined(point.dataItem)) {
+                        point.dataItem = series.data[categoryIx];
+                    }
                     this.addErrorBar(point, data, categoryIx);
                 }
                 this.points.push(point);
@@ -32939,6 +32935,7 @@
                         'aggregate',
                         '_events',
                         'tooltip',
+                        'content',
                         'template',
                         'visual',
                         'toggle',
@@ -33080,7 +33077,8 @@
                         category: outOfRangePoint.category,
                         categoryIx: categoryIx,
                         series: series,
-                        seriesIx: seriesIx
+                        seriesIx: seriesIx,
+                        dataItem: outOfRangePoint.item
                     });
                 }
             },
@@ -33176,9 +33174,9 @@
                     this.append(this.marker);
                 }
                 if (labels.visible) {
+                    var labelTemplate = getTemplate(labels);
                     var labelText = this.value;
-                    if (labels.template) {
-                        var labelTemplate = TemplateService.compile(labels.template);
+                    if (labelTemplate) {
                         labelText = labelTemplate({
                             dataItem: this.dataItem,
                             category: this.category,
@@ -34154,9 +34152,9 @@
                 var options = this.options;
                 var labels = options.labels;
                 if (labels.visible) {
+                    var labelTemplate = getTemplate(labels);
                     var labelText;
-                    if (labels.template) {
-                        var labelTemplate = TemplateService.compile(labels.template);
+                    if (labelTemplate) {
                         labelText = labelTemplate({
                             dataItem: this.dataItem,
                             category: this.category,
@@ -35384,6 +35382,7 @@
                     excluded: [
                         'data',
                         'tooltip',
+                        'content',
                         'template',
                         'visual',
                         'toggle',
@@ -36178,7 +36177,7 @@
                     var length = points.length;
                     for (var j = 0; j < length; j++) {
                         var point = points[j];
-                        if (point && point.overlapsBox && point.overlapsBox(clipBox)) {
+                        if (point && point.visible !== false && point.overlapsBox && point.overlapsBox(clipBox)) {
                             var label = point.label;
                             var note = point.note;
                             if (label && label.options.visible) {
@@ -36507,9 +36506,9 @@
                         continue;
                     }
                     var text = currentSeries.name || '';
-                    var labelTemplate = seriesVisible ? labels.template : inactiveItemsLabels.template || labels.template;
+                    var labelTemplate = seriesVisible ? getTemplate(labels) : getTemplate(inactiveItemsLabels) || getTemplate(labels);
                     if (labelTemplate) {
-                        text = TemplateService.compile(labelTemplate)({
+                        text = labelTemplate({
                             text: text,
                             series: currentSeries
                         });
@@ -36647,6 +36646,7 @@
                     var axis = yAxes[i];
                     var pane = axis.pane;
                     var paneId = pane.id;
+                    var visible = axis.options.visible !== false;
                     var anchor = paneAnchor(xAxes, pane) || xAnchor;
                     var anchorCrossings = xAnchorCrossings;
                     if (anchor !== xAnchor) {
@@ -36660,7 +36660,9 @@
                         if (leftAnchors[paneId]) {
                             axis.reflow(axis.box.alignTo(leftAnchors[paneId].box, LEFT).translate(-axis.options.margin, 0));
                         }
-                        leftAnchors[paneId] = axis;
+                        if (visible) {
+                            leftAnchors[paneId] = axis;
+                        }
                     }
                     if (round(axis.lineBox().x2) === round(anchor.lineBox().x2)) {
                         if (!axis._mirrored) {
@@ -36671,7 +36673,9 @@
                         if (rightAnchors[paneId]) {
                             axis.reflow(axis.box.alignTo(rightAnchors[paneId].box, RIGHT).translate(axis.options.margin, 0));
                         }
-                        rightAnchors[paneId] = axis;
+                        if (visible) {
+                            rightAnchors[paneId] = axis;
+                        }
                     }
                     if (i !== 0 && yAnchor.pane === axis.pane) {
                         axis.alignTo(yAnchor);
@@ -36682,6 +36686,7 @@
                     var axis$1 = xAxes[i$1];
                     var pane$1 = axis$1.pane;
                     var paneId$1 = pane$1.id;
+                    var visible$1 = axis$1.options.visible !== false;
                     var anchor$1 = paneAnchor(yAxes, pane$1) || yAnchor;
                     var anchorCrossings$1 = yAnchorCrossings;
                     if (anchor$1 !== yAnchor) {
@@ -36700,13 +36705,17 @@
                         if (topAnchors[paneId$1]) {
                             axis$1.reflow(axis$1.box.alignTo(topAnchors[paneId$1].box, TOP).translate(0, -axis$1.options.margin));
                         }
-                        topAnchors[paneId$1] = axis$1;
+                        if (visible$1) {
+                            topAnchors[paneId$1] = axis$1;
+                        }
                     }
                     if (round(axis$1.lineBox().y2, datavizConstants.COORD_PRECISION) === round(anchor$1.lineBox().y2, datavizConstants.COORD_PRECISION)) {
                         if (bottomAnchors[paneId$1]) {
                             axis$1.reflow(axis$1.box.alignTo(bottomAnchors[paneId$1].box, BOTTOM).translate(0, axis$1.options.margin));
                         }
-                        bottomAnchors[paneId$1] = axis$1;
+                        if (visible$1) {
+                            bottomAnchors[paneId$1] = axis$1;
+                        }
                     }
                     if (i$1 !== 0) {
                         axis$1.alignTo(xAnchor);
@@ -37201,9 +37210,9 @@
                 }
             },
             _createLabel: function (options) {
+                var labelTemplate = getTemplate(options);
                 var labelText;
-                if (options.template) {
-                    var labelTemplate = TemplateService.compile(options.template);
+                if (labelTemplate) {
                     labelText = labelTemplate({
                         dataItem: this.dataItem,
                         category: this.category,
@@ -38880,14 +38889,12 @@
         var Selection = Class.extend({
             init: function (chart, categoryAxis, options, observer) {
                 var chartElement = chart.element;
-                var valueAxis = this.getValueAxis(categoryAxis);
                 this.options = deepExtend({}, this.options, options);
                 this.chart = chart;
                 this.observer = observer;
                 this.chartElement = chartElement;
                 this.categoryAxis = categoryAxis;
                 this._dateAxis = this.categoryAxis instanceof DateCategoryAxis;
-                this.valueAxis = valueAxis;
                 this.initOptions();
                 if (this.options.visible) {
                     this.createElements();
@@ -38902,7 +38909,8 @@
                     top: options.offset.top,
                     left: options.offset.left,
                     width: options.width,
-                    height: options.height
+                    height: options.height,
+                    direction: 'ltr'
                 });
                 var selection = this.selection = createDiv('k-selection');
                 this.leftMask = createDiv('k-mask');
@@ -38954,9 +38962,7 @@
                 var ref = this;
                 var options = ref.options;
                 var categoryAxis = ref.categoryAxis;
-                var valueAxis = ref.valueAxis;
-                var categoryAxisLineBox = categoryAxis.lineBox();
-                var valueAxisLineBox = valueAxis.lineBox();
+                var box = categoryAxis.pane.chartsBox();
                 var intlService = this.chart.chartService.intl;
                 if (this._dateAxis) {
                     deepExtend(options, {
@@ -38973,15 +38979,15 @@
                 var paddingLeft = ref$1.paddingLeft;
                 var paddingTop = ref$1.paddingTop;
                 this.options = deepExtend({}, {
-                    width: categoryAxisLineBox.width(),
-                    height: valueAxisLineBox.height() + SELECTOR_HEIGHT_ADJUST,
+                    width: box.width(),
+                    height: box.height() + SELECTOR_HEIGHT_ADJUST,
                     padding: {
                         left: paddingLeft,
                         top: paddingTop
                     },
                     offset: {
-                        left: valueAxisLineBox.x2 + paddingLeft,
-                        top: valueAxisLineBox.y1 + paddingTop
+                        left: box.x1 + paddingLeft,
+                        top: box.y1 + paddingTop
                     },
                     from: options.min,
                     to: options.max
@@ -39048,9 +39054,10 @@
                 var ref = this;
                 var state = ref._state;
                 var options = ref.options;
-                var categories = ref.categoryAxis.options.categories;
+                var axisOptions = ref.categoryAxis.options;
                 var range = state.range;
                 var target = state.moveTarget;
+                var reverse = axisOptions.reverse;
                 var from = this._index(options.from);
                 var to = this._index(options.to);
                 var min = this._index(options.min);
@@ -39061,18 +39068,20 @@
                     to: range.to
                 };
                 var span = range.to - range.from;
-                var scale = elementStyles(this.wrapper, 'width').width / (categories.length - 1);
-                var offset = Math.round(delta / scale);
+                var scale = elementStyles(this.wrapper, 'width').width / (axisOptions.categories.length - 1);
+                var offset = Math.round(delta / scale) * (reverse ? -1 : 1);
                 if (!target) {
                     return;
                 }
+                var leftHandle = hasClasses(target, 'k-left-handle');
+                var rightHandle = hasClasses(target, 'k-right-handle');
                 if (hasClasses(target, 'k-selection k-selection-bg')) {
                     range.from = Math.min(Math.max(min, from - offset), max - span);
                     range.to = Math.min(range.from + span, max);
-                } else if (hasClasses(target, 'k-left-handle')) {
+                } else if (leftHandle && !reverse || rightHandle && reverse) {
                     range.from = Math.min(Math.max(min, from - offset), max - 1);
                     range.to = Math.max(range.from + 1, range.to);
-                } else if (hasClasses(target, 'k-right-handle')) {
+                } else if (leftHandle && reverse || rightHandle && !reverse) {
                     range.to = Math.min(Math.max(min + 1, to - offset), max);
                     range.from = Math.min(range.to - 1, range.from);
                 }
@@ -39219,15 +39228,19 @@
             },
             move: function (from, to) {
                 var options = this.options;
+                var reverse = this.categoryAxis.options.reverse;
                 var offset = options.offset;
                 var padding = options.padding;
                 var border = options.selection.border;
-                var box = this._slot(from);
-                var leftMaskWidth = round(box.x1 - offset.left + padding.left);
+                var left = reverse ? to : from;
+                var right = reverse ? from : to;
+                var edge = 'x' + (reverse ? 2 : 1);
+                var box = this._slot(left);
+                var leftMaskWidth = round(box[edge] - offset.left + padding.left);
                 elementStyles(this.leftMask, { width: leftMaskWidth });
                 elementStyles(this.selection, { left: leftMaskWidth });
-                box = this._slot(to);
-                var rightMaskWidth = round(options.width - (box.x1 - offset.left + padding.left));
+                box = this._slot(right);
+                var rightMaskWidth = round(options.width - (box[edge] - offset.left + padding.left));
                 elementStyles(this.rightMask, { width: rightMaskWidth });
                 var distance = options.width - rightMaskWidth;
                 if (distance !== options.width) {
@@ -39272,16 +39285,6 @@
                 if (range.from !== oldRange.from || range.to !== oldRange.to) {
                     this.set(range.from, range.to);
                     return true;
-                }
-            },
-            getValueAxis: function (categoryAxis) {
-                var axes = categoryAxis.pane.axes;
-                var axesCount = axes.length;
-                for (var i = 0; i < axesCount; i++) {
-                    var axis = axes[i];
-                    if (axis.options.vertical !== categoryAxis.options.vertical) {
-                        return axis;
-                    }
                 }
             },
             trigger: function (name, args) {
@@ -39705,8 +39708,8 @@
                     return;
                 }
                 this._rendered = true;
-                if (labels.template) {
-                    var labelTemplate = TemplateService.compile(labels.template);
+                var labelTemplate = getTemplate(labels);
+                if (labelTemplate) {
                     labelText = labelTemplate({
                         dataItem: this.dataItem,
                         category: this.category,
@@ -39717,7 +39720,7 @@
                 } else if (labels.format) {
                     labelText = chartService.format.auto(labels.format, labelText);
                 }
-                if (labels.visible && labelText) {
+                if (labels.visible && (labelText || labelText === 0)) {
                     if (labels.position === CENTER || labels.position === INSIDE_END) {
                         if (!labels.color) {
                             var brightnessValue = new Color(this.options.color).percBrightness();
@@ -39979,10 +39982,10 @@
                 var inactiveItemsLabels = inactiveItems.labels || {};
                 if (options && options.visibleInLegend !== false) {
                     var pointVisible = options.visible !== false;
-                    var labelTemplate = pointVisible ? labelsOptions.template : inactiveItemsLabels.template || labelsOptions.template;
+                    var labelTemplate = pointVisible ? getTemplate(labelsOptions) : getTemplate(inactiveItemsLabels) || getTemplate(labelsOptions);
                     var text = options.category || '';
                     if (labelTemplate) {
-                        text = TemplateService.compile(labelTemplate)({
+                        text = labelTemplate({
                             text: text,
                             series: options.series,
                             dataItem: options.dataItem,
@@ -40023,21 +40026,36 @@
                 return pointVisibility[index];
             }
         }
-        function seriesTotal(series) {
+        function bindSegments(series) {
             var data = series.data;
+            var points = [];
             var sum = 0;
-            for (var i = 0; i < data.length; i++) {
-                var pointData = SeriesBinder.current.bindPoint(series, i);
+            var count = 0;
+            for (var idx = 0; idx < data.length; idx++) {
+                var pointData = SeriesBinder.current.bindPoint(series, idx);
                 var value = pointData.valueFields.value;
                 if (isString(value)) {
                     value = parseFloat(value);
                 }
-                var visible = segmentVisible(series, pointData.fields, i);
-                if (isNumber(value) && visible !== false) {
-                    sum += Math.abs(value);
+                if (isNumber(value)) {
+                    pointData.visible = segmentVisible(series, pointData.fields, idx) !== false;
+                    pointData.value = Math.abs(value);
+                    points.push(pointData);
+                    if (pointData.visible) {
+                        sum += pointData.value;
+                    }
+                    if (value !== 0) {
+                        count++;
+                    }
+                } else {
+                    points.push(null);
                 }
             }
-            return sum;
+            return {
+                total: sum,
+                points: points,
+                count: count
+            };
         }
         var PIE_SECTOR_ANIM_DELAY = 70;
         var PieChart = ChartElement.extend({
@@ -40066,8 +40084,15 @@
                 for (var seriesIx = 0; seriesIx < seriesCount; seriesIx++) {
                     var currentSeries = series[seriesIx];
                     var data = currentSeries.data;
-                    var total = seriesTotal(currentSeries);
+                    var ref$1 = bindSegments(currentSeries);
+                    var total = ref$1.total;
+                    var points = ref$1.points;
+                    var count = ref$1.count;
                     var anglePerValue = 360 / total;
+                    var constantAngle = void 0;
+                    if (!isFinite(anglePerValue)) {
+                        constantAngle = 360 / count;
+                    }
                     var currentAngle = void 0;
                     if (defined(currentSeries.startAngle)) {
                         currentAngle = currentSeries.startAngle;
@@ -40079,25 +40104,27 @@
                             currentSeries.labels.position = CENTER;
                         }
                     }
-                    for (var i = 0; i < data.length; i++) {
-                        var pointData = SeriesBinder.current.bindPoint(currentSeries, i);
-                        var value = pointData.valueFields.value;
-                        var plotValue = Math.abs(value);
+                    for (var i = 0; i < points.length; i++) {
+                        var pointData = points[i];
+                        if (!pointData) {
+                            continue;
+                        }
                         var fields = pointData.fields;
-                        var angle = plotValue * anglePerValue;
+                        var value = pointData.value;
+                        var visible = pointData.visible;
+                        var angle = value !== 0 ? constantAngle || value * anglePerValue : 0;
                         var explode = data.length !== 1 && Boolean(fields.explode);
                         if (!isFunction(currentSeries.color)) {
                             currentSeries.color = fields.color || seriesColors[i % colorsCount];
                         }
-                        var visible = segmentVisible(currentSeries, fields, i);
-                        callback(value, new dataviz.Ring(null, 0, 0, currentAngle, angle), {
+                        callback(pointData.valueFields.value, new dataviz.Ring(null, 0, 0, currentAngle, angle), {
                             owner: this$1,
                             category: fields.category || '',
                             index: i,
                             series: currentSeries,
                             seriesIx: seriesIx,
                             dataItem: data[i],
-                            percentage: total !== 0 ? plotValue / total : 0,
+                            percentage: total !== 0 ? value / total : 0,
                             explode: explode,
                             visibleInLegend: fields.visibleInLegend,
                             visible: visible,
@@ -40122,6 +40149,7 @@
                     defaults: series._defaults,
                     excluded: [
                         'data',
+                        'content',
                         'template',
                         'visual',
                         'toggle'
@@ -40309,7 +40337,7 @@
                                 delay: segment.animationDelay
                             }
                         });
-                        if (label.options.position === OUTSIDE_END && segment.value !== 0) {
+                        if (label.options.position === OUTSIDE_END) {
                             var box = label.box;
                             var centerPoint = sector.center;
                             var start = sector.point(angle);
@@ -40623,7 +40651,10 @@
                 var box = ref.box;
                 var defaultPadding = Math.min(box.width(), box.height()) * DEFAULT_PADDING;
                 var padding = getSpacing(options.padding || {}, defaultPadding);
-                var axisBox = box.clone().unpad(padding);
+                var paddingBox = box.clone().unpad(padding);
+                var axisBox = paddingBox.clone();
+                axisBox.y2 = axisBox.y1 + Math.min(axisBox.width(), axisBox.height());
+                axisBox.align(paddingBox, Y, CENTER);
                 var valueAxisBox = axisBox.clone().shrink(0, axisBox.height() / 2);
                 polarAxis.reflow(axisBox);
                 valueAxis.reflow(valueAxisBox);
@@ -41175,25 +41206,26 @@
                 if (!data) {
                     return;
                 }
-                var total = seriesTotal(series);
-                for (var i = 0; i < data.length; i++) {
-                    var pointData = SeriesBinder.current.bindPoint(series, i);
-                    var value = pointData.valueFields.value;
-                    if (value === null || value === undefined) {
+                var ref$1 = bindSegments(series);
+                var total = ref$1.total;
+                var points = ref$1.points;
+                for (var i = 0; i < points.length; i++) {
+                    var pointData = points[i];
+                    if (!pointData) {
                         continue;
                     }
                     var fields = pointData.fields;
                     if (!isFunction(series.color)) {
                         series.color = fields.color || seriesColors[i % seriesColors.length];
                     }
-                    var visible = segmentVisible(series, fields, i);
                     fields = deepExtend({
                         index: i,
                         owner: this$1,
                         series: series,
                         dataItem: data[i],
-                        percentage: Math.abs(value) / total
-                    }, fields, { visible: visible });
+                        percentage: pointData.value / total
+                    }, fields, { visible: pointData.visible });
+                    var value = pointData.valueFields.value;
                     var segment = this$1.createSegment(value, fields);
                     var label = this$1.createLabel(value, fields);
                     if (segment && label) {
@@ -41212,6 +41244,8 @@
                     defaults: series._defaults,
                     excluded: [
                         'data',
+                        'content',
+                        'template',
                         'toggle',
                         'visual'
                     ]
@@ -41235,8 +41269,8 @@
                 var labels = deepExtend({}, this.options.labels, series.labels);
                 var text = value;
                 if (labels.visible) {
-                    if (labels.template) {
-                        var labelTemplate = TemplateService.compile(labels.template);
+                    var labelTemplate = getTemplate(labels);
+                    if (labelTemplate) {
                         text = labelTemplate({
                             dataItem: dataItem,
                             value: value,
@@ -41671,6 +41705,7 @@
                 this.bindCategories();
                 dataviz.FontLoader.preloadFonts(userOptions, function () {
                     if (!this$1._destroyed) {
+                        this$1.trigger('init');
                         this$1._redraw();
                         this$1._attachEvents();
                     }
@@ -42986,7 +43021,6 @@
             hasValue: hasValue,
             isDateAxis: isDateAxis,
             segmentVisible: segmentVisible,
-            seriesTotal: seriesTotal,
             singleItemOrArray: singleItemOrArray
         });
     }(window.kendo.jQuery));
@@ -43071,7 +43105,8 @@
                 showTooltip: '_showTooltip',
                 hideTooltip: '_hideTooltip',
                 legendItemClick: '_onLegendItemClick',
-                render: '_onRender'
+                render: '_onRender',
+                init: '_onInit'
             }
         });
         var Chart = Widget.extend({
@@ -43120,6 +43155,7 @@
                 name: 'Chart',
                 renderAs: '',
                 theme: 'default',
+                axisDefaults: {},
                 chartArea: {},
                 legend: {},
                 categoryAxis: {},
@@ -43288,6 +43324,9 @@
                     sender: this
                 });
             },
+            _onInit: function (e) {
+                this._instance = e.sender;
+            },
             _initDataSource: function (userOptions) {
                 var chart = this, dataSource = (userOptions || {}).dataSource;
                 chart._dataChangeHandler = proxy(chart._onDataChanged, chart);
@@ -43346,7 +43385,6 @@
                 }
             },
             _copyMembers: function (instance) {
-                this._instance = instance;
                 this.options = instance.options;
                 this._originalOptions = instance._originalOptions;
                 this.surface = instance.surface;
@@ -50778,7 +50816,6 @@
         var elementStyles = dataviz.elementStyles;
         var deepExtend = dataviz.deepExtend;
         var toTime = dataviz.toTime;
-        var services = dataviz.services;
         var datavizConstants = dataviz.constants;
         var Chart = dataviz.Chart;
         var drawing = kendo.drawing;
@@ -50848,6 +50885,7 @@
                 var scale = posRange / range;
                 var offset = middle - options.min;
                 var text = this.chartService.intl.format(options.format, from, to);
+                var template = dataviz.getTemplate(options);
                 this.clearHideTimeout();
                 if (!this._visible) {
                     elementStyles(element, {
@@ -50856,8 +50894,8 @@
                     });
                     this._visible = true;
                 }
-                if (options.template) {
-                    text = services.TemplateService.compile(options.template)({
+                if (template) {
+                    text = template({
                         from: from,
                         to: to
                     });
@@ -50998,7 +51036,7 @@
                     this.hint = new NavigatorHint(chart.element, chart.chartService, {
                         min: min,
                         max: max,
-                        template: options.hint.template,
+                        template: dataviz.getTemplate(options.hint),
                         format: options.hint.format
                     });
                 }
@@ -66089,9 +66127,13 @@
                 var numberFormat = that._format(that.options.format);
                 setTimeout(function () {
                     var result = that._parse(element.value);
-                    var isValid = that._numericRegex(numberFormat).test(element.value);
-                    if (result === NULL || that._adjust(result) !== result || !isValid) {
+                    if (result === NULL) {
                         that._update(value);
+                    } else {
+                        element.value = result.toString().replace(POINT, numberFormat[POINT]);
+                        if (that._adjust(result) !== result || !that._numericRegex(numberFormat).test(element.value)) {
+                            that._update(value);
+                        }
                     }
                 });
             },
@@ -66816,7 +66858,7 @@
             }]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, TabKeyTrap = kendo.ui.Popup.TabKeyTrap, Draggable = kendo.ui.Draggable, isPlainObject = $.isPlainObject, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, proxy = $.proxy, extend = $.extend, each = $.each, template = kendo.template, BODY = 'body', templates, NS = '.kendoWindow', KWINDOW = '.k-window', KWINDOWTITLE = '.k-window-title', KWINDOWTITLEBAR = KWINDOWTITLE + 'bar', KWINDOWCONTENT = '.k-window-content', KWINDOWRESIZEHANDLES = '.k-resize-handle', KOVERLAY = '.k-overlay', KCONTENTFRAME = 'k-content-frame', LOADING = 'k-i-loading', KHOVERSTATE = 'k-state-hover', KFOCUSEDSTATE = 'k-state-focused', MAXIMIZEDSTATE = 'k-window-maximized', VISIBLE = ':visible', HIDDEN = 'hidden', CURSOR = 'cursor', OPEN = 'open', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', CLOSE = 'close', REFRESH = 'refresh', MINIMIZE = 'minimize', MAXIMIZE = 'maximize', RESIZESTART = 'resizeStart', RESIZE = 'resize', RESIZEEND = 'resizeEnd', DRAGSTART = 'dragstart', DRAGEND = 'dragend', ERROR = 'error', OVERFLOW = 'overflow', ZINDEX = 'zIndex', MINIMIZE_MAXIMIZE = '.k-window-actions .k-i-window-minimize,.k-window-actions .k-i-window-maximize', KPIN = '.k-i-pin', KUNPIN = '.k-i-unpin', PIN_UNPIN = KPIN + ',' + KUNPIN, TITLEBAR_BUTTONS = '.k-window-titlebar .k-window-action', REFRESHICON = '.k-window-titlebar .k-i-refresh', isLocalUrl = kendo.isLocalUrl;
+        var kendo = window.kendo, Widget = kendo.ui.Widget, TabKeyTrap = kendo.ui.Popup.TabKeyTrap, Draggable = kendo.ui.Draggable, isPlainObject = $.isPlainObject, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, proxy = $.proxy, extend = $.extend, each = $.each, template = kendo.template, BODY = 'body', templates, NS = '.kendoWindow', KWINDOW = '.k-window', KWINDOWTITLE = '.k-window-title', KWINDOWTITLEBAR = KWINDOWTITLE + 'bar', KWINDOWCONTENT = '.k-window-content', KWINDOWRESIZEHANDLES = '.k-resize-handle', KOVERLAY = '.k-overlay', KCONTENTFRAME = 'k-content-frame', LOADING = 'k-i-loading', KHOVERSTATE = 'k-state-hover', KFOCUSEDSTATE = 'k-state-focused', MAXIMIZEDSTATE = 'k-window-maximized', VISIBLE = ':visible', HIDDEN = 'hidden', CURSOR = 'cursor', OPEN = 'open', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', CLOSE = 'close', REFRESH = 'refresh', MINIMIZE = 'minimize', MAXIMIZE = 'maximize', RESIZESTART = 'resizeStart', RESIZE = 'resize', RESIZEEND = 'resizeEnd', DRAGSTART = 'dragstart', DRAGEND = 'dragend', ERROR = 'error', OVERFLOW = 'overflow', ZINDEX = 'zIndex', MINIMIZE_MAXIMIZE = '.k-window-actions .k-i-window-minimize,.k-window-actions .k-i-window-maximize', KPIN = '.k-i-pin', KUNPIN = '.k-i-unpin', PIN_UNPIN = KPIN + ',' + KUNPIN, TITLEBAR_BUTTONS = '.k-window-titlebar .k-window-action', REFRESHICON = '.k-window-titlebar .k-i-refresh', zero = /^0[a-z]*$/i, isLocalUrl = kendo.isLocalUrl;
         function defined(x) {
             return typeof x != 'undefined';
         }
@@ -66877,9 +66919,6 @@
                     that._dimensions();
                 }
                 that._position();
-                if (options.pinned) {
-                    that.pin(true);
-                }
                 if (content) {
                     that.refresh(content);
                 }
@@ -66895,6 +66934,9 @@
                 windowContent.on('keydown' + NS, proxy(that._keydown, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that));
                 this._resizable();
                 this._draggable();
+                if (options.pinned) {
+                    that.pin();
+                }
                 id = element.attr('id');
                 if (id) {
                     id = id + '_wnd_title';
@@ -67037,7 +67079,9 @@
                 }
             },
             _actions: function () {
-                var actions = this.options.actions;
+                var options = this.options;
+                var actions = options.actions;
+                var pinned = options.pinned;
                 var titlebar = this.wrapper.children(KWINDOWTITLEBAR);
                 var container = titlebar.find('.k-window-actions');
                 var windowSpecificCommands = [
@@ -67045,6 +67089,7 @@
                     'minimize'
                 ];
                 actions = $.map(actions, function (action) {
+                    action = pinned && action.toLowerCase() === 'pin' ? 'unpin' : action;
                     return { name: windowSpecificCommands.indexOf(action.toLowerCase()) > -1 ? 'window-' + action : action };
                 });
                 container.html(kendo.render(templates.action, actions));
@@ -67548,9 +67593,9 @@
             isMinimized: function () {
                 return this.options.isMinimized;
             },
-            pin: function (force) {
+            pin: function () {
                 var that = this, win = $(window), wrapper = that.wrapper, top = parseInt(wrapper.css('top'), 10), left = parseInt(wrapper.css('left'), 10);
-                if (force || !that.options.pinned && !that.options.isMaximized) {
+                if (!that.options.isMaximized) {
                     wrapper.css({
                         position: 'fixed',
                         top: top - win.scrollTop(),
@@ -67558,11 +67603,12 @@
                     });
                     wrapper.children(KWINDOWTITLEBAR).find(KPIN).addClass('k-i-unpin').removeClass('k-i-pin');
                     that.options.pinned = true;
+                    that.options.draggable = false;
                 }
             },
             unpin: function () {
                 var that = this, win = $(window), wrapper = that.wrapper, top = parseInt(wrapper.css('top'), 10), left = parseInt(wrapper.css('left'), 10);
-                if (that.options.pinned && !that.options.isMaximized) {
+                if (!that.options.isMaximized) {
                     wrapper.css({
                         position: '',
                         top: top + win.scrollTop(),
@@ -67570,6 +67616,7 @@
                     });
                     wrapper.children(KWINDOWTITLEBAR).find(KUNPIN).addClass('k-i-pin').removeClass('k-i-unpin');
                     that.options.pinned = false;
+                    that.options.draggable = true;
                 }
             },
             _onDocumentResize: function () {
@@ -67724,6 +67771,26 @@
             that._draggable.userEvents.bind('press', proxy(that.addOverlay, that));
             that._draggable.userEvents.bind('release', proxy(that.removeOverlay, that));
         }
+        function getPosition(elem) {
+            var result = {
+                    top: elem.offsetTop,
+                    left: elem.offsetLeft
+                }, parent = elem.offsetParent;
+            while (parent) {
+                result.top += parent.offsetTop;
+                result.left += parent.offsetLeft;
+                var parentOverflowX = $(parent).css('overflowX');
+                var parentOverflowY = $(parent).css('overflowY');
+                if (parentOverflowY === 'auto' || parentOverflowY === 'scroll') {
+                    result.top -= parent.scrollTop;
+                }
+                if (parentOverflowX === 'auto' || parentOverflowX === 'scroll') {
+                    result.left -= parent.scrollLeft;
+                }
+                parent = parent.offsetParent;
+            }
+            return result;
+        }
         WindowResizing.prototype = {
             addOverlay: function () {
                 this.owner.wrapper.append(templates.overlay);
@@ -67747,6 +67814,23 @@
                     height: wrapper.height()
                 };
                 that.containerOffset = kendo.getOffset(wnd.appendTo, 'position');
+                var offsetParent = wrapper.offsetParent();
+                if (offsetParent.is('html')) {
+                    that.containerOffset.top = that.containerOffset.left = 0;
+                } else {
+                    var marginTop = offsetParent.css('margin-top');
+                    var marginLeft = offsetParent.css('margin-left');
+                    var hasMargin = !zero.test(marginTop) || !zero.test(marginLeft);
+                    if (hasMargin) {
+                        var wrapperPosition = getPosition(wrapper[0]);
+                        var relativeElMarginLeft = wrapperPosition.left - that.containerOffset.left - that.initialPosition.left;
+                        var relativeElMarginTop = wrapperPosition.top - that.containerOffset.top - that.initialPosition.top;
+                        that._relativeElMarginLeft = relativeElMarginLeft > 1 ? relativeElMarginLeft : 0;
+                        that._relativeElMarginTop = relativeElMarginTop > 1 ? relativeElMarginTop : 0;
+                        that.initialPosition.left += that._relativeElMarginLeft;
+                        that.initialPosition.top += that._relativeElMarginTop;
+                    }
+                }
                 wrapper.children(KWINDOWRESIZEHANDLES).not(e.currentTarget).hide();
                 $(BODY).css(CURSOR, e.currentTarget.css(CURSOR));
             },
@@ -67762,7 +67846,7 @@
                     windowRight = initialPosition.left + initialSize.width + containerOffset.left;
                     newWidth = constrain(windowRight - x, options.minWidth, options.maxWidth);
                     wrapper.css({
-                        left: windowRight - newWidth - containerOffset.left,
+                        left: windowRight - newWidth - containerOffset.left - (that._relativeElMarginLeft || 0),
                         width: newWidth
                     });
                 }
@@ -67777,7 +67861,7 @@
                     windowBottom = initialPosition.top + initialSize.height + containerOffset.top;
                     newHeight = constrain(windowBottom - newWindowTop, options.minHeight, options.maxHeight);
                     wrapper.css({
-                        top: windowBottom - newHeight - containerOffset.top,
+                        top: windowBottom - newHeight - containerOffset.top - (that._relativeElMarginTop || 0),
                         height: newHeight
                     });
                 }
@@ -67829,7 +67913,7 @@
         WindowDragging.prototype = {
             dragstart: function (e) {
                 var wnd = this.owner, element = wnd.element, actions = element.find('.k-window-actions'), containerOffset = kendo.getOffset(wnd.appendTo);
-                this._preventDragging = wnd.trigger(DRAGSTART);
+                this._preventDragging = wnd.trigger(DRAGSTART) || !wnd.options.draggable;
                 if (this._preventDragging) {
                     return;
                 }
@@ -68390,7 +68474,7 @@
                 var siblings = this.listView.content.prevAll(':visible');
                 siblings.each(function () {
                     var element = $(this);
-                    offsetHeight += outerHeight(element);
+                    offsetHeight += outerHeight(element, true);
                 });
                 return offsetHeight;
             },
@@ -68511,7 +68595,8 @@
                     open: proxy(that._openHandler, that),
                     close: proxy(that._closeHandler, that),
                     animation: that.options.animation,
-                    isRtl: support.isRtl(that.wrapper)
+                    isRtl: support.isRtl(that.wrapper),
+                    autosize: that.options.autoWidth
                 }));
             },
             _makeUnselectable: function () {
@@ -68675,8 +68760,11 @@
                 that._busy = null;
                 that._showClear();
             },
-            _showBusy: function () {
+            _showBusy: function (e) {
                 var that = this;
+                if (e.isDefaultPrevented()) {
+                    return;
+                }
                 that._request = true;
                 if (that._busy) {
                     return;
@@ -70566,7 +70654,7 @@
                     idx = -1;
                 }
                 this._resetOptionLabel(' k-state-selected');
-                if (dataItem) {
+                if (dataItem || dataItem === 0) {
                     text = dataItem;
                     value = that._dataValue(dataItem);
                     if (optionLabel) {
@@ -70773,6 +70861,11 @@
 }(function () {
     (function ($, undefined) {
         var dataviz = kendo.dataviz, draw = kendo.drawing, geom = kendo.geometry, diagram = dataviz.diagram, Widget = kendo.ui.Widget, Class = kendo.Class, proxy = $.proxy, deepExtend = kendo.deepExtend, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, extend = $.extend, HierarchicalDataSource = kendo.data.HierarchicalDataSource, Canvas = diagram.Canvas, Group = diagram.Group, Rectangle = diagram.Rectangle, Circle = diagram.Circle, CompositeTransform = diagram.CompositeTransform, Rect = diagram.Rect, Path = diagram.Path, DeleteShapeUnit = diagram.DeleteShapeUnit, DeleteConnectionUnit = diagram.DeleteConnectionUnit, TextBlock = diagram.TextBlock, Image = diagram.Image, Point = diagram.Point, Intersect = diagram.Intersect, ConnectionEditAdorner = diagram.ConnectionEditAdorner, UndoRedoService = diagram.UndoRedoService, ToolService = diagram.ToolService, Selector = diagram.Selector, ResizingAdorner = diagram.ResizingAdorner, ConnectorsAdorner = diagram.ConnectorsAdorner, Cursors = diagram.Cursors, Utils = diagram.Utils, Observable = kendo.Observable, ToBackUnit = diagram.ToBackUnit, ToFrontUnit = diagram.ToFrontUnit, PolylineRouter = diagram.PolylineRouter, CascadingRouter = diagram.CascadingRouter, isUndefined = Utils.isUndefined, isDefined = Utils.isDefined, defined = draw.util.defined, isArray = $.isArray, isFunction = kendo.isFunction, isString = Utils.isString, isPlainObject = $.isPlainObject, math = Math;
+        var SASS_THEMES = [
+            'sass',
+            'default-v2',
+            'bootstrap-v4'
+        ];
         var NS = '.kendoDiagram', CASCADING = 'cascading', ITEMBOUNDSCHANGE = 'itemBoundsChange', CHANGE = 'change', CLICK = 'click', DRAG = 'drag', DRAG_END = 'dragEnd', DRAG_START = 'dragStart', MOUSE_ENTER = 'mouseEnter', MOUSE_LEAVE = 'mouseLeave', ERROR = 'error', AUTO = 'Auto', TOP = 'Top', RIGHT = 'Right', LEFT = 'Left', BOTTOM = 'Bottom', MAXINT = 9007199254740992, SELECT = 'select', ITEMROTATE = 'itemRotate', PAN = 'pan', ZOOM_START = 'zoomStart', ZOOM_END = 'zoomEnd', NONE = 'none', DEFAULT_CANVAS_WIDTH = 600, DEFAULT_CANVAS_HEIGHT = 600, DEFAULT_SHAPE_TYPE = 'rectangle', DEFAULT_SHAPE_WIDTH = 100, DEFAULT_SHAPE_HEIGHT = 100, DEFAULT_SHAPE_MINWIDTH = 20, DEFAULT_SHAPE_MINHEIGHT = 20, DEFAULT_SHAPE_POSITION = 0, DEFAULT_CONNECTION_BACKGROUND = 'Yellow', MAX_VALUE = Number.MAX_VALUE, MIN_VALUE = -Number.MAX_VALUE, ABSOLUTE = 'absolute', TRANSFORMED = 'transformed', ROTATED = 'rotated', TRANSPARENT = 'transparent', WIDTH = 'width', HEIGHT = 'height', X = 'x', Y = 'y', MOUSEWHEEL_NS = 'DOMMouseScroll' + NS + ' mousewheel' + NS, MOBILE_ZOOM_RATE = 0.05, MOBILE_PAN_DISTANCE = 5, BUTTON_TEMPLATE = '<a class="k-button k-button-icontext #=className#" href="\\#"><span class="#=iconClass# #=imageClass#"></span>#=text#</a>', CONNECTION_CONTENT_OFFSET = 5;
         diagram.DefaultConnectors = [
             { name: TOP },
@@ -72620,7 +72713,15 @@
                 }
             },
             _initTheme: function () {
-                var that = this, themes = dataviz.ui.themes || {}, themeName = ((that.options || {}).theme || '').toLowerCase(), themeOptions = (themes[themeName] || {}).diagram;
+                var that = this;
+                var themeName = ((that.options || {}).theme || '').toLowerCase();
+                var themes = dataviz.ui.themes || {};
+                var themeOptions;
+                if (SASS_THEMES.indexOf(themeName) != -1) {
+                    themeOptions = dataviz.autoTheme().diagram;
+                } else {
+                    themeOptions = (themes[themeName] || {}).diagram;
+                }
                 that.options = deepExtend({}, themeOptions, that.options);
                 if (that.options.editable === true) {
                     deepExtend(that.options, { editable: (themeOptions || {}).editable });
@@ -76607,44 +76708,6 @@
             } else {
                 self.value(val);
             }
-        });
-        defadvice('ui.AutoComplete', '$angular_getLogicValue', function () {
-            var options = this.self.options;
-            var values = this.self.value().split(options.separator);
-            var valuePrimitive = options.valuePrimitive;
-            var data = this.self.listView.selectedDataItems();
-            var dataItems = [];
-            for (var idx = 0, length = data.length; idx < length; idx++) {
-                var item = data[idx];
-                var dataValue = options.dataTextField ? item[options.dataTextField] : item;
-                for (var j = 0; j < values.length; j++) {
-                    if (dataValue === values[j]) {
-                        if (valuePrimitive) {
-                            dataItems.push(dataValue);
-                        } else {
-                            dataItems.push(item.toJSON());
-                        }
-                        break;
-                    }
-                }
-            }
-            return dataItems;
-        });
-        defadvice('ui.AutoComplete', '$angular_setLogicValue', function (value) {
-            if (value == null) {
-                value = [];
-            }
-            var self = this.self, dataTextField = self.options.dataTextField;
-            if (dataTextField && !self.options.valuePrimitive) {
-                if (value.length !== undefined) {
-                    value = $.map(value, function (item) {
-                        return item[dataTextField];
-                    });
-                } else {
-                    value = value[dataTextField];
-                }
-            }
-            self.value(value);
         });
         defadvice('ui.Widget', '$angular_init', function (element, options) {
             var self = this.self;

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1723,6 +1723,9 @@
                     'role': 'gridcell',
                     'style': column.hidden === true ? { 'display': 'none' } : {}
                 };
+                if (column.attributes) {
+                    extend(true, attr, column.attributes);
+                }
                 if (model._edit && column.field && model.editable(column.field)) {
                     attr[kendo.attr('container-for')] = column.field;
                 } else {
@@ -1744,9 +1747,6 @@
                         }
                         children.push(kendoDomElement('span', { className: iconClass.join(' ') }));
                         attr.style['white-space'] = 'nowrap';
-                    }
-                    if (column.attributes) {
-                        extend(true, attr, column.attributes);
                     }
                     if (column.command) {
                         if (model._edit) {

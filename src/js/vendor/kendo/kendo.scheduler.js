@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3232,7 +3232,8 @@
                         that.element.find('.k-state-expanded').removeClass('k-state-expanded');
                     }
                 });
-                toolbar.on(CLICK + NS, '.k-scheduler-views li.k-current-view', function () {
+                toolbar.on(CLICK + NS, '.k-scheduler-views li.k-current-view', function (e) {
+                    e.preventDefault();
                     that.element.find('.k-scheduler-views').toggleClass('k-state-expanded');
                     $(document).on(MOUSEDOWN + NS, function (e) {
                         if ($(e.target).closest('.k-scheduler-views').length === 0) {

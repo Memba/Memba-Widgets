@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -172,7 +172,6 @@
         var elementStyles = dataviz.elementStyles;
         var deepExtend = dataviz.deepExtend;
         var toTime = dataviz.toTime;
-        var services = dataviz.services;
         var datavizConstants = dataviz.constants;
         var Chart = dataviz.Chart;
         var drawing = kendo.drawing;
@@ -242,6 +241,7 @@
                 var scale = posRange / range;
                 var offset = middle - options.min;
                 var text = this.chartService.intl.format(options.format, from, to);
+                var template = dataviz.getTemplate(options);
                 this.clearHideTimeout();
                 if (!this._visible) {
                     elementStyles(element, {
@@ -250,8 +250,8 @@
                     });
                     this._visible = true;
                 }
-                if (options.template) {
-                    text = services.TemplateService.compile(options.template)({
+                if (template) {
+                    text = template({
                         from: from,
                         to: to
                     });
@@ -392,7 +392,7 @@
                     this.hint = new NavigatorHint(chart.element, chart.chartService, {
                         min: min,
                         max: max,
-                        template: options.hint.template,
+                        template: dataviz.getTemplate(options.hint),
                         format: options.hint.format
                     });
                 }

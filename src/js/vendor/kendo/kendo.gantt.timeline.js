@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1085,7 +1085,7 @@
                     headers = [];
                     for (var columnIndex = 0, columnCount = level.length; columnIndex < columnCount; columnIndex++) {
                         column = level[columnIndex];
-                        headerText = kendoTextElement(column.text);
+                        headerText = kendoHtmlElement(column.text);
                         headers.push(kendoDomElement('th', {
                             colspan: column.span,
                             className: styles.header + (column.isNonWorking ? ' ' + styles.nonWorking : '')

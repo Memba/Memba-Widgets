@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -207,8 +207,7 @@
         var isObject = dataviz.isObject;
         var deepExtend = dataviz.deepExtend;
         var eventElement = dataviz.eventElement;
-        var services = dataviz.services;
-        var TemplateService = services.TemplateService;
+        var getTemplate = dataviz.getTemplate;
         var TextBox = dataviz.TextBox;
         var ShapeElement = dataviz.ShapeElement;
         var getSpacing = dataviz.getSpacing;
@@ -226,6 +225,7 @@
         var elementStyles = dataviz.elementStyles;
         var hasClasses = dataviz.hasClasses;
         var bindEvents = dataviz.bindEvents;
+        var services = dataviz.services;
         var unbindEvents = dataviz.unbindEvents;
         var support = kendo.support;
         var drawing = kendo.drawing;
@@ -1137,8 +1137,10 @@
                 if (point) {
                     $.extend(point, fields);
                     point.owner = this;
-                    point.dataItem = series.data[categoryIx];
                     point.noteText = data.fields.noteText;
+                    if (!defined(point.dataItem)) {
+                        point.dataItem = series.data[categoryIx];
+                    }
                     this.addErrorBar(point, data, categoryIx);
                 }
                 this.points.push(point);
@@ -1154,6 +1156,7 @@
                         'aggregate',
                         '_events',
                         'tooltip',
+                        'content',
                         'template',
                         'visual',
                         'toggle',
@@ -1295,7 +1298,8 @@
                         category: outOfRangePoint.category,
                         categoryIx: categoryIx,
                         series: series,
-                        seriesIx: seriesIx
+                        seriesIx: seriesIx,
+                        dataItem: outOfRangePoint.item
                     });
                 }
             },
@@ -1391,9 +1395,9 @@
                     this.append(this.marker);
                 }
                 if (labels.visible) {
+                    var labelTemplate = getTemplate(labels);
                     var labelText = this.value;
-                    if (labels.template) {
-                        var labelTemplate = TemplateService.compile(labels.template);
+                    if (labelTemplate) {
                         labelText = labelTemplate({
                             dataItem: this.dataItem,
                             category: this.category,
@@ -2369,9 +2373,9 @@
                 var options = this.options;
                 var labels = options.labels;
                 if (labels.visible) {
+                    var labelTemplate = getTemplate(labels);
                     var labelText;
-                    if (labels.template) {
-                        var labelTemplate = TemplateService.compile(labels.template);
+                    if (labelTemplate) {
                         labelText = labelTemplate({
                             dataItem: this.dataItem,
                             category: this.category,
@@ -3599,6 +3603,7 @@
                     excluded: [
                         'data',
                         'tooltip',
+                        'content',
                         'template',
                         'visual',
                         'toggle',
@@ -4393,7 +4398,7 @@
                     var length = points.length;
                     for (var j = 0; j < length; j++) {
                         var point = points[j];
-                        if (point && point.overlapsBox && point.overlapsBox(clipBox)) {
+                        if (point && point.visible !== false && point.overlapsBox && point.overlapsBox(clipBox)) {
                             var label = point.label;
                             var note = point.note;
                             if (label && label.options.visible) {
@@ -4722,9 +4727,9 @@
                         continue;
                     }
                     var text = currentSeries.name || '';
-                    var labelTemplate = seriesVisible ? labels.template : inactiveItemsLabels.template || labels.template;
+                    var labelTemplate = seriesVisible ? getTemplate(labels) : getTemplate(inactiveItemsLabels) || getTemplate(labels);
                     if (labelTemplate) {
-                        text = TemplateService.compile(labelTemplate)({
+                        text = labelTemplate({
                             text: text,
                             series: currentSeries
                         });
@@ -4862,6 +4867,7 @@
                     var axis = yAxes[i];
                     var pane = axis.pane;
                     var paneId = pane.id;
+                    var visible = axis.options.visible !== false;
                     var anchor = paneAnchor(xAxes, pane) || xAnchor;
                     var anchorCrossings = xAnchorCrossings;
                     if (anchor !== xAnchor) {
@@ -4875,7 +4881,9 @@
                         if (leftAnchors[paneId]) {
                             axis.reflow(axis.box.alignTo(leftAnchors[paneId].box, LEFT).translate(-axis.options.margin, 0));
                         }
-                        leftAnchors[paneId] = axis;
+                        if (visible) {
+                            leftAnchors[paneId] = axis;
+                        }
                     }
                     if (round(axis.lineBox().x2) === round(anchor.lineBox().x2)) {
                         if (!axis._mirrored) {
@@ -4886,7 +4894,9 @@
                         if (rightAnchors[paneId]) {
                             axis.reflow(axis.box.alignTo(rightAnchors[paneId].box, RIGHT).translate(axis.options.margin, 0));
                         }
-                        rightAnchors[paneId] = axis;
+                        if (visible) {
+                            rightAnchors[paneId] = axis;
+                        }
                     }
                     if (i !== 0 && yAnchor.pane === axis.pane) {
                         axis.alignTo(yAnchor);
@@ -4897,6 +4907,7 @@
                     var axis$1 = xAxes[i$1];
                     var pane$1 = axis$1.pane;
                     var paneId$1 = pane$1.id;
+                    var visible$1 = axis$1.options.visible !== false;
                     var anchor$1 = paneAnchor(yAxes, pane$1) || yAnchor;
                     var anchorCrossings$1 = yAnchorCrossings;
                     if (anchor$1 !== yAnchor) {
@@ -4915,13 +4926,17 @@
                         if (topAnchors[paneId$1]) {
                             axis$1.reflow(axis$1.box.alignTo(topAnchors[paneId$1].box, TOP).translate(0, -axis$1.options.margin));
                         }
-                        topAnchors[paneId$1] = axis$1;
+                        if (visible$1) {
+                            topAnchors[paneId$1] = axis$1;
+                        }
                     }
                     if (round(axis$1.lineBox().y2, datavizConstants.COORD_PRECISION) === round(anchor$1.lineBox().y2, datavizConstants.COORD_PRECISION)) {
                         if (bottomAnchors[paneId$1]) {
                             axis$1.reflow(axis$1.box.alignTo(bottomAnchors[paneId$1].box, BOTTOM).translate(0, axis$1.options.margin));
                         }
-                        bottomAnchors[paneId$1] = axis$1;
+                        if (visible$1) {
+                            bottomAnchors[paneId$1] = axis$1;
+                        }
                     }
                     if (i$1 !== 0) {
                         axis$1.alignTo(xAnchor);
@@ -5416,9 +5431,9 @@
                 }
             },
             _createLabel: function (options) {
+                var labelTemplate = getTemplate(options);
                 var labelText;
-                if (options.template) {
-                    var labelTemplate = TemplateService.compile(options.template);
+                if (labelTemplate) {
                     labelText = labelTemplate({
                         dataItem: this.dataItem,
                         category: this.category,
@@ -7095,14 +7110,12 @@
         var Selection = Class.extend({
             init: function (chart, categoryAxis, options, observer) {
                 var chartElement = chart.element;
-                var valueAxis = this.getValueAxis(categoryAxis);
                 this.options = deepExtend({}, this.options, options);
                 this.chart = chart;
                 this.observer = observer;
                 this.chartElement = chartElement;
                 this.categoryAxis = categoryAxis;
                 this._dateAxis = this.categoryAxis instanceof DateCategoryAxis;
-                this.valueAxis = valueAxis;
                 this.initOptions();
                 if (this.options.visible) {
                     this.createElements();
@@ -7117,7 +7130,8 @@
                     top: options.offset.top,
                     left: options.offset.left,
                     width: options.width,
-                    height: options.height
+                    height: options.height,
+                    direction: 'ltr'
                 });
                 var selection = this.selection = createDiv('k-selection');
                 this.leftMask = createDiv('k-mask');
@@ -7169,9 +7183,7 @@
                 var ref = this;
                 var options = ref.options;
                 var categoryAxis = ref.categoryAxis;
-                var valueAxis = ref.valueAxis;
-                var categoryAxisLineBox = categoryAxis.lineBox();
-                var valueAxisLineBox = valueAxis.lineBox();
+                var box = categoryAxis.pane.chartsBox();
                 var intlService = this.chart.chartService.intl;
                 if (this._dateAxis) {
                     deepExtend(options, {
@@ -7188,15 +7200,15 @@
                 var paddingLeft = ref$1.paddingLeft;
                 var paddingTop = ref$1.paddingTop;
                 this.options = deepExtend({}, {
-                    width: categoryAxisLineBox.width(),
-                    height: valueAxisLineBox.height() + SELECTOR_HEIGHT_ADJUST,
+                    width: box.width(),
+                    height: box.height() + SELECTOR_HEIGHT_ADJUST,
                     padding: {
                         left: paddingLeft,
                         top: paddingTop
                     },
                     offset: {
-                        left: valueAxisLineBox.x2 + paddingLeft,
-                        top: valueAxisLineBox.y1 + paddingTop
+                        left: box.x1 + paddingLeft,
+                        top: box.y1 + paddingTop
                     },
                     from: options.min,
                     to: options.max
@@ -7263,9 +7275,10 @@
                 var ref = this;
                 var state = ref._state;
                 var options = ref.options;
-                var categories = ref.categoryAxis.options.categories;
+                var axisOptions = ref.categoryAxis.options;
                 var range = state.range;
                 var target = state.moveTarget;
+                var reverse = axisOptions.reverse;
                 var from = this._index(options.from);
                 var to = this._index(options.to);
                 var min = this._index(options.min);
@@ -7276,18 +7289,20 @@
                     to: range.to
                 };
                 var span = range.to - range.from;
-                var scale = elementStyles(this.wrapper, 'width').width / (categories.length - 1);
-                var offset = Math.round(delta / scale);
+                var scale = elementStyles(this.wrapper, 'width').width / (axisOptions.categories.length - 1);
+                var offset = Math.round(delta / scale) * (reverse ? -1 : 1);
                 if (!target) {
                     return;
                 }
+                var leftHandle = hasClasses(target, 'k-left-handle');
+                var rightHandle = hasClasses(target, 'k-right-handle');
                 if (hasClasses(target, 'k-selection k-selection-bg')) {
                     range.from = Math.min(Math.max(min, from - offset), max - span);
                     range.to = Math.min(range.from + span, max);
-                } else if (hasClasses(target, 'k-left-handle')) {
+                } else if (leftHandle && !reverse || rightHandle && reverse) {
                     range.from = Math.min(Math.max(min, from - offset), max - 1);
                     range.to = Math.max(range.from + 1, range.to);
-                } else if (hasClasses(target, 'k-right-handle')) {
+                } else if (leftHandle && reverse || rightHandle && !reverse) {
                     range.to = Math.min(Math.max(min + 1, to - offset), max);
                     range.from = Math.min(range.to - 1, range.from);
                 }
@@ -7434,15 +7449,19 @@
             },
             move: function (from, to) {
                 var options = this.options;
+                var reverse = this.categoryAxis.options.reverse;
                 var offset = options.offset;
                 var padding = options.padding;
                 var border = options.selection.border;
-                var box = this._slot(from);
-                var leftMaskWidth = round(box.x1 - offset.left + padding.left);
+                var left = reverse ? to : from;
+                var right = reverse ? from : to;
+                var edge = 'x' + (reverse ? 2 : 1);
+                var box = this._slot(left);
+                var leftMaskWidth = round(box[edge] - offset.left + padding.left);
                 elementStyles(this.leftMask, { width: leftMaskWidth });
                 elementStyles(this.selection, { left: leftMaskWidth });
-                box = this._slot(to);
-                var rightMaskWidth = round(options.width - (box.x1 - offset.left + padding.left));
+                box = this._slot(right);
+                var rightMaskWidth = round(options.width - (box[edge] - offset.left + padding.left));
                 elementStyles(this.rightMask, { width: rightMaskWidth });
                 var distance = options.width - rightMaskWidth;
                 if (distance !== options.width) {
@@ -7487,16 +7506,6 @@
                 if (range.from !== oldRange.from || range.to !== oldRange.to) {
                     this.set(range.from, range.to);
                     return true;
-                }
-            },
-            getValueAxis: function (categoryAxis) {
-                var axes = categoryAxis.pane.axes;
-                var axesCount = axes.length;
-                for (var i = 0; i < axesCount; i++) {
-                    var axis = axes[i];
-                    if (axis.options.vertical !== categoryAxis.options.vertical) {
-                        return axis;
-                    }
                 }
             },
             trigger: function (name, args) {
@@ -7920,8 +7929,8 @@
                     return;
                 }
                 this._rendered = true;
-                if (labels.template) {
-                    var labelTemplate = TemplateService.compile(labels.template);
+                var labelTemplate = getTemplate(labels);
+                if (labelTemplate) {
                     labelText = labelTemplate({
                         dataItem: this.dataItem,
                         category: this.category,
@@ -7932,7 +7941,7 @@
                 } else if (labels.format) {
                     labelText = chartService.format.auto(labels.format, labelText);
                 }
-                if (labels.visible && labelText) {
+                if (labels.visible && (labelText || labelText === 0)) {
                     if (labels.position === CENTER || labels.position === INSIDE_END) {
                         if (!labels.color) {
                             var brightnessValue = new Color(this.options.color).percBrightness();
@@ -8194,10 +8203,10 @@
                 var inactiveItemsLabels = inactiveItems.labels || {};
                 if (options && options.visibleInLegend !== false) {
                     var pointVisible = options.visible !== false;
-                    var labelTemplate = pointVisible ? labelsOptions.template : inactiveItemsLabels.template || labelsOptions.template;
+                    var labelTemplate = pointVisible ? getTemplate(labelsOptions) : getTemplate(inactiveItemsLabels) || getTemplate(labelsOptions);
                     var text = options.category || '';
                     if (labelTemplate) {
-                        text = TemplateService.compile(labelTemplate)({
+                        text = labelTemplate({
                             text: text,
                             series: options.series,
                             dataItem: options.dataItem,
@@ -8238,21 +8247,36 @@
                 return pointVisibility[index];
             }
         }
-        function seriesTotal(series) {
+        function bindSegments(series) {
             var data = series.data;
+            var points = [];
             var sum = 0;
-            for (var i = 0; i < data.length; i++) {
-                var pointData = SeriesBinder.current.bindPoint(series, i);
+            var count = 0;
+            for (var idx = 0; idx < data.length; idx++) {
+                var pointData = SeriesBinder.current.bindPoint(series, idx);
                 var value = pointData.valueFields.value;
                 if (isString(value)) {
                     value = parseFloat(value);
                 }
-                var visible = segmentVisible(series, pointData.fields, i);
-                if (isNumber(value) && visible !== false) {
-                    sum += Math.abs(value);
+                if (isNumber(value)) {
+                    pointData.visible = segmentVisible(series, pointData.fields, idx) !== false;
+                    pointData.value = Math.abs(value);
+                    points.push(pointData);
+                    if (pointData.visible) {
+                        sum += pointData.value;
+                    }
+                    if (value !== 0) {
+                        count++;
+                    }
+                } else {
+                    points.push(null);
                 }
             }
-            return sum;
+            return {
+                total: sum,
+                points: points,
+                count: count
+            };
         }
         var PIE_SECTOR_ANIM_DELAY = 70;
         var PieChart = ChartElement.extend({
@@ -8281,8 +8305,15 @@
                 for (var seriesIx = 0; seriesIx < seriesCount; seriesIx++) {
                     var currentSeries = series[seriesIx];
                     var data = currentSeries.data;
-                    var total = seriesTotal(currentSeries);
+                    var ref$1 = bindSegments(currentSeries);
+                    var total = ref$1.total;
+                    var points = ref$1.points;
+                    var count = ref$1.count;
                     var anglePerValue = 360 / total;
+                    var constantAngle = void 0;
+                    if (!isFinite(anglePerValue)) {
+                        constantAngle = 360 / count;
+                    }
                     var currentAngle = void 0;
                     if (defined(currentSeries.startAngle)) {
                         currentAngle = currentSeries.startAngle;
@@ -8294,25 +8325,27 @@
                             currentSeries.labels.position = CENTER;
                         }
                     }
-                    for (var i = 0; i < data.length; i++) {
-                        var pointData = SeriesBinder.current.bindPoint(currentSeries, i);
-                        var value = pointData.valueFields.value;
-                        var plotValue = Math.abs(value);
+                    for (var i = 0; i < points.length; i++) {
+                        var pointData = points[i];
+                        if (!pointData) {
+                            continue;
+                        }
                         var fields = pointData.fields;
-                        var angle = plotValue * anglePerValue;
+                        var value = pointData.value;
+                        var visible = pointData.visible;
+                        var angle = value !== 0 ? constantAngle || value * anglePerValue : 0;
                         var explode = data.length !== 1 && Boolean(fields.explode);
                         if (!isFunction(currentSeries.color)) {
                             currentSeries.color = fields.color || seriesColors[i % colorsCount];
                         }
-                        var visible = segmentVisible(currentSeries, fields, i);
-                        callback(value, new dataviz.Ring(null, 0, 0, currentAngle, angle), {
+                        callback(pointData.valueFields.value, new dataviz.Ring(null, 0, 0, currentAngle, angle), {
                             owner: this$1,
                             category: fields.category || '',
                             index: i,
                             series: currentSeries,
                             seriesIx: seriesIx,
                             dataItem: data[i],
-                            percentage: total !== 0 ? plotValue / total : 0,
+                            percentage: total !== 0 ? value / total : 0,
                             explode: explode,
                             visibleInLegend: fields.visibleInLegend,
                             visible: visible,
@@ -8337,6 +8370,7 @@
                     defaults: series._defaults,
                     excluded: [
                         'data',
+                        'content',
                         'template',
                         'visual',
                         'toggle'
@@ -8524,7 +8558,7 @@
                                 delay: segment.animationDelay
                             }
                         });
-                        if (label.options.position === OUTSIDE_END && segment.value !== 0) {
+                        if (label.options.position === OUTSIDE_END) {
                             var box = label.box;
                             var centerPoint = sector.center;
                             var start = sector.point(angle);
@@ -8838,7 +8872,10 @@
                 var box = ref.box;
                 var defaultPadding = Math.min(box.width(), box.height()) * DEFAULT_PADDING;
                 var padding = getSpacing(options.padding || {}, defaultPadding);
-                var axisBox = box.clone().unpad(padding);
+                var paddingBox = box.clone().unpad(padding);
+                var axisBox = paddingBox.clone();
+                axisBox.y2 = axisBox.y1 + Math.min(axisBox.width(), axisBox.height());
+                axisBox.align(paddingBox, Y, CENTER);
                 var valueAxisBox = axisBox.clone().shrink(0, axisBox.height() / 2);
                 polarAxis.reflow(axisBox);
                 valueAxis.reflow(valueAxisBox);
@@ -9390,25 +9427,26 @@
                 if (!data) {
                     return;
                 }
-                var total = seriesTotal(series);
-                for (var i = 0; i < data.length; i++) {
-                    var pointData = SeriesBinder.current.bindPoint(series, i);
-                    var value = pointData.valueFields.value;
-                    if (value === null || value === undefined) {
+                var ref$1 = bindSegments(series);
+                var total = ref$1.total;
+                var points = ref$1.points;
+                for (var i = 0; i < points.length; i++) {
+                    var pointData = points[i];
+                    if (!pointData) {
                         continue;
                     }
                     var fields = pointData.fields;
                     if (!isFunction(series.color)) {
                         series.color = fields.color || seriesColors[i % seriesColors.length];
                     }
-                    var visible = segmentVisible(series, fields, i);
                     fields = deepExtend({
                         index: i,
                         owner: this$1,
                         series: series,
                         dataItem: data[i],
-                        percentage: Math.abs(value) / total
-                    }, fields, { visible: visible });
+                        percentage: pointData.value / total
+                    }, fields, { visible: pointData.visible });
+                    var value = pointData.valueFields.value;
                     var segment = this$1.createSegment(value, fields);
                     var label = this$1.createLabel(value, fields);
                     if (segment && label) {
@@ -9427,6 +9465,8 @@
                     defaults: series._defaults,
                     excluded: [
                         'data',
+                        'content',
+                        'template',
                         'toggle',
                         'visual'
                     ]
@@ -9450,8 +9490,8 @@
                 var labels = deepExtend({}, this.options.labels, series.labels);
                 var text = value;
                 if (labels.visible) {
-                    if (labels.template) {
-                        var labelTemplate = TemplateService.compile(labels.template);
+                    var labelTemplate = getTemplate(labels);
+                    if (labelTemplate) {
                         text = labelTemplate({
                             dataItem: dataItem,
                             value: value,
@@ -9886,6 +9926,7 @@
                 this.bindCategories();
                 dataviz.FontLoader.preloadFonts(userOptions, function () {
                     if (!this$1._destroyed) {
+                        this$1.trigger('init');
                         this$1._redraw();
                         this$1._attachEvents();
                     }
@@ -11201,7 +11242,6 @@
             hasValue: hasValue,
             isDateAxis: isDateAxis,
             segmentVisible: segmentVisible,
-            seriesTotal: seriesTotal,
             singleItemOrArray: singleItemOrArray
         });
     }(window.kendo.jQuery));
@@ -11286,7 +11326,8 @@
                 showTooltip: '_showTooltip',
                 hideTooltip: '_hideTooltip',
                 legendItemClick: '_onLegendItemClick',
-                render: '_onRender'
+                render: '_onRender',
+                init: '_onInit'
             }
         });
         var Chart = Widget.extend({
@@ -11335,6 +11376,7 @@
                 name: 'Chart',
                 renderAs: '',
                 theme: 'default',
+                axisDefaults: {},
                 chartArea: {},
                 legend: {},
                 categoryAxis: {},
@@ -11503,6 +11545,9 @@
                     sender: this
                 });
             },
+            _onInit: function (e) {
+                this._instance = e.sender;
+            },
             _initDataSource: function (userOptions) {
                 var chart = this, dataSource = (userOptions || {}).dataSource;
                 chart._dataChangeHandler = proxy(chart._onDataChanged, chart);
@@ -11561,7 +11606,6 @@
                 }
             },
             _copyMembers: function (instance) {
-                this._instance = instance;
                 this.options = instance.options;
                 this._originalOptions = instance._originalOptions;
                 this.surface = instance.surface;

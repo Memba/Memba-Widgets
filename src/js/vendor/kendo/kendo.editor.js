@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -5702,10 +5702,11 @@
                 }));
             },
             initialize: function (ui, initOptions) {
-                var editor = initOptions.editor, toolName = this.name, options = extend({}, ColorTool.fn.options, this.options), palette = options.palette;
+                var editor = initOptions.editor, toolName = this.name, options = extend({}, ColorTool.fn.options, this.options), palette = options.palette, columns = options.columns;
                 ui = this._widget = new kendo.ui.ColorPicker(ui, {
                     toolIcon: 'k-icon k-i-' + EditorUtils.getToolCssClass(options.name),
                     palette: palette,
+                    columns: columns,
                     change: function () {
                         var color = ui.value();
                         if (color) {

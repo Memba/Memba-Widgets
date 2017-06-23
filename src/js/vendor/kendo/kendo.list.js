@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -512,7 +512,7 @@
                 var siblings = this.listView.content.prevAll(':visible');
                 siblings.each(function () {
                     var element = $(this);
-                    offsetHeight += outerHeight(element);
+                    offsetHeight += outerHeight(element, true);
                 });
                 return offsetHeight;
             },
@@ -633,7 +633,8 @@
                     open: proxy(that._openHandler, that),
                     close: proxy(that._closeHandler, that),
                     animation: that.options.animation,
-                    isRtl: support.isRtl(that.wrapper)
+                    isRtl: support.isRtl(that.wrapper),
+                    autosize: that.options.autoWidth
                 }));
             },
             _makeUnselectable: function () {
@@ -797,8 +798,11 @@
                 that._busy = null;
                 that._showClear();
             },
-            _showBusy: function () {
+            _showBusy: function (e) {
                 var that = this;
+                if (e.isDefaultPrevented()) {
+                    return;
+                }
                 that._request = true;
                 if (that._busy) {
                     return;

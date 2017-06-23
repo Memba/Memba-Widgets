@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1496,6 +1496,7 @@
                 this.startAngle = options.startAngle;
                 this.endAngle = options.endAngle;
                 this.anticlockwise = options.anticlockwise || false;
+                this.xRotation = options.xRotation;
             },
             clone: function () {
                 return new Arc$2(this.center, {
@@ -1529,9 +1530,13 @@
                 var subIntervalsCount = Math.ceil(intervalAngle / MAX_INTERVAL);
                 var subIntervalAngle = intervalAngle / subIntervalsCount;
                 var currentAngle = startAngle;
+                var transformation;
+                if (this.xRotation) {
+                    transformation = transform().rotate(this.xRotation, this.center);
+                }
                 for (var i = 1; i <= subIntervalsCount; i++) {
                     var nextAngle = currentAngle + dir * subIntervalAngle;
-                    var points = this$1._intervalCurvePoints(currentAngle, nextAngle);
+                    var points = this$1._intervalCurvePoints(currentAngle, nextAngle, transformation);
                     curvePoints.push(points.cp1, points.cp2, points.p2);
                     currentAngle = nextAngle;
                 }
@@ -1586,7 +1591,7 @@
                     endAngle: endAngle
                 };
             },
-            _intervalCurvePoints: function (startAngle, endAngle) {
+            _intervalCurvePoints: function (startAngle, endAngle, transformation) {
                 var p1 = this.pointAt(startAngle);
                 var p2 = this.pointAt(endAngle);
                 var p1Derivative = this._derivativeAt(startAngle);
@@ -1594,6 +1599,12 @@
                 var t = (rad(endAngle) - rad(startAngle)) / 3;
                 var cp1 = new Point(p1.x + t * p1Derivative.x, p1.y + t * p1Derivative.y);
                 var cp2 = new Point(p2.x - t * p2Derivative.x, p2.y - t * p2Derivative.y);
+                if (transformation) {
+                    p1.transform(transformation);
+                    p2.transform(transformation);
+                    cp1.transform(transformation);
+                    cp2.transform(transformation);
+                }
                 return {
                     p1: p1,
                     cp1: cp1,
@@ -1642,7 +1653,7 @@
                 return inAngleRange && this.pointAt(angle).distanceTo(point) <= width;
             }
         });
-        Arc$2.fromPoints = function (start, end, rx, ry, largeArc, swipe) {
+        Arc$2.fromPoints = function (start, end, rx, ry, largeArc, swipe, rotation) {
             var arcParameters = normalizeArcParameters({
                 x1: start.x,
                 y1: start.y,
@@ -1651,13 +1662,15 @@
                 rx: rx,
                 ry: ry,
                 largeArc: largeArc,
-                swipe: swipe
+                swipe: swipe,
+                rotation: rotation
             });
             return new Arc$2(arcParameters.center, {
                 startAngle: arcParameters.startAngle,
                 endAngle: arcParameters.endAngle,
-                radiusX: rx,
-                radiusY: ry,
+                radiusX: arcParameters.radiusX,
+                radiusY: arcParameters.radiusY,
+                xRotation: arcParameters.xRotation,
                 anticlockwise: swipe === 0
             });
         };
@@ -1669,17 +1682,6 @@
             'anticlockwise'
         ]);
         ObserversMixin.extend(Arc$2.prototype);
-        function elipseAngle(start, end, swipe) {
-            var endAngle = end;
-            if (start > endAngle) {
-                endAngle += 360;
-            }
-            var alpha = Math.abs(endAngle - start);
-            if (!swipe) {
-                alpha = 360 - alpha;
-            }
-            return alpha;
-        }
         function calculateAngle(cx, cy, rx, ry, x, y) {
             var cos = round((x - cx) / rx, 3);
             var sin = round((y - cy) / ry, 3);
@@ -1694,47 +1696,59 @@
             var ry = parameters.ry;
             var largeArc = parameters.largeArc;
             var swipe = parameters.swipe;
-            var cx, cy;
-            var cx1, cy1;
-            var a, b, c, sqrt;
-            if (y1 !== y2) {
-                var x21 = x2 - x1;
-                var y21 = y2 - y1;
-                var rx2 = pow$1(rx, 2), ry2 = pow$1(ry, 2);
-                var k = (ry2 * x21 * (x1 + x2) + rx2 * y21 * (y1 + y2)) / (2 * rx2 * y21);
-                var yk2 = k - y2;
-                var l = -(x21 * ry2) / (rx2 * y21);
-                a = 1 / rx2 + pow$1(l, 2) / ry2;
-                b = 2 * (l * yk2 / ry2 - x2 / rx2);
-                c = pow$1(x2, 2) / rx2 + pow$1(yk2, 2) / ry2 - 1;
-                sqrt = Math.sqrt(pow$1(b, 2) - 4 * a * c);
-                cx = (-b - sqrt) / (2 * a);
-                cy = k + l * cx;
-                cx1 = (-b + sqrt) / (2 * a);
-                cy1 = k + l * cx1;
-            } else if (x1 !== x2) {
-                b = -2 * y2;
-                c = pow$1((x2 - x1) * ry / (2 * rx), 2) + pow$1(y2, 2) - pow$1(ry, 2);
-                sqrt = Math.sqrt(pow$1(b, 2) - 4 * c);
-                cx = cx1 = (x1 + x2) / 2;
-                cy = (-b - sqrt) / 2;
-                cy1 = (-b + sqrt) / 2;
-            } else {
-                return false;
+            var rotation = parameters.rotation;
+            if (rotation === void 0) {
+                rotation = 0;
             }
-            var start = calculateAngle(cx, cy, rx, ry, x1, y1);
-            var end = calculateAngle(cx, cy, rx, ry, x2, y2);
-            var alpha = elipseAngle(start, end, swipe);
-            if (largeArc && alpha <= 180 || !largeArc && alpha > 180) {
-                cx = cx1;
-                cy = cy1;
-                start = calculateAngle(cx, cy, rx, ry, x1, y1);
-                end = calculateAngle(cx, cy, rx, ry, x2, y2);
+            var radians = rad(rotation);
+            var cosine = Math.cos(radians);
+            var sine = Math.sin(radians);
+            var xT = cosine * (x1 - x2) / 2 + sine * (y1 - y2) / 2;
+            var yT = -sine * (x1 - x2) / 2 + cosine * (y1 - y2) / 2;
+            var sign = largeArc !== swipe ? 1 : -1;
+            var xt2 = Math.pow(xT, 2);
+            var yt2 = Math.pow(yT, 2);
+            var rx2 = Math.pow(rx, 2);
+            var ry2 = Math.pow(ry, 2);
+            var delta = xt2 / rx2 + yt2 / ry2;
+            if (delta > 1) {
+                delta = Math.sqrt(xt2 / rx2 + yt2 / ry2);
+                rx = delta * rx;
+                rx2 = Math.pow(rx, 2);
+                ry = delta * ry;
+                ry2 = Math.pow(ry, 2);
             }
+            var constT = sign * Math.sqrt((rx2 * ry2 - rx2 * yt2 - ry2 * xt2) / (rx2 * yt2 + ry2 * xt2));
+            if (isNaN(constT)) {
+                constT = 0;
+            }
+            var cxT = constT * (rx * yT) / ry;
+            var cyT = -constT * (ry * xT) / rx;
+            var cx = cosine * cxT - sine * cyT + (x1 + x2) / 2;
+            var cy = sine * cxT + cosine * cyT + (y1 + y2) / 2;
+            var uX = (xT - cxT) / rx;
+            var uY = (yT - cyT) / ry;
+            var vX = -(xT + cxT) / rx;
+            var vY = -(yT + cyT) / ry;
+            var startAngle = (uY >= 0 ? 1 : -1) * deg(Math.acos(uX / Math.sqrt(uX * uX + uY * uY)));
+            var angleCosine = round((uX * vX + uY * vY) / (Math.sqrt(uX * uX + uY * uY) * Math.sqrt(vX * vX + vY * vY)), 10);
+            var angle = (uX * vY - uY * vX >= 0 ? 1 : -1) * deg(Math.acos(angleCosine));
+            if (!swipe && angle > 0) {
+                angle -= 360;
+            }
+            if (swipe && angle < 0) {
+                angle += 360;
+            }
+            var endAngle = startAngle + angle;
+            var signEndAngle = endAngle >= 0 ? 1 : -1;
+            endAngle = Math.abs(endAngle) % 360 * signEndAngle;
             return {
                 center: new Point(cx, cy),
-                startAngle: start,
-                endAngle: end
+                startAngle: startAngle,
+                endAngle: endAngle,
+                radiusX: rx,
+                radiusY: ry,
+                xRotation: rotation
             };
         }
         function bboxStartAngle(angle, start) {
@@ -2230,11 +2244,11 @@
                 }
                 return this;
             },
-            arcTo: function (end, rx, ry, largeArc, swipe) {
+            arcTo: function (end, rx, ry, largeArc, swipe, rotation) {
                 if (this.segments.length > 0) {
                     var lastSegment = last(this.segments);
                     var anchor = lastSegment.anchor();
-                    var arc = Arc$2.fromPoints(anchor, end, rx, ry, largeArc, swipe);
+                    var arc = Arc$2.fromPoints(anchor, end, rx, ry, largeArc, swipe, rotation);
                     this._addArcSegments(arc);
                 }
                 return this;
@@ -2451,9 +2465,9 @@
                 }
                 return this;
             },
-            arcTo: function (end, rx, ry, largeArc, swipe) {
+            arcTo: function (end, rx, ry, largeArc, swipe, rotation) {
                 if (this.paths.length > 0) {
-                    last(this.paths).arcTo(end, rx, ry, largeArc, swipe);
+                    last(this.paths).arcTo(end, rx, ry, largeArc, swipe, rotation);
                 }
                 return this;
             },
@@ -3324,15 +3338,18 @@
                 for (var i = 0; i < parameters.length; i += 7) {
                     var radiusX = parameters[i];
                     var radiusY = parameters[i + 1];
+                    var rotation = parameters[i + 2];
                     var largeArc = parameters[i + 3];
                     var swipe = parameters[i + 4];
                     var endPoint = new Point(parameters[i + 5], parameters[i + 6]);
                     if (options.isRelative) {
                         endPoint.translateWith(position);
                     }
-                    path.arcTo(endPoint, radiusX, radiusY, largeArc, swipe);
-                    position.x = endPoint.x;
-                    position.y = endPoint.y;
+                    if (position.x !== endPoint.x || position.y !== endPoint.y) {
+                        path.arcTo(endPoint, radiusX, radiusY, largeArc, swipe, rotation);
+                        position.x = endPoint.x;
+                        position.y = endPoint.y;
+                    }
                 }
             },
             s: function (path, options) {
@@ -3783,13 +3800,15 @@
             }
             return url;
         }
-        function refUrl(id) {
-            return 'url(' + baseUrl() + '#' + id + ')';
+        function refUrl(id, skipBaseHref) {
+            var base = skipBaseHref ? '' : baseUrl();
+            return 'url(' + base + '#' + id + ')';
         }
         var Node = BaseNode.extend({
-            init: function (srcElement) {
+            init: function (srcElement, options) {
                 BaseNode.fn.init.call(this, srcElement);
                 this.definitions = {};
+                this.options = options;
             },
             destroy: function () {
                 if (this.element) {
@@ -3804,7 +3823,7 @@
                 for (var i = 0; i < elements.length; i++) {
                     var srcElement = elements[i];
                     var children = srcElement.children;
-                    var childNode = new NODE_MAP[srcElement.nodeType](srcElement);
+                    var childNode = new NODE_MAP[srcElement.nodeType](srcElement, this$1.options);
                     if (defined(pos)) {
                         this$1.insertAt(childNode, pos);
                     } else {
@@ -4018,7 +4037,7 @@
                         definitions: definition
                     });
                     definitions[type] = value;
-                    this.attr(attr, refUrl(value.id));
+                    this.attr(attr, this.refUrl(value.id));
                 }
             },
             clearDefinitions: function () {
@@ -4033,15 +4052,20 @@
                 return renderAllAttr(this.mapDefinitions());
             },
             mapDefinitions: function () {
+                var this$1 = this;
                 var definitions = this.definitions;
                 var attrs = [];
                 for (var field in definitions) {
                     attrs.push([
                         DefinitionMap[field],
-                        refUrl(definitions[field].id)
+                        this$1.refUrl(definitions[field].id)
                     ]);
                 }
                 return attrs;
+            },
+            refUrl: function (id) {
+                var skipBaseHref = (this.options || {}).skipBaseHref;
+                return refUrl(id, skipBaseHref);
             }
         });
         var GradientStopNode = Node.extend({
@@ -4273,6 +4297,7 @@
                 this.defs.definitionChange(e);
             }
         });
+        var RTL = 'rtl';
         function alignToScreen(element) {
             var ctm;
             try {
@@ -4292,7 +4317,7 @@
         var Surface$1 = Surface.extend({
             init: function (element, options) {
                 Surface.fn.init.call(this, element, options);
-                this._root = new RootNode(this.options);
+                this._root = new RootNode($.extend({ rtl: elementStyles(element, 'direction').direction === RTL }, this.options));
                 renderSVG$1(this.element, this._template());
                 this._rootElement = this.element.firstElementChild;
                 alignToScreen(this._rootElement);
@@ -4740,8 +4765,15 @@
                 content = kendo.htmlEncode(content);
                 return content;
             },
+            renderTextAnchor: function () {
+                var anchor;
+                if ((this.options || {}).rtl) {
+                    anchor = 'end';
+                }
+                return renderAttr('text-anchor', anchor);
+            },
             template: function () {
-                return '<text ' + this.renderStyle() + ' ' + this.renderOpacity() + ' x=\'' + this.pos().x + '\' y=\'' + this.pos().y + '\'' + this.renderStroke() + ' ' + this.renderTransform() + ' ' + this.renderDefinitions() + this.renderFill() + '>' + this.renderContent() + '</text>';
+                return '<text ' + this.renderTextAnchor() + ' ' + this.renderStyle() + ' ' + this.renderOpacity() + ' x=\'' + this.pos().x + '\' y=\'' + this.pos().y + '\'' + this.renderStroke() + ' ' + this.renderTransform() + ' ' + this.renderDefinitions() + this.renderFill() + '>' + this.renderContent() + '</text>';
             }
         });
         NODE_MAP.Text = TextNode;
@@ -4772,7 +4804,7 @@
             transform: transform
         };
         function exportGroup(group) {
-            var root = new RootNode();
+            var root = new RootNode({ skipBaseHref: true });
             var bbox = group.clippedBBox();
             var rootGroup = group;
             if (bbox) {
@@ -5661,6 +5693,7 @@
                 this.setOpacity(ctx);
                 ctx.beginPath();
                 ctx.font = text.options.font;
+                ctx.textAlign = 'left';
                 if (this.setFill(ctx)) {
                     ctx.fillText(text.content(), pos.x, pos.y + size.baseline);
                 }
@@ -6169,7 +6202,7 @@
                     colgroup = table && table.querySelector('colgroup');
                     if (options.repeatHeaders) {
                         thead = table && table.querySelector('thead');
-                        grid = closest(el, '.k-grid[data-role="grid"]');
+                        grid = closest(el, '.k-grid.k-widget');
                         if (grid && grid.querySelector('.k-auto-scrollable')) {
                             gridHead = grid.querySelector('.k-grid-header');
                         }
@@ -6191,7 +6224,7 @@
                         }
                     }
                     if (options.repeatHeaders && gridHead) {
-                        grid = closest(el, '.k-grid[data-role="grid"]');
+                        grid = closest(el, '.k-grid.k-widget');
                         grid.insertBefore(gridHead.cloneNode(true), grid.firstChild);
                     }
                 }

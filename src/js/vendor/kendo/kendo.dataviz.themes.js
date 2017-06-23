@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -450,7 +450,7 @@
             return cache;
         }
         var theme = { chart: kendo.dataviz.chartBaseTheme() };
-        var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-widget">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series">' + '    <div class="k-var--series-a"></div>' + '    <div class="k-var--series-b"></div>' + '    <div class="k-var--series-c"></div>' + '    <div class="k-var--series-d"></div>' + '    <div class="k-var--series-e"></div>' + '    <div class="k-var--series-f"></div>' + '  </div>' + '</div>').appendTo(document.body);
+        var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-widget">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series">' + '    <div class="k-var--series-a"></div>' + '    <div class="k-var--series-b"></div>' + '    <div class="k-var--series-c"></div>' + '    <div class="k-var--series-d"></div>' + '    <div class="k-var--series-e"></div>' + '    <div class="k-var--series-f"></div>' + '  </div>' + '</div>').appendTo(document.body);
         function mapColor(key, varName) {
             set(key, queryStyle(varName, 'backgroundColor'));
         }
@@ -504,6 +504,22 @@
             mapColor('chart.seriesDefaults.waterfall.line.color', 'chart-major-lines');
             mapColor('chart.title.color', 'normal-text-color');
             set('chart.seriesDefaults.labels.opacity', queryStyle('chart-area-opacity', 'opacity'));
+            mapColor('diagram.shapeDefaults.fill.color', 'accent');
+            mapColor('diagram.shapeDefaults.content.color', 'accent-contrast');
+            mapColor('diagram.shapeDefaults.connectorDefaults.fill.color', 'normal-text-color');
+            mapColor('diagram.shapeDefaults.connectorDefaults.stroke.color', 'accent-contrast');
+            mapColor('diagram.shapeDefaults.connectorDefaults.hover.fill.color', 'accent-contrast');
+            mapColor('diagram.shapeDefaults.connectorDefaults.hover.stroke.color', 'normal-text-color');
+            mapColor('diagram.editable.resize.handles.stroke.color', 'normal-text-color');
+            mapColor('diagram.editable.resize.handles.fill.color', 'normal-background');
+            mapColor('diagram.editable.resize.handles.hover.stroke.color', 'normal-text-color');
+            mapColor('diagram.editable.resize.handles.hover.fill.color', 'normal-text-color');
+            mapColor('diagram.selectable.stroke.color', 'normal-text-color');
+            mapColor('diagram.connectionDefaults.stroke.color', 'normal-text-color');
+            mapColor('diagram.connectionDefaults.content.color', 'normal-text-color');
+            mapColor('diagram.connectionDefaults.selection.handles.fill.color', 'accent-contrast');
+            mapColor('diagram.connectionDefaults.selection.handles.stroke.color', 'normal-text-color');
+            mapColor('diagram.connectionDefaults.selection.stroke.color', 'normal-text-color');
         }());
         (function setFonts() {
             function font(varName) {
@@ -2917,7 +2933,6 @@
         }());
         (function () {
             var TEXT = '#656565';
-            var INACTIVE_SHAPE = '#bdbdbd';
             var AXIS = 'rgba(0, 0, 0, .04)';
             var SERIES = [
                 '#ff6358',
@@ -2936,7 +2951,6 @@
                 '#fff7e8'
             ];
             var PRIMARY = SERIES[0];
-            var DIAGRAM_HOVER = WHITE;
             registerTheme('default-v2', {
                 chart: {},
                 gauge: {
@@ -2949,57 +2963,13 @@
                         line: { color: TEXT }
                     }
                 },
-                diagram: {
-                    shapeDefaults: {
-                        fill: { color: PRIMARY },
-                        connectorDefaults: {
-                            fill: { color: TEXT },
-                            stroke: { color: DIAGRAM_HOVER },
-                            hover: {
-                                fill: { color: DIAGRAM_HOVER },
-                                stroke: { color: TEXT }
-                            }
-                        },
-                        content: { color: TEXT }
-                    },
-                    editable: {
-                        resize: {
-                            handles: {
-                                fill: { color: DIAGRAM_HOVER },
-                                stroke: { color: INACTIVE_SHAPE },
-                                hover: {
-                                    fill: { color: INACTIVE_SHAPE },
-                                    stroke: { color: INACTIVE_SHAPE }
-                                }
-                            }
-                        },
-                        rotate: {
-                            thumb: {
-                                stroke: { color: INACTIVE_SHAPE },
-                                fill: { color: INACTIVE_SHAPE }
-                            }
-                        }
-                    },
-                    selectable: { stroke: { color: INACTIVE_SHAPE } },
-                    connectionDefaults: {
-                        stroke: { color: INACTIVE_SHAPE },
-                        content: { color: INACTIVE_SHAPE },
-                        selection: {
-                            handles: {
-                                fill: { color: DIAGRAM_HOVER },
-                                stroke: { color: INACTIVE_SHAPE }
-                            },
-                            stroke: { color: INACTIVE_SHAPE }
-                        }
-                    }
-                },
+                diagram: {},
                 treeMap: { colors: fuse(SERIES, SERIES_LIGHT) }
             });
             themes.sass = themes['default-v2'];
         }());
         (function () {
             var TEXT = '#292b2c';
-            var INACTIVE_SHAPE = '#bdbdbd';
             var AXIS = 'rgba(0, 0, 0, .04)';
             var SERIES = [
                 '#0275d8',
@@ -3018,7 +2988,6 @@
                 '#fff7e8'
             ];
             var PRIMARY = SERIES[0];
-            var DIAGRAM_HOVER = WHITE;
             registerTheme('bootstrap-v4', {
                 chart: {},
                 gauge: {
@@ -3031,50 +3000,7 @@
                         line: { color: TEXT }
                     }
                 },
-                diagram: {
-                    shapeDefaults: {
-                        fill: { color: PRIMARY },
-                        connectorDefaults: {
-                            fill: { color: TEXT },
-                            stroke: { color: DIAGRAM_HOVER },
-                            hover: {
-                                fill: { color: DIAGRAM_HOVER },
-                                stroke: { color: TEXT }
-                            }
-                        },
-                        content: { color: TEXT }
-                    },
-                    editable: {
-                        resize: {
-                            handles: {
-                                fill: { color: DIAGRAM_HOVER },
-                                stroke: { color: INACTIVE_SHAPE },
-                                hover: {
-                                    fill: { color: INACTIVE_SHAPE },
-                                    stroke: { color: INACTIVE_SHAPE }
-                                }
-                            }
-                        },
-                        rotate: {
-                            thumb: {
-                                stroke: { color: INACTIVE_SHAPE },
-                                fill: { color: INACTIVE_SHAPE }
-                            }
-                        }
-                    },
-                    selectable: { stroke: { color: INACTIVE_SHAPE } },
-                    connectionDefaults: {
-                        stroke: { color: INACTIVE_SHAPE },
-                        content: { color: INACTIVE_SHAPE },
-                        selection: {
-                            handles: {
-                                fill: { color: DIAGRAM_HOVER },
-                                stroke: { color: INACTIVE_SHAPE }
-                            },
-                            stroke: { color: INACTIVE_SHAPE }
-                        }
-                    }
-                },
+                diagram: {},
                 treeMap: { colors: fuse(SERIES, SERIES_LIGHT) }
             });
         }());

@@ -895,21 +895,25 @@ html .k-grid-edit-row .k-tooltip
 }
 
 .k-grid {
-    .k-edit-cell input.k-checkbox,
-    .k-grid-edit-row input.k-checkbox {
+    input.k-checkbox {
+        width: 16px;
+        height: 16px;
+        margin-left: 1px;
+        margin-top: 4px;
         position: absolute;
-        width: 14px;
-        height: 15px;
         z-index: 1;
         + label.k-checkbox-label {
             cursor: default;
         }
     }
 
-    .k-grid-edit-row input.k-checkbox {
-        margin-left: 1px;
-        margin-top: 4px;
-    }
+    .k-checkbox-label.k-no-text {
+            padding: 0;
+        }
+
+    th input.k-checkbox {
+            margin-top: 1px;
+        }
 
     .k-edit-cell {
         input[type='checkbox'],
@@ -936,8 +940,34 @@ html .k-grid-edit-row .k-tooltip
             cursor: default;
         }
     }
+
     label.k-checkbox-label {
         margin-top: 0.6em;
+    }
+}
+
+.k-grid-header {
+    .k-i-sort-asc-sm,
+    .k-i-sort-desc-sm {
+        margin-left: 7px;
+    }
+
+    .k-sort-order {
+        display: inline-block;
+        height: 16px;
+        line-height: 16px;
+        margin-top: 1px;
+        margin-left: -1px;
+        vertical-align: text-top;
+        font-size: 12px;
+    }
+
+    .k-link .k-icon {
+        &.k-i-sort-asc-sm,
+        &.k-i-sort-desc-sm {
+            margin-top: 1px;
+            vertical-align: text-top;
+        }
     }
 }
 

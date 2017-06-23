@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2042,10 +2042,14 @@
                     return false;
                 }
             },
-            refAtPoint: function (ref) {
+            refAtPoint: function (sheet) {
                 var x = this._canInsertRef();
                 if (x) {
-                    this._replaceAt(x, ref.simplify().toString());
+                    var ref = sheet.selection()._ref.simplify().clone().relative(0, 0, 3);
+                    if (sheet !== this.activeSheet) {
+                        ref = ref.setSheet(sheet.name(), true);
+                    }
+                    this._replaceAt(x, ref.print(0, 0));
                 }
             },
             _replaceAt: function (ctx, newValue) {
@@ -2837,7 +2841,9 @@
             set: function (start, end, value) {
                 if (value instanceof Date) {
                     value = kendo.spreadsheet.dateToNumber(value);
-                    this.formats.value(start, end, toExcelFormat(kendo.culture().calendar.patterns.d));
+                    if (!this.formats.value(start, end)) {
+                        this.formats.value(start, end, toExcelFormat(kendo.culture().calendar.patterns.d));
+                    }
                 }
                 this.list.value(start, end, value);
             }
@@ -5573,7 +5579,10 @@
                             sheet.range(merged).merge();
                         }, this);
                     }
-                }.bind(this), { recalc: true });
+                }.bind(this), {
+                    recalc: true,
+                    ref: this._ref
+                });
             },
             _adjustRowHeight: function () {
                 var sheet = this._sheet;
@@ -9822,7 +9831,7 @@
             '}'
         ].join(';\n');
         formula = new runtime.Formula(exp.refs, makeClosure(code), printer, exp.sheet, exp.row, exp.col);
-        FORMULA_CACHE[hash] = formula;
+        FORMULA_CACHE[hash] = formula.clone(exp.sheet, exp.row, exp.col);
         return formula;
         function js(node) {
             var type = node.type;
@@ -12906,7 +12915,7 @@
                 }
                 var object = this.objectAt(event);
                 if (object && object.ref && editor.canInsertRef(false)) {
-                    editor.refAtPoint(sheet.selection()._ref);
+                    editor.refAtPoint(sheet);
                     sheet._setFormulaSelections(editor.highlightedRefs());
                 }
             },
@@ -12917,7 +12926,7 @@
                     return;
                 }
                 this.editor.activate({
-                    range: this._workbook.activeSheet()._viewActiveCell(),
+                    range: this._workbook.activeSheet().selection(),
                     rect: this.view.activeCellRectangle(),
                     tooltip: this._activeTooltip()
                 }).focus();
@@ -13105,12 +13114,17 @@
                 filterMenu.openFor(event.target);
             },
             onEditorChange: function (e) {
-                this._workbook.activeSheet().isInEditMode(false);
+                var sheet = e.range._sheet;
+                if (this._workbook.activeSheet() !== sheet) {
+                    this._workbook.activeSheet()._setFormulaSelections();
+                    this._workbook.activeSheet(sheet);
+                }
+                sheet.isInEditMode(false);
                 this._lastEditorValue = e.value;
                 this._execute({
                     command: 'EditCommand',
                     options: {
-                        editActiveCell: true,
+                        operatingRange: e.range,
                         value: e.value
                     }
                 });
@@ -13135,7 +13149,7 @@
                     return;
                 }
                 this.editor.activate({
-                    range: this._workbook.activeSheet()._viewActiveCell(),
+                    range: this._workbook.activeSheet().selection(),
                     rect: this.view.activeCellRectangle(),
                     tooltip: this._activeTooltip()
                 });
@@ -13168,7 +13182,7 @@
                 var sheet = this._workbook.activeSheet();
                 if (editor.canInsertRef(true)) {
                     this.navigator.moveActiveCell(ACTIONS[action]);
-                    editor.activeEditor().refAtPoint(sheet.selection()._ref);
+                    editor.activeEditor().refAtPoint(sheet);
                     sheet._setFormulaSelections(editor.highlightedRefs());
                     event.preventDefault();
                 }
@@ -13178,7 +13192,7 @@
                 var sheet = this._workbook.activeSheet();
                 if (editor.canInsertRef(true)) {
                     this.navigator.modifySelection(ACTIONS[action.replace('shift+', '')], this.appendSelection);
-                    editor.activeEditor().refAtPoint(sheet.selection()._ref);
+                    editor.activeEditor().refAtPoint(sheet);
                     sheet._setFormulaSelections(editor.highlightedRefs());
                     event.preventDefault();
                 }
@@ -13188,7 +13202,7 @@
             },
             activateEditor: function () {
                 this.editor.activate({
-                    range: this._workbook.activeSheet()._viewActiveCell(),
+                    range: this._workbook.activeSheet().selection(),
                     rect: this.view.activeCellRectangle(),
                     tooltip: this._activeTooltip()
                 }).focus();
@@ -24408,6 +24422,7 @@
                         update(tool, value);
                     }
                 }
+                this.resize();
             },
             _tools: function () {
                 return this.element.find('[data-property]').toArray().map(function (element) {
@@ -24527,7 +24542,7 @@
                 this._dialogName = options.dialogName;
                 this.toolbar = toolbar;
                 this._title = options.attributes.title;
-                this.element = $('<button class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-file-excel\' />' + '</button>').attr('title', this._title).attr('aria-label', this._title).data('instance', this);
+                this.element = $('<button class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-download\' />' + '</button>').attr('title', this._title).attr('aria-label', this._title).data('instance', this);
                 this.element.bind('click', this.open.bind(this)).data('instance', this);
             },
             open: function () {
@@ -26440,7 +26455,7 @@
                 showButton: true,
                 useCustomMessages: false,
                 errorTemplate: '<div class="k-widget k-tooltip k-tooltip-validation" style="margin:0.5em"><span class="k-icon k-i-warning"> </span>' + '#= message #<div class="k-callout k-callout-n"></div></div>',
-                template: '<div class="k-edit-form-container">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.criteria #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: criterion, source: criteria" />' + '</div>' + '<div data-bind="visible: isNumber">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: comparer, source: comparers" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.min #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.min #" placeholder="e.g. 10" class="k-textbox" data-bind="value: from, enabled: isNumber" required="required" />' + '</div>' + '<div data-bind="visible: showTo">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.max #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.max #" placeholder="e.g. 100" class="k-textbox" data-bind="value: to, enabled: showToForNumber" required="required" />' + '</div>' + '</div>' + '</div>' + '<div data-bind="visible: isText">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: comparer, source: comparers" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" class="k-textbox" data-bind="value: from, enabled: isText" required="required" />' + '</div>' + '</div>' + '<div data-bind="visible: isDate">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: comparer, source: comparers" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.start #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.start #" class="k-textbox" data-bind="value: from, enabled: isDate" required="required" />' + '</div>' + '<div data-bind="visible: showTo">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.end #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.end #" class="k-textbox" data-bind="value: to, enabled: showToForDate" required="required" />' + '</div>' + '</div>' + '</div>' + '<div data-bind="visible: isCustom">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" class="k-textbox" data-bind="value: from, enabled: isCustom" required="required" />' + '</div>' + '</div>' + '<div data-bind="visible: isList">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" class="k-textbox" data-bind="value: from, enabled: isList" required="required" />' + '</div>' + '</div>' + '<div data-bind="visible: isList">' + '<div class="k-edit-field">' + '<input type="checkbox" name="showButton" id="showButton" class="k-checkbox" data-bind="checked: showButton"/>' + '<label for="showButton" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.showListButton #' + '</label>' + '</div>' + '</div>' + '<div data-bind="visible: isDate">' + '<div class="k-edit-field">' + '<input type="checkbox" name="showButton" id="showButton" class="k-checkbox" data-bind="checked: showButton"/>' + '<label for="showButton" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.showCalendarButton #' + '</label>' + '</div>' + '</div>' + '<div data-bind="invisible: isAny">' + '<div class="k-edit-field">' + '<input type="checkbox" name="ignoreBlank" id="ignoreBlank" class="k-checkbox" data-bind="checked: ignoreBlank"/>' + '<label for="ignoreBlank" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.ignoreBlank #' + '</label>' + '</div>' + '</div>' + '<div data-bind="invisible: isAny">' + '<div class="k-action-buttons"></div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.onInvalidData #:</label></div>' + '<div class="k-edit-field">' + '<input type="radio" id="validationTypeReject" name="validationType" value="reject" data-bind="checked: type" class="k-radio" />' + '<label for="validationTypeReject" class="k-radio-label">' + '#: messages.validationDialog.labels.rejectInput #' + '</label> ' + '<input type="radio" id="validationTypeWarning" name="validationType" value="warning" data-bind="checked: type" class="k-radio" />' + '<label for="validationTypeWarning" class="k-radio-label">' + '#: messages.validationDialog.labels.showWarning #' + '</label>' + '</div>' + '</div>' + '<div data-bind="invisible: isAny" class="hint-wrapper">' + '<div class="k-edit-field">' + '<input type="checkbox" name="useCustomMessages" id="useCustomMessages" class="k-checkbox" data-bind="checked: useCustomMessages" />' + '<label class="k-checkbox-label" for="useCustomMessages">' + ' #: messages.validationDialog.labels.showHint #' + '</label>' + '</div>' + '<div data-bind="visible: useCustomMessages">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.hintTitle #:</label></div>' + '<div class="k-edit-field">' + '<input class="k-textbox" placeholder="#: messages.validationDialog.placeholders.typeTitle #" data-bind="value: hintTitle" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.hintMessage #:</label></div>' + '<div class="k-edit-field">' + '<input class="k-textbox" placeholder="#: messages.validationDialog.placeholders.typeMessage #" data-bind="value: hintMessage" />' + '</div>' + '</div>' + '</div>' + '<div class="k-action-buttons">' + '<button class="k-button" data-bind="visible: showRemove, click: remove">#: messages.remove #</button>' + '<button class="k-button k-primary" data-bind="click: apply">#: messages.apply #</button>' + '<button class="k-button" data-bind="click: close">#: messages.cancel #</button>' + '</div>' + '</div>'
+                template: '<div class="k-edit-form-container">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.criteria #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.criteria #"' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: criterion, source: criteria" />' + '</div>' + '<div data-bind="visible: isNumber">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: comparer, source: comparers" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.min #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.min #" title="#: messages.validationDialog.labels.min #" placeholder="e.g. 10" class="k-textbox" data-bind="value: from, enabled: isNumber" required="required" />' + '</div>' + '<div data-bind="visible: showTo">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.max #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.max #" title="#: messages.validationDialog.labels.max #" placeholder="e.g. 100" class="k-textbox" data-bind="value: to, enabled: showToForNumber" required="required" />' + '</div>' + '</div>' + '</div>' + '<div data-bind="visible: isText">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: comparer, source: comparers" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-textbox" data-bind="value: from, enabled: isText" required="required" />' + '</div>' + '</div>' + '<div data-bind="visible: isDate">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: comparer, source: comparers" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.start #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.start #" title="#: messages.validationDialog.labels.start #" class="k-textbox" data-bind="value: from, enabled: isDate" required="required" />' + '</div>' + '<div data-bind="visible: showTo">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.end #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.end #" title="#: messages.validationDialog.labels.end #" class="k-textbox" data-bind="value: to, enabled: showToForDate" required="required" />' + '</div>' + '</div>' + '</div>' + '<div data-bind="visible: isCustom">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-textbox" data-bind="value: from, enabled: isCustom" required="required" />' + '</div>' + '</div>' + '<div data-bind="visible: isList">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-textbox" data-bind="value: from, enabled: isList" required="required" />' + '</div>' + '</div>' + '<div data-bind="visible: isList">' + '<div class="k-edit-field">' + '<input type="checkbox" name="showButton" id="listShowButton" class="k-checkbox" data-bind="checked: showButton"/>' + '<label for="listShowButton" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.showListButton #' + '</label>' + '</div>' + '</div>' + '<div data-bind="visible: isDate">' + '<div class="k-edit-field">' + '<input type="checkbox" name="showButton" id="dateShowButton" class="k-checkbox" data-bind="checked: showButton"/>' + '<label for="dateShowButton" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.showCalendarButton #' + '</label>' + '</div>' + '</div>' + '<div data-bind="invisible: isAny">' + '<div class="k-edit-field">' + '<input type="checkbox" title="#: messages.validationDialog.labels.ignoreBlank #" name="ignoreBlank" id="ignoreBlank" class="k-checkbox" data-bind="checked: ignoreBlank"/>' + '<label for="ignoreBlank" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.ignoreBlank #' + '</label>' + '</div>' + '</div>' + '<div data-bind="invisible: isAny">' + '<div class="k-action-buttons"></div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.onInvalidData #:</label></div>' + '<div class="k-edit-field">' + '<input type="radio" title="#: messages.validationDialog.labels.rejectInput #" id="validationTypeReject" name="validationType" value="reject" data-bind="checked: type" class="k-radio" />' + '<label for="validationTypeReject" class="k-radio-label">' + '#: messages.validationDialog.labels.rejectInput #' + '</label> ' + '<input type="radio" title="#: messages.validationDialog.labels.showWarning #" id="validationTypeWarning"  name="validationType" value="warning" data-bind="checked: type" class="k-radio" />' + '<label for="validationTypeWarning" class="k-radio-label">' + '#: messages.validationDialog.labels.showWarning #' + '</label>' + '</div>' + '</div>' + '<div data-bind="invisible: isAny" class="hint-wrapper">' + '<div class="k-edit-field">' + '<input type="checkbox" title="#: messages.validationDialog.labels.showHint #" name="useCustomMessages" id="useCustomMessages" class="k-checkbox" data-bind="checked: useCustomMessages" />' + '<label class="k-checkbox-label" for="useCustomMessages">' + ' #: messages.validationDialog.labels.showHint #' + '</label>' + '</div>' + '<div data-bind="visible: useCustomMessages">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.hintTitle #:</label></div>' + '<div class="k-edit-field">' + '<input class="k-textbox" title="#: messages.validationDialog.labels.hintTitle #" placeholder="#: messages.validationDialog.placeholders.typeTitle #" data-bind="value: hintTitle" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.hintMessage #:</label></div>' + '<div class="k-edit-field">' + '<input class="k-textbox" title="#: messages.validationDialog.labels.hintMessage #" placeholder="#: messages.validationDialog.placeholders.typeMessage #" data-bind="value: hintMessage" />' + '</div>' + '</div>' + '</div>' + '<div class="k-action-buttons">' + '<button class="k-button" data-bind="visible: showRemove, click: remove">#: messages.remove #</button>' + '<button class="k-button k-primary" data-bind="click: apply">#: messages.apply #</button>' + '<button class="k-button" data-bind="click: close">#: messages.cancel #</button>' + '</div>' + '</div>'
             },
             open: function (range) {
                 var options = this.options;
@@ -26691,7 +26706,7 @@
         kendo.spreadsheet.dialogs.register('useKeyboard', UseKeyboardDialog);
         var HyperlinkDialog = SpreadsheetDialog.extend({
             options: {
-                template: '<div class=\'k-edit-label\'><label>#: messages.linkDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button style=\'float: left\' class=\'k-button\' data-bind=\'click: remove\'>#= messages.linkDialog.labels.removeLink #</button>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                template: '<div class=\'k-edit-label\'><label>#: messages.linkDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' title=\'#: messages.linkDialog.labels.url #\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button style=\'float: left\' class=\'k-button\' data-bind=\'click: remove\'>#= messages.linkDialog.labels.removeLink #</button>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
                 title: MESSAGES.linkDialog.title,
                 autoFocus: false
             },
@@ -27046,14 +27061,21 @@
         function filter(dataSource, query) {
             var hasVisibleChildren = false;
             var data = dataSource instanceof kendo.data.HierarchicalDataSource && dataSource.data();
+            var valuesFilter = this;
+            var values = this.values;
             for (var i = 0; i < data.length; i++) {
                 var item = data[i];
                 var text = item.text.toString().toLowerCase();
                 var itemVisible = query === true || query === '' || text.indexOf(query) >= 0;
-                var anyVisibleChildren = filter(item.children, itemVisible || query);
+                var filterSpread = filter.bind(valuesFilter);
+                var anyVisibleChildren = filterSpread(item.children, query);
                 hasVisibleChildren = hasVisibleChildren || anyVisibleChildren || itemVisible;
                 item.hidden = !itemVisible && !anyVisibleChildren;
-                item.checked = !item.hidden;
+                if (query.length || values && !values.length) {
+                    item.checked = !item.hidden;
+                } else if (values && values.indexOf(item.text) != -1) {
+                    item.checked = true;
+                }
             }
             if (data) {
                 dataSource.filter({
@@ -27112,8 +27134,9 @@
                 var query = typeof e == 'string' ? e : $(e.target).val().toLowerCase();
                 var dataSource = this.valuesDataSource;
                 this.set('hasActiveSearch', !!query);
+                var filterSpread = filter.bind(this.valueFilter);
                 uncheckAll(dataSource);
-                filter(dataSource, query);
+                filterSpread(dataSource, query);
             },
             reset: function () {
                 this.set('customFilter', {
@@ -27169,7 +27192,7 @@
                 return [{
                         text: 'All',
                         expanded: true,
-                        checked: true,
+                        checked: false,
                         items: this.values(range.resize({ top: 1 }), column)
                     }];
             },
@@ -27179,8 +27202,9 @@
                 var columnRange = range.column(column);
                 var sheet = range.sheet();
                 columnRange.forEachCell(function (row, col, cell) {
+                    var checked = true;
                     if (sheet.isHiddenRow(row)) {
-                        return;
+                        checked = false;
                     }
                     var value = cell.value;
                     var dataType = cell.dataType;
@@ -27207,7 +27231,7 @@
                         dataType: dataType,
                         value: value,
                         text: text,
-                        checked: true
+                        checked: checked
                     });
                 });
                 values = distinctValues(values);
@@ -27541,10 +27565,12 @@
             activate: function (options) {
                 this._active = true;
                 this._rect = options.rect;
+                this._range = options.range;
                 this.cellInput.position(options.rect);
                 this.cellInput.resize(options.rect);
                 this.cellInput.tooltip(options.tooltip);
-                this.cellInput.activeCell = this.barInput.activeCell = options.range.topLeft;
+                this.cellInput.activeCell = this.barInput.activeCell = this._range.topLeft();
+                this.cellInput.activeSheet = this.barInput.activeSheet = this._range._sheet;
                 this.trigger('activate');
                 return this;
             },
@@ -27554,7 +27580,10 @@
                     return;
                 }
                 if (cellInput.value() != this._value) {
-                    this.trigger('change', { value: cellInput.value() });
+                    this.trigger('change', {
+                        value: cellInput.value(),
+                        range: this._range
+                    });
                 }
                 this._active = false;
                 this._rect = null;
@@ -28130,8 +28159,8 @@
         });
         rowHeights = rowHeights.slice(0, maxRow + 1);
         colWidths = colWidths.slice(0, maxCol + 1);
-        var pageWidth = options.pageWidth;
-        var pageHeight = options.pageHeight;
+        var pageWidth = Math.floor(options.pageWidth);
+        var pageHeight = Math.floor(options.pageHeight);
         var scaleFactor = 1;
         if (options.fitWidth) {
             var width = colWidths.reduce(sum, 0);

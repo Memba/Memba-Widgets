@@ -2967,7 +2967,7 @@
          * @class ImageSet tool
          * @type {void|*}
          */
-        var IMAGESET = '<div data-#= ns #role="imageset" data-#= ns #images="#: data$() #" style="#: attributes.style #" {0}></div>'
+        var IMAGESET = '<div data-#= ns #role="imageset" data-#= ns #images="#: data$() #" style="#: attributes.style #" {0}></div>';
         var ImageSet = Tool.extend({
             id: 'imageset',
             icon: 'photos',

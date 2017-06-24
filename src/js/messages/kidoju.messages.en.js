@@ -424,6 +424,25 @@
                     properties.dropValue.title = 'Value';
                 }
 
+                if (tools.imageset instanceof Tool) {
+                    // Description
+                    tools.imageset.constructor.prototype.description = 'Image';
+                    // Attributes
+                    attributes = tools.imageset.constructor.prototype.attributes;
+                    attributes.style.title = 'Style';
+                    attributes.data.title = 'Images';
+                    attributes.data.defaultValue = [{ text: 'Image set', image: 'cdn://images/o_collection/svg/office/photos.svg' }];
+                    // Properties
+                    properties = tools.imageset.constructor.prototype.properties;
+                    properties.name.title = 'Name';
+                    properties.question.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Success';
+                    properties.failure.title = 'Failure';
+                    properties.omit.title = 'Omit';
+                }
+
                 if (tools.label instanceof Tool) {
                     // Description
                     tools.label.constructor.prototype.description = 'Label';

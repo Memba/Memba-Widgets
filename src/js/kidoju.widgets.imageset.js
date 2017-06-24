@@ -125,7 +125,7 @@
                 var images = this.options.images;
                 for (var i = 0, length = images.length; i < length; i++) {
                     $('<img>')
-                        .attr('src', images[i].image);
+                        .attr('src', window.encodeURI(images[i].image));
                     /*
                     .on('load', function () {
                         debugger; // Yippy! they load
@@ -236,10 +236,10 @@
                 var images = this.options.images;
                 this._index = (Math.round(Math.abs(this._index)) % images.length) || 0;
                 if ($.isArray(images) && images[this._index]) {
-                    // element.attr('alt', images[this._index].text);
-                    // element.attr('src', images[this._index].image);
+                    // element.attr('alt', kendo.htmlEncode(images[this._index].text));
+                    // element.attr('src', kendo.htmlEncode(images[this._index].image));
                     element.css({
-                        backgroundImage: 'url(' + images[this._index].image + ')'
+                        backgroundImage: 'url(' + window.encodeURI(images[this._index].image) + ')'
                     });
                 }
                 logger.debug({ method: 'refresh', message: 'Widget refreshed' });

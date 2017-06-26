@@ -249,7 +249,7 @@
                 this.type = 'PenTool';
             },
             tryActivate: function (p, meta) {
-                if (meta.type === this.type) {
+                if (this.type === this.toolService.selectedTool) {
                     this.options === meta.options;
                     return true;
                 }
@@ -391,7 +391,7 @@
                 this.type = 'PolylineTool';
             },
             tryActivate: function (p, meta) {
-                if (meta.type === this.type) {
+                if (this.type === this.toolService.selectedTool) {
                     this.options === meta.options;
                     return true;
                 }
@@ -533,7 +533,7 @@
                 this.type = 'ShapeTool';
             },
             tryActivate: function (p, meta) {
-                if (meta.type === this.type) {
+                if (this.type === this.toolService.selectedTool) {
                     this.options === meta.options;
                     return true;
                 }
@@ -545,7 +545,7 @@
                 // var connector = toolService._hoveredConnector;
                 // var connection = diagram._createConnection({}, connector._c, p);
                 var shape = diagram._createShape({}, deepExtend(
-                    this.toolService.options,
+                    this.toolService.options || {},
                     {
                         x: pos.x,
                         y: pos.y,
@@ -1150,6 +1150,7 @@
             },
             _onDrawingToolChange: function (params) {
                 // the tool to be used is set by this.toolService._activateTool which is triggered by mouse events
+                this.toolService.selectedTool = params.value;
             },
             _onPropertyChange: function (params) {
                 assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));

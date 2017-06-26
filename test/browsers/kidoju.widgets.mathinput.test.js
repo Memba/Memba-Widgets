@@ -34,7 +34,7 @@
                 expect(kendo).not.to.be.undefined;
                 expect(kendo.version).to.be.a('string');
                 expect($.fn.kendoMathInput).to.be.an.instanceof(Function);
-                // expect($.fn.kendoMathInputToolBar).to.be.an.instanceof(Function);
+                expect($.fn.kendoMathInputToolBar).to.be.an.instanceof(Function);
             });
 
         });
@@ -43,31 +43,28 @@
 
             it('from code', function () {
                 var element = $(MATHINPUT1).appendTo(FIXTURES);
-                var dropZone = element.kendoMathInput().data('kendoMathInput');
-                expect(dropZone).to.be.an.instanceof(MathInput);
+                var mathInput = element.kendoMathInput().data('kendoMathInput');
+                expect(mathInput).to.be.an.instanceof(MathInput);
                 // expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-mathinput');
-                // TODO expect(dropZone).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
+                // TODO expect(mathInput).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
             });
 
             it('from code with options', function () {
                 var toolbar = $(TOOLBAR).appendTo(FIXTURES);
                 var element = $(MATHINPUT1).appendTo(FIXTURES);
-                var options = {
-
-                };
-                var dropZone = element.kendoMathInput().data('kendoMathInput');
-                expect(dropZone).to.be.an.instanceof(MathInput);
+                var options = {};
+                var mathInput = element.kendoMathInput(options).data('kendoMathInput');
+                expect(mathInput).to.be.an.instanceof(MathInput);
                 // expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-mathinput');
-                // TODO expect(assetManager).to.have.property('dataSource').that.is.an.instanceof(kendo.data.DataSource);
             });
 
             it('from markup', function () {
                 var element = $(MATHINPUT2).appendTo(FIXTURES);
                 kendo.init(FIXTURES);
-                var dropZone = element.data('kendoMathInput');
-                expect(dropZone).to.be.an.instanceof(MathInput);
+                var mathInput = element.data('kendoMathInput');
+                expect(mathInput).to.be.an.instanceof(MathInput);
                 // expect(element).to.have.class('k-widget');
                 expect(element).to.have.class('kj-mathinput');
             });
@@ -88,16 +85,16 @@
         describe('Methods', function () {
 
             var element;
-            var dropZone;
+            var mathInput;
             var options = {};
 
             beforeEach(function () {
                 element = $(MATHINPUT1).appendTo(FIXTURES);
-                dropZone = element.kendoMathInput(options).data('kendoMathInput');
+                mathInput = element.kendoMathInput(options).data('kendoMathInput');
             });
 
             xit('value', function (done) {
-                expect(dropZone).to.be.an.instanceof(MathInput);
+                expect(mathInput).to.be.an.instanceof(MathInput);
             });
 
             xit('setOptions', function () {
@@ -105,9 +102,9 @@
             });
 
             xit('destroy', function () {
-                expect(dropZone).to.be.an.instanceof(MathInput);
-                dropZone.destroy();
-                expect(dropZone.element).to.be.empty;
+                expect(mathInput).to.be.an.instanceof(MathInput);
+                mathInput.destroy();
+                expect(mathInput.element).to.be.empty;
             });
 
             afterEach(function () {
@@ -122,7 +119,7 @@
         describe('MVVM (and UI interactions)', function () {
 
             var element;
-            var dropZone;
+            var mathInput;
             var options = {};
             var viewModel;
             var change;
@@ -130,7 +127,7 @@
 
             beforeEach(function () {
                 element = $(MATHINPUT1).appendTo(FIXTURES);
-                dropZone = element.kendoMathInput(options).data('kendoMathInput');
+                mathInput = element.kendoMathInput(options).data('kendoMathInput');
                 viewModel = kendo.observable({
                     // TODO
                 });
@@ -154,13 +151,13 @@
         describe('Events', function () {
 
             var element;
-            var dropZone;
+            var mathInput;
             var options = {};
             var event;
 
             beforeEach(function () {
                 element = $(MATHINPUT1).appendTo(FIXTURES);
-                dropZone = element.kendoMathInput(options).data('kendoMathInput');
+                mathInput = element.kendoMathInput(options).data('kendoMathInput');
                 event = sinon.spy();
             });
 

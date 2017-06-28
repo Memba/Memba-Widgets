@@ -1,3 +1,6 @@
+.kj-label {
+    white-space: pre-wrap;
+}
 .k-dialog .k-dialog-buttongroup .k-button .k-image {
     height: 1.5em;
     width: 1.5em;

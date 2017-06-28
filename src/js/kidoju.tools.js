@@ -233,7 +233,8 @@
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
-                    omit: { title: 'Omit' }
+                    omit: { title: 'Omit' },
+                    disabled: { title: 'Disabled' }
                 }
             },
 
@@ -390,7 +391,8 @@
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
-                    omit: { title: 'Omit' }
+                    omit: { title: 'Omit' },
+                    disabled: { title: 'Disabled' }
                 }
             },
 
@@ -1397,10 +1399,6 @@
                 this.type = STRING;
                 this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 this.editor = function (container, settings) {
-                    var toolbarId = 'mathinput_' + kendo.guid();
-                    // Toolbar
-                    container.append(kendo.format('<div id="{0}"></div>', toolbarId));
-                    // MathInput
                     var binding = {};
                     binding[kendo.attr('bind')] = 'value: ' + settings.field;
                     var input = $('<div/>')
@@ -1413,8 +1411,7 @@
                         .appendTo(container);
                     var mathInputWidget = input.kendoMathInput({
                         toolbar: {
-                            container: '#' + toolbarId,
-                            fixed: true,
+                            // container: '',
                             resizable: true,
                             tools: [
                                 // 'backspace',
@@ -1423,10 +1420,10 @@
                                 'basic',
                                 'lowergreek',
                                 'uppergreek',
-                                'operator',
-                                'expression',
-                                'group',
-                                'matrix',
+                                'operators',
+                                'expressions',
+                                'sets',
+                                'matrices',
                                 'statistics'
                                 // 'units',
                                 // 'chemistry'
@@ -1440,7 +1437,7 @@
                     name: 'equal',
                     formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).trim() === String(solution).trim();')
                     // TODO MathQuillMathField
-                    // TODO alternative
+                    // TODO permutations
                 }
             ],
             libraryDefault: 'equal'
@@ -2720,7 +2717,8 @@
                 validation: new adapters.ValidationAdapter({ title: i18n.dropzone.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.failure.title, defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.omit.title, defaultValue: 0 })
+                omit: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.omit.title, defaultValue: 0 }),
+                disabled: new adapters.DisabledAdapter({ title: i18n.dropzone.properties.disabled.title, defaultValue: false })
             },
 
             /**
@@ -2833,7 +2831,7 @@
                 var template = kendo.template(that.templates.default);
                 // The class$ function adds the kj-interactive class to draggables
                 component.class$ = function () {
-                    return component.properties.draggable ? INTERACTIVE_CLASS : '';
+                    return 'kj-image' + (component.properties.draggable ? ' ' + INTERACTIVE_CLASS : '');
                 };
                 // The id$ function returns the component id for draggable components
                 component.id$ = function () {
@@ -3140,7 +3138,7 @@
                 var template = kendo.template(that.templates.default);
                 // The class$ function adds the kj-interactive class to draggables
                 component.class$ = function () {
-                    return component.properties.draggable ? INTERACTIVE_CLASS : '';
+                    return 'kj-label' + (component.properties.draggable ? ' ' + INTERACTIVE_CLASS : '');
                 };
                 // The id$ function returns the component id for draggable components
                 component.id$ = function () {
@@ -4007,7 +4005,8 @@
                 validation: new adapters.ValidationAdapter({ title: i18n.textbox.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.textbox.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.textbox.properties.failure.title, defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: i18n.textbox.properties.omit.title, defaultValue: 0 })
+                omit: new adapters.ScoreAdapter({ title: i18n.textbox.properties.omit.title, defaultValue: 0 }),
+                disabled: new adapters.DisabledAdapter({ title: i18n.textbox.properties.disabled.title, defaultValue: false })
             },
 
             /**

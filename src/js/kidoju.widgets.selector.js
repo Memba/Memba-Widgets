@@ -611,6 +611,9 @@
             _onMouseDown: function  (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 e.preventDefault(); // prevents from selecting the div
+                if ($(e.target).hasClass(INTERACTIVE_CLASS)) {
+                    return;
+                }
                 var container = $(e.currentTarget);
                 // Although `this` is unavailable, surfaceElement and surfaceWidget give us the drawing surface and dataSource
                 var surfaceElement = container.find(DOT + SURFACE_CLASS);

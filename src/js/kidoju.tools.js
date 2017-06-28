@@ -1933,7 +1933,7 @@
                     formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).replace(/\\s+/g, " ").trim() === String(solution).replace(/\\s+/g, " ").trim();')
                 },
                 {
-                    name: 'ignorePunctiationEqual',
+                    name: 'ignorePunctuationEqual',
                     formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim() === String(solution).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim();')
                 }
             ],

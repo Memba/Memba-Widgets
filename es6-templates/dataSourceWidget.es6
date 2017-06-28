@@ -84,7 +84,7 @@ export class DataSourceWidget extends ui.Widget {
 
 // Add options
 DataSourceWidget.prototype.options = {
-    source: undeifned,
+    source: undefined,
     value: ''
 };
 // Add events

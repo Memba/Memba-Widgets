@@ -6,7 +6,7 @@
 import $ from 'jquery'
 import * as kendo from 'kendo.data'
 
-const CHANGE = 'change'
+const CHANGE = 'change';
 const ui = kendo.ui;
 const data = kendo.data;
 const DataSource = data.DataSource;

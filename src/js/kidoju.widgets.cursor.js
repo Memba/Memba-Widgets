@@ -191,14 +191,18 @@
              */
             destroy: function () {
                 var that = this;
+                var wrapper = that.wrapper;
                 // Unbind events
                 $(document).off(NS);
                 that.cursorEvents.destroy();
+                kendo.unbind(wrapper);
                 // Release references
                 that.cursorEvents = undefined;
                 // Destroy widget
                 Widget.fn.destroy.call(that);
-                kendo.destroy(that.element);
+                kendo.destroy(wrapper);
+                // Remove widget class
+                // wrapper.removeClass(WIDGET_CLASS);
             }
         });
 

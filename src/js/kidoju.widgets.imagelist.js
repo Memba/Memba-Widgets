@@ -317,6 +317,7 @@
              */
             destroy: function () {
                 var that = this;
+                var wrapper = that.wrapper;
                 // Unbind events
                 if (that.listView instanceof ListView) {
                     var list = that.listView.element;
@@ -325,6 +326,7 @@
                 if (that.toolbar instanceof $) {
                     $('.k-button', that.toolbar).off(NS);
                 }
+                kendo.unbind(wrapper);
                 // Release references
                 that.toolbar = undefined;
                 that.listView = undefined;
@@ -332,7 +334,9 @@
                 that.tooltip = undefined;
                 // Destroy kendo bindings
                 Widget.fn.destroy.call(that);
-                kendo.destroy(that.wrapper);
+                kendo.destroy(wrapper);
+                // Remove widget class
+                // wrapper.removeClass(WIDGET_CLASS);
             }
 
         });

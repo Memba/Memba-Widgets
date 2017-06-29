@@ -406,6 +406,7 @@
                     properties.success.title = 'Success';
                     properties.failure.title = 'Failure';
                     properties.omit.title = 'Omit';
+                    properties.disabled.title = 'Disable';
                 }
 
                 if (tools.image instanceof Tool) {
@@ -577,6 +578,7 @@
                     properties.success.title = 'Success';
                     properties.failure.title = 'Failure';
                     properties.omit.title = 'Omit';
+                    properties.disabled.title = 'Disable';
                 }
 
                 if (tools.video instanceof Tool) {

@@ -35,10 +35,10 @@
             'basic',
             'lowergreek',
             'uppergreek',
-            'operator',
-            'expression',
-            'group',
-            'matrix',
+            'operators',
+            'expressions',
+            'sets',
+            'matrices',
             'statistics'
             // 'units',
             // 'chemistry'
@@ -51,6 +51,15 @@
          *********************************************************************************/
 
         kendo.mathinput = { messages: {} };
+
+        // TODO Add Euler and Imaginary numbers
+        // TODO Add \iint and \iiint (\oiint and \oiiint)
+        // TODO Add \underline
+        // TODO Add \angle and \measuredangle
+        // TODO Add \aleph and similar signs
+        // TODO Add \leftarrow and \rightarrow and \leftrightarrow
+        // TODO \notsubset and \notsupset do not work - see https://github.com/mathquill/mathquill/pull/624
+        // TODO \nRightarrow (nimplies) does not work
 
         var TOOLBAR_MESSAGES = kendo.mathinput.messages.toolbar = {
             field: {
@@ -82,43 +91,35 @@
                     k: 'k',
                     n: 'n',
                     p: 'p',
+                    q: 'q',
                     x: 'x',
                     y: 'y',
                     z: 'z',
                     pi: 'Pi',
                     infty: 'Infinity',
-                    space: 'Space'
+                    space: 'Space',
+                    subscript: 'Subscript'
                 }
             },
             basic: {
                 title: 'Basic',
                 buttons: {
-                    // These are the functions that mathjs can calculate
-                    sqrt: 'Square root',
-                    cubert: 'Cube root',
-                    nthroot: 'Nth root',
+                    // WARNING: Make sure mathjs can calculate all these functions
+                    equal: 'Equal',
+                    plus: 'Plus',
+                    minus: 'Minus',
+                    cdot: 'Times',
+                    times: 'Times',
+                    div: 'Divide',
+                    pleft: 'Left parenthesis (',
+                    pright: 'Right parenthesis )',
                     frac: 'Fraction',
-                    pow: 'Power',
+                    sqrt: 'Square root',
                     pow2: 'Power of 2',
                     pow3: 'Power of 3',
-                    log: 'Logarithm',
-                    log10: 'Logarithm base 10',
-                    ln: 'Naperian logarithm',
-                    subscript: 'Subscript',
                     sin: 'Sine',
                     cos: 'Cosine',
-                    tan: 'Tangent',
-                    arcsin: 'Arc sine',
-                    arccos: 'Arc cosine',
-                    arctan: 'Arc tangent',
-                    deriv: 'Derivative',
-                    partial: 'Partial derivative',
-                    int: 'Integral',
-                    sum: 'Sum',
-                    prod: 'Product',
-                    lim: 'Limit',
-                    matrix: 'Matrix 2x2'
-                    // TODO: fact, binomial
+                    tan: 'Tangent'
                 }
             },
             lowergreek: {
@@ -179,7 +180,7 @@
                     omega: 'Omega'
                 }
             },
-            operator: {
+            operators: {
                 title: 'Operators',
                 buttons: {
                     equal: 'Equal',
@@ -188,6 +189,14 @@
                     cdot: 'Times',
                     times: 'Times',
                     div: 'Divide',
+                    pleft: 'Left parenthesis (',
+                    pright: 'Right parenthesis )',
+                    bleft: 'Left square bracket [',
+                    bright: 'Right square bracket ]',
+                    cleft: 'Left curly bracket {',
+                    cright: 'Right curly bracket }',
+                    vleft: 'Left vertical line |',
+                    vright: 'Right vertical line |',
                     lt: 'Lower then',
                     le: 'Lower than or equal',
                     gt: 'Greater than',
@@ -197,20 +206,41 @@
                     propto: 'Proportional',
                     plusminus: 'Plus-Minus',
                     percent: 'Percent',
-                    factorial: 'Factorial',
+                    not: 'Not',
                     and: 'And',
                     or: 'Or',
                     circ: 'Composition',
                     nabla: 'Nabla'
                 }
             },
-            expression: {
+            expressions: {
                 title: 'Functions',
                 buttons: {
-
+                    sqrt: 'Square root',
+                    cubert: 'Cube root',
+                    nthroot: 'Nth root',
+                    pow2: 'Power of 2',
+                    pow3: 'Power of 3',
+                    pow: 'Power',
+                    log: 'Logarithm',
+                    log10: 'Logarithm base 10',
+                    ln: 'Naperian logarithm',
+                    sin: 'Sine',
+                    cos: 'Cosine',
+                    tan: 'Tangent',
+                    arcsin: 'Arc sine',
+                    arccos: 'Arc cosine',
+                    arctan: 'Arc tangent',
+                    deriv: 'Derivative',
+                    partial: 'Partial derivative',
+                    int: 'Integral',
+                    oint: 'Contour integral',
+                    sum: 'Sum',
+                    prod: 'Product',
+                    lim: 'Limit'
                 }
             },
-            group: {
+            sets: {
                 title: 'Sets',
                 buttons: {
                     cset: 'Complexes',
@@ -237,30 +267,39 @@
                     iff: ''
                 }
             },
-            matrix: {
+            matrices: {
                 title: 'Matrices',
                 buttons: {
-
+                    vector: 'Vector',
+                    widehat: 'Widehat (angle)',
+                    matrices: 'Matrix',
+                    pmatrix: 'Matrix with parentheses',
+                    bmatrix: 'Matrix with square brackets',
+                    bbmatrix: 'Matrix with curly braces',
+                    vmatrix: 'Matrix with vertical lines',
+                    vvmatrix: 'Matrix with double vertical lines',
+                    column: 'Add column',
+                    row: 'Add row'
                 }
             },
             statistics: {
                 title: 'Statistics',
                 buttons: {
-
+                    factorial: 'Factorial',
+                    binomial: 'Binomial',
+                    overline: 'Overline (mean)'
                 }
-            },
+            }
+            /*
             units: {
                 title: 'Units',
-                buttons: {
-
-                }
+                buttons: {}
             },
             chemistry: {
                 title: 'Chemistry',
-                buttons: {
-
-                }
+                buttons: {}
             }
+            */
         };
         var toolDefaults = {
             separator: { type: 'separator' },
@@ -290,26 +329,27 @@
                 type: 'uppergreek',
                 iconClass: 'uppergreek'
             },
-            operator: {
-                type: 'operator',
-                iconClass: 'operator'
+            operators: {
+                type: 'operators',
+                iconClass: 'operators'
             },
-            expression: {
-                type: 'expression',
-                iconClass: 'expression'
+            expressions: {
+                type: 'expressions',
+                iconClass: 'expressions'
             },
-            group: {
-                type: 'group',
-                iconClass: 'group'
+            sets: {
+                type: 'sets',
+                iconClass: 'sets'
             },
-            matrix: {
-                type: 'matrix',
-                iconClass: 'matrix'
+            matrices: {
+                type: 'matrices',
+                iconClass: 'matrices'
             },
             statistics: {
                 type: 'statistics',
                 iconClass: 'statistics'
-            },
+            }
+            /*
             units: {
                 type: 'units',
                 iconClass: 'units'
@@ -318,6 +358,7 @@
                 type: 'chemistry',
                 iconClass: 'chemistry'
             }
+            */
         };
 
         /**
@@ -420,7 +461,7 @@
                 tools: TOOLBAR
             },
             focused: function () {
-                // TODO: from kendo.editor at ln 8410
+                // As in kendo.editor at L#8410
                 return this.element.find('.k-state-focused').length > 0; // || this.preventPopupHide || this.overflowPopup && this.overflowPopup.visible();
             },
             action: function (args) {
@@ -722,6 +763,11 @@
                     value: ' ',
                     iconClass: 'space',
                     text: TOOLBAR_MESSAGES.keypad.buttons.space
+                },
+                {
+                    value: '_{ }',
+                    iconClass: 'subscript',
+                    text: TOOLBAR_MESSAGES.keypad.buttons.subscript
                 }
             ],
             destroy: function () {
@@ -758,6 +804,7 @@
 
         /**
          * BasicTool and BasicButton (compatible with kidoju.widgets.mathgraph)
+         * @see http://www.rapidtables.com/math/symbols/Basic_Math_Symbols.htm
          */
         var BasicTool = PopupTool.extend({
             init: function (options, toolbar) {
@@ -775,19 +822,44 @@
             },
             buttons: [
                 {
-                    value: '\\sqrt',
-                    iconClass: 'sqrt',
-                    text: TOOLBAR_MESSAGES.basic.buttons.sqrt
+                    value: '=',
+                    iconClass: 'equal',
+                    text: TOOLBAR_MESSAGES.basic.buttons.equal
                 },
                 {
-                    value: '\\sqrt[3]{ }',
-                    iconClass: 'cbrt',
-                    text: TOOLBAR_MESSAGES.basic.buttons.cubert
+                    value: '+',
+                    iconClass: 'plus',
+                    text: TOOLBAR_MESSAGES.basic.buttons.plus
                 },
                 {
-                    value: '\\sqrt[]{ }',
-                    iconClass: 'nthroot',
-                    text: TOOLBAR_MESSAGES.basic.buttons.nthroot
+                    value: '-',
+                    iconClass: 'minus',
+                    text: TOOLBAR_MESSAGES.basic.buttons.minus
+                },
+                {
+                    value: '\\cdot',
+                    iconClass: 'cdot',
+                    text: TOOLBAR_MESSAGES.basic.buttons.cdot
+                },
+                {
+                    value: '\\times',
+                    iconClass: 'times',
+                    text: TOOLBAR_MESSAGES.basic.buttons.times
+                },
+                {
+                    value: '\\div',
+                    iconClass: 'div',
+                    text: TOOLBAR_MESSAGES.basic.buttons.div
+                },
+                {
+                    value: '(', // '\\left[',
+                    iconClass: 'pleft',
+                    text: TOOLBAR_MESSAGES.basic.buttons.pleft
+                },
+                {
+                    value: '\\right)', // '\\right)',
+                    iconClass: 'pright',
+                    text: TOOLBAR_MESSAGES.basic.buttons.pright
                 },
                 {
                     value: '\\frac',
@@ -795,14 +867,9 @@
                     text: TOOLBAR_MESSAGES.basic.buttons.frac
                 },
                 {
-                    value: '_{ }',
-                    iconClass: 'subscript',
-                    text: TOOLBAR_MESSAGES.basic.buttons.subscript
-                },
-                {
-                    value: '^{ }',
-                    iconClass: 'pow',
-                    text: TOOLBAR_MESSAGES.basic.buttons.pow
+                    value: '\\sqrt',
+                    iconClass: 'sqrt',
+                    text: TOOLBAR_MESSAGES.basic.buttons.sqrt
                 },
                 {
                     value: '^2',
@@ -815,96 +882,20 @@
                     text: TOOLBAR_MESSAGES.basic.buttons.pow3
                 },
                 {
-                    value: '\\log_{}\\left(\\right)',
-                    iconClass: 'log',
-                    text: TOOLBAR_MESSAGES.basic.buttons.log
+                    value: '\\sin\\left(\\right)',
+                    iconClass: 'sin',
+                    text: TOOLBAR_MESSAGES.basic.buttons.sin
                 },
                 {
-                    value: '\\log\\left(\\right)',
-                    iconClass: 'log10',
-                    text: TOOLBAR_MESSAGES.basic.buttons.log10
+                    value: '\\cos\\left(\\right)',
+                    iconClass: 'cos',
+                    text: TOOLBAR_MESSAGES.basic.buttons.cos
                 },
                 {
-                    value: '\\ln\\left(\\right)',
-                    iconClass: 'ln',
-                    text: TOOLBAR_MESSAGES.basic.buttons.ln
-                },
-                {
-                    value: '\\arcsin\\left(\\right)',
-                    iconClass: 'arcsin',
-                    text: TOOLBAR_MESSAGES.basic.buttons.arcsin
-                },
-                {
-                    value: '\\arccos\\left(\\right)',
-                    iconClass: 'arccos',
-                    text: TOOLBAR_MESSAGES.basic.buttons.arccos
-                },
-                {
-                    value: '\\arctan\\left(\\right)',
-                    iconClass: 'arctan',
-                    text: TOOLBAR_MESSAGES.basic.buttons.arctan
-                },
-                {
-                    value: '\\frac{d}{dx}\\left(\\right)',
-                    iconClass: 'deriv',
-                    text: TOOLBAR_MESSAGES.basic.buttons.deriv
-                },
-                {
-                    value: '\\frac{\\partial}{\\partial x}\\left(\\right)',
-                    iconClass: 'partial',
-                    text: TOOLBAR_MESSAGES.basic.buttons.partial
-                },
-                {
-                    value: '\\int',
-                    iconClass: 'int',
-                    text: TOOLBAR_MESSAGES.basic.buttons.int
-                },
-                {
-                    value: '\\sum',
-                    iconClass: 'sum',
-                    text: TOOLBAR_MESSAGES.basic.buttons.sum
-                },
-                {
-                    value: '\\prod',
-                    iconClass: 'prod',
-                    text: TOOLBAR_MESSAGES.basic.buttons.prod
-                },
-                {
-                    value: '\\lim_{\\to}\\left(\\right)',
-                    iconClass: 'lim',
-                    text: TOOLBAR_MESSAGES.basic.buttons.lim
-                },
-                {
-                    value: '\\left[',
-                    iconClass: 'leftsb',
-                    text: TOOLBAR_MESSAGES.basic.buttons.leftsb
-                },
-                {
-                    value: '\\right]',
-                    iconClass: 'rightsb',
-                    text: TOOLBAR_MESSAGES.basic.buttons.rightsb
-                },
-                {
-                    value: '\\left{',
-                    iconClass: 'leftcb',
-                    text: TOOLBAR_MESSAGES.basic.buttons.leftcb
-                },
-                {
-                    value: '\\right}',
-                    iconClass: 'rightcb',
-                    text: TOOLBAR_MESSAGES.basic.buttons.rightcb
-                },
-                {
-                    value: '\\left|',
-                    iconClass: 'leftvl',
-                    text: TOOLBAR_MESSAGES.basic.buttons.leftvl
-                },
-                {
-                    value: '\\right|',
-                    iconClass: 'rightvl',
-                    text: TOOLBAR_MESSAGES.basic.buttons.rightvl
+                    value: '\\tan\\left(\\right)',
+                    iconClass: 'tan',
+                    text: TOOLBAR_MESSAGES.basic.buttons.tan
                 }
-                // TODO fact, binomial
             ],
             destroy: function () {
                 this.popup.element.off();
@@ -1127,7 +1118,6 @@
             buttons: [
                 /*
                  // Note: when deleting, you need two strokes to delete unicode characters, one for the unicode character and one for the text directive
-                 // TODO: So let us comment that for now
                  {
                  value: '\\text{\u0391}',
                  iconClass: 'alpha-maj',
@@ -1295,9 +1285,9 @@
         kendo.toolbar.registerComponent('uppergreek', UpperGreekTool, UpperGreekButton);
 
         /**
-         * OperatorTool and OperatorButton
+         * OperatorsTool and OperatorsButton
          */
-        var OperatorTool = PopupTool.extend({
+        var OperatorsTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
                 this._commandPalette();
@@ -1306,8 +1296,8 @@
                     this.popup.close();
                 }.bind(this));
                 this.element.data({
-                    type: 'operator',
-                    operator: this,
+                    type: 'operators',
+                    operators: this,
                     instance: this
                 });
             },
@@ -1315,102 +1305,142 @@
                 {
                     value: '=',
                     iconClass: 'equal',
-                    text: TOOLBAR_MESSAGES.operator.buttons.equal
+                    text: TOOLBAR_MESSAGES.operators.buttons.equal
                 },
                 {
                     value: '+',
                     iconClass: 'plus',
-                    text: TOOLBAR_MESSAGES.operator.buttons.plus
+                    text: TOOLBAR_MESSAGES.operators.buttons.plus
                 },
                 {
                     value: '-',
                     iconClass: 'minus',
-                    text: TOOLBAR_MESSAGES.operator.buttons.minus
+                    text: TOOLBAR_MESSAGES.operators.buttons.minus
                 },
                 {
                     value: '\\cdot',
                     iconClass: 'cdot',
-                    text: TOOLBAR_MESSAGES.operator.buttons.cdot
+                    text: TOOLBAR_MESSAGES.operators.buttons.cdot
                 },
                 {
                     value: '\\times',
                     iconClass: 'times',
-                    text: TOOLBAR_MESSAGES.operator.buttons.times
+                    text: TOOLBAR_MESSAGES.operators.buttons.times
                 },
                 {
                     value: '\\div',
                     iconClass: 'div',
-                    text: TOOLBAR_MESSAGES.operator.buttons.div
+                    text: TOOLBAR_MESSAGES.operators.buttons.div
+                },
+                {
+                    value: '(', // '\\left[',
+                    iconClass: 'pleft',
+                    text: TOOLBAR_MESSAGES.operators.buttons.pleft
+                },
+                {
+                    value: '\\right)', // '\\right)',
+                    iconClass: 'pright',
+                    text: TOOLBAR_MESSAGES.operators.buttons.pright
+                },
+                {
+                    value: '[', // '\\left[',
+                    iconClass: 'bleft',
+                    text: TOOLBAR_MESSAGES.operators.buttons.bleft
+                },
+                {
+                    value: '\\right]',
+                    iconClass: 'bright',
+                    text: TOOLBAR_MESSAGES.operators.buttons.bright
+                },
+                {
+                    value: '\\left{',
+                    iconClass: 'cleft',
+                    text: TOOLBAR_MESSAGES.operators.buttons.cleft
+                },
+                {
+                    value: '\\right}',
+                    iconClass: 'cright',
+                    text: TOOLBAR_MESSAGES.operators.buttons.cright
+                },
+                {
+                    value: '\\left|',
+                    iconClass: 'vleft',
+                    text: TOOLBAR_MESSAGES.operators.buttons.vleft
+                },
+                {
+                    value: '\\right|',
+                    iconClass: 'vright',
+                    text: TOOLBAR_MESSAGES.operators.buttons.vright
                 },
                 {
                     value: '<',
                     iconClass: 'lt',
-                    text: TOOLBAR_MESSAGES.operator.buttons.lt
+                    text: TOOLBAR_MESSAGES.operators.buttons.lt
                 },
                 {
                     value: '\\le',
                     iconClass: 'le',
-                    text: TOOLBAR_MESSAGES.operator.buttons.le
+                    text: TOOLBAR_MESSAGES.operators.buttons.le
                 },
                 {
                     value: '>',
                     iconClass: 'gt',
-                    text: TOOLBAR_MESSAGES.operator.buttons.gt
+                    text: TOOLBAR_MESSAGES.operators.buttons.gt
                 },
                 {
                     value: '\\ge',
                     iconClass: 'ge',
-                    text: TOOLBAR_MESSAGES.operator.buttons.ge
+                    text: TOOLBAR_MESSAGES.operators.buttons.ge
                 },
                 {
                     value: '\\neq',
                     iconClass: 'neq',
-                    text: TOOLBAR_MESSAGES.operator.buttons.neq
+                    text: TOOLBAR_MESSAGES.operators.buttons.neq
                 },
                 {
                     value: '\\approx',
                     iconClass: 'approx',
-                    text: TOOLBAR_MESSAGES.operator.buttons.approx
+                    text: TOOLBAR_MESSAGES.operators.buttons.approx
                 },
                 {
                     value: '\\propto',
                     iconClass: 'propto',
-                    text: TOOLBAR_MESSAGES.operator.buttons.propto
+                    text: TOOLBAR_MESSAGES.operators.buttons.propto
                 },
                 {
                     value: '\\pm',
                     iconClass: 'plusminus',
-                    text: TOOLBAR_MESSAGES.operator.buttons.plusminus
+                    text: TOOLBAR_MESSAGES.operators.buttons.plusminus
                 },
                 {
                     value: '%',
                     iconClass: 'percent',
-                    text: TOOLBAR_MESSAGES.operator.buttons.percent
+                    text: TOOLBAR_MESSAGES.operators.buttons.percent
                 },
                 {
-                    value: '!',
-                    iconClass: 'factorial',
-                    text: TOOLBAR_MESSAGES.operator.buttons.factorial
+                    value: '\\neg',
+                    iconClass: 'not',
+                    text: TOOLBAR_MESSAGES.operators.buttons.not
                 },
                 {
                     value: '\\wedge', // also '\\and',
                     iconClass: 'and',
-                    text: TOOLBAR_MESSAGES.operator.buttons.and
+                    text: TOOLBAR_MESSAGES.operators.buttons.and
                 },
                 {
                     value: '\\vee',// also '\\or',
                     iconClass: 'or',
-                    text: TOOLBAR_MESSAGES.operator.buttons.or
+                    text: TOOLBAR_MESSAGES.operators.buttons.or
                 },
                 {
                     value: '\\circ',
                     iconClass: 'circ',
-                    text: TOOLBAR_MESSAGES.operator.buttons.circ
+                    text: TOOLBAR_MESSAGES.operators.buttons.circ
                 },
                 {
                     value: '\\nabla',
                     iconClass: 'nabla',
-                    text: TOOLBAR_MESSAGES.operator.buttons.nabla
+                    text: TOOLBAR_MESSAGES.operators.buttons.nabla
                 }
             ],
             destroy: function () {
@@ -1431,22 +1461,22 @@
             _action: function (button) {
                 var value = button.attr('data-value');
                 this.toolbar.action({
-                    command: 'ToolbarOperatorCommand',
+                    command: 'ToolbarOperatorsCommand',
                     options: { value: value }
                 });
             }
         });
-        var OperatorButton = OverflowDialogButton.extend({
+        var OperatorsButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'operator' });
+                this.toolbar.dialog({ name: 'operators' });
             }
         });
-        kendo.toolbar.registerComponent('operator', OperatorTool, OperatorButton);
+        kendo.toolbar.registerComponent('operators', OperatorsTool, OperatorsButton);
 
         /**
-         * ExpressionTool and ExpressionButton
+         * ExpressionsTool and ExpressionsButton
          */
-        var ExpressionTool = PopupTool.extend({
+        var ExpressionsTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
                 this._commandPalette();
@@ -1455,19 +1485,117 @@
                     this.popup.close();
                 }.bind(this));
                 this.element.data({
-                    type: 'expression',
-                    expression: this,
+                    type: 'expressions',
+                    expressions: this,
                     instance: this
                 });
             },
             buttons: [
-                /*
-                 {
-                 value: '\\alpha',
-                 iconClass: 'alpha',
-                 text: TOOLBAR_MESSAGES.expression.buttons.alpha
-                 },
-                 */
+                {
+                    value: '\\sqrt',
+                    iconClass: 'sqrt',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.sqrt
+                },
+                {
+                    value: '\\sqrt[3]{ }',
+                    iconClass: 'cbrt',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.cubert
+                },
+                {
+                    value: '\\sqrt[]{ }',
+                    iconClass: 'nthroot',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.nthroot
+                },
+                {
+                    value: '^{ }',
+                    iconClass: 'pow',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.pow
+                },
+                {
+                    value: '^2',
+                    iconClass: 'pow2',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.pow2
+                },
+                {
+                    value: '^3',
+                    iconClass: 'pow3',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.pow3
+                },
+                {
+                    value: '\\log_{}\\left(\\right)',
+                    iconClass: 'log',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.log
+                },
+                {
+                    value: '\\log\\left(\\right)',
+                    iconClass: 'log10',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.log10
+                },
+                {
+                    value: '\\ln\\left(\\right)',
+                    iconClass: 'ln',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.ln
+                },
+                {
+                    value: '\\sin\\left(\\right)',
+                    iconClass: 'sin',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.sin
+                },
+                {
+                    value: '\\cos\\left(\\right)',
+                    iconClass: 'cos',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.cos
+                },
+                {
+                    value: '\\tan\\left(\\right)',
+                    iconClass: 'tan',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.tan
+                },
+                {
+                    value: '\\arcsin\\left(\\right)',
+                    iconClass: 'arcsin',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.arcsin
+                },
+                {
+                    value: '\\arccos\\left(\\right)',
+                    iconClass: 'arccos',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.arccos
+                },
+                {
+                    value: '\\arctan\\left(\\right)',
+                    iconClass: 'arctan',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.arctan
+                },
+                {
+                    value: '\\frac{d}{dx}\\left(\\right)',
+                    iconClass: 'deriv',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.deriv
+                },
+                {
+                    value: '\\frac{\\partial}{\\partial x}\\left(\\right)',
+                    iconClass: 'partial',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.partial
+                },
+                {
+                    value: '\\int',
+                    iconClass: 'int',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.int
+                },
+                {
+                    value: '\\sum',
+                    iconClass: 'sum',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.sum
+                },
+                {
+                    value: '\\prod',
+                    iconClass: 'prod',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.prod
+                },
+                {
+                    value: '\\lim_{\\to}\\left(\\right)',
+                    iconClass: 'lim',
+                    text: TOOLBAR_MESSAGES.expressions.buttons.lim
+                }
             ],
             destroy: function () {
                 this.popup.element.off();
@@ -1487,22 +1615,23 @@
             _action: function (button) {
                 var value = button.attr('data-value');
                 this.toolbar.action({
-                    command: 'ToolbarExpressionCommand',
+                    command: 'ToolbarExpressionsCommand',
                     options: { value: value }
                 });
             }
         });
-        var ExpressionButton = OverflowDialogButton.extend({
+        var ExpressionsButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'expression' });
+                this.toolbar.dialog({ name: 'expressions' });
             }
         });
-        kendo.toolbar.registerComponent('expression', ExpressionTool, ExpressionButton);
+        kendo.toolbar.registerComponent('expressions', ExpressionsTool, ExpressionsButton);
 
         /**
-         * GroupTool and GroupButton
+         * SetsTool and SetsButton
+         * @see http://www.rapidtables.com/math/symbols/Set_Symbols.htm
          */
-        var GroupTool = PopupTool.extend({
+        var SetsTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
                 this._commandPalette();
@@ -1511,8 +1640,8 @@
                     this.popup.close();
                 }.bind(this));
                 this.element.data({
-                    type: 'group',
-                    group: this,
+                    type: 'sets',
+                    sets: this,
                     instance: this
                 });
             },
@@ -1521,118 +1650,97 @@
                 {
                     value: '\\C', // also '\\complexes', but \\mathbb{C} does not work
                     iconClass: 'cset',
-                    text: TOOLBAR_MESSAGES.group.buttons.cset
+                    text: TOOLBAR_MESSAGES.sets.buttons.cset
                 },
                 {
                     value: '\\N', // also '\\naturals', but \\mathbb{N} does not work
                     iconClass: 'nset',
-                    text: TOOLBAR_MESSAGES.group.buttons.nset
+                    text: TOOLBAR_MESSAGES.sets.buttons.nset
                 },
                 {
                     value: '\\P', // also '\\primes',
                     iconClass: 'pset',
-                    text: TOOLBAR_MESSAGES.group.buttons.pset
+                    text: TOOLBAR_MESSAGES.sets.buttons.pset
                 },
                 {
                     value: '\\Q', // also '\\rationals',
                     iconClass: 'qset',
-                    text: TOOLBAR_MESSAGES.group.buttons.qset
+                    text: TOOLBAR_MESSAGES.sets.buttons.qset
                 },
                 {
                     value: '\\R', // also '\\reals',
                     iconClass: 'rset',
-                    text: TOOLBAR_MESSAGES.group.buttons.rset
+                    text: TOOLBAR_MESSAGES.sets.buttons.rset
                 },
                 {
                     value: '\\Z', // also '\\integers',
                     iconClass: 'zset',
-                    text: TOOLBAR_MESSAGES.group.buttons.zset
+                    text: TOOLBAR_MESSAGES.sets.buttons.zset
                 },
                 {
                     value: '\\varnothing', // also '\\O', '\\empty' and '\\emptyset',
                     iconClass: 'emptyset',
-                    text: TOOLBAR_MESSAGES.group.buttons.emptyset
+                    text: TOOLBAR_MESSAGES.sets.buttons.emptyset
                 },
                 {
                     value: '\\forall',
                     iconClass: 'forall',
-                    text: TOOLBAR_MESSAGES.group.buttons.forall
+                    text: TOOLBAR_MESSAGES.sets.buttons.forall
                 },
                 {
                     value: '\\exists',
                     iconClass: 'exists',
-                    text: TOOLBAR_MESSAGES.group.buttons.exists
+                    text: TOOLBAR_MESSAGES.sets.buttons.exists
                 },
                 {
                     value: '\\nexists',
                     iconClass: 'nexists',
-                    text: TOOLBAR_MESSAGES.group.buttons.nexists
+                    text: TOOLBAR_MESSAGES.sets.buttons.nexists
                 },
                 {
                     value: '\\in',
                     iconClass: 'in',
-                    text: TOOLBAR_MESSAGES.group.buttons.in
+                    text: TOOLBAR_MESSAGES.sets.buttons.in
                 },
                 {
                     value: '\\notin',
                     iconClass: 'nin',
-                    text: TOOLBAR_MESSAGES.group.buttons.nin
+                    text: TOOLBAR_MESSAGES.sets.buttons.nin
                 },
                 {
                     value: '\\subset',
                     iconClass: 'subset',
-                    text: TOOLBAR_MESSAGES.group.buttons.subset
+                    text: TOOLBAR_MESSAGES.sets.buttons.subset
                 },
                 {
                     value: '\\supset',
                     iconClass: 'supset',
-                    text: TOOLBAR_MESSAGES.group.buttons.supset
+                    text: TOOLBAR_MESSAGES.sets.buttons.supset
                 },
-                // TODO: does not work - see https://github.com/mathquill/mathquill/pull/624
-                /*
-                 {
-                 value: '\\notsubset',
-                 iconClass: 'nsubset',
-                 text: TOOLBAR_MESSAGES.group.buttons.nsubset
-                 },
-                 {
-                 value: '\\notsupset',
-                 iconClass: 'nsupset',
-                 text: TOOLBAR_MESSAGES.group.buttons.nsupset
-                 },
-                 */
                 {
                     value: '\\cap', // also '\\intersection'
                     iconClass: 'intersection',
-                    text: TOOLBAR_MESSAGES.group.buttons.intersection
+                    text: TOOLBAR_MESSAGES.sets.buttons.intersection
                 },
                 {
                     value: '\\cup', // also '\\union',
                     iconClass: 'union',
-                    text: TOOLBAR_MESSAGES.group.buttons.union
+                    text: TOOLBAR_MESSAGES.sets.buttons.union
                 },
                 {
                     value: '\\to',
                     iconClass: 'to',
-                    text: TOOLBAR_MESSAGES.group.buttons.to
+                    text: TOOLBAR_MESSAGES.sets.buttons.to
                 },
                 {
                     value: '\\Rightarrow', // also '\\implies',
                     iconClass: 'implies',
-                    text: TOOLBAR_MESSAGES.group.buttons.implies
+                    text: TOOLBAR_MESSAGES.sets.buttons.implies
                 },
-                // TODO does not work
-                /*
-                 {
-                 value: '\nRightarrow',
-                 iconClass: 'nimplies',
-                 text: TOOLBAR_MESSAGES.group.buttons.nimplies
-                 },
-                 */
                 {
                     value: '\\iff',
                     iconClass: 'iff',
-                    text: TOOLBAR_MESSAGES.group.buttons.iff
+                    text: TOOLBAR_MESSAGES.sets.buttons.iff
                 }
             ],
             destroy: function () {
@@ -1653,22 +1761,22 @@
             _action: function (button) {
                 var value = button.attr('data-value');
                 this.toolbar.action({
-                    command: 'ToolbarGroupCommand',
+                    command: 'ToolbarSetsCommand',
                     options: { value: value }
                 });
             }
         });
-        var GroupButton = OverflowDialogButton.extend({
+        var SetsButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'group' });
+                this.toolbar.dialog({ name: 'sets' });
             }
         });
-        kendo.toolbar.registerComponent('group', GroupTool, GroupButton);
+        kendo.toolbar.registerComponent('sets', SetsTool, SetsButton);
 
         /**
-         * MatrixTool and MatrixButton
+         * MatricesTool and MatricesButton
          */
-        var MatrixTool = PopupTool.extend({
+        var MatricesTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
                 this._commandPalette();
@@ -1677,8 +1785,8 @@
                     this.popup.close();
                 }.bind(this));
                 this.element.data({
-                    type: 'matrix',
-                    matrix: this,
+                    type: 'matrices',
+                    matrices: this,
                     instance: this
                 });
             },
@@ -1686,37 +1794,55 @@
                 // https://github.com/mathquill/mathquill/issues/332
                 // Matrix support: https://github.com/Learnosity/mathquill/commit/50315cf9056946fd59f2ffc14e2b1d0e03f6ec4b
                 {
-                    value: '\\begin{matrix}1&amp;2\\\\x&amp;y\\end{matrix}', // Bare
-                    iconClass: 'matrix2x2',
-                    text: TOOLBAR_MESSAGES.matrix.buttons.matrix2x2
+                    value: '\\vec',
+                    iconClass: 'vector',
+                    text: TOOLBAR_MESSAGES.matrices.buttons.vector
                 },
                 {
-                    value: '\\begin{pmatrix}1&amp;2\\\\x&amp;y\\end{pmatrix}', // Parenthesis
-                    iconClass: 'matrix2x2',
-                    text: TOOLBAR_MESSAGES.matrix.buttons.matrix2x2
+                    value: '\\widehat',
+                    iconClass: 'widehat',
+                    text: TOOLBAR_MESSAGES.matrices.buttons.widehat
+                },
+                {
+                    value: '\\begin{matrix}&amp;\\\\&amp;\\end{matrix}', // Bare
+                    iconClass: 'matrix',
+                    text: TOOLBAR_MESSAGES.matrices.buttons.matrices
+                },
+                {
+                    value: '\\begin{pmatrix}&amp;\\\\&amp;\\end{pmatrix}', // Parenthesis
+                    iconClass: 'pmatrix',
+                    text: TOOLBAR_MESSAGES.matrices.buttons.pmatrix
                 },
                 {
                     value: '\\begin{bmatrix}1&amp;2\\\\x&amp;y\\end{bmatrix}', // Square Brackets
-                    iconClass: 'matrix2x2',
-                    text: TOOLBAR_MESSAGES.matrix.buttons.matrix2x2
+                    iconClass: 'bmatrix',
+                    text: TOOLBAR_MESSAGES.matrices.buttons.bmatrix
                 },
                 {
                     value: '\\begin{Bmatrix}1&amp;2\\\\x&amp;y\\end{Bmatrix}', // Curly braces
-                    iconClass: 'matrix2x2',
-                    text: TOOLBAR_MESSAGES.matrix.buttons.matrix2x2
+                    iconClass: 'bbmatrix',
+                    text: TOOLBAR_MESSAGES.matrices.buttons.bbmatrix
                 },
                 {
                     value: '\\begin{vmatrix}1&amp;2\\\\x&amp;y\\end{vmatrix}', // Vertical line
-                    iconClass: 'matrix2x2',
-                    text: TOOLBAR_MESSAGES.matrix.buttons.matrix2x2
+                    iconClass: 'vmatrix',
+                    text: TOOLBAR_MESSAGES.matrices.buttons.vmatrix
                 },
                 {
                     value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // Double vertical lines
-                    iconClass: 'matrix2x2',
-                    text: TOOLBAR_MESSAGES.matrix.buttons.matrix2x2
+                    iconClass: 'vvmatrix',
+                    text: TOOLBAR_MESSAGES.matrices.buttons.vvmatrix
+                },
+                {
+                    value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // TODO Add column
+                    iconClass: 'column',
+                    text: TOOLBAR_MESSAGES.matrices.buttons.column
+                },
+                {
+                    value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // TODO Add row
+                    iconClass: 'row',
+                    text: TOOLBAR_MESSAGES.matrices.buttons.row
                 }
-                // TODO matrix, \pmatrix, \bmatrix, \Bmatrix, \vmatrix, \Vmatrix
-                // TODO add column, add row, remove column, remove row
             ],
             destroy: function () {
                 this.popup.element.off();
@@ -1736,17 +1862,17 @@
             _action: function (button) {
                 var value = button.attr('data-value');
                 this.toolbar.action({
-                    command: 'ToolbarMatrixCommand',
+                    command: 'ToolbarMatricesCommand',
                     options: { value: value }
                 });
             }
         });
-        var MatrixButton = OverflowDialogButton.extend({
+        var MatricesButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'matrix' });
+                this.toolbar.dialog({ name: 'matrices' });
             }
         });
-        kendo.toolbar.registerComponent('matrix', MatrixTool, MatrixButton);
+        kendo.toolbar.registerComponent('matrices', MatricesTool, MatricesButton);
 
         /**
          * StatisticsTool and StatisticsButton
@@ -1766,13 +1892,21 @@
                 });
             },
             buttons: [
-                /*
-                 {
-                 value: '\\alpha',
-                 iconClass: 'alpha',
-                 text: TOOLBAR_MESSAGES.statistics.buttons.alpha
-                 },
-                 */
+                {
+                    value: '!',
+                    iconClass: 'factorial',
+                    text: TOOLBAR_MESSAGES.statistics.buttons.factorial
+                },
+                {
+                    value: '\\binom',
+                    iconClass: 'binomial',
+                    text: TOOLBAR_MESSAGES.statistics.buttons.binomial
+                },
+                {
+                    value: '\\overline',
+                    iconClass: 'overline',
+                    text: TOOLBAR_MESSAGES.statistics.buttons.overline
+                }
             ],
             destroy: function () {
                 this.popup.element.off();
@@ -1805,11 +1939,13 @@
         kendo.toolbar.registerComponent('statistics', StatisticsTool, StatisticsButton);
 
         // TODO UnitsTool: how to delete kg or km as one symbol although it is made of 2 letters
-        // TODO the same applies to chemistry with periodic table elements like Ag, Br, Cl, Na, ...
+        // TODO ChemistryTool: the same applies to chemistry with elements like Ag, Br, Cl, Na, ...
+        // Note that https://www.symbolab.com/ could not do it
 
         /**
          * ChemistryTool and ChemistryButton
          */
+        /*
         var ChemistryTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
@@ -1825,26 +1961,17 @@
                 });
             },
             buttons: [
-                /*
-                 {
-                 value: '\\alpha',
-                 iconClass: 'alpha',
-                 text: TOOLBAR_MESSAGES.chemistry.buttons.alpha
-                 },
-                 */
-                /*
-                 Periodic table
-                 Subscripts and Superscripts 0-9 + and -
-                 arrow and arrow + text
-                 Rightwards Harpoon Over Leftwards Harpoon (U+21cc)
-                 parenthesis and square brackets
-                 https://en.wikipedia.org/wiki/Gibbs_free_energy (energy, entropy, enthalpy and their deltas)
-                 d/dt
-                 K equilibirum constant
-                 k rate constant
-                 Also look at bond symbols https://github.com/mathquill/mathquill/pull/557
-                 Check that everyting works in KaTeX
-                 */
+                 // Periodic table
+                 // Subscripts and Superscripts 0-9 + and -
+                 // arrow and arrow + text
+                 // Rightwards Harpoon Over Leftwards Harpoon (U+21cc)
+                 // parenthesis and square brackets
+                 // https://en.wikipedia.org/wiki/Gibbs_free_energy (energy, entropy, enthalpy and their deltas)
+                 // d/dt
+                 // K equilibirum constant
+                 // k rate constant
+                 // Also look at bond symbols https://github.com/mathquill/mathquill/pull/557
+                 // Check that everyting works in KaTeX and check mhchem
             ],
             destroy: function () {
                 this.popup.element.off();
@@ -1875,6 +2002,7 @@
             }
         });
         kendo.toolbar.registerComponent('chemistry', ChemistryTool, ChemistryButton);
+        */
 
         /*********************************************************************************
          * MathInputToolBar Dialogs
@@ -1911,19 +2039,35 @@
                     k: 'k',
                     n: 'n',
                     p: 'p',
+                    q: 'q',
                     x: 'x',
                     y: 'y',
                     z: 'z',
                     pi: 'Pi',
-                    // euler `e` and imaginary `i`
                     infty: 'Infinity',
-                    space: 'Space'
+                    space: 'Space',
+                    subscript: 'Subscript'
                 }
             },
             basic: {
                 title: 'Basic',
                 buttons: {
-
+                    // WARNING: Make sure mathjs can calculate all these functions
+                    equal: 'Equal',
+                    plus: 'Plus',
+                    minus: 'Minus',
+                    cdot: 'Times',
+                    times: 'Times',
+                    div: 'Divide',
+                    pleft: 'Left parenthesis (',
+                    pright: 'Right parenthesis )',
+                    frac: 'Fraction',
+                    sqrt: 'Square root',
+                    pow2: 'Power of 2',
+                    pow3: 'Power of 3',
+                    sin: 'Sine',
+                    cos: 'Cosine',
+                    tan: 'Tangent'
                 }
             },
             lowergreek: {
@@ -1984,7 +2128,7 @@
                     omega: 'Omega'
                 }
             },
-            operator: {
+            operators: {
                 title: 'Operators',
                 buttons: {
                     equal: 'Equal',
@@ -1993,6 +2137,14 @@
                     cdot: 'Times',
                     times: 'Times',
                     div: 'Divide',
+                    pleft: 'Left parenthesis (',
+                    pright: 'Right parenthesis )',
+                    bleft: 'Left square bracket [',
+                    bright: 'Right square bracket ]',
+                    cleft: 'Left curly bracket {',
+                    cright: 'Right curly bracket }',
+                    vleft: 'Left vertical line |',
+                    vright: 'Right vertical line |',
                     lt: 'Lower then',
                     le: 'Lower than or equal',
                     gt: 'Greater than',
@@ -2002,33 +2154,100 @@
                     propto: 'Proportional',
                     plusminus: 'Plus-Minus',
                     percent: 'Percent',
-                    factorial: 'Factorial',
+                    not: 'Not',
                     and: 'And',
                     or: 'Or',
                     circ: 'Composition',
                     nabla: 'Nabla'
                 }
             },
-            expression: {
+            expressions: {
                 title: 'Functions',
-                buttons: {}
+                buttons: {
+                    sqrt: 'Square root',
+                    cubert: 'Cube root',
+                    nthroot: 'Nth root',
+                    pow2: 'Power of 2',
+                    pow3: 'Power of 3',
+                    pow: 'Power',
+                    log: 'Logarithm',
+                    log10: 'Logarithm base 10',
+                    ln: 'Naperian logarithm',
+                    sin: 'Sine',
+                    cos: 'Cosine',
+                    tan: 'Tangent',
+                    arcsin: 'Arc sine',
+                    arccos: 'Arc cosine',
+                    arctan: 'Arc tangent',
+                    deriv: 'Derivative',
+                    partial: 'Partial derivative',
+                    int: 'Integral',
+                    oint: 'Contour integral',
+                    sum: 'Sum',
+                    prod: 'Product',
+                    lim: 'Limit'
+                }
             },
-            group: {
+            sets: {
                 title: 'Sets',
-                buttons: {}
+                buttons: {
+                    cset: 'Complexes',
+                    pset: 'Primes',
+                    nset: 'Naturals',
+                    qset: 'Rationals',
+                    rset: 'Reals',
+                    zset: 'Integers',
+                    emptyset: 'Empty set',
+                    forall: 'For all',
+                    exists: 'Exists',
+                    nexists: 'Not exists',
+                    in: 'In',
+                    nin: 'Not in',
+                    subset: 'Subset',
+                    supset: 'Superset',
+                    nsubset: 'Not subset',
+                    nsupset: 'Not superset',
+                    intersection: 'Intersection',
+                    union: 'Union',
+                    to: 'To',
+                    implies: 'Implies',
+                    nimplies: 'Not implies',
+                    iff: ''
+                }
             },
-            matrix: {
+            matrices: {
                 title: 'Matrices',
-                buttons: {}
+                buttons: {
+                    vector: 'Vector',
+                    widehat: 'Widehat (angle)',
+                    matrices: 'Matrix',
+                    pmatrix: 'Matrix with parentheses',
+                    bmatrix: 'Matrix with square brackets',
+                    bbmatrix: 'Matrix with curly braces',
+                    vmatrix: 'Matrix with vertical lines',
+                    vvmatrix: 'Matrix with double vertical lines',
+                    column: 'Add column',
+                    row: 'Add row'
+                }
             },
             statistics: {
                 title: 'Statistics',
+                buttons: {
+                    factorial: 'Factorial',
+                    binomial: 'Binomial',
+                    overline: 'Overline (mean)'
+                }
+            }
+            /*
+            units: {
+                title: 'Units',
                 buttons: {}
             },
             chemistry: {
                 title: 'Chemistry',
                 buttons: {}
             }
+            */
         };
 
         /**
@@ -2126,64 +2345,9 @@
                     title: messages.keypad.title,
                     buttons: [
                         {
-                            value: '7',
-                            iconClass: 'n7',
-                            text: DIALOG_MESSAGES.keypad.buttons.n7
-                        },
-                        {
-                            value: '8',
-                            iconClass: 'n8',
-                            text: DIALOG_MESSAGES.keypad.buttons.n8
-                        },
-                        {
-                            value: '9',
-                            iconClass: 'n9',
-                            text: DIALOG_MESSAGES.keypad.buttons.n9
-                        },
-                        {
-                            value: 'a',
-                            iconClass: 'a',
-                            text: DIALOG_MESSAGES.keypad.buttons.a
-                        },
-                        {
-                            value: 'b',
-                            iconClass: 'b',
-                            text: DIALOG_MESSAGES.keypad.buttons.b
-                        },
-                        {
-                            value: 'c',
-                            iconClass: 'c',
-                            text: DIALOG_MESSAGES.keypad.buttons.c
-                        },
-                        {
-                            value: '4',
-                            iconClass: 'n4',
-                            text: DIALOG_MESSAGES.keypad.buttons.n4
-                        },
-                        {
-                            value: '5',
-                            iconClass: 'n5',
-                            text: DIALOG_MESSAGES.keypad.buttons.n5
-                        },
-                        {
-                            value: '6',
-                            iconClass: 'n6',
-                            text: DIALOG_MESSAGES.keypad.buttons.n6
-                        },
-                        {
-                            value: 'i',
-                            iconClass: 'i',
-                            text: DIALOG_MESSAGES.keypad.buttons.i
-                        },
-                        {
-                            value: 'j',
-                            iconClass: 'j',
-                            text: DIALOG_MESSAGES.keypad.buttons.j
-                        },
-                        {
-                            value: 'k',
-                            iconClass: 'k',
-                            text: DIALOG_MESSAGES.keypad.buttons.k
+                            value: '0',
+                            iconClass: 'n0',
+                            text: DIALOG_MESSAGES.keypad.buttons.n0
                         },
                         {
                             value: '1',
@@ -2201,6 +2365,76 @@
                             text: DIALOG_MESSAGES.keypad.buttons.n3
                         },
                         {
+                            value: '4',
+                            iconClass: 'n4',
+                            text: DIALOG_MESSAGES.keypad.buttons.n4
+                        },
+                        {
+                            value: '5',
+                            iconClass: 'n5',
+                            text: DIALOG_MESSAGES.keypad.buttons.n5
+                        },
+                        {
+                            value: '6',
+                            iconClass: 'n6',
+                            text: DIALOG_MESSAGES.keypad.buttons.n6
+                        },
+                        {
+                            value: '7',
+                            iconClass: 'n7',
+                            text: DIALOG_MESSAGES.keypad.buttons.n7
+                        },
+                        {
+                            value: '8',
+                            iconClass: 'n8',
+                            text: DIALOG_MESSAGES.keypad.buttons.n8
+                        },
+                        {
+                            value: '9',
+                            iconClass: 'n9',
+                            text: DIALOG_MESSAGES.keypad.buttons.n9
+                        },
+                        {
+                            value: '.',
+                            iconClass: 'stop',
+                            text: DIALOG_MESSAGES.keypad.buttons.stop
+                        },
+                        {
+                            value: ',',
+                            iconClass: 'comma',
+                            text: DIALOG_MESSAGES.keypad.buttons.comma
+                        },
+                        {
+                            value: 'a',
+                            iconClass: 'a',
+                            text: DIALOG_MESSAGES.keypad.buttons.a
+                        },
+                        {
+                            value: 'b',
+                            iconClass: 'b',
+                            text: DIALOG_MESSAGES.keypad.buttons.b
+                        },
+                        {
+                            value: 'c',
+                            iconClass: 'c',
+                            text: DIALOG_MESSAGES.keypad.buttons.c
+                        },
+                        {
+                            value: 'i',
+                            iconClass: 'i',
+                            text: DIALOG_MESSAGES.keypad.buttons.i
+                        },
+                        {
+                            value: 'j',
+                            iconClass: 'j',
+                            text: DIALOG_MESSAGES.keypad.buttons.j
+                        },
+                        {
+                            value: 'k',
+                            iconClass: 'k',
+                            text: DIALOG_MESSAGES.keypad.buttons.k
+                        },
+                        {
                             value: 'n',
                             iconClass: 'n',
                             text: DIALOG_MESSAGES.keypad.buttons.n
@@ -2214,21 +2448,6 @@
                             value: 'q',
                             iconClass: 'q',
                             text: DIALOG_MESSAGES.keypad.buttons.q
-                        },
-                        {
-                            value: ',',
-                            iconClass: 'comma',
-                            text: DIALOG_MESSAGES.keypad.buttons.comma
-                        },
-                        {
-                            value: '0',
-                            iconClass: 'n0',
-                            text: DIALOG_MESSAGES.keypad.buttons.n0
-                        },
-                        {
-                            value: '.',
-                            iconClass: 'stop',
-                            text: DIALOG_MESSAGES.keypad.buttons.stop
                         },
                         {
                             value: 'x',
@@ -2259,6 +2478,11 @@
                             value: ' ',
                             iconClass: 'space',
                             text: DIALOG_MESSAGES.keypad.buttons.space
+                        },
+                        {
+                            value: '_{ }',
+                            iconClass: 'subscript',
+                            text: DIALOG_MESSAGES.keypad.buttons.subscript
                         }
                     ]
                 };
@@ -2298,13 +2522,81 @@
                 var defaultOptions = {
                     title: messages.basic.title,
                     buttons: [
-                        /*
-                         {
-                         value: '\\alpha',
-                         iconClass: 'alpha',
-                         text: messages.basic.buttons.alpha
-                         }
-                         */
+                        {
+                            value: '=',
+                            iconClass: 'equal',
+                            text: DIALOG_MESSAGES.basic.buttons.equal
+                        },
+                        {
+                            value: '+',
+                            iconClass: 'plus',
+                            text: DIALOG_MESSAGES.basic.buttons.plus
+                        },
+                        {
+                            value: '-',
+                            iconClass: 'minus',
+                            text: DIALOG_MESSAGES.basic.buttons.minus
+                        },
+                        {
+                            value: '\\cdot',
+                            iconClass: 'cdot',
+                            text: DIALOG_MESSAGES.basic.buttons.cdot
+                        },
+                        {
+                            value: '\\times',
+                            iconClass: 'times',
+                            text: DIALOG_MESSAGES.basic.buttons.times
+                        },
+                        {
+                            value: '\\div',
+                            iconClass: 'div',
+                            text: DIALOG_MESSAGES.basic.buttons.div
+                        },
+                        {
+                            value: '(', // '\\left[',
+                            iconClass: 'pleft',
+                            text: DIALOG_MESSAGES.basic.buttons.pleft
+                        },
+                        {
+                            value: '\\right)', // '\\right)',
+                            iconClass: 'pright',
+                            text: DIALOG_MESSAGES.basic.buttons.pright
+                        },
+                        {
+                            value: '\\frac',
+                            iconClass: 'frac',
+                            text: DIALOG_MESSAGES.basic.buttons.frac
+                        },
+                        {
+                            value: '\\sqrt',
+                            iconClass: 'sqrt',
+                            text: DIALOG_MESSAGES.basic.buttons.sqrt
+                        },
+                        {
+                            value: '^2',
+                            iconClass: 'pow2',
+                            text: DIALOG_MESSAGES.basic.buttons.pow2
+                        },
+                        {
+                            value: '^3',
+                            iconClass: 'pow3',
+                            text: DIALOG_MESSAGES.basic.buttons.pow3
+                        },
+                        {
+                            value: '\\sin\\left(\\right)',
+                            iconClass: 'sin',
+                            text: DIALOG_MESSAGES.basic.buttons.sin
+                        },
+                        {
+                            value: '\\cos\\left(\\right)',
+                            iconClass: 'cos',
+                            text: DIALOG_MESSAGES.basic.buttons.cos
+                        },
+                        {
+                            value: '\\tan\\left(\\right)',
+                            iconClass: 'tan',
+                            text: DIALOG_MESSAGES.basic.buttons.tan
+                        }
                     ]
                 };
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
@@ -2493,7 +2785,7 @@
          */
         var UpperGreekDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs || DIALOG_MESSAGES; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs || DIALOG_MESSAGES;
                 var defaultOptions = {
                     title: messages.uppergreek.title,
                     buttons: [
@@ -2661,113 +2953,153 @@
         kendo.mathinput.dialogs.register('uppergreek', UpperGreekDialog);
 
         /**
-         * OperatorDialog
+         * OperatorsDialog
          */
-        var OperatorDialog = MathInputDialog.extend({
+        var OperatorsDialog = MathInputDialog.extend({
             init: function (options) {
                 var messages = kendo.mathinput.messages.dialogs || DIALOG_MESSAGES;
                 var defaultOptions = {
-                    title: messages.operator.title,
+                    title: messages.operators.title,
                     buttons: [
                         {
                             value: '=',
                             iconClass: 'equal',
-                            text: DIALOG_MESSAGES.operator.buttons.equal
+                            text: DIALOG_MESSAGES.operators.buttons.equal
                         },
                         {
                             value: '+',
                             iconClass: 'plus',
-                            text: DIALOG_MESSAGES.operator.buttons.plus
+                            text: DIALOG_MESSAGES.operators.buttons.plus
                         },
                         {
                             value: '-',
                             iconClass: 'minus',
-                            text: DIALOG_MESSAGES.operator.buttons.minus
+                            text: DIALOG_MESSAGES.operators.buttons.minus
                         },
                         {
                             value: '\\cdot',
                             iconClass: 'cdot',
-                            text: DIALOG_MESSAGES.operator.buttons.cdot
+                            text: DIALOG_MESSAGES.operators.buttons.cdot
                         },
                         {
                             value: '\\times',
                             iconClass: 'times',
-                            text: DIALOG_MESSAGES.operator.buttons.times
+                            text: DIALOG_MESSAGES.operators.buttons.times
                         },
                         {
                             value: '\\div',
                             iconClass: 'div',
-                            text: DIALOG_MESSAGES.operator.buttons.div
+                            text: DIALOG_MESSAGES.operators.buttons.div
+                        },
+                        {
+                            value: '(', // '\\left[',
+                            iconClass: 'pleft',
+                            text: DIALOG_MESSAGES.operators.buttons.pleft
+                        },
+                        {
+                            value: '\\right)', // '\\right)',
+                            iconClass: 'pright',
+                            text: DIALOG_MESSAGES.operators.buttons.pright
+                        },
+                        {
+                            value: '[', // '\\left[',
+                            iconClass: 'bleft',
+                            text: DIALOG_MESSAGES.operators.buttons.bleft
+                        },
+                        {
+                            value: '\\right]',
+                            iconClass: 'bright',
+                            text: DIALOG_MESSAGES.operators.buttons.bright
+                        },
+                        {
+                            value: '\\left{',
+                            iconClass: 'cleft',
+                            text: DIALOG_MESSAGES.operators.buttons.cleft
+                        },
+                        {
+                            value: '\\right}',
+                            iconClass: 'cright',
+                            text: DIALOG_MESSAGES.operators.buttons.cright
+                        },
+                        {
+                            value: '\\left|',
+                            iconClass: 'vleft',
+                            text: DIALOG_MESSAGES.operators.buttons.vleft
+                        },
+                        {
+                            value: '\\right|',
+                            iconClass: 'vright',
+                            text: DIALOG_MESSAGES.operators.buttons.vright
                         },
                         {
                             value: '<',
                             iconClass: 'lt',
-                            text: DIALOG_MESSAGES.operator.buttons.lt
+                            text: DIALOG_MESSAGES.operators.buttons.lt
                         },
                         {
                             value: '\\le',
                             iconClass: 'le',
-                            text: DIALOG_MESSAGES.operator.buttons.le
+                            text: DIALOG_MESSAGES.operators.buttons.le
                         },
                         {
                             value: '>',
                             iconClass: 'gt',
-                            text: DIALOG_MESSAGES.operator.buttons.gt
+                            text: DIALOG_MESSAGES.operators.buttons.gt
                         },
                         {
                             value: '\\ge',
                             iconClass: 'ge',
-                            text: DIALOG_MESSAGES.operator.buttons.ge
+                            text: DIALOG_MESSAGES.operators.buttons.ge
                         },
                         {
                             value: '\\neq',
                             iconClass: 'neq',
-                            text: DIALOG_MESSAGES.operator.buttons.neq
+                            text: DIALOG_MESSAGES.operators.buttons.neq
                         },
                         {
                             value: '\\approx',
                             iconClass: 'approx',
-                            text: DIALOG_MESSAGES.operator.buttons.approx
+                            text: DIALOG_MESSAGES.operators.buttons.approx
                         },
                         {
                             value: '\\propto',
                             iconClass: 'propto',
-                            text: DIALOG_MESSAGES.operator.buttons.propto
+                            text: DIALOG_MESSAGES.operators.buttons.propto
                         },
                         {
                             value: '\\pm',
                             iconClass: 'plusminus',
-                            text: DIALOG_MESSAGES.operator.buttons.plusminus
+                            text: DIALOG_MESSAGES.operators.buttons.plusminus
                         },
                         {
                             value: '%',
                             iconClass: 'percent',
-                            text: DIALOG_MESSAGES.operator.buttons.percent
+                            text: DIALOG_MESSAGES.operators.buttons.percent
                         },
                         {
-                            value: '!',
-                            iconClass: 'factorial',
-                            text: DIALOG_MESSAGES.operator.buttons.factorial
+                            value: '\\neg',
+                            iconClass: 'not',
+                            text: DIALOG_MESSAGES.operators.buttons.not
                         },
                         {
                             value: '\\wedge', // also '\\and',
                             iconClass: 'and',
-                            text: DIALOG_MESSAGES.operator.buttons.and
+                            text: DIALOG_MESSAGES.operators.buttons.and
                         },
                         {
                             value: '\\vee',// also '\\or',
                             iconClass: 'or',
-                            text: DIALOG_MESSAGES.operator.buttons.or
+                            text: DIALOG_MESSAGES.operators.buttons.or
                         },
                         {
                             value: '\\circ',
                             iconClass: 'circ',
-                            text: DIALOG_MESSAGES.operator.buttons.circ
+                            text: DIALOG_MESSAGES.operators.buttons.circ
                         },
                         {
                             value: '\\nabla',
                             iconClass: 'nabla',
-                            text: DIALOG_MESSAGES.operator.buttons.nabla
+                            text: DIALOG_MESSAGES.operators.buttons.nabla
                         }
                     ]
                 };
@@ -2789,29 +3121,127 @@
                 var dataItem = e.sender.value()[0];
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
-                    command: 'ToolbarOperatorCommand',
+                    command: 'ToolbarOperatorsCommand',
                     options: { value: dataItem.value }
                 });
             }
         });
-        kendo.mathinput.dialogs.register('operator', OperatorDialog);
+        kendo.mathinput.dialogs.register('operators', OperatorsDialog);
 
         /**
-         * ExpressionDialog
+         * ExpressionsDialog
          */
-        var ExpressionDialog = MathInputDialog.extend({
+        var ExpressionsDialog = MathInputDialog.extend({
             init: function (options) {
                 var messages = kendo.mathinput.messages.dialogs.expression || DIALOG_MESSAGES; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
-                        /*
-                         {
-                         value: '\\alpha',
-                         iconClass: 'alpha',
-                         text: messages.expression.buttons.alpha
-                         }
-                         */
+                        {
+                            value: '\\sqrt',
+                            iconClass: 'sqrt',
+                            text: DIALOG_MESSAGES.expressions.buttons.sqrt
+                        },
+                        {
+                            value: '\\sqrt[3]{ }',
+                            iconClass: 'cbrt',
+                            text: DIALOG_MESSAGES.expressions.buttons.cubert
+                        },
+                        {
+                            value: '\\sqrt[]{ }',
+                            iconClass: 'nthroot',
+                            text: DIALOG_MESSAGES.expressions.buttons.nthroot
+                        },
+                        {
+                            value: '^{ }',
+                            iconClass: 'pow',
+                            text: DIALOG_MESSAGES.expressions.buttons.pow
+                        },
+                        {
+                            value: '^2',
+                            iconClass: 'pow2',
+                            text: DIALOG_MESSAGES.expressions.buttons.pow2
+                        },
+                        {
+                            value: '^3',
+                            iconClass: 'pow3',
+                            text: DIALOG_MESSAGES.expressions.buttons.pow3
+                        },
+                        {
+                            value: '\\log_{}\\left(\\right)',
+                            iconClass: 'log',
+                            text: DIALOG_MESSAGES.expressions.buttons.log
+                        },
+                        {
+                            value: '\\log\\left(\\right)',
+                            iconClass: 'log10',
+                            text: DIALOG_MESSAGES.expressions.buttons.log10
+                        },
+                        {
+                            value: '\\ln\\left(\\right)',
+                            iconClass: 'ln',
+                            text: DIALOG_MESSAGES.expressions.buttons.ln
+                        },
+                        {
+                            value: '\\sin\\left(\\right)',
+                            iconClass: 'sin',
+                            text: DIALOG_MESSAGES.expressions.buttons.sin
+                        },
+                        {
+                            value: '\\cos\\left(\\right)',
+                            iconClass: 'cos',
+                            text: DIALOG_MESSAGES.expressions.buttons.cos
+                        },
+                        {
+                            value: '\\tan\\left(\\right)',
+                            iconClass: 'tan',
+                            text: DIALOG_MESSAGES.expressions.buttons.tan
+                        },
+                        {
+                            value: '\\arcsin\\left(\\right)',
+                            iconClass: 'arcsin',
+                            text: DIALOG_MESSAGES.expressions.buttons.arcsin
+                        },
+                        {
+                            value: '\\arccos\\left(\\right)',
+                            iconClass: 'arccos',
+                            text: DIALOG_MESSAGES.expressions.buttons.arccos
+                        },
+                        {
+                            value: '\\arctan\\left(\\right)',
+                            iconClass: 'arctan',
+                            text: DIALOG_MESSAGES.expressions.buttons.arctan
+                        },
+                        {
+                            value: '\\frac{d}{dx}\\left(\\right)',
+                            iconClass: 'deriv',
+                            text: DIALOG_MESSAGES.expressions.buttons.deriv
+                        },
+                        {
+                            value: '\\frac{\\partial}{\\partial x}\\left(\\right)',
+                            iconClass: 'partial',
+                            text: DIALOG_MESSAGES.expressions.buttons.partial
+                        },
+                        {
+                            value: '\\int',
+                            iconClass: 'int',
+                            text: DIALOG_MESSAGES.expressions.buttons.int
+                        },
+                        {
+                            value: '\\sum',
+                            iconClass: 'sum',
+                            text: DIALOG_MESSAGES.expressions.buttons.sum
+                        },
+                        {
+                            value: '\\prod',
+                            iconClass: 'prod',
+                            text: DIALOG_MESSAGES.expressions.buttons.prod
+                        },
+                        {
+                            value: '\\lim_{\\to}\\left(\\right)',
+                            iconClass: 'lim',
+                            text: DIALOG_MESSAGES.expressions.buttons.lim
+                        }
                     ]
                 };
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
@@ -2832,29 +3262,118 @@
                 var dataItem = e.sender.value()[0];
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
-                    command: 'ToolbarExpressionCommand',
+                    command: 'ToolbarExpressionsCommand',
                     options: { value: dataItem.value }
                 });
             }
         });
-        kendo.mathinput.dialogs.register('expression', ExpressionDialog);
+        kendo.mathinput.dialogs.register('expressions', ExpressionsDialog);
 
         /**
-         * GroupDialog
+         * SetsDialog
          */
-        var GroupDialog = MathInputDialog.extend({
+        var SetsDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.group || DIALOG_MESSAGES; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.set || DIALOG_MESSAGES; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
-                        /*
-                         {
-                         value: '\\alpha',
-                         iconClass: 'alpha',
-                         text: messages.group.buttons.alpha
-                         }
-                         */
+                        // See also https://texblog.org/2007/08/27/number-sets-prime-natural-integer-rational-real-and-complex-in-latex/
+                        {
+                            value: '\\C', // also '\\complexes', but \\mathbb{C} does not work
+                            iconClass: 'cset',
+                            text: DIALOG_MESSAGES.sets.buttons.cset
+                        },
+                        {
+                            value: '\\N', // also '\\naturals', but \\mathbb{N} does not work
+                            iconClass: 'nset',
+                            text: DIALOG_MESSAGES.sets.buttons.nset
+                        },
+                        {
+                            value: '\\P', // also '\\primes',
+                            iconClass: 'pset',
+                            text: DIALOG_MESSAGES.sets.buttons.pset
+                        },
+                        {
+                            value: '\\Q', // also '\\rationals',
+                            iconClass: 'qset',
+                            text: DIALOG_MESSAGES.sets.buttons.qset
+                        },
+                        {
+                            value: '\\R', // also '\\reals',
+                            iconClass: 'rset',
+                            text: DIALOG_MESSAGES.sets.buttons.rset
+                        },
+                        {
+                            value: '\\Z', // also '\\integers',
+                            iconClass: 'zset',
+                            text: DIALOG_MESSAGES.sets.buttons.zset
+                        },
+                        {
+                            value: '\\varnothing', // also '\\O', '\\empty' and '\\emptyset',
+                            iconClass: 'emptyset',
+                            text: DIALOG_MESSAGES.sets.buttons.emptyset
+                        },
+                        {
+                            value: '\\forall',
+                            iconClass: 'forall',
+                            text: DIALOG_MESSAGES.sets.buttons.forall
+                        },
+                        {
+                            value: '\\exists',
+                            iconClass: 'exists',
+                            text: DIALOG_MESSAGES.sets.buttons.exists
+                        },
+                        {
+                            value: '\\nexists',
+                            iconClass: 'nexists',
+                            text: DIALOG_MESSAGES.sets.buttons.nexists
+                        },
+                        {
+                            value: '\\in',
+                            iconClass: 'in',
+                            text: DIALOG_MESSAGES.sets.buttons.in
+                        },
+                        {
+                            value: '\\notin',
+                            iconClass: 'nin',
+                            text: DIALOG_MESSAGES.sets.buttons.nin
+                        },
+                        {
+                            value: '\\subset',
+                            iconClass: 'subset',
+                            text: DIALOG_MESSAGES.sets.buttons.subset
+                        },
+                        {
+                            value: '\\supset',
+                            iconClass: 'supset',
+                            text: DIALOG_MESSAGES.sets.buttons.supset
+                        },
+                        {
+                            value: '\\cap', // also '\\intersection'
+                            iconClass: 'intersection',
+                            text: DIALOG_MESSAGES.sets.buttons.intersection
+                        },
+                        {
+                            value: '\\cup', // also '\\union',
+                            iconClass: 'union',
+                            text: DIALOG_MESSAGES.sets.buttons.union
+                        },
+                        {
+                            value: '\\to',
+                            iconClass: 'to',
+                            text: DIALOG_MESSAGES.sets.buttons.to
+                        },
+                        {
+                            value: '\\Rightarrow', // also '\\implies',
+                            iconClass: 'implies',
+                            text: DIALOG_MESSAGES.sets.buttons.implies
+                        },
+                        {
+                            value: '\\iff',
+                            iconClass: 'iff',
+                            text: DIALOG_MESSAGES.sets.buttons.iff
+                        }
                     ]
                 };
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
@@ -2875,29 +3394,74 @@
                 var dataItem = e.sender.value()[0];
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
-                    command: 'ToolbarGroupCommand',
+                    command: 'ToolbarSetsCommand',
                     options: { value: dataItem.value }
                 });
             }
         });
-        kendo.mathinput.dialogs.register('group', GroupDialog);
+        kendo.mathinput.dialogs.register('sets', SetsDialog);
 
         /**
-         * MatrixDialog
+         * MatricesDialog
          */
-        var MatrixDialog = MathInputDialog.extend({
+        var MatricesDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.matrix || DIALOG_MESSAGES; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.matrices || DIALOG_MESSAGES; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
-                        /*
-                         {
-                         value: '\\alpha',
-                         iconClass: 'alpha',
-                         text: messages.matrix.buttons.alpha
-                         }
-                         */
+                        // https://github.com/mathquill/mathquill/issues/332
+                        // Matrix support: https://github.com/Learnosity/mathquill/commit/50315cf9056946fd59f2ffc14e2b1d0e03f6ec4b
+                        {
+                            value: '\\vec',
+                            iconClass: 'vector',
+                            text: DIALOG_MESSAGES.matrices.buttons.vector
+                        },
+                        {
+                            value: '\\widehat',
+                            iconClass: 'widehat',
+                            text: DIALOG_MESSAGES.matrices.buttons.widehat
+                        },
+                        {
+                            value: '\\begin{matrix}1&amp;2\\\\x&amp;y\\end{matrix}', // Bare
+                            iconClass: 'matrix',
+                            text: DIALOG_MESSAGES.matrices.buttons.matrix
+                        },
+                        {
+                            value: '\\begin{pmatrix}1&amp;2\\\\x&amp;y\\end{pmatrix}', // Parenthesis
+                            iconClass: 'pmatrix',
+                            text: DIALOG_MESSAGES.matrices.buttons.pmatrix
+                        },
+                        {
+                            value: '\\begin{bmatrix}1&amp;2\\\\x&amp;y\\end{bmatrix}', // Square Brackets
+                            iconClass: 'bmatrix',
+                            text: DIALOG_MESSAGES.matrices.buttons.bmatrix
+                        },
+                        {
+                            value: '\\begin{Bmatrix}1&amp;2\\\\x&amp;y\\end{Bmatrix}', // Curly braces
+                            iconClass: 'bbmatrix',
+                            text: DIALOG_MESSAGES.matrices.buttons.bbmatrix
+                        },
+                        {
+                            value: '\\begin{vmatrix}1&amp;2\\\\x&amp;y\\end{vmatrix}', // Vertical line
+                            iconClass: 'vmatrix',
+                            text: DIALOG_MESSAGES.matrices.buttons.vmatrix
+                        },
+                        {
+                            value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // Double vertical lines
+                            iconClass: 'vvmatrix',
+                            text: DIALOG_MESSAGES.matrices.buttons.vvmatrix
+                        },
+                        {
+                            value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // TODO Add column
+                            iconClass: 'column',
+                            text: DIALOG_MESSAGES.matrices.buttons.column
+                        },
+                        {
+                            value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // TODO Add row
+                            iconClass: 'row',
+                            text: DIALOG_MESSAGES.matrices.buttons.row
+                        }
                     ]
                 };
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
@@ -2918,12 +3482,12 @@
                 var dataItem = e.sender.value()[0];
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
-                    command: 'ToolbarMatrixCommand',
+                    command: 'ToolbarMatricesCommand',
                     options: { value: dataItem.value }
                 });
             }
         });
-        kendo.mathinput.dialogs.register('matrix', MatrixDialog);
+        kendo.mathinput.dialogs.register('matrices', MatricesDialog);
 
         /**
          * StatisticsDialog
@@ -2934,13 +3498,21 @@
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
-                        /*
-                         {
-                         value: '\\alpha',
-                         iconClass: 'alpha',
-                         text: messages.statistics.buttons.alpha
-                         }
-                         */
+                        {
+                            value: '!',
+                            iconClass: 'factorial',
+                            text: DIALOG_MESSAGES.statistics.buttons.factorial
+                        },
+                        {
+                            value: '\\binom',
+                            iconClass: 'binomial',
+                            text: DIALOG_MESSAGES.statistics.buttons.binomial
+                        },
+                        {
+                            value: '\\overline',
+                            iconClass: 'overline',
+                            text: DIALOG_MESSAGES.statistics.buttons.overline
+                        }
                     ]
                 };
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
@@ -2971,19 +3543,14 @@
         /**
          * ChemistryDialog
          */
+        /*
         var ChemistryDialog = MathInputDialog.extend({
             init: function (options) {
                 var messages = kendo.mathinput.messages.dialogs.chemistry || DIALOG_MESSAGES; // TODO: review
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
-                        /*
-                         {
-                         value: '\\alpha',
-                         iconClass: 'alpha',
-                         text: messages.chemistry.buttons.alpha
-                         }
-                         */
+                        // TODO
                     ]
                 };
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
@@ -3010,6 +3577,7 @@
             }
         });
         kendo.mathinput.dialogs.register('chemistry', ChemistryDialog);
+        */
 
     }(window.jQuery));
 

@@ -96,6 +96,9 @@
 
 .kj-mathinput-popup {
     max-width: 242px;
+    .k-icon {
+        overflow: initial;
+    }
 }
 
 .kj-mathinput-dialog {
@@ -131,37 +134,65 @@
         &.k-i-basic,
         &.k-i-lowergreek,
         &.k-i-uppergreek,
-        &.k-i-operator,
-        &.k-i-expression,
-        &.k-i-group,
-        &.k-i-matrix,
+        &.k-i-operators,
+        &.k-i-expressions,
+        &.k-i-sets,
+        &.k-i-matrices,
         &.k-i-statistics,
-        &.k-i-chemistry,
-        //
-        &.k-i-sqrt,
-        &.k-i-cbrt,
-        &.k-i-nthroot,
-        &.k-i-frac,
+        // &.k-i-units,
+        // &.k-i-chemistry,
+        // KeyPad
         &.k-i-subscript,
-        &.k-i-pow,
+        // Basic
+        &.k-i-frac,
+        &.k-i-sqrt,
         &.k-i-pow2,
         &.k-i-pow3,
-        &.k-i-log,
-        &.k-i-log10,
-        &.k-i-ln,
         &.k-i-sin,
         &.k-i-cos,
         &.k-i-tan,
+        &.k-i-pleft,
+        &.k-i-pright,
+        // Operators
+        &.k-i-bleft,
+        &.k-i-bright,
+        &.k-i-cleft,
+        &.k-i-cright,
+        &.k-i-vleft,
+        &.k-i-vright,
+        // Expressions
+        &.k-i-cbrt,
+        &.k-i-nthroot,
+        &.k-i-pow,
+        &.k-i-log,
+        &.k-i-log10,
+        &.k-i-ln,
         &.k-i-arcsin,
         &.k-i-arccos,
         &.k-i-arctan,
         &.k-i-deriv,
         &.k-i-partial,
         &.k-i-int,
+        &.k-i-oint,
         &.k-i-sum,
         &.k-i-prod,
         &.k-i-lim,
-        &.k-i-matrix2x2{
+        // Sets and Logic
+        // Matrices and Vectors
+        &.k-i-vector,
+        &.k-i-widehat,
+        &.k-i-matrix,
+        &.k-i-pmatrix,
+        &.k-i-bmatrix,
+        &.k-i-bbmatrix,
+        &.k-i-vmatrix,
+        &.k-i-vvmatrix,
+        &.k-i-column,
+        &.k-i-row,
+        // Statistics
+        &.k-i-factorial,
+        &.k-i-binomial,
+        &.k-i-overline {
             font: 16px/1 kidoju !important;
         }
     }
@@ -175,12 +206,13 @@
     .k-i-basic:before {content:"\e701";}
     .k-i-lowergreek:before {content:"\03b1";}
     .k-i-uppergreek:before {content:"\03a9";}
-    .k-i-operator:before {content:"\00b1";}
-    .k-i-expression:before {content:"\e702";}
-    .k-i-group:before {content:"\26ad";}
-    .k-i-matrix:before {content:"\e750";}
+    .k-i-operators:before {content:"\00b1";}
+    .k-i-expressions:before {content:"\e702";}
+    .k-i-sets:before {content:"\26ad";}
+    .k-i-matrices:before {content:"\e751";}
     .k-i-statistics:before {content:"\2680";}
-    .k-i-chemistry:before {content:"\e703";}
+    // .k-i-units:before {content:"TODO";}
+    // .k-i-chemistry:before {content:"\e703";}
 
     // ------------------
     // KeyPad
@@ -213,6 +245,7 @@
     // Unicode has special glyphs for these symbols: 0x2148 for imaginary i, 0x2149 for imaginary j, 0x2107 for Euler's constant, etc (although on most fonts they look ugly).
     .k-i-infty:before {content:"\221e";}
     .k-i-space:before {content:"\fe48";}
+    .k-i-subscript:before {content:"\e711";}
 
     // ------------------
     // TODO: unassigned
@@ -222,43 +255,25 @@
     // \overline
 
     // ------------------
-    // Basic (compatible with kidoju.widgets.mathgraph)
+    // Basic (has to be compatible with kidoju.widgets.mathgraph)
     // ------------------
-
-    .k-i-sqrt:before {content:"\221a";}
-    .k-i-cbrt:before {content:"\221b";}
-    .k-i-nthroot:before {content:"\221c";}
+    .k-i-equal:before {content:"\003d";}
+    .k-i-plus:before {content:"\002b";}
+    .k-i-minus:before {content:"\002d";}
+    .k-i-times:before {content:"\00d7";}
+    .k-i-cdot:before {content:"\00b7";}
+    .k-i-div:before {content:"\00f7";}
+    .k-i-pleft:before {content:"\003b";}
+    .k-i-pright:before {content:"\003d";}
     .k-i-frac:before {content:"\e710";}
-    .k-i-subscript:before {content:"\e711";}
-    .k-i-pow:before {content:"\e721";}
+    .k-i-sqrt:before {content:"\221a";}
     .k-i-pow2:before {content:"\e722";}
     .k-i-pow3:before {content:"\e723";}
-    .k-i-log:before {content:"\e726";}
-    .k-i-log10:before {content:"\e727";}
-    .k-i-ln:before {content:"\e728";}
     .k-i-sin:before {content:"\e730";}
     .k-i-cos:before {content:"\e731";}
     .k-i-tan:before {content:"\e732";}
-    .k-i-arcsin:before {content:"\e733";}
-    .k-i-arccos:before {content:"\e734";}
-    .k-i-arctan:before {content:"\e735";}
-    .k-i-deriv:before {content:"\e740";}
-    .k-i-partial:before {content:"\e741";}
-    .k-i-int:before {content:"\e742";} // TODO standard unicode
-    .k-i-sum:before {content:"\e743";} // TODO standard unicode
-    .k-i-prod:before {content:"\e744";} // TODO standard unicode
-    .k-i-lim:before {content:"\e745";}
-    .k-i-matrix2x2:before {content:"\e750";}
-    .k-i-leftpar:before {content:"\003b";}
-    .k-i-rightpar:before {content:"\003d";}
-    .k-i-leftsb:before {content:"\005b";}
-    .k-i-rightsb:before {content:"\005d";}
-    .k-i-leftcb:before {content:"\007b";}
-    .k-i-rightcb:before {content:"\007d";}
-    .k-i-leftvl:before {content:"\009b";}
-    .k-i-rightvl:before {content:"\009d";}
-    // TODO fact, binomial, combinaison, arrangement
-    // TODO oint???
+    .k-i-pleft:before {content:"\0028";}
+    .k-i-pright:before {content:"\0029";}
 
     // ------------------
     // Greek (lowercase)
@@ -321,35 +336,50 @@
     // ------------------
     // Operators
     // ------------------
-    .k-i-equal:before {content:"\003d";}
-    .k-i-plus:before {content:"\002b";}
-    .k-i-minus:before {content:"\002d";}
-    .k-i-times:before {content:"\00d7";}
-    .k-i-cdot:before {content:"\00b7";}
-    .k-i-div:before {content:"\00f7";}
+    .k-i-bleft:before {content:"\005b";}
+    .k-i-bright:before {content:"\005d";}
+    .k-i-cleft:before {content:"\007b";}
+    .k-i-cright:before {content:"\007d";}
+    .k-i-vleft:before {content:"\009b";}
+    .k-i-vright:before {content:"\009d";}
     .k-i-plusminus:before {content:"\00b1";}
     .k-i-percent:before {content:"\0025";}
-    .k-i-factorial:before {content:"\0021";}
     .k-i-lt:before {content:"\003c";}
     .k-i-le:before {content:"\2264";}
     .k-i-gt:before {content:"\003e";}
     .k-i-ge:before {content:"\2265";}
     .k-i-approx:before {content:"\2248";}
     .k-i-propto:before {content:"\221d";}
+    .k-i-not:before {content:"\00ac";}
     .k-i-neq:before {content:"\2260";}
     .k-i-and:before {content:"\2227";}
     .k-i-or:before {content:"\2228";}
     .k-i-circ:before {content:"\2218";}
     .k-i-nabla:before {content:"\2207";}
-    // TODO add \neg, \gcd, \lcm, and other negations
 
     // ------------------
     // Expressions (functions)
     // ------------------
 
+    .k-i-cbrt:before {content:"\221b";} // TODO use standard unicode
+    .k-i-nthroot:before {content:"\221c";}
+    .k-i-pow:before {content:"\e721";}
+    .k-i-log:before {content:"\e726";}
+    .k-i-log10:before {content:"\e727";}
+    .k-i-ln:before {content:"\e728";}
+    .k-i-arcsin:before {content:"\e733";}
+    .k-i-arccos:before {content:"\e734";}
+    .k-i-arctan:before {content:"\e735";}
+    .k-i-deriv:before {content:"\e740";}
+    .k-i-partial:before {content:"\e741";} // TODO use standard unicode
+    .k-i-int:before {content:"\e742";} // TODO use standard unicode
+    .k-i-oint:before {content:"\e743";} // TODO use standard unicode
+    .k-i-sum:before {content:"\e744";} // TODO use standard unicode
+    .k-i-prod:before {content:"\e745";} // TODO use standard unicode
+    .k-i-lim:before {content:"\e746";}
 
     // ------------------
-    // Groups and logic (sets)
+    // Sets and Logic
     // ------------------
     .k-i-cset:before {content:"\2102";}
     .k-h-iset:before {content:"\210d";}
@@ -376,18 +406,27 @@
     .k-i-implies:before {content:"\21d2";}
     .k-i-nimplies:before {content:"\21cf";}
     .k-i-iff:before {content:"\21d4";}
-    // TODO undeline and upperline vectors
 
     // ------------------
     // Matrices
     // ------------------
-
+    .k-i-vector:before {content:"\e758";}
+    .k-i-widehat:before {content:"\e759";}
+    .k-i-matrix:before {content:"\e750";}
+    .k-i-pmatrix:before {content:"\e751";}
+    .k-i-bmatrix:before {content:"\e752";}
+    .k-i-bbmatrix:before {content:"\e753";} // aka cmatrix
+    .k-i-vmatrix:before {content:"\e754";}
+    .k-i-vvmatrix:before {content:"\e755";}
+    .k-i-column:before {content:"\e756";}
+    .k-i-row:before {content:"\e757";}
 
     // ------------------
     // Statistics
     // ------------------
-    // Binomial (nk) \binom{n}{k}
-    // Factorial
+    .k-i-factorial:before {content:"\e760";}
+    .k-i-binomial:before {content:"\e761";}
+    .k-i-overline:before {content:"\e762";}
 
     // ------------------
     // Units

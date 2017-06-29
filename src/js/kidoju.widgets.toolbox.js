@@ -200,35 +200,24 @@
             },
 
             /**
-             * Clears the widget
-             * @method _clear
-             * @private
-             */
-            _clear: function () {
-                var that = this;
-                // unbind kendo
-                kendo.unbind(that.element);
-                // unbind all other events
-                that.element.find('*').off(NS);
-                that.element.off(NS);
-                // remove descendants
-                that.element.empty();
-                // remove element classes
-                that.element.removeClass(WIDGET_CLASS);
-            },
-
-            /**
              * Destroys the widget including all DOM modifications
              * @method destroy
              */
             destroy: function () {
                 var that = this;
-                Widget.fn.destroy.call(that);
-                that._clear();
+                var wrapper = that.wrapper;
+                // Unbind events
+                that.element.off(NS);
                 if ($.isFunction(that._refreshHandler)) {
                     that.options.tools.unbind(CHANGE, that._refreshHandler);
                 }
-                kendo.destroy(that.element);
+                kendo.unbind(that.wrapper);
+                // Clear references
+                // Destroy widget
+                Widget.fn.destroy.call(that);
+                kendo.destroy(wrapper);
+                // Remove widget class
+                // wrapper.removeClass(WIDGET_CLASS);
             }
 
         });

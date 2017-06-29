@@ -349,12 +349,16 @@
              */
             destroy: function () {
                 var that = this;
+                var wrapper = that.wrapper;
                 // Unbind events
+                kendo.unbind(wrapper);
                 // Clear references
                 this.md = undefined;
                 // Destroy widget
                 Widget.fn.destroy.call(that);
-                kendo.destroy(that.element);
+                kendo.destroy(wrapper);
+                // Remove widget class
+                // wrapper.removeClass(WIDGET_CLASS);
             }
 
         });

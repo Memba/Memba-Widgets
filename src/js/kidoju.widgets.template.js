@@ -215,16 +215,20 @@
              */
             destroy: function () {
                 var that = this;
+                var wrapper = that.wrapper;
                 // Unbind events
                 if (that.dataSource instanceof DataSource && $.isFunction(that._refreshHandler)) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
+                kendo.unbind(wrapper);
                 // Clear references
                 that.dataSource = undefined;
                 that._template = undefined;
                 // Destroy widget
                 Widget.fn.destroy.call(that);
-                kendo.destroy(that.element);
+                kendo.destroy(wrapper);
+                // remove widget class
+                // wrapper.removeClass(WIDGET_CLASS);
             }
 
         });

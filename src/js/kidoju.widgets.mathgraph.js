@@ -1180,6 +1180,7 @@
                 var element = that.element;
                 // Unbind events
                 $(document).off(NS);
+                kendo.unbind(wrapper);
                 // Release references
                 that.toolBar.destroy();
                 that.toolBar.element.remove();
@@ -1187,9 +1188,9 @@
                 that.surface = undefined;
                 // Destroy kendo
                 Widget.fn.destroy.call(that);
-                kendo.destroy(element);
+                kendo.destroy(wrapper);
                 // Remove widget class
-                element.removeClass(WIDGET_CLASS);
+                // wrapper.removeClass(WIDGET_CLASS);
             }
         });
 

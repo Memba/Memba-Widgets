@@ -464,21 +464,22 @@
              */
             destroy: function () {
                 var that = this;
-                var element = that.element;
+                var wrapper = that.wrapper;
                 // Unbind events
-                element.find(TABLE_SELECTOR)
+                wrapper.find(TABLE_SELECTOR)
                     .off(KEYPRESS + NS);
-                element.find(TOOLBAR_SELECTOR)
+                wrapper.find(TOOLBAR_SELECTOR)
                     .off(CLICK + NS);
                 that._dataSource.unbind(CHANGE);
+                kendo.unbind(wrapper);
                 // Clear references
                 that.grid = undefined;
                 that._dataSource = undefined;
                 // Destroy kendo
                 Widget.fn.destroy.call(that);
-                kendo.destroy(element);
+                kendo.destroy(wrapper);
                 // Remove widget class
-                element.removeClass(WIDGET_CLASS);
+                // wrapper.removeClass(WIDGET_CLASS);
             }
 
         });

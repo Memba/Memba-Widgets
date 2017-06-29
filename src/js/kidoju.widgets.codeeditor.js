@@ -47,7 +47,7 @@
         var NS = '.kendoCodeEditor';
         var WIDGET_CLASS = 'k-widget kj-codeeditor';
         var STATE_DISABLED = 'k-state-disabled';
-        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\[\n]+)( \["[^\n]*"\])?$/;
+        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\s\[\n]+)( (\[[^\n]+\]))?$/;
         var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
         var LABEL_TMPL = '<label><span>{0}</span></label>';
         var MESSAGE_TMPL = '<div class="k-widget k-notification k-notification-#: type #" data-role="alert">' +
@@ -149,7 +149,6 @@
                     if (that._value !== value) {
                         that._value = value;
                         that.refresh();
-                        that.trigger(CHANGE, { value: that.value() });
                     }
                 } else if ($.type(value) === UNDEFINED) {
                     return that._value;
@@ -187,9 +186,8 @@
                 var options = this.options;
                 var ret = {};
                 var libraryMatches = value.match(RX_VALIDATION_LIBRARY);
-                if ($.isArray(libraryMatches) && libraryMatches.length === 3) {
-                    // libraryMatches[2] is the param beginning with ` ["` and ending with `"]`
-                    var param = libraryMatches[2];
+                if ($.isArray(libraryMatches) && libraryMatches.length === 4) {
+                    var paramValue = libraryMatches[3];
                     // Array.find is not available in Internet Explorer, thus the use of Array.filter
                     var found = this.dataSource.data().filter(function (item) {
                         return item[options.nameField] === libraryMatches[1];
@@ -197,8 +195,8 @@
                     if ($.isArray(found) && found.length) {
                         ret.item = found[0];
                     }
-                    if ($.isPlainObject(ret.item) && $.type(ret.item.param) === STRING && $.type(param) === STRING && param.length > 4) {
-                        ret.paramValue = JSON.parse(param.trim())[0];
+                    if (ret.item && $.type(ret.item.param) === STRING && $.type(paramValue) === STRING && paramValue.length > '[]'.length) {
+                        ret.paramValue = JSON.parse(paramValue)[0];
                     }
                 }
                 return ret;
@@ -251,6 +249,7 @@
 
                     // Reset value in case the original value could not be found and we had to fallback to default
                     that._value = LIB_COMMENT + name + (paramName ? ' ' + JSON.stringify([paramValue]) : '');
+
                     that.dropDownList.text(name);
                     // Enable/disable paramInput
                     if ($.type(paramName) === STRING && paramName.length) {
@@ -336,8 +335,10 @@
                     if (name === options.custom) {
                         that.value(formula);
                     } else {
+                        // Note: We use an array to pass to kendo.format.apply in order to build the formula
                         that.value(LIB_COMMENT + name + (paramName ? ' ' + JSON.stringify([paramValue]) : ''));
                     }
+                    that.trigger(CHANGE);
                 }
             },
 
@@ -620,7 +621,7 @@
              */
             destroy: function () {
                 var that = this;
-                var element = that.element;
+                var wrapper = that.wrapper;
                 // Unbind events
                 if (that.codeMirror instanceof CodeMirror) {
                     that.codeMirror.off(BEFORECHANGE);
@@ -632,6 +633,7 @@
                 if (that.testButton instanceof $) {
                     that.testButton.off(NS);
                 }
+                kendo.unbind(wrapper);
                 // Release references
                 that.dataSource = undefined;
                 that.dropDownList = undefined;
@@ -643,9 +645,9 @@
                 that.messageWrap = undefined;
                 // Destroy kendo
                 Widget.fn.destroy.call(that);
-                kendo.destroy(element);
+                kendo.destroy(wrapper);
                 // Remove widget class
-                element.removeClass(WIDGET_CLASS);
+                // wrapper.removeClass(WIDGET_CLASS);
             }
 
         });

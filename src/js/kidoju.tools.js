@@ -80,7 +80,7 @@
         var RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
         var RX_SOLUTION = /\S+/i;
         var RX_TEXT = /\S+/i;
-        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\[\n]+)( \["[^\n]*"\])?$/;
+        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\s\[\n]+)( (\[[^\n]+\]))?$/;
         var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
         var RX_VIDEO = /^(cdn|data):\/\/[\s\S]+.mp4$/i;
         var VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
@@ -945,9 +945,9 @@
                         .css({
                             display: 'table-cell',
                             minWidth: '40px',
-                            height: input.css('height'), // to match input,
                             margin: 0
                         })
+                        .height(input.height()) // to match input,
                         .appendTo(table)
                         .on(CLICK, $.proxy(that.showDialog, that, settings));
                 };
@@ -1799,9 +1799,9 @@
                         .css({
                             display: 'table-cell',
                             minWidth: '40px',
-                            height: input.css('height'), // to match input,
                             margin: 0
                         })
+                        .height(input.height()) // to match input,
                         .appendTo(table)
                         .on(CLICK, $.proxy(that.showDialog, that, settings));
                 };
@@ -1962,10 +1962,10 @@
                         .appendTo(table);
                     var binding = {};
                     binding[kendo.attr('bind')] = 'value: ' + settings.field + ', source: _library';
-                    var input = $('<div ' +
+                    var codeInput = $('<div ' +
                         'data-' + kendo.ns + 'role="codeinput" ' +
                         'data-' + kendo.ns + 'default="' + settings.model.properties.defaults.validation + '" />')
-                    // Note: _library is added to the data bound PageComponent in its init method
+                        // Note: _library is added to the data bound PageComponent in its init method
                         .attr($.extend({}, settings.attributes, binding))
                         .appendTo(cell);
                     // We need a temporary textbox to calculate the height and align the button
@@ -1978,9 +1978,9 @@
                         .css({
                             display: 'table-cell',
                             minWidth: '40px',
-                            height: temp.css('height'), // $('input.k-textbox').last().css('height'),
                             margin: 0
                         })
+                        .height(temp.height())
                         .appendTo(table)
                         .on(CLICK, $.proxy(that.showDialog, that, settings));
                     temp.remove();

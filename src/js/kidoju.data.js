@@ -39,7 +39,7 @@
         var ZERO_NUMBER = 0;
         var NEGATIVE_NUMBER = -1;
         var RX_VALID_NAME = /^val_[a-z0-9]{6}$/;
-        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\[\n]+)( \["[^\n]*"\])?$/;
+        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\s\[\n]+)( (\[[^\n]+\]))?$/;
         // var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
         var location = window.location;
         var workerLibPath = location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js';
@@ -1276,7 +1276,7 @@
                                 if ($.type(properties.name) === STRING) {
                                     var code;
                                     var libraryMatches = properties.validation.match(RX_VALIDATION_LIBRARY);
-                                    if ($.isArray(libraryMatches) && libraryMatches.length === 3) {
+                                    if ($.isArray(libraryMatches) && libraryMatches.length === 4) {
                                         // Find libraryMatches[1] in the code library
                                         // Array.find is not available in Internet Explorer, thus the use of Array.filter
                                         var found = properties._library.filter(function (item) {
@@ -1287,13 +1287,14 @@
                                         found = found[0];
                                         assert.isPlainObject(found, kendo.format(assert.messages.isPlainObject.default, 'found'));
                                         assert.type(STRING, found.formula, kendo.format(assert.messages.type.default, 'found.formula', STRING));
-                                        // libraryMatches[2] is the param value beginning with ` ["` and ending with `"]`
-                                        var paramValue = libraryMatches[2] || '';
-                                        if ($.type(found.param) === STRING && $.type(paramValue) === STRING && paramValue.length > 4) {
+                                        // libraryMatches[3] is the param value beginning with ` ["` and ending with `"]`
+                                        var paramValue = libraryMatches[3];
+                                        if ($.type(found.param) === STRING && $.type(paramValue) === STRING  && paramValue.length > '[]'.length) {
                                             // Get the  paramValue in the JSON array
-                                            paramValue = JSON.parse(paramValue.trim())[0];
+                                            paramValue = JSON.parse(paramValue)[0];
                                         }
                                         // This is code from the library possibly with param
+                                        // When we shall have several params, consider kendo.format.apply(this, [paramValue])
                                         code = kendo.format(found.formula, paramValue);
                                     } else {
                                         // This is custom code not form the library

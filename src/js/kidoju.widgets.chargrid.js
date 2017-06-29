@@ -765,6 +765,7 @@
                 var element = that.element;
                 // unbind events
                 that.enable(false);
+                kendo.unbind(element);
                 // release references
                 that.surface = undefined;
                 that.input = undefined;

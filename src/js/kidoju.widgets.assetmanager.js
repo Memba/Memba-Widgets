@@ -984,7 +984,7 @@
              */
             destroy: function () {
                 var that = this;
-                var element =  that.element;
+                var wrapper =  that.wrapper;
                 // Unbind events
                 $(document).off(NS); // Assuming there is only one assetmanager on the page
                 if (that.toolbar instanceof $) {
@@ -993,6 +993,7 @@
                 if (that.dropZone instanceof $) {
                     that.dropZone.off(NS);
                 }
+                kendo.unbind(wrapper);
                 // Release references
                 that.tabStrip = undefined;
                 that.dropDownList = undefined;
@@ -1010,9 +1011,9 @@
                 that._errorHandler = undefined;
                 // Destroy kendo
                 Widget.fn.destroy.call(that);
-                kendo.destroy(element);
+                kendo.destroy(wrapper);
                 // Remove widget class
-                element.removeClass(WIDGET_CLASS);
+                // wrapper.removeClass(WIDGET_CLASS);
             }
 
         });

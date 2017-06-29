@@ -20,7 +20,6 @@
     var ICON_PATH = '../../src/styles/images/';
     var TOOLBOX1 = '<div id="toolbox1"></div>';
     var TOOLBOX2 = '<div id="toolbox2" data-role="toolbox" data-size="48" data-icon-path="' + ICON_PATH + '"></div>';
-    var DIFF = window.PHANTOMJS ? 5 : 4;
 
     describe('kidoju.widgets.toolbox', function () {
 
@@ -52,9 +51,8 @@
                 expect(element.hasClass('k-widget')).to.be.true;
                 expect(element.hasClass('kj-toolbox')).to.be.true;
                 expect(element.find('a.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
-                expect(element.find('a.kj-tool').width()).to.equal(32);
-                // TODO: We might want to dig into this DIFF
-                expect(element.find('a.kj-tool').height()).to.equal(32 + DIFF);
+                expect(Math.round(10 * element.find('a.kj-tool > img').width()) / 10).to.equal(32);
+                expect(Math.round(10 * element.find('a.kj-tool > img').height()) / 10).to.equal(32);
             });
 
             it('from code with options', function () {
@@ -64,9 +62,8 @@
                 expect(element.hasClass('k-widget')).to.be.true;
                 expect(element.hasClass('kj-toolbox')).to.be.true;
                 expect(element.find('a.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
-                expect(element.find('a.kj-tool').width()).to.equal(64);
-                // TODO: We might want to dig into this DIFF
-                expect(element.find('a.kj-tool').height()).to.equal(64 + DIFF);
+                expect(Math.round(10 * element.find('a.kj-tool > img').width()) / 10).to.equal(64);
+                expect(Math.round(10 * element.find('a.kj-tool > img').height()) / 10).to.equal(64);
             });
 
             it('from markup', function () {
@@ -77,9 +74,8 @@
                 expect(element.hasClass('k-widget')).to.be.true;
                 expect(element.hasClass('kj-toolbox')).to.be.true;
                 expect(element.find('a.kj-tool')).to.be.an.instanceof($).with.property('length').that.is.gte(1);
-                expect(element.find('a.kj-tool').width()).to.equal(48);
-                // TODO: We might want to dig into this DIFF
-                expect(element.find('a.kj-tool').height()).to.equal(48 + DIFF);
+                expect(Math.round(10 * element.find('a.kj-tool > img').width()) / 10).to.equal(48);
+                expect(Math.round(10 * element.find('a.kj-tool > img').height()) / 10).to.equal(48);
             });
 
         });

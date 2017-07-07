@@ -12,8 +12,12 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
+        './vendor/kendo/kendo.slider',
+        './vendor/kendo/kendo.button',
+        './vendor/kendo/kendo.colorpicker',
         './vendor/kendo/kendo.grid',
-        './vendor/kendo/kendo.combobox'
+        './vendor/kendo/kendo.combobox',
+        './kidoju.widgets.unitinput'
     ], f);
 })(function () {
 
@@ -35,30 +39,12 @@
         var CLICK = 'click';
         var WIDGET_CLASS = 'k-grid k-widget kj-styleeditor';
         var TOOLBAR_SELECTOR = '.k-grid-toolbar';
-        var ADD_SELECTOR = '.k-grid-add';
+        // var ADD_SELECTOR = '.k-grid-add';
         var DELETE_SELECTOR = '.k-grid-delete';
         var TABLE_SELECTOR = 'table';
         var INPUT_SELECTOR = 'input';
         var COLON = ':';
         var SEMICOLON = ';';
-        var CSS_STYLES = [
-            // This is where we define all style names displayed in the combo box and their respective default values
-            { name: 'background-color', value: '#FFFFFF' },
-            { name: 'border-color', value: '#000000' },
-            { name: 'border-radius', value: '5px' },
-            { name: 'border-style', value: 'solid' },
-            { name: 'border-width', value: '1px' },
-            { name: 'color', value: '#000000' },
-            { name: 'font-family', value: 'Times New Roman' },
-            { name: 'font-size', value: '20px' },
-            { name: 'font-style', value: 'italic' },
-            { name: 'font-weight', value: 'bold' },
-            { name: 'padding', value: '10px' },
-            { name: 'margin', value: '10px' },
-            { name: 'text-align', value: 'center' },
-            { name: 'text-decoration', value: 'underline' },
-            { name: 'vertical-align', value: 'middle' }
-        ];
 
         /*********************************************************************************
          * Helpers
@@ -73,6 +59,131 @@
             assert.type(STRING, value, kendo.format(assert.messages.type.default), 'value', STRING);
             return value.replace(/[\s]*(\:|\;)[\s]*/g, '$1') + ((value.length && value.charAt(value.length - 1) === SEMICOLON) ? '' : SEMICOLON);
         }
+
+        function borderStyle(container, options) {
+            // https://www.w3schools.com/cssref/pr_border-style.asp
+            return comboBox.bind(this)(container, options,  {
+                dataSource: ['dashed', 'dotted', 'double', 'groove', 'hidden', 'inherit', 'initial', 'inset', 'none', 'outset', 'ridge', 'solid']
+            });
+        }
+
+        function comboBox(container, options, widgetOptions) {
+            // We cannot set the comboBox name for validation before initializing the kendo ui widget
+            // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
+            // $('<input name="name" data-bind="value: ' + options.field + '" required data-required-msg="' + this.options.messages.validation.value + '">')
+            var input = $('<input data-bind="value: ' + options.field + '" required data-required-msg="' + this.options.messages.validation.value + '">')
+                .appendTo(container)
+                .kendoComboBox(widgetOptions)
+                .data('kendoComboBox');
+            // The workaround for validation to work is to set the name after initializing the kendo ui widget
+            // TODO http://www.telerik.com/forums/how-to-enforce-validation-in-grid-sample
+            input.element.attr('name', 'value');
+            $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(container);
+        }
+
+        function cssSize(container, options) {
+            // https://www.w3schools.com/cssref/css_units.asp
+            return unitInput.bind(this)(container, options, {
+                units: ['%', 'em', 'px', 'rem', 'vh', 'vw'],
+                nonUnits: ['auto', 'inherit', 'initial']
+            });
+        }
+
+        function colorPicker(container, options) {
+            var that = this;
+            // We cannot set the colorpicker name for validation before initializing the kendo ui widget
+            // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
+            // $('<input name="name" data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.value + '">')
+            var colorPicker = $('<input data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.value + '">')
+                .appendTo(container)
+                .kendoColorPicker()
+                .data('kendoColorPicker');
+            // The workaround for validation to work is to set the name after initializing the kendo ui widget
+            // TODO http://www.telerik.com/forums/how-to-enforce-validation-in-grid-sample
+            colorPicker.element.attr('name', 'value');
+            $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(container);
+        }
+
+        function fontFamily(container, options) {
+            // https://www.w3schools.com/cssref/pr_font_font-style.asp
+            return comboBox.bind(this)(container, options, {
+                dataSource: ['Arial', 'Courier New', 'Georgia', 'Times New Roman', 'Trebuchet MS', 'Verdana']
+            });
+        }
+
+        function fontStyle(container, options) {
+            // https://www.w3schools.com/cssref/pr_font_font-style.asp
+            return comboBox.bind(this)(container, options, {
+                dataSource:  ['inherit', 'initial', 'italic', 'normal', 'oblique']
+            });
+        }
+
+        function fontWeight(container, options) {
+            return comboBox.bind(this)(container, options, {
+                dataSource: ['100', '200', '300', '400', '500', '600', '700', '800', '900', 'bold', 'bolder', 'inherit', 'initial', 'lighter', 'normal']
+            });
+        }
+
+        function textAlign(container, options) {
+            // https://www.w3schools.com/cssref/pr_text_text-align.asp
+            return comboBox.bind(this)(container, options,  {
+                dataSource: ['center', 'inherit', 'initial', 'justify', 'left', 'right']
+            });
+        }
+
+        function textDecoration(container, options) {
+            // https://www.w3schools.com/cssref/pr_text_text-decoration.asp
+            return comboBox.bind(this)(container, options,  {
+                dataSource: ['inherit', 'initial', 'line-through', 'none', 'overline', 'underline']
+            });
+        }
+
+        function opacitySlider(container, options) {
+            // TODO
+        }
+
+        function unitInput(container, options, widgetOptions) {
+            // We cannot set the comboBox name for validation before initializing the kendo ui widget
+            // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
+            // $('<input name="name" data-bind="value: ' + options.field + '" required data-required-msg="' + this.options.messages.validation.value + '">')
+            var unitinput = $('<input data-' + kendo.ns + 'bind="value: ' + options.field + '" required data-required-msg="' + this.options.messages.validation.value + '" style="width:100%;">')
+                .appendTo(container)
+                .kendoUnitInput(widgetOptions)
+                .data('kendoUnitInput');
+            // The workaround for validation to work is to set the name after initializing the kendo ui widget
+            // TODO http://www.telerik.com/forums/how-to-enforce-validation-in-grid-sample
+            unitinput.element.attr('name', 'value');
+            $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(container);
+        }
+
+        function verticalAlign(container, options) {
+            // https://www.w3schools.com/cssref/pr_pos_vertical-align.asp
+            // https://www.w3schools.com/cssref/css_units.asp
+            return unitInput.bind(this)(container, options, {
+                units: ['%', 'em', 'px', 'rem', 'vh', 'vw'],
+                nonUnits: ['baseline', 'bottom', 'inherit', 'initial', 'middle', 'sub', 'super', 'text-bottom', 'text-top', 'top']
+            });
+        }
+
+        var CSS_STYLES = [
+            // This is where we define all style names displayed in the combo box and their respective default values
+            { name: 'background-color', value: '#ffffff', editor: colorPicker },
+            { name: 'border-color', value: '#000000', editor: colorPicker },
+            { name: 'border-radius', value: '5px', editor: cssSize },
+            { name: 'border-style', value: 'solid', editor: borderStyle },
+            { name: 'border-width', value: '1px', editor: cssSize },
+            { name: 'color', value: '#000000', editor: colorPicker },
+            { name: 'font-family', value: 'Times New Roman', editor: fontFamily },
+            { name: 'font-size', value: '20px', editor: cssSize },
+            { name: 'font-style', value: 'italic', editor: fontStyle },
+            { name: 'font-weight', value: 'bold', editor: fontWeight },
+            { name: 'padding', value: '10px', editor: cssSize },
+            { name: 'margin', value: '10px', editor: cssSize },
+            { name: 'opacity', value: '1' },
+            { name: 'text-align', value: 'center', editor: textAlign },
+            { name: 'text-decoration', value: 'underline', editor: textDecoration },
+            { name: 'vertical-align', value: 'middle', editor: verticalAlign }
+        ];
 
 
         /*********************************************************************************
@@ -229,18 +340,20 @@
                             {
                                 field: 'name',
                                 title: options.messages.columns.name,
-                                editor: $.proxy(that._cssDropDownEditor, that),
+                                editor: that._cssNameEditor.bind(that),
                                 template: '#=name#'
                             },
                             {
                                 field: 'value',
-                                title: options.messages.columns.value
+                                title: options.messages.columns.value,
+                                editor: that._cssValueEditor.bind(that),
+                                template: '#=value#'
                             }
                         ],
-                        dataBound: $.proxy(that._onDataBound, that),
+                        dataBound: that._onDataBound.bind(that),
                         dataSource: that._dataSource,
                         editable: 'incell',
-                        edit: $.proxy(that._onGridEdit, that),
+                        edit: that._onGridEdit.bind(that),
                         height: options.height,
                         resizable: true,
                         scrollable: true,
@@ -255,13 +368,14 @@
             },
 
             /**
+             * The CSS property name editor (a drop down list of names)
              * This function is taken from http://demos.kendoui.com/web/grid/editing-custom.html
              * @See also http://www.telerik.com/forums/kendo-ui-grid-s-combobox-editor-template-validation
              * @param container
              * @param options
              * @private
              */
-            _cssDropDownEditor: function (container, options) {
+            _cssNameEditor: function (container, options) {
                 var that = this;
                 // We cannot set the combobox name for validation before initializing the kendo ui widget
                 // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
@@ -295,6 +409,27 @@
             },
 
             /**
+             * The CSS property value editor switches to a custom editor based on property name
+             * @param container
+             * @param options
+             * @private
+             */
+            _cssValueEditor: function (container, options) {
+                var that = this;
+                // Find the corresponding property name and custom editor
+                var name = container.closest('tr.k-state-selected').children().first().text();
+                var found = CSS_STYLES.filter(function (item) { return item.name === name; });
+                // Switch to the corresponding editor or fallback to a simple textbox
+                if ($.isArray(found) && found.length && found[0] && $.isFunction(found[0].editor)) {
+                    return found[0].editor.bind(that)(container, options);
+                } else {
+                    var textbox = $('<input type="text" name="value" class="k-textbox" data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.value + '">')
+                        .appendTo(container);
+                    $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(container);
+                }
+            },
+
+            /**
              * Event handler for the grid dataBound event
              * Clicking `New Style` executes addRow which triggers a sync event on the dataSource
              * This triggers a refresh on the grid which cancels edit mode
@@ -320,29 +455,34 @@
                 assert.instanceof(Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
                 assert.instanceof($, e.container, kendo.format(assert.messages.instanceof.default, 'e.container', 'jQuery'));
                 // Select the edited row
+                var row = e.container.closest('tr');
                 e.sender.select(e.container.closest('tr'));
-                // Find the combobox and update dataSource with a list of styles that does not contain styles already defined
-                var comboBox = e.container.find('input:not(.k-input)').data('kendoComboBox');
-                if (comboBox instanceof kendo.ui.ComboBox) {
-                    var rows = e.sender.dataSource.data();
-                    var css = [];
-                    for (var i = 0; i < CSS_STYLES.length; i++) {
-                        var found = false;
-                        for (var j = 0; j < rows.length; j++) {
-                            /* Blocks are nested too deeply. */
-                            /* jshint -W073 */
-                            if (CSS_STYLES[i].name === rows[j].name && CSS_STYLES[i].name !== comboBox.value()) {
-                                found = true;
-                                break;
+                // if editing a css property name (and not a css property value)
+                if (e.container.is('td:eq(0)')) {
+                    // Find the combobox and update dataSource with a list of styles that does not contain styles already defined
+                    var comboBox = e.container.find(kendo.roleSelector('combobox')).data('kendoComboBox');
+                    if (comboBox instanceof kendo.ui.ComboBox) {
+                        var rows = e.sender.dataSource.data();
+                        var css = [];
+                        for (var i = 0; i < CSS_STYLES.length; i++) {
+                            var found = false;
+                            for (var j = 0; j < rows.length; j++) {
+                                /* Blocks are nested too deeply. */
+                                /* jshint -W073 */
+                                if (CSS_STYLES[i].name === rows[j].name &&
+                                    CSS_STYLES[i].name !== comboBox.value()) {
+                                    found = true;
+                                    break;
+                                }
+                                /* jshint +W073 */
                             }
-                            /* jshint +W073 */
+                            if (!found) {
+                                css.push(CSS_STYLES[i]);
+                            }
                         }
-                        if (!found) {
-                            css.push(CSS_STYLES[i]);
-                        }
+                        comboBox.setDataSource(css);
+                        comboBox.focus();
                     }
-                    comboBox.setDataSource(css);
-                    comboBox.focus();
                 }
             },
 
@@ -404,9 +544,9 @@
                 var that = this;
                 var element = that.element;
                 element.find(TOOLBAR_SELECTOR)
-                    .on(CLICK + NS, DELETE_SELECTOR, $.proxy(that._onDeleteClick, that));
+                    .on(CLICK + NS, DELETE_SELECTOR, that._onDeleteClick.bind(that));
                 element.find(TABLE_SELECTOR)
-                    .on(KEYPRESS + NS, INPUT_SELECTOR, $.proxy(that._onInputKeyPress, that));
+                    .on(KEYPRESS + NS, INPUT_SELECTOR, that._onInputKeyPress.bind(that));
             },
 
             /**

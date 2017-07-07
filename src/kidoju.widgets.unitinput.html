@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kidoju.widgets.unitinput</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.unitinput stylesheet -->
+    <link href="./styles/kidoju.widgets.unitinput.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.unitinput.js').then(function (kendo) {
+                var viewModel = kendo.observable({
+                    unit: 'auto',
+                    visible: true,
+                    enabled: true
+                });
+
+                $(function(){
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>kidoju.widgets.unitinput</h1>
+<input data-role="unitinput" data-bind="value: unit, visible: visible, enabled: enabled" data-units="[&quot;em&quot;,&quot;px&quot;,&quot;rem&quot;,&quot;%&quot;]" data-non-units="[&quot;auto&quot;]" style="width:150px"></input>
+<h2>Bindings</h2>
+<input type="text" class="k-textbox" data-bind="value: unit"><br/>
+<input type="checkbox" data-bind="checked: visible">Visible
+<input type="checkbox" data-bind="checked: enabled">Enabled
+</body>
+</html>
+

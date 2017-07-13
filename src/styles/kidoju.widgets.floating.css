@@ -2,9 +2,10 @@
     display: flex;
     flex-flow: row nowrap;
     cursor: move;
+    max-width: 300px;
 }
 .kj-floating .kj-floating-handle {
-    width: 1em;
+    width: 2em;
 }
 .kj-floating .kj-floating-content .k-toolbar.k-widget {
     border: none;
@@ -12,3 +13,4 @@
 .kj-floating .kj-floating-content .k-toolbar.k-widget:not(:last-child) {
     margin-bottom: 0.25em;
 }
+

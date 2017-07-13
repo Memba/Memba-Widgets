@@ -39,15 +39,15 @@
         var ToolBar = kendo.ui.ToolBar;
         var StaticList = kendo.ui.StaticList;
         var dataviz = kendo.dataviz;
-        var Connection = kendo.dataviz.diagram.Connection
-        var Shape = kendo.dataviz.diagram.Shape
+        var Connection = kendo.dataviz.diagram.Connection;
+        var Shape = kendo.dataviz.diagram.Shape;
         // var UNDEFINED = 'undefined';
         var BOOLEAN = 'boolean';
         var NUMBER = 'number';
         var STRING = 'string';
         // var RX_DASHTYPE = /^(dash|dashDot|dot|longDash|longDashDot|longDashDotDot|solid)$/;
         // var RX_FONT = /^(normal\s+|italic\s+|oblique\s+|initial\s+|inherit\s+)?([0-9\.]+[a-z]+\s+)?(.+)$/;
-        kendo.vectordrawing = {messages: {}};
+        kendo.vectordrawing = { messages: {}};
         var TOOLBAR = [
             'new',
             'open',
@@ -113,7 +113,7 @@
                 var hasFill = isShape && this.type.toLowerCase() !== 'image';
                 var hasStroke = isConnection || (isShape && this.type.toLowerCase() !== 'text' && this.type.toLowerCase() !== 'image');
                 var hasCap = isConnection;
-                var hasFont = isShape && this.type.toLowerCase() === 'text'
+                var hasFont = isShape && this.type.toLowerCase() === 'text';
                 return {
                     fillColor: hasFill,
                     opacity: hasFill,
@@ -604,6 +604,9 @@
                 }
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Click event handler
              * @param e
@@ -629,6 +632,8 @@
                 }
                 this.action(args);
             },
+
+            /* jshint +W074 */
 
             /**
              * Events
@@ -766,6 +771,9 @@
                 };
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Export the configuration set by toolbar to redraw an element
              * @param element
@@ -833,6 +841,8 @@
                 }
                 return ret;
             },
+
+            /* jshint +W074 */
 
             /**
              * List tools
@@ -2545,7 +2555,8 @@
             apply: function (e) {
                 var dataItem = e.sender.value()[0];
                 if (!dataItem) {
-                    debugger; // TODO
+                    $.noop(); // TODO
+                    // debugger;
                 }
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
@@ -2604,7 +2615,8 @@
             apply: function (e) {
                 var dataItem = e.sender.value()[0];
                 if (!dataItem) {
-                    debugger; // TODO
+                    $.noop(); // TODO
+                    // debugger;
                 }
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
@@ -2663,7 +2675,8 @@
             apply: function (e) {
                 var dataItem = e.sender.value()[0];
                 if (!dataItem) {
-                    debugger; // TODO
+                    $.noop(); // TODO
+                    // debugger;
                 }
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
@@ -2703,7 +2716,8 @@
                 /*
                  var dataItem = e.sender.value()[0];
                  if (!dataItem) {
-                 debugger; // TODO
+                     $.noop(); // TODO
+                     // debugger;
                  }
                  VectorDrawingDialog.fn.apply.call(this);
                  this.trigger('action', {
@@ -2812,7 +2826,8 @@
             apply: function (e) {
                 var dataItem = e.sender.value()[0];
                 if (!dataItem) {
-                    debugger; // TODO
+                    $.noop(); // TODO
+                    // debugger;
                 }
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {

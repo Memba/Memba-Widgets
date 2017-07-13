@@ -570,7 +570,7 @@
 
         if (this.parsed) {
 
-            //Already parsed, so keep anything for next node
+            // Already parsed, so keep anything for next node
             this.next += str;
 
         } else if (this.left) {
@@ -581,7 +581,7 @@
             // Considering left delimiter, determine right match to find
             var left = this.left.slice(-1);
             var right = left;
-            switch(left) {
+            switch (left) {
                 case '(':
                     right = ')';
                     break;
@@ -653,7 +653,7 @@
                 this.parsed = true;
             }
 
-        } else  if (/^\\left[\(\[\{\|]$/.test(this.value + str)) {
+        } else if (/^\\left[\(\[\{\|]$/.test(this.value + str)) {
 
             this.left = this.value + str;
             this.value = '';
@@ -696,6 +696,14 @@
 
     /**
      * Parse latex into a syntax tree for permutations
+     * @see https://en.wikipedia.org/wiki/Operator-precedence_parser
+     * @see https://en.wikipedia.org/wiki/Recursive_descent_parser
+     * @see https://en.wikipedia.org/wiki/LR_parser
+     * @see https://en.wikipedia.org/wiki/Shunting-yard_algorithm
+     * @see http://javascript.crockford.com/tdop/tdop.html
+     * @see http://rhyscitlema.com/algorithms/expression-parsing-algorithm/
+     * @see https://ariya.io/2011/08/math-evaluator-in-javascript-part1
+     * @see http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm
      * @param latex
      */
     global.parseLatexTree = function (latex) {

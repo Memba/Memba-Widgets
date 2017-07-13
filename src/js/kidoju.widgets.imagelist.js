@@ -222,7 +222,7 @@
                         var target = e.target;
                         // The following is required to fix https://github.com/kidoju/Kidoju-Widgets/issues/175
                         // Noting that popup is not available until the tooltip has been fully initialized, but there is no init event to hook
-                        e.sender.popup.element.children('.k-tooltip-content').css({ padding: 0});
+                        e.sender.popup.element.children('.k-tooltip-content').css({ padding: 0 });
                         return kendo.format(TOOLTIP, kendo.htmlEncode(target.attr('alt')), window.encodeURI(target.attr('src')));
                     }
                 }).data('kendoTooltip');

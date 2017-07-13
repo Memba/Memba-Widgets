@@ -34,7 +34,7 @@
         var CHANGE = 'change';
         var DIV = '<div/>';
         var WIDGET_CLASS = 'kj-dropdowntree';
-        var TREE_CLASS= 'kj-dropdowntree-treeview';
+        var TREE_CLASS = 'kj-dropdowntree-treeview';
 
         /*********************************************************************************
          * Helpers
@@ -79,7 +79,7 @@
             init: function (element, options) {
                 var that = this;
                 DropDownList.fn.init.call(that, element, options);
-                logger.debug({ method: 'init', message: 'Widget initialized '});
+                logger.debug({ method: 'init', message: 'Widget initialized' });
                 that._layout();
                 that.refresh();
             },

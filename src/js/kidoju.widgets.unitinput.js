@@ -143,7 +143,7 @@
                             max: options.max,
                             min: options.min,
                             step: options.step,
-                            change: function(e) {
+                            change: function (e) {
                                 element.val((that.numericTextBox.value() || '') + that.unitDropDownList.value());
                                 that.trigger(CHANGE);
                             }
@@ -153,7 +153,7 @@
                         .appendTo(that.wrapper)
                         .kendoDropDownList({
                             dataSource: { data: options.units.concat(options.nonUnits) },
-                            change: function(e) {
+                            change: function (e) {
                                 var num = that.numericTextBox.value();
                                 var unit = that.unitDropDownList.value();
                                 var isUnit = (options.units.indexOf(unit) >  -1) && (options.nonUnits.indexOf(unit) === -1);

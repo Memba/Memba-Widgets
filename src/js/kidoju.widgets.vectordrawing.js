@@ -35,6 +35,7 @@
         var drawing = kendo.drawing;
         var createPromise = drawing.util.createPromise;
         var encodeBase64 = drawing.util.encodeBase64;
+        var defined = drawing.util.defined;
         var geometry = kendo.geometry;
         var Transformation = geometry.Transformation;
         var RootNode = drawing.svg.RootNode;
@@ -161,6 +162,14 @@
             var editable = element.options.editable;
             return editable && editable.drag !== false;
         }
+        function cloneDataItem(dataItem) {
+            var result = dataItem;
+            if (dataItem instanceof kendo.data.Model) {
+                result = dataItem.toJSON();
+                result[dataItem.idField] = dataItem._defaultId;
+            }
+            return result;
+        }
         function translateToOrigin(visual) {
             var bbox = visual.drawingContainer().clippedBBox(null);
             if (bbox.origin.x !== 0 || bbox.origin.y !== 0) {
@@ -182,30 +191,31 @@
             _visualOptions: function (options) {
                 return {
                     // From Shape.fn._visualOptions
-                     data: options.path,
-                     source: options.source,
-                     hover: options.hover,
-                     fill: options.fill,
-                     stroke: options.stroke,
-		                 // For text blocks
-		                 text: options.text,
-		                 // color: options.content.color,
-		                 // fontFamily: options.content.fontFamily,
-		                 // fontSize: options.content.fontSize,
-		                 // fontStyle: options.content.fontStyle,
-		                 // fontWeight: options.content.fontWeight,
-		                 // For pen and polyline
-		                 points: options.points,
-		                 startCap: options.startCap,
-		                 endCap: options.endCap
-                 };
-                 // return options;
+                    data: options.path,
+                    source: options.source,
+                    hover: options.hover,
+                    fill: options.fill,
+                    stroke: options.stroke,
+                    // For text blocks
+                    text: options.text,
+                    // color: options.content.color,
+                    // fontFamily: options.content.fontFamily,
+                    // fontSize: options.content.fontSize,
+                    // fontStyle: options.content.fontStyle,
+                    // fontWeight: options.content.fontWeight,
+                    // For pen and polyline
+                    points: options.points,
+                    startCap: options.startCap,
+                    endCap: options.endCap
+                };
+                // return options;
             },
 
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
             createShapeVisual: function () {
+                /* jshint maxcomplexity: 8 */
                 var options = this.options;
                 var visualOptions = this._visualOptions(options);
                 var visualTemplate = options.visual;
@@ -501,7 +511,7 @@
                  }
                  connection.target(target);
                  */
-                var shape = toolService.activeShape;
+                // var shape = toolService.activeShape;
                 // Modify position
                 if (!shape) {
                     return;
@@ -736,6 +746,7 @@
             /* jshint +W074 */
 
             _hitTest: function (p) {
+                /* jshint maxcomplexity: 8 */
                 var tp = this.diagram.modelToLayer(p);
                 var i;
                 var hit;
@@ -1171,7 +1182,7 @@
                 assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
                 switch (params.value) {
                     case 'forward':
-                        alert('Not yet implemented!');
+                        window.alert('Not yet implemented!'); // TODO
                         break;
                     case 'front':
                         this.toFront(this.select());
@@ -1180,7 +1191,7 @@
                         this.toBack(this.select());
                         break;
                     case 'backward':
-                        alert('Not yet implemented!');
+                        window.alert('Not yet implemented!'); // TODO
                         break;
                 }
             },
@@ -1325,10 +1336,12 @@
                     // TODO cache and cors
                 })
                     .done(function (data) {
-                        debugger;
+                        $.noop(); // TODO
+                        // debugger;
                     })
-                    fail(function (xhr, status, error) {
-                        debugger;
+                    .fail(function (xhr, status, error) {
+                        $.noop(); // TODO
+                        // debugger;
                     });
                 return dfd.promise();
             },

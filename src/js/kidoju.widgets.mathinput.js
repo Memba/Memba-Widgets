@@ -95,7 +95,7 @@
                 // We need to set tools otherwise the options.toolbar.tools array is simply pasted over the TOOLBAR array, which creates duplicates in the overflow
                 that.options.toolbar.tools = (options.toolbar || {}).tools || TOOLBAR;
                 that._enabled = that.element.prop('disabled') ? false : that.options.enable;
-                // that.bind(CHANGE, $.proxy(that.refresh, that));
+                // that.bind(CHANGE, that.refresh.bind(that));
                 that._layout();
                 that.value(that.options.value);
                 that.enable(that._enabled);
@@ -109,7 +109,7 @@
              */
             options: {
                 name: 'MathInput',
-                value: '',
+                value: null, // which is either converted to '' or [] depending on inner fields
                 enable: true,
                 errorColor: '#cc0000',
                 mathquill: {
@@ -217,10 +217,17 @@
              * @private
              */
             _stringValue: function (value) {
+                // We should only update if value has changed because this triggers _onEdit and a CHANGE event
+                // which breaks that.trigger(DATABOUND); in kidoju.widgets.stage
+                var latex = this.mathFields[0].latex();
                 if ($.type(value) === STRING) {
-                    this.mathFields[0].latex(value);
+                    if (value !== latex) {
+                        this.mathFields[0].latex(value);
+                    }
+                } else if ($.type(value) === NULL) {
+                    this._stringValue('');
                 } else if ($.type(value) === UNDEFINED) {
-                    return this.mathFields[0].latex();
+                    return latex;
                 } else {
                     throw new TypeError('`value` is expected to be a string if not undefined');
                 }
@@ -254,13 +261,13 @@
                 // Cache handlers
                 if ($.type(that._handlers) === UNDEFINED) {
                     that._handlers = {
-                        deleteOutOf: $.proxy(that._onOutOf, that),
-                        downOutOf: $.proxy(that._onOutOf, that),
-                        edit: $.proxy(that._onEdit, that),
-                        enter: $.proxy(that._onEnter, that),
-                        moveOutOf: $.proxy(that._onOutOf, that),
-                        selectOutOf: $.proxy(that._onOutOf, that),
-                        upOutOf: $.proxy(that._onOutOf, that)
+                        deleteOutOf: that._onOutOf.bind(that),
+                        downOutOf: that._onOutOf.bind(that),
+                        edit: that._onEdit.bind(that),
+                        enter: that._onEnter.bind(that),
+                        moveOutOf: that._onOutOf.bind(that),
+                        selectOutOf: that._onOutOf.bind(that),
+                        upOutOf: that._onOutOf.bind(that)
                     };
                 }
 
@@ -331,10 +338,13 @@
 
                 // Add focusin and focusout event handlers
                 that.element.off(NS);
+                // $(document).off(NS);
                 if (that._enabled) {
                     that.element
-                        .on(FOCUSIN + NS, $.proxy(that._onFocusIn, that))
-                        .on(FOCUSOUT + NS, $.proxy(that._onFocusOut, that));
+                        .on(FOCUSIN + NS, that._onFocusIn.bind(that))
+                        .on(FOCUSOUT + NS, that._onFocusOut.bind(that));
+                    // $(document).on(FOCUSIN + NS, that._onFocusOut.bind(that));
+
                 }
             },
 
@@ -396,7 +406,7 @@
                     // Show widget's toolbar
                     if (that._activeField instanceof MQ.MathField &&
                         that.toolBar instanceof MathInputToolBar) {
-                        setTimeout(function() { // Without setTimeout, iOS does not show the toolbar
+                        setTimeout(function () { // Without setTimeout, iOS does not show the toolbar
                             that.toolBar.wrapper.show();
                         });
                     }
@@ -417,11 +427,12 @@
                 var options = that.options;
                 var container = $(options.toolbar.container);
                 if (container.length) {
-                    // This is how kendo.editor does it at ln 698
+                    // This is how kendo.editor does it at L#698
                     setTimeout(function () {
                         // Check whether we are interacting with the toolbar
-                        if (that.toolBar.wrapper.has(
-                                document.activeElement).length === 0) {
+                        if (that.toolBar instanceof MathInputToolBar &&
+                            that.toolBar.wrapper.has(document.activeElement).length === 0 && // Prevents the toolbar from hiding when clicking buttons
+                            !$(document.activeElement).is('.kj-floating')) { // Prevents the toolbar from hiding when moving the floating toolbar container
                             that.toolBar.wrapper.hide();
                         }
                     }, 10);
@@ -447,12 +458,12 @@
                         .kendoMathInputToolBar({
                             tools: options.toolbar.tools,
                             resizable: options.toolbar.resizable,
-                            action: $.proxy(that._onToolBarAction, that),
-                            dialog: $.proxy(that._onToolBarDialog, that)
+                            action: that._onToolBarAction.bind(that),
+                            dialog: that._onToolBarDialog.bind(that)
                         })
                         .data('kendoMathInputToolBar');
                     that.toolBar.wrapper.hide();
-                } else {
+                } else if (!options.toolbar.container) {
                     that.element.wrap(DIV);
                     that.wrapper = container = that.element.parent();
                     that.toolBar = $(DIV)
@@ -460,8 +471,8 @@
                         .kendoMathInputToolBar({
                             tools: options.toolbar.tools,
                             resizable: options.toolbar.resizable,
-                            action: $.proxy(that._onToolBarAction, that),
-                            dialog: $.proxy(that._onToolBarDialog, that)
+                            action: that._onToolBarAction.bind(that),
+                            dialog: that._onToolBarDialog.bind(that)
                         })
                         .data('kendoMathInputToolBar');
                 }
@@ -595,7 +606,7 @@
              * Refresh the widget
              */
             refresh: function () {
-                logger.debug({ method: 'refresh', message: 'Widget refreshed'});
+                logger.debug({ method: 'refresh', message: 'Widget refreshed' });
             },
 
             /**

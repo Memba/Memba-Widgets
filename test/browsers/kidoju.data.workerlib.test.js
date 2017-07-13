@@ -130,7 +130,7 @@
             }
         });
 
-        it ('Latex Parsing', function () {
+        xit ('Latex Parsing', function () {
             var SAMPLE = [
                 { latex: 'a^2+b^2=c^2', length: 5 },
                 { latex: '\\left(a-b\\right)\\times\\left(a+b\\right)=a^2-b^2', length: 7 },
@@ -146,16 +146,14 @@
             }
         });
 
-        xit ('Latex Permutations', function () {
+        it ('Latex Permutations', function () {
 
             var SAMPLE = [
-                { latex: 'a^2+b^2=c^2', length: 4 },
-                { latex: '\\left(a-b\\right)\\times\\left(a+b\\right)=a^2-b^2', length: 7 },
-                { latex: '\\sin\\left(x\\right)^2+\\cos\\left(x\\right)^2=1', length: 9 },
-                { latex: '2\\cdot\\sum_{n=0}^{\\infty}\\frac{1}{n+1}', length: 6 }
+                { latex: 'c=a\\times b+c\\times d', length: 4 }
             ];
 
-
+            var tree = window.parseLatexTree(SAMPLE[0].latex);
+            expect(tree.children.length).to.equal(SAMPLE[0].length);
 
         });
 

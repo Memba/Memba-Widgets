@@ -23,7 +23,11 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
+        /* jshint maxstatements: 35 */
 
         var kendo = window.kendo;
         var ui = kendo.ui;
@@ -49,6 +53,10 @@
         /*********************************************************************************
          * Helpers
          *********************************************************************************/
+
+        /* If a strict mode function is executed using function invocation, its 'this' value will be undefined. */
+        /* The following functions raise this error because this is undefined in functions that are not part of a prototype, but we use bind to call them */
+        /* jshint -W040 */
 
         /**
          * Normalize value
@@ -164,6 +172,8 @@
                 nonUnits: ['baseline', 'bottom', 'inherit', 'initial', 'middle', 'sub', 'super', 'text-bottom', 'text-top', 'top']
             });
         }
+
+        /* jshint +W040 */
 
         var CSS_STYLES = [
             // This is where we define all style names displayed in the combo box and their respective default values
@@ -627,6 +637,8 @@
         kendo.ui.plugin(StyleEditor);
 
     }(window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kendo;
 

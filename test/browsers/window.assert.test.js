@@ -14,6 +14,7 @@
     // var kendo = window.kendo;
     // var FIXTURES = '#fixtures';
     var assert = window.assert;
+    var JSC = window.JSC;
     var STRING = 'string';
     var ERR_MSG = 'Oops!';
 
@@ -345,6 +346,26 @@
             });
 
             /* jshint +W071 */
+
+            xit('TODO jscheck', function (done) {
+                function lte(a, b) {
+                    return a <= b;
+                }
+                JSC.assert(
+                    'Less than',
+                    function (verdict, a, b) {
+                        return verdict(lte(a, b));
+                    },
+                    [
+                        JSC.integer(10),
+                        JSC.integer(20)
+                    ],
+                    function (a, b) {
+                        return a <= b ? 'ok' : false;
+                    },
+                    done
+                );
+            });
 
         });
 

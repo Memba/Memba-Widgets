@@ -296,7 +296,18 @@
             mathinput: {
                 description: 'Mathematic Input',
                 attributes: {
-                    formula: { title: 'Formula', defaultValue: '' },
+                    // formula: { title: 'Formula', defaultValue: '' },
+                    backspace: { title: 'Backspace' },
+                    field: { title: 'Field' },
+                    keypad: { title: 'Keypad' },
+                    basic: { title: 'Basic' },
+                    lowergreek: { title: 'Lower Greek' },
+                    uppergreek: { title: 'Upper Greek' },
+                    operators: { title: 'Operators' },
+                    expressions: { title: 'Functions' },
+                    sets: { title: 'Sets' },
+                    matrices: { title: 'Matrices' },
+                    statistics: { title: 'Statistics' },
                     style: { title: 'Style' }
                 },
                 properties: {
@@ -1452,10 +1463,14 @@
             library: [
                 {
                     name: 'equal',
-                    formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).trim() === String(solution).trim();')
-                    // TODO MathQuillMathField
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).trim() === String(solution).trim();')  // TODO several MathQuillMathField
+                }/*,
+                {
                     // TODO permutations
+                    name: 'anyCommutations',
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return shuntingYard(value).equals(solution);')
                 }
+                */
             ],
             libraryDefault: 'equal'
         });
@@ -3359,7 +3374,7 @@
         });
         tools.register(MathExpression);
 
-        var MATHINPUT = '<div data-#= ns #role="mathinput" data-#= ns #toolbar="{&quot;container&quot;:&quot;\\#floating .kj-floating-content&quot;,&quot;resizable&quot;:true}" style="#: attributes.style #" {0}>#: attributes.formula #</div>';
+        var MATHINPUT = '<div data-#= ns #role="mathinput" data-#= ns #toolbar="#: JSON.stringify(toolbar$()) #" style="#: attributes.style #" {0}>#: attributes.formula #</div>';
         /**
          * @class MathInput tool
          * @type {void|*}
@@ -3379,6 +3394,17 @@
             attributes: {
                 // The formula is intended to set several MathQuillMathFields, which requires to make the solution an array of mathinputs
                 // formula: new adapters.MathAdapter({ title: i18n.mathinput.attributes.formula.title }),
+                // backspace: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.backspace.title, defaultValue: false }),
+                // field: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.field.title, defaultValue: false }),
+                keypad: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.keypad.title, defaultValue: true }),
+                basic: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.basic.title, defaultValue: true }),
+                lowergreek: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.lowergreek.title, defaultValue: false }),
+                uppergreek: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.uppergreek.title, defaultValue: false }),
+                operators: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.operators.title, defaultValue: false }),
+                expressions: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.expressions.title, defaultValue: false }),
+                sets: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.sets.title, defaultValue: false }),
+                matrices: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.matrices.title, defaultValue: false }),
+                statistics: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.statistics.title, defaultValue: false }),
                 style: new adapters.StyleAdapter({ title: i18n.mathinput.attributes.style.title, defaultValue: 'font-size: 50px;' })
             },
             properties: {
@@ -3404,6 +3430,49 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 var template = kendo.template(that.templates[mode]);
+                component.toolbar$ = function () {
+                    var tools = [];
+                    /*
+                    if (this.get('attributes.backspace')) {
+                        tools.push('backspace');
+                    }
+                    if (this.get('attributes.field')) {
+                        tools.push('field');
+                    }
+                    */
+                    if (this.get('attributes.keypad')) {
+                        tools.push('keypad');
+                    }
+                    if (this.get('attributes.basic')) {
+                        tools.push('basic');
+                    }
+                    if (this.get('attributes.lowergreek')) {
+                        tools.push('lowergreek');
+                    }
+                    if (this.get('attributes.uppergreek')) {
+                        tools.push('uppergreek');
+                    }
+                    if (this.get('attributes.operators')) {
+                        tools.push('operators');
+                    }
+                    if (this.get('attributes.expressions')) {
+                        tools.push('expressions');
+                    }
+                    if (this.get('attributes.sets')) {
+                        tools.push('sets');
+                    }
+                    if (this.get('attributes.matrices')) {
+                        tools.push('matrices');
+                    }
+                    if (this.get('attributes.statistics')) {
+                        tools.push('statistics');
+                    }
+                    return {
+                        container: '#floating .kj-floating-content',
+                        resizable: false,
+                        tools: tools
+                    };
+                };
                 return template($.extend(component, { ns: kendo.ns }));
             },
 
@@ -3439,6 +3508,7 @@
                 var ret = Tool.fn.validate.call(this, component, pageIdx);
                 var description = this.description; // tool description
                 var messages = this.i18n.messages;
+                /*
                 if (!component.attributes ||
                     !component.attributes.formula ||
                     (component.attributes.formula === i18n.mathinput.attributes.formula.defaultValue) ||
@@ -3450,6 +3520,7 @@
                         message: kendo.format(messages.invalidFormula, description, pageIdx + 1)
                     });
                 }
+                */
                 if (!component.attributes ||
                     // Styles are only checked if there is any (optional)
                     (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
@@ -3459,7 +3530,6 @@
                         message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
                     });
                 }
-                // TODO: We should also check that there is a dropZone on the page if draggable
                 return ret;
             }
 

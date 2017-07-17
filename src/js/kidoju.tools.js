@@ -3381,7 +3381,7 @@
          */
         var MathInput = Tool.extend({
             id: 'mathinput',
-            icon: 'formula',
+            icon: 'formula_input',
             description: i18n.mathinput.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {

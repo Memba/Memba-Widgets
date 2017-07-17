@@ -350,10 +350,10 @@
                 var that = this;
                 var options = that.options;
                 var div = $('<div class="kj-codeeditor-editor"></div>')
-                        .appendTo(that.element)
-                        .get(0);
-                assert.instanceof(window.HTMLElement, div, kendo.format(assert.messages.instanceof.default, 'div', 'HTMLElement'));
-                that.codeMirror = CodeMirror(div, {
+                        .appendTo(that.element);
+
+                // Initialize CodeMirror
+                that.codeMirror = CodeMirror(div.get(0), {
                     gutters: ['CodeMirror-lint-markers'],
                     lineNumbers: true,
                     lint: true,
@@ -375,8 +375,8 @@
                     }
                 });
 
-                // Synchronize drop down list with code editor to display `custom` upon any change
                 that.codeMirror.on(CHANGE, function (cm, change) {
+                    // Synchronize drop down list with code editor to display `custom` upon any change
                     var dataItem = that.dropDownList.dataItem();
                     if (dataItem) {
                         var formula = dataItem[options.formulaField];
@@ -388,8 +388,15 @@
                             that.value(value);
                         }
                     }
+                    // Trigger a change event if change is the result of typings
+                    if (change.origin !== 'setValue') {
+                        that.trigger(CHANGE);
+                    }
+
                 });
 
+                // Otherwise gutters and line numbers might be misaligned
+                that.codeMirror.refresh();
             },
 
             /**

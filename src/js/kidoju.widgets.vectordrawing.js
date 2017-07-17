@@ -1081,7 +1081,7 @@
                     .data('kendoVectorDrawingToolBar');
                 // TODO implement toolBarClick for hooks!!!!!!!!!!!!!!!!
             },
-            _selectionChanged: function (selected, deselected) {
+            _selectionChanged: function (selected, deselected) { // TODO Check if called
                 this.toolBar.refresh(selected);
                 Diagram.fn._selectionChanged.call(this, selected, deselected);
             },

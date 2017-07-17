@@ -47,6 +47,10 @@
     <link href="./styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
     <link href="./styles/vendor/codemirror/addon/lint/lint.css" rel="stylesheet">
     <script src="./js/vendor/codemirror/lib/codemirror.js"></script>
+    <script src="./js/vendor/codemirror/mode/meta.js"></script>
+    <script src="./js/vendor/codemirror/mode/xml/xml.js"></script>
+    <script src="./js/vendor/codemirror/mode/markdown/markdown.js"></script>
+    <script src="./js/vendor/codemirror/mode/gfm/gfm.js"></script>
     <script src="./js/vendor/codemirror/mode/javascript/javascript.js"></script>
     <script src="./js/vendor/codemirror/addon/lint/jshint.js"></script>
     <script src="./js/vendor/codemirror/addon/lint/lint.js"></script>
@@ -87,6 +91,8 @@
     <script src="./js/kidoju.widgets.explorer.js"></script>
     <script src="./js/kidoju.widgets.imagelist.js"></script>
     <script src="./js/kidoju.widgets.imageset.js"></script>
+    <script src="./js/kidoju.widgets.markeditor.toolbar.js"></script>
+    <script src="./js/kidoju.widgets.markeditor.js"></script>
     <script src="./js/kidoju.widgets.mathinput.toolbar.js"></script>
     <script src="./js/kidoju.widgets.mathinput.js"></script>
     <script src="./js/kidoju.widgets.mathexpression.js"></script>
@@ -174,11 +180,19 @@
                         </li>
                         <li>
                             Instructions
-                            <div id="instructions" style="padding:0.5em;"><textarea rows="10" data-bind="value: selectedPage.instructions, enabled: selectedPage" class="k-textbox" style="width:100%;resize:vertical;"></textarea></div>
+                            <!--div id="instructions" style="padding:0.5em;"-->
+                            <div id="instructions">
+                                <!--textarea rows="10" data-bind="value: selectedPage.instructions, enabled: selectedPage" class="k-textbox" style="width:100%;resize:vertical;"></textarea-->
+                                <div data-role="markeditor" data-bind="value: selectedPage.instructions, enabled: selectedPage" style="width: 100%;min-height:250px;border:none;"></div>
+                            </div>
                         </li>
                         <li>
                             Explanations
-                            <div id="explanations" style="padding:0.5em;"><textarea rows="10" data-bind="value: selectedPage.explanations, enabled: selectedPage" class="k-textbox" style="width:100%;resize:vertical;"></textarea></div>
+                            <div id="explanations">
+                            <!--div id="explanations" style="padding:0.5em;"-->
+                                <!--textarea rows="10" data-bind="value: selectedPage.explanations, enabled: selectedPage" class="k-textbox" style="width:100%;resize:vertical;"></textarea-->
+                                <div data-role="markeditor" data-bind="value: selectedPage.explanations, enabled: selectedPage" style="width: 100%;min-height:250px;border:none;"></div>
+                            </div>
                         </li>
                         <li>
                             Snap

@@ -867,7 +867,7 @@
          */
         var LinkDialog = MarkEditorDialog.extend({
             options: {
-                template: '<div class=\'k-edit-label\'><label>#: messages.linkDialog.labels.text #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: text\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                template: '<div class=\'k-edit-label\'><label>#: messages.linkDialog.labels.text #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
                 title: DIALOG_MESSAGES.linkDialog.title,
                 autoFocus: false
             },
@@ -932,7 +932,7 @@
                         self.trigger('action', {
                             command: 'ToolbarImageCommand',
                             params: {
-                                property: 'tool',
+                                property: 'image',
                                 value: model.url
                             }
                         });

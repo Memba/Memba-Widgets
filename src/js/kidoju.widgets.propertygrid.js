@@ -378,8 +378,12 @@
             _addColumnResizing: function () {
                 var that = this;
                 var element = that.element;
-                var colgroup = element.find('.k-grid-content>table>colgroup');
+                var headerColGroup = element.find('.k-grid-header>.k-grid-header-wrap>table>colgroup');
+                var contentColGroup = element.find('.k-grid-content>table>colgroup');
                 var tbody = element.find('.k-grid-content>table>tbody');
+                var propertyCell;
+                var valueCell;
+                // var call;
                 if (!element.children('.' + HANDLE_CLASS).length) {
                     $('<div />')
                         .addClass(HANDLE_CLASS)
@@ -394,20 +398,33 @@
                             handle.hide();
                             return clone;
                         },
-                        // start: function (e) {},
+                        start: function (e) {
+                            // Property and value cells do not exist when initializing element.kendoResizable
+                            propertyCell = tbody.find('tr>td:first-child');
+                            valueCell = tbody.find('tr>td:last-child');
+                            // call = Date.now();
+                        },
                         resize: function (e) {
-                            var hint = $(e.elementUnderCursor);
-                            var propertyWidth = element.find('.k-grid-content>table>tbody>tr>td:first-child').outerWidth();
-                            var valueWidth = element.find('.k-grid-content>table>tbody>tr>td:last-child').outerWidth();
-                            var headerColGroup = element.find('.k-grid-header>.k-grid-header-wrap>table>colgroup');
-                            var contentColGroup = element.find('.k-grid-content>table>colgroup');
-                            var shift = e.pageX - element.offset().left - e.offsetX + hint.outerWidth() / 2 - propertyWidth;
-                            var propertyPercent = (propertyWidth + shift) / (propertyWidth + valueWidth);
-                            var valuePercent = (valueWidth - shift) / (propertyWidth + valueWidth);
-                            headerColGroup.children('col:first-child').width(propertyPercent + '%');
-                            headerColGroup.children('col:last-child').width(valuePercent + '%');
-                            contentColGroup.children('col:first-child').width(propertyPercent + '%');
-                            contentColGroup.children('col:last-child').width(valuePercent + '%');
+                            // if (Date.now() - call > 25) { // throttle
+                            setTimeout(function () {
+                                var hint = $(e.elementUnderCursor);
+                                // td cell do not exist when
+                                var propertyWidth = propertyCell.outerWidth();
+                                var valueWidth = valueCell.outerWidth();
+                                var shift = e.pageX - element.offset().left - e.offsetX + hint.outerWidth() / 2 - propertyWidth;
+                                // Testing prevents a flickering effect when resizing but there must be a better way
+                                // Also this requires that resizing be performed with slow mouse/touch moves
+                                if (Math.abs(shift) < 50) {
+                                    var propertyPercent = (propertyWidth + shift) / (propertyWidth + valueWidth);
+                                    var valuePercent = (valueWidth - shift) / (propertyWidth + valueWidth);
+                                    headerColGroup.children('col:first-child').width(propertyPercent + '%');
+                                    headerColGroup.children('col:last-child').width(valuePercent + '%');
+                                    contentColGroup.children('col:first-child').width(propertyPercent + '%');
+                                    contentColGroup.children('col:last-child').width(valuePercent + '%');
+                                }
+                                // call = Date.now();
+                            }, 0);
+                            // }
                         },
                         resizeend: function (e) {
                             var propertyWidth = element.find('.k-grid-content>table>tbody>tr>td:first-child').outerWidth();

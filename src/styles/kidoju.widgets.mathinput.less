@@ -117,19 +117,12 @@
 .kj-mathinput-dialog,
 .k-overflow-container {
 
-    .k-icon, .k-font-icon {
-        font: 16px/1 Symbola !important;
-    }
-
     // ------------------
-    // Exceptions
+    // Kidoju font
     // ------------------
-    .k-icon
+    .k-icon, .k-font-icon
     {
         // Toolbar
-        &.k-i-arrow-60-down {
-            font: 16px/1 WebComponentsIcons !important;
-        }
         &.k-i-field,
         &.k-i-backspace,
         &.k-i-keypad,
@@ -162,7 +155,7 @@
         &.k-i-cright,
         &.k-i-vleft,
         &.k-i-vright,
-        // Expressions
+        // Expressions (functions)
         &.k-i-cbrt,
         &.k-i-nthroot,
         &.k-i-pow,
@@ -198,6 +191,146 @@
             font: 16px/1 kidoju !important;
         }
     }
+
+    // ------------------
+    // Symbola font
+    // ------------------
+    .k-icon, .k-font-icon {
+        // KeyPad
+        &.k-i-comma,
+        &.k-i-stop,
+        &.k-i-n0,
+        &.k-i-n1,
+        &.k-i-n2,
+        &.k-i-n3,
+        &.k-i-n4,
+        &.k-i-n5,
+        &.k-i-n6,
+        &.k-i-n7,
+        &.k-i-n8,
+        &.k-i-n9,
+        &.k-i-a,
+        &.k-i-b,
+        &.k-i-c,
+        &.k-i-i,
+        &.k-i-j,
+        &.k-i-k,
+        &.k-i-n,
+        &.k-i-p,
+        &.k-i-q,
+        &.k-i-x,
+        &.k-i-y,
+        &.k-i-z,
+        &.k-i-infty,
+        &.k-i-space,
+        // Basic
+        &.k-i-equal,
+        &.k-i-plus,
+        &.k-i-minus,
+        &.k-i-times,
+        &.k-i-cdot,
+        &.k-i-div,
+        // Greek (lowercase)
+        &.k-i-alpha,
+        &.k-i-beta,
+        &.k-i-gamma,
+        &.k-i-delta,
+        &.k-i-epsilon,
+        &.k-i-zeta,
+        &.k-i-eta,
+        &.k-i-theta,
+        &.k-i-iota,
+        &.k-i-kappa,
+        &.k-i-lambda,
+        &.k-i-mu,
+        &.k-i-nu,
+        &.k-i-xi,
+        &.k-i-omicron,
+        &.k-i-pi,
+        &.k-i-rho,
+        // Note that \03c2 is not represented
+        &.k-i-sigma,
+        &.k-i-tau,
+        &.k-i-upsilon,
+        &.k-i-phi,
+        &.k-i-chi,
+        &.k-i-psi,
+        &.k-i-omega,
+        // Greek (uppercase)
+        &.k-i-alpha-maj,
+        &.k-i-beta-maj,
+        &.k-i-gamma-maj,
+        &.k-i-delta-maj,
+        &.k-i-epsilon-maj,
+        &.k-i-zeta-maj,
+        &.k-i-eta-maj,
+        &.k-i-theta-maj,
+        &.k-i-iota-maj,
+        &.k-i-kappa-maj,
+        &.k-i-lambda-maj,
+        &.k-i-mu-maj,
+        &.k-i-nu-maj,
+        &.k-i-xi-maj,
+        &.k-i-omicron-maj,
+        &.k-i-pi-maj,
+        &.k-i-rho-maj,
+        // Note that \03a2 is not represented
+        &.k-i-sigma-maj,
+        &.k-i-tau-maj,
+        &.k-i-upsilon-maj,
+        &.k-i-phi-maj,
+        &.k-i-chi-maj,
+        &.k-i-psi-maj,
+        &.k-i-omega-maj,
+        // Operators
+        &.k-i-plusminus,
+        &.k-i-percent,
+        &.k-i-lt,
+        &.k-i-le,
+        &.k-i-gt,
+        &.k-i-ge,
+        &.k-i-approx,
+        &.k-i-propto,
+        &.k-i-not,
+        &.k-i-neq,
+        &.k-i-and,
+        &.k-i-or,
+        &.k-i-circ,
+        &.k-i-nabla,
+        // Expressions (functions)
+        // Sets and Logic
+        &.k-i-cset,
+        &.k-h-iset,
+        // &.k-i-iset, // imaginaries
+        &.k-i-nset,
+        &.k-i-pset,
+        &.k-i-qset,
+        &.k-i-rset,
+        // &.k-i-wset, // whole numbers
+        &.k-i-zset,
+        &.k-i-emptyset,
+        &.k-i-forall,
+        &.k-i-exists,
+        &.k-i-nexists,
+        &.k-i-in,
+        &.k-i-nin,
+        &.k-i-subset,
+        &.k-i-supset,
+        &.k-i-nsubset,
+        &.k-i-nsupset,
+        &.k-i-intersection,
+        &.k-i-union,
+        &.k-i-to,
+        &.k-i-implies,
+        &.k-i-nimplies,
+        &.k-i-iff
+        // Matrices and Vectors
+        // Statistics
+        {
+            font: 16px/1 Symbola !important;
+        }
+    }
+
 
     // ------------------
     // Toolbar
@@ -265,8 +398,8 @@
     .k-i-times:before {content:"\00d7";}
     .k-i-cdot:before {content:"\00b7";}
     .k-i-div:before {content:"\00f7";}
-    .k-i-pleft:before {content:"\003b";}
-    .k-i-pright:before {content:"\003d";}
+    // .k-i-pleft:before {content:"\003b";}
+    // .k-i-pright:before {content:"\003d";}
     .k-i-frac:before {content:"\e710";}
     .k-i-sqrt:before {content:"\221a";}
     .k-i-pow2:before {content:"\e722";}

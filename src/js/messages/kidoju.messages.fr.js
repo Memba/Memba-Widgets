@@ -100,12 +100,7 @@
         if (kendo.markeditor && kendo.markeditor.messages.dialogs) {
             kendo.markeditor.messages.dialogs =
                 $.extend(true, kendo.markeditor.messages.dialogs,{
-                    apply: 'Apply',
-                    save: 'Save',
                     cancel: 'Annuler',
-                    remove: 'Supprimer',
-                    retry: 'Retry',
-                    revert: 'Revert',
                     okText: 'OK',
                     headingsDialog: {
                         title: 'Titres',

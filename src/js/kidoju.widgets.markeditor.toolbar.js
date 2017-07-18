@@ -38,12 +38,6 @@
         var DataSource = kendo.data.DataSource;
         var ToolBar = kendo.ui.ToolBar;
         var StaticList = kendo.ui.StaticList;
-        // var UNDEFINED = 'undefined';
-        var BOOLEAN = 'boolean';
-        var NUMBER = 'number';
-        var STRING = 'string';
-        // var RX_DASHTYPE = /^(dash|dashDot|dot|longDash|longDashDot|longDashDotDot|solid)$/;
-        // var RX_FONT = /^(normal\s+|italic\s+|oblique\s+|initial\s+|inherit\s+)?([0-9\.]+[a-z]+\s+)?(.+)$/;
         kendo.markeditor = { messages: {}};
         var TOOLBAR = [
             'undo',
@@ -54,15 +48,14 @@
             'bulleted',
             'numbered',
             'blockquote',
-            'hrule'
-            /*
-             'link',
-             'image',
-             'code',
-             // 'latex',
-             // 'emoji',
-             // 'window'
-             */
+            'hrule',
+            'link',
+            'image',
+            'code',
+            'latex',
+            // 'symbols',
+            // 'emoji',
+            'window'
         ];
 
         /*********************************************************************************
@@ -99,11 +92,15 @@
                 type: 'button',
                 command: 'ToolbarBulletedCommand',
                 iconClass: 'list-bulleted'
+                // group: 'list',
+                // togglable: true
             },
             numbered: {
                 type: 'button',
                 command: 'ToolbarNumberedCommand',
                 iconClass: 'list-numbered'
+                // group: 'list',
+                // togglable: true
             },
             blockquote: {
                 type: 'button',
@@ -116,14 +113,22 @@
                 iconClass: 'rule-horizontal'
             },
             link: {
-                type: 'button',
-                command: 'ToolbarLinkCommand',
-                iconClass: 'hyperlink'
+                type: 'markDialog',
+                dialogName: 'markLink',
+                iconClass: 'hyperlink',
+                // if commented, kendo.ui.ToolBar raises `component.overflow is not a constructor`
+                // because kendo.toolbar.registerComponent('markDialog', kendo.toolbar.ToolBarButton.extend({...}));
+                // does not register an overflow button - see spreadsheet toolbar
+                overflow: 'never',
+                text: false
             },
             image: {
-                type: 'button',
-                command: 'ToolbarImageCommand',
-                iconClass: 'image-insert'
+                type: 'markDialog',
+                dialogName: 'markImage',
+                iconClass: 'image-insert',
+                // See comment above
+                overflow: 'never',
+                text: false
             },
             code: {
                 type: 'button',
@@ -133,33 +138,14 @@
             latex: {
                 type: 'button',
                 command: 'ToolbarLatexCommand',
-                iconClass: 'sum'
+                iconClass: 'formula-fx' // 'sum'
             },
             // symbols ????
-            emoji: {
-                type: 'button',
-                command: 'ToolbarEmojiCommand',
-                iconClass: 'heart'
-            },
+            // emojis,
             window: {
                 type: 'button',
                 command: 'ToolbarWindowCommand',
                 iconClass: 'window-maximize'
-            },
-            // -------------------------------------------------
-            text: {
-                type: 'markDialog',
-                dialogName: 'vectorText',
-                iconClass: 'edit-tools',
-                overflow: 'never', // TODO: Review as commenting raises `component.overflow is not a constructor`
-                text: false,
-                group: 'tool',
-                togglable: true
-            },
-            guides: {
-                type: 'vectorGuides',
-                property: 'guides',
-                iconClass: 'image-absolute-position'
             }
         };
         var TOOLBAR_MESSAGES = kendo.markeditor.messages.toolbar = {
@@ -176,74 +162,15 @@
             },
             bold: 'Bold',
             italic: 'Italic',
-            bulleted: 'Bulleted',
-            numbered: 'Numbered',
+            bulleted: 'Bulleted List',
+            numbered: 'Numbered List',
             blockquote: 'Blockquote',
             hrule: 'Horizontal Rule',
-
-            //---------------------------------
-            new: 'New',
-            open: 'Open',
-            save: 'Save',
-            // Tools
-            select: 'Select',
-            pen: 'Pen',
-            line: 'Line',
-            shape: 'Shape',
-            shapeButtons: {
-                rect: 'Rectangle',
-                circle: 'Circle',
-                heart: 'Heart',
-                star: 'Star'
-            },
+            link: 'Hyperlink',
             image: 'Image',
-            text: 'Text',
-            // Configuration
-            fillColor: 'Fill Color',
-            opacity: 'Opacity',
-            strokeColor: 'Stroke Color',
-            colorPalette: {
-                apply: 'Apply',
-                cancel: 'Cancel',
-                reset: 'Reset color',
-                customColor: 'Custom color...'
-            },
-            colorPicker: {
-                reset: 'Reset color',
-                customColor: 'Custom color...'
-            },
-            strokeWidth: 'Stroke Width',
-            strokeDashType: 'Dash Type',
-            strokeDashTypeButtons: {
-                dash: 'dash',
-                dashDot: 'dash-dot',
-                dot: 'dot',
-                longDash: 'long-dash',
-                longDashDot: 'long-dash dot',
-                longDashDotDot:	'long-dash dot-dot',
-                solid: 'solid'
-            },
-            endCapType: 'End Cap',
-            endCapTypeButtons: {
-                none: 'None',
-                arrow: 'Arrow',
-                circle: 'Circle'
-            },
-            fontWeight: 'Bold',
-            fontStyle: 'Italic',
-            fontSize: 'Font size',
-            fontFamily: 'Font',
-            // Commands
-            arrange: 'Arrange',
-            arrangeButtons: {
-                bringToFront: 'Bring to Front',
-                sendToBack: 'Sent to Back',
-                bringForward: 'Bring Forward',
-                sendBackward: 'Send backward'
-            },
-            background: 'Background',
-            guides: 'Guides',
-            remove: 'Remove'
+            code: 'Code',
+            latex: 'Mathematic Expression',
+            window: 'Open in New Window'
         };
 
         /**
@@ -263,7 +190,6 @@
                 var handleClick = this._click.bind(this);
                 this.element.addClass('k-spreadsheet-toolbar kj-markeditor-toolbar');
                 this._addSeparators(this.element);
-                this._resetFileInput();
                 this.bind({
                     click: handleClick,
                     toggle: handleClick
@@ -296,11 +222,13 @@
                     var type = options.type;
                     var typeDefaults = {
                         button: { showText: 'overflow' },
+                        /*
                         splitButton: { spriteCssClass: spriteCssClass },
                         colorPicker: {
                             toolIcon: spriteCssClass,
                             spriteCssClass: spriteCssClass
-                        }
+                        }*/
+                        headings: { spriteCssClass: spriteCssClass }
                     };
                     var tool = $.extend({
                         name: options.name || toolName,
@@ -335,86 +263,6 @@
             },
 
             /* jshint +W074 */
-
-            /**
-             * Aad file input button with opacity 0 on top of open button (assuming it exists)
-             * @private
-             */
-            _resetFileInput: function () {
-                var that = this;
-                // Check for the open button
-                var openButton = this.element.children('a[data-tool="open"]');
-                if (openButton.length === 1) {
-                    var openButtonPos = openButton.position();
-                    openButton.prop('tabindex', -1);
-                    var form;
-                    if (this.fileInput instanceof $) {
-                        form = this.fileInput.parent();
-                        this.fileInput.off().remove();
-                    } else {
-                        form = $('<form></form>')
-                        .append(this.fileInput)
-                        // Position the form with a file input on top of the openButton
-                        // So that clicking the openButton actually clicks the transparent file input
-                        // to show an open file dialog
-                            .css({
-                                position: 'absolute',
-                                top: openButtonPos.top,
-                                left: openButtonPos.left,
-                                opacity: 0,
-                                overflow: 'hidden'
-                            })
-                            // Account for padding
-                            .outerHeight(openButton.outerHeight())
-                            .outerWidth(openButton.outerWidth())
-                            .insertAfter(openButton)
-                            // Chnage the state of the covered openButton
-                            .hover(function (e) {
-                                openButton.toggleClass('k-state-hover', e.type === 'mouseenter');
-                            })
-                            .mousedown(function () {
-                                openButton.addClass('k-state-active');
-                            })
-                            .mouseup(function () {
-                                openButton.removeClass('k-state-active');
-                            });
-                    }
-                    // At this stage, we have an empty form
-                    this.fileInput = $('<input type="file" style="font-size:' + openButton.height() + 'px">')
-                    .appendTo(form)
-                    .change(function (e) {
-                        that.trigger('action', {
-                            command: 'ToolbarOpenCommand',
-                            params: {
-                                file: e.target.files[0]
-                            }
-                        });
-                    })
-                    // The following event handlers (in conjunction with tabindex=-1 on openButton)
-                    // ensure we can tab through the toolbar, especially the open button
-                    // Click the new button, then tab, then enter to show the open file dialog
-                        .focus(function () {
-                            openButton.addClass('k-state-focused');
-                        })
-                        .blur(function () {
-                            openButton.removeClass('k-state-focused');
-                        });
-                }
-            },
-
-            /**
-             * Remove file input (especially when adding hooks)
-             * @private
-             */
-            _destroyFileInput: function () {
-                var openButton = this.element.children('a[data-tool="open"]');
-                openButton.prop('tabindex', 0);
-                if (this.fileInput instanceof $) {
-                    this.fileInput.off();
-                    this.fileInput.parent().off().remove();
-                    this.fileInput = undefined;
-                }
-            },
 
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
@@ -467,9 +315,7 @@
             options: {
                 name: 'MarkEditorToolBar',
                 resizable: true,
-                tools: TOOLBAR,
-                connectionDefaults: {},
-                shapeDefaults: {}
+                tools: TOOLBAR
             },
 
             /**
@@ -492,7 +338,8 @@
              * Refresh the toolbar on a new selection
              * @param selected
              */
-            refresh: function (selected) {
+            /*
+            refresh: function (selection) {
                 if ($.isArray(selected) && selected.length !== 1) {
                     // For now, we disable fill and stroke buttons on multiple selections
                     // TODO: Disable toolbar options
@@ -559,29 +406,7 @@
                     enable(tool, features && features[property]);
                 }
             },
-
-            /**
-             * Use options to reset configuration
-             * @private
-             */
-            _resetConfiguration: function () {
-                var connectionDefaults = this.options.connectionDefaults;
-                var shapeDefaults = this.options.shapeDefaults;
-                this._configuration = {
-                    background: 'transparent',
-                    fillColor: shapeDefaults.fill && shapeDefaults.fill.color, // TODO content.color?
-                    opacity: shapeDefaults.fill && shapeDefaults.fill.opacity,
-                    strokeColor: shapeDefaults.stroke && shapeDefaults.stroke.color,
-                    strokeWidth: shapeDefaults.stroke && shapeDefaults.stroke.opacity,
-                    strokeDashType: shapeDefaults.stroke && shapeDefaults.stroke.opacity,
-                    headings: connectionDefaults.startCap && connectionDefaults.startCap.type,
-                    endCapType: connectionDefaults.endCap && connectionDefaults.endCap.type,
-                    fontFamily: shapeDefaults.content && shapeDefaults.content.fontFamily,
-                    fontSize: shapeDefaults.content && shapeDefaults.content.fontSize,
-                    fontStyle: shapeDefaults.content && shapeDefaults.content.fontStyle,
-                    fontWeight: shapeDefaults.content && shapeDefaults.content.fontWeight
-                };
-            },
+            */
 
             /**
              * List tools
@@ -821,123 +646,42 @@
         });
         kendo.toolbar.registerComponent('markHeadings', HeadingsTool, HeadingsButton);
 
-        /**
-         * Guides (drawing dimensions + snaping grid and angles)
-         */
-        var GuidesTool = PopupTool.extend({
-            init: function (options, toolbar) {
-                PopupTool.fn.init.call(this, options, toolbar);
-                this._commandPalette();
-                this.element.data({
-                    type: 'vectorGuides',
-                    vectorGuides: this,
-                    instance: this
-                });
-            },
-            destroy: function () {
-                this.slider.destroy();
-                PopupTool.fn.destroy.call(this);
-            },
-            update: function (value) {
-                this.value(value);
-            },
-            value: function (value) {
-                this.slider.value(value);
-            },
-            _commandPalette: function () {
-                var element = $('<div style="padding:2em 1em 1em 1em" />').appendTo(this.popup.element); // TODO make it a class
-                this.slider = $('<input>').appendTo(element).kendoSlider({
-                    smallStep: 5,
-                    largeStep: 10,
-                    min: 0,
-                    max: 50,
-                    value: 10,
-                    showButtons: false,
-                    tickPlacement: 'none',
-                    tooltip: {
-                        format: '{0} pt'
-                    },
-                    change: this._action.bind(this)
-                    // slide: this._action.bind(this)
-                }).getKendoSlider();
-            },
-            _action: function (e) {
-                this.toolbar.action({
-                    command: 'GuidesChangeCommand',
-                    params: {
-                        property: this.options.property,
-                        value: e.sender.value()
-                    }
-                });
-            }
-        });
-        var GuidesButton = OverflowDialogButton.extend({
-            _click: function () {
-                this.toolbar.dialog({ name: 'vectorGuides' });
-            }
-        });
-        kendo.toolbar.registerComponent('vectorGuides', GuidesTool, GuidesButton);
-
         /*********************************************************************************
          * MarkEditorToolBar Dialogs
          *********************************************************************************/
 
         var DIALOG_MESSAGES = kendo.markeditor.messages.dialogs = {
-            apply: 'Apply',
-            save: 'Save',
             cancel: 'Cancel',
-            remove: 'Remove',
-            retry: 'Retry',
-            revert: 'Revert',
             okText: 'OK',
-            shapeDialog: {
-                title: 'Shapes',
+            headingsDialog: {
+                title: 'Headings',
                 buttons: {
-                    rect: 'Rect',
-                    circle: 'Circle',
-                    star5: 'Star 5',
-                    heart: 'Heart'
+                    h1: 'Heading 1',
+                    h2: 'Heading 2',
+                    h3: 'Heading 3',
+                    h4: 'Heading 4',
+                    h5: 'Heading 5',
+                    h6: 'Heading 6'
+                }
+            },
+            linkDialog: {
+                title: 'Hyperlink',
+                labels: {
+                    text: 'Url'
                 }
             },
             imageDialog: {
                 title: 'Image',
                 labels: {
-                    url: 'Address'
+                    url: 'Url'
                 }
             },
-            textDialog: {
-                title: 'Text',
+            latexDialog: {
+                title: 'Mathematic Expression',
                 labels: {
-                    text: 'Text'
+                    url: 'Url' // TODO + inline/display
                 }
-            },
-            // TODO : color dialogs miss a title
-            opacityDialog: {
-                title: 'Stroke Width'
-            },
-            strokeWidthDialog: {
-                title: 'Stroke Width'
-            },
-            strokeDashTypeDialog: {
-                title: 'Dash Type',
-                buttons: {
-                    dash: 'dash',
-                    dashDot: 'dash-dot',
-                    dot: 'dot',
-                    longDash: 'long-dash',
-                    longDashDot: 'long-dash dot',
-                    longDashDotDot:	'long-dash dot-dot',
-                    solid: 'solid'
-                }
-            },
-            headingsDialog: {
-                title: 'Start Cap',
-                buttons: {
-                    none: 'None',
-                    arrow: 'Arrow',
-                    circle: 'Circle'
-                }
-            },
+            }
         };
 
         /**
@@ -991,7 +735,7 @@
             dialog: function () {
                 if (!this._dialog) {
                     // this._dialog = $('<div class=\'k-spreadsheet-window k-action-window k-popup-edit-form\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
-                    this._dialog = $('<div class=\'k-spreadsheet-window k-action-window\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
+                    this._dialog = $('<div class=\'k-spreadsheet-window k-action-window kj-markeditor-window\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
                         messages: kendo.markeditor.messages.dialogs || DIALOG_MESSAGES,
                         errors: this.options.errors
                     })).appendTo(document.body).kendoWindow({
@@ -1051,21 +795,39 @@
                     buttons: [
                         {
                             property: 'headings',
-                            value: 'none',
-                            iconClass: 'window-minimize',
-                            text: messages.buttons.none
+                            value: 'h1',
+                            iconClass: 'h1',
+                            text: messages.buttons.h1
                         },
                         {
                             property: 'headings',
-                            value: 'ArrowStart',
-                            iconClass: 'arrow-60-left',
-                            text: messages.buttons.arrow
+                            value: 'h2',
+                            iconClass: 'h2',
+                            text: messages.buttons.h2
                         },
                         {
                             property: 'headings',
-                            value: 'FilledCircle',
-                            iconClass: 'circle',
-                            text: messages.buttons.circle
+                            value: 'h3',
+                            iconClass: 'h3',
+                            text: messages.buttons.h3
+                        },
+                        {
+                            property: 'headings',
+                            value: 'h4',
+                            iconClass: 'h4',
+                            text: messages.buttons.h4
+                        },
+                        {
+                            property: 'headings',
+                            value: 'h5',
+                            iconClass: 'h5',
+                            text: messages.buttons.h5
+                        },
+                        {
+                            property: 'headings',
+                            value: 'h6',
+                            iconClass: 'h6',
+                            text: messages.buttons.h6
                         }
                     ]
                 };
@@ -1101,12 +863,115 @@
         kendo.markeditor.dialogs.register('markHeadings', HeadingsDialog);
 
         /**
+         * Link
+         */
+        var LinkDialog = MarkEditorDialog.extend({
+            options: {
+                template: '<div class=\'k-edit-label\'><label>#: messages.linkDialog.labels.text #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: text\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                title: DIALOG_MESSAGES.linkDialog.title,
+                autoFocus: false
+            },
+            open: function (text) { // TODO: text especially for edit mode
+                var self = this;
+                MarkEditorDialog.fn.open.apply(self, arguments);
+                var element = self.dialog().element;
+                var model = kendo.observable({
+                    text: 'Text',
+                    apply: function () {
+                        if (!/\S/.test(model.text)) {
+                            model.text = null;
+                        }
+                        self.trigger('action', {
+                            command: 'ToolbarLinkCommand',
+                            params: {
+                                property: 'tool',
+                                value: 'ShapeTool',
+                                options: {
+                                    type: 'text',
+                                    text: model.text
+                                }
+                            }
+                        });
+                        self.close();
+                    },
+                    cancel: self.close.bind(self)
+                });
+                kendo.bind(element, model);
+                element.find('input').focus().on('keydown', function (ev) {
+                    if (ev.keyCode === 13) {
+                        model.text = $(this).val();
+                        ev.stopPropagation();
+                        ev.preventDefault();
+                        model.apply();
+                    } else if (ev.keyCode === 27) {
+                        ev.stopPropagation();
+                        ev.preventDefault();
+                        model.cancel();
+                    }
+                });
+            }
+        });
+        kendo.markeditor.dialogs.register('markLink', LinkDialog);
+
+        /**
          * Image
          */
         var ImageDialog = MarkEditorDialog.extend({
             options: {
                 template: '<div class=\'k-edit-label\'><label>#: messages.imageDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
                 title: DIALOG_MESSAGES.imageDialog.title,
+                autoFocus: false
+            },
+            open: function (url) { // TODO: url especially for edit mode
+                var self = this;
+                MarkEditorDialog.fn.open.apply(self, arguments);
+                var element = self.dialog().element;
+                var model = kendo.observable({
+                    url: 'https://cdn.kidoju.com/s/en/570cc7f46d1dd91900729417/image.png',
+                    // url: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/Elvis.jpg',
+                    apply: function () {
+                        if (!/\S/.test(model.url)) {
+                            model.url = null;
+                        }
+                        self.trigger('action', {
+                            command: 'ToolbarImageCommand',
+                            params: {
+                                property: 'tool',
+                                value: 'ShapeTool',
+                                options: {
+                                    type: 'image',
+                                    source: model.url
+                                }
+                            }
+                        });
+                        self.close();
+                    },
+                    cancel: self.close.bind(self)
+                });
+                kendo.bind(element, model);
+                element.find('input').focus().on('keydown', function (ev) {
+                    if (ev.keyCode === 13) {
+                        model.url = $(this).val();
+                        ev.stopPropagation();
+                        ev.preventDefault();
+                        model.apply();
+                    } else if (ev.keyCode === 27) {
+                        ev.stopPropagation();
+                        ev.preventDefault();
+                        model.cancel();
+                    }
+                });
+            }
+        });
+        kendo.markeditor.dialogs.register('markImage', ImageDialog);
+
+        /**
+         * Latex
+         */
+        var LatexDialog = MarkEditorDialog.extend({
+            options: {
+                template: '<div class=\'k-edit-label\'><label>#: messages.latexDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                title: DIALOG_MESSAGES.latexDialog.title,
                 autoFocus: false
             },
             open: function (url) { // TODO: url especially for edit mode
@@ -1150,102 +1015,7 @@
                 });
             }
         });
-        kendo.markeditor.dialogs.register('vectorImage', ImageDialog);
-
-        /**
-         * Text
-         */
-        var TextDialog = MarkEditorDialog.extend({
-            options: {
-                template: '<div class=\'k-edit-label\'><label>#: messages.textDialog.labels.text #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: text\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
-                title: DIALOG_MESSAGES.textDialog.title,
-                autoFocus: false
-            },
-            open: function (text) { // TODO: text especially for edit mode
-                var self = this;
-                MarkEditorDialog.fn.open.apply(self, arguments);
-                var element = self.dialog().element;
-                var model = kendo.observable({
-                    text: 'Text',
-                    apply: function () {
-                        if (!/\S/.test(model.text)) {
-                            model.text = null;
-                        }
-                        self.trigger('action', {
-                            command: 'DrawingToolChangeCommand',
-                            params: {
-                                property: 'tool',
-                                value: 'ShapeTool',
-                                options: {
-                                    type: 'text',
-                                    text: model.text
-                                }
-                            }
-                        });
-                        self.close();
-                    },
-                    cancel: self.close.bind(self)
-                });
-                kendo.bind(element, model);
-                element.find('input').focus().on('keydown', function (ev) {
-                    if (ev.keyCode === 13) {
-                        model.text = $(this).val();
-                        ev.stopPropagation();
-                        ev.preventDefault();
-                        model.apply();
-                    } else if (ev.keyCode === 27) {
-                        ev.stopPropagation();
-                        ev.preventDefault();
-                        model.cancel();
-                    }
-                });
-            }
-        });
-        kendo.markeditor.dialogs.register('vectorText', TextDialog);
-
-        /**
-         * Guides
-         */
-        var GuidesDialog = MarkEditorDialog.extend({
-            init: function (options) {
-                var messages = kendo.markeditor.messages.dialogs.guidesDialog || DIALOG_MESSAGES;
-                var defaultOptions = {
-                    title: messages.title,
-                    property: 'guides'
-                };
-                MarkEditorDialog.fn.init.call(this, $.extend(defaultOptions, options));
-                this._list();
-            },
-            options: { template: '<div><input style="width:100%;"></div>' }, // TODO add class?
-            _list: function () {
-                var input = this.dialog().element.find('input');
-                this.slider = new kendo.ui.Slider(input[0], {
-                    smallStep: 5,
-                    largeStep: 10,
-                    min: 0,
-                    max: 50,
-                    value: 10,
-                    showButtons: false,
-                    tickPlacement: 'none',
-                    tooltip: {
-                        format: '{0} pt'
-                    },
-                    change: this.apply.bind(this)
-                    // slide: this.apply.bind(this)
-                });
-            },
-            apply: function (e) {
-                MarkEditorDialog.fn.apply.call(this);
-                this.trigger('action', {
-                    command: 'GuidesChangeCommand',
-                    params: {
-                        property: this.options.property,
-                        value: e.sender.value()
-                    }
-                });
-            }
-        });
-        kendo.markeditor.dialogs.register('vectorGuides', GuidesDialog);
+        kendo.markeditor.dialogs.register('markLatex', LatexDialog);
 
     }(window.jQuery));
 

@@ -36,6 +36,7 @@
         var logger = new window.Logger('kidoju.widgets.markeditor');
         var STRING = 'string';
         var UNDEFINED = 'undefined';
+        var NULL = 'null';
         var CHANGE = 'change';
         var WIDGET_CLASS = 'k-widget kj-markeditor';
         var TOOLS = [
@@ -47,7 +48,12 @@
             'bulleted',
             'numbered',
             'blockquote',
-            'hrule'
+            'hrule',
+            'link',
+            'image',
+            'code',
+            'latex',
+            'window'
         ];
 
         /*******************************************************************************************
@@ -109,6 +115,8 @@
                 var that = this;
                 if ($.type(value) === UNDEFINED) {
                     return that.codeMirror.getValue();
+                } else if ($.type(value) === NULL) {
+                    this.value('');
                 } else if ($.type(value) === STRING) {
                     if (that.codeMirror.getValue() !== value) {
                         that.codeMirror.setValue(value);
@@ -129,6 +137,18 @@
                 that.element.addClass(WIDGET_CLASS);
                 that._setToolbar();
                 that._setCodeMirror();
+                that._resize(true);
+            },
+
+            /**
+             * _resize is called by Widget.resize which is called by kendo.resize
+             * @param size
+             * @param force
+             * @private
+             */
+            _resize: function (size, force) {
+                this.toolBar.resize(force); // kendo.resize(this.toolBar.element);
+                this.codeMirror.refresh();
             },
 
             /**
@@ -156,9 +176,10 @@
                     .appendTo(that.element);
 
                 that.codeMirror = CodeMirror(div.get(0), {
+                    // extraKeys?
                     lineNumbers: options.lineNumbers,
                     mode: options.gfm ? 'gfm' : 'markdown',
-                    theme: 'monokai', // TODO: Change theme
+                    // theme: 'monokai', // TODO: Change theme
                     value: options.value,
                     viewportMargin: options.autoResize ? Number.POSITIVE_INFINITY : 10
                 });
@@ -169,24 +190,28 @@
                     div.children('.CodeMirror').css({ height: 'auto' });
                 }
 
-                that.codeMirror.on(CHANGE, function (/*doc, evt*/) {
-                    that.trigger(CHANGE);
+                that.codeMirror.on(CHANGE, function (doc, change) {
+                    if (change.origin !== 'setValue') {
+                        that.trigger(CHANGE);
+                    }
                 });
 
-                // Otherwise gutters and line numbers might be misaligned
-                that.codeMirror.refresh();
+                // that.codeMirror.on('beforeSelectionChange', that._onSelectionChanged.bind(that));
             },
 
             /**
-             * TODO
+             * Refresh the toolbar when the selection has changed
              * @param selected
              * @param deselected
              * @private
              */
-            _selectionChanged: function (selected, deselected) {
-                this.toolBar.refresh(selected); // TODO Check if called
-                // Diagram.fn._selectionChanged.call(this, selected, deselected);
+            /*
+            _onSelectionChanged: function (doc, selection) {
+                // This is the place to refresh the toolbar
+                // especially to toggle or disable buttons
+                this.toolBar.refresh(selection);
             },
+            */
 
             /**
              * Event handler triggered when calling a dialog
@@ -221,6 +246,14 @@
                 }
             },
 
+            /***
+             * Destroy dialog
+             * @private
+             */
+            _destroyDialog: function () {
+                this._dialogs.pop();
+            },
+
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
@@ -240,6 +273,9 @@
                     case 'ToolbarRedoCommand':
                         this.codeMirror.redoSelection();
                         break;
+                    case 'ToolbarHeadingsCommand':
+                        this._insertAtBeginningOfLine('# ');
+                        break;
                     case 'ToolbarBoldCommand':
                         this._wrapSelectionsWith('**');
                         break;
@@ -250,6 +286,12 @@
                         this._insertAtBeginningOfLine('- ');
                         break;
                     case 'ToolbarNumberedCommand':
+                        this._insertAtBeginningOfLine('1. ');
+                        break;
+                    case 'ToolbarBlockquoteCommand':
+                        this._insertAtBeginningOfLine('1. ');
+                        break;
+                    case 'ToolbarHruleCommand':
                         this._insertAtBeginningOfLine('1. ');
                         break;
                     // TODO http://www.telerik.com/forums/get-the-view-model-from-a-given-dom-element
@@ -300,14 +342,15 @@
              * @param str
              * @private
              */
-            _insertAtBeginningOfLine: function (str) {
+            _insertAtBeginningOfLine: function (str, rx) {
                 // TODO clicking twice should cancel
                 // TODO spaces at the edge of selections
+                // TODO if selection.length = 0, keep it that way
                 var cm = this.codeMirror;
                 var selections = cm.getSelections();
                 var delimiters = cm.listSelections();
-                var bol;
-                var eol;
+                var bol; // Beginning of line
+                var eol; // End of line
                 for (var i = 0, length = selections.length; i < length; i++) {
                     bol = (cm.posFromIndex(cm.indexFromPos(delimiters[i].anchor) - 1).line === delimiters[i].anchor.line && delimiters[i].anchor.line > 0) ? '\n\n' : '\n';
                     eol = (cm.posFromIndex(cm.indexFromPos(delimiters[i].head) + 1).line === delimiters[i].head.line) ? '\n\n' : '\n';
@@ -317,7 +360,7 @@
             },
 
             /**
-             * This functions is used to replace the selection with hyperlink, an image or a code block
+             * This functions is used to replace the selection with an hyperlink, an image or a code block
              * @param str
              * @private
              */

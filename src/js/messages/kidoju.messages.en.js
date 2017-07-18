@@ -100,12 +100,7 @@
         if (kendo.markeditor && kendo.markeditor.messages.dialogs) {
             kendo.markeditor.messages.dialogs =
                 $.extend(true, kendo.markeditor.messages.dialogs,{
-                    apply: 'Apply',
-                    save: 'Save',
                     cancel: 'Cancel',
-                    remove: 'Remove',
-                    retry: 'Retry',
-                    revert: 'Revert',
                     okText: 'OK',
                     headingsDialog: {
                         title: 'Start Cap',

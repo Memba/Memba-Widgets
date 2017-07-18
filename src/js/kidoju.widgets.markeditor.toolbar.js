@@ -569,37 +569,37 @@
             buttons: [
                 {
                     property: 'headings',
-                    value: 'h1',
+                    value: '#',
                     iconClass: 'h1',
                     text: TOOLBAR_MESSAGES.headingsButtons.h1
                 },
                 {
                     property: 'headings',
-                    value: 'h2',
+                    value: '##',
                     iconClass: 'h2',
                     text: TOOLBAR_MESSAGES.headingsButtons.h2
                 },
                 {
                     property: 'headings',
-                    value: 'h3',
+                    value: '###',
                     iconClass: 'h3',
                     text: TOOLBAR_MESSAGES.headingsButtons.h3
                 },
                 {
                     property: 'headings',
-                    value: 'h4',
+                    value: '####',
                     iconClass: 'h4',
                     text: TOOLBAR_MESSAGES.headingsButtons.h4
                 },
                 {
                     property: 'headings',
-                    value: 'h5',
+                    value: '#####',
                     iconClass: 'h5',
                     text: TOOLBAR_MESSAGES.headingsButtons.h5
                 },
                 {
                     property: 'headings',
-                    value: 'h6',
+                    value: '######',
                     iconClass: 'h6',
                     text: TOOLBAR_MESSAGES.headingsButtons.h6
                 }
@@ -795,37 +795,37 @@
                     buttons: [
                         {
                             property: 'headings',
-                            value: 'h1',
+                            value: '#',
                             iconClass: 'h1',
                             text: messages.buttons.h1
                         },
                         {
                             property: 'headings',
-                            value: 'h2',
+                            value: '##',
                             iconClass: 'h2',
                             text: messages.buttons.h2
                         },
                         {
                             property: 'headings',
-                            value: 'h3',
+                            value: '###',
                             iconClass: 'h3',
                             text: messages.buttons.h3
                         },
                         {
                             property: 'headings',
-                            value: 'h4',
+                            value: '####',
                             iconClass: 'h4',
                             text: messages.buttons.h4
                         },
                         {
                             property: 'headings',
-                            value: 'h5',
+                            value: '#####',
                             iconClass: 'h5',
                             text: messages.buttons.h5
                         },
                         {
                             property: 'headings',
-                            value: 'h6',
+                            value: '######',
                             iconClass: 'h6',
                             text: messages.buttons.h6
                         }
@@ -871,25 +871,21 @@
                 title: DIALOG_MESSAGES.linkDialog.title,
                 autoFocus: false
             },
-            open: function (text) { // TODO: text especially for edit mode
+            open: function (url) {
                 var self = this;
                 MarkEditorDialog.fn.open.apply(self, arguments);
                 var element = self.dialog().element;
                 var model = kendo.observable({
-                    text: 'Text',
+                    url: '',
                     apply: function () {
-                        if (!/\S/.test(model.text)) {
-                            model.text = null;
+                        if (!/\S/.test(model.url)) {
+                            model.url = null;
                         }
                         self.trigger('action', {
                             command: 'ToolbarLinkCommand',
                             params: {
-                                property: 'tool',
-                                value: 'ShapeTool',
-                                options: {
-                                    type: 'text',
-                                    text: model.text
-                                }
+                                property: 'link',
+                                value: model.url
                             }
                         });
                         self.close();
@@ -922,12 +918,12 @@
                 title: DIALOG_MESSAGES.imageDialog.title,
                 autoFocus: false
             },
-            open: function (url) { // TODO: url especially for edit mode
+            open: function (url) {
                 var self = this;
                 MarkEditorDialog.fn.open.apply(self, arguments);
                 var element = self.dialog().element;
                 var model = kendo.observable({
-                    url: 'https://cdn.kidoju.com/s/en/570cc7f46d1dd91900729417/image.png',
+                    url: '',
                     // url: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/Elvis.jpg',
                     apply: function () {
                         if (!/\S/.test(model.url)) {
@@ -937,11 +933,7 @@
                             command: 'ToolbarImageCommand',
                             params: {
                                 property: 'tool',
-                                value: 'ShapeTool',
-                                options: {
-                                    type: 'image',
-                                    source: model.url
-                                }
+                                value: model.url
                             }
                         });
                         self.close();

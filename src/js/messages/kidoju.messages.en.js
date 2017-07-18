@@ -97,6 +97,13 @@
         }
 
         /* kidoju.widgets.markeditor */
+        if (ui.MarkEditor) {
+            options = ui.MarkEditor.prototype.options;
+            options.messages = $.extend(true, options.messages, {
+                image: 'An undescribed image',
+                link: 'Click here'
+            });
+        }
         if (kendo.markeditor && kendo.markeditor.messages.dialogs) {
             kendo.markeditor.messages.dialogs =
                 $.extend(true, kendo.markeditor.messages.dialogs,{

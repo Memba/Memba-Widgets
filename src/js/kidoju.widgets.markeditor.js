@@ -39,6 +39,9 @@
         var NULL = 'null';
         var CHANGE = 'change';
         var WIDGET_CLASS = 'k-widget kj-markeditor';
+        var LINK = '[{0}]({1})';
+        var IMAGE = '![{0}]({1})';
+        var RX_MD_AT_BOL = /^((#{1,6}|\d+\.|-|>) )?[ \t]*(\S[^\n]*)$/gm;
         var TOOLS = [
             'undo',
             'redo',
@@ -95,6 +98,10 @@
                 toolbar: {
                     resizable: true,
                     tools: TOOLS
+                },
+                messages: {
+                    image: 'An undescribed image',
+                    link: 'Click here'
                 }
             },
 
@@ -264,6 +271,7 @@
              */
             _onToolBarAction: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                var options = this.options;
                 // Note: as long as it is not too complex, we can use a dispatcher as below
                 // In the future, maybe consider Command classes with execute methods that apply to a selection like in kendo.ui.spreadsheet
                 switch (e.command) {
@@ -274,27 +282,52 @@
                         this.codeMirror.redoSelection();
                         break;
                     case 'ToolbarHeadingsCommand':
-                        this._insertAtBeginningOfLine('# ');
+                        this._replaceInSelectionsWith(RX_MD_AT_BOL, e.params.value + ' ', '$3');
                         break;
                     case 'ToolbarBoldCommand':
-                        this._wrapSelectionsWith('**');
+                        this._wrapSelectionsWith('**', true);
                         break;
                     case 'ToolbarItalicCommand':
-                        this._wrapSelectionsWith('_');
+                        this._wrapSelectionsWith('_', true);
                         break;
+                        /*
+                    case 'ToolbarStrikethroughCommand':
+                        this._wrapSelectionsWith('~~', true);
+                        break;
+                        */
                     case 'ToolbarBulletedCommand':
-                        this._insertAtBeginningOfLine('- ');
+                        this._replaceInSelectionsWith(RX_MD_AT_BOL, '- ', '$3');
+                        this._wrapSelectionsWith('\n\n', false);
                         break;
                     case 'ToolbarNumberedCommand':
-                        this._insertAtBeginningOfLine('1. ');
+                        this._replaceInSelectionsWith(RX_MD_AT_BOL, '1. ', '$3');
+                        this._wrapSelectionsWith('\n\n', false);
                         break;
                     case 'ToolbarBlockquoteCommand':
-                        this._insertAtBeginningOfLine('1. ');
+                        this._replaceInSelectionsWith(RX_MD_AT_BOL, '> ', '$3');
                         break;
                     case 'ToolbarHruleCommand':
-                        this._insertAtBeginningOfLine('1. ');
+                        // Note: '___' and '***' should also work
+                        this._replaceInSelectionsWith('---');
+                        this._wrapSelectionsWith('\n', true);
                         break;
-                    // TODO http://www.telerik.com/forums/get-the-view-model-from-a-given-dom-element
+                    case 'ToolbarLinkCommand':
+                        this._replaceInSelectionsWith(kendo.format(LINK, options.messages.link, e.params.value));
+                        break;
+                    case 'ToolbarImageCommand':
+                        this._replaceInSelectionsWith(kendo.format(IMAGE, options.messages.image, e.params.value));
+                        break;
+                    case 'ToolbarCodeCommand':
+                        this._wrapSelectionsWith('```', false);
+                        break;
+                    case 'ToolbarLatexCommand':
+                        // @see https://github.com/codemirror/CodeMirror/issues/4857
+                        break;
+                    case 'ToolbarWindowCommand':
+                        // TODO http://www.telerik.com/forums/get-the-view-model-from-a-given-dom-element
+                        break;
+                    // Note: Emojis could use auto completion as in GitHub
+                    // see https://github.com/codemirror/CodeMirror/issues/4859
                     default:
                         $.noop();
                 }
@@ -302,47 +335,81 @@
 
             /* jshint +W074 */
 
-
             /**
-             * This funtions is used by both bold and italic, to wrap the selection respectively with ** and _
-             * Note: This currently works as in Github but there are many edge cases which are not handled
+             * This funtions is used by both bold, italic, strikethrough and code to wrap the selection respectively with **, _, ~~ and ```
+             * Note: This currently works as in Github but there are many edge cases which are not properly handled, including
              * - Clicking twice on the same selection should do nothing: second click should cancel first click as in Github
              * - Selections spanning several lines (in markdown a new line is \n\n, not \n)
              * - Selections cutting words, i.e. abcd_efg is a word, which means ** and _ only work at the edge of words
              * - Selections across bold or italic words break everything
              * @param str
+             * @param trim
              * @private
              */
-            _wrapSelectionsWith: function (str) {
+            _wrapSelectionsWith: function (str, trim) {
                 var cm = this.codeMirror;
                 var selections = cm.getSelections();
                 var trimmed;
                 var leadingSpaces;
                 var trailingSpaces;
                 for (var i = 0, length = selections.length; i < length; i++) {
-                    // Selections cannot contain spaces on their edges ** dummy** is not valid
-                    // So we need to trim spaces form the selection before making it bold or italic
-                    // then we need to restore spaces arount it
-                    trimmed = selections[i].trim();
-                    leadingSpaces = selections[i].search(/[^ ]/); // This is an index starting at 0 for the first char
-                    if (leadingSpaces === -1) {
-                        leadingSpaces = 0; // This means the selection only contains spaces
+                    if (trim && selections[i].length) {
+                        // Some selections cannot contain spaces on their edges ** dummy** is not valid (but ```  code ``` is valid)
+                        // So we need to trim spaces from selections that require it, especially before making them it bold or italic
+                        // then we need to restore spaces around it.
+                        trimmed = selections[i].trim();
+                        leadingSpaces = selections[i].search(/[^ ]/); // This is an index starting at 0 for the first char
+                        if (leadingSpaces === -1) {
+                            leadingSpaces = 0; // This means the selection only contains spaces
+                        }
+                        trailingSpaces = selections[i].length - trimmed.length - leadingSpaces;
+                        selections[i] = ' '.repeat(leadingSpaces) + str + trimmed + str + ' '.repeat(trailingSpaces);
+                    } else {
+                        selections[i] = str + selections[i] + str;
                     }
-                    trailingSpaces = selections[i].length - trimmed.length - leadingSpaces;
-                    selections[i] = ' '.repeat(leadingSpaces) + str + trimmed + str + ' '.repeat(trailingSpaces);
+                    if (selections[i] > 2 * str.length) {
+                        // Cancel duplicate wrappings
+                        str = '\\' + str.split('').join('\\'); // Escape characters, especially *
+                        selections[i] = selections[i].replace(new RegExp('^' + str + str), '').replace(new RegExp(str + str + '$'), '');
+                    }
+                }
+                cm.replaceSelections(selections, 'around');
+                // TODO: restore empty selections
+            },
+
+            /**
+             * This functions is used to replace selections with a hyperlink, an image or a latex expression
+             * @param regex
+             * @param str
+             * @param match
+             * @private
+             */
+            _replaceInSelectionsWith: function (regex, str, match) {
+                var cm = this.codeMirror;
+                var selections = cm.getSelections();
+                if ($.type(str) === UNDEFINED) {
+                    str = regex + '';
+                    regex = undefined;
+                }
+                for (var i = 0, length = selections.length; i < length; i++) {
+                    if ((typeof regex === STRING || regex instanceof RegExp) && selections[i].length) {
+                        selections[i] = selections[i].replace(regex, str + '' + match);
+                    } else {
+                        selections[i] = str + '';
+                    }
                 }
                 cm.replaceSelections(selections, 'around');
             },
 
             /**
-             * This funtion is used by headings, blockquotes, numbered and bulleted lits to respectively add #, >, 1. and -
+             * This funtion is used by headings, blockquotes, numbered and bulleted lits to respectively add #, >, 1. and - at the begining of each selected line
              * Note: This currently works as in Github but there are many edge cases which are not handled
              * - Clicking twice on the same selection should do nothing: second click should cancel first click as in Github
              *
              * @param str
              * @private
              */
-            _insertAtBeginningOfLine: function (str, rx) {
+            _replaceAtBeginningOfLine: function (str, rx) {
                 // TODO clicking twice should cancel
                 // TODO spaces at the edge of selections
                 // TODO if selection.length = 0, keep it that way
@@ -357,15 +424,6 @@
                     selections[i] = bol + str + selections[i].replace(/\n/g, '\n' + str) + eol;
                 }
                 cm.replaceSelections(selections, 'around');
-            },
-
-            /**
-             * This functions is used to replace the selection with an hyperlink, an image or a code block
-             * @param str
-             * @private
-             */
-            _replaceSelectionWith: function (str) {
-
             },
 
             /**

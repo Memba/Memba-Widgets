@@ -413,14 +413,14 @@
 .kj-mathinput-popup .k-font-icon.k-i-oint,
 .kj-mathinput-dialog .k-font-icon.k-i-oint,
 .k-overflow-container .k-font-icon.k-i-oint,
-.kj-mathinput-toolbar .k-icon.k-i-sum,
-.kj-mathinput-popup .k-icon.k-i-sum,
-.kj-mathinput-dialog .k-icon.k-i-sum,
-.k-overflow-container .k-icon.k-i-sum,
-.kj-mathinput-toolbar .k-font-icon.k-i-sum,
-.kj-mathinput-popup .k-font-icon.k-i-sum,
-.kj-mathinput-dialog .k-font-icon.k-i-sum,
-.k-overflow-container .k-font-icon.k-i-sum,
+.kj-mathinput-toolbar .k-icon.k-i-sum-ex,
+.kj-mathinput-popup .k-icon.k-i-sum-ex,
+.kj-mathinput-dialog .k-icon.k-i-sum-ex,
+.k-overflow-container .k-icon.k-i-sum-ex,
+.kj-mathinput-toolbar .k-font-icon.k-i-sum-ex,
+.kj-mathinput-popup .k-font-icon.k-i-sum-ex,
+.kj-mathinput-dialog .k-font-icon.k-i-sum-ex,
+.k-overflow-container .k-font-icon.k-i-sum-ex,
 .kj-mathinput-toolbar .k-icon.k-i-prod,
 .kj-mathinput-popup .k-icon.k-i-prod,
 .kj-mathinput-dialog .k-icon.k-i-prod,
@@ -1463,6 +1463,14 @@
 .kj-mathinput-popup .k-font-icon.k-i-implies,
 .kj-mathinput-dialog .k-font-icon.k-i-implies,
 .k-overflow-container .k-font-icon.k-i-implies,
+.kj-mathinput-toolbar .k-icon.k-i-impliedby,
+.kj-mathinput-popup .k-icon.k-i-impliedby,
+.kj-mathinput-dialog .k-icon.k-i-impliedby,
+.k-overflow-container .k-icon.k-i-impliedby,
+.kj-mathinput-toolbar .k-font-icon.k-i-impliedby,
+.kj-mathinput-popup .k-font-icon.k-i-impliedby,
+.kj-mathinput-dialog .k-font-icon.k-i-impliedby,
+.k-overflow-container .k-font-icon.k-i-impliedby,
 .kj-mathinput-toolbar .k-icon.k-i-nimplies,
 .kj-mathinput-popup .k-icon.k-i-nimplies,
 .kj-mathinput-dialog .k-icon.k-i-nimplies,
@@ -2285,10 +2293,10 @@
 .k-overflow-container .k-i-oint:before {
     content: "\e743";
 }
-.kj-mathinput-toolbar .k-i-sum:before,
-.kj-mathinput-popup .k-i-sum:before,
-.kj-mathinput-dialog .k-i-sum:before,
-.k-overflow-container .k-i-sum:before {
+.kj-mathinput-toolbar .k-i-sum-ex:before,
+.kj-mathinput-popup .k-i-sum-ex:before,
+.kj-mathinput-dialog .k-i-sum-ex:before,
+.k-overflow-container .k-i-sum-ex:before {
     content: "\e744";
 }
 .kj-mathinput-toolbar .k-i-prod:before,
@@ -2428,6 +2436,12 @@
 .kj-mathinput-dialog .k-i-implies:before,
 .k-overflow-container .k-i-implies:before {
     content: "\21d2";
+}
+.kj-mathinput-toolbar .k-i-impliedby:before,
+.kj-mathinput-popup .k-i-impliedby:before,
+.kj-mathinput-dialog .k-i-impliedby:before,
+.k-overflow-container .k-i-impliedby:before {
+    content: "\21d0";
 }
 .kj-mathinput-toolbar .k-i-nimplies:before,
 .kj-mathinput-popup .k-i-nimplies:before,

@@ -96,6 +96,558 @@
             });
         }
 
+        /* kidoju.widgets.markeditor */
+        if (kendo.markeditor && kendo.markeditor.messages.dialogs) {
+            kendo.markeditor.messages.dialogs =
+                $.extend(true, kendo.markeditor.messages.dialogs,{
+                    apply: 'Apply',
+                    save: 'Save',
+                    cancel: 'Annuler',
+                    remove: 'Supprimer',
+                    retry: 'Retry',
+                    revert: 'Revert',
+                    okText: 'OK',
+                    headingsDialog: {
+                        title: 'Titres',
+                        buttons: {
+                            h1: 'Titre 1',
+                            h2: 'Heading 2',
+                            h3: 'Heading 3',
+                            h4: 'Heading 4',
+                            h5: 'Heading 5',
+                            h6: 'Heading 6'
+                        }
+                    },
+                    linkDialog: {
+                        title: 'Hyperlink',
+                        labels: {
+                            text: 'Url'
+                        }
+                    },
+                    imageDialog: {
+                        title: 'Image',
+                        labels: {
+                            url: 'Url'
+                        }
+                    },
+                    latexDialog: {
+                        title: 'Mathematic Expression',
+                        labels: {
+                            url: 'Url'
+                        }
+                    }
+                });
+        }
+        if (kendo.markeditor && kendo.markeditor.messages.toolbar) {
+            kendo.markeditor.messages.toolbar =
+                $.extend(true, kendo.markeditor.messages.toolbar, {
+                    undo: 'Annuler',
+                    redo: 'Rétablir',
+                    headings: 'Titres',
+                    headingsButtons: {
+                        h1: 'Titre 1',
+                        h2: 'Titre 2',
+                        h3: 'Titre 3',
+                        h4: 'Titre 4',
+                        h5: 'Titre 5',
+                        h6: 'Titre 6'
+                    },
+                    bold: 'Gras',
+                    italic: 'Italique',
+                    bulleted: 'Liste à Puces',
+                    numbered: 'Liste Numérotée',
+                    blockquote: 'Bloc de Citation',
+                    hrule: 'Ligne Horizontale',
+                    link: 'Hyperlien',
+                    image: 'Image',
+                    code: 'Code',
+                    latex: 'Expression Mathématique',
+                    window: 'Ouvrir dans une Fenêtre'
+                });
+        }
+
+        /* kidoju.widgets.mathinput */
+        if (kendo.mathinput && kendo.mathinput.messages.dialogs) {
+            kendo.mathinput.messages.dialogs =
+                $.extend(true, kendo.mathinput.messages.dialogs,{
+                    keypad: {
+                        title: 'Clavier',
+                        buttons: {
+                            comma: ',',
+                            stop: '.',
+                            n0: '0',
+                            n1: '1',
+                            n2: '2',
+                            n3: '3',
+                            n4: '4',
+                            n5: '5',
+                            n6: '6',
+                            n7: '7',
+                            n8: '8',
+                            n9: '9',
+                            a: 'a',
+                            b: 'b',
+                            c: 'c',
+                            i: 'i',
+                            j: 'j',
+                            k: 'k',
+                            n: 'n',
+                            p: 'p',
+                            q: 'q',
+                            x: 'x',
+                            y: 'y',
+                            z: 'z',
+                            pi: 'Pi',
+                            infty: 'Infini',
+                            space: 'Espace',
+                            subscript: 'Indice'
+                        }
+                    },
+                    basic: {
+                        title: 'Basique',
+                        buttons: {
+                            equal: 'Égal',
+                            plus: 'Plus',
+                            minus: 'Moins',
+                            cdot: 'Fois',
+                            times: 'Fois',
+                            div: 'Divisé par',
+                            pleft: 'Parenthèse gauche (',
+                            pright: 'Parenthèse droite )',
+                            frac: 'Fraction',
+                            sqrt: 'Racine carrée',
+                            pow2: 'Puissance de 2',
+                            pow3: 'Puissance de 3',
+                            sin: 'Sinus',
+                            cos: 'Cosinus',
+                            tan: 'Tangente'
+                        }
+                    },
+                    lowergreek: {
+                        title: 'Grec (Minuscules)',
+                        buttons: {
+                            alpha: 'Alpha',
+                            beta: 'Beta',
+                            gamma: 'Gamma',
+                            delta: 'Delta',
+                            epsilon: 'Epsilon', // varepsilon
+                            zeta: 'Zeta',
+                            eta: 'Eta',
+                            theta: 'Theta', // vartheta
+                            iota: 'Iota',
+                            kappa: 'Kappa', // varkappa
+                            lambda: 'Lambda',
+                            mu: 'Mu',
+                            nu: 'Nu',
+                            xi: 'Xi',
+                            omicron: 'Omicron',
+                            pi: 'Pi', // varpi
+                            rho: 'Rho', // varrho
+                            sigma: 'Sigma', // varsigma
+                            tau: 'Tau',
+                            upsilon: 'Upsilon',
+                            phi: 'Phi', // varphi
+                            chi: 'Chi',
+                            psi: 'Psi',
+                            omega: 'Omega'
+                        }
+                    },
+                    uppergreek: {
+                        title: 'Grec (Majuscules)',
+                        buttons: {
+                            // alpha: 'Alpha',
+                            // beta: 'Beta',
+                            gamma: 'Gamma',
+                            delta: 'Delta',
+                            // epsilon: 'Epsilon', // varepsilon
+                            // zeta: 'Zeta',
+                            // eta: 'Eta',
+                            theta: 'Theta', // vartheta
+                            // iota: 'Iota',
+                            // kappa: 'Kappa', // varkappa
+                            lambda: 'Lambda',
+                            // mu: 'Mu',
+                            // nu: 'Nu',
+                            xi: 'Xi',
+                            // omicron: 'Omicron',
+                            pi: 'Pi', // varpi
+                            // rho: 'Rho', // varrho
+                            sigma: 'Sigma', // varsigma
+                            // tau: 'Tau',
+                            upsilon: 'Upsilon',
+                            phi: 'Phi', // varphi
+                            // chi: 'Chi',
+                            psi: 'Psi',
+                            omega: 'Omega'
+                        }
+                    },
+                    operators: {
+                        title: 'Operateurs',
+                        buttons: {
+                            equal: 'Égal',
+                            plus: 'Plus',
+                            minus: 'Moins',
+                            cdot: 'Fois',
+                            times: 'Tois',
+                            div: 'Divisé par',
+                            pleft: 'Parenthèse gauche (',
+                            pright: 'Parenthèse droite )',
+                            bleft: 'Crochet gauche [',
+                            bright: 'Crochet droit ]',
+                            cleft: 'Accolade gauche {',
+                            cright: 'Accolade droite }',
+                            vleft: 'Ligne verticale gauche |',
+                            vright: 'Ligne verticale droite |',
+                            lt: 'Inférieur à',
+                            le: 'Inférieur ou égal à',
+                            gt: 'Supérieur à',
+                            ge: 'Supérieur ou égal à',
+                            neq: 'Non égal (différent)',
+                            approx: 'Approximativement égal à',
+                            propto: 'Proportionnel à',
+                            plusminus: 'Plus-Moins',
+                            percent: 'Pourcent',
+                            not: 'Non (négation)',
+                            and: 'Et',
+                            or: 'Ou',
+                            circ: 'Composition',
+                            nabla: 'Nabla'
+                        }
+                    },
+                    expressions: {
+                        title: 'Fonctions',
+                        buttons: {
+                            sqrt: 'Racine carrée',
+                            cubert: 'Racine cubique',
+                            nthroot: 'Racine Nième',
+                            pow2: 'Puissance de 2',
+                            pow3: 'Puissance de 3',
+                            pow: 'Puissance',
+                            log: 'Logarithme',
+                            log10: 'Logarithme base 10',
+                            ln: 'Logarithm Népérien',
+                            sin: 'Sinis',
+                            cos: 'Cosinus',
+                            tan: 'Tangente',
+                            arcsin: 'Arc sinus',
+                            arccos: 'Arc cosinus',
+                            arctan: 'Arc tangente',
+                            deriv: 'Dérivée',
+                            partial: 'Dérivée partielle',
+                            int: 'Intégrale',
+                            oint: 'Intégrale curviligne sur un contour fermé',
+                            sum: 'Somme',
+                            prod: 'Produit',
+                            lim: 'Limite'
+                        }
+                    },
+                    sets: {
+                        title: 'Ensembles',
+                        buttons: {
+                            cset: 'Complexes',
+                            pset: 'Premiers',
+                            nset: 'Naturels',
+                            qset: 'Rationels',
+                            rset: 'Réels',
+                            zset: 'Entiers',
+                            emptyset: 'Ensemble vide',
+                            forall: 'Quel que soit',
+                            exists: 'Il existe',
+                            nexists: 'Il n\'existe pas',
+                            in: 'Appartient',
+                            nin: 'N\'appartient pas',
+                            subset: 'Est inclus dans (sous-ensemble)',
+                            supset: 'Inclut (sur-ensemble)',
+                            nsubset: 'N\'est pas inclus dans',
+                            nsupset: 'N\'inclut pas',
+                            intersection: 'Intersection',
+                            union: 'Union',
+                            to: 'To',
+                            implies: 'Implique',
+                            impliedby: 'Implied by',
+                            nimplies: 'Not implies',
+                            iff: 'Equivalent to'
+                        }
+                    },
+                    matrices: {
+                        title: 'Matrices',
+                        buttons: {
+                            vector: 'Vecteur',
+                            widehat: 'Chapeau (angle)',
+                            matrix: 'Matrice',
+                            pmatrix: 'Matrice avec parenthèses',
+                            bmatrix: 'Matrice avec crochets',
+                            bbmatrix: 'Matrice with accolades',
+                            vmatrix: 'Matrice avec lignes verticales',
+                            vvmatrix: 'Matrice à double ligne verticale',
+                            column: 'Ajouter un colonne',
+                            row: 'Ajouter une rangée'
+                        }
+                    },
+                    statistics: {
+                        title: 'Statistiques',
+                        buttons: {
+                            factorial: 'Factorielle',
+                            binomial: 'Combinaison',
+                            overline: 'Surlignage (moyenne)'
+                        }
+                    }
+                    /*
+					units: {
+						title: 'Units',
+						buttons: {}
+					},
+					chemistry: {
+						title: 'Chemistry',
+						buttons: {}
+					}
+					*/
+                });
+        }
+        if (kendo.mathinput && kendo.mathinput.messages.toolbar) {
+            kendo.mathinput.messages.toolbar =
+                $.extend(true, kendo.mathinput.messages.toolbar, {
+                    field: {
+                        title: 'Zone de saisie'
+                    },
+                    backspace: {
+                        title: 'Retour arrière'
+                    },
+                    keypad: {
+                        title: 'Clavier',
+                        buttons: {
+                            comma: ',',
+                            stop: '.',
+                            n0: '0',
+                            n1: '1',
+                            n2: '2',
+                            n3: '3',
+                            n4: '4',
+                            n5: '5',
+                            n6: '6',
+                            n7: '7',
+                            n8: '8',
+                            n9: '9',
+                            a: 'a',
+                            b: 'b',
+                            c: 'c',
+                            i: 'i',
+                            j: 'j',
+                            k: 'k',
+                            n: 'n',
+                            p: 'p',
+                            q: 'q',
+                            x: 'x',
+                            y: 'y',
+                            z: 'z',
+                            pi: 'Pi',
+                            infty: 'Infini',
+                            space: 'Espace',
+                            subscript: 'Indice'
+                        }
+                    },
+                    basic: {
+                        title: 'Basique',
+                        buttons: {
+                            equal: 'Égal',
+                            plus: 'Plus',
+                            minus: 'Moins',
+                            cdot: 'Fois',
+                            times: 'Fois',
+                            div: 'Divisé par',
+                            pleft: 'Parenthèse gauche (',
+                            pright: 'Parenthèse droite )',
+                            frac: 'Fraction',
+                            sqrt: 'Racine carrée',
+                            pow2: 'Puissance de 2',
+                            pow3: 'Puissance de 3',
+                            sin: 'Sinus',
+                            cos: 'Cosinus',
+                            tan: 'Tangente'
+                        }
+                    },
+                    lowergreek: {
+                        title: 'Greek (Lower Case)',
+                        buttons: {
+                            alpha: 'Alpha',
+                            beta: 'Beta',
+                            gamma: 'Gamma',
+                            delta: 'Delta',
+                            epsilon: 'Epsilon', // varepsilon
+                            zeta: 'Zeta',
+                            eta: 'Eta',
+                            theta: 'Theta', // vartheta
+                            iota: 'Iota',
+                            kappa: 'Kappa', // varkappa
+                            lambda: 'Lambda',
+                            mu: 'Mu',
+                            nu: 'Nu',
+                            xi: 'Xi',
+                            omicron: 'Omicron',
+                            pi: 'Pi', // varpi
+                            rho: 'Rho', // varrho
+                            sigma: 'Sigma', // varsigma
+                            tau: 'Tau',
+                            upsilon: 'Upsilon',
+                            phi: 'Phi', // varphi
+                            chi: 'Chi',
+                            psi: 'Psi',
+                            omega: 'Omega'
+                        }
+                    },
+                    uppergreek: {
+                        title: 'Greek (Upper Case)',
+                        buttons: {
+                            // alpha: 'Alpha',
+                            // beta: 'Beta',
+                            gamma: 'Gamma',
+                            delta: 'Delta',
+                            // epsilon: 'Epsilon', // varepsilon
+                            // zeta: 'Zeta',
+                            // eta: 'Eta',
+                            theta: 'Theta', // vartheta
+                            // iota: 'Iota',
+                            // kappa: 'Kappa', // varkappa
+                            lambda: 'Lambda',
+                            // mu: 'Mu',
+                            // nu: 'Nu',
+                            xi: 'Xi',
+                            // omicron: 'Omicron',
+                            pi: 'Pi', // varpi
+                            // rho: 'Rho', // varrho
+                            sigma: 'Sigma', // varsigma
+                            // tau: 'Tau',
+                            upsilon: 'Upsilon',
+                            phi: 'Phi', // varphi
+                            // chi: 'Chi',
+                            psi: 'Psi',
+                            omega: 'Omega'
+                        }
+                    },
+                    operators: {
+                        title: 'Operateurs',
+                        buttons: {
+                            equal: 'Égal',
+                            plus: 'Plus',
+                            minus: 'Moins',
+                            cdot: 'Fois',
+                            times: 'Tois',
+                            div: 'Divisé par',
+                            pleft: 'Parenthèse gauche (',
+                            pright: 'Parenthèse droite )',
+                            bleft: 'Crochet gauche [',
+                            bright: 'Crochet droit ]',
+                            cleft: 'Accolade gauche {',
+                            cright: 'Accolade droite }',
+                            vleft: 'Ligne verticale gauche |',
+                            vright: 'Ligne verticale droite |',
+                            lt: 'Inférieur à',
+                            le: 'Inférieur ou égal à',
+                            gt: 'Supérieur à',
+                            ge: 'Supérieur ou égal à',
+                            neq: 'Non égal (différent)',
+                            approx: 'Approximativement égal à',
+                            propto: 'Proportionnel à',
+                            plusminus: 'Plus-Moins',
+                            percent: 'Pourcent',
+                            not: 'Non (négation)',
+                            and: 'Et',
+                            or: 'Ou',
+                            circ: 'Composition',
+                            nabla: 'Nabla'
+                        }
+                    },
+                    expressions: {
+                        title: 'Fonctions',
+                        buttons: {
+                            sqrt: 'Racine carrée',
+                            cubert: 'Racine cubique',
+                            nthroot: 'Racine Nième',
+                            pow2: 'Puissance de 2',
+                            pow3: 'Puissance de 3',
+                            pow: 'Puissance',
+                            log: 'Logarithme',
+                            log10: 'Logarithme base 10',
+                            ln: 'Logarithm Népérien',
+                            sin: 'Sinis',
+                            cos: 'Cosinus',
+                            tan: 'Tangente',
+                            arcsin: 'Arc sinus',
+                            arccos: 'Arc cosinus',
+                            arctan: 'Arc tangente',
+                            deriv: 'Dérivée',
+                            partial: 'Dérivée partielle',
+                            int: 'Intégrale',
+                            oint: 'Intégrale curviligne sur un contour fermé',
+                            sum: 'Somme',
+                            prod: 'Produit',
+                            lim: 'Limite'
+                        }
+                    },
+                    sets: {
+                        title: 'Ensembles',
+                        buttons: {
+                            cset: 'Complexes',
+                            pset: 'Premiers',
+                            nset: 'Naturels',
+                            qset: 'Rationels',
+                            rset: 'Réels',
+                            zset: 'Entiers',
+                            emptyset: 'Ensemble vide',
+                            forall: 'Quel que soit',
+                            exists: 'Il existe',
+                            nexists: 'Il n\'existe pas',
+                            in: 'Appartient',
+                            nin: 'N\'appartient pas',
+                            subset: 'Est inclus dans (sous-ensemble)',
+                            supset: 'Inclut (sur-ensemble)',
+                            nsubset: 'N\'est pas inclus dans',
+                            nsupset: 'N\'inclut pas',
+                            intersection: 'Intersection',
+                            union: 'Union',
+                            to: 'To',
+                            implies: 'Implique',
+                            impliedby: 'Implied by',
+                            nimplies: 'Not implies',
+                            iff: 'Equivalent to'
+                        }
+                    },
+                    matrices: {
+                        title: 'Matrices',
+                        buttons: {
+                            vector: 'Vecteur',
+                            widehat: 'Chapeau (angle)',
+                            matrix: 'Matrice',
+                            pmatrix: 'Matrice avec parenthèses',
+                            bmatrix: 'Matrice avec crochets',
+                            bbmatrix: 'Matrice with accolades',
+                            vmatrix: 'Matrice avec lignes verticales',
+                            vvmatrix: 'Matrice à double ligne verticale',
+                            column: 'Ajouter un colonne',
+                            row: 'Ajouter une rangée'
+                        }
+                    },
+                    statistics: {
+                        title: 'Statistiques',
+                        buttons: {
+                            factorial: 'Factorielle',
+                            binomial: 'Combinaison',
+                            overline: 'Surlignage (moyenne)'
+                        }
+                    }
+                    /*
+					units: {
+						title: 'Units',
+						buttons: {}
+					},
+					chemistry: {
+						title: 'Chemistry',
+						buttons: {}
+					}
+					*/
+                });
+        }
+
         /* kidoju.widgets.mediaplayer */
         if (ui.MediaPlayer) {
             options = ui.MediaPlayer.prototype.options;

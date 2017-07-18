@@ -96,6 +96,560 @@
             });
         }
 
+        /* kidoju.widgets.markeditor */
+        if (kendo.markeditor && kendo.markeditor.messages.dialogs) {
+            kendo.markeditor.messages.dialogs =
+                $.extend(true, kendo.markeditor.messages.dialogs,{
+                    apply: 'Apply',
+                    save: 'Save',
+                    cancel: 'Cancel',
+                    remove: 'Remove',
+                    retry: 'Retry',
+                    revert: 'Revert',
+                    okText: 'OK',
+                    headingsDialog: {
+                        title: 'Start Cap',
+                        buttons: {
+                            h1: 'Heading 1',
+                            h2: 'Heading 2',
+                            h3: 'Heading 3',
+                            h4: 'Heading 4',
+                            h5: 'Heading 5',
+                            h6: 'Heading 6'
+                        }
+                    },
+                    linkDialog: {
+                        title: 'Hyperlink',
+                        labels: {
+                            text: 'Url'
+                        }
+                    },
+                    imageDialog: {
+                        title: 'Image',
+                        labels: {
+                            url: 'Url'
+                        }
+                    },
+                    latexDialog: {
+                        title: 'Mathematic Expression',
+                        labels: {
+                            url: 'Url'
+                        }
+                    }
+                });
+        }
+        if (kendo.markeditor && kendo.markeditor.messages.toolbar) {
+            kendo.markeditor.messages.toolbar =
+                $.extend(true, kendo.markeditor.messages.toolbar, {
+                    undo: 'Undo',
+                    redo: 'Redo',
+                    headings: 'Headings',
+                    headingsButtons: {
+                        h1: 'Heading 1',
+                        h2: 'Heading 2',
+                        h3: 'Heading 3',
+                        h4: 'Heading 4',
+                        h5: 'Heading 5',
+                        h6: 'Heading 6'
+                    },
+                    bold: 'Bold',
+                    italic: 'Italic',
+                    bulleted: 'Bulleted List',
+                    numbered: 'Numbered List',
+                    blockquote: 'Blockquote',
+                    hrule: 'Horizontal Rule',
+                    link: 'Hyperlink',
+                    image: 'Image',
+                    code: 'Code',
+                    latex: 'Mathematic Expression',
+                    window: 'Open in New Window'
+                });
+        }
+
+        /* kidoju.widgets.mathinput */
+        if (kendo.mathinput && kendo.mathinput.messages.dialogs) {
+            kendo.mathinput.messages.dialogs =
+                $.extend(true, kendo.mathinput.messages.dialogs,{
+                    keypad: {
+                        title: 'KeyPad',
+                        buttons: {
+                            comma: ',',
+                            stop: '.',
+                            n0: '0',
+                            n1: '1',
+                            n2: '2',
+                            n3: '3',
+                            n4: '4',
+                            n5: '5',
+                            n6: '6',
+                            n7: '7',
+                            n8: '8',
+                            n9: '9',
+                            a: 'a',
+                            b: 'b',
+                            c: 'c',
+                            i: 'i',
+                            j: 'j',
+                            k: 'k',
+                            n: 'n',
+                            p: 'p',
+                            q: 'q',
+                            x: 'x',
+                            y: 'y',
+                            z: 'z',
+                            pi: 'Pi',
+                            infty: 'Infinity',
+                            space: 'Space',
+                            subscript: 'Subscript'
+                        }
+                    },
+                    basic: {
+                        title: 'Basic',
+                        buttons: {
+                            // WARNING: Make sure mathjs can calculate all these functions
+                            equal: 'Equal',
+                            plus: 'Plus',
+                            minus: 'Minus',
+                            cdot: 'Times',
+                            times: 'Times',
+                            div: 'Divide',
+                            pleft: 'Left parenthesis (',
+                            pright: 'Right parenthesis )',
+                            frac: 'Fraction',
+                            sqrt: 'Square root',
+                            pow2: 'Power of 2',
+                            pow3: 'Power of 3',
+                            sin: 'Sine',
+                            cos: 'Cosine',
+                            tan: 'Tangent'
+                        }
+                    },
+                    lowergreek: {
+                        title: 'Greek (Lower Case)',
+                        buttons: {
+                            alpha: 'Alpha',
+                            beta: 'Beta',
+                            gamma: 'Gamma',
+                            delta: 'Delta',
+                            epsilon: 'Epsilon', // varepsilon
+                            zeta: 'Zeta',
+                            eta: 'Eta',
+                            theta: 'Theta', // vartheta
+                            iota: 'Iota',
+                            kappa: 'Kappa', // varkappa
+                            lambda: 'Lambda',
+                            mu: 'Mu',
+                            nu: 'Nu',
+                            xi: 'Xi',
+                            omicron: 'Omicron',
+                            pi: 'Pi', // varpi
+                            rho: 'Rho', // varrho
+                            sigma: 'Sigma', // varsigma
+                            tau: 'Tau',
+                            upsilon: 'Upsilon',
+                            phi: 'Phi', // varphi
+                            chi: 'Chi',
+                            psi: 'Psi',
+                            omega: 'Omega'
+                        }
+                    },
+                    uppergreek: {
+                        title: 'Greek (Upper Case)',
+                        buttons: {
+                            // alpha: 'Alpha',
+                            // beta: 'Beta',
+                            gamma: 'Gamma',
+                            delta: 'Delta',
+                            // epsilon: 'Epsilon', // varepsilon
+                            // zeta: 'Zeta',
+                            // eta: 'Eta',
+                            theta: 'Theta', // vartheta
+                            // iota: 'Iota',
+                            // kappa: 'Kappa', // varkappa
+                            lambda: 'Lambda',
+                            // mu: 'Mu',
+                            // nu: 'Nu',
+                            xi: 'Xi',
+                            // omicron: 'Omicron',
+                            pi: 'Pi', // varpi
+                            // rho: 'Rho', // varrho
+                            sigma: 'Sigma', // varsigma
+                            // tau: 'Tau',
+                            upsilon: 'Upsilon',
+                            phi: 'Phi', // varphi
+                            // chi: 'Chi',
+                            psi: 'Psi',
+                            omega: 'Omega'
+                        }
+                    },
+                    operators: {
+                        title: 'Operators',
+                        buttons: {
+                            equal: 'Equal',
+                            plus: 'Plus',
+                            minus: 'Minus',
+                            cdot: 'Times',
+                            times: 'Times',
+                            div: 'Divide',
+                            pleft: 'Left parenthesis (',
+                            pright: 'Right parenthesis )',
+                            bleft: 'Left square bracket [',
+                            bright: 'Right square bracket ]',
+                            cleft: 'Left curly bracket {',
+                            cright: 'Right curly bracket }',
+                            vleft: 'Left vertical line |',
+                            vright: 'Right vertical line |',
+                            lt: 'Lower than',
+                            le: 'Lower than or equal',
+                            gt: 'Greater than',
+                            ge: 'Greater than or equal',
+                            neq: 'Not equal',
+                            approx: 'Approximate',
+                            propto: 'Proportional',
+                            plusminus: 'Plus-Minus',
+                            percent: 'Percent',
+                            not: 'Not',
+                            and: 'And',
+                            or: 'Or',
+                            circ: 'Composition',
+                            nabla: 'Nabla'
+                        }
+                    },
+                    expressions: {
+                        title: 'Functions',
+                        buttons: {
+                            sqrt: 'Square root',
+                            cubert: 'Cube root',
+                            nthroot: 'Nth root',
+                            pow2: 'Power of 2',
+                            pow3: 'Power of 3',
+                            pow: 'Power',
+                            log: 'Logarithm',
+                            log10: 'Logarithm base 10',
+                            ln: 'Naperian logarithm',
+                            sin: 'Sine',
+                            cos: 'Cosine',
+                            tan: 'Tangent',
+                            arcsin: 'Arc sine',
+                            arccos: 'Arc cosine',
+                            arctan: 'Arc tangent',
+                            deriv: 'Derivative',
+                            partial: 'Partial derivative',
+                            int: 'Integral',
+                            oint: 'Contour integral',
+                            sum: 'Sum',
+                            prod: 'Product',
+                            lim: 'Limit'
+                        }
+                    },
+                    sets: {
+                        title: 'Sets',
+                        buttons: {
+                            cset: 'Complexes',
+                            pset: 'Primes',
+                            nset: 'Naturals',
+                            qset: 'Rationals',
+                            rset: 'Reals',
+                            zset: 'Integers',
+                            emptyset: 'Empty set',
+                            forall: 'For all',
+                            exists: 'Exists',
+                            nexists: 'Not exists',
+                            in: 'In',
+                            nin: 'Not in',
+                            subset: 'Subset',
+                            supset: 'Superset',
+                            nsubset: 'Not subset',
+                            nsupset: 'Not superset',
+                            intersection: 'Intersection',
+                            union: 'Union',
+                            to: 'To',
+                            implies: 'Implies',
+                            impliedby: 'Implied by',
+                            nimplies: 'Not implies',
+                            iff: 'Equivalent to'
+                        }
+                    },
+                    matrices: {
+                        title: 'Matrices',
+                        buttons: {
+                            vector: 'Vector',
+                            widehat: 'Widehat (angle)',
+                            matrix: 'Matrix',
+                            pmatrix: 'Matrix with parentheses',
+                            bmatrix: 'Matrix with square brackets',
+                            bbmatrix: 'Matrix with curly braces',
+                            vmatrix: 'Matrix with vertical lines',
+                            vvmatrix: 'Matrix with double vertical lines',
+                            column: 'Add column',
+                            row: 'Add row'
+                        }
+                    },
+                    statistics: {
+                        title: 'Statistics',
+                        buttons: {
+                            factorial: 'Factorial',
+                            binomial: 'Binomial',
+                            overline: 'Overline (mean)'
+                        }
+                    }
+                    /*
+					units: {
+						title: 'Units',
+						buttons: {}
+					},
+					chemistry: {
+						title: 'Chemistry',
+						buttons: {}
+					}
+					*/
+                });
+        }
+        if (kendo.mathinput && kendo.mathinput.messages.toolbar) {
+            kendo.mathinput.messages.toolbar =
+                $.extend(true, kendo.mathinput.messages.toolbar, {
+                    field: {
+                        title: 'Field'
+                    },
+                    backspace: {
+                        title: 'Backspace'
+                    },
+                    keypad: {
+                        title: 'KeyPad',
+                        buttons: {
+                            comma: ',',
+                            stop: '.',
+                            n0: '0',
+                            n1: '1',
+                            n2: '2',
+                            n3: '3',
+                            n4: '4',
+                            n5: '5',
+                            n6: '6',
+                            n7: '7',
+                            n8: '8',
+                            n9: '9',
+                            a: 'a',
+                            b: 'b',
+                            c: 'c',
+                            i: 'i',
+                            j: 'j',
+                            k: 'k',
+                            n: 'n',
+                            p: 'p',
+                            q: 'q',
+                            x: 'x',
+                            y: 'y',
+                            z: 'z',
+                            pi: 'Pi',
+                            infty: 'Infinity',
+                            space: 'Space',
+                            subscript: 'Subscript'
+                        }
+                    },
+                    basic: {
+                        title: 'Basic',
+                        buttons: {
+                            // WARNING: Make sure mathjs can calculate all these functions
+                            equal: 'Equal',
+                            plus: 'Plus',
+                            minus: 'Minus',
+                            cdot: 'Times',
+                            times: 'Times',
+                            div: 'Divide',
+                            pleft: 'Left parenthesis (',
+                            pright: 'Right parenthesis )',
+                            frac: 'Fraction',
+                            sqrt: 'Square root',
+                            pow2: 'Power of 2',
+                            pow3: 'Power of 3',
+                            sin: 'Sine',
+                            cos: 'Cosine',
+                            tan: 'Tangent'
+                        }
+                    },
+                    lowergreek: {
+                        title: 'Greek (Lower Case)',
+                        buttons: {
+                            alpha: 'Alpha',
+                            beta: 'Beta',
+                            gamma: 'Gamma',
+                            delta: 'Delta',
+                            epsilon: 'Epsilon', // varepsilon
+                            zeta: 'Zeta',
+                            eta: 'Eta',
+                            theta: 'Theta', // vartheta
+                            iota: 'Iota',
+                            kappa: 'Kappa', // varkappa
+                            lambda: 'Lambda',
+                            mu: 'Mu',
+                            nu: 'Nu',
+                            xi: 'Xi',
+                            omicron: 'Omicron',
+                            pi: 'Pi', // varpi
+                            rho: 'Rho', // varrho
+                            sigma: 'Sigma', // varsigma
+                            tau: 'Tau',
+                            upsilon: 'Upsilon',
+                            phi: 'Phi', // varphi
+                            chi: 'Chi',
+                            psi: 'Psi',
+                            omega: 'Omega'
+                        }
+                    },
+                    uppergreek: {
+                        title: 'Greek (Upper Case)',
+                        buttons: {
+                            // alpha: 'Alpha',
+                            // beta: 'Beta',
+                            gamma: 'Gamma',
+                            delta: 'Delta',
+                            // epsilon: 'Epsilon', // varepsilon
+                            // zeta: 'Zeta',
+                            // eta: 'Eta',
+                            theta: 'Theta', // vartheta
+                            // iota: 'Iota',
+                            // kappa: 'Kappa', // varkappa
+                            lambda: 'Lambda',
+                            // mu: 'Mu',
+                            // nu: 'Nu',
+                            xi: 'Xi',
+                            // omicron: 'Omicron',
+                            pi: 'Pi', // varpi
+                            // rho: 'Rho', // varrho
+                            sigma: 'Sigma', // varsigma
+                            // tau: 'Tau',
+                            upsilon: 'Upsilon',
+                            phi: 'Phi', // varphi
+                            // chi: 'Chi',
+                            psi: 'Psi',
+                            omega: 'Omega'
+                        }
+                    },
+                    operators: {
+                        title: 'Operators',
+                        buttons: {
+                            equal: 'Equal',
+                            plus: 'Plus',
+                            minus: 'Minus',
+                            cdot: 'Times',
+                            times: 'Times',
+                            div: 'Divide',
+                            pleft: 'Left parenthesis (',
+                            pright: 'Right parenthesis )',
+                            bleft: 'Left square bracket [',
+                            bright: 'Right square bracket ]',
+                            cleft: 'Left curly bracket {',
+                            cright: 'Right curly bracket }',
+                            vleft: 'Left vertical line |',
+                            vright: 'Right vertical line |',
+                            lt: 'Lower than',
+                            le: 'Lower than or equal',
+                            gt: 'Greater than',
+                            ge: 'Greater than or equal',
+                            neq: 'Not equal',
+                            approx: 'Approximate',
+                            propto: 'Proportional',
+                            plusminus: 'Plus-Minus',
+                            percent: 'Percent',
+                            not: 'Not',
+                            and: 'And',
+                            or: 'Or',
+                            circ: 'Composition',
+                            nabla: 'Nabla'
+                        }
+                    },
+                    expressions: {
+                        title: 'Functions',
+                        buttons: {
+                            sqrt: 'Square root',
+                            cubert: 'Cube root',
+                            nthroot: 'Nth root',
+                            pow2: 'Power of 2',
+                            pow3: 'Power of 3',
+                            pow: 'Power',
+                            log: 'Logarithm',
+                            log10: 'Logarithm base 10',
+                            ln: 'Naperian logarithm',
+                            sin: 'Sine',
+                            cos: 'Cosine',
+                            tan: 'Tangent',
+                            arcsin: 'Arc sine',
+                            arccos: 'Arc cosine',
+                            arctan: 'Arc tangent',
+                            deriv: 'Derivative',
+                            partial: 'Partial derivative',
+                            int: 'Integral',
+                            oint: 'Contour integral',
+                            sum: 'Sum',
+                            prod: 'Product',
+                            lim: 'Limit'
+                        }
+                    },
+                    sets: {
+                        title: 'Sets',
+                        buttons: {
+                            cset: 'Complexes',
+                            pset: 'Primes',
+                            nset: 'Naturals',
+                            qset: 'Rationals',
+                            rset: 'Reals',
+                            zset: 'Integers',
+                            emptyset: 'Empty set',
+                            forall: 'For all',
+                            exists: 'Exists',
+                            nexists: 'Not exists',
+                            in: 'In',
+                            nin: 'Not in',
+                            subset: 'Subset',
+                            supset: 'Superset',
+                            nsubset: 'Not subset',
+                            nsupset: 'Not superset',
+                            intersection: 'Intersection',
+                            union: 'Union',
+                            to: 'To',
+                            implies: 'Implies',
+                            impliedby: 'Implied by',
+                            nimplies: 'Not implies',
+                            iff: 'Equivalent to'
+                        }
+                    },
+                    matrices: {
+                        title: 'Matrices',
+                        buttons: {
+                            vector: 'Vector',
+                            widehat: 'Widehat (angle)',
+                            matrix: 'Matrix',
+                            pmatrix: 'Matrix with parentheses',
+                            bmatrix: 'Matrix with square brackets',
+                            bbmatrix: 'Matrix with curly braces',
+                            vmatrix: 'Matrix with vertical lines',
+                            vvmatrix: 'Matrix with double vertical lines',
+                            column: 'Add column',
+                            row: 'Add row'
+                        }
+                    },
+                    statistics: {
+                        title: 'Statistics',
+                        buttons: {
+                            factorial: 'Factorial',
+                            binomial: 'Binomial',
+                            overline: 'Overline (mean)'
+                        }
+                    }
+                    /*
+					units: {
+						title: 'Units',
+						buttons: {}
+					},
+					chemistry: {
+						title: 'Chemistry',
+						buttons: {}
+					}
+					*/
+                });
+        }
+
         /* kidoju.widgets.mediaplayer */
         if (ui.MediaPlayer) {
             options = ui.MediaPlayer.prototype.options;

@@ -197,7 +197,7 @@
                     cright: 'Right curly bracket }',
                     vleft: 'Left vertical line |',
                     vright: 'Right vertical line |',
-                    lt: 'Lower then',
+                    lt: 'Lower than',
                     le: 'Lower than or equal',
                     gt: 'Greater than',
                     ge: 'Greater than or equal',
@@ -263,8 +263,9 @@
                     union: 'Union',
                     to: 'To',
                     implies: 'Implies',
+                    impliedby: 'Implied by',
                     nimplies: 'Not implies',
-                    iff: ''
+                    iff: 'Equivalent to'
                 }
             },
             matrices: {
@@ -272,7 +273,7 @@
                 buttons: {
                     vector: 'Vector',
                     widehat: 'Widehat (angle)',
-                    matrices: 'Matrix',
+                    matrix: 'Matrix',
                     pmatrix: 'Matrix with parentheses',
                     bmatrix: 'Matrix with square brackets',
                     bbmatrix: 'Matrix with curly braces',
@@ -1583,7 +1584,7 @@
                 },
                 {
                     value: '\\sum',
-                    iconClass: 'sum',
+                    iconClass: 'sum-ex',
                     text: TOOLBAR_MESSAGES.expressions.buttons.sum
                 },
                 {
@@ -1738,6 +1739,11 @@
                     text: TOOLBAR_MESSAGES.sets.buttons.implies
                 },
                 {
+                    value: '\\Leftarrow', // also '\\impliedby',
+                    iconClass: 'impliedby',
+                    text: TOOLBAR_MESSAGES.sets.buttons.impliedby
+                },
+                {
                     value: '\\iff',
                     iconClass: 'iff',
                     text: TOOLBAR_MESSAGES.sets.buttons.iff
@@ -1806,7 +1812,7 @@
                 {
                     value: '\\begin{matrix}&amp;\\\\&amp;\\end{matrix}', // Bare
                     iconClass: 'matrix',
-                    text: TOOLBAR_MESSAGES.matrices.buttons.matrices
+                    text: TOOLBAR_MESSAGES.matrices.buttons.matrix
                 },
                 {
                     value: '\\begin{pmatrix}&amp;\\\\&amp;\\end{pmatrix}', // Parenthesis
@@ -2009,6 +2015,7 @@
          *********************************************************************************/
 
         var DIALOG_MESSAGES = kendo.mathinput.messages.dialogs = {
+            /*
             apply: 'Apply',
             save: 'Save',
             cancel: 'Cancel',
@@ -2016,6 +2023,7 @@
             retry: 'Retry',
             revert: 'Revert',
             okText: 'OK',
+            */
             keypad: {
                 title: 'KeyPad',
                 buttons: {
@@ -2145,7 +2153,7 @@
                     cright: 'Right curly bracket }',
                     vleft: 'Left vertical line |',
                     vright: 'Right vertical line |',
-                    lt: 'Lower then',
+                    lt: 'Lower than',
                     le: 'Lower than or equal',
                     gt: 'Greater than',
                     ge: 'Greater than or equal',
@@ -2211,8 +2219,9 @@
                     union: 'Union',
                     to: 'To',
                     implies: 'Implies',
+                    impliedby: 'Implied by',
                     nimplies: 'Not implies',
-                    iff: ''
+                    iff: 'Equivalent to'
                 }
             },
             matrices: {
@@ -2220,7 +2229,7 @@
                 buttons: {
                     vector: 'Vector',
                     widehat: 'Widehat (angle)',
-                    matrices: 'Matrix',
+                    matrix: 'Matrix',
                     pmatrix: 'Matrix with parentheses',
                     bmatrix: 'Matrix with square brackets',
                     bbmatrix: 'Matrix with curly braces',
@@ -3133,7 +3142,7 @@
          */
         var ExpressionsDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.expression || DIALOG_MESSAGES; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.expression || DIALOG_MESSAGES;
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
@@ -3229,7 +3238,7 @@
                         },
                         {
                             value: '\\sum',
-                            iconClass: 'sum',
+                            iconClass: 'sum-ex',
                             text: DIALOG_MESSAGES.expressions.buttons.sum
                         },
                         {
@@ -3274,7 +3283,7 @@
          */
         var SetsDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.set || DIALOG_MESSAGES; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.set || DIALOG_MESSAGES;
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
@@ -3370,6 +3379,11 @@
                             text: DIALOG_MESSAGES.sets.buttons.implies
                         },
                         {
+                            value: '\\Leftarrow', // also '\\impliedby',
+                            iconClass: 'impliedby',
+                            text: DIALOG_MESSAGES.sets.buttons.impliedby
+                        },
+                        {
                             value: '\\iff',
                             iconClass: 'iff',
                             text: DIALOG_MESSAGES.sets.buttons.iff
@@ -3406,7 +3420,7 @@
          */
         var MatricesDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.matrices || DIALOG_MESSAGES; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.matrices || DIALOG_MESSAGES;
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
@@ -3494,7 +3508,7 @@
          */
         var StatisticsDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.statistics || DIALOG_MESSAGES; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.statistics || DIALOG_MESSAGES;
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [
@@ -3546,7 +3560,7 @@
         /*
         var ChemistryDialog = MathInputDialog.extend({
             init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs.chemistry || DIALOG_MESSAGES; // TODO: review
+                var messages = kendo.mathinput.messages.dialogs.chemistry || DIALOG_MESSAGES;
                 var defaultOptions = {
                     title: messages.title,
                     buttons: [

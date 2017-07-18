@@ -106,7 +106,7 @@
         }
         if (kendo.markeditor && kendo.markeditor.messages.dialogs) {
             kendo.markeditor.messages.dialogs =
-                $.extend(true, kendo.markeditor.messages.dialogs,{
+                $.extend(true, kendo.markeditor.messages.dialogs, {
                     cancel: 'Annuler',
                     okText: 'OK',
                     headingsDialog: {
@@ -171,7 +171,7 @@
         /* kidoju.widgets.mathinput */
         if (kendo.mathinput && kendo.mathinput.messages.dialogs) {
             kendo.mathinput.messages.dialogs =
-                $.extend(true, kendo.mathinput.messages.dialogs,{
+                $.extend(true, kendo.mathinput.messages.dialogs, {
                     keypad: {
                         title: 'Clavier',
                         buttons: {

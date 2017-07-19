@@ -476,7 +476,7 @@
                         }
                     },
                     lowergreek: {
-                        title: 'Greek (Lower Case)',
+                        title: 'Grec (Minuscules)',
                         buttons: {
                             alpha: 'Alpha',
                             beta: 'Beta',
@@ -505,7 +505,7 @@
                         }
                     },
                     uppergreek: {
-                        title: 'Greek (Upper Case)',
+                        title: 'Grex (Majuscules)',
                         buttons: {
                             // alpha: 'Alpha',
                             // beta: 'Beta',

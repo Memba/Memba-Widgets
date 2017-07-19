@@ -12,13 +12,11 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
-        './vendor/kendo/kendo.popup',
-        './vendor/kendo/kendo.slider',
-        './vendor/kendo/kendo.button',
-        './vendor/kendo/kendo.colorpicker',
-        './vendor/kendo/kendo.combobox',
-        './vendor/kendo/kendo.dropdownlist',
+        './vendor/kendo/kendo.list',
+        './vendor/kendo/kendo.splitter',
         './vendor/kendo/kendo.toolbar',
+        // './vendor/kendo/kendo.validator',
+        './vendor/kendo/kendo.popup',
         './vendor/kendo/kendo.window',
         './kidoju.widgets.markdown',
         // './kidoju.widgets.markeditor', <-- cyclical dependency
@@ -434,7 +432,6 @@
              * Destroy
              */
             destroy: function () {
-                this._destroyFileInput();
                 this.element.find('[data-command],.k-button').each(function () {
                     var element = $(this);
                     var instance = element.data('instance');
@@ -744,7 +741,9 @@
             },
             events: [
                 'close',
-                'activate'
+                'activate',
+                'deactivate',
+                'resize'
             ],
             options: { autoFocus: true },
             dialog: function () {
@@ -754,19 +753,27 @@
                         messages: kendo.markeditor.messages.dialogs || DIALOG_MESSAGES,
                         errors: this.options.errors
                     })).appendTo(document.body).kendoWindow({
+                        actions: this.options.actions || ['Close'],  // This was added for resizing PreviewDialog
                         autoFocus: this.options.autoFocus,
                         scrollable: false,
-                        resizable: false,
+                        // resizable: false,
+                        resizable: this.options.resizable || false,  // This was added for resizing PreviewDialog
                         modal: true,
                         visible: false,
                         width: this.options.width || 320,
                         title: this.options.title,
                         open: function () {
-                            this.center();
+                            var that = this;
+                            // We need setTimeout otherwise PreviewDialog is not centered
+                            setTimeout(function () {
+                                that.center();
+                                kendo.resize(that.element.find(kendo.roleSelector('markeditortoolbar')).parent());
+                            }, 0);
                         },
                         close: this._onDialogClose.bind(this),
                         activate: this._onDialogActivate.bind(this),
-                        deactivate: this._onDialogDeactivate.bind(this)
+                        deactivate: this._onDialogDeactivate.bind(this),
+                        resize: this._onDialogResize.bind(this) // This was added for resizing PreviewDialog
                     }).data('kendoWindow');
                 }
                 return this._dialog;
@@ -781,6 +788,10 @@
                 this.trigger('deactivate');
                 this.destroy();
             },
+            _onDialogResize: function (e) {
+                this._resizeDialog(e);
+            },
+            _resizeDialog: $.noop,
             destroy: function () {
                 if (this._dialog) {
                     this._dialog.destroy();
@@ -886,11 +897,12 @@
                 title: DIALOG_MESSAGES.linkDialog.title,
                 autoFocus: false
             },
-            open: function (url) {
+            open: function (markeditor) {
                 var self = this;
                 MarkEditorDialog.fn.open.apply(self, arguments);
                 var element = self.dialog().element;
                 var model = kendo.observable({
+                    // Note: markeditor.codeMirror knows the selection to possibly fill url
                     url: '',
                     apply: function () {
                         if (!/\S/.test(model.url)) {
@@ -933,13 +945,13 @@
                 title: DIALOG_MESSAGES.imageDialog.title,
                 autoFocus: false
             },
-            open: function (url) {
+            open: function (markeditor) {
                 var self = this;
                 MarkEditorDialog.fn.open.apply(self, arguments);
                 var element = self.dialog().element;
                 var model = kendo.observable({
+                    // Note: markeditor.codeMirror knows the selection to possibly fill url
                     url: '',
-                    // url: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/Elvis.jpg',
                     apply: function () {
                         if (!/\S/.test(model.url)) {
                             model.url = null;
@@ -977,8 +989,8 @@
          */
         var LatexDialog = MarkEditorDialog.extend({
             options: {
-                template: '<div data-role="mathinput" data-toolbar="{&quot;resizable&quot;:true,&quot;tools&quot;:[&quot;keypad&quot;,&quot;basic&quot;,&quot;lowergreek&quot;,&quot;uppergreek&quot;,&quot;operators&quot;,&quot;expressions&quot;,&quot;sets&quot;,&quot;matrices&quot;,&quot;statistics&quot;]}" data-bind="value: latex" style="height:70px;width:100%"/></div>' +
-                    '<div class="kj-mathinput-display">' +
+                template: '<div data-role="mathinput" data-bind="value: latex" data-toolbar="{&quot;resizable&quot;:true,&quot;tools&quot;:[&quot;keypad&quot;,&quot;basic&quot;,&quot;lowergreek&quot;,&quot;uppergreek&quot;,&quot;operators&quot;,&quot;expressions&quot;,&quot;sets&quot;,&quot;matrices&quot;,&quot;statistics&quot;]}"/></div>' +
+                    '<div>' +
                     '<div class="k-edit-label">#: messages.latexDialog.labels.display #:</div>' +
                     '<div class="k-edit-field"><input id="markeditor_latex_inline" type="checkbox" class="k-checkbox" data-bind="checked: inline"><label class="k-checkbox-label" for="markeditor_latex_inline">&nbsp;#: messages.latexDialog.labels.inline #</label></div>' +
                     '</div>' +
@@ -987,13 +999,14 @@
                 autoFocus: false,
                 width: 480
             },
-            open: function (latex, inline) { // TODO: url especially for edit mode
+            open: function (markeditor) {
                 var self = this;
                 MarkEditorDialog.fn.open.apply(self, arguments);
                 var element = self.dialog().element;
                 var model = kendo.observable({
-                    latex: latex || '',
-                    inline: $.type(inline) === UNDEFINED ? true : !!inline,
+                    // Note: markeditor.codeMirror knows the selection to possibly fill latex and inline
+                    latex: '',
+                    inline: true,
                     apply: function () {
                         if (!/\S/.test(model.latex)) {
                             model.latex = null;
@@ -1015,6 +1028,7 @@
                 kendo.bind(element, model);
                 kendo.resize(element);
                 /*
+                // TODO with mathinput instead of input
                 element.find('input').focus().on('keydown', function (ev) {
                     if (ev.keyCode === 13) {
                         model.url = $(this).val();
@@ -1037,35 +1051,38 @@
          */
         var PreviewDialog = MarkEditorDialog.extend({
             options: {
-                template: '<div class=\'k-edit-label\'><label>#: messages.previewDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
-                title: DIALOG_MESSAGES.previewDialog.title,
+                actions: ['Maximize', 'Close'],
                 autoFocus: false,
+                className: 'no-padding',
                 resizable: true,
-                minHeight: 240,
-                minWidth: 320,
-                height: $(window).height() / 2,
+                // template: '<div class=\'k-edit-label\'><label>#: messages.previewDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' +'<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                template: '<div class="kj-markeditor-preview">' +
+                    '<div id="preview_toolbar_container"></div>' +
+                    '<div data-role="splitter" data-panes="[{&quot;scrollable&quot;:false},{&quot;scrollable&quot;:true}]">' +
+                        // data-toolbar target the container and the list of tools without preview
+                        '<div><div data-role="markeditor" data-bind="value: markdown" data-toolbar="{&quot;container&quot;:&quot;\\#preview_toolbar_container&quot;,&quot;resizable&quot;:true,&quot;tools&quot;:[&quot;undo&quot;,&quot;redo&quot;,&quot;headings&quot;,&quot;bold&quot;,&quot;italic&quot;,&quot;bulleted&quot;,&quot;numbered&quot;,&quot;blockquote&quot;,&quot;hrule&quot;,&quot;link&quot;,&quot;image&quot;,&quot;code&quot;,&quot;latex&quot;]}"></div></div>' +
+                        '<div><div data-role="markdown" data-bind="value: markdown"></div></div>' +
+                    '</div>' +
+                    '<div class="k-action-buttons">' + ('<button class="k-button k-primary" data-bind="click: apply">#= messages.okText #</button>' + '<button class="k-button" data-bind="click: cancel">#= messages.cancel #</button>') + '</div>' +
+                '</div>',
+                title: DIALOG_MESSAGES.previewDialog.title,
                 width: $(window).width() / 2
             },
-            open: function (url) { // TODO: url especially for edit mode
+            open: function (markeditor) {
                 var self = this;
                 MarkEditorDialog.fn.open.apply(self, arguments);
                 var element = self.dialog().element;
                 var model = kendo.observable({
-                    url: 'https://cdn.kidoju.com/s/en/570cc7f46d1dd91900729417/image.png',
-                    // url: 'http://localhost:63342/Kidoju.Widgets/test/data/images/miscellaneous/Elvis.jpg',
+                    markdown: markeditor.value(),
                     apply: function () {
-                        if (!/\S/.test(model.url)) {
-                            model.url = null;
+                        if (!/\S/.test(model.markdown)) {
+                            model.markdown = null;
                         }
                         self.trigger('action', {
                             command: 'ToolbarPreviewCommand',
                             params: {
-                                property: 'tool',
-                                value: 'ShapeTool',
-                                options: {
-                                    type: 'image',
-                                    source: model.url
-                                }
+                                property: 'preview',
+                                value: model.markdown
                             }
                         });
                         self.close();
@@ -1073,6 +1090,8 @@
                     cancel: self.close.bind(self)
                 });
                 kendo.bind(element, model);
+                /*
+                // TODO with CodeMirror instead of input
                 element.find('input').focus().on('keydown', function (ev) {
                     if (ev.keyCode === 13) {
                         model.url = $(this).val();
@@ -1085,6 +1104,29 @@
                         model.cancel();
                     }
                 });
+                */
+            },
+            _resizeDialog: function (e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(kendo.ui.Window, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Window'));
+                var element = e.sender.element;
+                var contentHeight = element.height();
+                element.children('.kj-markeditor.preview').height(contentHeight);
+                var toolBarContainer = element.find('#preview_toolbar_container');
+                assert.hasLength(toolBarContainer, kendo.format(assert.messages.hasLength.default, 'toolBarContainer'));
+                var toolBarHeight = toolBarContainer.outerHeight();
+                var footerHeight = element.find('.k-action-buttons').outerHeight();
+                var splitter = element.find('.k-splitter')
+                    .outerHeight(contentHeight - toolBarHeight - footerHeight)
+                    // Triggering resize is suggested at http://www.telerik.com/forums/splitter-not-resizing-along-with-window
+                    .trigger('resize');
+                assert.hasLength(splitter, kendo.format(assert.messages.hasLength.default, 'splitter'));
+                var pane = splitter.children('.k-pane:first-child');
+                assert.hasLength(pane, kendo.format(assert.messages.hasLength.default, 'pane'));
+                var markEditorWidget = element.find(kendo.roleSelector('markeditor')).data('kendoMarkEditor');
+                assert.instanceof(kendo.ui.MarkEditor, markEditorWidget, kendo.format(assert.messages.instanceof.default, 'markEditorWidget', 'kendo.ui.MarkEditor'));
+                markEditorWidget.codeMirror.setSize('100%', pane.height());
+                kendo.resize(toolBarContainer);
             }
         });
         kendo.markeditor.dialogs.register('markPreview', PreviewDialog);

@@ -76,10 +76,14 @@
              */
             init: function (element, options) {
                 var that = this;
+                options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug({ method: 'init', message: 'Widget initialized' });
+                // We need to set tools otherwise the options.toolbar.tools array is simply pasted over the TOOLBAR array, which creates duplicates in the overflow
+                that.options.toolbar.tools = (options.toolbar || {}).tools || TOOLS;
                 that._layout();
                 that.value(that.options.value);
+                that.enable(that.element.prop('disabled') ? false : that.options.enable);
                 kendo.notify(that);
             },
 
@@ -89,18 +93,20 @@
              */
             options: {
                 name: 'MarkEditor',
-                value: '',
                 autoResize: false,
+                enable: true,
                 gfm: false,
                 lineNumbers: true,
-                toolbar: {
-                    resizable: true,
-                    tools: TOOLS
-                },
                 messages: {
                     image: 'An undescribed image',
                     link: 'Click here'
-                }
+                },
+                toolbar: {
+                    container: '',
+                    resizable: true,
+                    tools: TOOLS
+                },
+                value: ''
             },
 
             /**
@@ -160,8 +166,9 @@
              * Set the toolbar
              */
             _setToolbar: function () {
+                var container = $(this.options.toolbar.container);
                 this.toolBar = $('<div class="kj-markeditor-toolbar"></div>')
-                    .prependTo(this.element)
+                    .prependTo(container.length === 1 ? container : this.element)
                     .kendoMarkEditorToolBar({
                         tools: this.options.toolbar.tools,
                         resizable: this.options.toolbar.resizable,
@@ -246,7 +253,8 @@
                     dialog.bind('action', this._onToolBarAction.bind(this));
                     dialog.bind('deactivate', this._destroyDialog.bind(this));
                     this._dialogs.push(dialog);
-                    dialog.open();
+                    // SpreadsheetDialog gets a renge here, but we might as well pass this which gives this.codeMirror to the dialog
+                    dialog.open(this);
                     return dialog;
                 }
             },
@@ -325,8 +333,7 @@
                         this._wrapSelectionsWith(e.params.value.inline ? '$' : '$$', true);
                         break;
                     case 'ToolbarPreviewCommand':
-                        // TODO http://www.telerik.com/forums/get-the-view-model-from-a-given-dom-element
-                        break;
+                        this.value(e.params.value);
                     // Note: Emojis could use auto completion as in GitHub
                     // see https://github.com/codemirror/CodeMirror/issues/4859
                     default:
@@ -432,9 +439,13 @@
              * @param enabled
              */
             enable: function (enabled) {
-                enabled = $.type(enabled === UNDEFINED) ? true : !!enabled;
-                this.toolBar.enable(enabled);
-                this.codeMirror.setOption('readOnly', !enabled);
+                var that = this;
+                enabled = $.type(enabled) === UNDEFINED ? true : !!enabled;
+                that.toolBar.element.children('a.k-button').each(function(index, element) {
+                    that.toolBar.enable(element, enabled);
+                });
+                that.codeMirror.setOption('readOnly', !enabled);
+                // Consider also doing https://github.com/codemirror/CodeMirror/issues/1099
             },
 
             /**

@@ -1,18 +1,27 @@
+.k-spreadsheet-window.kj-markeditor-window.no-padding {
+    padding: 0;
+}
+.k-spreadsheet-window.kj-markeditor-window.no-padding .kj-markeditor-preview .k-splitter .kj-markdown {
+    margin: 0 0.5em;
+}
+.k-spreadsheet-window.kj-markeditor-window.no-padding .kj-markeditor-preview .k-action-buttons {
+    bottom: 0;
+    border: 0;
+    margin: 0;
+}
 .k-spreadsheet-window.kj-markeditor-window .kj-mathinput-toolbar {
     margin-top: -1.167em;
     margin-left: -0.75em;
     margin-right: -0.75em;
     margin-bottom: 0.75em;
 }
+.k-spreadsheet-window.kj-markeditor-window .kj-mathinput {
+    height: 5em;
+    width: 100%;
+}
 .k-spreadsheet-window.kj-markeditor-window .k-edit-label {
     width: 10%;
 }
 .k-spreadsheet-window.kj-markeditor-window .k-edit-field {
     width: 80%;
-}
-.k-spreadsheet-window.kj-markeditor-window .kj-mathinput-display .k-edit-label {
-    width: 20%;
-}
-.k-spreadsheet-window.kj-markeditor-window .kj-mathinput-display .k-edit-field {
-    width: 70%;
 }

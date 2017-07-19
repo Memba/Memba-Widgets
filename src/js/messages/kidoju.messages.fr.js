@@ -505,7 +505,7 @@
                         }
                     },
                     uppergreek: {
-                        title: 'Grex (Majuscules)',
+                        title: 'Grec (Majuscules)',
                         buttons: {
                             // alpha: 'Alpha',
                             // beta: 'Beta',

@@ -872,6 +872,7 @@
             },
             apply: function (e) {
                 var dataItem = e.sender.value()[0];
+                e.sender.trigger(CHANGE);
                 if (!dataItem) {
                     $.noop(); // TODO
                     // debugger;

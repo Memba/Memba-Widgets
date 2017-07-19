@@ -135,7 +135,8 @@
                     latexDialog: {
                         title: 'Mathematic Expression',
                         labels: {
-                            url: 'Url'
+                            display: 'Display',
+                            inline: 'inline'
                         }
                     }
                 });
@@ -164,7 +165,7 @@
                     image: 'Image',
                     code: 'Code',
                     latex: 'Mathematic Expression',
-                    window: 'Open in New Window'
+                    preview: 'Preview in New Window'
                 });
         }
 

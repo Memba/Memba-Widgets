@@ -121,7 +121,7 @@
                         }
                     },
                     linkDialog: {
-                        title: 'Hyperlink',
+                        title: 'Hyperlien',
                         labels: {
                             text: 'Url'
                         }
@@ -133,7 +133,14 @@
                         }
                     },
                     latexDialog: {
-                        title: 'Mathematic Expression',
+                        title: 'Expression Mathématique',
+                        labels: {
+                            display: 'Affichage',
+                            inline: 'en ligne'
+                        }
+                    },
+                    previewDialog: {
+                        title: 'Aperçu',
                         labels: {
                             url: 'Url'
                         }
@@ -164,7 +171,7 @@
                     image: 'Image',
                     code: 'Code',
                     latex: 'Expression Mathématique',
-                    window: 'Ouvrir dans une Fenêtre'
+                    preview: 'Aperçu dans une Fenêtre'
                 });
         }
 

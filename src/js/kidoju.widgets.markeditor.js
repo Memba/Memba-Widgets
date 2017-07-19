@@ -15,9 +15,7 @@
         './window.logger',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.window',
-        './kidoju.widgets.markeditor.toolbar',
-        './kidoju.widgets.markdown'
-
+        './kidoju.widgets.markeditor.toolbar'
     ], f);
 })(function (CodeMirror) {
 
@@ -56,7 +54,7 @@
             'image',
             'code',
             'latex',
-            'window'
+            'preview'
         ];
 
         /*******************************************************************************************
@@ -321,9 +319,12 @@
                         this._wrapSelectionsWith('```', false);
                         break;
                     case 'ToolbarLatexCommand':
-                        // @see https://github.com/codemirror/CodeMirror/issues/4857
+                        // CodeMirror markdown/gfm mode does not highlight LaTeX
+                        // but there are options to implement this - @see https://github.com/codemirror/CodeMirror/issues/4857
+                        this._replaceInSelectionsWith(e.params.value.latex);
+                        this._wrapSelectionsWith(e.params.value.inline ? '$' : '$$', true);
                         break;
-                    case 'ToolbarWindowCommand':
+                    case 'ToolbarPreviewCommand':
                         // TODO http://www.telerik.com/forums/get-the-view-model-from-a-given-dom-element
                         break;
                     // Note: Emojis could use auto completion as in GitHub

@@ -19,7 +19,10 @@
         './vendor/kendo/kendo.combobox',
         './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.toolbar',
-        './vendor/kendo/kendo.window'
+        './vendor/kendo/kendo.window',
+        './kidoju.widgets.markdown',
+        // './kidoju.widgets.markeditor', <-- cyclical dependency
+        './kidoju.widgets.mathinput'
     ], f);
 })(function () {
 
@@ -33,12 +36,13 @@
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.markeditor.toolbar');
         var kendo = window.kendo;
-        var deepExtend = kendo.deepExtend;
-        var isFunction = kendo.isFunction;
+        // var deepExtend = kendo.deepExtend;
+        // var isFunction = kendo.isFunction;
         var DataSource = kendo.data.DataSource;
         var ToolBar = kendo.ui.ToolBar;
         var StaticList = kendo.ui.StaticList;
         kendo.markeditor = { messages: {}};
+        var UNDEFINED = 'undefined';
         var TOOLBAR = [
             'undo',
             'redo',
@@ -55,7 +59,7 @@
             'latex',
             // 'symbols',
             // 'emoji',
-            'window'
+            'preview'
         ];
 
         /*********************************************************************************
@@ -136,16 +140,20 @@
                 iconClass: 'js'
             },
             latex: {
-                type: 'button',
-                command: 'ToolbarLatexCommand',
-                iconClass: 'formula-fx' // 'sum'
+                type: 'markDialog',
+                dialogName: 'markLatex',
+                iconClass: 'formula-fx', // 'sum'
+                // See comment above
+                overflow: 'never',
+                text: false
             },
-            // symbols ????
-            // emojis,
-            window: {
-                type: 'button',
-                command: 'ToolbarWindowCommand',
-                iconClass: 'window-maximize'
+            preview: {
+                type: 'markDialog',
+                dialogName: 'markPreview',
+                iconClass: 'window-maximize',
+                // See comment above
+                overflow: 'never',
+                text: false
             }
         };
         var TOOLBAR_MESSAGES = kendo.markeditor.messages.toolbar = {
@@ -170,7 +178,7 @@
             image: 'Image',
             code: 'Code',
             latex: 'Mathematic Expression',
-            window: 'Open in New Window'
+            preview: 'Preview in New Window'
         };
 
         /**
@@ -679,7 +687,14 @@
             latexDialog: {
                 title: 'Mathematic Expression',
                 labels: {
-                    url: 'Url' // TODO + inline/display
+                    display: 'Display',
+                    inline: 'inline'
+                }
+            },
+            previewDialog: {
+                title: 'Preview',
+                labels: {
+                    url: 'Url'
                 }
             }
         };
@@ -895,7 +910,7 @@
                 kendo.bind(element, model);
                 element.find('input').focus().on('keydown', function (ev) {
                     if (ev.keyCode === 13) {
-                        model.text = $(this).val();
+                        model.url = $(this).val();
                         ev.stopPropagation();
                         ev.preventDefault();
                         model.apply();
@@ -962,9 +977,74 @@
          */
         var LatexDialog = MarkEditorDialog.extend({
             options: {
-                template: '<div class=\'k-edit-label\'><label>#: messages.latexDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                template: '<div data-role="mathinput" data-toolbar="{&quot;resizable&quot;:true,&quot;tools&quot;:[&quot;keypad&quot;,&quot;basic&quot;,&quot;lowergreek&quot;,&quot;uppergreek&quot;,&quot;operators&quot;,&quot;expressions&quot;,&quot;sets&quot;,&quot;matrices&quot;,&quot;statistics&quot;]}" data-bind="value: latex" style="height:70px;width:100%"/></div>' +
+                    '<div class="kj-mathinput-display">' +
+                    '<div class="k-edit-label">#: messages.latexDialog.labels.display #:</div>' +
+                    '<div class="k-edit-field"><input id="markeditor_latex_inline" type="checkbox" class="k-checkbox" data-bind="checked: inline"><label class="k-checkbox-label" for="markeditor_latex_inline">&nbsp;#: messages.latexDialog.labels.inline #</label></div>' +
+                    '</div>' +
+                    '<div class="k-action-buttons">' + ('<button class="k-button k-primary" data-bind="click: apply">#= messages.okText #</button>' + '<button class="k-button" data-bind="click: cancel">#= messages.cancel #</button>') + '</div>',
                 title: DIALOG_MESSAGES.latexDialog.title,
-                autoFocus: false
+                autoFocus: false,
+                width: 480
+            },
+            open: function (latex, inline) { // TODO: url especially for edit mode
+                var self = this;
+                MarkEditorDialog.fn.open.apply(self, arguments);
+                var element = self.dialog().element;
+                var model = kendo.observable({
+                    latex: latex || '',
+                    inline: $.type(inline) === UNDEFINED ? true : !!inline,
+                    apply: function () {
+                        if (!/\S/.test(model.latex)) {
+                            model.latex = null;
+                        }
+                        self.trigger('action', {
+                            command: 'ToolbarLatexCommand',
+                            params: {
+                                property: 'latex',
+                                value: {
+                                    latex: model.latex,
+                                    inline: model.inline
+                                }
+                            }
+                        });
+                        self.close();
+                    },
+                    cancel: self.close.bind(self)
+                });
+                kendo.bind(element, model);
+                kendo.resize(element);
+                /*
+                element.find('input').focus().on('keydown', function (ev) {
+                    if (ev.keyCode === 13) {
+                        model.url = $(this).val();
+                        ev.stopPropagation();
+                        ev.preventDefault();
+                        model.apply();
+                    } else if (ev.keyCode === 27) {
+                        ev.stopPropagation();
+                        ev.preventDefault();
+                        model.cancel();
+                    }
+                });
+                */
+            }
+        });
+        kendo.markeditor.dialogs.register('markLatex', LatexDialog);
+
+        /**
+         * Preview
+         */
+        var PreviewDialog = MarkEditorDialog.extend({
+            options: {
+                template: '<div class=\'k-edit-label\'><label>#: messages.previewDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                title: DIALOG_MESSAGES.previewDialog.title,
+                autoFocus: false,
+                resizable: true,
+                minHeight: 240,
+                minWidth: 320,
+                height: $(window).height() / 2,
+                width: $(window).width() / 2
             },
             open: function (url) { // TODO: url especially for edit mode
                 var self = this;
@@ -978,7 +1058,7 @@
                             model.url = null;
                         }
                         self.trigger('action', {
-                            command: 'DrawingToolChangeCommand',
+                            command: 'ToolbarPreviewCommand',
                             params: {
                                 property: 'tool',
                                 value: 'ShapeTool',
@@ -1007,7 +1087,7 @@
                 });
             }
         });
-        kendo.markeditor.dialogs.register('markLatex', LatexDialog);
+        kendo.markeditor.dialogs.register('markPreview', PreviewDialog);
 
     }(window.jQuery));
 

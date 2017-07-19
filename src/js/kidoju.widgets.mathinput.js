@@ -466,6 +466,7 @@
                 } else if (!options.toolbar.container) {
                     that.element.wrap(DIV);
                     that.wrapper = container = that.element.parent();
+                    that.wrapper.addClass('kj-mathinput-wrap');
                     that.toolBar = $(DIV)
                         .prependTo(container)
                         .kendoMathInputToolBar({

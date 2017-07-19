@@ -404,8 +404,7 @@
                         .children(kendo.roleSelector('mathinputtoolbar'))
                         .hide();
                     // Show widget's toolbar
-                    if (that._activeField instanceof MQ.MathField &&
-                        that.toolBar instanceof MathInputToolBar) {
+                    if (that._activeField instanceof MQ.MathField && that.toolBar instanceof MathInputToolBar) {
                         setTimeout(function () { // Without setTimeout, iOS does not show the toolbar
                             that.toolBar.wrapper.show();
                         });
@@ -597,10 +596,16 @@
              * @param enabled
              */
             enable: function (enabled) {
-                this._enabled = !!enabled;
-                this._initHandlers();
-                // TODO hide cursor
-                // TODO hide toolbar
+                var that = this;
+                that._enabled = $.type(enabled) === UNDEFINED ? true: !!enabled;
+                that._initHandlers();
+                if (that.toolBar instanceof MathInputToolBar) {
+                    that.toolBar.element.children('a.k-button').each(function(index, button) {
+                            that.toolBar.enable(button, enabled);
+                        });
+                }
+                // TODO: Consider hiding the toolbar when floating
+                // Also Consider removing the cursor
             },
 
             /**

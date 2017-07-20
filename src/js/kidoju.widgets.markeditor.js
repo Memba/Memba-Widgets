@@ -334,6 +334,7 @@
                         break;
                     case 'ToolbarPreviewCommand':
                         this.value(e.params.value);
+                        this.trigger(CHANGE);
                     // Note: Emojis could use auto completion as in GitHub
                     // see https://github.com/codemirror/CodeMirror/issues/4859
                     default:

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>kidoju.widgets.markdown.test</title>
+    <title>kidoju.widgets.markeditor.test</title>
     <link href="../../src/styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="../../src/styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="../../src/styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
@@ -27,6 +27,8 @@
     <!-- Asserts and Logs -->
     <script src="../../src/js/window.assert.js"></script>
     <script src="../../src/js/window.logger.js"></script>
+    <!-- Kidoju Fonts -->
+    <link rel="stylesheet" href="../../src/styles/fonts/kidoju.css">
     <!-- HighlightJS requirements -->
     <link href="../../src/styles/vendor/highlight/codepen-embed.css" rel="stylesheet">
     <script src="../../src/js/vendor/highlight/highlight.pack.js"></script>
@@ -39,11 +41,30 @@
     <!-- Markdown requirements -->
     <!--link href="../../src/styles/kidoju.widgets.markdown.css" rel="stylesheet"-->
     <script src="../../src/js/kidoju.widgets.markdown.js" data-cover></script>
+    <!-- Mathquill requirements -->
+    <link href="../../src/styles/vendor/mathquill/mathquill.css" rel="stylesheet">
+    <script src="../../src/js/vendor/mathquill/mathquill.js"></script>
+    <!-- MathInput requirements -->
+    <link rel="stylesheet" href="../../src/styles/kidoju.widgets.mathinput.css">
+    <script src="../../src/js/kidoju.widgets.mathinput.toolbar.js"></script>
+    <script src="../../src/js/kidoju.widgets.mathinput.js"></script>
+    <!-- CodeMirror requirements -->
+    <link href="../../src/styles/vendor/codemirror/lib/codemirror.css" rel="stylesheet">
+    <script src="../../src/js/vendor/codemirror/lib/codemirror.js"></script>
+    <script src="../../src/js/vendor/codemirror/mode/meta.js"></script>
+    <script src="../../src/js/vendor/codemirror/mode/xml/xml.js"></script>
+    <script src="../../src/js/vendor/codemirror/mode/markdown/markdown.js"></script>
+    <script src="../../src/js/vendor/codemirror/addon/mode/overlay.js"></script>
+    <script src="../../src/js/vendor/codemirror/mode/gfm/gfm.js"></script>
+    <!-- Markeditor requirements -->
+    <link href="../../src/styles/kidoju.widgets.markeditor.css" rel="stylesheet">
+    <script src="../../src/js/kidoju.widgets.markeditor.toolbar.js" data-cover></script>
+    <script src="../../src/js/kidoju.widgets.markeditor.js" data-cover></script>
 </head>
 <body>
 <div id="mocha"></div>
 <div id="fixtures"></div>
-<script src="kidoju.widgets.markdown.test.js"></script>
+<script src="kidoju.widgets.markeditor.test.js"></script>
 <script>
     mocha.checkLeaks().globals(['_jb_debug_helper', 'jQuery', 'jQuery*', 'kendo', 'kidoju', 'chai', 'sinon']);
     if (!window.blanket && !window.PHANTOMJS) {

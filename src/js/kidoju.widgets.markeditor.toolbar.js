@@ -448,6 +448,7 @@
          * MarkEditorToolBar Tools
          *********************************************************************************/
 
+        /*
         var DropDownTool = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
                 var dropDownList = $('<select />').attr('title', options.attributes.title).attr('aria-label', options.attributes.title).kendoDropDownList({ height: 'auto' }).data('kendoDropDownList');
@@ -512,6 +513,7 @@
                 }
             }
         });
+        */
         var PopupTool = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
                 this.element = $('<a href=\'#\' class=\'k-button k-button-icon\'>' + '<span class=\'' + options.spriteCssClass + '\'>' + '</span><span class=\'k-icon k-i-arrow-60-down\'></span>' + '</a>');
@@ -530,7 +532,7 @@
             },
             open: function (e) {
                 e.preventDefault();
-                // Note: testing k-state-disabled is not part of the original DropDownTool from SpreadsheetToolbar
+                // Note: testing k-state-disabled is not part of the original PopupTool from SpreadsheetToolbar
                 if (!this.element.hasClass('k-state-disabled')) {
                     this.popup.toggle();
                 }

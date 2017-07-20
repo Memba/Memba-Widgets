@@ -1,6 +1,9 @@
 .k-spreadsheet-window.kj-markeditor-window.no-padding {
     padding: 0;
 }
+.k-spreadsheet-window.kj-markeditor-window.no-padding .kj-markeditor-preview .k-splitter .k-widget.kj-markeditor {
+    border: 0;
+}
 .k-spreadsheet-window.kj-markeditor-window.no-padding .kj-markeditor-preview .k-splitter .kj-markdown {
     margin: 0.5em;
 }

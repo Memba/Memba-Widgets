@@ -689,10 +689,7 @@
                 }
             },
             previewDialog: {
-                title: 'Preview',
-                labels: {
-                    url: 'Url'
-                }
+                title: 'Preview'
             }
         };
 
@@ -1051,11 +1048,10 @@
                 autoFocus: false,
                 className: 'no-padding',
                 resizable: true,
-                // template: '<div class=\'k-edit-label\'><label>#: messages.previewDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' +'<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
                 template: '<div class="kj-markeditor-preview">' +
                     '<div id="preview_toolbar_container"></div>' +
                     '<div data-role="splitter" data-panes="[{&quot;scrollable&quot;:false},{&quot;scrollable&quot;:true}]">' +
-                        // data-toolbar target the container and the list of tools without preview
+                        // TODO the preview dialog always has all the tools excpet preview - we should build the list of tools from marleditor.options.tools
                         '<div><div data-role="markeditor" data-bind="value: markdown" data-toolbar="{&quot;container&quot;:&quot;\\#preview_toolbar_container&quot;,&quot;resizable&quot;:true,&quot;tools&quot;:[&quot;undo&quot;,&quot;redo&quot;,&quot;headings&quot;,&quot;bold&quot;,&quot;italic&quot;,&quot;bulleted&quot;,&quot;numbered&quot;,&quot;blockquote&quot;,&quot;hrule&quot;,&quot;link&quot;,&quot;image&quot;,&quot;code&quot;,&quot;latex&quot;]}"></div></div>' +
                         '<div><div data-role="markdown" data-bind="value: markdown"></div></div>' +
                     '</div>' +

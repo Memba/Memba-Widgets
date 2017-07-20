@@ -138,6 +138,9 @@
                             display: 'Display',
                             inline: 'inline'
                         }
+                    },
+                    previewDialog: {
+                        title: 'Preview'
                     }
                 });
         }

@@ -140,10 +140,7 @@
                         }
                     },
                     previewDialog: {
-                        title: 'Aperçu',
-                        labels: {
-                            url: 'Url'
-                        }
+                        title: 'Aperçu'
                     }
                 });
         }

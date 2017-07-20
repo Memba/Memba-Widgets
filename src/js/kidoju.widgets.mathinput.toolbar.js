@@ -790,7 +790,7 @@
                 var value = button.attr('data-value');
                 this.toolbar.action({
                     command: 'ToolbarKeyPadCommand',
-                    options: {
+                    params: {
                         value: value
                     }
                 });
@@ -917,7 +917,9 @@
                 var value = button.attr('data-value');
                 this.toolbar.action({
                     command: 'ToolbarBasicCommand',
-                    options: { value: value }
+                    params: {
+                        value: value
+                    }
                 });
             }
         });
@@ -1088,7 +1090,9 @@
                 var value = button.attr('data-value');
                 this.toolbar.action({
                     command: 'ToolbarLowerGreekCommand',
-                    options: { value: value }
+                    params: {
+                        value: value
+                    }
                 });
             }
         });
@@ -1274,7 +1278,9 @@
                 var value = button.attr('data-value');
                 this.toolbar.action({
                     command: 'ToolbarUpperGreekCommand',
-                    options: { value: value }
+                    params: {
+                        value: value
+                    }
                 });
             }
         });
@@ -1463,7 +1469,9 @@
                 var value = button.attr('data-value');
                 this.toolbar.action({
                     command: 'ToolbarOperatorsCommand',
-                    options: { value: value }
+                    params: {
+                        value: value
+                    }
                 });
             }
         });
@@ -1617,7 +1625,9 @@
                 var value = button.attr('data-value');
                 this.toolbar.action({
                     command: 'ToolbarExpressionsCommand',
-                    options: { value: value }
+                    params: {
+                        value: value
+                    }
                 });
             }
         });
@@ -1768,7 +1778,9 @@
                 var value = button.attr('data-value');
                 this.toolbar.action({
                     command: 'ToolbarSetsCommand',
-                    options: { value: value }
+                    params: {
+                        value: value
+                    }
                 });
             }
         });
@@ -1869,7 +1881,9 @@
                 var value = button.attr('data-value');
                 this.toolbar.action({
                     command: 'ToolbarMatricesCommand',
-                    options: { value: value }
+                    params: {
+                        value: value
+                    }
                 });
             }
         });
@@ -1933,7 +1947,9 @@
                 var value = button.attr('data-value');
                 this.toolbar.action({
                     command: 'ToolbarStatisticsCommand',
-                    options: { value: value }
+                    params: {
+                        value: value
+                    }
                 });
             }
         });
@@ -1998,7 +2014,9 @@
                 var value = button.attr('data-value');
                 this.toolbar.action({
                     command: 'ToolbarChemistryCommand',
-                    options: { value: value }
+                    params: {
+                        value: value
+                    }
                 });
             }
         });
@@ -2514,7 +2532,7 @@
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'ToolbarKeyPadCommand',
-                    options: {
+                    params: {
                         value: dataItem.value
                     }
                 });
@@ -2627,7 +2645,9 @@
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'ToolbarBasicCommand',
-                    options: { value: dataItem.value }
+                    params: {
+                        value: dataItem.value
+                    }
                 });
             }
         });
@@ -2783,7 +2803,9 @@
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'ToolbarLowerGreekCommand',
-                    options: { value: dataItem.value }
+                    params: {
+                        value: dataItem.value
+                    }
                 });
             }
         });
@@ -2955,7 +2977,9 @@
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'ToolbarUpperGreekCommand',
-                    options: { value: dataItem.value }
+                    params: {
+                        value: dataItem.value
+                    }
                 });
             }
         });
@@ -3131,7 +3155,9 @@
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'ToolbarOperatorsCommand',
-                    options: { value: dataItem.value }
+                    params: {
+                        value: dataItem.value
+                    }
                 });
             }
         });
@@ -3272,7 +3298,9 @@
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'ToolbarExpressionsCommand',
-                    options: { value: dataItem.value }
+                    params: {
+                        value: dataItem.value
+                    }
                 });
             }
         });
@@ -3409,7 +3437,9 @@
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'ToolbarSetsCommand',
-                    options: { value: dataItem.value }
+                    params: {
+                        value: dataItem.value
+                    }
                 });
             }
         });
@@ -3497,7 +3527,9 @@
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'ToolbarMatricesCommand',
-                    options: { value: dataItem.value }
+                    params: {
+                        value: dataItem.value
+                    }
                 });
             }
         });
@@ -3548,7 +3580,9 @@
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'ToolbarStatisticsCommand',
-                    options: { value: dataItem.value }
+                    params: {
+                        value: dataItem.value
+                    }
                 });
             }
         });
@@ -3586,7 +3620,7 @@
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
                     command: 'ToolbarChemistryCommand',
-                    options: { value: dataItem.value }
+                    params: { value: dataItem.value }
                 });
             }
         });

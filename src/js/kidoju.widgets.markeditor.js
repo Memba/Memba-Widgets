@@ -35,6 +35,7 @@
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var NULL = 'null';
+        var BEFORE_OPEN = 'beforeOpen';
         var CHANGE = 'change';
         var WIDGET_CLASS = 'k-widget kj-markeditor';
         var LINK = '[{0}]({1})';
@@ -113,6 +114,7 @@
              * Events
              */
             events: [
+                BEFORE_OPEN,
                 CHANGE
             ],
 
@@ -232,7 +234,9 @@
              */
             _onToolBarDialog: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                this._openDialog(e.name, e.options);
+                if (!this.trigger(BEFORE_OPEN, { name: e.name, options: e.options })) {
+                    this._openDialog(e.name, e.options);
+                }
             },
 
             /**

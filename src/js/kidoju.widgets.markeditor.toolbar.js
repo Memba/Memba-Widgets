@@ -40,7 +40,7 @@
         var ToolBar = kendo.ui.ToolBar;
         var StaticList = kendo.ui.StaticList;
         kendo.markeditor = { messages: {}};
-        var UNDEFINED = 'undefined';
+        // var UNDEFINED = 'undefined';
         var TOOLBAR = [
             'undo',
             'redo',
@@ -1084,6 +1084,14 @@
                     cancel: self.close.bind(self)
                 });
                 kendo.bind(element, model);
+
+                // We now need to pass the dialog hooks to the markeditor widget in the preview dialog
+                // Note this is how we hook the asset manager in place of the default image dialog
+                var previewMarkEditor = element.find(kendo.roleSelector('markeditor')).data('kendoMarkEditor');
+                $.each(markeditor._events.beforeOpen || [], function (index, handler) {
+                    previewMarkEditor.bind('beforeOpen', handler);
+                });
+
                 /*
                 // TODO with CodeMirror instead of input
                 element.find('input').focus().on('keydown', function (ev) {

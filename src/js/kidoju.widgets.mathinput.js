@@ -597,10 +597,10 @@
              */
             enable: function (enabled) {
                 var that = this;
-                that._enabled = $.type(enabled) === UNDEFINED ? true: !!enabled;
+                that._enabled = $.type(enabled) === UNDEFINED ? true : !!enabled;
                 that._initHandlers();
                 if (that.toolBar instanceof MathInputToolBar) {
-                    that.toolBar.element.children('a.k-button').each(function(index, button) {
+                    that.toolBar.element.children('a.k-button').each(function (index, button) {
                             that.toolBar.enable(button, enabled);
                         });
                 }

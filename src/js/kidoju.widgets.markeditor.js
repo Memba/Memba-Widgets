@@ -335,6 +335,7 @@
                     case 'ToolbarPreviewCommand':
                         this.value(e.params.value);
                         this.trigger(CHANGE);
+                        break;
                     // Note: Emojis could use auto completion as in GitHub
                     // see https://github.com/codemirror/CodeMirror/issues/4859
                     default:
@@ -442,7 +443,7 @@
             enable: function (enabled) {
                 var that = this;
                 enabled = $.type(enabled) === UNDEFINED ? true : !!enabled;
-                that.toolBar.element.children('a.k-button').each(function(index, element) {
+                that.toolBar.element.children('a.k-button').each(function (index, element) {
                     that.toolBar.enable(element, enabled);
                 });
                 that.codeMirror.setOption('readOnly', !enabled);

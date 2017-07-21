@@ -10,14 +10,16 @@
     'use strict';
     define([
         './vendor/markdown-it/markdown-it',
-        // './vendor/markdown-it/katex',
-        './vendor/markdown-it/markdown-it-katex',
-        './vendor/highlight/highlight.pack', // Keep at the top considering function parameters below
+        './vendor/markdown-it/markdown-it-katex', // This loads katex
+        './vendor/markdown-it/markdown-it-emoji',
+        './vendor/highlight/highlight.pack',
+        './vendor/markdown-it/twemoji.amd',
+        // Keep the above at the top considering function parameters below
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder'
     ], f);
-})(function (markdownit, katexRendered, highlight) {
+})(function (markdown, katex, emoji, highlight, twemo) {
 
     'use strict';
 
@@ -25,9 +27,11 @@
 
         var kendo = window.kendo;
         var Widget = kendo.ui.Widget;
-        var MarkdownIt = window.markdownit || markdownit;
-        var markdownItKatex = window.markdownItKatex || katexRendered;
+        var MarkdownIt = window.markdownit || markdown;
+        var markdownItKatex = window.markdownItKatex || katex;
+        var markdownitEmoji = window.markdownitEmoji || emoji;
         var hljs = window.hljs || highlight;
+        var twemoji = window.twemoji || twemo;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.markdown');
         var STRING = 'string';
@@ -109,7 +113,8 @@
             options: {
                 name: 'Markdown',
                 url: null,
-                value: null
+                value: null,
+                schemes: {}
             },
 
             /**
@@ -162,6 +167,7 @@
                 that._initLinkOpener();
                 that._initImageRule();
                 that._initKatex();
+                that._initEmojis();
             },
 
             /**
@@ -256,6 +262,22 @@
             _initKatex: function () {
                 if (markdownItKatex) {
                     this.md.use(markdownItKatex);
+                }
+            },
+
+            /**
+             * Init Emojis
+             * @private
+             */
+            _initEmojis: function () {
+                if (markdownitEmoji) {
+                    this.md.use(markdownitEmoji);
+                }
+                // use much nicer twemojis
+                if (twemoji) {
+                    this.md.renderer.rules.emoji = function(token, idx) {
+                        return twemoji.parse(token[idx].content);
+                    };
                 }
             },
 

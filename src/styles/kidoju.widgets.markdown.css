@@ -1,10 +1,53 @@
-.km-content .kj-markdown p,
-.km-content .kj-markdown h1,
-.km-content .kj-markdown h2,
-.km-content .kj-markdown h3,
-.km-content .kj-markdown h4,
-.km-content .kj-markdown h5,
-.km-content .kj-markdown h6 {
+.kj-markdown p,
+.kj-markdown h1,
+.kj-markdown h2,
+.kj-markdown h3,
+.kj-markdown h4,
+.kj-markdown h5,
+.kj-markdown h6 {
     margin-left: 0;
     margin-right: 0;
+}
+.kj-markdown h1,
+.kj-markdown h2,
+.kj-markdown h3,
+.kj-markdown h4,
+.kj-markdown h5,
+.kj-markdown h6 {
+    font-weight: bold;
+}
+.kj-markdown h1 {
+    font-size: 1.5em;
+}
+.kj-markdown h2 {
+    font-size: 1.17em;
+}
+.kj-markdown h3 {
+    font-size: 1.12em;
+}
+.kj-markdown h4 {
+    font-size: .83em;
+}
+.kj-markdown h5 {
+    font-size: .75em;
+}
+.kj-markdown h6 {
+    font-size: .67em;
+}
+.kj-markdown table {
+    border-collapse: collapse;
+}
+.kj-markdown table th,
+.kj-markdown table td {
+    padding: 0.25rem;
+    border: 1px solid #ccc;
+}
+.kj-markdown table tbody tr:nth-child(odd) {
+    background: #eee;
+}
+.kj-markdown img.emoji {
+    height: 1.1em;
+    width: 1.1em;
+    margin: 0 .1em;
+    vertical-align: middle;
 }

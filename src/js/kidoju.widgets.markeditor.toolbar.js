@@ -658,8 +658,8 @@
          *********************************************************************************/
 
         var DIALOG_MESSAGES = kendo.markeditor.messages.dialogs = {
-            cancel: 'Cancel',
-            okText: 'OK',
+            cancel: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Cancel',
+            okText: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK',
             headingsDialog: {
                 title: 'Headings',
                 buttons: {

@@ -107,8 +107,8 @@
         if (kendo.markeditor && kendo.markeditor.messages.dialogs) {
             kendo.markeditor.messages.dialogs =
                 $.extend(true, kendo.markeditor.messages.dialogs, {
-                    cancel: 'Annuler',
-                    okText: 'OK',
+                    cancel: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Annuler',
+                    okText: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK',
                     headingsDialog: {
                         title: 'Titres',
                         buttons: {

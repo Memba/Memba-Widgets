@@ -33,8 +33,7 @@
             'field',
             'keypad',
             'basic',
-            'lowergreek',
-            'uppergreek',
+            'greek',
             'operators',
             'expressions',
             'sets',
@@ -122,8 +121,8 @@
                     tan: 'Tangent'
                 }
             },
-            lowergreek: {
-                title: 'Greek (Lower Case)',
+            greek: {
+                title: 'Greek',
                 buttons: {
                     alpha: 'Alpha',
                     beta: 'Beta',
@@ -147,35 +146,6 @@
                     upsilon: 'Upsilon',
                     phi: 'Phi', // varphi
                     chi: 'Chi',
-                    psi: 'Psi',
-                    omega: 'Omega'
-                }
-            },
-            uppergreek: {
-                title: 'Greek (Upper Case)',
-                buttons: {
-                    // alpha: 'Alpha',
-                    // beta: 'Beta',
-                    gamma: 'Gamma',
-                    delta: 'Delta',
-                    // epsilon: 'Epsilon', // varepsilon
-                    // zeta: 'Zeta',
-                    // eta: 'Eta',
-                    theta: 'Theta', // vartheta
-                    // iota: 'Iota',
-                    // kappa: 'Kappa', // varkappa
-                    lambda: 'Lambda',
-                    // mu: 'Mu',
-                    // nu: 'Nu',
-                    xi: 'Xi',
-                    // omicron: 'Omicron',
-                    pi: 'Pi', // varpi
-                    // rho: 'Rho', // varrho
-                    sigma: 'Sigma', // varsigma
-                    // tau: 'Tau',
-                    upsilon: 'Upsilon',
-                    phi: 'Phi', // varphi
-                    // chi: 'Chi',
                     psi: 'Psi',
                     omega: 'Omega'
                 }
@@ -322,13 +292,9 @@
                 type: 'basic',
                 iconClass: 'basic'
             },
-            lowergreek: {
-                type: 'lowergreek',
-                iconClass: 'lowergreek'
-            },
-            uppergreek: {
-                type: 'uppergreek',
-                iconClass: 'uppergreek'
+            greek: {
+                type: 'greek',
+                iconClass: 'greek'
             },
             operators: {
                 type: 'operators',
@@ -931,9 +897,9 @@
         kendo.toolbar.registerComponent('basic', BasicTool, BasicButton);
 
         /**
-         * LowerGreekTool and LowerGreekButton
+         * GreekTool and GreekButton
          */
-        var LowerGreekTool = PopupTool.extend({
+        var GreekTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
                 this._commandPalette();
@@ -942,8 +908,8 @@
                     this.popup.close();
                 }.bind(this));
                 this.element.data({
-                    type: 'lowergreek',
-                    lowergreek: this,
+                    type: 'greek',
+                    greek: this,
                     instance: this
                 });
             },
@@ -951,312 +917,260 @@
                 {
                     value: '\\alpha',
                     iconClass: 'alpha',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.alpha
+                    text: TOOLBAR_MESSAGES.greek.buttons.alpha
                 },
                 {
                     value: '\\beta',
                     iconClass: 'beta',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.beta
+                    text: TOOLBAR_MESSAGES.greek.buttons.beta
                 },
                 {
                     value: '\\gamma',
                     iconClass: 'gamma',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.gamma
+                    text: TOOLBAR_MESSAGES.greek.buttons.gamma
                 },
                 {
                     value: '\\delta',
                     iconClass: 'delta',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.delta
+                    text: TOOLBAR_MESSAGES.greek.buttons.delta
                 },
                 {
                     value: '\\epsilon',
                     iconClass: 'epsilon',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.epsilon
+                    text: TOOLBAR_MESSAGES.greek.buttons.epsilon
                 },
                 {
                     value: '\\zeta',
                     iconClass: 'zeta',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.zeta
+                    text: TOOLBAR_MESSAGES.greek.buttons.zeta
                 },
                 {
                     value: '\\eta',
                     iconClass: 'eta',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.eta
+                    text: TOOLBAR_MESSAGES.greek.buttons.eta
                 },
                 {
                     value: '\\theta',
                     iconClass: 'theta',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.theta
+                    text: TOOLBAR_MESSAGES.greek.buttons.theta
                 },
                 {
                     value: '\\iota',
                     iconClass: 'iota',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.iota
+                    text: TOOLBAR_MESSAGES.greek.buttons.iota
                 },
                 {
                     value: '\\kappa',
                     iconClass: 'kappa',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.kappa
+                    text: TOOLBAR_MESSAGES.greek.buttons.kappa
                 },
                 {
                     value: '\\lambda',
                     iconClass: 'lambda',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.lambda
+                    text: TOOLBAR_MESSAGES.greek.buttons.lambda
                 },
                 {
                     value: '\\mu',
                     iconClass: 'mu',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.mu
+                    text: TOOLBAR_MESSAGES.greek.buttons.mu
                 },
                 {
                     value: '\\nu',
                     iconClass: 'nu',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.nu
+                    text: TOOLBAR_MESSAGES.greek.buttons.nu
                 },
                 {
                     value: '\\xi',
                     iconClass: 'xi',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.xi
+                    text: TOOLBAR_MESSAGES.greek.buttons.xi
                 },
                 {
                     // Omicron does not exist in LaTeX
                     // see https://tex.stackexchange.com/questions/233257/omicron-not-working-in-latex
                     value: 'o', // \\omicron',
                     iconClass: 'omicron',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.omicron
+                    text: TOOLBAR_MESSAGES.greek.buttons.omicron
                 },
                 {
                     value: '\\pi',
                     iconClass: 'pi',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.pi
+                    text: TOOLBAR_MESSAGES.greek.buttons.pi
                 },
                 {
                     value: '\\rho',
                     iconClass: 'rho',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.rho
+                    text: TOOLBAR_MESSAGES.greek.buttons.rho
                 },
                 {
                     value: '\\sigma',
                     iconClass: 'sigma',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.sigma
+                    text: TOOLBAR_MESSAGES.greek.buttons.sigma
                 },
                 {
                     value: '\\tau',
                     iconClass: 'tau',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.tau
+                    text: TOOLBAR_MESSAGES.greek.buttons.tau
                 },
                 {
                     value: '\\upsilon',
                     iconClass: 'upsilon',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.upsilon
+                    text: TOOLBAR_MESSAGES.greek.buttons.upsilon
                 },
                 {
                     value: '\\phi',
                     iconClass: 'phi',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.phi
+                    text: TOOLBAR_MESSAGES.greek.buttons.phi
                 },
                 {
                     value: '\\chi',
                     iconClass: 'chi',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.chi
+                    text: TOOLBAR_MESSAGES.greek.buttons.chi
                 },
                 {
                     value: '\\psi',
                     iconClass: 'psi',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.psi
+                    text: TOOLBAR_MESSAGES.greek.buttons.psi
                 },
                 {
                     value: '\\omega',
                     iconClass: 'omega',
-                    text: TOOLBAR_MESSAGES.lowergreek.buttons.omega
-                }
-            ],
-            destroy: function () {
-                this.popup.element.off();
-                PopupTool.fn.destroy.call(this);
-            },
-            _commandPalette: function () {
-                var buttons = this.buttons;
-                var element = $('<div />').appendTo(this.popup.element);
-                buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
-                    if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
-                    }
-                    element.append(button);
-                });
-            },
-            _action: function (button) {
-                var value = button.attr('data-value');
-                this.toolbar.action({
-                    command: 'ToolbarLowerGreekCommand',
-                    params: {
-                        value: value
-                    }
-                });
-            }
-        });
-        var LowerGreekButton = OverflowDialogButton.extend({
-            _click: function () {
-                this.toolbar.dialog({ name: 'lowergreek' });
-            }
-        });
-        kendo.toolbar.registerComponent('lowergreek', LowerGreekTool, LowerGreekButton);
-
-        /**
-         * UpperGreekTool and UpperGreekButton
-         */
-        var UpperGreekTool = PopupTool.extend({
-            init: function (options, toolbar) {
-                PopupTool.fn.init.call(this, options, toolbar);
-                this._commandPalette();
-                this.popup.element.on('click', '.k-button', function (e) {
-                    this._action($(e.currentTarget));
-                    this.popup.close();
-                }.bind(this));
-                this.element.data({
-                    type: 'uppergreek',
-                    uppergreek: this,
-                    instance: this
-                });
-            },
-            buttons: [
+                    text: TOOLBAR_MESSAGES.greek.buttons.omega
+                },
                 /*
-                 // Note: when deleting, you need two strokes to delete unicode characters, one for the unicode character and one for the text directive
                  {
-                 value: '\\text{\u0391}',
-                 iconClass: 'alpha-maj',
-                 text: TOOLBAR_MESSAGES.uppergreek.buttons.alpha
+                     value: '\\text{\u0391}',
+                     iconClass: 'alpha-maj',
+                     text: TOOLBAR_MESSAGES.greek.buttons.alpha
                  },
                  {
-                 value: '\\text{\u0392}',
-                 iconClass: 'beta-maj',
-                 text: TOOLBAR_MESSAGES.uppergreek.buttons.beta
+                     value: '\\text{\u0392}',
+                     iconClass: 'beta-maj',
+                     text: TOOLBAR_MESSAGES.greek.buttons.beta
                  },
                  */
                 {
                     value: '\\Gamma',
                     iconClass: 'gamma-maj',
-                    text: TOOLBAR_MESSAGES.uppergreek.buttons.gamma
+                    text: TOOLBAR_MESSAGES.greek.buttons.gamma
                 },
                 {
                     value: '\\Delta',
                     iconClass: 'delta-maj',
-                    text: TOOLBAR_MESSAGES.uppergreek.buttons.delta
+                    text: TOOLBAR_MESSAGES.greek.buttons.delta
                 },
                 /*
                  {
-                 value: '\\text{\u0395}',
-                 iconClass: 'epsilon-maj',
-                 text: TOOLBAR_MESSAGES.uppergreek.buttons.epsilon
+                     value: '\\text{\u0395}',
+                     iconClass: 'epsilon-maj',
+                     text: TOOLBAR_MESSAGES.greek.buttons.epsilon
                  },
                  {
-                 value: '\\text{\u0396}',
-                 iconClass: 'zeta-maj',
-                 text: TOOLBAR_MESSAGES.uppergreek.buttons.zeta
+                     value: '\\text{\u0396}',
+                     iconClass: 'zeta-maj',
+                     text: TOOLBAR_MESSAGES.greek.buttons.zeta
                  },
                  {
-                 value: '\\text{\u0397}',
-                 iconClass: 'eta-maj',
-                 text: TOOLBAR_MESSAGES.uppergreek.buttons.eta
+                     value: '\\text{\u0397}',
+                     iconClass: 'eta-maj',
+                     text: TOOLBAR_MESSAGES.greek.buttons.eta
                  },
                  */
                 {
                     value: '\\Theta',
                     iconClass: 'theta-maj',
-                    text: TOOLBAR_MESSAGES.uppergreek.buttons.theta
+                    text: TOOLBAR_MESSAGES.greek.buttons.theta
                 },
                 /*
                  {
-                 value: '\\text{\u0399}',
-                 iconClass: 'iota-maj',
-                 text: TOOLBAR_MESSAGES.uppergreek.buttons.iota
+                     value: '\\text{\u0399}',
+                     iconClass: 'iota-maj',
+                     text: TOOLBAR_MESSAGES.greek.buttons.iota
                  },
                  {
-                 value: '\\text{\u039a}',
-                 iconClass: 'kappa-maj',
-                 text: TOOLBAR_MESSAGES.uppergreek.buttons.kappa
+                     value: '\\text{\u039a}',
+                     iconClass: 'kappa-maj',
+                     text: TOOLBAR_MESSAGES.greek.buttons.kappa
                  },
                  */
                 {
                     value: '\\Lambda',
                     iconClass: 'lambda-maj',
-                    text: TOOLBAR_MESSAGES.uppergreek.buttons.lambda
+                    text: TOOLBAR_MESSAGES.greek.buttons.lambda
                 },
                 /*
                  {
-                 value: '\\text{\u039c}',
-                 iconClass: 'mu-maj',
-                 text: TOOLBAR_MESSAGES.uppergreek.buttons.mu
+                     value: '\\text{\u039c}',
+                     iconClass: 'mu-maj',
+                     text: TOOLBAR_MESSAGES.greek.buttons.mu
                  },
                  {
-                 value: '\\text{\u039d}',
-                 iconClass: 'nu-maj',
-                 text: TOOLBAR_MESSAGES.uppergreek.buttons.nu
+                     value: '\\text{\u039d}',
+                     iconClass: 'nu-maj',
+                     text: TOOLBAR_MESSAGES.greek.buttons.nu
                  },
                  */
                 {
                     value: '\\Xi',
                     iconClass: 'xi-maj',
-                    text: TOOLBAR_MESSAGES.uppergreek.buttons.xi
+                    text: TOOLBAR_MESSAGES.greek.buttons.xi
                 },
                 /*
                  {
-                 value: '\\text{\u039f}',
-                 iconClass: 'omicron-maj',
-                 text: TOOLBAR_MESSAGES.uppergreek.buttons.omicron
+                     value: '\\text{\u039f}',
+                     iconClass: 'omicron-maj',
+                     text: TOOLBAR_MESSAGES.greek.buttons.omicron
                  },
                  */
                 {
                     value: '\\Pi',
                     iconClass: 'pi-maj',
-                    text: TOOLBAR_MESSAGES.uppergreek.buttons.pi
+                    text: TOOLBAR_MESSAGES.greek.buttons.pi
                 },
                 /*
                  {
-                 value: '\\text{\u03a1}',
-                 iconClass: 'rho-maj',
-                 text: TOOLBAR_MESSAGES.uppergreek.buttons.rho
+                     value: '\\text{\u03a1}',
+                     iconClass: 'rho-maj',
+                     text: TOOLBAR_MESSAGES.greek.buttons.rho
                  },
                  */
                 {
                     value: '\\Sigma',
                     iconClass: 'sigma-maj',
-                    text: TOOLBAR_MESSAGES.uppergreek.buttons.sigma
+                    text: TOOLBAR_MESSAGES.greek.buttons.sigma
                 },
                 /*
                  {
-                 value: '\\text{\u03a4}',
-                 iconClass: 'tau-maj',
-                 text: TOOLBAR_MESSAGES.uppergreek.buttons.tau
+                     value: '\\text{\u03a4}',
+                     iconClass: 'tau-maj',
+                     text: TOOLBAR_MESSAGES.greek.buttons.tau
                  },
                  */
                 {
                     value: '\\Upsilon',
                     iconClass: 'upsilon-maj',
-                    text: TOOLBAR_MESSAGES.uppergreek.buttons.upsilon
+                    text: TOOLBAR_MESSAGES.greek.buttons.upsilon
                 },
                 {
                     value: '\\Phi',
                     iconClass: 'phi-maj',
-                    text: TOOLBAR_MESSAGES.uppergreek.buttons.phi
+                    text: TOOLBAR_MESSAGES.greek.buttons.phi
                 },
                 /*
                  {
-                 value: '\\text{\u03a7}',
-                 iconClass: 'chi-maj',
-                 text: TOOLBAR_MESSAGES.uppergreek.buttons.chi
+                     value: '\\text{\u03a7}',
+                     iconClass: 'chi-maj',
+                     text: TOOLBAR_MESSAGES.greek.buttons.chi
                  },
                  */
                 {
                     value: '\\Psi',
                     iconClass: 'psi-maj',
-                    text: TOOLBAR_MESSAGES.uppergreek.buttons.psi
+                    text: TOOLBAR_MESSAGES.greek.buttons.psi
                 },
                 {
                     value: '\\Omega',
                     iconClass: 'omega-maj',
-                    text: TOOLBAR_MESSAGES.uppergreek.buttons.omega
+                    text: TOOLBAR_MESSAGES.greek.buttons.omega
                 }
             ],
             destroy: function () {
@@ -1277,19 +1191,19 @@
             _action: function (button) {
                 var value = button.attr('data-value');
                 this.toolbar.action({
-                    command: 'ToolbarUpperGreekCommand',
+                    command: 'ToolbarGreekCommand',
                     params: {
                         value: value
                     }
                 });
             }
         });
-        var UpperGreekButton = OverflowDialogButton.extend({
+        var GreekButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'uppergreek' });
+                this.toolbar.dialog({ name: 'greek' });
             }
         });
-        kendo.toolbar.registerComponent('uppergreek', UpperGreekTool, UpperGreekButton);
+        kendo.toolbar.registerComponent('greek', GreekTool, GreekButton);
 
         /**
          * OperatorsTool and OperatorsButton
@@ -2096,8 +2010,8 @@
                     tan: 'Tangent'
                 }
             },
-            lowergreek: {
-                title: 'Greek (Lower Case)',
+            greek: {
+                title: 'Greek',
                 buttons: {
                     alpha: 'Alpha',
                     beta: 'Beta',
@@ -2121,35 +2035,6 @@
                     upsilon: 'Upsilon',
                     phi: 'Phi', // varphi
                     chi: 'Chi',
-                    psi: 'Psi',
-                    omega: 'Omega'
-                }
-            },
-            uppergreek: {
-                title: 'Greek (Upper Case)',
-                buttons: {
-                    // alpha: 'Alpha',
-                    // beta: 'Beta',
-                    gamma: 'Gamma',
-                    delta: 'Delta',
-                    // epsilon: 'Epsilon', // varepsilon
-                    // zeta: 'Zeta',
-                    // eta: 'Eta',
-                    theta: 'Theta', // vartheta
-                    // iota: 'Iota',
-                    // kappa: 'Kappa', // varkappa
-                    lambda: 'Lambda',
-                    // mu: 'Mu',
-                    // nu: 'Nu',
-                    xi: 'Xi',
-                    // omicron: 'Omicron',
-                    pi: 'Pi', // varpi
-                    // rho: 'Rho', // varrho
-                    sigma: 'Sigma', // varsigma
-                    // tau: 'Tau',
-                    upsilon: 'Upsilon',
-                    phi: 'Phi', // varphi
-                    // chi: 'Chi',
                     psi: 'Psi',
                     omega: 'Omega'
                 }
@@ -2654,307 +2539,269 @@
         kendo.mathinput.dialogs.register('basic', BasicDialog);
 
         /**
-         * LowerGreekDialog
+         * GreekDialog
          */
-        var LowerGreekDialog = MathInputDialog.extend({
+        var GreekDialog = MathInputDialog.extend({
             init: function (options) {
                 var messages = kendo.mathinput.messages.dialogs || DIALOG_MESSAGES;
                 var defaultOptions = {
-                    title: messages.lowergreek.title,
+                    title: messages.greek.title,
                     buttons: [
                         {
                             value: '\\alpha',
                             iconClass: 'alpha',
-                            text: messages.lowergreek.buttons.alpha
+                            text: messages.greek.buttons.alpha
                         },
                         {
                             value: '\\beta',
                             iconClass: 'beta',
-                            text: messages.lowergreek.buttons.beta
+                            text: messages.greek.buttons.beta
                         },
                         {
                             value: '\\gamma',
                             iconClass: 'gamma',
-                            text: messages.lowergreek.buttons.gamma
+                            text: messages.greek.buttons.gamma
                         },
                         {
                             value: '\\delta',
                             iconClass: 'delta',
-                            text: messages.lowergreek.buttons.delta
+                            text: messages.greek.buttons.delta
                         },
                         {
                             value: '\\epsilon',
                             iconClass: 'epsilon',
-                            text: messages.lowergreek.buttons.epsilon
+                            text: messages.greek.buttons.epsilon
                         },
                         {
                             value: '\\zeta',
                             iconClass: 'zeta',
-                            text: messages.lowergreek.buttons.zeta
+                            text: messages.greek.buttons.zeta
                         },
                         {
                             value: '\\eta',
                             iconClass: 'eta',
-                            text: messages.lowergreek.buttons.eta
+                            text: messages.greek.buttons.eta
                         },
                         {
                             value: '\\theta',
                             iconClass: 'theta',
-                            text: messages.lowergreek.buttons.theta
+                            text: messages.greek.buttons.theta
                         },
                         {
                             value: '\\iota',
                             iconClass: 'iota',
-                            text: messages.lowergreek.buttons.iota
+                            text: messages.greek.buttons.iota
                         },
                         {
                             value: '\\kappa',
                             iconClass: 'kappa',
-                            text: messages.lowergreek.buttons.kappa
+                            text: messages.greek.buttons.kappa
                         },
                         {
                             value: '\\lambda',
                             iconClass: 'lambda',
-                            text: messages.lowergreek.buttons.lambda
+                            text: messages.greek.buttons.lambda
                         },
                         {
                             value: '\\mu',
                             iconClass: 'mu',
-                            text: messages.lowergreek.buttons.mu
+                            text: messages.greek.buttons.mu
                         },
                         {
                             value: '\\nu',
                             iconClass: 'nu',
-                            text: messages.lowergreek.buttons.nu
+                            text: messages.greek.buttons.nu
                         },
                         {
                             value: '\\xi',
                             iconClass: 'xi',
-                            text: messages.lowergreek.buttons.xi
+                            text: messages.greek.buttons.xi
                         },
                         {
                             value: '\\omicron',
                             iconClass: 'omicron',
-                            text: messages.lowergreek.buttons.omicron
+                            text: messages.greek.buttons.omicron
                         },
                         {
                             value: '\\pi',
                             iconClass: 'pi',
-                            text: messages.lowergreek.buttons.pi
+                            text: messages.greek.buttons.pi
                         },
                         {
                             value: '\\rho',
                             iconClass: 'rho',
-                            text: messages.lowergreek.buttons.rho
+                            text: messages.greek.buttons.rho
                         },
                         {
                             value: '\\sigma',
                             iconClass: 'sigma',
-                            text: messages.lowergreek.buttons.sigma
+                            text: messages.greek.buttons.sigma
                         },
                         {
                             value: '\\tau',
                             iconClass: 'tau',
-                            text: messages.lowergreek.buttons.tau
+                            text: messages.greek.buttons.tau
                         },
                         {
                             value: '\\upsilon',
                             iconClass: 'upsilon',
-                            text: messages.lowergreek.buttons.upsilon
+                            text: messages.greek.buttons.upsilon
                         },
                         {
                             value: '\\phi',
                             iconClass: 'phi',
-                            text: messages.lowergreek.buttons.phi
+                            text: messages.greek.buttons.phi
                         },
                         {
                             value: '\\chi',
                             iconClass: 'chi',
-                            text: messages.lowergreek.buttons.chi
+                            text: messages.greek.buttons.chi
                         },
                         {
                             value: '\\psi',
                             iconClass: 'psi',
-                            text: messages.lowergreek.buttons.psi
+                            text: messages.greek.buttons.psi
                         },
                         {
                             value: '\\omega',
                             iconClass: 'omega',
-                            text: messages.lowergreek.buttons.omega
-                        }
-                    ]
-                };
-                MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
-                this._list();
-            },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
-            _list: function () {
-                var ul = this.dialog().element.find('ul');
-                this.list = new kendo.ui.StaticList(ul, {
-                    dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    // template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
-                    template: '<a title=\'#=text#\' data-value=\'#=value#\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>',
-                    change: this.apply.bind(this)
-                });
-                this.list.dataSource.fetch();
-            },
-            apply: function (e) {
-                var dataItem = e.sender.value()[0];
-                MathInputDialog.fn.apply.call(this);
-                this.trigger('action', {
-                    command: 'ToolbarLowerGreekCommand',
-                    params: {
-                        value: dataItem.value
-                    }
-                });
-            }
-        });
-        kendo.mathinput.dialogs.register('lowergreek', LowerGreekDialog);
-
-        /**
-         * UpperGreekDialog
-         */
-        var UpperGreekDialog = MathInputDialog.extend({
-            init: function (options) {
-                var messages = kendo.mathinput.messages.dialogs || DIALOG_MESSAGES;
-                var defaultOptions = {
-                    title: messages.uppergreek.title,
-                    buttons: [
+                            text: messages.greek.buttons.omega
+                        },
                         /*
                         {
                             value: '\\Alpha',
                             iconClass: 'alpha-maj',
-                            text: messages.uppergreek.buttons.alpha
+                            text: messages.greek.buttons.alpha
                         },
                         {
                             value: '\\Beta',
                             iconClass: 'beta-maj',
-                            text: messages.uppergreek.buttons.beta
+                            text: messages.greek.buttons.beta
                         },
                         */
                         {
                             value: '\\Gamma',
                             iconClass: 'gamma-maj',
-                            text: messages.uppergreek.buttons.gamma
+                            text: messages.greek.buttons.gamma
                         },
                         {
                             value: '\\Delta',
                             iconClass: 'delta-maj',
-                            text: messages.uppergreek.buttons.delta
+                            text: messages.greek.buttons.delta
                         },
                         /*
                         {
                             value: '\\Epsilon',
                             iconClass: 'epsilon-maj',
-                            text: messages.uppergreek.buttons.epsilon
+                            text: messages.greek.buttons.epsilon
                         },
                         {
                             value: '\\Zeta',
                             iconClass: 'zeta-maj',
-                            text: messages.uppergreek.buttons.zeta
+                            text: messages.greek.buttons.zeta
                         },
                         {
                             value: '\\Eta',
                             iconClass: 'eta-maj',
-                            text: messages.uppergreek.buttons.eta
+                            text: messages.greek.buttons.eta
                         },
                         */
                         {
                             value: '\\Theta',
                             iconClass: 'theta-maj',
-                            text: messages.uppergreek.buttons.theta
+                            text: messages.greek.buttons.theta
                         },
                         /*
                         {
                             value: '\\Iota',
                             iconClass: 'iota-maj',
-                            text: messages.uppergreek.buttons.iota
+                            text: messages.greek.buttons.iota
                         },
                         {
                             value: '\\Kappa',
                             iconClass: 'kappa-maj',
-                            text: messages.uppergreek.buttons.kappa
+                            text: messages.greek.buttons.kappa
                         },
                         */
                         {
                             value: '\\Lambda',
                             iconClass: 'lambda-maj',
-                            text: messages.uppergreek.buttons.lambda
+                            text: messages.greek.buttons.lambda
                         },
                         /*
                         {
                             value: '\\Mu',
                             iconClass: 'mu-maj',
-                            text: messages.uppergreek.buttons.mu
+                            text: messages.greek.buttons.mu
                         },
                         {
                             value: '\\Nu',
                             iconClass: 'nu-maj',
-                            text: messages.uppergreek.buttons.nu
+                            text: messages.greek.buttons.nu
                         },
                         */
                         {
                             value: '\\Xi',
                             iconClass: 'xi-maj',
-                            text: messages.uppergreek.buttons.xi
+                            text: messages.greek.buttons.xi
                         },
                         /*
                         {
                             value: '\\Omicron',
                             iconClass: 'omicron-maj',
-                            text: messages.uppergreek.buttons.omicron
+                            text: messages.greek.buttons.omicron
                         },
                         */
                         {
                             value: '\\Pi',
                             iconClass: 'pi-maj',
-                            text: messages.uppergreek.buttons.pi
+                            text: messages.greek.buttons.pi
                         },
                         /*
                         {
                             value: '\\Rho',
                             iconClass: 'rho-maj',
-                            text: messages.uppergreek.buttons.rho
+                            text: messages.greek.buttons.rho
                         },
                         */
                         {
                             value: '\\Sigma',
                             iconClass: 'sigma-maj',
-                            text: messages.uppergreek.buttons.sigma
+                            text: messages.greek.buttons.sigma
                         },
                         /*
                         {
                             value: '\\Tau',
                             iconClass: 'tau-maj',
-                            text: messages.uppergreek.buttons.tau
+                            text: messages.greek.buttons.tau
                         },
                         */
                         {
                             value: '\\Upsilon',
                             iconClass: 'upsilon-maj',
-                            text: messages.uppergreek.buttons.upsilon
+                            text: messages.greek.buttons.upsilon
                         },
                         {
                             value: '\\Phi',
                             iconClass: 'phi-maj',
-                            text: messages.uppergreek.buttons.phi
+                            text: messages.greek.buttons.phi
                         },
                         /*
                         {
                             value: '\\Chi',
                             iconClass: 'chi-maj',
-                            text: messages.uppergreek.buttons.chi
+                            text: messages.greek.buttons.chi
                         },
                         */
                         {
                             value: '\\Psi',
                             iconClass: 'psi-maj',
-                            text: messages.uppergreek.buttons.psi
+                            text: messages.greek.buttons.psi
                         },
                         {
                             value: '\\Omega',
                             iconClass: 'omega-maj',
-                            text: messages.uppergreek.buttons.omega
+                            text: messages.greek.buttons.omega
                         }
                     ]
                 };
@@ -2976,14 +2823,14 @@
                 var dataItem = e.sender.value()[0];
                 MathInputDialog.fn.apply.call(this);
                 this.trigger('action', {
-                    command: 'ToolbarUpperGreekCommand',
+                    command: 'ToolbarGreekCommand',
                     params: {
                         value: dataItem.value
                     }
                 });
             }
         });
-        kendo.mathinput.dialogs.register('uppergreek', UpperGreekDialog);
+        kendo.mathinput.dialogs.register('greek', GreekDialog);
 
         /**
          * OperatorsDialog

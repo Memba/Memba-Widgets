@@ -61,8 +61,7 @@
             'field',
             'keypad',
             'basic',
-            'lowergreek',
-            'uppergreek',
+            'greek',
             'operators',
             'expressions',
             'sets',
@@ -498,8 +497,7 @@
                         break;
                     case 'ToolbarKeyPadCommand':
                     case 'ToolbarBasicCommand':
-                    case 'ToolbarLowerGreekCommand':
-                    case 'ToolbarUpperGreekCommand':
+                    case 'ToolbarGreekCommand':
                     case 'ToolbarOperatorsCommand':
                     case 'ToolbarExpressionsCommand':
                     case 'ToolbarSetsCommand':

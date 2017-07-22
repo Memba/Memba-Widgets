@@ -301,8 +301,7 @@
                     field: { title: 'Field' },
                     keypad: { title: 'Keypad' },
                     basic: { title: 'Basic' },
-                    lowergreek: { title: 'Lower Greek' },
-                    uppergreek: { title: 'Upper Greek' },
+                    greek: { title: 'Greek' },
                     operators: { title: 'Operators' },
                     expressions: { title: 'Functions' },
                     sets: { title: 'Sets' },
@@ -1446,8 +1445,7 @@
                                 // 'field',
                                 'keypad',
                                 'basic',
-                                'lowergreek',
-                                'uppergreek',
+                                'greek',
                                 'operators',
                                 'expressions',
                                 'sets',
@@ -3398,8 +3396,7 @@
                 // field: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.field.title, defaultValue: false }),
                 keypad: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.keypad.title, defaultValue: true }),
                 basic: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.basic.title, defaultValue: true }),
-                lowergreek: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.lowergreek.title, defaultValue: false }),
-                uppergreek: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.uppergreek.title, defaultValue: false }),
+                greek: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.greek.title, defaultValue: false }),
                 operators: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.operators.title, defaultValue: false }),
                 expressions: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.expressions.title, defaultValue: false }),
                 sets: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.sets.title, defaultValue: false }),
@@ -3446,11 +3443,8 @@
                     if (this.get('attributes.basic')) {
                         tools.push('basic');
                     }
-                    if (this.get('attributes.lowergreek')) {
-                        tools.push('lowergreek');
-                    }
-                    if (this.get('attributes.uppergreek')) {
-                        tools.push('uppergreek');
+                    if (this.get('attributes.greek')) {
+                        tools.push('greek');
                     }
                     if (this.get('attributes.operators')) {
                         tools.push('operators');

@@ -230,9 +230,10 @@
                             tan: 'Tangent'
                         }
                     },
-                    lowergreek: {
-                        title: 'Greek (Lower Case)',
+                    greek: {
+                        title: 'Greek',
                         buttons: {
+                            // Note: upper case and lower case share the same values
                             alpha: 'Alpha',
                             beta: 'Beta',
                             gamma: 'Gamma',
@@ -255,35 +256,6 @@
                             upsilon: 'Upsilon',
                             phi: 'Phi', // varphi
                             chi: 'Chi',
-                            psi: 'Psi',
-                            omega: 'Omega'
-                        }
-                    },
-                    uppergreek: {
-                        title: 'Greek (Upper Case)',
-                        buttons: {
-                            // alpha: 'Alpha',
-                            // beta: 'Beta',
-                            gamma: 'Gamma',
-                            delta: 'Delta',
-                            // epsilon: 'Epsilon', // varepsilon
-                            // zeta: 'Zeta',
-                            // eta: 'Eta',
-                            theta: 'Theta', // vartheta
-                            // iota: 'Iota',
-                            // kappa: 'Kappa', // varkappa
-                            lambda: 'Lambda',
-                            // mu: 'Mu',
-                            // nu: 'Nu',
-                            xi: 'Xi',
-                            // omicron: 'Omicron',
-                            pi: 'Pi', // varpi
-                            // rho: 'Rho', // varrho
-                            sigma: 'Sigma', // varsigma
-                            // tau: 'Tau',
-                            upsilon: 'Upsilon',
-                            phi: 'Phi', // varphi
-                            // chi: 'Chi',
                             psi: 'Psi',
                             omega: 'Omega'
                         }
@@ -474,8 +446,8 @@
                             tan: 'Tangent'
                         }
                     },
-                    lowergreek: {
-                        title: 'Greek (Lower Case)',
+                    greek: {
+                        title: 'Greek',
                         buttons: {
                             alpha: 'Alpha',
                             beta: 'Beta',
@@ -499,35 +471,6 @@
                             upsilon: 'Upsilon',
                             phi: 'Phi', // varphi
                             chi: 'Chi',
-                            psi: 'Psi',
-                            omega: 'Omega'
-                        }
-                    },
-                    uppergreek: {
-                        title: 'Greek (Upper Case)',
-                        buttons: {
-                            // alpha: 'Alpha',
-                            // beta: 'Beta',
-                            gamma: 'Gamma',
-                            delta: 'Delta',
-                            // epsilon: 'Epsilon', // varepsilon
-                            // zeta: 'Zeta',
-                            // eta: 'Eta',
-                            theta: 'Theta', // vartheta
-                            // iota: 'Iota',
-                            // kappa: 'Kappa', // varkappa
-                            lambda: 'Lambda',
-                            // mu: 'Mu',
-                            // nu: 'Nu',
-                            xi: 'Xi',
-                            // omicron: 'Omicron',
-                            pi: 'Pi', // varpi
-                            // rho: 'Rho', // varrho
-                            sigma: 'Sigma', // varsigma
-                            // tau: 'Tau',
-                            upsilon: 'Upsilon',
-                            phi: 'Phi', // varphi
-                            // chi: 'Chi',
                             psi: 'Psi',
                             omega: 'Omega'
                         }

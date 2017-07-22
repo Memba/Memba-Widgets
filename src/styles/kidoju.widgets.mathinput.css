@@ -125,22 +125,14 @@
 .kj-mathinput-popup .k-font-icon.k-i-basic,
 .kj-mathinput-dialog .k-font-icon.k-i-basic,
 .k-overflow-container .k-font-icon.k-i-basic,
-.kj-mathinput-toolbar .k-icon.k-i-lowergreek,
-.kj-mathinput-popup .k-icon.k-i-lowergreek,
-.kj-mathinput-dialog .k-icon.k-i-lowergreek,
-.k-overflow-container .k-icon.k-i-lowergreek,
-.kj-mathinput-toolbar .k-font-icon.k-i-lowergreek,
-.kj-mathinput-popup .k-font-icon.k-i-lowergreek,
-.kj-mathinput-dialog .k-font-icon.k-i-lowergreek,
-.k-overflow-container .k-font-icon.k-i-lowergreek,
-.kj-mathinput-toolbar .k-icon.k-i-uppergreek,
-.kj-mathinput-popup .k-icon.k-i-uppergreek,
-.kj-mathinput-dialog .k-icon.k-i-uppergreek,
-.k-overflow-container .k-icon.k-i-uppergreek,
-.kj-mathinput-toolbar .k-font-icon.k-i-uppergreek,
-.kj-mathinput-popup .k-font-icon.k-i-uppergreek,
-.kj-mathinput-dialog .k-font-icon.k-i-uppergreek,
-.k-overflow-container .k-font-icon.k-i-uppergreek,
+.kj-mathinput-toolbar .k-icon.k-i-greek,
+.kj-mathinput-popup .k-icon.k-i-greek,
+.kj-mathinput-dialog .k-icon.k-i-greek,
+.k-overflow-container .k-icon.k-i-greek,
+.kj-mathinput-toolbar .k-font-icon.k-i-greek,
+.kj-mathinput-popup .k-font-icon.k-i-greek,
+.kj-mathinput-dialog .k-font-icon.k-i-greek,
+.k-overflow-container .k-font-icon.k-i-greek,
 .kj-mathinput-toolbar .k-icon.k-i-operators,
 .kj-mathinput-popup .k-icon.k-i-operators,
 .kj-mathinput-dialog .k-icon.k-i-operators,
@@ -1513,17 +1505,11 @@
 .k-overflow-container .k-i-basic:before {
     content: "\e701";
 }
-.kj-mathinput-toolbar .k-i-lowergreek:before,
-.kj-mathinput-popup .k-i-lowergreek:before,
-.kj-mathinput-dialog .k-i-lowergreek:before,
-.k-overflow-container .k-i-lowergreek:before {
+.kj-mathinput-toolbar .k-i-greek:before,
+.kj-mathinput-popup .k-i-greek:before,
+.kj-mathinput-dialog .k-i-greek:before,
+.k-overflow-container .k-i-greek:before {
     content: "\03b1";
-}
-.kj-mathinput-toolbar .k-i-uppergreek:before,
-.kj-mathinput-popup .k-i-uppergreek:before,
-.kj-mathinput-dialog .k-i-uppergreek:before,
-.k-overflow-container .k-i-uppergreek:before {
-    content: "\03a9";
 }
 .kj-mathinput-toolbar .k-i-operators:before,
 .kj-mathinput-popup .k-i-operators:before,

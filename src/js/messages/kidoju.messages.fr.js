@@ -229,8 +229,8 @@
                             tan: 'Tangente'
                         }
                     },
-                    lowergreek: {
-                        title: 'Grec (Minuscules)',
+                    greek: {
+                        title: 'Grec',
                         buttons: {
                             alpha: 'Alpha',
                             beta: 'Beta',
@@ -254,35 +254,6 @@
                             upsilon: 'Upsilon',
                             phi: 'Phi', // varphi
                             chi: 'Chi',
-                            psi: 'Psi',
-                            omega: 'Omega'
-                        }
-                    },
-                    uppergreek: {
-                        title: 'Grec (Majuscules)',
-                        buttons: {
-                            // alpha: 'Alpha',
-                            // beta: 'Beta',
-                            gamma: 'Gamma',
-                            delta: 'Delta',
-                            // epsilon: 'Epsilon', // varepsilon
-                            // zeta: 'Zeta',
-                            // eta: 'Eta',
-                            theta: 'Theta', // vartheta
-                            // iota: 'Iota',
-                            // kappa: 'Kappa', // varkappa
-                            lambda: 'Lambda',
-                            // mu: 'Mu',
-                            // nu: 'Nu',
-                            xi: 'Xi',
-                            // omicron: 'Omicron',
-                            pi: 'Pi', // varpi
-                            // rho: 'Rho', // varrho
-                            sigma: 'Sigma', // varsigma
-                            // tau: 'Tau',
-                            upsilon: 'Upsilon',
-                            phi: 'Phi', // varphi
-                            // chi: 'Chi',
                             psi: 'Psi',
                             omega: 'Omega'
                         }
@@ -472,8 +443,8 @@
                             tan: 'Tangente'
                         }
                     },
-                    lowergreek: {
-                        title: 'Grec (Minuscules)',
+                    greek: {
+                        title: 'Grec',
                         buttons: {
                             alpha: 'Alpha',
                             beta: 'Beta',
@@ -497,35 +468,6 @@
                             upsilon: 'Upsilon',
                             phi: 'Phi', // varphi
                             chi: 'Chi',
-                            psi: 'Psi',
-                            omega: 'Omega'
-                        }
-                    },
-                    uppergreek: {
-                        title: 'Grec (Majuscules)',
-                        buttons: {
-                            // alpha: 'Alpha',
-                            // beta: 'Beta',
-                            gamma: 'Gamma',
-                            delta: 'Delta',
-                            // epsilon: 'Epsilon', // varepsilon
-                            // zeta: 'Zeta',
-                            // eta: 'Eta',
-                            theta: 'Theta', // vartheta
-                            // iota: 'Iota',
-                            // kappa: 'Kappa', // varkappa
-                            lambda: 'Lambda',
-                            // mu: 'Mu',
-                            // nu: 'Nu',
-                            xi: 'Xi',
-                            // omicron: 'Omicron',
-                            pi: 'Pi', // varpi
-                            // rho: 'Rho', // varrho
-                            sigma: 'Sigma', // varsigma
-                            // tau: 'Tau',
-                            upsilon: 'Upsilon',
-                            phi: 'Phi', // varphi
-                            // chi: 'Chi',
                             psi: 'Psi',
                             omega: 'Omega'
                         }

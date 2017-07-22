@@ -128,8 +128,13 @@
              * @param data
              */
             init: function (data) {
-                // Call the base init method after parsing data
-                kendo.data.Model.fn.init.call(this, this._parseData(data));
+                if (data && $.type(data.hasSubgroups) === 'boolean' && $.isArray(data.items)) {
+                    // This is called from flattenGroups in kendo.data.js because we have aggregates
+                    kendo.data.Model.fn.init.call(this, data);
+                } else {
+                    // Call the base init method after parsing data
+                    kendo.data.Model.fn.init.call(this, this._parseData(data));
+                }
             },
 
             /**

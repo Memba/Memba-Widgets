@@ -239,15 +239,14 @@
              */
             _initImageRule: function () {
                 var that = this;
-                var schemes = that.options.schemes;
                 var defaultRender = that.md.renderer.rules.image || function (tokens, idx, options, env, self) {
                         return self.renderToken(tokens, idx, options);
                     };
                 that.md.renderer.rules.image = function (tokens, idx, options, env, slf) {
-
                     // Replace schemes
                     var srcIndex = tokens[idx].attrIndex('src');
                     var src = tokens[idx].attrs[srcIndex][1];
+                    var schemes = that.options.schemes;
                     for (var scheme in (schemes || {})) {
                         if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(src)) {
                             src = src.replace(scheme + '://', schemes[scheme]);

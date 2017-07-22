@@ -41,6 +41,7 @@
         var StaticList = kendo.ui.StaticList;
         kendo.markeditor = { messages: {}};
         // var UNDEFINED = 'undefined';
+        var NO_PADDING_CLASS = 'kj-no-padding';
         var TOOLBAR = [
             'undo',
             'redo',
@@ -1048,14 +1049,13 @@
             options: {
                 actions: ['Maximize', 'Close'],
                 autoFocus: false,
-                className: 'no-padding',
+                className: NO_PADDING_CLASS,
                 resizable: true,
                 template: '<div class="kj-markeditor-preview">' +
                     '<div id="preview_toolbar_container"></div>' +
                     '<div data-role="splitter" data-panes="[{&quot;scrollable&quot;:false},{&quot;scrollable&quot;:true}]">' +
-                        // TODO the preview dialog always has all the tools excpet preview - we should build the list of tools from marleditor.options.tools
-                        '<div><div data-role="markeditor" data-bind="value: markdown" data-toolbar="{&quot;container&quot;:&quot;\\#preview_toolbar_container&quot;,&quot;resizable&quot;:true,&quot;tools&quot;:[&quot;undo&quot;,&quot;redo&quot;,&quot;headings&quot;,&quot;bold&quot;,&quot;italic&quot;,&quot;bulleted&quot;,&quot;numbered&quot;,&quot;blockquote&quot;,&quot;hrule&quot;,&quot;link&quot;,&quot;image&quot;,&quot;code&quot;,&quot;latex&quot;]}"></div></div>' +
-                        '<div><div data-role="markdown" data-bind="value: markdown"></div></div>' +
+                        '<div><div data-role="markeditor" data-bind="value: markdown"></div></div>' + // Note: data-gfm and data-toolbar are added in the open function
+                        '<div><div data-role="markdown" data-bind="value: markdown"></div></div>' + // Note data-schemes are added in the open function
                     '</div>' +
                     '<div class="k-action-buttons">' + ('<button class="k-button k-primary" data-bind="click: apply">#= messages.okText #</button>' + '<button class="k-button" data-bind="click: cancel">#= messages.cancel #</button>') + '</div>' +
                 '</div>',
@@ -1064,6 +1064,7 @@
             },
             open: function (markeditor) {
                 var self = this;
+                var options = markeditor.options;
                 MarkEditorDialog.fn.open.apply(self, arguments);
                 var element = self.dialog().element;
                 var model = kendo.observable({
@@ -1083,6 +1084,22 @@
                     },
                     cancel: self.close.bind(self)
                 });
+
+                // Set markeditor options
+                var toolbar = {
+                    container: '#preview_toolbar_container',
+                    resizable: options.toolbar.resizable,
+                    tools: options.toolbar.tools.filter(function (tool) { return tool !== 'preview'; })
+                };
+                element.find(kendo.roleSelector('markeditor'))
+                    .attr(kendo.attr('gfm'), options.gfm)
+                    .attr(kendo.attr('toolbar'), JSON.stringify(toolbar));
+
+                // Set markdown options
+                element.find(kendo.roleSelector('markdown'))
+                    .attr(kendo.attr('schemes'), JSON.stringify(options.schemes));
+
+                // Now we can bind the element to the model
                 kendo.bind(element, model);
 
                 // We now need to pass the dialog hooks to the markeditor widget in the preview dialog

@@ -1,13 +1,13 @@
-.k-spreadsheet-window.kj-markeditor-window.no-padding {
+.k-spreadsheet-window.kj-markeditor-window.kj-no-padding {
     padding: 0;
 }
-.k-spreadsheet-window.kj-markeditor-window.no-padding .kj-markeditor-preview .k-splitter .k-widget.kj-markeditor {
+.k-spreadsheet-window.kj-markeditor-window.kj-no-padding .kj-markeditor-preview .k-splitter .k-widget.kj-markeditor {
     border: 0;
 }
-.k-spreadsheet-window.kj-markeditor-window.no-padding .kj-markeditor-preview .k-splitter .kj-markdown {
+.k-spreadsheet-window.kj-markeditor-window.kj-no-padding .kj-markeditor-preview .k-splitter .kj-markdown {
     margin: 0.5em;
 }
-.k-spreadsheet-window.kj-markeditor-window.no-padding .kj-markeditor-preview .k-action-buttons {
+.k-spreadsheet-window.kj-markeditor-window.kj-no-padding .kj-markeditor-preview .k-action-buttons {
     bottom: 0;
     border: 0;
     margin: 0;

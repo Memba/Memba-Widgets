@@ -248,7 +248,7 @@
                     // Replace schemes
                     var srcIndex = tokens[idx].attrIndex('src');
                     var src = tokens[idx].attrs[srcIndex][1];
-                    for (var scheme in schemes) {
+                    for (var scheme in (schemes || {})) {
                         if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(src)) {
                             src = src.replace(scheme + '://', schemes[scheme]);
                             break;

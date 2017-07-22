@@ -102,6 +102,8 @@
                     image: 'An undescribed image',
                     link: 'Click here'
                 },
+                schemes: {},
+                // theme: 'monokai', // We have themed CodeMirror in Kidoju-WebApp - see codemirror.custom.less using Kendo UI less variables
                 toolbar: {
                     container: '',
                     resizable: true,
@@ -172,10 +174,11 @@
                 this.toolBar = $('<div class="kj-markeditor-toolbar"></div>')
                     .prependTo(container.length === 1 ? container : this.element)
                     .kendoMarkEditorToolBar({
-                        tools: this.options.toolbar.tools,
-                        resizable: this.options.toolbar.resizable,
                         action: this._onToolBarAction.bind(this),
-                        dialog: this._onToolBarDialog.bind(this)
+                        dialog: this._onToolBarDialog.bind(this),
+                        resizable: this.options.toolbar.resizable,
+                        schemes: this.options.schemes, // Pass teh schemes to the toolbar
+                        tools: this.options.toolbar.tools
                     })
                     .data('kendoMarkEditorToolBar');
             },
@@ -193,7 +196,7 @@
                     // extraKeys?
                     lineNumbers: options.lineNumbers,
                     mode: options.gfm ? 'gfm' : 'markdown',
-                    // theme: 'monokai', // TODO: Change theme
+                    // theme: options.theme,
                     value: options.value,
                     viewportMargin: options.autoResize ? Number.POSITIVE_INFINITY : 10
                 });

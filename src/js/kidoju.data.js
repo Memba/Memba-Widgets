@@ -128,8 +128,8 @@
              * @param data
              */
             init: function (data) {
-                if (data && $.type(data.hasSubgroups) === 'boolean' && $.isArray(data.items)) {
-                    // This is called from flattenGroups in kendo.data.js because we have aggregates
+                if (data && !(data instanceof kendo.data.Model) && $.type(data.hasSubgroups) === 'boolean' && $.isArray(data.items)) {
+                    // This is called from flattenGroups in kendo.data.js when there are aggregates
                     kendo.data.Model.fn.init.call(this, data);
                 } else {
                     // Call the base init method after parsing data

@@ -13,6 +13,9 @@
 .kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-toolbar-wrap .k-upload .k-icon {
     vertical-align: middle;
 }
+.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-toolbar-wrap .k-button {
+    margin-right: .25em;
+}
 .kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange {
     display: flex;
     align-items: center;

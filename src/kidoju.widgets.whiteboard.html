@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Whiteboard</title>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.whiteboard stylesheet -->
+    <link href="./styles/kidoju.widgets.whiteboard.css" rel="stylesheet" />
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.whiteboard.js').then(function (kendo) {
+                $(function () {
+                    var viewModel = kendo.observable({
+                        visible: true,
+                        enabled: true
+                    });
+                    kendo.bind('body', viewModel);
+                    var whiteboard = $('#whiteboard').kendoWhiteboard({}).data('kendoWhiteboard');
+                    $('#record').click(function () {
+                        whiteboard.record();
+                    });
+                    $('#stop').click(function () {
+                        whiteboard.stop();
+                    });
+                });
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>Whiteboard</h1>
+<h2>Whiteboard unbound</h2>
+
+<div id="whiteboard" style="width:640px;height:480px"></div>
+<button id="record">Record</button>
+<button id="pause">Pause</button>
+<button id="stop">Stop</button>
+
+<h2>Whiteboard bound to observable</h2>
+
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled
+</div>
+
+<pre>
+    {
+        visible: <span data-bind="text: visible"></span>,
+        enabled: <span data-bind="text: enabled"></span>
+    }
+</pre>
+</body>
+</html>

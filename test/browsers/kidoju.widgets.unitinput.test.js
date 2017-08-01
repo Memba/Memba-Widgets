@@ -72,7 +72,7 @@
             });
 
             xit('from markup with attributes', function () {
-                // TODO: AssetManager might be a bit complex to initialize with attributes...
+                // TODO
             });
 
             afterEach(function () {
@@ -100,7 +100,7 @@
             });
 
             xit('setOptions', function () {
-                // TODO especially regarding filters (to be enforced)
+                // TODO
             });
 
             xit('destroy', function () {

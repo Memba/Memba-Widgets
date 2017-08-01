@@ -229,7 +229,7 @@
                 if (enabled) {
 
                     // that.element.on(KEYDOWN + NS, BUTTON_SELECTOR, function (e) {
-                    that.element.on(KEYDOWN + NS, function(e) {
+                    that.element.on(KEYDOWN + NS, function (e) {
                         if (e.keyCode === keys.DOWN) {
                             that.toggle();
                         } else if (e.keyCode === keys.SPACEBAR || e.keyCode === keys.ENTER) {
@@ -241,7 +241,7 @@
                     /* jshint -W074 */
 
                     that.popupElement.on(KEYDOWN + NS, BUTTON_SELECTOR,
-                        function(e) {
+                        function (e) {
                             var li = $(e.target).parent();
                             e.preventDefault();
                             if (e.keyCode === keys.ESC || e.keyCode === keys.TAB || e.altKey && e.keyCode === keys.UP) {

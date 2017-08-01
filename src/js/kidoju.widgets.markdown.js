@@ -288,7 +288,7 @@
                 }
                 // use much nicer twemojis
                 if (twemoji) {
-                    this.md.renderer.rules.emoji = function(token, idx) {
+                    this.md.renderer.rules.emoji = function (token, idx) {
                         return twemoji.parse(token[idx].content);
                     };
                 }

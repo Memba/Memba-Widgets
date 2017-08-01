@@ -99,9 +99,9 @@
             context.fillStyle = 'white';
             context.strokeStyle = 'red';
             context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-            context.drawImage(video, 0, 0, 64, 48);
+            context.drawImage(video, 0, 0, $(video).width(), $(video).height());
             context.beginPath();
-            context.arc(320, 240, 200 * Math.random(), 0, 2 * Math.PI);
+            context.arc(context.canvas.width / 2, context.canvas.height / 2, (context.canvas.height / 2 - 20) * Math.random(), 0 * Math.PI, 2 * Math.PI);
             context.stroke();
         }
 
@@ -156,9 +156,14 @@
             options: {
                 name: 'Whiteboard',
                 enable: true,
-                fps: 15,
+                fps: 24,
                 audio: true,
-                video: true, // { mandatory: { minWidth: 640, minHeight: 360 }
+                video: {
+                    facingMode: 'user', // vs. 'environmnet'
+                    frameRate: { ideal: 24 },
+                    height: 96,
+                    width: 128
+                },
                 mimeType: TYPES[0],
                 codec: CODECS[0]
             },
@@ -174,14 +179,21 @@
                 var options = that.options;
                 that.wrapper = element;
                 element.addClass(WIDGET_CLASS);
-                that.canvas = $('<canvas></canvas>')
-                    .outerHeight(element.height())
-                    .outerWidth(element.width())
+                that.canvas = $(kendo.format('<canvas width="{0}" height="{1}"></canvas>', element.width(), element.height()))
                     .appendTo(element);
                 that.context = that.canvas.get(0).getContext('2d');
                 that.video = $('<video autoplay></video>')
                     .hide()
                     .appendTo(element);
+            },
+
+            /**
+             * Check browser support
+             */
+            hasBrowserSupport: function () {
+               // This has to be Firefox 47+ or Chrome 53+
+               // Detect browser support (see Modernizr)
+               // Or may we should add that to kendo.support so as to be able to check browser support before opening a window with the component
             },
 
             /**
@@ -216,9 +228,11 @@
                             // Avoid using this in new browsers, as it is going away.
                             video.src = URL.createObjectURL(videoStream);
                         }
+                        /** not needed with autoplay
                         video.onloadedmetadata = function(e) {
                             video.play();
                         };
+                        */
 
                         // Capture the canvas stream
                         var mediaStream = canvas.captureStream(options.fps);
@@ -229,8 +243,7 @@
                         });
                         mediaStream.addTrack(audioTrack);
 
-                        // Create a media recorder
-                        // https://developers.google.com/web/updates/2016/01/mediarecorder
+                        // Create a media recorder - https://developers.google.com/web/updates/2016/01/mediarecorder
                         that._mediaRecorder = new MediaRecorder(mediaStream, { mimeType: options.mimeType + options.codec });
 
                         // Add chunks
@@ -244,14 +257,10 @@
                             var video = document.createElement('video');
                             video.controls = true;
                             var blob = new Blob(that._chunks, { type : options.mimeType });
-                            // if ('srcObject' in video) {
-                                // Older browsers may not have srcObject
-                                // video.srcObject = blob;
-                            // } else {
-                                // Avoid using this in new browsers, as it is going away.
-                                video.src = URL.createObjectURL(blob);
-                            // }
+                            // video.srcObject = blob; won't work with a blog even with modern browsers
+                            video.src = URL.createObjectURL(blob);
                             document.body.appendChild(video);
+                            that._mediaRecorder = undefined;
                         };
 
                         that._mediaRecorder.start();
@@ -267,8 +276,13 @@
              */
             stop: function () {
                 var that = this;
-                clearInterval(that._interval);
-                that._mediaRecorder.stop();
+                if (that._interval) {
+                    clearInterval(that._interval);
+                    that._interval = undefined;
+                }
+                if (that._mediaRecorder) {
+                    that._mediaRecorder.stop();
+                }
             },
 
             /**

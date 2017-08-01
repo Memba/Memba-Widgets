@@ -1,15 +1,28 @@
-.kj-split-button {
+.kj-splitbutton {
     display: inline-block;
 }
-.kj-split-button .k-button:not(.kj-split-button-arrow) {
+.kj-splitbutton .k-button:not(.kj-splitbutton-arrow) {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    margin: 0;
 }
-.kj-split-button .kj-split-button-arrow {
+.kj-splitbutton .kj-splitbutton-arrow {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     margin: 0 0 0 -1px;
     padding-left: .4em;
     padding-right: .4em;
+}
+.kj-splitbutton .k-button:not(.kj-splitbutton-arrow) .k-image,
+.k-popup .k-button:not(.kj-splitbutton-arrow) .k-image {
+    height: 1.2em;
+    width: 1.2em;
+    outline: 0;
+    border: 0;
+    vertical-align: sub;
+}
+.kj-splitbutton .k-button:not(.kj-splitbutton-arrow) .k-icon,
+.k-popup .k-button:not(.kj-splitbutton-arrow) .k-icon,
+.kj-splitbutton .k-button:not(.kj-splitbutton-arrow) .k-image,
+.k-popup .k-button:not(.kj-splitbutton-arrow) .k-image {
+    margin-right: 0.25em;
 }

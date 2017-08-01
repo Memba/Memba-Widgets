@@ -1,17 +1,30 @@
-.kj-split-button {
+.kj-splitbutton {
     display: inline-block;
     // line-height: 1.72em;
     // vertical-align: middle;
-    .k-button:not(.kj-split-button-arrow) {
+    .k-button:not(.kj-splitbutton-arrow) {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
-        margin: 0;
     }
-    .kj-split-button-arrow {
+    .kj-splitbutton-arrow {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         margin: 0 0 0 -1px;
         padding-left: .4em;
         padding-right: .4em;
+    }
+}
+.kj-splitbutton, .k-popup {
+    .k-button:not(.kj-splitbutton-arrow) {
+        .k-image {
+            height: 1.2em;
+            width: 1.2em;
+            outline: 0;
+            border: 0;
+            vertical-align: sub;
+        }
+        .k-icon, .k-image {
+            margin-right: 0.25em;
+        }
     }
 }

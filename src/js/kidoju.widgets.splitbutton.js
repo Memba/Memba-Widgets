@@ -25,29 +25,39 @@
         var Widget = ui.Widget;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.splitbutton');
+        var keys = kendo.keys;
         var outerWidth = kendo._outerWidth;
         var NS = '.kendoSplitButton';
         var UNDEFINED = 'undefined';
-        var CLICK = 'click' + NS;
-        var WIDGET_CLASS = 'kj-split-button';
+        var CLICK = 'click';
+        var KEYDOWN = 'keydown';
+        var WIDGET_CLASS = 'kj-splitbutton';
         var DISABLED_CLASS = 'k-state-disabled';
         var BUTTON_TMPL = '<a class="k-button">{0}</a>';
-        // var ARROW_BUTTON_TMPL = '<a class="k-button kj-split-button-arrow"><span class="' + (options.mobile ? 'km-icon km-arrowdown' : 'k-icon k-i-arrow-60-down') + '"></span></a>';
-        var ARROW_BUTTON_TMPL = '<a class="k-button kj-split-button-arrow"><span class="k-icon k-i-arrow-60-down"></span></a>';
+        // var ARROW_BUTTON_TMPL = '<a class="k-button kj-splitbutton-arrow"><span class="' + (options.mobile ? 'km-icon km-arrowdown' : 'k-icon k-i-arrow-60-down') + '"></span></a>';
+        var ARROW_BUTTON_TMPL = '<a class="k-button kj-splitbutton-arrow"><span class="k-icon k-i-arrow-60-down"></span></a>';
         var ICON_TMPL = '<span class="k-icon k-i-{0}"></span>';
+        var IMAGE_TMPL = '<img alt="icon" class="k-image" src="{0}">';
         var POPUP_TMPL = '<ul class="k-list-container k-split-container"></ul>';
-        var BUTTON_SELECTOR = '.k-button';
-        var ARROW_BUTTON_SELECTOR = '.kj-split-button-arrow';
+        var BUTTON_SELECTOR = 'a.k-button';
+        var ARROW_BUTTON_SELECTOR = '.kj-splitbutton-arrow';
 
         /*********************************************************************************
          * Helpers
          *********************************************************************************/
 
+        /* If a strict mode function is executed using function invocation, its 'this' value will be undefined. */
+        /* jshint -W040 */
+
         /**
          * adjustPopupWidth can be found in kendo.toolbar.js
+         * Note: It does not make sense to add it as a widget method, because
+         * this actually refers to this.popup
          */
         function adjustPopupWidth() {
-            var anchor = this.options.anchor, computedWidth = outerWidth(anchor), width;
+            var anchor = this.options.anchor;
+            var computedWidth = outerWidth(anchor);
+            var width;
             kendo.wrap(this.element).addClass('k-split-wrapper');
             if (this.element.css('box-sizing') !== 'border-box') {
                 width = computedWidth - (outerWidth(this.element) - this.element.width());
@@ -59,6 +69,8 @@
                 'min-width': width
             });
         }
+
+        /* jshint +W040 */
 
         /**
         function toggleActive(e) {
@@ -73,8 +85,23 @@
         }
         */
 
-        function preventClick(e) {
-            e.preventDefault();
+        /**
+         * findFocusableSibling can be found in kendo.toolbar.js
+         * @param element
+         * @param dir
+         * @returns {*}
+         */
+        function findFocusableSibling(element, dir) {
+            var getSibling = dir === 'next' ? $.fn.next : $.fn.prev;
+            var getter = dir === 'next' ? $.fn.first : $.fn.last;
+            var candidate = getSibling.call(element);
+            if (candidate.is(':kendoFocusable') || !candidate.length) {
+                return candidate;
+            }
+            if (candidate.find(':kendoFocusable').length) {
+                return getter.call(candidate.find(':kendoFocusable'));
+            }
+            return findFocusableSibling(candidate, dir);
         }
 
         /*********************************************************************************
@@ -100,8 +127,22 @@
                 Widget.fn.init.call(that, element, options);
                 logger.debug({ method: 'init', message: 'widget initialized' });
                 that._layout();
-                that.enable(that.options.enable);
+                that.enable(that.element.prop('disabled') ? false : !!that.options.enable);
                 kendo.notify(that);
+            },
+
+            /**
+             * Widget options
+             * @property options
+             */
+            options: {
+                name: 'SplitButton',
+                enable: true,
+                command: '',
+                icon: '',
+                imageUrl: '',
+                text: 'Button',
+                menuButtons: []
             },
 
             /**
@@ -111,19 +152,6 @@
             events: [
                 CLICK
             ],
-
-            /**
-             * Widget options
-             * @property options
-             */
-            options: {
-                name: 'SplitButton',
-                enable: true,
-                text: 'Button',
-                icon: '',
-                menuButtons: [],
-                click: $.noop // TODO
-            },
 
             /**
              * Builds the widget layout
@@ -137,9 +165,12 @@
                     throw new Error('Please instantiate a split button with a div');
                 }
                 this.wrapper = element;
-                element.addClass(WIDGET_CLASS).prop('tabIndex', 0);
-                var icon = options.icon ? kendo.format(ICON_TMPL, options.icon) : '';
-                this.mainButton = $(kendo.format(BUTTON_TMPL, icon + options.text)).appendTo(element);
+                element.addClass(WIDGET_CLASS)
+                    .prop('tabIndex', 0);
+                var icon = options.icon ? kendo.format(ICON_TMPL, options.icon) : (options.imageUrl ? kendo.format(IMAGE_TMPL, options.imageUrl) : '');
+                this.mainButton = $(kendo.format(BUTTON_TMPL, icon + options.text))
+                    .attr(kendo.attr('command'), options.command || '')
+                    .appendTo(element);
                 this.arrowButton = $(ARROW_BUTTON_TMPL).appendTo(element);
                 this._createPopup();
             },
@@ -160,8 +191,13 @@
                 */
                 for (var i = 0, length = items.length, item, icon; i < items.length; i++) {
                     item = items[i];
-                    icon = item.icon ? kendo.format(ICON_TMPL, item.icon) : '';
-                    $(kendo.format(BUTTON_TMPL, icon + item.text)).wrap('<li></li>').parent().appendTo(this.popupElement);
+                    icon = item.icon ? kendo.format(ICON_TMPL, item.icon) : (item.imageUrl ? kendo.format(IMAGE_TMPL, item.imageUrl) : '');
+                    $(kendo.format(BUTTON_TMPL, icon + item.text))
+                        .attr(kendo.attr('command'), item.command || '')
+                        .prop('tabIndex', 0)
+                        .wrap('<li></li>')
+                        .parent()
+                        .appendTo(this.popupElement);
                 }
                 this.popup = this.popupElement.kendoPopup({
                     // appendTo: options.mobile ? $(options.mobile).children('.km-pane') : null,
@@ -177,25 +213,53 @@
                         element.focus();
                     }
                 }).data('kendoPopup');
-                this.popup.element.on(CLICK + NS, 'a.k-button', preventClick);
             },
 
-            _navigatable: function () {
+            /**
+             * Add keyboard navigation to split button
+             * Again, this is similar to the _navigatable method if kendo.toolbar.js
+             * @private
+             */
+            _navigatable: function (enabled) {
                 var that = this;
-                that.popupElement.on('keydown', '.' + BUTTON, function (e) {
-                    var li = $(e.target).parent();
-                    e.preventDefault();
-                    if (e.keyCode === keys.ESC || e.keyCode === keys.TAB || e.altKey && e.keyCode === keys.UP) {
-                        that.toggle();
-                        that.focus();
-                    } else if (e.keyCode === keys.DOWN) {
-                        findFocusableSibling(li, 'next').focus();
-                    } else if (e.keyCode === keys.UP) {
-                        findFocusableSibling(li, 'prev').focus();
-                    } else if (e.keyCode === keys.SPACEBAR || e.keyCode === keys.ENTER) {
-                        that.toolbar.userEvents.trigger('tap', { target: $(e.target) });
-                    }
-                });
+
+                that.element.off(KEYDOWN + NS);
+                that.popupElement.off(KEYDOWN + NS);
+
+                if (enabled) {
+
+                    // that.element.on(KEYDOWN + NS, BUTTON_SELECTOR, function (e) {
+                    that.element.on(KEYDOWN + NS, function(e) {
+                        if (e.keyCode === keys.DOWN) {
+                            that.toggle();
+                        } else if (e.keyCode === keys.SPACEBAR || e.keyCode === keys.ENTER) {
+                            that._onButtonClick({ currentTarget: $(e.currentTarget).children(BUTTON_SELECTOR).first(), preventDefault: $.noop });
+                        }
+                    });
+
+                    /* This function's cyclomatic complexity is too high. */
+                    /* jshint -W074 */
+
+                    that.popupElement.on(KEYDOWN + NS, BUTTON_SELECTOR,
+                        function(e) {
+                            var li = $(e.target).parent();
+                            e.preventDefault();
+                            if (e.keyCode === keys.ESC || e.keyCode === keys.TAB || e.altKey && e.keyCode === keys.UP) {
+                                that.toggle();
+                                that.focus();
+                            } else if (e.keyCode === keys.DOWN) {
+                                findFocusableSibling(li, 'next').focus();
+                            } else if (e.keyCode === keys.UP) {
+                                findFocusableSibling(li, 'prev').focus();
+                            } else if (e.keyCode === keys.SPACEBAR || e.keyCode === keys.ENTER) {
+                                // that.toolbar.userEvents.trigger('tap', { target: $(e.target) });
+                                that._onButtonClick({ currentTarget: $(e.currentTarget), preventDefault: $.noop });
+                            }
+                        });
+
+                    /* jshint +W074 */
+
+                }
             },
 
             /**
@@ -222,15 +286,30 @@
                 enabled = $.type(enabled) === UNDEFINED ? true : !!enabled;
                 element.toggleClass(DISABLED_CLASS, !enabled);
                 element.off(CLICK + NS);
+                this.popupElement.off(CLICK + NS);
                 if (enabled) {
-                    element.on(CLICK + NS, BUTTON_SELECTOR, function (e) {
-                        e.preventDefault();
-                        if ($(e.currentTarget).is(ARROW_BUTTON_SELECTOR)) {
-                            that.toggle();
-                        } else {
-                            that.trigger(CLICK);
-                        }
-                    });
+                    element.on(CLICK + NS, BUTTON_SELECTOR, this._onButtonClick.bind(this));
+                    this.popupElement.on(CLICK + NS, BUTTON_SELECTOR, this._onButtonClick.bind(this));
+                }
+                this._navigatable(enabled);
+            },
+
+            /**
+             * Event handler for clicking a button of the split button
+             * @param e
+             * @private
+             */
+            _onButtonClick: function (e) {
+                e.preventDefault();
+                if ($(e.currentTarget).is(ARROW_BUTTON_SELECTOR)) {
+                    this.toggle();
+                } else {
+                    // Close the popup
+                    if ($.contains(this.popup.element.get(0), e.currentTarget)) {
+                        this.toggle();
+                    }
+                    // Trigger click event
+                    this.trigger(CLICK, { command: $(e.currentTarget).attr(kendo.attr('command')) });
                 }
             },
 
@@ -243,9 +322,13 @@
                 var element = that.element;
                 // Unbind events
                 that.enable(false);
-
                 // Clear references
-
+                that.popup.destroy();
+                that.popup.wrapper.remove();
+                that.popup = undefined;
+                that.popupElement = undefined;
+                that.mainButton = undefined;
+                that.arrowButton = undefined;
                 // Destroy widget
                 Widget.fn.destroy.call(that);
                 kendo.destroy(element);

@@ -28,17 +28,25 @@
                 $(function () {
                     var viewModel = kendo.observable({
                         visible: true,
-                        enabled: true
+                        enabled: true,
+                        onClick: function (e) {
+                            window.alert('Bindings - Clicked with command: ' + e.command);
+                        }
                     });
                     kendo.bind('body', viewModel);
+
                     $('#splitbutton').kendoSplitButton({
-                        icon: 'share',
-                        text: 'Share',
+                        command: 'antenna',
+                        imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/wlan_antenna.svg',
+                        text: 'Contact',
                         menuButtons: [
-                            { icon: 'facebook', text: 'Facebook' },
-                            { icon: 'google', text: 'Google' },
-                            { icon: 'twitter', text: 'Twitter' }
-                        ]
+                            { command: 'computer', text: 'Computer', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/user_monitor.svg' },
+                            { command: 'smartphone', text: 'Smartphone', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/user_smartphone.svg' },
+                            { command: 'telephone', text: 'Telephone', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/user_telephone.svg' }
+                        ],
+                        click: function (e) {
+                            window.alert('From Code - Clicked with command: ' + e.command);
+                        }
                     });
                 });
             });
@@ -47,11 +55,13 @@
 </head>
 <body>
 <h1>SplitButton</h1>
-<h2>SplitButton unbound</h2>
+<h2>From Code</h2>
 
 <div id="splitbutton"></div>
 
-<h2>SplitButton bound to observable</h2>
+<h2>Bindings</h2>
+
+<div data-role="splitbutton" data-bind="visible: visible, enabled: enabled, events: { click: onClick }" data-command="align" data-icon="align-justify" data-text="Align" data-menu-buttons="[{&quot;command&quot;:&quot;left&quot;,&quot;icon&quot;:&quot;align-left&quot;,&quot;text&quot;:&quot;Align Left&quot;},{&quot;command&quot;:&quot;center&quot;,&quot;icon&quot;:&quot;align-center&quot;,&quot;text&quot;:&quot;Align Center&quot;},{&quot;command&quot;:&quot;right&quot;,&quot;icon&quot;:&quot;align-right&quot;,&quot;text&quot;:&quot;Align Right&quot;}]"></div>
 
 <div>
     <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;

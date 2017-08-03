@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MediaRecorder</title>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.mediarecorder stylesheet -->
+    <link href="./styles/kidoju.widgets.mediarecorder.css" rel="stylesheet" />
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.2.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.mediarecorder.js').then(function (kendo) {
+                $(function () {
+                    var viewModel = kendo.observable({
+                        visible: true,
+                        enabled: true
+                    });
+                    kendo.bind('body', viewModel);
+                    var mediaRecorder = $('#mediarecorder').kendoMediaRecorder({}).data('kendoMediaRecorder');
+                });
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>MediaRecorder</h1>
+<h2>MediaRecorder unbound</h2>
+
+<div id="mediarecorder"></div>
+
+<h2>MediaRecorder bound to observable</h2>
+
+<div data-role="mediarecorder" data-audio="true" data-video="false" data-bind="visible: visible, enabled: enabled"></div>
+
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled
+</div>
+
+<pre>
+    {
+        visible: <span data-bind="text: visible"></span>,
+        enabled: <span data-bind="text: enabled"></span>
+    }
+</pre>
+</body>
+</html>

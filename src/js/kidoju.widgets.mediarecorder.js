@@ -324,7 +324,7 @@
             _drawVolumeMeter: function (meter) {
                 var that = this;
                 if (!this._meter) {
-                    var div = $('<div style="width:100px;height:24px;margin: 0 .2em;"></div>').appendTo(this.toolbar);
+                    var div = $('<div class="kj-mediarecorder-meter"></div>').width(METER.WIDTH).height(METER.HEIGHT).appendTo(this.toolbar);
                     var surface = drawing.Surface.create(div);
                     var rect = new geometry.Rect([0, 0], [METER.WIDTH, METER.HEIGHT]);
                     var frame = new drawing.Rect(rect).stroke('#c8c8c8', 1);

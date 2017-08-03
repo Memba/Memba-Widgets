@@ -3,3 +3,6 @@
     border-left: 0;
     border-right: 0;
 }
+.kj-mediarecorder .k-toolbar .kj-mediarecorder-meter {
+    margin: 0 .2em;
+}

@@ -47,7 +47,6 @@
         var assert = window.assert;
         var logger = new window.Logger('kidoju.tools');
         var OBJECT = 'object';
-        var ARRAY = 'array';
         var STRING = 'string';
         var NUMBER = 'number';
         var BOOLEAN = 'boolean';
@@ -63,7 +62,7 @@
         var POINTER = 'pointer';
         var ELEMENT_SELECTOR = '.kj-element';
         var DIALOG_DIV = '<div {0}"></div>';
-        var DIALOG_SELECTOR = '.kj-dialog';
+        var DIALOG_SELECTOR = '.kj-tools-dialog';
         var INTERACTIVE_CLASS = 'kj-interactive';
         var NO_PADDING_CLASS = 'kj-no-padding';
         var STATE_DISABLED = 'k-state-disabled';
@@ -460,15 +459,12 @@
                 var collections = options.collections || [];
                 var extensions = options.extensions || [];
                 var schemes = options.schemes || {};
-                var transport = options.transport || {};
-                assert.type(ARRAY, collections, kendo.format(assert.messages.type.default, 'options.collections', ARRAY));
-                assert.type(ARRAY, extensions, kendo.format(assert.messages.type.default, 'options.extensions', ARRAY));
+                assert.isArray(collections, kendo.format(assert.messages.isArray.default, 'options.collections'));
+                assert.isArray(extensions, kendo.format(assert.messages.isArray.default, 'options.extensions'));
                 assert.type(OBJECT, schemes, kendo.format(assert.messages.type.default, 'options.schemes', OBJECT));
-                assert.type(OBJECT, transport, kendo.format(assert.messages.type.default, 'options.transport', OBJECT));
                 this.collections = collections;
                 this.extensions = extensions;
                 this.schemes = schemes;
-                this.transport = transport;
             }
         });
 

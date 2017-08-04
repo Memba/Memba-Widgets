@@ -34,7 +34,7 @@
         var AudioContext = window.AudioContext || window.webkitAudioContext;
         var MediaStream = window.MediaStream || window.webkitMediaStream;
         var WindowRecorder = window.MediaRecorder; // Our widget is MediaRecorder
-        // var UNDEFINED = 'undefined';
+        var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
         var ERROR = 'error';
@@ -489,6 +489,22 @@
             },
 
             /**
+             * Mute/unmute
+             * @param muted
+             */
+            mute: function (muted) {
+                var recorder = this._recorder;
+                if (recorder instanceof WindowRecorder) {
+                    muted = $.type(muted) === UNDEFINED ? true : !!muted;
+                    recorder.stream.getAudioTracks().
+                        forEach(function(track) { track.enabled = !muted; });
+                } else {
+                    // TODO: Not yet implemented in the toolbar because we need to be able to set it both before (recorder is not yet available) and during recording
+                    $.noop();
+                }
+            },
+
+            /**
              * Error event handler
              * @param err
              * @private
@@ -589,12 +605,12 @@
             },
 
             /**
-             * This is called by widget.resize
+             * Function called by widget.resize and kendo.resize
              * @param e
              * @private
              */
             _resize: function (e) {
-                // TODO to make video as big as possible and centered in widget
+                // TODO to make video as big as possible and centered in widget, but is this the best option?
             },
 
             /**

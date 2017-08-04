@@ -60,7 +60,8 @@
 
         /**
          * navigator.mediaDevices.getUserMedia converted to jQuery promises
-         * @ see https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+         * @see https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+         * @see https://github.com/mozdevs/mediaDevices-getUserMedia-polyfill/blob/master/mediaDevices-getUserMedia-polyfill.js
          */
         function getUserMedia (constraints) {
             var dfd = $.Deferred();

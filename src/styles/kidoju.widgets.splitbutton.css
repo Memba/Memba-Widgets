@@ -1,5 +1,6 @@
 .kj-splitbutton {
     display: inline-block;
+    outline: 0;
 }
 .kj-splitbutton .k-button:not(.kj-splitbutton-arrow) {
     border-top-right-radius: 0;

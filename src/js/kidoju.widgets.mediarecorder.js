@@ -55,6 +55,24 @@
          *********************************************************************************/
 
         /**
+         * navigator.mediaDevices.enumerateDevices converted to jQuery promises
+         * @see https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/enumerateDevices
+         * @see https://developers.google.com/web/updates/2015/10/media-devices
+         * @see https://webrtc.github.io/samples/src/content/devices/input-output/
+         */
+        function enumerateDevices () {
+            var dfd = $.Deferred();
+            if (navigator.mediaDevices && $.isFunction(navigator.mediaDevices.enumerateDevices)) {
+                navigator.mediaDevices.enumerateDevices()
+                .then(dfd.resolve)
+                .catch(dfd.reject);
+            } else {
+                dfd.resolve([]); // No device found
+            }
+            return dfd.promise();
+        }
+
+        /**
          * navigator.mediaDevices.getUserMedia converted to jQuery promises
          * @see https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
          * @see https://webrtc.github.io/adapter/adapter-latest.js
@@ -206,10 +224,14 @@
                 // audioBitsPerSecond : 128000,
                 // videoBitsPerSecond : 2500000,
                 codecs: '',
-                proxyURL: '',
+                devices: false,
+                proxyURL: '', // for kendo.saveAs
                 messages: {
+                    camera: 'Camera',
+                    microphone: 'Microphone',
                     pauseResume: 'Pause/Resume',
                     record: 'Record',
+                    speaker: 'Speaker',
                     stop: 'Stop',
                     unsupported: 'Media recording is only available on Chrome and Firefox'
                 }
@@ -343,16 +365,49 @@
              */
             _initToolbar: function () {
                 var messages = this.options.messages;
-                // TODO audio and video source selection
-                // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/enumerateDevices
 
+                // Build the toolbar
                 this.toolbar = $('<div class="k-toolbar k-widget kj-mediarecorder-toolbar"></div>')
                     .append(kendo.format(BUTTON_TMPL, 'save', messages.save, 'save'))
                     .append(kendo.format(BUTTON_TMPL, 'record', messages.record, 'circle'))
                     .append(kendo.format(TOOGLE_TMPL, 'pauseResume', messages.pauseResume, 'pause'))
-                    .append(kendo.format(BUTTON_TMPL, 'stop', messages.stop, 'stop'))
+                    .append(kendo.format(BUTTON_TMPL, 'stop', messages.stop, 'stop')) // TODO Add mute/unmute toggle button
                     .appendTo(this.element)
                     .on(CLICK + NS, 'a.k-button', this._onButtonClick.bind(this));
+
+                if (this.options.devices) {
+                    // Display recording devices - see https://webrtc.github.io/samples/src/content/devices/input-output/
+                    enumerateDevices().done(function(devices) {
+                        var cameras = [];
+                        var microphones = [];
+                        var speakers = [];
+                        for (var i = 0, length = devices.length; i < length; i++) {
+                            var device = devices[i];
+                            switch (device.kind) {
+                                case 'audioinput':
+                                    microphones.push({
+                                        id: device.deviceId,
+                                        name: device.label || messages.microphone + ' ' + (microphones.length + 1)
+                                    });
+                                    break;
+                                case 'audiooutput':
+                                    speakers.push({
+                                        id: device.deviceId,
+                                        name: device.label || messages.speaker + ' ' + (speakers.length + 1)
+                                    });
+                                    break;
+                                case 'videoinput':
+                                    cameras.push({
+                                        id: device.deviceId,
+                                        name: device.label || messages.camera + ' ' + (cameras.length + 1)
+                                    });
+                                    break;
+                            }
+                        }
+                        // TODO feed toolbar Dropdownlists
+                        // Implement change event to setSinkId as in https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js#L58
+                    }).fail(this._onError);
+                }
             },
 
             /**
@@ -510,11 +565,11 @@
              * @private
              */
             _onError: function (err) {
+                logger.error({ method: '_onError', error: err });
                 if (!this.trigger(ERROR, { originalError: err })) {
                     if (err.name === 'TrackStartError') { // instanceof window.NavigatorUserMediaError) {
-
+                        // TODO: Warn user that most probably another program has got hold of the webcam + microphone recording devices
                     }
-                    window.alert('Oops, there was an error: ' + err.message); // TODO
                 }
             },
 

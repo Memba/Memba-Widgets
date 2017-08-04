@@ -33,6 +33,7 @@
         var TYPE = {
             ERROR: 'error',
             INFO: 'info',
+            SUCCESS: 'success',
             WARNING: 'warning'
         };
         var CONTENT_TEMPLATE = '<div class="k-widget k-notification k-notification-#: type #" data-role="alert">' +
@@ -155,6 +156,7 @@
             destroy: function () {
                 this.unbind(CLICK);
                 Dialog.fn.destroy.call(this);
+                kendo.destroy(this.element);
             }
 
         });
@@ -193,6 +195,7 @@
                 messages: {
                     error: 'Error',
                     info: 'Information',
+                    success: 'Success',
                     warning: 'Warning'
                 }
             },
@@ -203,6 +206,7 @@
             type: {
                 error: TYPE.ERROR,
                 info: TYPE.INFO,
+                success: TYPE.SUCCESS,
                 warning: TYPE.WARNING
             },
 
@@ -223,7 +227,7 @@
              */
             destroy: function () {
                 DialogEx.fn.destroy.call(this);
-                this.element.empty();
+                kendo.destroy(this.element);
             }
 
         });

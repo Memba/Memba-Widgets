@@ -30,7 +30,7 @@
     "ignore": "^3.3.3"
   },
   "devDependencies": {
-    "chai": "^4.1.0",
+    "chai": "^4.1.1",
     "eslint": "^4.3.0",
     "grunt": "^1.0.1",
     "grunt-contrib-clean": "^1.1.0",

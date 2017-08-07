@@ -25,13 +25,10 @@
     "start": "node ./nodejs/http.server.js",
     "test": "grunt test"
   },
-  "dependencies": {
-    "espree": "^3.4.3",
-    "ignore": "^3.3.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "chai": "^4.1.1",
-    "eslint": "^4.3.0",
+    "eslint": "^4.4.0",
     "grunt": "^1.0.1",
     "grunt-contrib-clean": "^1.1.0",
     "grunt-contrib-concat": "^1.0.1",

@@ -19,6 +19,9 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -128,20 +131,20 @@
             // but works around a current Chrome bug.
             processor.connect(audioContext.destination);
 
-            processor.checkClipping =
-                function(){
-                    if (!this.clipping)
-                        return false;
-                    if ((this.lastClip + this.clipLag) < window.performance.now())
-                        this.clipping = false;
-                    return this.clipping;
-                };
+            processor.checkClipping = function () {
+                if (!this.clipping) {
+                    return false;
+                }
+                if ((this.lastClip + this.clipLag) < window.performance.now()) {
+                    this.clipping = false;
+                }
+                return this.clipping;
+            };
 
-            processor.shutdown =
-                function(){
-                    this.disconnect();
-                    this.onaudioprocess = null;
-                };
+            processor.shutdown = function () {
+                this.disconnect();
+                this.onaudioprocess = null;
+            };
 
             return processor;
         }
@@ -151,16 +154,20 @@
          * @see http://ourcodeworld.com/articles/read/413/how-to-create-a-volume-meter-measure-the-sound-level-in-the-browser-with-javascript
          * @param event
          */
-        function volumeAudioProcess( event ) {
+        function volumeAudioProcess(event) {
+
+            /* If a strict mode function is executed using function invocation, its 'this' value will be undefined. */
+            /* jshint -W040 */
+
             var buf = event.inputBuffer.getChannelData(0);
             var bufLength = buf.length;
             var sum = 0;
             var x;
 
             // Do a root-mean-square on the samples: sum up the squares...
-            for (var i=0; i<bufLength; i++) {
+            for (var i = 0; i < bufLength; i++) {
                 x = buf[i];
-                if (Math.abs(x)>=this.clipLevel) {
+                if (Math.abs(x) >= this.clipLevel) {
                     this.clipping = true;
                     this.lastClip = window.performance.now();
                 }
@@ -173,7 +180,10 @@
             // Now smooth this out with the averaging factor applied
             // to the previous sample - take the max here because we
             // want "fast attack, slow release."
-            this.volume = Math.max(rms, this.volume*this.averaging);
+            this.volume = Math.max(rms, this.volume * this.averaging);
+
+            /* jshint +W040 */
+
         }
 
         /*********************************************************************************
@@ -376,8 +386,12 @@
                     .on(CLICK + NS, 'a.k-button', this._onButtonClick.bind(this));
 
                 if (this.options.devices) {
+
+                    /* This function's cyclomatic complexity is too high. */
+                    /* jshint -W074 */
+
                     // Display recording devices - see https://webrtc.github.io/samples/src/content/devices/input-output/
-                    enumerateDevices().done(function(devices) {
+                    enumerateDevices().done(function (devices) {
                         var cameras = [];
                         var microphones = [];
                         var speakers = [];
@@ -407,6 +421,8 @@
                         // TODO feed toolbar Dropdownlists
                         // Implement change event to setSinkId as in https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js#L58
                     }).fail(this._onError);
+
+                    /* jshint +W074 */
                 }
             },
 
@@ -442,6 +458,9 @@
                     .toggleClass(DISABLED_CLASS, isInactive);
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Gets the mime type
              * @see https://cs.chromium.org/chromium/src/third_party/WebKit/LayoutTests/fast/mediarecorder/MediaRecorder-isTypeSupported.html
@@ -473,6 +492,8 @@
                 }
                 return !!withCodecs ? kendo.format(MIME_TYPE, options.mimeType, options.codecs) : options.mimeType;
             },
+
+            /* jshint +W074 */
 
             /**
              * Save function
@@ -552,7 +573,7 @@
                 if (recorder instanceof WindowRecorder) {
                     muted = $.type(muted) === UNDEFINED ? true : !!muted;
                     recorder.stream.getAudioTracks().
-                        forEach(function(track) { track.enabled = !muted; });
+                        forEach(function (track) { track.enabled = !muted; });
                 } else {
                     // TODO: Not yet implemented in the toolbar because we need to be able to set it both before (recorder is not yet available) and during recording
                     $.noop();
@@ -569,6 +590,7 @@
                 if (!this.trigger(ERROR, { originalError: err })) {
                     if (err.name === 'TrackStartError') { // instanceof window.NavigatorUserMediaError) {
                         // TODO: Warn user that most probably another program has got hold of the webcam + microphone recording devices
+                        $.noop();
                     }
                 }
             },
@@ -635,7 +657,7 @@
                 if (preview.src) {
                     // setTimeout() here is needed for Firefox.
                     // https://developers.google.com/web/updates/2016/01/mediarecorder
-                    // setTimeout(function() { URL.revokeObjectURL(preview.src)); }, 100);
+                    // setTimeout(function () { URL.revokeObjectURL(preview.src)); }, 100);
                     URL.revokeObjectURL(preview.src);
                 }
                 preview.srcObject = null;
@@ -700,6 +722,8 @@
         ui.plugin(MediaRecorder);
 
     } (window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kendo;
 

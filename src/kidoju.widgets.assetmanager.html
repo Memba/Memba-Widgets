@@ -9,7 +9,12 @@
     <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
     <link href="./styles/vendor/kendo/web/kendo.mobile.all.min.css" rel="stylesheet">
-    <!-- kidoju.widgets.assetmanager stylesheet -->
+    <!-- kidoju.widgets.vectordrawing stylesheet -->
+    <link href="./styles/fonts/kidoju.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.vectordrawing.css" rel="stylesheet">
+    <!-- kidoju.widgets.assetmanager stylesheets -->
+    <link href="./styles/kidoju.widgets.messagebox.css" rel="stylesheet">
+    <link href="./styles/kidoju.widgets.splitbutton.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.assetmanager.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../test/vendor/system.js"></script>
@@ -27,81 +32,51 @@
                     './js/vendor/kendo/kendo.*.js': { format: 'amd' }
                 }
             });
-            SystemJS.import('./js/kidoju.widgets.assetmanager.js').then(function (kendo) {
+            // SystemJS.import('./js/kidoju.widgets.assetmanager.js').then(function (kendo) {
+            Promise.all([
+                SystemJS.import('./js/kidoju.widgets.vectordrawing.js'),
+                SystemJS.import('./js/kidoju.widgets.assetmanager.js')
+            ]).then(function () {
+                var kendo = window.kendo;
+                var assetManager;
                 var viewModel = kendo.observable({
-                        url: undefined
+                        url: undefined,
+                        visible: true,
+                        enabled: true,
+                        hook: function (e) {
+                            // assetManager.unbind('beforeOpen');
+                            assetManager.unbind('click');
+                            if ($(e.currentTarget).prop('checked')) {
+                                assetManager.bind('click', function(e) {
+                                    e.preventDefault();
+                                    window.alert('You just clicked action ' + e.action);
+                                });
+                            }
+                        }
                     });
-                var SCHEMES = {
-                    cdn: 'https://cdn.kidoju.com/',
-                    data: '../test/data/images/miscellaneous/'
-                };
-                $(function(){
-                    $('#assets').kendoAssetManager({
-                        change: function(e) {
-                            viewModel.set('url', e.sender.value());
+                var COLLECTIONS = [
+                    {
+                        name: 'Project',
+                        tools: ['upload', 'create', 'edit', 'destroy'],
+                        editor: {
+                            /*
+                            template: '<div><img alt="image" data-bind="attr: { src: url }"></img></div>' +
+                            '<div><button data-bind="events: { click: click }">Save</button><button data-bind="events: { click: click }">Add</button></div>',
+                            */
+                            template: '<div data-role="vectordrawing"></div>',
+                            open: function (e) {
+                                debugger;
+                            }
                         },
-                        collections: [
-                            {
-                                name: 'O-Collection',
-                                transport: {
-                                    // read: 'https://cdn.kidoju.com/images/o_collection/svg/office/index.json'
-                                    read: '../test/data/images/o_collection/svg/office/index.json'
-                                }
-                            }
-                        ],
-                        extensions: ['.svg'],
-                        /*
-                        collections: [
-                            {
-                                name: 'O-Collection',
-                                transport: {
-                                    read: function (options) {
-                                        options.success({
-                                            total: 1,
-                                            data: [
-                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/add.svg", "size": 580 },
-                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/airship.svg", "size": 779 },
-                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/apple.svg", "size": 842 },
-                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/atom.svg", "size": 1090 },
-                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/baseball.svg", "size": 1930 },
-                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/typewriter.svg", "size": 895 },
-                                                { "url": "https://cdn.kidoju.com/images/o_collection/svg/office/user.svg", "size": 591 }
-                                            ]
-                                        });
-                                    }
-                                }
-                            },
-                            {
-                                name: 'V-Collection',
-                                collections: [
-                                    {
-                                        name: 'Dark Grey',
-                                        transport: {
-                                            read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/dark_grey/index.json'
-                                        }
-                                    },
-                                    {
-                                        name: 'Office',
-                                        transport: {
-                                            read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/office/index.json'
-                                        }
-                                    },
-                                    {
-                                        name: 'White',
-                                        transport: {
-                                            read: 'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/white/index.json'
-                                        }
-                                    }
-                                ]
-                            }
-                        ],
-                        extensions: ['.gif', '.jpg', '.png', '.svg'],
-                        */
-                        schemes: SCHEMES,
-                        transport: null // ,
-                        /*
                         transport: {
-                            read: function(options) {
+                            create: function (options) {
+
+                            },
+                            destroy: function (options) {
+                                // options.error(new Error('Oops'));
+                                options.success({ total: 1, data: [options.data] });
+                            },
+                            read: function (options) {
                                 options.success({
                                     total: 3,
                                     data: [
@@ -111,7 +86,7 @@
                                     ]
                                 });
                             },
-                            create: function(options) {
+                            upload: function (options) {
                                 // TODO: What if there is already a file with the same name?
                                 // TODO: Where do we check the file extension and file size and reject inadequate files?
                                 // Note: if there is an error, this is the place where to display notifications...
@@ -126,14 +101,106 @@
                                     }, 1000);
                                 }
                             },
-                            destroy: function(options) {
-                                // options.error(new Error('Oops'));
-                                options.success({ total: 1, data: [options.data] });
+                            import: function (options) {
+                                debugger;
+                            },
+                            stream: function (options) {
+                                debugger;
                             }
-                            // update is same as create
                         }
-                        */
-                    });
+                    },
+                    {
+                        name: 'O-Collection',
+                        transport: {
+                            // read: 'https://cdn.kidoju.com/images/o_collection/svg/office/index.json'
+                            read: '../test/data/images/o_collection/svg/office/index.json'
+                        }
+                    },
+                    {
+                        name: 'V-Collection',
+                        collections: [
+                            {
+                                name: 'Dark Grey',
+                                transport: {
+                                    read: '../test/data/images/o_collection/svg/dark_grey/index.json'
+                                }
+                            },
+                            {
+                                name: 'Office',
+                                transport: {
+                                    read: '../test/data/images/o_collection/svg/office/index.json'
+                                }
+                            },
+                            {
+                                name: 'White',
+                                transport: {
+                                    read: '../test/data/images/o_collection/svg/white/index.json'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        name: 'Google', // see https://developers.google.com/custom-search/json-api/v1/reference/cse/list
+                        tools: ['import'],
+                        targets: ['Project'],
+                        pageSize: 10,
+                        serverPaging: true,
+                        serverFiltering: true,
+                        transport: {
+                            read: 'https://www.googleapis.com/customsearch/v1',
+                            parameterMap: function(data, type) {
+                                if (type === 'read') {
+                                    var q = data && data.filter && data.filter.logic === 'and' && data.filter.filters && data.filter.filters[1] && data.filter.filters[1].value;
+                                    return {
+                                        // CHeck parameters at https://developers.google.com/custom-search/json-api/v1/reference/cse/list
+                                        // Check API key at https://console.developers.google.com/apis/credentials?project=www-kidoju-com&authuser=1
+                                        alt: 'json',
+                                        cx: '003237092945897440411:olzsejrw28u',
+                                        fields: 'searchInformation(totalResults),items(image/byteSize,link,mime)', // https://developers.google.com/custom-search/json-api/v1/performance
+                                        hl: 'en',
+                                        imgSize: 'medium',
+                                        key: 'AIzaSyCCkr7BnLgpQnocAAbPtKgXOYOl1nLW3PI',
+                                        num: Math.min(10, data.pageSize),
+                                        q: q, // Note: Comment to trigger an error
+                                        searchType: 'image',
+                                        start: Math.min(100 - Math.min(10, data.pageSize), (data.page - 1) * data.pageSize) + 1
+                                    };
+                                }
+                            }
+                        },
+                        schema: {
+                            parse: function (response) {
+                                var data = [];
+                                var total = Math.min(100, parseInt(response.searchInformation.totalResults, 10));
+                                if (total && $.isArray(response.items)) {
+                                    for (var i = 0, length = response.items.length; i < length; i++) {
+                                        var item = response.items[i];
+                                        data.push({
+                                            mime: item.mime,
+                                            size: item.image.byteSize,
+                                            url: item.link
+                                        });
+                                    }
+                                }
+                                return { total: total, data: data }
+                            }
+                        }
+                    }
+                ];
+                var EXTENSIONS = ['.gif', '.jpg', '.png', '.svg'];
+                var SCHEMES = {
+                    cdn: 'https://cdn.kidoju.com/',
+                    data: '../test/data/images/miscellaneous/'
+                };
+                $(function(){
+                    assetManager = $('#assets').kendoAssetManager({
+                        change: function(e) {
+                            viewModel.set('url', e.sender.value());
+                        },
+                        collections: COLLECTIONS,
+                        extensions: EXTENSIONS,
+                        schemes: SCHEMES
+                    }).data('kendoAssetManager');
                     kendo.bind('body', viewModel);
                 });
             });
@@ -142,7 +209,19 @@
 </head>
 <body>
 <h1>kidoju.widgets.assetmanager</h1>
-<div id="assets"></div>
-<div data-bind="text: url" ></div>
+<div id="assets" data-bind="visible: visible, enabled: enabled"></div>
+
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled
+    <input type="checkbox" data-bind="events: { change: hook }" />Hook
+</div>
+<pre>
+    {
+        url: <span data-bind="text: url"></span>,
+        visible: <span data-bind="text: visible"></span>,
+        enabled: <span data-bind="text: enabled"></span>
+    }
+</pre>
 </body>
 </html>

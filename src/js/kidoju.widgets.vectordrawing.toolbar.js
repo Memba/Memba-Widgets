@@ -324,7 +324,7 @@
             remove: {
                 type: 'button',
                 command: 'ToolbarRemoveCommand',
-                iconClass: 'close'
+                iconClass: 'delete'
             }
         };
         var TOOLBAR_MESSAGES = kendo.vectordrawing.messages.toolbar = {

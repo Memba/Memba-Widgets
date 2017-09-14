@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -38,23 +38,23 @@
             decimals: 2,
             ",": ",",
             ".": ".",
-            groupSize: [3,2,0],
+            groupSize: [3,2],
             percent: {
                 pattern: ["-n%","n%"],
                 decimals: 2,
                 ",": ",",
                 ".": ".",
-                groupSize: [3,2,0],
+                groupSize: [3,2],
                 symbol: "%"
             },
             currency: {
-                name: "Rupee",
+                name: "Indian Rupee",
                 abbr: "INR",
                 pattern: ["$ -n","$ n"],
                 decimals: 2,
                 ",": ",",
                 ".": ".",
-                groupSize: [3,2,0],
+                groupSize: [3,2],
                 symbol: "₹"
             }
         },

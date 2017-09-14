@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -460,6 +460,21 @@ kendo.ui.Prompt.prototype.options.messages =
 $.extend(true, kendo.ui.Prompt.prototype.options.localization, {
   "okText": "ОК",
   "cancel": "Отмена"
+});
+}
+
+/* DateInput */
+if (kendo.ui.DateInput) {
+kendo.ui.DateInput.prototype.options.messages =
+$.extend(true, kendo.ui.DateInput.prototype.options.messages, {
+  "year": "год",
+  "month": "месяц",
+  "day": "день",
+  "weekday": "день недели",
+  "hour": "час",
+  "minute": "минута",
+  "second": "секунда",
+  "dayperiod": "AM/PM"
 });
 }
 

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -306,7 +306,7 @@
             _onInputKeyDown: function (e) {
                 var that = this;
                 var firstButton = that.wrapper.find('.k-upload-action:visible:first');
-                if (e.keyCode === kendo.keys.TAB && firstButton.length > 0) {
+                if (e.keyCode === kendo.keys.TAB && firstButton.length > 0 && !e.shiftKey) {
                     e.preventDefault();
                     firstButton.focus();
                 }
@@ -327,9 +327,18 @@
             _readDirectory: function (item) {
                 var deferred = new $.Deferred();
                 var dirReader = item.createReader();
-                dirReader.readEntries(function (entries) {
-                    deferred.resolve(entries);
-                }, deferred.reject);
+                var allFolderFiles = [];
+                var readEntries = function () {
+                    dirReader.readEntries(function (entries) {
+                        if (!entries.length) {
+                            deferred.resolve(allFolderFiles);
+                        } else {
+                            allFolderFiles = allFolderFiles.concat(entries);
+                            readEntries();
+                        }
+                    }, deferred.reject);
+                };
+                readEntries();
                 return deferred.promise();
             },
             _readFile: function (item) {
@@ -638,6 +647,7 @@
                         files: files,
                         headers: {}
                     };
+                    that._retryClicked = false;
                     if (icon.hasClass('k-i-x')) {
                         if (!that.trigger(REMOVE, eventArgs)) {
                             that._module.onRemove({ target: $(fileEntry, that.wrapper) }, eventArgs, !hasValidationErrors);
@@ -658,6 +668,7 @@
                         $('.k-i-warning', fileEntry).remove();
                         $('.k-progress', fileEntry).finish().show();
                         that._module.onRetry({ target: $(fileEntry, that.wrapper) });
+                        that._retryClicked = true;
                     }
                 }
                 return false;
@@ -789,6 +800,9 @@
                 this._updateHeaderUploadStatus();
                 this._fileAction(fileEntry, 'retry');
                 this._fileAction(fileEntry, REMOVE, true);
+                if (that._retryClicked) {
+                    fileEntry.find('.k-i-retry').parent().focus();
+                }
             },
             _updateUploadProgress: function (fileEntry) {
                 var that = this;
@@ -918,7 +932,7 @@
             _setupCustomDropZone: function () {
                 var that = this;
                 var dropZone = $(that.options.dropZone);
-                $('.k-upload-button', that.wrapper).wrap('<div class=\'k-dropzone\'></div>');
+                $('.k-upload-button', that.wrapper).wrap('<div class=\'k-dropzone\'></div>').after($('<em>' + that.localization.dropFilesHere + '</em>'));
                 var ns = that._ns;
                 dropZone.on('dragenter' + ns, stopEvent).on('dragover' + ns, function (e) {
                     e.preventDefault();

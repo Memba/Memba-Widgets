@@ -241,64 +241,30 @@ td.k-alt
 .k-fieldselector .k-list li.k-item
 {
     padding: .3em 3.3em .3em .3em;
-    margin: 0 .2em.2em;
+    margin: 0 .2em .2em;
     position: relative;
     font-size: .9em;
     line-height: 1.2em;
     min-height: 1em;
 }
 
-/* KPI icons */
-
-.k-pivot {
-    .k-i-arrow-60-down,
-    .k-i-arrow-60-up,
-    .k-i-minus
-    {
-        color: #858585;
-    }
-
-    .k-i-arrow-60-up.k-i-hold
-    {
-        color: #f9ce1d;
-    }
-
-    .k-i-stop
-    {
-        color: #f44336;
-        font-size: .57142em;
-        transform: rotate(45deg);
-    }
-
-    .k-i-circle
-    {
-        color: #4caf50;
-    }
+// KPI icons */
+.k-i-kpi-trend-increase,
+.k-i-kpi-trend-decrease,
+.k-i-kpi-trend-equal {
+    color: #858585;
 }
 
-.k-i-stop
-{
-    background-position: -16px 0;
+.k-i-kpi-status-hold {
+    color: #f9ce1d;
 }
 
-.k-i-minus
-{
-    background-position: -32px 0;
+.k-i-kpi-status-deny {
+    color: #f44336;
 }
 
-.k-i-arrow-60-up
-{
-    background-position: -48px 0;
-}
-
-.k-i-arrow-60-up
-{
-    background-position: -64px 0;
-}
-
-.k-i-circle
-{
-    background-position: -80px 0;
+.k-i-kpi-status-open {
+    color: #4caf50;
 }
 
 /* Pivot PDF Export styles */

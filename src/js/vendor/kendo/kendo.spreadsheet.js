@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -123,6 +123,11 @@
                 }
             }
         });
+        var REPLACE_REGEX = /\r?\n|\r|\t/g;
+        var SPACE = ' ';
+        function normalizeText(text) {
+            return String(text).replace(REPLACE_REGEX, SPACE);
+        }
         function objectKey(object) {
             var parts = [];
             for (var key in object) {
@@ -149,14 +154,17 @@
         var defaultMeasureBox;
         if (typeof document !== 'undefined') {
             defaultMeasureBox = document.createElement('div');
-            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;';
+            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: pre!important;';
         }
         var TextMetrics = kendo.Class.extend({
             init: function (options) {
                 this._cache = new LRUCache(1000);
                 this.options = $.extend({}, DEFAULT_OPTIONS, options);
             },
-            measure: function (text, style, box) {
+            measure: function (text, style, options) {
+                if (options === void 0) {
+                    options = {};
+                }
                 if (!text) {
                     return zeroSize();
                 }
@@ -167,7 +175,7 @@
                     return cachedResult;
                 }
                 var size = zeroSize();
-                var measureBox = box || defaultMeasureBox;
+                var measureBox = options.box || defaultMeasureBox;
                 var baselineMarker = this._baselineMarker().cloneNode(false);
                 for (var key in style) {
                     var value = style[key];
@@ -175,10 +183,11 @@
                         measureBox.style[key] = value;
                     }
                 }
-                measureBox.textContent = text;
+                var textStr = options.normalizeText !== false ? normalizeText(text) : String(text);
+                measureBox.textContent = textStr;
                 measureBox.appendChild(baselineMarker);
                 document.body.appendChild(measureBox);
-                if (String(text).length) {
+                if (textStr.length) {
                     size.width = measureBox.offsetWidth - this.options.baselineMarkerSize;
                     size.height = measureBox.offsetHeight;
                     size.baseline = baselineMarker.offsetTop + this.options.baselineMarkerSize;
@@ -204,7 +213,8 @@
             TextMetrics: TextMetrics,
             measureText: measureText,
             objectKey: objectKey,
-            hashKey: hashKey
+            hashKey: hashKey,
+            normalizeText: normalizeText
         });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -673,6 +683,7 @@
                 this._range = range;
             },
             redo: function () {
+                this.range().select();
                 this.exec();
             },
             undo: function () {
@@ -774,7 +785,7 @@
         kendo.spreadsheet.ClearContentCommand = Command.extend({
             exec: function () {
                 this.getState();
-                this.range().clearContent();
+                this.range().skipHiddenCells().clearContent();
             }
         });
         kendo.spreadsheet.EditCommand = PropertyChangeCommand.extend({
@@ -1364,24 +1375,56 @@
                 }
             }
         });
-        var DeleteCommand = kendo.spreadsheet.DeleteCommand = Command.extend({
+        var DeleteCommand = Command.extend({
+            exec: function () {
+                this._expandedRange = this._expand(this.range());
+                this._state = this._expandedRange.getState();
+                this._indexes = this._exec(this._expandedRange.sheet());
+            },
             undo: function () {
-                var sheet = this.range().sheet();
-                sheet.setState(this._state);
+                var self = this;
+                var range = self._expandedRange;
+                var sheet = range.sheet();
+                sheet.batch(function () {
+                    self._indexes.forEach(function (x) {
+                        self._undoOne(sheet, x);
+                        sheet._restoreModifiedFormulas(x.formulas);
+                    });
+                    range.setState(self._state);
+                }, {
+                    layout: true,
+                    recalc: true
+                });
             }
         });
         kendo.spreadsheet.DeleteRowCommand = DeleteCommand.extend({
-            exec: function () {
-                var sheet = this.range().sheet();
-                this._state = sheet.getState();
-                sheet.axisManager().deleteSelectedRows();
+            _expand: function (range) {
+                return range.resize({
+                    left: -Infinity,
+                    right: +Infinity
+                });
+            },
+            _exec: function (sheet) {
+                return sheet.axisManager().deleteSelectedRows();
+            },
+            _undoOne: function (sheet, x) {
+                sheet.insertRow(x.index);
+                sheet.rowHeight(x.index, x.height);
             }
         });
         kendo.spreadsheet.DeleteColumnCommand = DeleteCommand.extend({
-            exec: function () {
-                var sheet = this.range().sheet();
-                this._state = sheet.getState();
-                sheet.axisManager().deleteSelectedColumns();
+            _expand: function (range) {
+                return range.resize({
+                    top: -Infinity,
+                    bottom: +Infinity
+                });
+            },
+            _exec: function (sheet) {
+                return sheet.axisManager().deleteSelectedColumns();
+            },
+            _undoOne: function (sheet, x) {
+                sheet.insertColumn(x.index);
+                sheet.columnWidth(x.index, x.width);
             }
         });
         var AddCommand = Command.extend({
@@ -1390,8 +1433,16 @@
                 this._value = options.value;
             },
             undo: function () {
-                var sheet = this.range().sheet();
-                sheet.setState(this._state);
+                var self = this;
+                var sheet = self.range().sheet();
+                sheet.batch(function () {
+                    for (var i = self._pos.count; --i >= 0;) {
+                        self._undoOne(sheet, self._pos.base);
+                    }
+                }, {
+                    layout: true,
+                    recalc: true
+                });
             }
         });
         kendo.spreadsheet.AddColumnCommand = AddCommand.extend({
@@ -1401,12 +1452,14 @@
                 if (result) {
                     return result;
                 }
-                this._state = sheet.getState();
                 if (this._value === 'left') {
-                    sheet.axisManager().addColumnLeft();
+                    this._pos = sheet.axisManager().addColumnLeft();
                 } else {
-                    sheet.axisManager().addColumnRight();
+                    this._pos = sheet.axisManager().addColumnRight();
                 }
+            },
+            _undoOne: function (sheet, index) {
+                sheet.deleteColumn(index);
             }
         });
         kendo.spreadsheet.AddRowCommand = AddCommand.extend({
@@ -1416,12 +1469,14 @@
                 if (result) {
                     return result;
                 }
-                this._state = sheet.getState();
                 if (this._value === 'above') {
-                    sheet.axisManager().addRowAbove();
+                    this._pos = sheet.axisManager().addRowAbove();
                 } else {
-                    sheet.axisManager().addRowBelow();
+                    this._pos = sheet.axisManager().addRowBelow();
                 }
+            },
+            _undoOne: function (sheet, index) {
+                sheet.deleteRow(index);
             }
         });
         kendo.spreadsheet.EditValidationCommand = Command.extend({
@@ -2407,9 +2462,6 @@
             this.right = this;
             this.level = 0;
         }();
-        function passThrough(value) {
-            return value;
-        }
         function skew(node) {
             if (node.left.level === node.level) {
                 var temp = node;
@@ -2476,13 +2528,16 @@
             return node;
         }
         var Range = kendo.Class.extend({
-            init: function Value(start, end, value) {
+            init: function ValueRange(start, end, value) {
                 this.start = start;
                 this.end = end;
                 this.value = value;
             },
             intersects: function (range) {
                 return range.start <= this.end && range.end >= this.start;
+            },
+            clone: function () {
+                return new Range(this.start, this.end, this.value);
             }
         });
         var RangeTree = kendo.Class.extend({
@@ -2524,7 +2579,9 @@
                 return tree;
             },
             clone: function () {
-                return this.map(passThrough);
+                return this.map(function (value) {
+                    return value.clone();
+                });
             },
             first: function () {
                 var first = this.root;
@@ -2717,7 +2774,7 @@
                 return this.tree.clone();
             },
             setState: function (state) {
-                this.tree = state;
+                this.tree = state.clone();
             }
         });
         var Iterator = kendo.Class.extend({
@@ -3003,8 +3060,11 @@
                         value = spec.value;
                     }
                     this.lists[name] = new kendo.spreadsheet.SparseRangeList(0, cellCount, value);
-                    this.properties[name] = new spec.property(this.lists[name], this.lists[spec.depends]);
+                    var prop = this.properties[name] = new spec.property(this.lists[name], this.lists[spec.depends]);
+                    prop.spec = spec;
                 }, this);
+                this.lists.formula.tree.clone = cloneFormulaTree;
+                this.lists.validation.tree.clone = cloneFormulaTree;
             },
             getState: function () {
                 var state = {};
@@ -3088,7 +3148,7 @@
                     return index > cellCount ? null : prop.parse(at.call(iter, index));
                 };
                 iter.name = name;
-                iter.value = prop.list.range.value;
+                iter.value = prop.spec.value;
                 return iter;
             },
             sortable: function () {
@@ -3142,6 +3202,16 @@
                 }
             }
         });
+        function cloneFormulaValue(x) {
+            x = x.clone();
+            x.value = x.value.deepClone();
+            return x;
+        }
+        function cloneFormulaTree() {
+            var tree = this.map(cloneFormulaValue);
+            tree.clone = cloneFormulaTree;
+            return tree;
+        }
         kendo.spreadsheet.ALL_PROPERTIES = kendo.spreadsheet.PropertyBag.prototype.specs.reduce(function (a, spec) {
             if (spec.serializable) {
                 a.push(spec.name);
@@ -4552,14 +4622,36 @@
                 return this.includesHiddenRows(this._sheet.select());
             },
             deleteSelectedColumns: function () {
+                var indexes = [];
                 this.forEachSelectedColumn(function (sheet, index, i) {
-                    sheet.deleteColumn(index - i);
+                    index -= i;
+                    var formulas = [];
+                    indexes.unshift({
+                        index: index,
+                        formulas: formulas,
+                        width: sheet.columnWidth(index)
+                    });
+                    sheet._saveModifiedFormulas(formulas, function () {
+                        sheet.deleteColumn(index);
+                    });
                 });
+                return indexes;
             },
             deleteSelectedRows: function () {
+                var indexes = [];
                 this.forEachSelectedRow(function (sheet, index, i) {
-                    sheet.deleteRow(index - i);
+                    index -= i;
+                    var formulas = [];
+                    indexes.unshift({
+                        index: index,
+                        formulas: formulas,
+                        height: sheet.rowHeight(index)
+                    });
+                    sheet._saveModifiedFormulas(formulas, function () {
+                        sheet.deleteRow(index);
+                    });
                 });
+                return indexes;
             },
             hideSelectedColumns: function () {
                 this.forEachSelectedColumn(function (sheet, index) {
@@ -4633,16 +4725,6 @@
                     sheet.unhideRow(index);
                 });
             },
-            addColumnLeft: function () {
-                this.forEachSelectedColumn(function (sheet, index, i) {
-                    sheet.insertColumn(index - i);
-                });
-            },
-            addColumnRight: function () {
-                this.forEachSelectedColumn(function (sheet, index, i) {
-                    sheet.insertColumn(index + (i + 1));
-                });
-            },
             preventAddRow: function () {
                 var range = this._sheet.select().toRangeRef();
                 var rowCount = range.height();
@@ -4653,15 +4735,85 @@
                 var columnCount = range.width();
                 return this._sheet.preventInsertColumn(0, columnCount);
             },
-            addRowAbove: function () {
-                this.forEachSelectedRow(function (sheet, index, i) {
-                    sheet.insertRow(index - i);
+            addColumnLeft: function () {
+                var sheet = this._sheet;
+                var base, count = 0;
+                sheet.batch(function () {
+                    sheet.select().forEachColumnIndex(function (index) {
+                        if (!base) {
+                            base = index;
+                        }
+                        sheet.insertColumn(base);
+                        ++count;
+                    });
+                }, {
+                    recalc: true,
+                    layout: true
                 });
+                return {
+                    base: base,
+                    count: count
+                };
+            },
+            addColumnRight: function () {
+                var sheet = this._sheet;
+                var base, count = 0;
+                sheet.batch(function () {
+                    sheet.select().forEachColumnIndex(function (index) {
+                        base = index + 1;
+                        ++count;
+                    });
+                    for (var i = 0; i < count; ++i) {
+                        sheet.insertColumn(base);
+                    }
+                }, {
+                    recalc: true,
+                    layout: true
+                });
+                return {
+                    base: base,
+                    count: count
+                };
+            },
+            addRowAbove: function () {
+                var sheet = this._sheet;
+                var base, count = 0;
+                sheet.batch(function () {
+                    sheet.select().forEachRowIndex(function (index) {
+                        if (!base) {
+                            base = index;
+                        }
+                        sheet.insertRow(base);
+                        ++count;
+                    });
+                }, {
+                    recalc: true,
+                    layout: true
+                });
+                return {
+                    base: base,
+                    count: count
+                };
             },
             addRowBelow: function () {
-                this.forEachSelectedRow(function (sheet, index, i) {
-                    sheet.insertRow(index + (i + 1));
+                var sheet = this._sheet;
+                var base, count = 0;
+                sheet.batch(function () {
+                    sheet.select().forEachRowIndex(function (index) {
+                        base = index + 1;
+                        ++count;
+                    });
+                    for (var i = 0; i < count; ++i) {
+                        sheet.insertRow(base);
+                    }
+                }, {
+                    recalc: true,
+                    layout: true
                 });
+                return {
+                    base: base,
+                    count: count
+                };
             }
         });
         kendo.spreadsheet.AxisManager = AxisManager;
@@ -4758,6 +4910,9 @@
             },
             pasteRef: function () {
                 var sheet = this.workbook.activeSheet();
+                if (this.origin === kendo.spreadsheet.NULLREF) {
+                    return sheet.select();
+                }
                 var destination = sheet.activeCell().first();
                 var originActiveCell = this.origin.first();
                 var rowDelta = originActiveCell.row - destination.row;
@@ -4794,8 +4949,8 @@
                         doc.open();
                         doc.write(data.html);
                         doc.close();
-                        var table = $(doc).find('table:first');
-                        if (table.length) {
+                        var table = doc.querySelector('table');
+                        if (table) {
                             state = parseHTML(table);
                         } else {
                             state = parseTSV(data.plain);
@@ -4856,8 +5011,8 @@
             return obj;
         }
         function cellState(element) {
-            var styles = window.getComputedStyle(element[0]);
-            var text = element[0].innerText;
+            var styles = window.getComputedStyle(element);
+            var text = element.innerText;
             var borders = borderObject(styles);
             var state = {
                 value: text === '' ? null : text,
@@ -4895,55 +5050,36 @@
         }
         function parseHTML(table) {
             var state = newState();
-            table.find('>tr, >tbody>tr').each(function (rowIndex, tr) {
-                $(tr).find('>td, >th').each(function (colIndex, td) {
-                    var rowspan = parseInt($(td).attr('rowspan'), 10) - 1 || 0;
-                    var colspan = parseInt($(td).attr('colspan'), 10) - 1 || 0;
-                    var blankCell = '<td/>';
-                    var ci;
-                    if (rowspan) {
-                        var endRow = rowIndex + rowspan;
-                        for (var ri = rowIndex; ri <= endRow; ri++) {
-                            var row = table.find('tr').eq(ri);
-                            if (ri > rowIndex) {
-                                blankCell = '<td class=\'rowspan\'></td>';
-                                if (colIndex === 0) {
-                                    row.find('td').eq(colIndex).after(blankCell);
-                                } else {
-                                    var last = Math.min(row.find('td').length, colIndex);
-                                    row.find('td').eq(last - 1).after(blankCell);
-                                }
-                            }
-                            if (colspan) {
-                                for (ci = colIndex; ci < colspan + colIndex; ci++) {
-                                    blankCell = '<td class=\'rowspan colspan\'></td>';
-                                    row.find('td').eq(ci).after(blankCell);
+            var done = [], row = 0, col = 0;
+            for (var i = 0; i < table.rows.length; ++i) {
+                done.push([]);
+            }
+            for (var ri = 0; ri < table.rows.length; ++ri, ++row) {
+                var tr = table.rows[ri];
+                col = 0;
+                for (var ci = 0; ci < tr.cells.length; ++ci) {
+                    var td = tr.cells[ci];
+                    var rowSpan = td.rowSpan;
+                    var colSpan = td.colSpan;
+                    while (done[row][col]) {
+                        col++;
+                    }
+                    setStateData(state, row, col, cellState(td));
+                    if (rowSpan > 1 || colSpan > 1) {
+                        state.mergedCells.push(new kendo.spreadsheet.RangeRef(new CellRef(row, col), new CellRef(row + rowSpan - 1, col + colSpan - 1)).toString());
+                    }
+                    for (var dr = row + rowSpan; --dr >= row;) {
+                        for (var dc = col + colSpan; --dc >= col;) {
+                            if (dr < done.length) {
+                                done[dr][dc] = true;
+                                if (!(dr == row && dc == col)) {
+                                    setStateData(state, dr, dc, {});
                                 }
                             }
                         }
-                    } else {
-                        if (colspan) {
-                            for (ci = colIndex; ci < colspan + colIndex; ci++) {
-                                blankCell = '<td class=\'colspan\'></td>';
-                                $(tr).find('td').eq(ci).after(blankCell);
-                            }
-                        }
                     }
-                });
-            });
-            table.find('>tr, >tbody>tr').each(function (rowIndex, tr) {
-                $(tr).find('>td, >th').each(function (colIndex, td) {
-                    var rowspan = parseInt($(td).attr('rowspan'), 10) - 1 || 0;
-                    var colspan = parseInt($(td).attr('colspan'), 10) - 1 || 0;
-                    setStateData(state, rowIndex, colIndex, cellState($(td)));
-                    if (rowspan || colspan) {
-                        var startCol = String.fromCharCode(65 + colIndex);
-                        var endCol = String.fromCharCode(65 + colIndex + colspan);
-                        var address = startCol + (rowIndex + 1) + ':' + endCol + (rowIndex + 1 + rowspan);
-                        state.mergedCells.push(address);
-                    }
-                });
-            });
+                }
+            }
             return state;
         }
         function parseTSV(data) {
@@ -5070,7 +5206,7 @@
                 var existingFormat = this._get('format'), x;
                 if (value !== undefined) {
                     var tl = this._ref.toRangeRef().topLeft;
-                    x = kendo.spreadsheet.calc.parse(this._sheet.name(), tl.row, tl.col, value);
+                    x = kendo.spreadsheet.calc.parse(this._sheet.name(), tl.row, tl.col, value, existingFormat);
                     this._sheet.batch(function () {
                         var formula = null;
                         if (x.type == 'exp') {
@@ -5081,8 +5217,10 @@
                                 this.format(x.format || toExcelFormat(kendo.culture().calendar.patterns.d));
                             } else if (x.type == 'percent' && existingFormatType != 'percent') {
                                 this.format(x.value * 100 == (x.value * 100 | 0) ? '0%' : '0.00%');
-                            } else if (x.format && !existingFormat) {
-                                this.format(x.format);
+                            } else if (x.format) {
+                                if (!existingFormat || x.currency || existingFormatType == 'number' && x.type == 'number') {
+                                    this.format(x.format);
+                                }
                             }
                         } else if (x.type != 'string') {
                             x.value = value;
@@ -5108,13 +5246,11 @@
                         OUT: {
                             if (existingFormat && type == 'date') {
                                 var t1 = kendo.spreadsheet.formatting.text(value, existingFormat);
-                                x = kendo.spreadsheet.calc.parse(null, null, null, t1);
-                                if (typeof x.value == 'number') {
-                                    var t2 = kendo.spreadsheet.formatting.text(x.value, existingFormat);
-                                    if (t1 == t2) {
-                                        value = t1;
-                                        break OUT;
-                                    }
+                                x = kendo.spreadsheet.calc.parse(null, null, null, t1, existingFormat);
+                                var t2 = kendo.spreadsheet.formatting.text(x.value, existingFormat);
+                                if (t1 == t2) {
+                                    value = t1;
+                                    break OUT;
                                 }
                             }
                             if (type === 'date') {
@@ -5519,7 +5655,11 @@
                     }
                     data[dr][dc] = cellState;
                     properties.forEach(function (property) {
-                        cellState[property] = typeof cell[property] == 'undefined' ? null : cell[property];
+                        var value = typeof cell[property] == 'undefined' ? null : cell[property];
+                        if (value instanceof kendo.spreadsheet.calc.runtime.Formula || value instanceof kendo.spreadsheet.validation.Validation) {
+                            value = value.deepClone();
+                        }
+                        cellState[property] = value;
                     });
                 });
                 return state;
@@ -5529,6 +5669,8 @@
                 var origin = this._ref.first();
                 var rowDelta = state.ref.row - origin.row;
                 var colDelta = state.ref.col - origin.col;
+                var internalClipboard = clipboard && !clipboard.isExternal();
+                var externalClipboard = clipboard && !internalClipboard;
                 sheet.batch(function () {
                     if (state.mergedCells) {
                         this.unmerge();
@@ -5536,12 +5678,12 @@
                     var row = origin.row;
                     var hasFilter = this.hasFilter();
                     state.data.forEach(function (data, dr) {
-                        if (hasFilter && clipboard && !clipboard.isExternal() && sheet.isHiddenRow(state.ref.row + dr)) {
+                        if (hasFilter && internalClipboard && sheet.isHiddenRow(state.ref.row + dr)) {
                             return;
                         }
                         var col = origin.col;
                         data.forEach(function (cellState, dc) {
-                            if (hasFilter && clipboard && !clipboard.isExternal() && sheet.isHiddenColumn(state.ref.col + dc)) {
+                            if (hasFilter && internalClipboard && sheet.isHiddenColumn(state.ref.col + dc)) {
                                 return;
                             }
                             var range = clipboard ? sheet.range(row, col) : sheet.range(origin.row + dr, origin.col + dc);
@@ -5554,7 +5696,7 @@
                                     }
                                 }
                                 if (!cellState.formula) {
-                                    if (clipboard && clipboard.isExternal()) {
+                                    if (externalClipboard) {
                                         try {
                                             if (cellState.value == null) {
                                                 range._set('value', null);
@@ -5738,7 +5880,10 @@
                 'word-break': wrap === true ? 'break-all' : 'normal',
                 'white-space': wrap === true ? 'pre-wrap' : 'pre'
             };
-            return kendo.util.measureText(text, styles, measureBox).height;
+            return kendo.util.measureText(text, styles, {
+                box: measureBox,
+                normalizeText: false
+            }).height;
         }
         kendo.spreadsheet.util = { getTextHeight: getTextHeight };
         kendo.spreadsheet.Range = Range;
@@ -6229,6 +6374,12 @@
             }
             return new Formula(refs, this.handler, this.print, sheet, row, col);
         },
+        deepClone: function () {
+            var refs = this.refs.map(function (ref) {
+                return ref.clone();
+            });
+            return new Formula(refs, this.handler, this.print, this.sheet, this.row, this.col);
+        },
         resolve: function (val) {
             this.pending = false;
             this.onReady.forEach(function (callback) {
@@ -6308,7 +6459,19 @@
             var newFormulaRow = this.row;
             var newFormulaCol = this.col;
             this.absrefs = null;
-            this.refs = this.refs.map(function (ref) {
+            var prevRefs = this.refs;
+            var modified = formulaMoves;
+            this.refs = prevRefs.map(function (ref) {
+                var newRef = adjust(ref);
+                if (!modified && !sameRef(newRef, ref)) {
+                    modified = true;
+                }
+                return newRef;
+            });
+            if (modified) {
+                return new Formula(prevRefs, this.handler, this.print, this.sheet, formulaRow, formulaCol);
+            }
+            function adjust(ref) {
                 if (ref === NULL) {
                     return ref;
                 }
@@ -6324,12 +6487,35 @@
                     return ref;
                 }
                 return ref.adjust(formulaRow, formulaCol, newFormulaRow, newFormulaCol, operation == 'row', start, delta);
-            }, this);
+            }
         },
         toString: function () {
             return this.print(this.row, this.col);
         }
     });
+    function sameRef(r1, r2) {
+        if (r1.constructor !== r2.constructor) {
+            return false;
+        }
+        if (r1 instanceof CellRef) {
+            return r1.sheet == r2.sheet && r1.row == r2.row && r1.col == r2.col && r1.rel == r2.rel;
+        }
+        if (r1 instanceof RangeRef) {
+            return sameRef(r1.topLeft, r2.topLeft) && sameRef(r1.bottomRight, r2.bottomRight) && r1.endSheet == r2.endSheet;
+        }
+        if (r1 instanceof UnionRef) {
+            var i = r1.refs.length;
+            if (i != r2.refs.length) {
+                return false;
+            }
+            while (--i >= 0) {
+                if (!sameRef(r1.refs[i], r2.refs[i])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     var FUNCS = Object.create(null);
     FUNCS['if'] = function (callback, args) {
         var self = this;
@@ -6587,9 +6773,9 @@
         }
     }
     function roundFloatErrors(num) {
-        var integer = Math.floor(num);
+        var integer = num < 0 ? Math.ceil(num) : Math.floor(num);
         var decimal = num - integer;
-        return integer + Math.round(decimal * 1000000000000000) / 1000000000000000;
+        return integer + Math.round(decimal * 100000000000000) / 100000000000000;
     }
     function maybeRoundFloatErrors(num) {
         if (typeof num == 'number') {
@@ -6880,8 +7066,11 @@
             return date + time;
         }
     }
-    function parseDate(str) {
-        return kendo.parseDate(str) || kendo.parseDate(str, [
+    function parseDate(str, format) {
+        if (format) {
+            return kendo.parseExactDate(str, format) || kendo.parseExactDate(str, format.replace(/h/g, 'H')) || kendo.parseExactDate(str);
+        }
+        return kendo.parseExactDate(str) || kendo.parseExactDate(str, [
             'MMMM dd yyyy',
             'MMMM dd yy',
             'MMM dd yyyy',
@@ -6915,6 +7104,7 @@
     exports.isLeapYear = isLeapYear;
     exports.daysInYear = daysInYear;
     exports.parseDate = parseDate;
+    exports.limitPrecision = roundFloatErrors;
     spreadsheet.dateToNumber = dateToSerial;
     spreadsheet.numberToDate = serialToDate;
     spreadsheet.defineFunction = defineFunction;
@@ -7387,6 +7577,14 @@
                 col: col
             }));
         },
+        deepClone: function () {
+            var v = new Validation(this);
+            v.from = v.from.deepClone();
+            if (v.to) {
+                v.to = v.to.deepClone();
+            }
+            return v;
+        },
         exec: function (ss, compareValue, compareFormat, callback) {
             var self = this;
             function getValue(val) {
@@ -7425,27 +7623,38 @@
             delete this.value;
         },
         adjust: function (affectedSheet, operation, start, delta) {
+            var prevFrom, prevTo, modified;
+            var formulaRow = this.row;
+            var formulaCol = this.col;
             if (this.from) {
-                this.from.adjust(affectedSheet, operation, start, delta);
+                prevFrom = this.from.adjust(affectedSheet, operation, start, delta);
             }
             if (this.to) {
-                this.to.adjust(affectedSheet, operation, start, delta);
+                prevTo = this.to.adjust(affectedSheet, operation, start, delta);
             }
             if (this.sheet.toLowerCase() == affectedSheet.toLowerCase()) {
-                var formulaRow = this.row;
-                var formulaCol = this.col;
                 switch (operation) {
                 case 'row':
                     if (formulaRow >= start) {
+                        modified = true;
                         this.row += delta;
                     }
                     break;
                 case 'col':
                     if (formulaCol >= start) {
+                        modified = true;
                         this.col += delta;
                     }
                     break;
                 }
+            }
+            if (modified || prevFrom || prevTo) {
+                var v = new Validation(this);
+                v.from = prevFrom;
+                v.to = prevTo;
+                v.row = formulaRow;
+                v.col = formulaCol;
+                return v;
             }
         },
         toJSON: function () {
@@ -7549,6 +7758,7 @@
         var RangeRef = kendo.spreadsheet.RangeRef;
         var CellRef = kendo.spreadsheet.CellRef;
         var Range = kendo.spreadsheet.Range;
+        var MODIFIED_FORMULAS;
         var Selection = kendo.Class.extend({
             init: function (sheet) {
                 this._sheet = sheet;
@@ -7760,6 +7970,27 @@
                 var targetIndex = targetRef.col * rowCount + targetRef.row;
                 this._properties.copy(nextIndex, nextBottomIndex, targetIndex);
             },
+            _saveModifiedFormulas: function (array, callback) {
+                var save = MODIFIED_FORMULAS;
+                MODIFIED_FORMULAS = array;
+                var ret = callback();
+                MODIFIED_FORMULAS = save;
+                return ret;
+            },
+            _restoreModifiedFormulas: function (array) {
+                var wb = this._workbook;
+                array.forEach(function (f) {
+                    var sheet = wb.sheetByName(f.sheet), index;
+                    if (f instanceof kendo.spreadsheet.calc.runtime.Formula) {
+                        index = sheet._grid.cellRefIndex(f);
+                        sheet._properties.set('formula', index, index, f);
+                    }
+                    if (f instanceof kendo.spreadsheet.validation.Validation) {
+                        index = sheet._grid.cellRefIndex(f);
+                        sheet._properties.set('validation', index, index, f);
+                    }
+                });
+            },
             _adjustReferences: function (operation, start, delta, mergedCells) {
                 this._mergedCells = mergedCells.reduce(function (a, ref) {
                     ref = ref.adjust(null, null, null, null, operation == 'row', start, delta);
@@ -7772,10 +8003,16 @@
                     var affectedSheet = this._name();
                     this._workbook._sheets.forEach(function (sheet) {
                         sheet._forFormulas(function (formula) {
-                            formula.adjust(affectedSheet, operation, start, delta);
+                            var prev = formula.adjust(affectedSheet, operation, start, delta);
+                            if (prev && MODIFIED_FORMULAS) {
+                                MODIFIED_FORMULAS.push(prev);
+                            }
                         });
                         sheet._forValidations(function (validation) {
-                            validation.adjust(affectedSheet, operation, start, delta);
+                            var prev = validation.adjust(affectedSheet, operation, start, delta);
+                            if (prev && MODIFIED_FORMULAS) {
+                                MODIFIED_FORMULAS.push(prev);
+                            }
                         });
                     });
                     this._workbook.adjustNames(affectedSheet, operation == 'row', start, delta);
@@ -8660,6 +8897,9 @@
                 var topLeft = this._grid.normalize(ref.topLeft);
                 var bottomRight = this._grid.normalize(ref.bottomRight);
                 var ci, start, end;
+                if (typeof value == 'number') {
+                    value = kendo.spreadsheet.calc.runtime.limitPrecision(value);
+                }
                 if (value && name == 'formula') {
                     if (typeof value == 'string') {
                         value = this._compileFormula(topLeft.row, topLeft.col, value);
@@ -8700,6 +8940,16 @@
                     columns: columns
                 };
                 this._refreshFilter();
+                this.forEach(ref, function (row, col, props) {
+                    var formula = props.formula;
+                    if (formula) {
+                        var diff = row - formula.row;
+                        if (diff !== 0) {
+                            var start = diff > 0 ? formula.row : formula.row + diff;
+                            formula.adjust(this.name(), 'row', start, diff);
+                        }
+                    }
+                }.bind(this));
                 this.triggerChange({ recalc: true });
             },
             _refreshFilter: function () {
@@ -8738,6 +8988,7 @@
                         columns: columns
                     };
                 }, {
+                    recalc: true,
                     layout: true,
                     filter: true
                 });
@@ -8760,6 +9011,7 @@
                         });
                         this._refreshFilter();
                     }, {
+                        recalc: true,
                         layout: true,
                         filter: true
                     });
@@ -10302,7 +10554,7 @@
     var registerFormatParser = exports.registerFormatParser = function (p) {
         FORMAT_PARSERS.push(p);
     };
-    exports.parse = function (sheet, row, col, input) {
+    exports.parse = function (sheet, row, col, input, format) {
         if (input instanceof Date) {
             return {
                 type: 'date',
@@ -10367,7 +10619,7 @@
                 value: false
             };
         }
-        var date = runtime.parseDate(input);
+        var date = runtime.parseDate(input, format);
         if (date) {
             return {
                 type: 'date',
@@ -10543,6 +10795,7 @@
         }
         return {
             type: 'number',
+            currency: has_currency,
             format: format,
             value: sign * parseFloat(value)
         };
@@ -12423,8 +12676,8 @@
             'mousemove': 'onMouseMove'
         };
         var CLIPBOARD_EVENTS = {
-            '*+pageup': 'onPageUp',
-            '*+pagedown': 'onPageDown',
+            'pageup': 'onPageUp',
+            'pagedown': 'onPageDown',
             'mouseup': 'onMouseUp',
             '*+cut': 'onCut',
             '*+paste': 'onPaste',
@@ -13049,6 +13302,9 @@
                 this.scroller.scrollLeft += right;
             },
             objectAt: function (location) {
+                if (!location) {
+                    return;
+                }
                 var box = this.container[0].getBoundingClientRect();
                 return this.view.objectAt(location.clientX - box.left, location.clientY - box.top);
             },
@@ -13124,7 +13380,7 @@
                 this._execute({
                     command: 'EditCommand',
                     options: {
-                        operatingRange: e.range,
+                        editActiveCell: true,
                         value: e.value
                     }
                 });
@@ -13465,6 +13721,7 @@
                 case 'number':
                 case 'date':
                 case 'percent':
+                case 'currency':
                     style.textAlign = 'right';
                     break;
                 case 'boolean':
@@ -13556,6 +13813,7 @@
                 case 'number':
                 case 'date':
                 case 'percent':
+                case 'currency':
                     style.textAlign = 'right';
                     break;
                 case 'boolean':
@@ -13829,12 +14087,13 @@
                 var rectangle = this._rectangle(pane, selection);
                 return Math.abs(rectangle.right - x) < 8 && Math.abs(rectangle.bottom - y) < 8;
             },
-            isEditButton: function (x, y) {
+            isEditButton: function (x, y, column, columnCount) {
                 var ed = this._sheet.activeCellCustomEditor();
                 if (ed) {
+                    var editorOnLastColumn = column == columnCount - 2;
                     var r = this.activeCellRectangle();
-                    if (x > r.right && x <= r.right + 20 && y >= r.top && y <= r.bottom) {
-                        return true;
+                    if (y >= r.top && y <= r.bottom) {
+                        return editorOnLastColumn ? x < r.left && x >= r.left - 20 : x > r.right && x <= r.right + 20;
                     }
                 }
             },
@@ -13865,7 +14124,7 @@
                         } else if (!selecting && y < grid._headerHeight) {
                             ref = new CellRef(-Infinity, column);
                             type = this.isColumnResizer(x, pane, ref) ? 'columnresizehandle' : 'columnheader';
-                        } else if (this.isEditButton(x, y)) {
+                        } else if (this.isEditButton(x, y, column, grid.columnCount)) {
                             type = 'editor';
                         }
                         object = {
@@ -14594,6 +14853,7 @@
                 var self = this;
                 var sheet = self._sheet;
                 var view = self._currentView;
+                var columnCount = self._grid.columns._axis._count;
                 if (view.ref.intersects(ref)) {
                     var rectangle = self._rectangle(ref);
                     var ed = self._sheet.activeCellCustomEditor();
@@ -14604,10 +14864,15 @@
                         cell.height = rectangle.height;
                         drawCell(collection, cell, className, true);
                         if (ed) {
+                            var btnClass = 'k-button k-spreadsheet-editor-button';
+                            var isLastColumn = col == columnCount - 1;
+                            if (isLastColumn) {
+                                btnClass += ' k-spreadsheet-last-column';
+                            }
                             var btn = kendo.dom.element('div', {
-                                className: 'k-button k-spreadsheet-editor-button',
+                                className: btnClass,
                                 style: {
-                                    left: cell.left + cell.width + 'px',
+                                    left: cell.left + (isLastColumn ? 0 : cell.width) + 'px',
                                     top: cell.top + 'px',
                                     height: cell.height + 'px'
                                 }
@@ -15067,7 +15332,8 @@
                 var iterator = this.values.iterator(0, this._count - 1);
                 for (var idx = 0; idx < this._count; idx++) {
                     var value = iterator.at(idx);
-                    if (value === this._value) {
+                    var hidden = this._hidden.value(idx, idx);
+                    if (value === this._value && !hidden) {
                         continue;
                     }
                     var position = positions[idx];
@@ -15075,6 +15341,9 @@
                         position = values.length;
                         var item = { index: idx };
                         item[field] = value;
+                        if (hidden) {
+                            item.hidden = hidden;
+                        }
                         values.push(item);
                         positions[idx] = position;
                     }
@@ -15083,12 +15352,16 @@
             },
             fromJSON: function (field, values) {
                 for (var idx = 0; idx < values.length; idx++) {
-                    var value = values[idx][field];
-                    var index = values[idx].index;
+                    var el = values[idx];
+                    var value = el[field] || el.hidden;
+                    var index = el.index;
                     if (index === undefined) {
                         index = idx;
                     }
                     this.value(index, index, value);
+                    if (el.hidden) {
+                        this.hide(index);
+                    }
                 }
             },
             hide: function (index) {
@@ -15109,17 +15382,12 @@
                 if (index === end) {
                     return overflow ? index + 1 : index;
                 }
-                index += 1;
-                var range = this._hidden.intersecting(index, index)[0];
-                if (range.value !== 0) {
-                    if (range.end === end) {
-                        return index - 1;
-                    } else {
-                        return range.end + 1;
+                for (var i = index + 1; i <= end; ++i) {
+                    if (!this.hidden(i)) {
+                        return i;
                     }
-                } else {
-                    return index;
                 }
+                return index;
             },
             nextPage: function (index, pageSize) {
                 return this.index(this.sum(0, index - 1) + pageSize);
@@ -15147,17 +15415,12 @@
                 if (index === 0) {
                     return overflow ? -1 : 0;
                 }
-                index -= 1;
-                var range = this._hidden.intersecting(index, index)[0];
-                if (range.value !== 0) {
-                    if (range.start === 0) {
-                        return index + 1;
-                    } else {
-                        return range.start - 1;
+                for (var i = index - 1; i >= 0; --i) {
+                    if (!this.hidden(i)) {
+                        return i;
                     }
-                } else {
-                    return index;
                 }
+                return index;
             },
             unhide: function (index) {
                 if (this.hidden(index)) {
@@ -15949,11 +16212,12 @@
                 });
             }
             if (m = input.skip(/^(hh?|ss?)/i)) {
-                m = m[1].toLowerCase();
+                m = m[1];
                 return maybeFraction({
                     type: 'time',
-                    part: m.charAt(0),
-                    format: m.length
+                    part: m.toLowerCase().charAt(0),
+                    format: m.length,
+                    ampm: m == 'hh'
                 });
             }
             if (m = input.skip(/^\[(hh?|mm?|ss?)\]/i)) {
@@ -16160,6 +16424,7 @@
         var hasTime = false;
         var hasAmpm = false;
         var percentCount = 0;
+        var currency = /[\$\xA2-\xA5\u058F\u060B\u09F2\u09F3\u09FB\u0AF1\u0BF9\u0E3F\u17DB\u20A0-\u20BD\uA838\uFDFC\uFE69\uFF04\uFFE0\uFFE1\uFFE5\uFFE6]/;
         var scaleCount = 0;
         var code = '';
         var separeThousands = false;
@@ -16201,6 +16466,7 @@
                     }
                 }
             } else if (tok.type == 'time') {
+                hasAmpm = hasAmpm || !!tok.ampm;
                 hasTime = true;
             } else if (tok.type == 'date') {
                 hasDate = true;
@@ -16216,6 +16482,7 @@
         }
         if (intFormat.length) {
             code += 'var intPart = runtime.formatInt(culture, value, ' + JSON.stringify(intFormat) + ', ' + declen + ', ' + separeThousands + '); ';
+            code += 'var isNegative = parseInt(intPart[0]) < 0;';
         }
         if (decFormat.length) {
             code += 'var decPart = runtime.formatDec(value, ' + JSON.stringify(decFormat) + ', ' + declen + '); ';
@@ -16238,6 +16505,7 @@
             }
         }
         input.restart();
+        code += 'var matchedCurrency = false;';
         while (!input.eof()) {
             var tok = input.next();
             if (tok.type == 'dec') {
@@ -16248,6 +16516,10 @@
                 code += 'type = \'percent\'; ';
                 code += 'output += culture.numberFormat.percent.symbol; ';
             } else if (tok.type == 'str') {
+                if (currency.test(tok.value)) {
+                    code += 'type = \'currency\'; ';
+                    code += 'if (isNegative) { output += \'-\'; matchedCurrency = true; }';
+                }
                 code += 'output += ' + JSON.stringify(tok.value) + '; ';
             } else if (tok.type == 'text') {
                 code += 'type = \'text\'; ';
@@ -16259,6 +16531,7 @@
             } else if (tok.type == 'fill') {
                 code += 'output += runtime.fill(' + JSON.stringify(tok.value) + '); ';
             } else if (tok.type == 'digit') {
+                code += 'if (isNegative && intPart[0] && matchedCurrency) {intPart[0] = intPart[0].replace(\'-\', \'\');}';
                 code += 'output += ' + (tok.decimal ? 'decPart' : 'intPart') + '.shift(); ';
             } else if (tok.type == 'date') {
                 code += 'output += runtime.date(culture, date, ' + JSON.stringify(tok.part) + ', ' + tok.format + '); ';
@@ -16420,7 +16693,12 @@
                             add(' ');
                         }
                     } else {
-                        add(value.charAt(iv--));
+                        if (value == '0' && chf == '?') {
+                            add(' ');
+                        } else {
+                            add(value.charAt(iv));
+                        }
+                        iv--;
                     }
                 }
                 if (j === 0) {
@@ -17257,43 +17535,23 @@
         ]
     ]);
     defineFunction('min', function (numbers) {
-        return Math.min.apply(Math, numbers);
-    }).args([
-        [
+        return numbers.length ? Math.min.apply(Math, numbers) : 0;
+    }).args([[
             'numbers',
             [
                 'collect',
                 'number'
             ]
-        ],
-        [
-            '?',
-            [
-                'assert',
-                '$numbers.length > 0',
-                'N/A'
-            ]
-        ]
-    ]);
+        ]]);
     defineFunction('max', function (numbers) {
-        return Math.max.apply(Math, numbers);
-    }).args([
-        [
+        return numbers.length ? Math.max.apply(Math, numbers) : 0;
+    }).args([[
             'numbers',
             [
                 'collect',
                 'number'
             ]
-        ],
-        [
-            '?',
-            [
-                'assert',
-                '$numbers.length > 0',
-                'N/A'
-            ]
-        ]
-    ]);
+        ]]);
     defineFunction('counta', function (values) {
         return values.length;
     }).args([[
@@ -19862,12 +20120,15 @@
         ]
     ]);
     defineFunction('fixed', function (number, decimals, noCommas) {
-        var format = noCommas ? '0.DECIMALS' : '#,##0.DECIMALS';
-        var dec = '';
-        while (decimals-- > 0) {
-            dec += '0';
+        var scale = Math.pow(10, decimals);
+        number = Math.round(number * scale) / scale;
+        var format = noCommas ? '0' : '#,##0';
+        if (decimals > 0) {
+            format += '.';
+            while (decimals-- > 0) {
+                format += '0';
+            }
         }
-        format = format.replace(/DECIMALS/g, dec);
         return spreadsheet.formatting.text(number, format);
     }).args([
         [
@@ -19878,7 +20139,7 @@
             '*decimals',
             [
                 'or',
-                'integer++',
+                'integer',
                 [
                     'null',
                     2
@@ -23715,7 +23976,9 @@
             topBorder: 'Top border',
             rightBorder: 'Right border',
             bottomBorder: 'Bottom border',
-            noBorders: 'No border',
+            noBorders: 'No border'
+        };
+        var COLOR_PICKER_MESSAGES = kendo.spreadsheet.messages.colorPicker = {
             reset: 'Reset color',
             customColor: 'Custom color...',
             apply: 'Apply',
@@ -23839,7 +24102,7 @@
             _customColorPalette: function () {
                 var element = $('<div />', {
                     'class': 'k-spreadsheet-window',
-                    'html': '<div></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>' + BORDER_PALETTE_MESSAGES.apply + '</button>' + '<button class=\'k-button\' data-bind=\'click: close\'>' + BORDER_PALETTE_MESSAGES.cancel + '</button>' + '</div>'
+                    'html': '<div></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>' + COLOR_PICKER_MESSAGES.apply + '</button>' + '<button class=\'k-button\' data-bind=\'click: close\'>' + COLOR_PICKER_MESSAGES.cancel + '</button>' + '</div>'
                 });
                 var dialog = this.dialog = element.appendTo(document.body).kendoWindow({
                     animation: false,
@@ -23872,10 +24135,10 @@
                 kendo.bind(dialog.element.find('.k-action-buttons'), viewModel);
             },
             _resetButton: function () {
-                this.resetButton = $('<a class=\'k-button k-reset-color\' href=\'#\'>' + '<span class=\'k-icon k-i-reset-color\'></span>' + BORDER_PALETTE_MESSAGES.reset + '</a>').appendTo(this.element);
+                this.resetButton = $('<a class=\'k-button k-reset-color\' href=\'#\'>' + '<span class=\'k-icon k-i-reset-color\'></span>' + COLOR_PICKER_MESSAGES.reset + '</a>').appendTo(this.element);
             },
             _customColorButton: function () {
-                this.customColorButton = $('<a class=\'k-button k-custom-color\' href=\'#\'>' + '<span class=\'k-icon\'></span>' + BORDER_PALETTE_MESSAGES.customColor + '</a>').appendTo(this.element);
+                this.customColorButton = $('<a class=\'k-button k-custom-color\' href=\'#\'>' + '<span class=\'k-icon\'></span>' + COLOR_PICKER_MESSAGES.customColor + '</a>').appendTo(this.element);
             },
             resetColor: function () {
                 this.colorPalette.value(null);
@@ -23978,10 +24241,6 @@
             backgroundColor: 'Background',
             bold: 'Bold',
             borders: 'Borders',
-            colorPicker: {
-                reset: 'Reset color',
-                customColor: 'Custom color...'
-            },
             copy: 'Copy',
             cut: 'Cut',
             deleteColumn: 'Delete column',
@@ -23992,6 +24251,7 @@
             format: 'Custom format...',
             formatTypes: {
                 automatic: 'Automatic',
+                text: 'Text',
                 number: 'Number',
                 percent: 'Percent',
                 financial: 'Financial',
@@ -24028,11 +24288,7 @@
             exportAs: 'Export...',
             toggleGridlines: 'Toggle gridlines',
             sort: 'Sort',
-            sortAsc: 'Sort ascending',
-            sortDesc: 'Sort descending',
             sortButtons: {
-                sortSheetAsc: 'Sort sheet A to Z',
-                sortSheetDesc: 'Sort sheet Z to A',
                 sortRangeAsc: 'Sort range A to Z',
                 sortRangeDesc: 'Sort range Z to A'
             },
@@ -24730,6 +24986,7 @@
         kendo.toolbar.registerComponent('fontFamily', FontFamily, FontFamilyButton);
         var defaultFormats = kendo.spreadsheet.formats = {
             automatic: null,
+            text: '@',
             number: '#,0.00',
             percent: '0.00%',
             financial: '_("$"* #,##0.00_);_("$"* (#,##0.00);_("$"* "-"??_);_(@_)',
@@ -24762,6 +25019,10 @@
                     {
                         format: defaultFormats.automatic,
                         name: MESSAGES.formatTypes.automatic
+                    },
+                    {
+                        format: defaultFormats.text,
+                        name: MESSAGES.formatTypes.text
                     },
                     {
                         format: defaultFormats.number,
@@ -24860,6 +25121,7 @@
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
                 this.element.attr({ 'data-property': 'alignment' });
+                this._defineButtons();
                 this._commandPalette();
                 this.popup.element.on('click', '.k-button', function (e) {
                     this._action($(e.currentTarget));
@@ -24870,50 +25132,52 @@
                     instance: this
                 });
             },
-            buttons: [
-                {
-                    property: 'textAlign',
-                    value: 'left',
-                    iconClass: 'align-left',
-                    text: MESSAGES.alignmentButtons.justtifyLeft
-                },
-                {
-                    property: 'textAlign',
-                    value: 'center',
-                    iconClass: 'align-center',
-                    text: MESSAGES.alignmentButtons.justifyCenter
-                },
-                {
-                    property: 'textAlign',
-                    value: 'right',
-                    iconClass: 'align-right',
-                    text: MESSAGES.alignmentButtons.justifyRight
-                },
-                {
-                    property: 'textAlign',
-                    value: 'justify',
-                    iconClass: 'align-justify',
-                    text: MESSAGES.alignmentButtons.justifyFull
-                },
-                {
-                    property: 'verticalAlign',
-                    value: 'top',
-                    iconClass: 'align-top',
-                    text: MESSAGES.alignmentButtons.alignTop
-                },
-                {
-                    property: 'verticalAlign',
-                    value: 'center',
-                    iconClass: 'align-middle',
-                    text: MESSAGES.alignmentButtons.alignMiddle
-                },
-                {
-                    property: 'verticalAlign',
-                    value: 'bottom',
-                    iconClass: 'align-bottom',
-                    text: MESSAGES.alignmentButtons.alignBottom
-                }
-            ],
+            _defineButtons: function () {
+                this.buttons = [
+                    {
+                        property: 'textAlign',
+                        value: 'left',
+                        iconClass: 'align-left',
+                        text: MESSAGES.alignmentButtons.justtifyLeft
+                    },
+                    {
+                        property: 'textAlign',
+                        value: 'center',
+                        iconClass: 'align-center',
+                        text: MESSAGES.alignmentButtons.justifyCenter
+                    },
+                    {
+                        property: 'textAlign',
+                        value: 'right',
+                        iconClass: 'align-right',
+                        text: MESSAGES.alignmentButtons.justifyRight
+                    },
+                    {
+                        property: 'textAlign',
+                        value: 'justify',
+                        iconClass: 'align-justify',
+                        text: MESSAGES.alignmentButtons.justifyFull
+                    },
+                    {
+                        property: 'verticalAlign',
+                        value: 'top',
+                        iconClass: 'align-top',
+                        text: MESSAGES.alignmentButtons.alignTop
+                    },
+                    {
+                        property: 'verticalAlign',
+                        value: 'center',
+                        iconClass: 'align-middle',
+                        text: MESSAGES.alignmentButtons.alignMiddle
+                    },
+                    {
+                        property: 'verticalAlign',
+                        value: 'bottom',
+                        iconClass: 'align-bottom',
+                        text: MESSAGES.alignmentButtons.alignBottom
+                    }
+                ];
+            },
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
@@ -24962,6 +25226,7 @@
         var MergeTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
+                this._defineButtons();
                 this._commandPalette();
                 this.popup.element.on('click', '.k-button', function (e) {
                     this._action($(e.currentTarget));
@@ -24972,28 +25237,30 @@
                     instance: this
                 });
             },
-            buttons: [
-                {
-                    value: 'cells',
-                    iconClass: 'cells-merge',
-                    text: MESSAGES.mergeButtons.mergeCells
-                },
-                {
-                    value: 'horizontally',
-                    iconClass: 'cells-merge-horizontally',
-                    text: MESSAGES.mergeButtons.mergeHorizontally
-                },
-                {
-                    value: 'vertically',
-                    iconClass: 'cells-merge-vertically',
-                    text: MESSAGES.mergeButtons.mergeVertically
-                },
-                {
-                    value: 'unmerge',
-                    iconClass: 'table-unmerge',
-                    text: MESSAGES.mergeButtons.unmerge
-                }
-            ],
+            _defineButtons: function () {
+                this.buttons = [
+                    {
+                        value: 'cells',
+                        iconClass: 'cells-merge',
+                        text: MESSAGES.mergeButtons.mergeCells
+                    },
+                    {
+                        value: 'horizontally',
+                        iconClass: 'cells-merge-horizontally',
+                        text: MESSAGES.mergeButtons.mergeHorizontally
+                    },
+                    {
+                        value: 'vertically',
+                        iconClass: 'cells-merge-vertically',
+                        text: MESSAGES.mergeButtons.mergeVertically
+                    },
+                    {
+                        value: 'unmerge',
+                        iconClass: 'table-unmerge',
+                        text: MESSAGES.mergeButtons.unmerge
+                    }
+                ];
+            },
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
@@ -25022,6 +25289,7 @@
         var FreezeTool = PopupTool.extend({
             init: function (options, toolbar) {
                 PopupTool.fn.init.call(this, options, toolbar);
+                this._defineButtons();
                 this._commandPalette();
                 this.popup.element.on('click', '.k-button', function (e) {
                     this._action($(e.currentTarget));
@@ -25032,28 +25300,30 @@
                     instance: this
                 });
             },
-            buttons: [
-                {
-                    value: 'panes',
-                    iconClass: 'pane-freeze',
-                    text: MESSAGES.freezeButtons.freezePanes
-                },
-                {
-                    value: 'rows',
-                    iconClass: 'row-freeze',
-                    text: MESSAGES.freezeButtons.freezeRows
-                },
-                {
-                    value: 'columns',
-                    iconClass: 'column-freeze',
-                    text: MESSAGES.freezeButtons.freezeColumns
-                },
-                {
-                    value: 'unfreeze',
-                    iconClass: 'table-unmerge',
-                    text: MESSAGES.freezeButtons.unfreeze
-                }
-            ],
+            _defineButtons: function () {
+                this.buttons = [
+                    {
+                        value: 'panes',
+                        iconClass: 'pane-freeze',
+                        text: MESSAGES.freezeButtons.freezePanes
+                    },
+                    {
+                        value: 'rows',
+                        iconClass: 'row-freeze',
+                        text: MESSAGES.freezeButtons.freezeRows
+                    },
+                    {
+                        value: 'columns',
+                        iconClass: 'column-freeze',
+                        text: MESSAGES.freezeButtons.freezeColumns
+                    },
+                    {
+                        value: 'unfreeze',
+                        iconClass: 'table-unmerge',
+                        text: MESSAGES.freezeButtons.unfreeze
+                    }
+                ];
+            },
             destroy: function () {
                 this.popup.element.off();
                 PopupTool.fn.destroy.call(this);
@@ -25476,7 +25746,7 @@
                         messages: kendo.spreadsheet.messages.dialogs || MESSAGES,
                         errors: this.options.errors
                     })).appendTo(document.body).kendoWindow({
-                        autoFocus: this.options.autoFocus,
+                        autoFocus: false,
                         scrollable: false,
                         resizable: false,
                         modal: true,
@@ -25511,6 +25781,7 @@
             },
             open: function () {
                 this.dialog().open();
+                this.dialog().element.find('.k-primary').focus();
             },
             apply: function () {
                 this.close();
@@ -26455,7 +26726,7 @@
                 showButton: true,
                 useCustomMessages: false,
                 errorTemplate: '<div class="k-widget k-tooltip k-tooltip-validation" style="margin:0.5em"><span class="k-icon k-i-warning"> </span>' + '#= message #<div class="k-callout k-callout-n"></div></div>',
-                template: '<div class="k-edit-form-container">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.criteria #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.criteria #"' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: criterion, source: criteria" />' + '</div>' + '<div data-bind="visible: isNumber">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: comparer, source: comparers" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.min #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.min #" title="#: messages.validationDialog.labels.min #" placeholder="e.g. 10" class="k-textbox" data-bind="value: from, enabled: isNumber" required="required" />' + '</div>' + '<div data-bind="visible: showTo">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.max #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.max #" title="#: messages.validationDialog.labels.max #" placeholder="e.g. 100" class="k-textbox" data-bind="value: to, enabled: showToForNumber" required="required" />' + '</div>' + '</div>' + '</div>' + '<div data-bind="visible: isText">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: comparer, source: comparers" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-textbox" data-bind="value: from, enabled: isText" required="required" />' + '</div>' + '</div>' + '<div data-bind="visible: isDate">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: comparer, source: comparers" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.start #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.start #" title="#: messages.validationDialog.labels.start #" class="k-textbox" data-bind="value: from, enabled: isDate" required="required" />' + '</div>' + '<div data-bind="visible: showTo">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.end #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.end #" title="#: messages.validationDialog.labels.end #" class="k-textbox" data-bind="value: to, enabled: showToForDate" required="required" />' + '</div>' + '</div>' + '</div>' + '<div data-bind="visible: isCustom">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-textbox" data-bind="value: from, enabled: isCustom" required="required" />' + '</div>' + '</div>' + '<div data-bind="visible: isList">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-textbox" data-bind="value: from, enabled: isList" required="required" />' + '</div>' + '</div>' + '<div data-bind="visible: isList">' + '<div class="k-edit-field">' + '<input type="checkbox" name="showButton" id="listShowButton" class="k-checkbox" data-bind="checked: showButton"/>' + '<label for="listShowButton" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.showListButton #' + '</label>' + '</div>' + '</div>' + '<div data-bind="visible: isDate">' + '<div class="k-edit-field">' + '<input type="checkbox" name="showButton" id="dateShowButton" class="k-checkbox" data-bind="checked: showButton"/>' + '<label for="dateShowButton" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.showCalendarButton #' + '</label>' + '</div>' + '</div>' + '<div data-bind="invisible: isAny">' + '<div class="k-edit-field">' + '<input type="checkbox" title="#: messages.validationDialog.labels.ignoreBlank #" name="ignoreBlank" id="ignoreBlank" class="k-checkbox" data-bind="checked: ignoreBlank"/>' + '<label for="ignoreBlank" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.ignoreBlank #' + '</label>' + '</div>' + '</div>' + '<div data-bind="invisible: isAny">' + '<div class="k-action-buttons"></div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.onInvalidData #:</label></div>' + '<div class="k-edit-field">' + '<input type="radio" title="#: messages.validationDialog.labels.rejectInput #" id="validationTypeReject" name="validationType" value="reject" data-bind="checked: type" class="k-radio" />' + '<label for="validationTypeReject" class="k-radio-label">' + '#: messages.validationDialog.labels.rejectInput #' + '</label> ' + '<input type="radio" title="#: messages.validationDialog.labels.showWarning #" id="validationTypeWarning"  name="validationType" value="warning" data-bind="checked: type" class="k-radio" />' + '<label for="validationTypeWarning" class="k-radio-label">' + '#: messages.validationDialog.labels.showWarning #' + '</label>' + '</div>' + '</div>' + '<div data-bind="invisible: isAny" class="hint-wrapper">' + '<div class="k-edit-field">' + '<input type="checkbox" title="#: messages.validationDialog.labels.showHint #" name="useCustomMessages" id="useCustomMessages" class="k-checkbox" data-bind="checked: useCustomMessages" />' + '<label class="k-checkbox-label" for="useCustomMessages">' + ' #: messages.validationDialog.labels.showHint #' + '</label>' + '</div>' + '<div data-bind="visible: useCustomMessages">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.hintTitle #:</label></div>' + '<div class="k-edit-field">' + '<input class="k-textbox" title="#: messages.validationDialog.labels.hintTitle #" placeholder="#: messages.validationDialog.placeholders.typeTitle #" data-bind="value: hintTitle" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.hintMessage #:</label></div>' + '<div class="k-edit-field">' + '<input class="k-textbox" title="#: messages.validationDialog.labels.hintMessage #" placeholder="#: messages.validationDialog.placeholders.typeMessage #" data-bind="value: hintMessage" />' + '</div>' + '</div>' + '</div>' + '<div class="k-action-buttons">' + '<button class="k-button" data-bind="visible: showRemove, click: remove">#: messages.remove #</button>' + '<button class="k-button k-primary" data-bind="click: apply">#: messages.apply #</button>' + '<button class="k-button" data-bind="click: close">#: messages.cancel #</button>' + '</div>' + '</div>'
+                template: '<div class="k-edit-form-container">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.criteria #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.criteria #"' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: criterion, source: criteria" />' + '</div>' + '<div data-bind="visible: isNumber">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: comparer, source: comparers" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.min #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.min #" title="#: messages.validationDialog.labels.min #" placeholder="e.g. 10" class="k-textbox" data-bind="value: from, enabled: isNumber" required="required" />' + '</div>' + '<div data-bind="visible: showTo">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.max #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.max #" title="#: messages.validationDialog.labels.max #" placeholder="e.g. 100" class="k-textbox" data-bind="value: to, enabled: showToForNumber" required="required" />' + '</div>' + '</div>' + '</div>' + '<div data-bind="visible: isText">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: comparer, source: comparers" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-textbox" data-bind="value: from, enabled: isText" required="required" />' + '</div>' + '</div>' + '<div data-bind="visible: isDate">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-text-field="name" ' + 'data-value-field="type" ' + 'data-bind="value: comparer, source: comparers" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.start #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.start #" title="#: messages.validationDialog.labels.start #" class="k-textbox" data-bind="value: from, enabled: isDate" required="required" />' + '</div>' + '<div data-bind="visible: showTo">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.end #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.end #" title="#: messages.validationDialog.labels.end #" class="k-textbox" data-bind="value: to, enabled: showToForDate" required="required" />' + '</div>' + '</div>' + '</div>' + '<div data-bind="visible: isCustom">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-textbox" data-bind="value: from, enabled: isCustom" required="required" />' + '</div>' + '</div>' + '<div data-bind="visible: isList">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-textbox" data-bind="value: from, enabled: isList" required="required" />' + '</div>' + '</div>' + '<div data-bind="visible: isList">' + '<div class="k-edit-field">' + '<input type="checkbox" name="showButton" id="listShowButton" class="k-checkbox" data-bind="checked: showButton"/>' + '<label for="listShowButton" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.showListButton #' + '</label>' + '</div>' + '</div>' + '<div data-bind="visible: isDate">' + '<div class="k-edit-field">' + '<input type="checkbox" name="showButton" id="dateShowButton" class="k-checkbox" data-bind="checked: showButton"/>' + '<label for="dateShowButton" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.showCalendarButton #' + '</label>' + '</div>' + '</div>' + '<div data-bind="invisible: isAny">' + '<div class="k-edit-field">' + '<input type="checkbox" title="#: messages.validationDialog.labels.ignoreBlank #" name="ignoreBlank" id="ignoreBlank" class="k-checkbox" data-bind="checked: ignoreBlank"/>' + '<label for="ignoreBlank" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.ignoreBlank #' + '</label>' + '</div>' + '</div>' + '<div data-bind="invisible: isAny">' + '<div class="k-hr"></div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.onInvalidData #:</label></div>' + '<div class="k-edit-field">' + '<input type="radio" title="#: messages.validationDialog.labels.rejectInput #" id="validationTypeReject" name="validationType" value="reject" data-bind="checked: type" class="k-radio" />' + '<label for="validationTypeReject" class="k-radio-label">' + '#: messages.validationDialog.labels.rejectInput #' + '</label> ' + '<input type="radio" title="#: messages.validationDialog.labels.showWarning #" id="validationTypeWarning"  name="validationType" value="warning" data-bind="checked: type" class="k-radio" />' + '<label for="validationTypeWarning" class="k-radio-label">' + '#: messages.validationDialog.labels.showWarning #' + '</label>' + '</div>' + '</div>' + '<div data-bind="invisible: isAny" class="hint-wrapper">' + '<div class="k-edit-field">' + '<input type="checkbox" title="#: messages.validationDialog.labels.showHint #" name="useCustomMessages" id="useCustomMessages" class="k-checkbox" data-bind="checked: useCustomMessages" />' + '<label class="k-checkbox-label" for="useCustomMessages">' + ' #: messages.validationDialog.labels.showHint #' + '</label>' + '</div>' + '<div data-bind="visible: useCustomMessages">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.hintTitle #:</label></div>' + '<div class="k-edit-field">' + '<input class="k-textbox" title="#: messages.validationDialog.labels.hintTitle #" placeholder="#: messages.validationDialog.placeholders.typeTitle #" data-bind="value: hintTitle" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.hintMessage #:</label></div>' + '<div class="k-edit-field">' + '<input class="k-textbox" title="#: messages.validationDialog.labels.hintMessage #" placeholder="#: messages.validationDialog.placeholders.typeMessage #" data-bind="value: hintMessage" />' + '</div>' + '</div>' + '</div>' + '<div class="k-action-buttons">' + '<button class="k-button" data-bind="visible: showRemove, click: remove">#: messages.remove #</button>' + '<button class="k-button k-primary" data-bind="click: apply">#: messages.apply #</button>' + '<button class="k-button" data-bind="click: close">#: messages.cancel #</button>' + '</div>' + '</div>'
             },
             open: function (range) {
                 var options = this.options;
@@ -26667,7 +26938,7 @@
                     vCenter: true
                 },
                 width: 520,
-                template: '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.fileName #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-textbox\' data-bind=\'value: name\' />' + '</div>' + '<div >' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.saveAsType #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-text-field=\'description\' ' + 'data-value-field=\'extension\' ' + 'data-bind=\'value: extension, source: fileFormats\' />' + '</div>' + '</div>' + '<div class=\'export-config\' data-bind=\'visible: showPdfOptions\'>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.exportArea #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-text-field=\'text\' ' + 'data-value-field=\'area\' ' + 'data-bind=\'value: pdf.area, source: pdf.areas\' />' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.paperSize#:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-text-field=\'text\' ' + 'data-value-field=\'value\' ' + 'data-bind=\'value: pdf.paperSize, source: pdf.paperSizes\' />' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.margins #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-value-primitive=\'true\'' + 'data-text-field=\'text\' ' + 'data-value-field=\'value\' ' + 'data-bind=\'value: pdf.margin, source: pdf.margins\' />' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.orientation #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input type=\'radio\' id=\'k-orientation-portrait\' name=\'orientation\' data-type=\'boolean\' data-bind=\'checked: pdf.landscape\' value=\'false\' /><label class=\'k-orientation-label k-orientation-portrait-label\' for=\'k-orientation-portrait\'></label>' + '<input type=\'radio\' id=\'k-orientation-landscape\' name=\'orientation\' data-type=\'boolean\' data-bind=\'checked: pdf.landscape\' value=\'true\' /><label class=\'k-orientation-label k-orientation-landscape-label\' for=\'k-orientation-landscape\'></label>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.print #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-checkbox\' id=\'guidelines\' type=\'checkbox\' data-bind=\'checked: pdf.guidelines\'/><label class=\'k-checkbox-label\' for=\'guidelines\'>#: messages.exportAsDialog.labels.guidelines#</label>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.scale #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-checkbox\' id=\'fitWidth\' type=\'checkbox\' data-bind=\'checked: pdf.fitWidth\'/><label class=\'k-checkbox-label\' for=\'fitWidth\'>#: messages.exportAsDialog.labels.fit #</label>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.center #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-checkbox\' id=\'hCenter\' type=\'checkbox\' data-bind=\'checked: pdf.hCenter\'/><label class=\'k-checkbox-label\' for=\'hCenter\'>#: messages.exportAsDialog.labels.horizontally #</label>' + '<input class=\'k-checkbox\' id=\'vCenter\' type=\'checkbox\' data-bind=\'checked: pdf.vCenter\'/><label class=\'k-checkbox-label\' for=\'vCenter\'>#: messages.exportAsDialog.labels.vertically #</label>' + '</div>' + '<div class=\'k-page-orientation\' data-bind=\'css: {k-page-landscape: pdf.landscape}\'>' + '<div class=\'k-margins-horizontal\'></div>' + '<div class=\'k-margins-vertical\'></div>' + '</div>' + '</div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#: messages.save #</button>' + '<button class=\'k-button\' data-bind=\'click: close\'>#: messages.cancel #</button>' + '</div>'
+                template: '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.fileName #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-textbox\' data-bind=\'value: name\' />' + '</div>' + '<div >' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.saveAsType #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-text-field=\'description\' ' + 'data-value-field=\'extension\' ' + 'data-bind=\'value: extension, source: fileFormats\' />' + '</div>' + '</div>' + '<div class=\'k-export-config\' data-bind=\'visible: showPdfOptions\'>' + '<hr class=\'k-hr\' />' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.exportArea #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-text-field=\'text\' ' + 'data-value-field=\'area\' ' + 'data-bind=\'value: pdf.area, source: pdf.areas\' />' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.paperSize#:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-text-field=\'text\' ' + 'data-value-field=\'value\' ' + 'data-bind=\'value: pdf.paperSize, source: pdf.paperSizes\' />' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.margins #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-value-primitive=\'true\'' + 'data-text-field=\'text\' ' + 'data-value-field=\'value\' ' + 'data-bind=\'value: pdf.margin, source: pdf.margins\' />' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.orientation #:</label></div>' + '<div class=\'k-edit-field\'>' + '<div class=\'k-button-group\'>' + '<input type=\'radio\' id=\'k-orientation-portrait\' name=\'orientation\' data-type=\'boolean\' data-bind=\'checked: pdf.landscape\' value=\'false\' />' + '<label class=\'k-button k-button-icon k-group-start k-orientation-button\' for=\'k-orientation-portrait\'><span class=\'k-icon k-i-page-portrait\'></span></label>' + '<input type=\'radio\' id=\'k-orientation-landscape\' name=\'orientation\' data-type=\'boolean\' data-bind=\'checked: pdf.landscape\' value=\'true\' />' + '<label class=\'k-button k-button-icon k-group-end k-orientation-button\' for=\'k-orientation-landscape\'><span class=\'k-icon k-i-page-landscape\'></span></label>' + '</div>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.print #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-checkbox\' id=\'guidelines\' type=\'checkbox\' data-bind=\'checked: pdf.guidelines\'/><label class=\'k-checkbox-label\' for=\'guidelines\'>#: messages.exportAsDialog.labels.guidelines#</label>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.scale #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-checkbox\' id=\'fitWidth\' type=\'checkbox\' data-bind=\'checked: pdf.fitWidth\'/><label class=\'k-checkbox-label\' for=\'fitWidth\'>#: messages.exportAsDialog.labels.fit #</label>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.center #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-checkbox\' id=\'hCenter\' type=\'checkbox\' data-bind=\'checked: pdf.hCenter\'/><label class=\'k-checkbox-label\' for=\'hCenter\'>#: messages.exportAsDialog.labels.horizontally #</label>' + '<input class=\'k-checkbox\' id=\'vCenter\' type=\'checkbox\' data-bind=\'checked: pdf.vCenter\'/><label class=\'k-checkbox-label\' for=\'vCenter\'>#: messages.exportAsDialog.labels.vertically #</label>' + '</div>' + '<div class=\'k-page-orientation\'>' + '<span class=\'k-icon k-i-page-portrait\' data-bind=\'invisible: pdf.landscape\'></span>' + '<span class=\'k-icon k-i-page-landscape\' data-bind=\'visible: pdf.landscape\'></span>' + '</div>' + '</div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#: messages.save #</button>' + '<button class=\'k-button\' data-bind=\'click: close\'>#: messages.cancel #</button>' + '</div>'
             },
             apply: function () {
                 SpreadsheetDialog.fn.apply.call(this);
@@ -26706,7 +26977,7 @@
         kendo.spreadsheet.dialogs.register('useKeyboard', UseKeyboardDialog);
         var HyperlinkDialog = SpreadsheetDialog.extend({
             options: {
-                template: '<div class=\'k-edit-label\'><label>#: messages.linkDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' title=\'#: messages.linkDialog.labels.url #\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button style=\'float: left\' class=\'k-button\' data-bind=\'click: remove\'>#= messages.linkDialog.labels.removeLink #</button>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                template: '<div class=\'k-edit-label\'><label>#: messages.linkDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' title=\'#: messages.linkDialog.labels.url #\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-left\' data-bind=\'click: remove\'>#= messages.linkDialog.labels.removeLink #</button>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
                 title: MESSAGES.linkDialog.title,
                 autoFocus: false
             },
@@ -27151,6 +27422,9 @@
             operatorChange: function (e) {
                 var dataItem = e.sender.dataItem();
                 this.set('operatorType', dataItem.type);
+                if (!this.get('customFilter')) {
+                    this.reset();
+                }
                 this.set('customFilter.criteria[0].operator', dataItem.value);
             },
             isNone: function () {
@@ -27221,7 +27495,7 @@
                     } else {
                         text = dataType == 'blank' ? messages.blanks : value;
                     }
-                    if (dataType === 'percent') {
+                    if (dataType === 'percent' || dataType === 'currency') {
                         dataType = 'number';
                     }
                     if (dataType === 'date') {
@@ -28206,8 +28480,8 @@
                 var relrow = row - range.topLeft.row;
                 var relcol = col - range.topLeft.col;
                 cell.merged = true;
-                cell.colspan = ref.height();
-                cell.rowspan = ref.width();
+                cell.colspan = ref.width();
+                cell.rowspan = ref.height();
                 if (relrow < 0) {
                     cell.top = -sheet._rows.sum(row, row - relrow - 1);
                 } else {
@@ -28223,6 +28497,8 @@
                 if (cell.height > 0 && cell.width > 0) {
                     cell.right = cell.left + cell.width;
                     cell.bottom = cell.top + cell.height;
+                    cell.row = relrow;
+                    cell.col = relcol;
                     cells.push(cell);
                 }
             });
@@ -28287,6 +28563,8 @@
                 endright = Math.max(cell.right, endright);
                 return true;
             });
+            endbottom = Math.min(endbottom, bottom);
+            endright = Math.min(endright, right);
             if (cells.length > 0) {
                 var page = new drawing.Group();
                 group.append(page);
@@ -28299,6 +28577,13 @@
                 ])));
                 var content = new drawing.Group();
                 page.append(content);
+                content.clip(drawing.Path.fromRect(new geo.Rect([
+                    left,
+                    top
+                ], [
+                    endright,
+                    endbottom
+                ])));
                 var matrix = geo.Matrix.scale(layout.scale, layout.scale).multiplyCopy(geo.Matrix.translate(-left, -top));
                 if (options.hCenter || options.vCenter) {
                     matrix = matrix.multiplyCopy(geo.Matrix.translate(options.hCenter ? (right - endright) / 2 : 0, options.vCenter ? (bottom - endbottom) / 2 : 0));
@@ -28390,6 +28675,7 @@
                 case 'number':
                 case 'date':
                 case 'percent':
+                case 'currency':
                     cell.textAlign = 'right';
                     break;
                 case 'boolean':
@@ -28404,7 +28690,7 @@
     function drawText(text, color, cell, group) {
         if (!CONT) {
             CONT = document.createElement('div');
-            CONT.style.position = 'absolute';
+            CONT.style.position = 'fixed';
             CONT.style.left = '-10000px';
             CONT.style.top = '-10000px';
             CONT.style.overflow = 'hidden';
@@ -28518,9 +28804,18 @@
             draw(sheet, range, options, callback);
         }
     };
+    function Container() {
+    }
+    Container.prototype = {
+        forEach: function (f) {
+            Object.keys(this).forEach(function (key) {
+                f(this[key], key, this);
+            }, this);
+        }
+    };
     function Borders() {
-        var horiz = [];
-        var vert = [];
+        var horiz = new Container();
+        var vert = new Container();
         function add(cell) {
             if (cell.borderLeft) {
                 addVert(cell.row, cell.col, cell.borderLeft, cell.left, cell.top, cell.bottom);
@@ -28536,7 +28831,7 @@
             }
         }
         function addVert(row, col, border, x, top, bottom) {
-            var a = vert[col] || (vert[col] = []);
+            var a = vert[col] || (vert[col] = new Container());
             var prev = row > 0 && a[row - 1];
             if (prev && sameBorder(prev, border)) {
                 a[row] = prev;
@@ -28552,7 +28847,7 @@
             }
         }
         function addHoriz(row, col, border, y, left, right) {
-            var a = horiz[row] || (horiz[row] = []);
+            var a = horiz[row] || (horiz[row] = new Container());
             var prev = col > 0 && a[col - 1];
             if (prev && sameBorder(prev, border)) {
                 a[col] = prev;
@@ -28659,6 +28954,20 @@
             return;
         }
         var $ = kendo.jQuery;
+        var keys = $.extend({
+            F10: 121,
+            F11: 122,
+            B: 66,
+            I: 73,
+            U: 85,
+            N: 78,
+            H: 72,
+            A: 65,
+            PAGEDOWN: 34,
+            PAGEUP: 33,
+            DELETE: 46,
+            R: 82
+        }, kendo.keys);
         var Widget = kendo.ui.Widget;
         var Workbook = kendo.spreadsheet.Workbook;
         var Controller = kendo.spreadsheet.Controller;
@@ -28689,11 +28998,71 @@
                 this._autoRefresh = true;
                 this._bindWorkbookEvents();
                 this._view.workbook(this._workbook);
+                this._view.enableClipboard(false);
                 this.refresh();
+                this._view.enableClipboard(true);
                 this._resizeHandler = function () {
                     this.resize();
                 }.bind(this);
                 $(window).on('resize' + NS, this._resizeHandler);
+                this.element.on('keydown' + NS, this._keyDown.bind(this));
+            },
+            _keyDown: function (e) {
+                var key = e.keyCode;
+                if (key === keys.F11 && e.shiftKey) {
+                    this._view.sheetsbar._onAddSelect();
+                    e.preventDefault();
+                    return;
+                } else if (e.altKey && key === keys.PAGEDOWN) {
+                    this._view.sheetsbar.trigger('select', {
+                        name: this._view.sheetsbar._sheets[this._view.sheetsbar._selectedIndex + 1].name(),
+                        isAddButton: false
+                    });
+                } else if (e.altKey && key === keys.PAGEUP) {
+                    this._view.sheetsbar.trigger('select', {
+                        name: this._view.sheetsbar._sheets[this._view.sheetsbar._selectedIndex - 1].name(),
+                        isAddButton: false
+                    });
+                } else if (e.altKey && key === keys.DELETE) {
+                    var closeCallback = function (e) {
+                        var dlg = e.sender;
+                        if (dlg.isConfirmed()) {
+                            this._view.sheetsbar.trigger('remove', {
+                                name: this.activeSheet()._name(),
+                                confirmation: true
+                            });
+                        }
+                    }.bind(this);
+                    this._view.sheetsbar._openDialog('confirmation', { close: closeCallback });
+                    e.preventDefault();
+                    return;
+                } else if (e.altKey && key === keys.R) {
+                    this._view.sheetsbar._createEditor();
+                    e.preventDefault();
+                    return;
+                } else if (key === keys.F10) {
+                    this._view.tabstrip.toolbars[this._view.tabstrip.element.find('li.k-state-active').text().toLowerCase()].element.find(':not(.k-overflow-anchor):kendoFocusable:first').focus();
+                    e.preventDefault();
+                    return;
+                } else if (e.ctrlKey && key === keys.B) {
+                    $('[data-tool=bold]')[0].click();
+                } else if (e.ctrlKey && key === keys.I) {
+                    $('[data-tool=italic]')[0].click();
+                } else if (e.ctrlKey && key === keys.U) {
+                    $('[data-tool=underline]')[0].click();
+                } else if (e.altKey && key === keys.H) {
+                    this._view.tabstrip.select(0);
+                    e.preventDefault();
+                    return;
+                } else if (e.altKey && key === keys.N) {
+                    this._view.tabstrip.select(1);
+                    e.preventDefault();
+                    return;
+                } else if (e.altKey && key === keys.A) {
+                    this._view.tabstrip.select(2);
+                    e.preventDefault();
+                    return;
+                }
             },
             _resize: function () {
                 this.refresh({ layout: true });

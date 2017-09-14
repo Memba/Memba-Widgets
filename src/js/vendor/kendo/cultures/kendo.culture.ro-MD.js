@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -35,13 +35,13 @@
         name: "ro-MD",
         numberFormat: {
             pattern: ["-n"],
-            decimals: 0,
+            decimals: 2,
             ",": ".",
             ".": ",",
             groupSize: [3],
             percent: {
-                pattern: ["-n%","%n"],
-                decimals: 0,
+                pattern: ["-n %","n %"],
+                decimals: 2,
                 ",": ".",
                 ".": ",",
                 groupSize: [3],
@@ -50,7 +50,7 @@
             currency: {
                 name: "Moldovan Leu",
                 abbr: "MDL",
-                pattern: ["-n$","n$"],
+                pattern: ["-n $","n $"],
                 decimals: 2,
                 ",": ".",
                 ".": ",",
@@ -62,15 +62,15 @@
             standard: {
                 days: {
                     names: ["duminică","luni","marți","miercuri","joi","vineri","sâmbătă"],
-                    namesAbbr: ["Du","Lu","Ma","Mi","Jo","Vi","Sâ"],
+                    namesAbbr: ["Dum","Lun","Mar","Mie","Joi","Vin","Sâm"],
                     namesShort: ["Du","Lu","Ma","Mi","Jo","Vi","Sâ"]
                 },
                 months: {
                     names: ["ianuarie","februarie","martie","aprilie","mai","iunie","iulie","august","septembrie","octombrie","noiembrie","decembrie"],
                     namesAbbr: ["ian.","feb.","mar.","apr.","mai","iun.","iul.","aug.","sept.","oct.","nov.","dec."]
                 },
-                AM: ["AM","am","AM"],
-                PM: ["PM","pm","PM"],
+                AM: ["a.m.","a.m.","A.M."],
+                PM: ["p.m.","p.m.","P.M."],
                 patterns: {
                     d: "dd.MM.yyyy",
                     D: "dddd, d MMMM yyyy",

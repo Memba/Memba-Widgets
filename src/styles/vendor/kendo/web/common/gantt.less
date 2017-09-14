@@ -346,11 +346,6 @@
     transform: rotate(45deg);
 }
 
-.k-ie8 .k-task-milestone
-{
-    margin-left: 1px;
-}
-
 /* Button */
 
 .k-gantt .k-gantt-treelist .k-button,
@@ -618,7 +613,7 @@
     bottom: 0;
     width: 0;
     height: 0;
-    margin-left: 16px;
+    margin: 0 18px;
     border-width: 5px;
     border-style: solid;
     border-top-color: transparent;
@@ -803,13 +798,6 @@ button.k-gantt-toggle
     margin-right: .5em;
 }
 
-.k-rtl button.k-gantt-toggle
-{
-    float: right;
-    margin-right: 0;
-    margin-left: .5em;
-}
-
 @media only screen and (max-width: 1024px) {
     .k-gantt-toolbar > ul.k-gantt-views
     {
@@ -856,14 +844,12 @@ button.k-gantt-toggle
 
     .k-gantt-toolbar > ul.k-gantt-views > li.k-current-view > .k-link:after
     {
-        display: block;
-        content: "";
+        content: "\E006";
         position: absolute;
         top: 50%;
-        margin-top: -0.6em;
-        right: 0.333em;
-        width: 16px;
-        height: 16px;
+        right: 0.6em;
+        margin-top: -0.5em;
+        line-height: 1em;
     }
 
     .k-gantt-toolbar > ul.k-gantt-views.k-state-expanded > li,

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -62,23 +62,23 @@
             standard: {
                 days: {
                     names: ["söndag","måndag","tisdag","onsdag","torsdag","fredag","lördag"],
-                    namesAbbr: ["sö","må","ti","on","to","fr","lö"],
+                    namesAbbr: ["sön","mån","tis","ons","tors","fre","lör"],
                     namesShort: ["sö","må","ti","on","to","fr","lö"]
                 },
                 months: {
                     names: ["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"],
-                    namesAbbr: ["jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec"]
+                    namesAbbr: ["jan.","feb.","mars","apr.","maj","juni","juli","aug.","sep.","okt.","nov.","dec."]
                 },
-                AM: [""],
-                PM: [""],
+                AM: ["fm","fm","FM"],
+                PM: ["em","em","EM"],
                 patterns: {
-                    d: "d.M.yyyy",
-                    D: "'den 'd MMMM yyyy",
-                    F: "'den 'd MMMM yyyy HH:mm:ss",
-                    g: "d.M.yyyy HH:mm",
-                    G: "d.M.yyyy HH:mm:ss",
-                    m: "'den 'd MMMM",
-                    M: "'den 'd MMMM",
+                    d: "dd-MM-yyyy",
+                    D: "dddd d MMMM yyyy",
+                    F: "dddd d MMMM yyyy HH:mm:ss",
+                    g: "dd-MM-yyyy HH:mm",
+                    G: "dd-MM-yyyy HH:mm:ss",
+                    m: "d MMMM",
+                    M: "d MMMM",
                     s: "yyyy'-'MM'-'dd'T'HH':'mm':'ss",
                     t: "HH:mm",
                     T: "HH:mm:ss",
@@ -86,7 +86,7 @@
                     y: "MMMM yyyy",
                     Y: "MMMM yyyy"
                 },
-                "/": ".",
+                "/": "-",
                 ":": ":",
                 firstDay: 1
             }

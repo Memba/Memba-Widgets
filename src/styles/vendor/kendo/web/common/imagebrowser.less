@@ -24,6 +24,10 @@
 */
 /* ImageBrowser */
 
+.k-toolbar-wrap {
+    float: left;
+}
+
 .k-toolbar-wrap .k-dropzone em,
 .k-toolbar-wrap .k-upload-files
 {
@@ -88,9 +92,10 @@
 .k-search-wrap .k-search
 {
     position: absolute;
-    top: 4px;
+    top: 50%;
     right: 2px;
     margin:0;
+    margin-top: -8px;
 }
 
 .k-breadcrumbs
@@ -163,18 +168,13 @@
         }
     }
 
-    .k-toolbar-wrap
-    {
-        float: left;
-    }
-
     .k-tiles-arrange
     {
         float: right;
 
         .k-dropdown
         {
-            width: 75px;
+            width: 5.3em;
         }
     }
 
@@ -194,12 +194,6 @@
         {
             width: auto;
             margin-left: 0;
-            vertical-align: top;
-        }
-
-        .k-icon
-        {
-            vertical-align: bottom;
         }
     }
 }

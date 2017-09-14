@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -48,9 +48,9 @@
                 symbol: "%"
             },
             currency: {
-                name: "Real",
+                name: "Brazilian Real",
                 abbr: "BRL",
-                pattern: ["-$ n","$ n"],
+                pattern: ["-$n","$n"],
                 decimals: 2,
                 ",": ".",
                 ".": ",",
@@ -77,8 +77,8 @@
                     F: "dddd, d' de 'MMMM' de 'yyyy HH:mm:ss",
                     g: "dd/MM/yyyy HH:mm",
                     G: "dd/MM/yyyy HH:mm:ss",
-                    m: "d' de 'MMMM",
-                    M: "d' de 'MMMM",
+                    m: "d 'de' MMMM",
+                    M: "d 'de' MMMM",
                     s: "yyyy'-'MM'-'dd'T'HH':'mm':'ss",
                     t: "HH:mm",
                     T: "HH:mm:ss",

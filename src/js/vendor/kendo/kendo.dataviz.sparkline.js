@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -76,6 +76,11 @@
                 }
             }
         });
+        var REPLACE_REGEX = /\r?\n|\r|\t/g;
+        var SPACE = ' ';
+        function normalizeText(text) {
+            return String(text).replace(REPLACE_REGEX, SPACE);
+        }
         function objectKey(object) {
             var parts = [];
             for (var key in object) {
@@ -102,14 +107,17 @@
         var defaultMeasureBox;
         if (typeof document !== 'undefined') {
             defaultMeasureBox = document.createElement('div');
-            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;';
+            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: pre!important;';
         }
         var TextMetrics = kendo.Class.extend({
             init: function (options) {
                 this._cache = new LRUCache(1000);
                 this.options = $.extend({}, DEFAULT_OPTIONS, options);
             },
-            measure: function (text, style, box) {
+            measure: function (text, style, options) {
+                if (options === void 0) {
+                    options = {};
+                }
                 if (!text) {
                     return zeroSize();
                 }
@@ -120,7 +128,7 @@
                     return cachedResult;
                 }
                 var size = zeroSize();
-                var measureBox = box || defaultMeasureBox;
+                var measureBox = options.box || defaultMeasureBox;
                 var baselineMarker = this._baselineMarker().cloneNode(false);
                 for (var key in style) {
                     var value = style[key];
@@ -128,10 +136,11 @@
                         measureBox.style[key] = value;
                     }
                 }
-                measureBox.textContent = text;
+                var textStr = options.normalizeText !== false ? normalizeText(text) : String(text);
+                measureBox.textContent = textStr;
                 measureBox.appendChild(baselineMarker);
                 document.body.appendChild(measureBox);
-                if (String(text).length) {
+                if (textStr.length) {
                     size.width = measureBox.offsetWidth - this.options.baselineMarkerSize;
                     size.height = measureBox.offsetHeight;
                     size.baseline = baselineMarker.offsetTop + this.options.baselineMarkerSize;
@@ -157,7 +166,8 @@
             TextMetrics: TextMetrics,
             measureText: measureText,
             objectKey: objectKey,
-            hashKey: hashKey
+            hashKey: hashKey,
+            normalizeText: normalizeText
         });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -374,11 +384,12 @@
 (function (f, define) {
     define('dataviz/sparkline/sparkline', ['dataviz/sparkline/kendo-sparkline'], f);
 }(function () {
-    (function () {
+    (function ($) {
         var dataviz = kendo.dataviz;
         var Chart = dataviz.ui.Chart;
         var KendoSparkline = dataviz.Sparkline;
         var ChartInstanceObserver = dataviz.ChartInstanceObserver;
+        var extend = $.extend;
         var Sparkline = Chart.extend({
             init: function (element, userOptions) {
                 var options = userOptions;
@@ -390,11 +401,12 @@
             _createChart: function (options, themeOptions) {
                 this._instance = new KendoSparkline(this.element[0], options, themeOptions, {
                     observer: new ChartInstanceObserver(this),
-                    sender: this
+                    sender: this,
+                    rtl: this._isRtl()
                 });
             },
             _createTooltip: function () {
-                return new SparklineTooltip(this.element, this.options.tooltip);
+                return new SparklineTooltip(this.element, extend({}, this.options.tooltip, { rtl: this._isRtl() }));
             },
             options: {
                 name: 'Sparkline',
@@ -444,7 +456,7 @@
             }
         });
         dataviz.SparklineTooltip = SparklineTooltip;
-    }());
+    }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));

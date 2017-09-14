@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -157,7 +157,8 @@
                 name: 'Editable',
                 editors: editors,
                 clearContainer: true,
-                errorTemplate: ERRORTEMPLATE
+                errorTemplate: ERRORTEMPLATE,
+                skipFocus: false
             },
             editor: function (field, modelField) {
                 var that = this, editors = that.options.editors, isObject = isPlainObject(field), fieldName = isObject ? field.field : field, model = that.options.model || {}, isValuesEditor = isObject && field.values, type = isValuesEditor ? 'values' : fieldType(modelField), isCustomEditor = isObject && field.editor, editor = isCustomEditor ? field.editor : editors[type], container = that.element.find('[' + kendo.attr('container-for') + '=' + fieldName.replace(nameSpecialCharRegExp, '\\$1') + ']');
@@ -252,9 +253,11 @@
                     errorTemplate: that.options.errorTemplate || undefined,
                     rules: rules
                 });
-                var focusable = container.find(':kendoFocusable').eq(0).focus();
-                if (oldIE) {
-                    focusable.focus();
+                if (!that.options.skipFocus) {
+                    var focusable = container.find(':kendoFocusable').eq(0).focus();
+                    if (oldIE) {
+                        focusable.focus();
+                    }
                 }
             }
         });

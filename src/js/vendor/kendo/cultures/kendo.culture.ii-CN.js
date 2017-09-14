@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -48,7 +48,7 @@
                 symbol: "%"
             },
             currency: {
-                name: "PRC Renminbi",
+                name: "Chinese Yuan",
                 abbr: "CNY",
                 pattern: ["$-n","$n"],
                 decimals: 2,
@@ -77,8 +77,8 @@
                     F: "yyyy'ꈎ' M'ꆪ' d'ꑍ' tt h:mm:ss",
                     g: "yyyy/M/d tt h:mm",
                     G: "yyyy/M/d tt h:mm:ss",
-                    m: "M'’ ꆪ’'d'’ ꑍ’'",
-                    M: "M'’ ꆪ’'d'’ ꑍ’'",
+                    m: "M’ ꆪ’d’ ꑍ’",
+                    M: "M’ ꆪ’d’ ꑍ’",
                     s: "yyyy'-'MM'-'dd'T'HH':'mm':'ss",
                     t: "tt h:mm",
                     T: "tt h:mm:ss",

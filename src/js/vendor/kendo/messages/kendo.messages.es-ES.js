@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -703,13 +703,6 @@
           "placeholders": {
             "typeTitle": "Tipo de título",
             "typeMessage": "Escribir mensaje"
-          }
-        },
-        "saveAsDialog": {
-          "title": "Guardar como...",
-          "labels": {
-            "fileName": "Nombre de archivo",
-            "saveAsType": "Guardar como tipo"
           }
         },
         "exportAsDialog": {

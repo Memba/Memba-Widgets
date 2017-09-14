@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -60,7 +60,7 @@
                     filter: options.filter,
                     hint: options.hint
                 });
-                that.reorderDropCue = $('<div class="k-reorder-cue"><div class="k-icon k-i-arrow-60-down"></div><div class="k-icon k-i-arrow-60-up"></div></div>');
+                that.reorderDropCue = $('<div class="k-reorder-cue"></div></div>');
                 element.find(draggable.options.filter).kendoDropTarget({
                     group: draggable.options.group,
                     dragenter: function (e) {

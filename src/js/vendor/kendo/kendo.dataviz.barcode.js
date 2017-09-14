@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -76,6 +76,11 @@
                 }
             }
         });
+        var REPLACE_REGEX = /\r?\n|\r|\t/g;
+        var SPACE = ' ';
+        function normalizeText(text) {
+            return String(text).replace(REPLACE_REGEX, SPACE);
+        }
         function objectKey(object) {
             var parts = [];
             for (var key in object) {
@@ -102,14 +107,17 @@
         var defaultMeasureBox;
         if (typeof document !== 'undefined') {
             defaultMeasureBox = document.createElement('div');
-            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;';
+            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: pre!important;';
         }
         var TextMetrics = kendo.Class.extend({
             init: function (options) {
                 this._cache = new LRUCache(1000);
                 this.options = $.extend({}, DEFAULT_OPTIONS, options);
             },
-            measure: function (text, style, box) {
+            measure: function (text, style, options) {
+                if (options === void 0) {
+                    options = {};
+                }
                 if (!text) {
                     return zeroSize();
                 }
@@ -120,7 +128,7 @@
                     return cachedResult;
                 }
                 var size = zeroSize();
-                var measureBox = box || defaultMeasureBox;
+                var measureBox = options.box || defaultMeasureBox;
                 var baselineMarker = this._baselineMarker().cloneNode(false);
                 for (var key in style) {
                     var value = style[key];
@@ -128,10 +136,11 @@
                         measureBox.style[key] = value;
                     }
                 }
-                measureBox.textContent = text;
+                var textStr = options.normalizeText !== false ? normalizeText(text) : String(text);
+                measureBox.textContent = textStr;
                 measureBox.appendChild(baselineMarker);
                 document.body.appendChild(measureBox);
-                if (String(text).length) {
+                if (textStr.length) {
                     size.width = measureBox.offsetWidth - this.options.baselineMarkerSize;
                     size.height = measureBox.offsetHeight;
                     size.baseline = baselineMarker.offsetTop + this.options.baselineMarkerSize;
@@ -157,7 +166,8 @@
             TextMetrics: TextMetrics,
             measureText: measureText,
             objectKey: objectKey,
-            hashKey: hashKey
+            hashKey: hashKey,
+            normalizeText: normalizeText
         });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -2126,28 +2136,14 @@
                 that.element.addClass('k-barcode').css('display', 'block');
                 that.surfaceWrap = $('<div />').css('position', 'relative').appendTo(this.element);
                 that.surface = draw.Surface.create(that.surfaceWrap, { type: that.options.renderAs });
-                that.setOptions(options);
+                that._setOptions(options);
+                if (options && defined(options.value)) {
+                    that.redraw();
+                }
             },
             setOptions: function (options) {
-                var that = this;
-                that.type = (options.type || that.options.type).toLowerCase();
-                if (that.type == 'upca') {
-                    that.type = 'ean13';
-                    options.value = '0' + options.value;
-                }
-                if (that.type == 'upce') {
-                    that.type = 'ean8';
-                    options.value = '0' + options.value;
-                }
-                if (!encodings[that.type]) {
-                    throw new Error('Encoding ' + that.type + 'is not supported.');
-                }
-                that.encoding = new encodings[that.type]();
-                that.options = extend(true, that.options, options);
-                if (!defined(options.value)) {
-                    return;
-                }
-                that.redraw();
+                this._setOptions(options);
+                this.redraw();
             },
             redraw: function () {
                 var size = this._getSize();
@@ -2263,6 +2259,23 @@
                 text.reflow(that.contentBox);
                 text.renderVisual();
                 return text.visual;
+            },
+            _setOptions: function (options) {
+                var that = this;
+                that.type = (options.type || that.options.type).toLowerCase();
+                if (that.type == 'upca') {
+                    that.type = 'ean13';
+                    options.value = '0' + options.value;
+                }
+                if (that.type == 'upce') {
+                    that.type = 'ean8';
+                    options.value = '0' + options.value;
+                }
+                if (!encodings[that.type]) {
+                    throw new Error('Encoding ' + that.type + 'is not supported.');
+                }
+                that.encoding = new encodings[that.type]();
+                that.options = extend(true, that.options, options);
             },
             options: {
                 name: 'Barcode',

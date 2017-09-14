@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -40,7 +40,7 @@
             ".": ",",
             groupSize: [3],
             percent: {
-                pattern: ["-%n","%n"],
+                pattern: ["-n %","n %"],
                 decimals: 2,
                 ",": ".",
                 ".": ",",
@@ -48,7 +48,7 @@
                 symbol: "%"
             },
             currency: {
-                name: "Boliviano",
+                name: "Bolivian Boliviano",
                 abbr: "BOB",
                 pattern: ["($ n)","$ n"],
                 decimals: 2,
@@ -77,8 +77,8 @@
                     F: "dddd, dd' de 'MMMM' de 'yyyy hh:mm:ss tt",
                     g: "dd/MM/yyyy hh:mm tt",
                     G: "dd/MM/yyyy hh:mm:ss tt",
-                    m: "d' de 'MMMM",
-                    M: "d' de 'MMMM",
+                    m: "d 'de' MMMM",
+                    M: "d 'de' MMMM",
                     s: "yyyy'-'MM'-'dd'T'HH':'mm':'ss",
                     t: "hh:mm tt",
                     T: "hh:mm:ss tt",

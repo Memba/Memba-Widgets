@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -38,19 +38,19 @@
             decimals: 2,
             ",": " ",
             ".": ",",
-            groupSize: [3,0],
+            groupSize: [3],
             percent: {
                 pattern: ["-n%","n%"],
                 decimals: 2,
                 ",": " ",
                 ".": ",",
-                groupSize: [3,0],
+                groupSize: [3],
                 symbol: "%"
             },
             currency: {
                 name: "Russian Ruble",
                 abbr: "RUB",
-                pattern: ["-n$","n$"],
+                pattern: ["-n $","n $"],
                 decimals: 2,
                 ",": " ",
                 ".": ",",
@@ -77,8 +77,8 @@
                     F: "dddd, yyyy 'с.' MMMM d 'күнэ' H:mm:ss",
                     g: "dd.MM.yyyy H:mm",
                     G: "dd.MM.yyyy H:mm:ss",
-                    m: "MMMM d 'күнэ'",
-                    M: "MMMM d 'күнэ'",
+                    m: "MMMM d күнэ",
+                    M: "MMMM d күнэ",
                     s: "yyyy'-'MM'-'dd'T'HH':'mm':'ss",
                     t: "H:mm",
                     T: "H:mm:ss",

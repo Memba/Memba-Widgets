@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -40,7 +40,7 @@
             ".": ",",
             groupSize: [3],
             percent: {
-                pattern: ["-n %","n %"],
+                pattern: ["-n%","n%"],
                 decimals: 2,
                 ",": ".",
                 ".": ",",
@@ -48,7 +48,7 @@
                 symbol: "%"
             },
             currency: {
-                name: "Convertible Marks",
+                name: "Bosnia-Herzegovina Convertible Mark",
                 abbr: "BAM",
                 pattern: ["-n $","n $"],
                 decimals: 2,

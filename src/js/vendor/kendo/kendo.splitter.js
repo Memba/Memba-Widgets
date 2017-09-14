@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -68,7 +68,9 @@
                 var that = this, isHorizontal;
                 Widget.fn.init.call(that, element, options);
                 that.wrapper = that.element;
-                isHorizontal = that.options.orientation.toLowerCase() != VERTICAL;
+                if (that.options.orientation) {
+                    isHorizontal = that.options.orientation.toLowerCase() != VERTICAL;
+                }
                 that.orientation = isHorizontal ? HORIZONTAL : VERTICAL;
                 that._dimension = isHorizontal ? 'width' : 'height';
                 that._keys = {
@@ -150,6 +152,12 @@
                     } else if (resizing) {
                         resizing.move((decrease ? -1 : 1) * that._resizeStep, target);
                     }
+                    e.preventDefault();
+                } else if (key === keys.HOME) {
+                    resizing.move(-resizing._maxPosition, target);
+                    e.preventDefault();
+                } else if (key === keys.END) {
+                    resizing.move(resizing._maxPosition, target);
                     e.preventDefault();
                 } else if (key === keys.ENTER && resizing) {
                     resizing.end();

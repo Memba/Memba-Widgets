@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -973,12 +973,13 @@
                 var dates = this._dates;
                 var slotStartTime = this.startTime();
                 var slotEndTime = this.endTime();
-                if (getMilliseconds(slotEndTime) === getMilliseconds(kendo.date.getDate(slotEndTime))) {
-                    slotEndTime = kendo.date.getDate(slotEndTime);
-                    setTime(slotEndTime, MS_PER_DAY - 1);
-                }
                 slotEndTime = getMilliseconds(slotEndTime);
                 slotStartTime = getMilliseconds(slotStartTime);
+                if (slotEndTime === slotStartTime) {
+                    slotEndTime += MS_PER_DAY - 1;
+                } else if (slotEndTime < slotStartTime) {
+                    slotEndTime += MS_PER_DAY;
+                }
                 var slotRanges = [];
                 for (var i = 0; i < dates.length; i++) {
                     var rangeStart = getDate(dates[i]);
@@ -995,7 +996,7 @@
             _forTimeRange: function (min, max, action, verticalByDate, groupsCount) {
                 min = toInvariantTime(min);
                 max = toInvariantTime(max);
-                var that = this, msMin = getMilliseconds(min), msMax = getMilliseconds(max), minorTickCount = that.options.minorTickCount, msMajorInterval = that.options.majorTick * MS_PER_MINUTE, msInterval = msMajorInterval / minorTickCount || 1, start = new Date(+min), startDay = start.getDate(), msStart, idx = 0, length, html = '';
+                var that = this, msMin = getMilliseconds(min), msMax = getMilliseconds(max), minorTickCount = that.options.minorTickCount, msMajorInterval = that.options.majorTick * MS_PER_MINUTE, msInterval = msMajorInterval / minorTickCount || 1, start = new Date(+min), idx = 0, length, html = '';
                 length = MS_PER_DAY / msInterval;
                 if (msMin != msMax) {
                     if (msMin > msMax) {
@@ -1028,15 +1029,6 @@
                         } else {
                             setTime(start, msInterval, false);
                         }
-                    }
-                }
-                if (msMax) {
-                    msStart = getMilliseconds(start);
-                    if (startDay < start.getDate()) {
-                        msStart += MS_PER_DAY;
-                    }
-                    if (msStart > msMax) {
-                        start = new Date(+max);
                     }
                 }
                 return html;
@@ -1166,6 +1158,14 @@
                     var view = this._addResourceView(idx);
                     var start = dates[0];
                     var end = dates[dates.length - 1 || 0];
+                    var startTime = getMilliseconds(this.startTime());
+                    var endTime = getMilliseconds(this.endTime());
+                    if (startTime !== 0 && endTime <= startTime) {
+                        start = getDate(start);
+                        setTime(start, startTime);
+                        end = getDate(end);
+                        setTime(end, endTime);
+                    }
                     view.addTimeSlotCollection(start, kendo.date.addDays(end, 1));
                 }
                 this._timeSlotGroups(groupCount, columnCount);
@@ -1196,6 +1196,15 @@
             },
             endDate: function () {
                 return this._endDate;
+            },
+            visibleEndDate: function () {
+                var startTime = getMilliseconds(this.startTime());
+                var endTime = getMilliseconds(this.endTime());
+                var endDate = this.endDate();
+                if (startTime !== 0 && endTime <= startTime) {
+                    endDate = kendo.date.addDays(endDate, 1);
+                }
+                return endDate;
             },
             startTime: function () {
                 var options = this.options;
@@ -1358,7 +1367,7 @@
                 var startTime = event.start;
                 var endTime = event.end;
                 var rangeStart = getDate(this._startDate);
-                var rangeEnd = kendo.date.addDays(getDate(this._endDate), 1);
+                var rangeEnd = kendo.date.addDays(getDate(this.visibleEndDate()), 1);
                 if (startTime < rangeEnd && rangeStart <= endTime) {
                     return true;
                 }
@@ -1391,20 +1400,27 @@
                 var head = false;
                 var tail = false;
                 if (event.isAllDay) {
-                    adjustedStartDate = getDate(start);
-                    if (startTime > eventStartTime) {
+                    start = getDate(start);
+                    eventStartTime = 0;
+                    end = getDate(end);
+                    eventEndTime = MS_PER_DAY;
+                    adjustedEndDate = kendo.date.addDays(end, 1);
+                }
+                if (endTime === 0) {
+                    endTime = MS_PER_DAY;
+                }
+                if (endTime <= startTime) {
+                    if (eventStartTime < startTime && eventStartTime >= endTime) {
+                        adjustedStartDate = getDate(start);
                         setTime(adjustedStartDate, startTime);
                         tail = true;
                     }
-                    adjustedEndDate = getDate(end);
-                    if (endTime === getMilliseconds(getDate(this.endTime()))) {
-                        adjustedEndDate = kendo.date.addDays(adjustedEndDate, 1);
-                    } else {
+                    if (eventEndTime > endTime && eventEndTime <= startTime) {
+                        adjustedEndDate = getDate(end);
                         setTime(adjustedEndDate, endTime);
                         head = true;
                     }
                 } else {
-                    endTime = endTime === 0 ? MS_PER_DAY : endTime;
                     if (startTime > eventStartTime) {
                         adjustedStartDate = getDate(start);
                         setTime(adjustedStartDate, startTime);
@@ -1446,7 +1462,7 @@
                 for (idx = 0, length = events.length; idx < length; idx++) {
                     event = events[idx];
                     if (this._isInDateSlot(event)) {
-                        var isMultiDayEvent = event.isAllDay || event.end.getTime() - event.start.getTime() >= MS_PER_DAY;
+                        var isMultiDayEvent = event.isAllDay || event.duration() >= MS_PER_DAY;
                         var container = this.content;
                         if (isMultiDayEvent || this._isInTimeSlot(event)) {
                             var adjustedEvent = this._adjustEvent(event);
@@ -1694,8 +1710,14 @@
                 var date = reverse ? this.previousDate() : this.nextDate();
                 var start = selection.start;
                 var end = selection.end;
-                selection.start = new Date(date);
-                selection.end = new Date(date);
+                var newStart, newEnd;
+                newStart = new Date(date);
+                newEnd = new Date(date);
+                if (this._isInRange(newStart, newEnd)) {
+                    return false;
+                }
+                selection.start = newStart;
+                selection.end = newEnd;
                 if (this._isHorizontallyGrouped()) {
                     selection.groupIndex = reverse ? this.groups.length - 1 : 0;
                 }

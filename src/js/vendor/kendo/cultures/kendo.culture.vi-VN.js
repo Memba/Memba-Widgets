@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -40,7 +40,7 @@
             ".": ",",
             groupSize: [3],
             percent: {
-                pattern: ["-n %","n %"],
+                pattern: ["-n%","n%"],
                 decimals: 2,
                 ",": ".",
                 ".": ",",
@@ -62,7 +62,7 @@
             standard: {
                 days: {
                     names: ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"],
-                    namesAbbr: ["CN","T2","T3","Tư","Năm","Sáu","Bảy"],
+                    namesAbbr: ["CN","T2","T3","T4","T5","T6","T7"],
                     namesShort: ["C","H","B","T","N","S","B"]
                 },
                 months: {

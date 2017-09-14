@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -72,11 +72,11 @@
             ], MONTHS = [
                 31,
                 28,
-                30,
                 31,
                 30,
                 31,
                 30,
+                31,
                 31,
                 30,
                 31,
@@ -136,7 +136,7 @@
                 monthDays: function (date, end, rule) {
                     var monthLength, month, days, changed = false, hours = date.getHours(), normalize = function (monthDay) {
                             if (monthDay < 0) {
-                                monthDay = monthLength + monthDay;
+                                monthDay = monthLength + monthDay + 1;
                             }
                             return monthDay;
                         };
@@ -391,7 +391,7 @@
                         }
                     } else if (frequency === 'daily') {
                         kendoDate.setTime(date, -start, true);
-                        diff = Math.ceil(date / kendoDate.MS_PER_DAY);
+                        diff = Math.round(date / kendoDate.MS_PER_DAY);
                         excess = intervalExcess(diff, interval);
                         if (excess !== 0) {
                             this._date(current, rule, excess);
@@ -852,7 +852,7 @@
             return events;
         }
         function expand(event, start, end, zone) {
-            var rule = parseRule(event.recurrenceRule, zone), startTime, endTime, endDate, hours, minutes, seconds, durationMS, startPeriod, inPeriod, ruleStart, ruleEnd, useEventStart, freqName, exceptionDates, eventStartTime, eventStartMS, eventStart, count, freq, positions, currentIdx, periodEvents, events = [];
+            var rule = parseRule(event.recurrenceRule, zone), startTime, endTime, endDate, hours, minutes, seconds, durationMS, startPeriod, inPeriod, ruleStart, ruleEnd, useEventStart, freqName, exceptionDates, eventStartTime, eventStartMS, eventStart, count, freq, positions, currentIdx, periodEvents, events = [], shiftedStart, shiftedEnd, shiftedStartTime, shifterEndTime;
             if (!rule) {
                 return [event];
             }
@@ -927,12 +927,33 @@
                     startTime = kendoDate.toUtcTime(kendoDate.getDate(start)) + getMilliseconds(rule._startTime);
                     endTime = startTime + durationMS;
                     if (eventStartMS !== start.getTime() || eventStartTime !== getMilliseconds(rule._startTime)) {
+                        if (!event.isAllDay) {
+                            var startZone = event.startTimezone || event.endTimezone;
+                            var endZone = event.endTimezone || event.startTimezone;
+                            if (zone && startZone || !zone && !startZone) {
+                                var startOffsetDiff = getZoneOffset(start, zone) - getZoneOffset(event.start, zone);
+                                var endOffsetDiff = getZoneOffset(endDate, zone) - getZoneOffset(event.end, zone);
+                                var startTZOffsetDiff = getZoneOffset(start, startZone) - getZoneOffset(event.start, startZone);
+                                var endTZOffsetDiff = getZoneOffset(endDate, endZone) - getZoneOffset(event.end, endZone);
+                                if (startOffsetDiff !== startTZOffsetDiff) {
+                                    var offsetTicksStart = (startOffsetDiff - startTZOffsetDiff) * 60000;
+                                    shiftedStart = new Date(start.getTime() - offsetTicksStart);
+                                    shiftedStartTime = startTime - offsetTicksStart;
+                                }
+                                if (endOffsetDiff !== endTZOffsetDiff) {
+                                    var offsetTicksEnd = (endOffsetDiff - endTZOffsetDiff) * 60000;
+                                    shiftedEnd = new Date(endDate.getTime() - offsetTicksEnd);
+                                    shifterEndTime = endTime - offsetTicksEnd;
+                                }
+                            }
+                        }
                         events.push(event.toOccurrence({
-                            start: new Date(start),
-                            end: endDate,
-                            _startTime: startTime,
-                            _endTime: endTime
+                            start: shiftedStart || new Date(start),
+                            end: shiftedEnd || endDate,
+                            _startTime: shiftedStartTime || startTime,
+                            _endTime: shifterEndTime || endTime
                         }));
+                        shiftedStart = shiftedEnd = shiftedStartTime = shifterEndTime = null;
                     } else {
                         event._startTime = startTime;
                         event._endTime = endTime;
@@ -957,16 +978,29 @@
                         break;
                     }
                     currentIdx += 1;
+                    var isMissingDSTHour = isDSTMissingHour(start);
                     freq.next(start, rule);
+                    if (isMissingDSTHour && rule.freq !== 'hourly' && kendoDate.toInvariantTime(event.start).getTime() !== kendoDate.toInvariantTime(start).getTime()) {
+                        rule._startTime = startTime = new Date(start.getTime() - 3600000);
+                    }
                     freq.limit(start, end, rule);
                 }
             }
             return events;
         }
+        function isDSTMissingHour(date) {
+            var dateOffset = date.getTimezoneOffset();
+            var dateMinusHour = new Date(date.getTime() - 3600000);
+            var dateMinusHourOffset = dateMinusHour.getTimezoneOffset();
+            return dateOffset < dateMinusHourOffset;
+        }
+        function getZoneOffset(date, zone) {
+            return zone ? kendo.timezone.offset(date, zone) : date.getTimezoneOffset();
+        }
         function parseUTCDate(value, zone) {
             value = kendo.parseDate(value, DATE_FORMATS);
             if (value && zone) {
-                value = timezone.convert(value, value.getTimezoneOffset(), zone);
+                value = timezone.apply(value, zone);
             }
             return value;
         }
@@ -1808,8 +1842,12 @@
                     enableCount = enableUntil = false;
                     count = until = null;
                 }
-                that._count.enable(enableCount);
-                that._until.enable(enableUntil);
+                if (that._count) {
+                    that._count.enable(enableCount);
+                }
+                if (that._until) {
+                    that._until.enable(enableUntil);
+                }
                 that._value.count = count;
                 that._value.until = until;
             },

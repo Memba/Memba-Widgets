@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -76,6 +76,11 @@
                 }
             }
         });
+        var REPLACE_REGEX = /\r?\n|\r|\t/g;
+        var SPACE = ' ';
+        function normalizeText(text) {
+            return String(text).replace(REPLACE_REGEX, SPACE);
+        }
         function objectKey(object) {
             var parts = [];
             for (var key in object) {
@@ -102,14 +107,17 @@
         var defaultMeasureBox;
         if (typeof document !== 'undefined') {
             defaultMeasureBox = document.createElement('div');
-            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;';
+            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: pre!important;';
         }
         var TextMetrics = kendo.Class.extend({
             init: function (options) {
                 this._cache = new LRUCache(1000);
                 this.options = $.extend({}, DEFAULT_OPTIONS, options);
             },
-            measure: function (text, style, box) {
+            measure: function (text, style, options) {
+                if (options === void 0) {
+                    options = {};
+                }
                 if (!text) {
                     return zeroSize();
                 }
@@ -120,7 +128,7 @@
                     return cachedResult;
                 }
                 var size = zeroSize();
-                var measureBox = box || defaultMeasureBox;
+                var measureBox = options.box || defaultMeasureBox;
                 var baselineMarker = this._baselineMarker().cloneNode(false);
                 for (var key in style) {
                     var value = style[key];
@@ -128,10 +136,11 @@
                         measureBox.style[key] = value;
                     }
                 }
-                measureBox.textContent = text;
+                var textStr = options.normalizeText !== false ? normalizeText(text) : String(text);
+                measureBox.textContent = textStr;
                 measureBox.appendChild(baselineMarker);
                 document.body.appendChild(measureBox);
-                if (String(text).length) {
+                if (textStr.length) {
                     size.width = measureBox.offsetWidth - this.options.baselineMarkerSize;
                     size.height = measureBox.offsetHeight;
                     size.baseline = baselineMarker.offsetTop + this.options.baselineMarkerSize;
@@ -157,14 +166,32 @@
             TextMetrics: TextMetrics,
             measureText: measureText,
             objectKey: objectKey,
-            hashKey: hashKey
+            hashKey: hashKey,
+            normalizeText: normalizeText
         });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));
 (function (f, define) {
+    define('pdf/pako', ['kendo.core'], f);
+}(function () {
+    (function () {
+        kendo.pdf = kendo.pdf || {};
+        kendo.pdf.supportsDeflate = function () {
+            return window.pako && typeof window.pako.deflate == 'function';
+        };
+        kendo.pdf.deflate = function (data) {
+            return window.pako.deflate(data);
+        };
+    }());
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
     define('pdf/core', [
+        'pdf/pako',
         'kendo.core',
         'kendo.color',
         'kendo.drawing'
@@ -174,6 +201,7 @@
         window.kendo.pdf = window.kendo.pdf || {};
         var support = kendo.support;
         var supportBrowser = support.browser;
+        var kendoPdf = kendo.pdf;
         var drawing = kendo.drawing;
         var util = drawing.util;
         var kendoGeometry = kendo.geometry;
@@ -1702,6 +1730,15 @@
             var catalog = self.attach(new PDFCatalog());
             var pageTree = self.attach(new PDFPageTree());
             catalog.setPages(pageTree);
+            var info = self.attach(new PDFDictionary({
+                Producer: new PDFString(getOption('producer', 'Kendo UI PDF Generator')),
+                Title: new PDFString(getOption('title', '')),
+                Author: new PDFString(getOption('author', '')),
+                Subject: new PDFString(getOption('subject', '')),
+                Keywords: new PDFString(getOption('keywords', '')),
+                Creator: new PDFString(getOption('creator', 'Kendo UI PDF Generator')),
+                CreationDate: getOption('date', new Date())
+            }));
             self.addPage = function (options) {
                 var paperOptions = getPaperOptions(function (name, defval) {
                     return options && options[name] != null ? options[name] : defval;
@@ -1755,15 +1792,7 @@
                 out(new PDFDictionary({
                     Size: objects.length + 1,
                     Root: catalog,
-                    Info: new PDFDictionary({
-                        Producer: new PDFString(getOption('producer', 'Kendo UI PDF Generator')),
-                        Title: new PDFString(getOption('title', '')),
-                        Author: new PDFString(getOption('author', '')),
-                        Subject: new PDFString(getOption('subject', '')),
-                        Keywords: new PDFString(getOption('keywords', '')),
-                        Creator: new PDFString(getOption('creator', 'Kendo UI PDF Generator')),
-                        CreationDate: getOption('date', new Date())
-                    })
+                    Info: info
                 }), NL, NL);
                 out('startxref', NL, xrefOffset, NL);
                 out('%%EOF', NL);
@@ -1833,7 +1862,10 @@
             }
         }
         var IMAGE_CACHE = {};
-        function loadImage(url, cont) {
+        function clearImageCache() {
+            IMAGE_CACHE = {};
+        }
+        function loadImage(url, size, cont) {
             var img = IMAGE_CACHE[url], bloburl, blob;
             if (img) {
                 cont(img);
@@ -1870,24 +1902,35 @@
                 cont(IMAGE_CACHE[url] = 'TAINTED');
             }
             function _onload() {
-                if (blob && /^image\/jpe?g$/i.test(blob.type)) {
+                if (size) {
+                    if (size.width >= img.width || size.height >= img.height) {
+                        size = null;
+                    }
+                }
+                if (!size && blob && /^image\/jpe?g$/i.test(blob.type)) {
                     var reader = new FileReader();
                     reader.onload = function () {
-                        img = new PDFJpegImage(BinaryStream(new Uint8Array(this.result)));
+                        var img = new PDFJpegImage(BinaryStream(new Uint8Array(this.result)));
                         URL.revokeObjectURL(bloburl);
                         cont(IMAGE_CACHE[url] = img);
                     };
                     reader.readAsArrayBuffer(blob);
                     return;
                 }
+                if (!size) {
+                    size = {
+                        width: img.width,
+                        height: img.height
+                    };
+                }
                 var canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
+                canvas.width = size.width;
+                canvas.height = size.height;
                 var ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
+                ctx.drawImage(img, 0, 0, size.width, size.height);
                 var imgdata;
                 try {
-                    imgdata = ctx.getImageData(0, 0, img.width, img.height);
+                    imgdata = ctx.getImageData(0, 0, size.width, size.height);
                 } catch (ex) {
                     _onerror();
                     return;
@@ -1910,7 +1953,7 @@
                     alpha.writeByte(a);
                 }
                 if (hasAlpha) {
-                    img = new PDFRawImage(img.width, img.height, rgb, alpha);
+                    img = new PDFRawImage(size.width, size.height, rgb, alpha);
                 } else {
                     var data = canvas.toDataURL('image/jpeg');
                     data = data.substr(data.indexOf(';base64,') + 8);
@@ -1938,7 +1981,20 @@
             };
         }
         var loadFonts = manyLoader(loadFont);
-        var loadImages = manyLoader(loadImage);
+        var loadImages = function (images, callback) {
+            var urls = Object.keys(images), n = urls.length;
+            if (n === 0) {
+                return callback();
+            }
+            function next() {
+                if (--n === 0) {
+                    callback();
+                }
+            }
+            urls.forEach(function (url) {
+                loadImage(url, images[url], next);
+            });
+        };
         PDFDocument.prototype = {
             loadFonts: loadFonts,
             loadImages: loadImages,
@@ -2169,14 +2225,14 @@
         }, {
             render: function (out) {
                 var data = this.data.get(), props = this.props;
-                if (this.compress && window.pako && typeof window.pako.deflate == 'function') {
+                if (this.compress && kendoPdf.supportsDeflate()) {
                     if (!props.Filter) {
                         props.Filter = [];
                     } else if (!(props.Filter instanceof Array)) {
                         props.Filter = [props.Filter];
                     }
                     props.Filter.unshift(_('FlateDecode'));
-                    data = window.pako.deflate(data);
+                    data = kendoPdf.deflate(data);
                 }
                 props.Length = data.length;
                 out(new PDFDictionary(props), ' stream', NL);
@@ -3229,7 +3285,7 @@
             bevel: 2
         };
         function render(group, callback) {
-            var fonts = [], images = [], options = group.options;
+            var fonts = [], images = {}, options = group.options;
             function getOption(name, defval, hash) {
                 if (!hash) {
                     hash = options;
@@ -3240,11 +3296,28 @@
                 return defval;
             }
             var multiPage = getOption('multiPage');
+            var imgDPI = getOption('imgDPI');
+            if (imgDPI) {
+                clearImageCache();
+            }
             group.traverse(function (element) {
                 dispatch({
                     Image: function (element) {
-                        if (images.indexOf(element.src()) < 0) {
-                            images.push(element.src());
+                        var url = element.src();
+                        if (imgDPI) {
+                            var box = element.bbox().size;
+                            var prev = images[url];
+                            box = {
+                                width: Math.ceil(box.width * imgDPI / 72),
+                                height: Math.ceil(box.height * imgDPI / 72)
+                            };
+                            if (prev) {
+                                box.width = Math.max(prev.width, box.width);
+                                box.height = Math.max(prev.height, box.height);
+                            }
+                            images[url] = box;
+                        } else {
+                            images[url] = null;
                         }
                     },
                     Text: function (element) {
@@ -3806,6 +3879,7 @@
             loadFonts: loadFonts,
             loadImages: loadImages,
             getPaperOptions: getPaperOptions,
+            clearImageCache: clearImageCache,
             TEXT_RENDERING_MODE: TEXT_RENDERING_MODE,
             exportPDF: exportPDF,
             saveAs: saveAs$1,

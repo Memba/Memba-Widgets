@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -35,13 +35,13 @@
         name: "ts-ZA",
         numberFormat: {
             pattern: ["-n"],
-            decimals: 0,
+            decimals: 2,
             ",": " ",
             ".": ",",
             groupSize: [3],
             percent: {
-                pattern: ["-n%","%n"],
-                decimals: 0,
+                pattern: ["-n%","n%"],
+                decimals: 2,
                 ",": " ",
                 ".": ",",
                 groupSize: [3],
@@ -66,8 +66,8 @@
                     namesShort: ["Son","Mus","Bir","Har","Ne","Tlh","Mug"]
                 },
                 months: {
-                    names: ["Sunguti","Nyenyenyani","Nyenyankulu","Dzivamisoko","Mudyaxihi","Khotavuxika","Mawuwani","Mhawuri","Ndzhati","Nhlangula","Hukuri","N\u0027wendzamhala"],
-                    namesAbbr: ["Sun","Yan","Kul","Dzi","Mud","Kho","Maw","Mha","Ndz","Nhl","Huk","N\u0027w"]
+                    names: ["Sunguti","Nyenyenyani","Nyenyankulu","Dzivamisoko","Mudyaxihi","Khotavuxika","Mawuwani","Mhawuri","Ndzhati","Nhlangula","Hukuri","N’wendzamhala"],
+                    namesAbbr: ["Sun","Yan","Kul","Dzi","Mud","Kho","Maw","Mha","Ndz","Nhl","Huk","N’w"]
                 },
                 AM: ["AM","am","AM"],
                 PM: ["PM","pm","PM"],

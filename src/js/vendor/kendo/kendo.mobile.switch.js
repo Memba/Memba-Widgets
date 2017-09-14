@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,7 +39,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.mobile.ui, outerWidth = kendo._outerWidth, Widget = ui.Widget, support = kendo.support, CHANGE = 'change', SWITCHON = 'switch-on', SWITCHOFF = 'switch-off', MARGINLEFT = 'margin-left', ACTIVE_STATE = 'state-active', DISABLED_STATE = 'state-disabled', DISABLED = 'disabled', TRANSFORMSTYLE = support.transitions.css + 'transform', proxy = $.proxy;
+        var kendo = window.kendo, ui = kendo.mobile.ui, outerWidth = kendo._outerWidth, Widget = ui.Widget, support = kendo.support, CHANGE = 'change', SWITCHON = 'switch-on', SWITCHOFF = 'switch-off', MARGINLEFT = 'margin-left', ACTIVE_STATE = 'state-active', DISABLED_STATE = 'state-disabled', DISABLED = 'disabled', RESOLVEDPREFIX = support.transitions.css === undefined ? '' : support.transitions.css, TRANSFORMSTYLE = RESOLVEDPREFIX + 'transform', proxy = $.proxy;
         function className(name) {
             return 'k-' + name + ' km-' + name;
         }

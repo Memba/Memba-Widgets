@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -50,7 +50,7 @@
             currency: {
                 name: "Singapore Dollar",
                 abbr: "SGD",
-                pattern: ["($n)","$n"],
+                pattern: ["-$n","$n"],
                 decimals: 2,
                 ",": ",",
                 ".": ".",
@@ -77,8 +77,8 @@
                     F: "yyyy'年'M'月'd'日' tt h:mm:ss",
                     g: "d/M/yyyy tt h:mm",
                     G: "d/M/yyyy tt h:mm:ss",
-                    m: "M'月'd'日'",
-                    M: "M'月'd'日'",
+                    m: "M月d日",
+                    M: "M月d日",
                     s: "yyyy'-'MM'-'dd'T'HH':'mm':'ss",
                     t: "tt h:mm",
                     T: "tt h:mm:ss",

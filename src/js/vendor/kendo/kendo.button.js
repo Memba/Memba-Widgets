@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
         depends: ['core']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, keys = kendo.keys, CLICK = 'click', KBUTTON = 'k-button', KBUTTONICON = 'k-button-icon', KBUTTONICONTEXT = 'k-button-icontext', NS = '.kendoButton', DISABLED = 'disabled', DISABLEDSTATE = 'k-state-disabled', FOCUSEDSTATE = 'k-state-focused', SELECTEDSTATE = 'k-state-selected';
+        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, keys = kendo.keys, CLICK = 'click', KBUTTON = 'k-button', KBUTTONICON = 'k-button-icon', KBUTTONICONTEXT = 'k-button-icontext', NS = '.kendoButton', DISABLED = 'disabled', DISABLEDSTATE = 'k-state-disabled', FOCUSEDSTATE = 'k-state-focused', SELECTEDSTATE = 'k-state-active';
         var Button = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -81,13 +81,13 @@
             },
             _keydown: function (e) {
                 var that = this;
-                if (!that._isNativeButton()) {
-                    if (e.keyCode == keys.ENTER || e.keyCode == keys.SPACEBAR) {
+                if (e.keyCode == keys.ENTER || e.keyCode == keys.SPACEBAR) {
+                    if (that.options.enable) {
+                        that.element.addClass(SELECTEDSTATE);
+                    }
+                    if (!that._isNativeButton()) {
                         if (e.keyCode == keys.SPACEBAR) {
                             e.preventDefault();
-                            if (that.options.enable) {
-                                that.element.addClass(SELECTEDSTATE);
-                            }
                         }
                         that._click(e);
                     }

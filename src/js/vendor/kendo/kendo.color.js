@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -186,13 +186,15 @@
         yellowgreen: '9acd32'
     };
     var browser = support.browser;
-    var namedColorRegexp = ['transparent'];
-    for (var i in namedColors) {
-        if (namedColors.hasOwnProperty(i)) {
-            namedColorRegexp.push(i);
-        }
-    }
-    namedColorRegexp = new RegExp('^(' + namedColorRegexp.join('|') + ')(\\W|$)', 'i');
+    var matchNamedColor = function (color) {
+        var colorNames = Object.keys(namedColors);
+        colorNames.push('transparent');
+        var regexp = new RegExp('^(' + colorNames.join('|') + ')(\\W|$)', 'i');
+        matchNamedColor = function (color) {
+            return regexp.exec(color);
+        };
+        return regexp.exec(color);
+    };
     var BaseColor = Class.extend({
         init: function () {
         },
@@ -474,7 +476,7 @@
             return value;
         }
         var color = value.toLowerCase();
-        if (m = namedColorRegexp.exec(color)) {
+        if (m = matchNamedColor(color)) {
             if (m[1] === 'transparent') {
                 color = new RGB(1, 1, 1, 0);
             } else {

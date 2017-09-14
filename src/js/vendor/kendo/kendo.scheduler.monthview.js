@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -460,11 +460,17 @@
             },
             _changeViewPeriod: function (selection, reverse, vertical) {
                 var pad = vertical ? 7 : 1;
+                var newStart, newEnd;
                 if (reverse) {
                     pad *= -1;
                 }
-                selection.start = kendo.date.addDays(selection.start, pad);
-                selection.end = kendo.date.addDays(selection.end, pad);
+                newStart = kendo.date.addDays(selection.start, pad);
+                newEnd = kendo.date.addDays(selection.end, pad);
+                if (this._isInRange(newStart, newEnd)) {
+                    return false;
+                }
+                selection.start = newStart;
+                selection.end = newEnd;
                 if (!vertical || vertical && this._isVerticallyGrouped()) {
                     selection.groupIndex = this._groupedView._changePeriodGroupIndex(reverse, vertical, selection.groupIndex);
                 }

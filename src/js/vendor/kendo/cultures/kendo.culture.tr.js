@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -63,22 +63,22 @@
                 days: {
                     names: ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"],
                     namesAbbr: ["Paz","Pzt","Sal","Çar","Per","Cum","Cmt"],
-                    namesShort: ["Pz","Pt","Sa","Ça","Pe","Cu","Ct"]
+                    namesShort: ["Pa","Pt","Sa","Ça","Pe","Cu","Ct"]
                 },
                 months: {
                     names: ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"],
                     namesAbbr: ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"]
                 },
-                AM: [""],
-                PM: [""],
+                AM: ["ÖÖ","öö","ÖÖ"],
+                PM: ["ÖS","ös","ÖS"],
                 patterns: {
-                    d: "d.M.yyyy",
+                    d: "d.MM.yyyy",
                     D: "d MMMM yyyy dddd",
                     F: "d MMMM yyyy dddd HH:mm:ss",
-                    g: "d.M.yyyy HH:mm",
-                    G: "d.M.yyyy HH:mm:ss",
-                    m: "d MMMM",
-                    M: "d MMMM",
+                    g: "d.MM.yyyy HH:mm",
+                    G: "d.MM.yyyy HH:mm:ss",
+                    m: "dd MMMM",
+                    M: "dd MMMM",
                     s: "yyyy'-'MM'-'dd'T'HH':'mm':'ss",
                     t: "HH:mm",
                     T: "HH:mm:ss",

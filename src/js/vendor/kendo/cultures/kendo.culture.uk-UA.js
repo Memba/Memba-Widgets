@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -50,7 +50,7 @@
             currency: {
                 name: "Ukrainian Hryvnia",
                 abbr: "UAH",
-                pattern: ["-n$","n$"],
+                pattern: ["-n $","n $"],
                 decimals: 2,
                 ",": " ",
                 ".": ",",
@@ -66,7 +66,7 @@
                     namesShort: ["Нд","Пн","Вт","Ср","Чт","Пт","Сб"]
                 },
                 months: {
-                    names: ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"],
+                    names: ["січень","лютий","березень","квітень","травень","червень","липень","серпень","вересень","жовтень","листопад","грудень"],
                     namesAbbr: ["Січ","Лют","Бер","Кві","Тра","Чер","Лип","Сер","Вер","Жов","Лис","Гру"]
                 },
                 AM: [""],

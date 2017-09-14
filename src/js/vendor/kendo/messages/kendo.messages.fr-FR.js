@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -217,6 +217,39 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "confirmDelete": "Effacer"
   },
   "noRecords": "Aucun enregistrement disponible."
+});
+}
+  /* TreeList messages */
+
+if (kendo.ui.TreeList) {
+kendo.ui.TreeList.prototype.options.messages =
+$.extend(true, kendo.ui.TreeList.prototype.options.messages,{
+  "noRows": "Aucun enregistrement à afficher",
+  "loading": "Chargement...",
+  "requestFailed": "La requête a échoué.",
+  "retry": "Réessayer",
+  "commands": {
+      "edit": "Modifier",
+      "update": "Mettre à jour",
+      "canceledit": "Annuler",
+      "create": "Créer",
+      "createchild": "Créer un élément enfant",
+      "destroy": "Supprimer",
+      "excel": "Export Excel",
+      "pdf": "Export PDF"
+  }
+});
+}
+
+if (kendo.ui.TreeList) {
+kendo.ui.TreeList.prototype.options.columnMenu =
+$.extend(true, kendo.ui.TreeList.prototype.options.columnMenu, {
+    "messages": {
+        "columns": "Choisissez les colonnes",
+        "filter": "Appliquer les filtres",
+        "sortAscending": "Tri (croissant)",
+        "sortDescending": "Tri (décroissant)"
+    }
 });
 }
 

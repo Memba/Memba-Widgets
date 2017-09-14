@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -78,7 +78,7 @@
     (function ($, undefined) {
         var kendo = window.kendo, ui = kendo.ui, Class = kendo.Class, Widget = ui.Widget, DataSource = kendo.data.DataSource, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, toString = {}.toString, identity = function (o) {
                 return o;
-            }, map = $.map, extend = $.extend, isFunction = kendo.isFunction, CHANGE = 'change', ERROR = 'error', MEASURES = 'Measures', PROGRESS = 'progress', STATERESET = 'stateReset', AUTO = 'auto', DIV = '<div/>', NS = '.kendoPivotGrid', ROW_TOTAL_KEY = '__row_total__', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', EXPANDMEMBER = 'expandMember', COLLAPSEMEMBER = 'collapseMember', STATE_EXPANDED = 'k-i-collapse', STATE_COLLAPSED = 'k-i-expand', HEADER_TEMPLATE = '<span>#: data.member.caption || data.member.name #</span>', KPISTATUS_TEMPLATE = '<span class="k-icon k-i-#=data.dataItem.value > 0 ? "circle" : data.dataItem.value < 0 ? "stop" : "arrow-60-up k-i-hold"#" title="#:data.dataItem.value#"></span>', KPITREND_TEMPLATE = '<span class="k-icon k-i-#=data.dataItem.value > 0 ? "arrow-60-up" : data.dataItem.value < 0 ? "arrow-60-down" : "minus"#" title="#:data.dataItem.value#"></span>', DATACELL_TEMPLATE = '#= data.dataItem ? kendo.htmlEncode(data.dataItem.fmtValue || data.dataItem.value) || "&nbsp;" : "&nbsp;" #', LAYOUT_TABLE = '<table class="k-pivot-layout">' + '<tr>' + '<td>' + '<div class="k-pivot-rowheaders"></div>' + '</td>' + '<td>' + '<div class="k-pivot-table k-state-default"></div>' + '</td>' + '</tr>' + '</table>';
+            }, map = $.map, extend = $.extend, isFunction = kendo.isFunction, CHANGE = 'change', ERROR = 'error', MEASURES = 'Measures', PROGRESS = 'progress', STATERESET = 'stateReset', AUTO = 'auto', DIV = '<div/>', NS = '.kendoPivotGrid', ROW_TOTAL_KEY = '__row_total__', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', EXPANDMEMBER = 'expandMember', COLLAPSEMEMBER = 'collapseMember', STATE_EXPANDED = 'k-i-collapse', STATE_COLLAPSED = 'k-i-expand', HEADER_TEMPLATE = '<span>#: data.member.caption || data.member.name #</span>', KPISTATUS_TEMPLATE = '<span class="k-icon k-i-kpi-status-#=data.dataItem.value > 0 ? "open" : data.dataItem.value < 0 ? "deny" : "hold"#" title="#:data.dataItem.value#"></span>', KPITREND_TEMPLATE = '<span class="k-icon k-i-kpi-trend-#=data.dataItem.value > 0 ? "increase" : data.dataItem.value < 0 ? "decrease" : "equal"#" title="#:data.dataItem.value#"></span>', DATACELL_TEMPLATE = '#= data.dataItem ? kendo.htmlEncode(data.dataItem.fmtValue || data.dataItem.value) || "&nbsp;" : "&nbsp;" #', LAYOUT_TABLE = '<table class="k-pivot-layout">' + '<tr>' + '<td>' + '<div class="k-pivot-rowheaders"></div>' + '</td>' + '<td>' + '<div class="k-pivot-table k-state-default"></div>' + '</td>' + '</tr>' + '</table>';
         var AXIS_ROWS = 'rows';
         var AXIS_COLUMNS = 'columns';
         function normalizeMeasures(measure) {
@@ -1208,7 +1208,9 @@
                 };
                 columnIndexes = this._normalizeTuples(axes.columns.tuples, this._axes.columns.tuples, columnDescriptors, this._columnMeasures());
                 rowIndexes = this._normalizeTuples(axes.rows.tuples, this._axes.rows.tuples, rowDescriptors, this._rowMeasures());
-                this._skipNormalize -= 1;
+                if (this._skipNormalize > 0) {
+                    this._skipNormalize -= 1;
+                }
                 if (!this.cubeBuilder) {
                     data = this._normalizeData({
                         columnsLength: axes.columns.tuples.length,
@@ -4128,11 +4130,13 @@
                 exporter.workbook().then($.proxy(function (book) {
                     if (!this.trigger('excelExport', { workbook: book })) {
                         var workbook = new kendo.ooxml.Workbook(book);
-                        kendo.saveAs({
-                            dataURI: workbook.toDataURL(),
-                            fileName: book.fileName || excel.fileName,
-                            proxyURL: excel.proxyURL,
-                            forceProxy: excel.forceProxy
+                        workbook.toDataURLAsync().then(function (dataURI) {
+                            kendo.saveAs({
+                                dataURI: dataURI,
+                                fileName: book.fileName || excel.fileName,
+                                proxyURL: excel.proxyURL,
+                                forceProxy: excel.forceProxy
+                            });
                         });
                     }
                 }, this));

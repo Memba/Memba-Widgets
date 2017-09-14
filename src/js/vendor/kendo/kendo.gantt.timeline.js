@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1106,6 +1106,9 @@
                 var hourSpan = options.hourSpan;
                 start = new Date(start);
                 end = new Date(end);
+                if (options.showWorkHours) {
+                    start.setHours(workDayStart);
+                }
                 while (start < end) {
                     slotEnd = new Date(start);
                     hours = slotEnd.getHours();

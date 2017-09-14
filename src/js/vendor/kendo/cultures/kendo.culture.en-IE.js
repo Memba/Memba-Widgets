@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -69,12 +69,12 @@
                     names: ["January","February","March","April","May","June","July","August","September","October","November","December"],
                     namesAbbr: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
                 },
-                AM: ["am","am","AM"],
-                PM: ["pm","pm","PM"],
+                AM: ["AM","am","AM"],
+                PM: ["PM","pm","PM"],
                 patterns: {
                     d: "dd/MM/yyyy",
-                    D: "dd MMMM yyyy",
-                    F: "dd MMMM yyyy HH:mm:ss",
+                    D: "dddd d MMMM yyyy",
+                    F: "dddd d MMMM yyyy HH:mm:ss",
                     g: "dd/MM/yyyy HH:mm",
                     G: "dd/MM/yyyy HH:mm:ss",
                     m: "d MMMM",
@@ -88,7 +88,7 @@
                 },
                 "/": "/",
                 ":": ":",
-                firstDay: 1
+                firstDay: 0
             }
         }
     }

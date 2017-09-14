@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -50,7 +50,7 @@
             currency: {
                 name: "Danish Krone",
                 abbr: "DKK",
-                pattern: ["$ -n","$ n"],
+                pattern: ["-n $","n $"],
                 decimals: 2,
                 ",": ".",
                 ".": ",",
@@ -62,7 +62,7 @@
             standard: {
                 days: {
                     names: ["søndag","mandag","tirsdag","onsdag","torsdag","fredag","lørdag"],
-                    namesAbbr: ["søn","man","tir","ons","tor","fre","lør"],
+                    namesAbbr: ["sø","ma","ti","on","to","fr","lø"],
                     namesShort: ["sø","ma","ti","on","to","fr","lø"]
                 },
                 months: {

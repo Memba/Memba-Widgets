@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -40,7 +40,7 @@
             ".": ".",
             groupSize: [3],
             percent: {
-                pattern: ["-n %","n %"],
+                pattern: ["-n%","n%"],
                 decimals: 2,
                 ",": ",",
                 ".": ".",
@@ -63,7 +63,7 @@
                 days: {
                     names: ["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"],
                     namesAbbr: ["อา.","จ.","อ.","พ.","พฤ.","ศ.","ส."],
-                    namesShort: ["อ","จ","อ","พ","พ","ศ","ส"]
+                    namesShort: ["อา","จ","อ","พ","พฤ","ศ","ส"]
                 },
                 months: {
                     names: ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"],

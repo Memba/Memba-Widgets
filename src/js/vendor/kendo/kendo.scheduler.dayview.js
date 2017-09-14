@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -419,6 +419,9 @@
                 var cell = cells[cellIndex];
                 var collection = group.getTimeSlotCollection(timeIndex);
                 var currentDate = this._dates[timeIndex];
+                if (!currentDate) {
+                    return;
+                }
                 var currentTime = Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
                 var start = currentTime + time;
                 var end = start + interval;
@@ -429,6 +432,9 @@
             _addDaySlotGroup: function (collection, cells, cellIndex, columnCount, cellCount) {
                 var cell = cells[cellIndex];
                 var start = this._dates[cellCount];
+                if (!start) {
+                    return;
+                }
                 var currentTime = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
                 cell.setAttribute('role', 'gridcell');
                 cell.setAttribute('aria-selected', false);
@@ -491,7 +497,9 @@
                 for (var idx = 0; idx < groupCount; idx++) {
                     var view = this._addResourceView(idx);
                     for (var columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                        view.addTimeSlotCollection(this._dates[columnIndex], kendo.date.addDays(this._dates[columnIndex], 1));
+                        if (this._dates[columnIndex]) {
+                            view.addTimeSlotCollection(this._dates[columnIndex], kendo.date.addDays(this._dates[columnIndex], 1));
+                        }
                     }
                     if (this.options.allDaySlot) {
                         view.addDaySlotCollection(this._dates[0], kendo.date.addDays(this._dates[this._dates.length - 1], 1));
@@ -1200,8 +1208,8 @@
                 if (event._date('end') > event._date('start')) {
                     endTime = +event._date('end') + (MS_PER_DAY - 1);
                 }
-                endTime = endTime - event._date('end');
-                startTime = startTime - event._date('start');
+                endTime = getMilliseconds(new Date(endTime));
+                startTime = getMilliseconds(new Date(startTime));
                 slotEndTime = getMilliseconds(slotEndTime);
                 slotStartTime = getMilliseconds(slotStartTime);
                 if (slotStartTime === startTime && startTime === endTime) {
@@ -1239,7 +1247,7 @@
                 for (idx = 0, length = events.length; idx < length; idx++) {
                     event = events[idx];
                     if (this._isInDateSlot(event)) {
-                        var isMultiDayEvent = event.isAllDay || event.end.getTime() - event.start.getTime() >= MS_PER_DAY;
+                        var isMultiDayEvent = event.isAllDay || event.duration() >= MS_PER_DAY;
                         var container = isMultiDayEvent && !this._isVerticallyGrouped() ? allDayEventContainer : this.content;
                         var element, ranges, range, start, end, group;
                         if (!isMultiDayEvent) {
@@ -1407,8 +1415,14 @@
                     var slots = collection[collection.length - 1]._slots;
                     var slotIndex = !reverse && !group.daySlotCollectionCount() ? 0 : slots.length - 1;
                     var endMilliseconds;
-                    selection.start = new Date(date);
-                    selection.end = new Date(date);
+                    var newDateStart, newDateEnd;
+                    newDateStart = new Date(date);
+                    newDateEnd = new Date(date);
+                    if (this._isInRange(newDateStart, newDateEnd)) {
+                        return false;
+                    }
+                    selection.start = newDateStart;
+                    selection.end = newDateEnd;
                     if (verticalByDate) {
                         var newStart = new Date(slots[slotIndex].startDate());
                         var newEnd = new Date(slots[slotIndex].endDate());

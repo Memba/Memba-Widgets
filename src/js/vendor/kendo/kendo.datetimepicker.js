@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -104,7 +104,9 @@
                 month: {},
                 ARIATemplate: 'Current focused date is #=kendo.toString(data.current, "d")#',
                 dateButtonText: 'Open the date view',
-                timeButtonText: 'Open the time view'
+                timeButtonText: 'Open the time view',
+                dateInput: false,
+                weekNumber: false
             },
             events: [
                 OPEN,

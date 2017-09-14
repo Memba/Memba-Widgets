@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -677,13 +677,6 @@ $.extend(true, kendo.spreadsheet.messages.dialogs, {
         "placeholders": {
             "typeTitle": "Titulok typu",
             "typeMessage": "Správa typu"
-        }
-    },
-    "saveAsDialog": {
-        "title": "Uložiť Ako...",
-        "labels": {
-            "fileName": "Meno súboru",
-            "saveAsType": "Uložiť ako typ"
         }
     },
     "exportAsDialog": {

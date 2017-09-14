@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -96,6 +96,11 @@
                 }
             }
         });
+        var REPLACE_REGEX = /\r?\n|\r|\t/g;
+        var SPACE = ' ';
+        function normalizeText(text) {
+            return String(text).replace(REPLACE_REGEX, SPACE);
+        }
         function objectKey(object) {
             var parts = [];
             for (var key in object) {
@@ -122,14 +127,17 @@
         var defaultMeasureBox;
         if (typeof document !== 'undefined') {
             defaultMeasureBox = document.createElement('div');
-            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;';
+            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: pre!important;';
         }
         var TextMetrics = kendo.Class.extend({
             init: function (options) {
                 this._cache = new LRUCache(1000);
                 this.options = $.extend({}, DEFAULT_OPTIONS, options);
             },
-            measure: function (text, style, box) {
+            measure: function (text, style, options) {
+                if (options === void 0) {
+                    options = {};
+                }
                 if (!text) {
                     return zeroSize();
                 }
@@ -140,7 +148,7 @@
                     return cachedResult;
                 }
                 var size = zeroSize();
-                var measureBox = box || defaultMeasureBox;
+                var measureBox = options.box || defaultMeasureBox;
                 var baselineMarker = this._baselineMarker().cloneNode(false);
                 for (var key in style) {
                     var value = style[key];
@@ -148,10 +156,11 @@
                         measureBox.style[key] = value;
                     }
                 }
-                measureBox.textContent = text;
+                var textStr = options.normalizeText !== false ? normalizeText(text) : String(text);
+                measureBox.textContent = textStr;
                 measureBox.appendChild(baselineMarker);
                 document.body.appendChild(measureBox);
-                if (String(text).length) {
+                if (textStr.length) {
                     size.width = measureBox.offsetWidth - this.options.baselineMarkerSize;
                     size.height = measureBox.offsetHeight;
                     size.baseline = baselineMarker.offsetTop + this.options.baselineMarkerSize;
@@ -177,7 +186,8 @@
             TextMetrics: TextMetrics,
             measureText: measureText,
             objectKey: objectKey,
-            hashKey: hashKey
+            hashKey: hashKey,
+            normalizeText: normalizeText
         });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -197,6 +207,7 @@
         var Class = kendo.Class;
         var kendoUtil = kendo.util;
         var support = kendo.support;
+        var supportBrowser = support.browser;
         var createPromise = kendoDrawingUtil.createPromise;
         var promiseAll = kendoDrawingUtil.promiseAll;
         var ObserversMixin = {
@@ -2722,6 +2733,17 @@
             }
             return start;
         }
+        function alignStartReverse(size, rect, align, axis, sizeField) {
+            var start;
+            if (align === 'start') {
+                start = rect.origin[axis] + rect.size[sizeField] - size;
+            } else if (align === 'end') {
+                start = rect.origin[axis];
+            } else {
+                start = rect.origin[axis] + (rect.size[sizeField] - size) / 2;
+            }
+            return start;
+        }
         var DEFAULT_OPTIONS = {
             alignContent: 'start',
             justifyContent: 'start',
@@ -2729,7 +2751,17 @@
             spacing: 0,
             orientation: 'horizontal',
             lineSpacing: 0,
-            wrap: true
+            wrap: true,
+            revers: false
+        };
+        var forEach = function (elements, callback) {
+            elements.forEach(callback);
+        };
+        var forEachReverse = function (elements, callback) {
+            var length = elements.length;
+            for (var idx = length - 1; idx >= 0; idx--) {
+                callback(elements[idx], idx);
+            }
         };
         var Layout = Group.extend({
             init: function (rect, options) {
@@ -2758,8 +2790,16 @@
                     fieldMap.groupAxis = 'y';
                     fieldMap.groupsAxis = 'x';
                 }
+                if (options.reverse) {
+                    this.forEach = forEachReverse;
+                    this.justifyAlign = alignStartReverse;
+                } else {
+                    this.forEach = forEach;
+                    this.justifyAlign = alignStart;
+                }
             },
             reflow: function () {
+                var this$1 = this;
                 if (!this._rect || this.children.length === 0) {
                     return;
                 }
@@ -2781,22 +2821,22 @@
                 var elementOrigin = new Point();
                 var size = new Size();
                 var groupStart = alignStart(groupsSize, rect, options.alignContent, groupsAxis, groupsSizeField);
-                var elementStart, bbox, element, group, groupBox;
+                var elementStart, group, groupBox;
+                var arrangeElements = function (bbox, idx) {
+                    var element = group.elements[idx];
+                    elementOrigin[groupAxis] = elementStart;
+                    elementOrigin[groupsAxis] = alignStart(bbox.size[groupsSizeField], groupBox, options.alignItems, groupsAxis, groupsSizeField);
+                    translateToPoint(elementOrigin, bbox, element);
+                    elementStart += bbox.size[sizeField] + options.spacing;
+                };
                 for (var groupIdx = 0; groupIdx < groups.length; groupIdx++) {
                     group = groups[groupIdx];
-                    groupOrigin[groupAxis] = elementStart = alignStart(group.size, rect, options.justifyContent, groupAxis, sizeField);
+                    groupOrigin[groupAxis] = elementStart = this$1.justifyAlign(group.size, rect, options.justifyContent, groupAxis, sizeField);
                     groupOrigin[groupsAxis] = groupStart;
                     size[sizeField] = group.size;
                     size[groupsSizeField] = group.lineSize;
                     groupBox = new Rect(groupOrigin, size);
-                    for (var idx = 0; idx < group.bboxes.length; idx++) {
-                        element = group.elements[idx];
-                        bbox = group.bboxes[idx];
-                        elementOrigin[groupAxis] = elementStart;
-                        elementOrigin[groupsAxis] = alignStart(bbox.size[groupsSizeField], groupBox, options.alignItems, groupsAxis, groupsSizeField);
-                        translateToPoint(elementOrigin, bbox, element);
-                        elementStart += bbox.size[sizeField] + options.spacing;
-                    }
+                    this$1.forEach(group.bboxes, arrangeElements);
                     groupStart += group.lineSize + options.lineSpacing;
                 }
                 if (!options.wrap && group.size > rect.size[sizeField]) {
@@ -3538,15 +3578,14 @@
             'mouseenter',
             'mouseleave',
             'mousemove',
-            'resize',
-            'tooltipOpen',
-            'tooltipClose'
+            'resize'
         ];
         var Surface = kendo.Observable.extend({
             init: function (element, options) {
                 kendo.Observable.fn.init.call(this);
                 this.options = $.extend({}, options);
                 this.element = element;
+                this.element._kendoExportVisual = this.exportVisual.bind(this);
                 this._click = this._handler('click');
                 this._mouseenter = this._handler('mouseenter');
                 this._mouseleave = this._handler('mouseleave');
@@ -3564,6 +3603,7 @@
             },
             destroy: function () {
                 this._visual = null;
+                this.element._kendoExportVisual = null;
                 this.unbind();
             },
             eventTarget: function (e) {
@@ -3792,7 +3832,7 @@
             var href = document.location.href;
             var hashIndex = href.indexOf('#');
             var url = '';
-            if (base && !support.browser.msie) {
+            if (base && !supportBrowser.msie) {
                 if (hashIndex !== -1) {
                     href = href.substring(0, hashIndex);
                 }
@@ -3917,6 +3957,12 @@
                     this.attr('opacity', value);
                 } else if (field === 'cursor') {
                     this.css('cursor', value);
+                } else if (field === 'id') {
+                    if (value) {
+                        this.attr('id', value);
+                    } else {
+                        this.removeAttr('id');
+                    }
                 }
                 BaseNode.fn.optionsChange.call(this, e);
             },
@@ -3986,6 +4032,9 @@
             },
             renderOpacity: function () {
                 return renderAttr('opacity', this.srcElement.options.opacity);
+            },
+            renderId: function () {
+                return renderAttr('id', this.srcElement.options.id);
             },
             createDefinitions: function () {
                 var srcElement = this.srcElement;
@@ -4388,7 +4437,7 @@
         }
         var GroupNode = Node.extend({
             template: function () {
-                return '<g' + (this.renderTransform() + this.renderStyle() + this.renderOpacity() + this.renderDefinitions()) + '>' + this.renderChildren() + '</g>';
+                return '<g' + (this.renderId() + this.renderTransform() + this.renderStyle() + this.renderOpacity() + this.renderDefinitions()) + '>' + this.renderChildren() + '</g>';
             },
             optionsChange: function (e) {
                 if (e.field === 'transform') {
@@ -4612,7 +4661,7 @@
                 return renderAllAttr(this.mapFill(this.srcElement.options.fill));
             },
             template: function () {
-                return '<path ' + this.renderStyle() + ' ' + this.renderOpacity() + ' ' + renderAttr('d', this.renderData()) + '' + this.renderStroke() + this.renderFill() + this.renderDefinitions() + this.renderTransform() + '></path>';
+                return '<path ' + this.renderId() + ' ' + this.renderStyle() + ' ' + this.renderOpacity() + ' ' + renderAttr('d', this.renderData()) + '' + this.renderStroke() + this.renderFill() + this.renderDefinitions() + this.renderTransform() + '></path>';
             }
         });
         NODE_MAP.Path = PathNode;
@@ -4637,7 +4686,7 @@
                 return this.srcElement.geometry().radius;
             },
             template: function () {
-                return '<circle ' + this.renderStyle() + ' ' + this.renderOpacity() + 'cx=\'' + this.center().x + '\' cy=\'' + this.center().y + '\' r=\'' + this.radius() + '\'' + this.renderStroke() + ' ' + this.renderFill() + ' ' + this.renderDefinitions() + this.renderTransform() + ' ></circle>';
+                return '<circle ' + this.renderId() + ' ' + this.renderStyle() + ' ' + this.renderOpacity() + 'cx=\'' + this.center().x + '\' cy=\'' + this.center().y + '\' r=\'' + this.radius() + '\'' + this.renderStroke() + ' ' + this.renderFill() + ' ' + this.renderDefinitions() + this.renderTransform() + ' ></circle>';
             }
         });
         NODE_MAP.Circle = CircleNode;
@@ -4657,7 +4706,7 @@
                 return this.srcElement.geometry().origin;
             },
             template: function () {
-                return '<rect ' + this.renderStyle() + ' ' + this.renderOpacity() + ' x=\'' + this.origin().x + '\' y=\'' + this.origin().y + '\' ' + 'width=\'' + this.size().width + '\' height=\'' + this.size().height + '\' ' + this.renderStroke() + ' ' + this.renderFill() + ' ' + this.renderDefinitions() + ' ' + this.renderTransform() + ' />';
+                return '<rect ' + this.renderId() + ' ' + this.renderStyle() + ' ' + this.renderOpacity() + ' x=\'' + this.origin().x + '\' y=\'' + this.origin().y + '\' ' + 'width=\'' + this.size().width + '\' height=\'' + this.size().height + '\' ' + this.renderStroke() + ' ' + this.renderFill() + ' ' + this.renderDefinitions() + ' ' + this.renderTransform() + ' />';
             }
         });
         NODE_MAP.Rect = RectNode;
@@ -4711,17 +4760,21 @@
                 return renderAllAttr(this.mapSource(true));
             },
             template: function () {
-                return '<image preserveAspectRatio=\'none\' ' + this.renderStyle() + ' ' + this.renderTransform() + ' ' + this.renderOpacity() + this.renderPosition() + ' ' + this.renderSource() + ' ' + this.renderDefinitions() + '>' + '</image>';
+                return '<image preserveAspectRatio=\'none\' ' + this.renderId() + ' ' + this.renderStyle() + ' ' + this.renderTransform() + ' ' + this.renderOpacity() + this.renderPosition() + ' ' + this.renderSource() + ' ' + this.renderDefinitions() + '>' + '</image>';
             }
         });
         NODE_MAP.Image = ImageNode;
+        var ENTITY_REGEX = /&(?:[a-zA-Z]+|#\d+);/g;
         function decodeEntities(text) {
-            if (!text || !text.indexOf || text.indexOf('&') < 0) {
+            if (!text || typeof text !== 'string' || !ENTITY_REGEX.test(text)) {
                 return text;
             }
             var element = decodeEntities._element;
-            element.innerHTML = text;
-            return element.textContent || element.innerText;
+            ENTITY_REGEX.lastIndex = 0;
+            return text.replace(ENTITY_REGEX, function (match) {
+                element.innerHTML = match;
+                return element.textContent || element.innerText;
+            });
         }
         if (typeof document !== 'undefined') {
             decodeEntities._element = document.createElement('span');
@@ -4751,6 +4804,9 @@
                 style.push([
                     'font',
                     font
+                ], [
+                    'white-space',
+                    'pre'
                 ]);
                 return style;
             },
@@ -4763,17 +4819,17 @@
                 var content = this.srcElement.content();
                 content = decodeEntities(content);
                 content = kendo.htmlEncode(content);
-                return content;
+                return kendoUtil.normalizeText(content);
             },
             renderTextAnchor: function () {
                 var anchor;
-                if ((this.options || {}).rtl) {
+                if ((this.options || {}).rtl && !(supportBrowser.msie || supportBrowser.edge)) {
                     anchor = 'end';
                 }
                 return renderAttr('text-anchor', anchor);
             },
             template: function () {
-                return '<text ' + this.renderTextAnchor() + ' ' + this.renderStyle() + ' ' + this.renderOpacity() + ' x=\'' + this.pos().x + '\' y=\'' + this.pos().y + '\'' + this.renderStroke() + ' ' + this.renderTransform() + ' ' + this.renderDefinitions() + this.renderFill() + '>' + this.renderContent() + '</text>';
+                return '<text ' + this.renderId() + ' ' + this.renderTextAnchor() + ' ' + this.renderStyle() + ' ' + this.renderOpacity() + 'x=\'' + this.pos().x + '\' y=\'' + this.pos().y + '\' ' + this.renderStroke() + ' ' + this.renderTransform() + ' ' + this.renderDefinitions() + this.renderFill() + '>' + this.renderContent() + '</text>';
             }
         });
         NODE_MAP.Text = TextNode;
@@ -5769,7 +5825,7 @@
             }
             return createPromise().resolve(svg);
         }
-        var browser = support.browser;
+        var browser = supportBrowser;
         function slice$1(thing) {
             return Array.prototype.slice.call(thing);
         }
@@ -5876,7 +5932,16 @@
                 };
             } else {
                 return function cloneNodes(el) {
-                    var clone = el.cloneNode(true);
+                    var clone = function dive(node) {
+                        var clone = node.cloneNode(false);
+                        if (node._kendoExportVisual) {
+                            clone._kendoExportVisual = node._kendoExportVisual;
+                        }
+                        for (var i = node.firstChild; i; i = i.nextSibling) {
+                            clone.appendChild(dive(i));
+                        }
+                        return clone;
+                    }(el);
                     var canvases = el.querySelectorAll('canvas');
                     if (canvases.length) {
                         slice$1(clone.querySelectorAll('canvas')).forEach(function (canvas$$1, i) {
@@ -6093,11 +6158,12 @@
                     if (forceBreak != '-' || pageHeight) {
                         splitElement(copy);
                     }
-                    var page = makePage();
-                    copy.parentNode.insertBefore(page, copy);
-                    page.appendChild(copy);
+                    {
+                        var page = makePage();
+                        copy.parentNode.insertBefore(page, copy);
+                        page.appendChild(copy);
+                    }
                     if (template$$1) {
-                        var count = pages.length;
                         pages.forEach(function (page, i) {
                             var el = template$$1({
                                 element: page,
@@ -6106,24 +6172,17 @@
                             });
                             if (el) {
                                 page.appendChild(el);
-                                cacheImages(el, function () {
-                                    if (--count === 0) {
-                                        next();
-                                    }
-                                });
                             }
                         });
-                    } else {
-                        next();
                     }
-                    function next() {
+                    cacheImages(pages, function () {
                         whenImagesAreActuallyLoaded(pages, function () {
                             callback({
                                 pages: pages,
                                 container: container
                             });
                         });
-                    }
+                    });
                 }
                 function keepTogether(el) {
                     if (options.keepTogether && matches(el, options.keepTogether) && el.offsetHeight <= pageHeight - adjust) {
@@ -6702,7 +6761,7 @@
                     urls.push(url);
                 }
             }
-            (function dive(element) {
+            function dive(element) {
                 if (/^img$/i.test(element.tagName)) {
                     add(element.src);
                 }
@@ -6714,7 +6773,12 @@
                 if (element.children) {
                     slice$1(element.children).forEach(dive);
                 }
-            }(element));
+            }
+            if (Array.isArray(element)) {
+                element.forEach(dive);
+            } else {
+                dive(element);
+            }
             var count = urls.length;
             function next() {
                 if (--count <= 0) {
@@ -6814,7 +6878,7 @@
                     val = style.getPropertyValue('-moz-' + prop);
                 } else if (browser.opera) {
                     val = style.getPropertyValue('-o-' + prop);
-                } else if (browser.msie) {
+                } else if (browser.msie || browser.edge) {
                     val = style.getPropertyValue('-ms-' + prop);
                 }
             }
@@ -6832,7 +6896,7 @@
                 style.setProperty('-moz-' + prop, value, important);
             } else if (browser.opera) {
                 style.setProperty('-o-' + prop, value, important);
-            } else if (browser.msie) {
+            } else if (browser.msie || browser.edge) {
                 style.setProperty('-ms-' + prop, value, important);
                 prop = 'ms' + prop.replace(/(^|-)([a-z])/g, function (s, p1, p2) {
                     return p1 + p2.toUpperCase();
@@ -7220,6 +7284,23 @@
             for (i = 0; i < boxes.length; ++i) {
                 drawOneBox(boxes[i], i === 0, i == boxes.length - 1);
             }
+            if (element.tagName == 'A' && element.href && !/^#?$/.test(element.getAttribute('href'))) {
+                if (!nodeInfo._avoidLinks || !matches(element, nodeInfo._avoidLinks)) {
+                    var r = document.createRange();
+                    r.selectNodeContents(element);
+                    slice$1(r.getClientRects()).forEach(function (box) {
+                        var g = new Group();
+                        g._pdfLink = {
+                            url: element.href,
+                            top: box.top,
+                            right: box.right,
+                            bottom: box.bottom,
+                            left: box.left
+                        };
+                        group.append(g);
+                    });
+                }
+            }
             if (boxes.length > 0 && display == 'list-item' && !element.getAttribute('kendo-no-bullet')) {
                 drawBullet(boxes[0]);
             }
@@ -7347,17 +7428,6 @@
                 var background = new Group();
                 setClipping(background, roundBox(box, rTL0, rTR0, rBR0, rBL0));
                 group.append(background);
-                if (element.tagName == 'A' && element.href && !/^#?$/.test(element.getAttribute('href'))) {
-                    if (!nodeInfo._avoidLinks || !matches(element, nodeInfo._avoidLinks)) {
-                        background._pdfLink = {
-                            url: element.href,
-                            top: box.top,
-                            right: box.right,
-                            bottom: box.bottom,
-                            left: box.left
-                        };
-                    }
-                }
                 if (backgroundColor) {
                     var path = new Path({
                         fill: { color: backgroundColor.toCssRgba() },
@@ -7808,26 +7878,28 @@
             };
         }
         function maybeRenderWidget(element, group) {
-            if (window.kendo && window.kendo.jQuery && element.getAttribute(window.kendo.attr('role'))) {
+            var visual;
+            if (element._kendoExportVisual) {
+                visual = element._kendoExportVisual();
+            } else if (window.kendo && window.kendo.jQuery && element.getAttribute(window.kendo.attr('role'))) {
                 var widget = window.kendo.widgetInstance(window.kendo.jQuery(element));
                 if (widget && (widget.exportDOMVisual || widget.exportVisual)) {
-                    var visual;
                     if (widget.exportDOMVisual) {
                         visual = widget.exportDOMVisual();
                     } else {
                         visual = widget.exportVisual();
                     }
-                    if (!visual) {
-                        return false;
-                    }
-                    var wrap$$1 = new Group();
-                    wrap$$1.children.push(visual);
-                    var bbox = element.getBoundingClientRect();
-                    wrap$$1.transform(transform().translate(bbox.left, bbox.top));
-                    group.append(wrap$$1);
-                    return true;
                 }
             }
+            if (!visual) {
+                return false;
+            }
+            var wrap$$1 = new Group();
+            wrap$$1.children.push(visual);
+            var bbox = element.getBoundingClientRect();
+            wrap$$1.transform(transform().translate(bbox.left, bbox.top));
+            group.append(wrap$$1);
+            return true;
         }
         function renderImage(element, url, group) {
             var box = getContentBox(element);
@@ -8035,8 +8107,9 @@
             var isJustified = align$$1 == 'justify';
             var columnCount = getPropertyValue(style, 'column-count', 1);
             var whiteSpace = getPropertyValue(style, 'white-space');
+            var textTransform = getPropertyValue(style, 'text-transform');
             var textOverflow, saveTextOverflow;
-            if (browser.msie) {
+            if (browser.msie || browser.edge) {
                 textOverflow = style.textOverflow;
                 if (textOverflow == 'ellipsis') {
                     saveTextOverflow = element.style.textOverflow;
@@ -8054,7 +8127,7 @@
             var hasDecoration = underline || lineThrough || overline;
             while (!doChunk()) {
             }
-            if (browser.msie && textOverflow == 'ellipsis') {
+            if ((browser.msie || browser.edge) && textOverflow == 'ellipsis') {
                 element.style.textOverflow = saveTextOverflow;
             }
             if (hasDecoration) {
@@ -8063,7 +8136,7 @@
             }
             return;
             function actuallyGetRangeBoundingRect(range) {
-                if (browser.msie || browser.chrome) {
+                if (browser.msie || browser.edge || browser.chrome) {
                     var rectangles = range.getClientRects(), box = {
                             top: Infinity,
                             right: -Infinity,
@@ -8139,7 +8212,7 @@
                         box = actuallyGetRangeBoundingRect(range);
                     }
                 }
-                if (browser.msie) {
+                if (browser.msie || browser.edge) {
                     box = range.getClientRects()[0];
                 }
                 var str = range.toString();
@@ -8168,7 +8241,7 @@
                 drawText(str, box);
             }
             function drawText(str, box) {
-                if (browser.msie && !isNaN(lineHeight)) {
+                if ((browser.msie || browser.edge) && !isNaN(lineHeight)) {
                     var height = getFontHeight(font);
                     var top = (box.top + box.bottom - height) / 2;
                     box = {
@@ -8179,6 +8252,19 @@
                         height: height,
                         width: box.right - box.left
                     };
+                }
+                switch (textTransform) {
+                case 'uppercase':
+                    str = str.toUpperCase();
+                    break;
+                case 'lowercase':
+                    str = str.toLowerCase();
+                    break;
+                case 'capitalize':
+                    str = str.replace(/(?:^|\s)\S/g, function (l) {
+                        return l.toUpperCase();
+                    });
+                    break;
                 }
                 var text = new TextRect(str, new Rect([
                     box.left,

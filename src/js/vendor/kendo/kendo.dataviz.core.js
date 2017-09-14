@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -76,6 +76,11 @@
                 }
             }
         });
+        var REPLACE_REGEX = /\r?\n|\r|\t/g;
+        var SPACE = ' ';
+        function normalizeText(text) {
+            return String(text).replace(REPLACE_REGEX, SPACE);
+        }
         function objectKey(object) {
             var parts = [];
             for (var key in object) {
@@ -102,14 +107,17 @@
         var defaultMeasureBox;
         if (typeof document !== 'undefined') {
             defaultMeasureBox = document.createElement('div');
-            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;';
+            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: pre!important;';
         }
         var TextMetrics = kendo.Class.extend({
             init: function (options) {
                 this._cache = new LRUCache(1000);
                 this.options = $.extend({}, DEFAULT_OPTIONS, options);
             },
-            measure: function (text, style, box) {
+            measure: function (text, style, options) {
+                if (options === void 0) {
+                    options = {};
+                }
                 if (!text) {
                     return zeroSize();
                 }
@@ -120,7 +128,7 @@
                     return cachedResult;
                 }
                 var size = zeroSize();
-                var measureBox = box || defaultMeasureBox;
+                var measureBox = options.box || defaultMeasureBox;
                 var baselineMarker = this._baselineMarker().cloneNode(false);
                 for (var key in style) {
                     var value = style[key];
@@ -128,10 +136,11 @@
                         measureBox.style[key] = value;
                     }
                 }
-                measureBox.textContent = text;
+                var textStr = options.normalizeText !== false ? normalizeText(text) : String(text);
+                measureBox.textContent = textStr;
                 measureBox.appendChild(baselineMarker);
                 document.body.appendChild(measureBox);
-                if (String(text).length) {
+                if (textStr.length) {
                     size.width = measureBox.offsetWidth - this.options.baselineMarkerSize;
                     size.height = measureBox.offsetHeight;
                     size.baseline = baselineMarker.offsetTop + this.options.baselineMarkerSize;
@@ -157,7 +166,8 @@
             TextMetrics: TextMetrics,
             measureText: measureText,
             objectKey: objectKey,
-            hashKey: hashKey
+            hashKey: hashKey,
+            normalizeText: normalizeText
         });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -685,6 +695,9 @@
                 this.x2 = x2 || 0;
                 this.y2 = y2 || 0;
             },
+            equals: function (box) {
+                return this.x1 === box.x1 && this.x2 === box.x2 && this.y1 === box.y1 && this.y2 === box.y2;
+            },
             width: function () {
                 return this.x2 - this.x1;
             },
@@ -987,10 +1000,14 @@
                 return this;
             }
         });
+        var DIRECTION_ANGLE = 0.001;
         var ShapeBuilder = Class.extend({
             createRing: function (sector, options) {
                 var startAngle = sector.startAngle + 180;
                 var endAngle = sector.angle + startAngle;
+                if (sector.angle > 0 && startAngle === endAngle) {
+                    endAngle += DIRECTION_ANGLE;
+                }
                 var center = new geometry.Point(sector.center.x, sector.center.y);
                 var radius = Math.max(sector.radius, 0);
                 var innerRadius = Math.max(sector.innerRadius, 0);
@@ -1218,7 +1235,7 @@
                         highlight = this._highlight = this.createHighlight(highlightOptions);
                     }
                     if (!defined(highlight.options.zIndex)) {
-                        highlight.options.zIndex = valueOrDefault(options.zIndex, HIGHLIGHT_ZINDEX);
+                        highlight.options.zIndex = valueOrDefault(options.zIndex, this.options.zIndex);
                     }
                     this.appendVisual(highlight);
                 }
@@ -1869,7 +1886,7 @@
             var bottomRight = rect.bottomRight();
             return new Box(origin.x, origin.y, bottomRight.x, bottomRight.y);
         }
-        var ROWS_SPLIT_REGEX = /\n|\\n/m;
+        var ROWS_SPLIT_REGEX = /\n/m;
         var TextBox = BoxElement.extend({
             init: function (content, options) {
                 BoxElement.fn.init.call(this, options);
@@ -1914,7 +1931,6 @@
                     if (visual) {
                         visualBox = rectToBox(visual.clippedBBox() || new Rect());
                         visual.options.zIndex = options.zIndex;
-                        visual.options.noclip = options.noclip;
                     }
                     this.box = this.contentBox = this.paddingBox = visualBox;
                 } else {
@@ -1948,6 +1964,10 @@
             },
             renderVisual: function () {
                 if (this.options.visual) {
+                    var visual = this.visual;
+                    if (visual && !defined(visual.options.noclip)) {
+                        visual.options.noclip = this.options.noclip;
+                    }
                     this.addVisual();
                     this.createAnimation();
                 } else {
@@ -2810,7 +2830,7 @@
                     var labels = this.labels;
                     var angle;
                     for (var idx = 0; idx < labels.length; idx++) {
-                        var width = tickPositions[idx + 1] - tickPositions[idx];
+                        var width = Math.abs(tickPositions[idx + 1] - tickPositions[idx]);
                         var labelBox = labels[idx].box;
                         if (labelBox.width() > width) {
                             if (labelBox.height() > width) {
@@ -3402,13 +3422,12 @@
                 return cache;
             },
             getSlot: function (from, to, limit) {
-                var ref = this;
-                var options = ref.options;
+                var options = this.options;
                 var reverse = options.reverse;
                 var justified = options.justified;
                 var vertical = options.vertical;
-                var ref$1 = this.rangeIndices();
-                var min = ref$1.min;
+                var ref = this.rangeIndices();
+                var min = ref.min;
                 var valueAxis = vertical ? Y : X;
                 var lineBox = this.lineBox();
                 var scale = this.getScale();
@@ -3431,6 +3450,15 @@
                 slotBox[valueAxis + 1] = reverse ? p2 : p1;
                 slotBox[valueAxis + 2] = reverse ? p1 : p2;
                 return slotBox;
+            },
+            limitSlot: function (slot) {
+                var vertical = this.options.vertical;
+                var valueAxis = vertical ? Y : X;
+                var lineBox = this.lineBox();
+                var limittedSlot = slot.clone();
+                limittedSlot[valueAxis + 1] = limitValue(slot[valueAxis + 1], lineBox[valueAxis + 1], lineBox[valueAxis + 2]);
+                limittedSlot[valueAxis + 2] = limitValue(slot[valueAxis + 2], lineBox[valueAxis + 1], lineBox[valueAxis + 2]);
+                return limittedSlot;
             },
             slot: function (from, to, limit) {
                 var start = from;
@@ -4438,8 +4466,11 @@
         }
         function axisOptions(autoOptions, userOptions) {
             var options = userOptions;
+            var userSetMin, userSetMax;
             if (userOptions) {
-                var userSetLimits = defined(userOptions.min) || defined(userOptions.max);
+                userSetMin = defined(userOptions.min);
+                userSetMax = defined(userOptions.max);
+                var userSetLimits = userSetMin || userSetMax;
                 if (userSetLimits) {
                     if (userOptions.min === userOptions.max) {
                         if (userOptions.min > 0) {
@@ -4458,7 +4489,15 @@
                 }
             }
             autoOptions.minorUnit = (options.majorUnit || autoOptions.majorUnit) / 5;
-            return deepExtend(autoOptions, options);
+            var result = deepExtend(autoOptions, options);
+            if (result.min >= result.max) {
+                if (userSetMin && !userSetMax) {
+                    result.max = result.min + result.majorUnit;
+                } else if (!userSetMin && userSetMax) {
+                    result.min = result.max - result.majorUnit;
+                }
+            }
+            return result;
         }
         function remainderClose(value, divisor, ratio) {
             var remainder = round(Math.abs(value % divisor), DEFAULT_PRECISION);

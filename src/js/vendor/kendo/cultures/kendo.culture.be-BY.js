@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -49,7 +49,7 @@
             },
             currency: {
                 name: "Belarusian Ruble",
-                abbr: "BYR",
+                abbr: "BYN",
                 pattern: ["-n $","n $"],
                 decimals: 2,
                 ",": " ",
@@ -83,8 +83,8 @@
                     t: "HH:mm",
                     T: "HH:mm:ss",
                     u: "yyyy'-'MM'-'dd HH':'mm':'ss'Z'",
-                    y: "MMMM yyyy",
-                    Y: "MMMM yyyy"
+                    y: "MMMM yyyy г.",
+                    Y: "MMMM yyyy г."
                 },
                 "/": ".",
                 ":": ":",

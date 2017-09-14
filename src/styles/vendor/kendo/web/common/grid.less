@@ -425,6 +425,7 @@ div.k-grid-footer
     padding: .5em .2em .4em;
     position: relative;
     z-index: 1; /*mvc site.css*/
+    color: inherit;
 }
 
 .k-grid .k-animation-container
@@ -571,46 +572,58 @@ form.k-filter-menu .k-textbox
     border-top: 0;
 }
 
-.k-grouping-header .k-group-indicator
-{
-    display: inline-block;
-    border-style: solid;
-    border-width: 1px;
-    margin: 0 3px;
+// Grouping indicator
+.k-group-indicator {
     padding: .15em .15em .15em .4em;
+    border-width: 1px;
+    border-style: solid;
     line-height: 1.5em;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    align-content: center;
+    vertical-align: top;
+
+    // Workaround grouppable test
+    .k-grouping-header & {
+        margin: 0 3px;
+    }
+
+    .k-link,
+    .k-button.k-bare {
+        padding: 0;
+        border-width: 0;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .k-link .k-icon {
+        margin-right: 4px;
+    }
+
+    .k-button.k-bare {
+        margin-left: 8px;
+        padding: 0;
+        width: auto;
+        height: auto;
+        opacity: .5;
+
+        &::before,
+        &::after {
+            display: none;
+        }
+
+        &:hover {
+            opacity: 1;
+        }
+    }
 }
 
-.k-grouping-header .k-link
-{
+.k-no-flexbox .k-group-indicator {
     display: inline-block;
-    border-width: 0;
-    padding: 0;
-    line-height: normal;
-    text-decoration: none;
 }
-
-.k-grouping-header .k-button
-{
-    border: 0;
-    padding: 0;
-    background: transparent;
-    line-height: 1;
-}
-
-.k-grouping-header .k-link .k-icon
-{
-    margin: 0 0 0 -3px;
-}
-
-.k-grouping-header .k-button .k-icon
-{
-    margin: 0 0 0 3px;
-}
-
-.k-grouping-header a,
-.k-grouping-header .k-button
-{
+.k-no-flexbox .k-group-indicator .k-link,
+.k-no-flexbox .k-group-indicator .k-button {
     display: inline-block;
     vertical-align: middle;
 }
@@ -681,8 +694,7 @@ form.k-filter-menu .k-textbox
 
 @grid-button-min-width: 64px;
 
-.k-grid tbody .k-button,
-.k-ie8 .k-grid tbody button.k-button
+.k-grid tbody .k-button
 {
     min-width: @grid-button-min-width;
 }
@@ -789,12 +801,6 @@ html .k-grid-edit-row .k-tooltip
 .k-ie9 .k-column-menu
 {
     width: 160px; /*fix flicker on item hover*/
-}
-
-.k-ie8 .k-grid-filter,
-.k-ie8 .k-header-column-menu
-{
-    font-size: 100%; /* Fix small menus in IE8 */
 }
 
 .k-column-menu
@@ -911,7 +917,7 @@ html .k-grid-edit-row .k-tooltip
             padding: 0;
         }
 
-    th input.k-checkbox {
+        th input.k-checkbox {
             margin-top: 1px;
         }
 

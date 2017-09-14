@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -26,7 +26,9 @@
 @input-indent: .8em;
 @editor-icon-size: 32px;
 @menu-link-padding: 1.2em 1.2em 1.1em;
-@button-padding: 5px 14px 4px;
+@button-padding-x: 14px;
+@button-padding-y: 4px;
+@button-padding: @button-padding-y @button-padding-x;
 @treeview-inner-padding: 0.4167em 0.6667em 0.3333em 0.5833em;
 @treeview-inner-margin: 1px 0 1px 0.3333em;
 @scheduler-link-padding: .16666em 1.1em;
@@ -50,6 +52,14 @@
 
 .k-tabstrip-items .k-link {
     padding: .65em .92em;
+}
+
+.k-tabstrip > .k-button {
+    top: 0;
+
+    &.k-bare {
+        top: 0;
+    }
 }
 
 .k-tabstrip > .k-content,
@@ -172,25 +182,11 @@ input.k-textbox {
     line-height: 2em;
 }
 
-.k-toolbar .k-button-group .k-button {
-    margin: 0;
-}
-
 .k-checkbox-label:before,
 .k-checkbox-label:after,
 .k-radio-label:before,
 .k-radio-label:after {
     box-sizing: content-box;
-}
-
-.k-spreadsheet-window {
-    .k-page-orientation {
-        top: 25%;
-    }
-
-    .k-page-landscape {
-        top: 28%;
-    }
 }
 
 .k-spreadsheet-sheets-bar .k-spreadsheet-sheets-remove {
@@ -238,6 +234,17 @@ input.k-textbox {
             + label.k-checkbox-label {
                 margin-left: .3em;
             }
+        }
+    }
+}
+
+// RTL
+.k-rtl {
+
+    .k-combobox-clearable {
+        .k-input {
+            padding-left: 1.9em;
+            padding-right: 0.167em;
         }
     }
 }

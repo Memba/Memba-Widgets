@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -658,13 +658,6 @@ if (kendo.spreadsheet && kendo.spreadsheet.messages.dialogs) {
                 "placeholders": {
                     "typeTitle": "種類標題",
                     "typeMessage": "種類訊息"
-                }
-            },
-            "saveAsDialog": {
-                "title": "另存...",
-                "labels": {
-                    "fileName": "檔案名稱",
-                    "saveAsType": "另存種類"
                 }
             },
             "exportAsDialog": {

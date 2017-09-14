@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -399,6 +399,7 @@
                 var isResizable = $.isPlainObject(resizable) ? resizable.content === undefined || resizable.content === true : resizable;
                 if (isResizable && this.textarea) {
                     $('<div class=\'k-resize-handle\'><span class=\'k-icon k-i-arrow-45-down-right\' /></div>').insertAfter(this.textarea);
+                    this.wrapper.addClass('k-resizable');
                     this.wrapper.kendoResizable(extend({}, this.options.resizable, {
                         start: function (e) {
                             var editor = this.editor = $(e.currentTarget).closest('.k-editor');
@@ -515,6 +516,9 @@
                 }
                 if (value != old) {
                     this.trigger('change');
+                    if (textarea) {
+                        $(textarea.get(0).ownerDocument).trigger('change');
+                    }
                 }
             },
             _spellCorrect: function (editor) {
@@ -587,6 +591,18 @@
                 if (editor.textarea) {
                     editor.window = editor._createContentElement(editor.options.stylesheets);
                     doc = editor.document = editor.window.contentDocument || editor.window.document;
+                    if (!doc.body) {
+                        var body = doc.createElement('body');
+                        body.setAttribute('contenteditable', 'true');
+                        body.setAttribute('autocorrect', 'off');
+                        doc.getElementsByTagName('html')[0].appendChild(body);
+                        var interval = setInterval(function () {
+                            if ($(editor.document).find('body').length > 1) {
+                                $(editor.document).find('body:last').remove();
+                                window.clearInterval(interval);
+                            }
+                        }, 10);
+                    }
                     editor.body = doc.body;
                     blurTrigger = editor.window;
                     mousedownTrigger = doc;
@@ -689,7 +705,7 @@
                             editor.selectRange(range);
                         }
                     },
-                    'cut copy paste': function (e) {
+                    'cut copy paste drop dragover': function (e) {
                         editor.clipboard['on' + e.type](e);
                     },
                     'focusin': function () {
@@ -729,6 +745,9 @@
             _mousedown: function (e) {
                 var editor = this;
                 editor._selectionStarted = true;
+                if ($(editor.body).parents('.k-window').length) {
+                    e.stopPropagation();
+                }
                 if (browser.gecko) {
                     return;
                 }
@@ -1212,6 +1231,7 @@
                         dataURI: dataURI,
                         fileName: options.fileName,
                         proxyURL: options.proxyURL,
+                        proxyTarget: options.proxyTarget,
                         forceProxy: options.forceProxy
                     });
                     progress.resolve();
@@ -1783,12 +1803,30 @@
                 }
                 return scrollContainer;
             },
-            scrollTo: function (node) {
-                var element = $(Dom.isDataNode(node) ? node.parentNode : node), wnd = Dom.windowFromDocument(node.ownerDocument), windowHeight = wnd.innerHeight, elementTop, elementHeight, scrollContainer = Dom.scrollContainer(node.ownerDocument);
+            scrollTo: function (node, toStart) {
+                var doc = node.ownerDocument;
+                var wnd = Dom.windowFromDocument(doc);
+                var windowHeight = wnd.innerHeight;
+                var scrollContainer = Dom.scrollContainer(doc);
+                var element, elementTop, elementHeight, marker;
+                if (Dom.isDataNode(node)) {
+                    if (toStart) {
+                        marker = Dom.create(doc, 'span', { 'innerHTML': '&#xfeff;' });
+                        Dom.insertBefore(marker, node);
+                        element = $(marker);
+                    } else {
+                        element = $(node.parentNode);
+                    }
+                } else {
+                    element = $(node);
+                }
                 elementTop = element.offset().top;
                 elementHeight = element[0].offsetHeight;
-                if (!elementHeight) {
+                if (toStart || !elementHeight) {
                     elementHeight = parseInt(element.css('line-height'), 10) || Math.ceil(1.2 * parseInt(element.css('font-size'), 10)) || 15;
+                }
+                if (marker) {
+                    Dom.remove(marker);
                 }
                 if (elementHeight + elementTop > scrollContainer.scrollTop + windowHeight) {
                     scrollContainer.scrollTop = elementHeight + elementTop - windowHeight;
@@ -2298,12 +2336,15 @@
                         return attr.name != 'style';
                     });
                 }
+                function mapStart(node, tag) {
+                    result.push('<' + tag);
+                    attr(node);
+                    result.push('>');
+                }
                 var tagMap = {
                     iframe: {
                         start: function (node) {
-                            result.push('<iframe');
-                            attr(node);
-                            result.push('>');
+                            mapStart(node, 'iframe');
                         },
                         end: function () {
                             result.push('</iframe>');
@@ -2311,9 +2352,7 @@
                     },
                     'k:script': {
                         start: function (node) {
-                            result.push('<script');
-                            attr(node);
-                            result.push('>');
+                            mapStart(node, 'script');
                         },
                         end: function () {
                             result.push('</script>');
@@ -2364,8 +2403,8 @@
                     },
                     strong: {
                         semantic: true,
-                        start: function () {
-                            result.push('<b>');
+                        start: function (node) {
+                            mapStart(node, 'b');
                         },
                         end: function () {
                             result.push('</b>');
@@ -2373,8 +2412,8 @@
                     },
                     em: {
                         semantic: true,
-                        start: function () {
-                            result.push('<i>');
+                        start: function (node) {
+                            mapStart(node, 'i');
                         },
                         end: function () {
                             result.push('</i>');
@@ -2382,8 +2421,8 @@
                     },
                     b: {
                         semantic: false,
-                        start: function () {
-                            result.push('<strong>');
+                        start: function (node) {
+                            mapStart(node, 'strong');
                         },
                         end: function () {
                             result.push('</strong>');
@@ -2391,8 +2430,8 @@
                     },
                     i: {
                         semantic: false,
-                        start: function () {
-                            result.push('<em>');
+                        start: function (node) {
+                            mapStart(node, 'em');
                         },
                         end: function () {
                             result.push('</em>');
@@ -2400,8 +2439,26 @@
                     },
                     u: {
                         semantic: false,
-                        start: function () {
-                            result.push('<span style="text-decoration:underline;">');
+                        start: function (node) {
+                            result.push('<span');
+                            var attributes = specifiedAttributes(node);
+                            var style = $(attributes).filter(function (i, item) {
+                                return item.name == 'style';
+                            })[0];
+                            var styleObj = {
+                                nodeName: 'style',
+                                value: 'text-decoration:underline;'
+                            };
+                            if (style) {
+                                styleObj.value = style.value;
+                                if (!/text-decoration/i.test(styleObj.value)) {
+                                    styleObj.value = 'text-decoration:underline;' + styleObj.value;
+                                }
+                                attributes.splice($.inArray(style, attributes), 1);
+                            }
+                            attributes.push(styleObj);
+                            attr(node, attributes);
+                            result.push('>');
                         },
                         end: function () {
                             result.push('</span>');
@@ -2571,7 +2628,7 @@
                     return node.nodeValue.replace(/\ufeff/g, '');
                 }
                 function isEmptyBomNode(node) {
-                    if (node.nodeValue === '\uFEFF') {
+                    if (dom.isBom(node)) {
                         do {
                             node = node.parentNode;
                             if (dom.is(node, TD) && node.childNodes.length === 1) {
@@ -3391,7 +3448,11 @@
                 shouldNormalize = shouldNormalizeStart && shouldNormalizeEnd;
                 start = start.nextSibling;
                 end = end.previousSibling;
-                var collapsed = false;
+                var isBomSelected = start === end && dom.isBom(start);
+                if (isBomSelected && start.length > 1) {
+                    start.nodeValue = start.nodeValue.charAt(0);
+                }
+                var collapsed = isBomSelected;
                 var collapsedToStart = false;
                 if (start == that.end) {
                     collapsedToStart = !!that.start.previousSibling;
@@ -3575,7 +3636,7 @@
                 range.setEnd(node, dom.getNodeLength(node));
                 var nodes = [];
                 function visit(node) {
-                    if (!dom.insignificant(node)) {
+                    if (!dom.insignificant(node) && !(dom.isDataNode(node) && /^[\ufeff]*$/.test(node.nodeValue))) {
                         nodes.push(node);
                     }
                 }
@@ -3918,7 +3979,11 @@
             },
             _restoreCaret: function (caret) {
                 var range = this.editor.createRange();
-                range.setStartAfter(caret);
+                if (!caret.nextSibling && dom.isDataNode(caret.previousSibling)) {
+                    range.setStart(caret.previousSibling, caret.previousSibling.length);
+                } else {
+                    range.setStartAfter(caret);
+                }
                 range.collapse(true);
                 this.editor.selectRange(range);
                 dom.remove(caret);
@@ -3960,6 +4025,12 @@
                 var editor = this.editor;
                 var previousSibling;
                 if (dom.isDataNode(node)) {
+                    if (range.collapsed && /^\s[\ufeff]+$/.test(node.nodeValue)) {
+                        range.setStart(node, 0);
+                        range.setEnd(node, node.length);
+                        editor.selectRange(range);
+                        return false;
+                    }
                     this._cleanBomBefore(range);
                 }
                 previousSibling = getSibling(block, PREVIOUS_SIBLING, function (sibling) {
@@ -3970,13 +4041,20 @@
                     range.endOffset = 0;
                     editor.selectRange(range);
                 }
-                if (block && previousSibling && editorNS.RangeUtils.isStartOf(range, block)) {
+                var startAtLi = li && editorNS.RangeUtils.isStartOf(range, li);
+                var liIndex = li && $(li).index();
+                var startAtNonFirstLi = startAtLi && liIndex > 0;
+                if (startAtNonFirstLi) {
+                    block = li;
+                    previousSibling = dom.prev(li);
+                }
+                if (block && previousSibling && editorNS.RangeUtils.isStartOf(range, block) || startAtNonFirstLi) {
                     var caret = this._addCaret(block);
                     this._merge(previousSibling, block);
                     this._restoreCaret(caret);
                     return true;
                 }
-                if (li && editorNS.RangeUtils.isStartOf(range, li)) {
+                if (startAtLi && liIndex === 0) {
                     var child = li.firstChild;
                     if (!child) {
                         li.innerHTML = editorNS.emptyElementContent;
@@ -3993,15 +4071,20 @@
                     editor.selectRange(range);
                     return true;
                 }
+                var rangeStartNode = node.childNodes[range.startOffset - 1];
                 var linkRange = range;
-                var previousNode = node.previousSibling;
-                if (linkRange.startOffset === 0 && previousNode && previousNode.nodeName.toLowerCase() === 'a') {
+                var anchor = rangeStartNode && dom.closestEditableOfType(rangeStartNode, ['a']);
+                var previousNode = getSibling(rangeStartNode || node, PREVIOUS_SIBLING, function (sibling) {
+                    return !dom.isDataNode(sibling) || !dom.isBom(sibling) && sibling.length > 0;
+                });
+                if (anchor || (range.startOffset === 0 || rangeStartNode) && dom.is(previousNode, 'a')) {
+                    anchor = anchor || previousNode;
                     linkRange = editor.createRange();
-                    linkRange.setStart(previousNode, previousNode.childNodes.length);
-                    linkRange.setEnd(previousNode, previousNode.childNodes.length);
+                    linkRange.setStart(anchor, anchor.childNodes.length);
+                    linkRange.collapse(true);
                 }
-                var a = dom.closestEditableOfType(linkRange.startContainer, ['a']);
-                var isEndOfLink = a && editorNS.RangeUtils.isEndOf(linkRange, a);
+                anchor = anchor || dom.closestEditableOfType(rangeStartNode || linkRange.startContainer, ['a']);
+                var isEndOfLink = anchor && editorNS.RangeUtils.isEndOf(linkRange, anchor);
                 if (isEndOfLink) {
                     var command = new editorNS.UnlinkCommand({
                         range: linkRange,
@@ -4430,6 +4513,9 @@
                 }
                 var clipboardData = e.clipboardData || e.originalEvent.clipboardData || window.clipboardData || {};
                 var items = clipboardData.items || clipboardData.files;
+                return this._insertImages(items);
+            },
+            _insertImages: function (items) {
                 if (!items) {
                     return;
                 }
@@ -4504,6 +4590,22 @@
                     containers.remove();
                     this._triggerPaste(html, { clean: true });
                 });
+            },
+            ondragover: function (e) {
+                if (browser.msie || browser.edge) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            },
+            ondrop: function (e) {
+                if (!('FileReader' in window)) {
+                    return;
+                }
+                var dataTransfer = (e.originalEvent || e).dataTransfer || {};
+                var items = dataTransfer.items || dataTransfer.files;
+                if (this._insertImages(items)) {
+                    e.preventDefault();
+                }
             },
             _decoreateClipboardNode: function (node, body) {
                 if (!browser.msie && !browser.webkit) {
@@ -6408,7 +6510,12 @@
                         if (dom.emptyNode(focusNode)) {
                             focusNode.innerHTML = '\uFEFF';
                         }
-                        range.setStartBefore(focusNode.firstChild || focusNode);
+                        var startNode = focusNode.firstChild || focusNode;
+                        if (dom.isDataNode(startNode)) {
+                            range.setStart(startNode, 0);
+                        } else {
+                            range.setStartBefore(startNode);
+                        }
                     }
                 }
             },
@@ -6487,7 +6594,7 @@
                 normalize(next);
                 this._moveFocus(range, next);
                 range.collapse(true);
-                dom.scrollTo(next);
+                dom.scrollTo(next, true);
                 RangeUtils.selectRange(range);
             },
             clean: function (node, options) {
@@ -6542,7 +6649,7 @@
                 }
                 range.setStartAfter(br);
                 range.collapse(true);
-                dom.scrollTo(br.nextSibling || br);
+                dom.scrollTo(br.nextSibling || br, true);
                 RangeUtils.selectRange(range);
             }
         });
@@ -7112,9 +7219,16 @@
             },
             detectLink: function () {
                 var range = this.getRange();
+                var startNode = range.startContainer;
+                var startOffset = range.startOffset;
+                var prev = startNode.previousSibling;
+                if (!prev && (dom.isBom(startNode) && !startNode.nextSibling || !startOffset && dom.isDataNode(startNode))) {
+                    startNode = startNode.parentNode;
+                    startOffset = 0;
+                }
                 var traverser = new LeftDomTextTraverser({
-                    node: range.startContainer,
-                    offset: range.startOffset,
+                    node: startNode,
+                    offset: startOffset,
                     cancelAtNode: function (node) {
                         return node && dom.name(node) === 'a';
                     }
@@ -7412,7 +7526,7 @@
                 return false;
             },
             _dialogTemplate: function (showBrowser) {
-                return kendo.template('<div class="k-editor-dialog k-popup-edit-form">' + '<div class="k-edit-form-container">' + '# if (showBrowser) { #' + '<div class="k-filebrowser"></div>' + '# } #' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-url">#: messages.fileWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-url">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-text">#: messages.fileText #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-text">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-title">#: messages.fileTitle #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-title">' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>')({
+                return kendo.template('<div class="k-editor-dialog k-popup-edit-form">' + '<div class="k-edit-form-container">' + '<div class="k-edit-form-content">' + '# if (showBrowser) { #' + '<div class="k-filebrowser"></div>' + '# } #' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-url">#: messages.fileWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-url">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-text">#: messages.fileText #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-text">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-title">#: messages.fileTitle #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-title">' + '</div>' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>')({
                     messages: this.editor.options.messages,
                     showBrowser: showBrowser
                 });
@@ -7423,7 +7537,7 @@
                 that.releaseRange(range);
             },
             exec: function () {
-                var that = this, range = that.lockRange(), nodes = textNodes(range), applied = false, file = nodes.length ? this.formatter.finder.findSuitable(nodes[0]) : null, dialog, options = that.editor.options, messages = options.messages, fileBrowser = options.fileBrowser, showBrowser = !!(kendo.ui.FileBrowser && fileBrowser && fileBrowser.transport && fileBrowser.transport.read !== undefined), dialogOptions = {
+                var that = this, range = that.lockRange(), nodes = textNodes(range), applied = false, file = nodes.length ? this.formatter.finder.findSuitable(nodes[0]) : null, dialog, isIE = kendo.support.browser.msie, options = that.editor.options, messages = options.messages, fileBrowser = options.fileBrowser, showBrowser = !!(kendo.ui.FileBrowser && fileBrowser && fileBrowser.transport && fileBrowser.transport.read !== undefined), dialogOptions = {
                         title: messages.insertFile,
                         visible: false,
                         resizable: showBrowser
@@ -7462,17 +7576,22 @@
                     dialogOptions.width = 750;
                 }
                 dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').click(apply).end().find('.k-dialog-close').click(close).end().find('.k-edit-field input').keydown(keyDown).end().find(KEDITORFILEURL).val(file ? file.getAttribute('href', 2) : 'http://').end().find(KEDITORFILETEXT).val(file ? file.innerText : '').end().find(KEDITORFILETITLE).val(file ? file.title : '').end().data('kendoWindow');
+                var element = dialog.element;
                 if (showBrowser) {
-                    that._fileBrowser = new kendo.ui.FileBrowser(dialog.element.find('.k-filebrowser'), extend({}, fileBrowser));
+                    that._fileBrowser = new kendo.ui.FileBrowser(element.find('.k-filebrowser'), extend({}, fileBrowser));
                     that._fileBrowser.bind('change', function (ev) {
                         if (ev.selected.get('type') === 'f') {
-                            dialog.element.find(KEDITORFILEURL).val(this.value());
+                            element.find(KEDITORFILEURL).val(this.value());
                         }
                     });
                     that._fileBrowser.bind('apply', apply);
                 }
+                if (isIE) {
+                    var dialogHeight = element.closest('.k-window').height();
+                    element.css('max-height', dialogHeight);
+                }
                 dialog.center().open();
-                dialog.element.find(KEDITORFILEURL).focus().select();
+                element.find(KEDITORFILEURL).focus().select();
             }
         });
         kendo.ui.editor.FileCommand = FileCommand;
@@ -7539,7 +7658,7 @@
                 return false;
             },
             _dialogTemplate: function (showBrowser) {
-                return kendo.template('<div class="k-editor-dialog k-popup-edit-form">' + '<div class="k-edit-form-container">' + '# if (showBrowser) { #' + '<div class="k-filebrowser k-imagebrowser"></div>' + '# } #' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-url">#: messages.imageWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-url">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-title">#: messages.imageAltText #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-title">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-width">#: messages.imageWidth #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-width">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-height">#: messages.imageHeight #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-height">' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>')({
+                return kendo.template('<div class="k-editor-dialog k-popup-edit-form">' + '<div class="k-edit-form-container">' + '<div class="k-edit-form-content">' + '# if (showBrowser) { #' + '<div class="k-filebrowser k-imagebrowser"></div>' + '# } #' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-url">#: messages.imageWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-url">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-title">#: messages.imageAltText #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-title">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-width">#: messages.imageWidth #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-width">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-height">#: messages.imageHeight #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-height">' + '</div>' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>')({
                     messages: this.editor.options.messages,
                     showBrowser: showBrowser
                 });
@@ -7551,7 +7670,7 @@
                 }
             },
             exec: function () {
-                var that = this, range = that.lockRange(), applied = false, img = RangeUtils.image(range), imageWidth = img && img.getAttribute('width') || '', imageHeight = img && img.getAttribute('height') || '', dialog, options = that.editor.options, messages = options.messages, imageBrowser = options.imageBrowser, showBrowser = !!(kendo.ui.ImageBrowser && imageBrowser && imageBrowser.transport && imageBrowser.transport.read !== undefined), dialogOptions = {
+                var that = this, range = that.lockRange(), applied = false, img = RangeUtils.image(range), imageWidth = img && img.getAttribute('width') || '', imageHeight = img && img.getAttribute('height') || '', dialog, isIE = kendo.support.browser.msie, options = that.editor.options, messages = options.messages, imageBrowser = options.imageBrowser, showBrowser = !!(kendo.ui.ImageBrowser && imageBrowser && imageBrowser.transport && imageBrowser.transport.read !== undefined), dialogOptions = {
                         title: messages.insertImage,
                         visible: false,
                         resizable: showBrowser
@@ -7597,17 +7716,22 @@
                     dialogOptions.width = 750;
                 }
                 dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').click(apply).end().find('.k-dialog-close').click(close).end().find('.k-edit-field input').keydown(keyDown).end().find(KEDITORIMAGEURL).val(img ? img.getAttribute('src', 2) : 'http://').end().find(KEDITORIMAGETITLE).val(img ? img.alt : '').end().find(KEDITORIMAGEWIDTH).val(imageWidth).end().find(KEDITORIMAGEHEIGHT).val(imageHeight).end().data('kendoWindow');
+                var element = dialog.element;
                 if (showBrowser) {
-                    this._imageBrowser = new kendo.ui.ImageBrowser(dialog.element.find('.k-imagebrowser'), extend({}, imageBrowser));
+                    this._imageBrowser = new kendo.ui.ImageBrowser(element.find('.k-imagebrowser'), extend({}, imageBrowser));
                     this._imageBrowser.bind('change', function (ev) {
                         if (ev.selected.get('type') === 'f') {
-                            dialog.element.find(KEDITORIMAGEURL).val(this.value());
+                            element.find(KEDITORIMAGEURL).val(this.value());
                         }
                     });
                     this._imageBrowser.bind('apply', apply);
                 }
+                if (isIE) {
+                    var dialogHeight = element.closest('.k-window').height();
+                    element.css('max-height', dialogHeight);
+                }
                 dialog.center().open();
-                dialog.element.find(KEDITORIMAGEURL).focus().select();
+                element.find(KEDITORIMAGEURL).focus().select();
             }
         });
         kendo.ui.editor.ImageCommand = ImageCommand;
@@ -8270,7 +8394,7 @@
         var outerWidth = kendo._outerWidth;
         var outerHeight = kendo._outerHeight;
         var OVERFLOWANCHOR = 'overflowAnchor';
-        var focusable = '.k-tool-group:visible a.k-tool:not(.k-state-disabled),' + '.k-tool.k-overflow-anchor,' + '.k-tool-group:visible .k-widget.k-colorpicker,' + '.k-tool-group:visible .k-selectbox,' + '.k-tool-group:visible .k-dropdown,' + '.k-tool-group:visible .k-combobox .k-input';
+        var focusable = '.k-tool-group:visible a.k-tool:not(.k-state-disabled),' + '.k-tool.k-overflow-anchor:visible,' + '.k-tool-group:visible .k-widget.k-colorpicker,' + '.k-tool-group:visible .k-selectbox,' + '.k-tool-group:visible .k-dropdown,' + '.k-tool-group:visible .k-combobox .k-input';
         var toolNamesByCssClass = {
             'k-i-sup-script': 'superscript',
             'k-i-sub-script': 'subscript',
@@ -8780,6 +8904,8 @@
                 }).on('keydown' + NS, focusable, function (e) {
                     var current = this;
                     var resizable = that.options.resizable && that.options.resizable.toolbar;
+                    var direction = kendo.support.isRtl(that.element) ? -1 : 1;
+                    var focusableItems;
                     var focusElement, currentContainer, keyCode = e.keyCode;
                     function move(direction, container, constrain) {
                         var tools = container.find(focusable);
@@ -8790,11 +8916,22 @@
                         return tools[index];
                     }
                     if (keyCode == keys.RIGHT || keyCode == keys.LEFT) {
-                        if (!$(current).hasClass('.k-dropdown')) {
-                            focusElement = move(keyCode == keys.RIGHT ? 1 : -1, that.element, true);
+                        if (!$(current).is('.k-dropdown')) {
+                            focusElement = move(keyCode == keys.RIGHT ? 1 * direction : -1 * direction, that.element, true);
+                        } else {
+                            focusElement = $(current);
                         }
                     } else if (resizable && (keyCode == keys.UP || keyCode == keys.DOWN)) {
                         focusElement = move(keyCode == keys.DOWN ? 1 : -1, that.overflowPopup.element, true);
+                    } else if (keyCode == keys.HOME) {
+                        focusElement = that.element.find(focusable)[0];
+                        e.preventDefault();
+                    } else if (keyCode == keys.END) {
+                        focusableItems = that.element.find(focusable).filter(function () {
+                            return $(this).css('visibility') !== 'hidden';
+                        });
+                        focusElement = focusableItems[focusableItems.length - 1];
+                        e.preventDefault();
                     } else if (keyCode == keys.ESC) {
                         if (that.overflowPopup && that.overflowPopup.visible()) {
                             that.overflowPopup.close();
@@ -8810,7 +8947,7 @@
                             focusElement = move(-1, currentContainer);
                         } else {
                             focusElement = move(1, currentContainer);
-                            if (!focusElement) {
+                            if (!focusElement || $(focusElement).closest('.k-overflow-tools').css('visibility') === 'hidden') {
                                 focusElement = that._editor;
                             }
                         }
@@ -8819,7 +8956,7 @@
                         e.preventDefault();
                         focusElement.focus();
                     }
-                    if (keyCode === keys.ENTER && $(current).is('a') && !$(current).attr('href')) {
+                    if ((keyCode === keys.ENTER || keyCode === keys.SPACEBAR) && $(current).is('a') && !$(current).attr('href')) {
                         that._executeToolCommand(current, e);
                     }
                 }).on('click' + NS, enabledButtons, function (e) {
@@ -12055,7 +12192,7 @@
                 this.options = options;
             },
             open: function () {
-                var that = this, options = that.options, dialogOptions = options.dialogOptions, tableData = options.table, dialog, messages = options.messages;
+                var that = this, options = that.options, dialogOptions = options.dialogOptions, tableData = options.table, dialog, messages = options.messages, isIE = kendo.support.browser.msie;
                 function close(e) {
                     e.preventDefault();
                     that.destroy();
@@ -12084,6 +12221,10 @@
                 that._initAccessibilityViewComponents(element, tableData);
                 dialog.center();
                 dialog.open();
+                if (isIE) {
+                    var dialogHeight = element.closest('.k-window').height();
+                    element.css('max-height', dialogHeight);
+                }
             },
             _initTabStripComponent: function (element) {
                 var components = this.components = {};

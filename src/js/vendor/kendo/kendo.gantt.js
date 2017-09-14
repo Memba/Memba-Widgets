@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -76,6 +76,11 @@
                 }
             }
         });
+        var REPLACE_REGEX = /\r?\n|\r|\t/g;
+        var SPACE = ' ';
+        function normalizeText(text) {
+            return String(text).replace(REPLACE_REGEX, SPACE);
+        }
         function objectKey(object) {
             var parts = [];
             for (var key in object) {
@@ -102,14 +107,17 @@
         var defaultMeasureBox;
         if (typeof document !== 'undefined') {
             defaultMeasureBox = document.createElement('div');
-            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;';
+            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: pre!important;';
         }
         var TextMetrics = kendo.Class.extend({
             init: function (options) {
                 this._cache = new LRUCache(1000);
                 this.options = $.extend({}, DEFAULT_OPTIONS, options);
             },
-            measure: function (text, style, box) {
+            measure: function (text, style, options) {
+                if (options === void 0) {
+                    options = {};
+                }
                 if (!text) {
                     return zeroSize();
                 }
@@ -120,7 +128,7 @@
                     return cachedResult;
                 }
                 var size = zeroSize();
-                var measureBox = box || defaultMeasureBox;
+                var measureBox = options.box || defaultMeasureBox;
                 var baselineMarker = this._baselineMarker().cloneNode(false);
                 for (var key in style) {
                     var value = style[key];
@@ -128,10 +136,11 @@
                         measureBox.style[key] = value;
                     }
                 }
-                measureBox.textContent = text;
+                var textStr = options.normalizeText !== false ? normalizeText(text) : String(text);
+                measureBox.textContent = textStr;
                 measureBox.appendChild(baselineMarker);
                 document.body.appendChild(measureBox);
-                if (String(text).length) {
+                if (textStr.length) {
                     size.width = measureBox.offsetWidth - this.options.baselineMarkerSize;
                     size.height = measureBox.offsetHeight;
                     size.baseline = baselineMarker.offsetTop + this.options.baselineMarkerSize;
@@ -157,7 +166,8 @@
             TextMetrics: TextMetrics,
             measureText: measureText,
             objectKey: objectKey,
-            hashKey: hashKey
+            hashKey: hashKey,
+            normalizeText: normalizeText
         });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -192,6 +202,7 @@
     };
     (function ($, undefined) {
         var kendo = window.kendo;
+        var keys = $.extend({ F10: 121 }, kendo.keys);
         var supportsMedia = 'matchMedia' in window;
         var browser = kendo.support.browser;
         var mobileOS = kendo.support.mobileOS;
@@ -210,7 +221,6 @@
         var map = $.map;
         var outerWidth = kendo._outerWidth;
         var outerHeight = kendo._outerHeight;
-        var keys = kendo.keys;
         var defaultIndicatorWidth = 3;
         var NS = '.kendoGantt';
         var PERCENTAGE_FORMAT = 'p0';
@@ -283,6 +293,7 @@
             gridHeader: 'k-grid-header',
             gridHeaderWrap: 'k-grid-header-wrap',
             gridContent: 'k-grid-content',
+            tasks: 'k-gantt-tasks',
             popup: {
                 form: 'k-popup-edit-form',
                 editForm: 'k-gantt-edit-form',
@@ -1052,6 +1063,7 @@
                     buttons[buttonIndex].click();
                 }).kendoWindow({
                     modal: true,
+                    autoFocus: false,
                     resizable: false,
                     draggable: false,
                     title: options.title,
@@ -1062,6 +1074,7 @@
                     }
                 }).getKendoWindow();
                 popup.center().open();
+                popup.element.find('.k-primary').focus();
             },
             _createPopupEditor: function (task) {
                 var that = this;
@@ -1464,6 +1477,7 @@
                     return list.select();
                 }
                 list.select(value);
+                this.list.element.find('table[role=treegrid]').focus();
                 return;
             },
             clearSelection: function () {
@@ -1645,6 +1659,44 @@
                     if (!that.trigger('navigate', { view: name })) {
                         that.view(name);
                     }
+                    that.toolbar.find(DOT + ganttStyles.focused).removeClass(ganttStyles.focused);
+                }).on('keydown' + NS, viewsSelector, function (e) {
+                    var views = $(DOT + ganttStyles.toolbar.views).children(':not(.k-current-view)');
+                    var focusedViewIndex = views.index(that._focusedView && that._focusedView[0] || views.closest(DOT + ganttStyles.selected)[0]);
+                    if (e.keyCode === keys.RIGHT) {
+                        $(that.toolbar.find(DOT + ganttStyles.focused)).removeClass(ganttStyles.focused);
+                        that._focusedView = focusedViewIndex + 1 === views.length ? $(views[0]) : $(views[focusedViewIndex + 1]);
+                        that._focusedView.focus().addClass(ganttStyles.focused);
+                        e.preventDefault();
+                    } else if (e.keyCode === keys.LEFT) {
+                        $(that.toolbar.find(DOT + ganttStyles.focused)).removeClass(ganttStyles.focused);
+                        that._focusedView = focusedViewIndex === 0 ? $(views[views.length - 1]) : $(views[focusedViewIndex - 1]);
+                        that._focusedView.focus().addClass(ganttStyles.focused);
+                        e.preventDefault();
+                    } else if (e.keyCode === keys.DOWN && that.toolbar.find(DOT + ganttStyles.toolbar.currentView).parent().hasClass(ganttStyles.toolbar.expanded)) {
+                        $(that.toolbar.find(DOT + ganttStyles.focused)).removeClass(ganttStyles.focused);
+                        that._focusedView = focusedViewIndex + 1 === views.length ? $(views[0]) : $(views[focusedViewIndex + 1]);
+                        that._focusedView.focus().addClass(ganttStyles.focused);
+                        e.preventDefault();
+                    } else if (e.keyCode === keys.UP && that.toolbar.find(DOT + ganttStyles.toolbar.currentView).parent().hasClass(ganttStyles.toolbar.expanded)) {
+                        $(that.toolbar.find(DOT + ganttStyles.focused)).removeClass(ganttStyles.focused);
+                        that._focusedView = focusedViewIndex === 0 ? $(views[views.length - 1]) : $(views[focusedViewIndex - 1]);
+                        that._focusedView.focus().addClass(ganttStyles.focused);
+                        e.preventDefault();
+                    } else if ((e.keyCode === keys.ENTER || e.keyCode === keys.SPACEBAR) && that._focusedView) {
+                        that.view(that._focusedView.text().toLowerCase());
+                        e.preventDefault();
+                    } else if ((e.keyCode === keys.SPACEBAR || e.keyCode === keys.ENTER || e.keyCode === keys.DOWN && e.altKey) && that.toolbar.find(DOT + ganttStyles.toolbar.currentView + ' > a').hasClass(ganttStyles.focused)) {
+                        that.toolbar.find(DOT + ganttStyles.toolbar.currentView).parent().toggleClass(ganttStyles.toolbar.expanded);
+                        e.preventDefault();
+                    } else if (e.keyCode === keys.ESC && that.toolbar.find(DOT + ganttStyles.toolbar.currentView).parent().hasClass(ganttStyles.toolbar.expanded)) {
+                        that.toolbar.find(DOT + ganttStyles.toolbar.currentView).parent().toggleClass(ganttStyles.toolbar.expanded).blur();
+                        that._focusedView = null;
+                        that.toolbar.find(DOT + ganttStyles.toolbar.currentView + ' > a').addClass(ganttStyles.focused).focus();
+                        e.preventDefault();
+                    } else if (e.keyCode >= 49 && e.keyCode <= 57) {
+                        that.view(that.timeline._viewByIndex(e.keyCode - 49));
+                    }
                 }).on(CLICK + NS, pdfSelector, function (e) {
                     e.preventDefault();
                     that.saveAsPDF();
@@ -1674,7 +1726,14 @@
                     }
                     that._resize();
                 });
-                this.wrapper.find(DOT + ganttStyles.toolbar.toolbar + ' li').hover(function () {
+                this.wrapper.on('focusout' + NS, function (e) {
+                    if (!$(e.relatedTarget).closest(DOT + ganttStyles.toolbar.toolbar).length) {
+                        that.toolbar.find(DOT + ganttStyles.focused).removeClass(ganttStyles.focused);
+                    }
+                    if (!$(e.relatedTarget).closest(DOT + ganttStyles.toolbar.views).length) {
+                        that.toolbar.find(DOT + ganttStyles.toolbar.views).removeClass(ganttStyles.toolbar.expanded);
+                    }
+                }).find(DOT + ganttStyles.toolbar.toolbar + ' li').hover(function () {
                     $(this).addClass(hoveredClassName);
                 }, function () {
                     $(this).removeClass(hoveredClassName);
@@ -2686,6 +2745,10 @@
                     var width = that.timeline.view()._timeSlots()[0].offsetWidth;
                     timelineContent.scrollLeft(timelineContent.scrollLeft() + (reverse ? -width : width));
                 };
+                var scrollVertical = function (reverse) {
+                    var height = that.timeline.view()._rowHeight;
+                    timelineContent.scrollTop(timelineContent.scrollTop() + (reverse ? -height : height));
+                };
                 var moveVertical = function (method) {
                     var parent = that.current.parent('tr' + selector());
                     var index = that.current.index();
@@ -2748,7 +2811,33 @@
                             focusTable(that.list.content.find('table'), true);
                         }, 2);
                     }
-                });
+                }).on('keydown' + NS, function (e) {
+                    var key = e.keyCode;
+                    var that = this;
+                    var focusableItems = $(that._getToolbarItems());
+                    var idx = focusableItems.index(that.toolbar.find(DOT + ganttStyles.focused)[0]);
+                    if (idx === -1 && $(e.target).closest(DOT + ganttStyles.toolbar.views).length) {
+                        idx = focusableItems.index(that.toolbar.find('.k-gantt-views > .k-state-selected:visible > a, .k-current-view:visible > a')[0]);
+                    }
+                    var itemToFocus = e.shiftKey ? focusableItems[idx - 1] : focusableItems[idx + 1];
+                    if (key === keys.F10) {
+                        that.toolbar.find('.k-button:visible:first').addClass(ganttStyles.focused).focus();
+                        e.preventDefault();
+                    } else if (key == keys.TAB && $(e.target).closest(DOT + ganttStyles.toolbar.toolbar).length) {
+                        that.toolbar.find(DOT + ganttStyles.focused).removeClass(ganttStyles.focused).blur();
+                        if (itemToFocus) {
+                            $(itemToFocus).addClass(ganttStyles.focused).focus();
+                            e.preventDefault();
+                            return;
+                        }
+                        if (this.list.element.is(':visible')) {
+                            this.list.element.find('table[role=treegrid]').focus();
+                        } else {
+                            this.element.find(DOT + ganttStyles.tasks)[0].focus();
+                        }
+                        e.preventDefault();
+                    }
+                }.bind(this));
                 if (navigatable !== true) {
                     contentTable.on('keydown' + NS, function (e) {
                         if (e.keyCode == keys.DELETE) {
@@ -2762,6 +2851,8 @@
                     var selection = that.select();
                     var current = that.current || $(selection.length ? selection : this).find(selector + ':eq(' + (cellIndex || 0) + ')');
                     that._current(current);
+                    $(that.toolbar.find(DOT + ganttStyles.focused)).removeClass(ganttStyles.focused);
+                    $(that.toolbar.find(DOT + ganttStyles.toolbar.currentView)).parent().removeClass(ganttStyles.toolbar.expanded);
                 }).on('blur' + NS, function () {
                     that._current();
                     if (this == headerTable) {
@@ -2797,11 +2888,19 @@
                         break;
                     case keys.UP:
                         e.preventDefault();
-                        moveVertical('prev');
+                        if (e.altKey) {
+                            scrollVertical(true);
+                        } else {
+                            moveVertical('prev');
+                        }
                         break;
                     case keys.DOWN:
                         e.preventDefault();
-                        moveVertical('next');
+                        if (e.altKey) {
+                            scrollVertical();
+                        } else {
+                            moveVertical('next');
+                        }
                         break;
                     case keys.SPACEBAR:
                         e.preventDefault();
@@ -2824,7 +2923,6 @@
                         }
                         break;
                     case keys.ESC:
-                        e.stopPropagation();
                         break;
                     case keys.DELETE:
                         if (isCell) {
@@ -2838,6 +2936,9 @@
                         break;
                     }
                 });
+            },
+            _getToolbarItems: function () {
+                return this.toolbar.find('.k-gantt-toggle:visible').toArray().concat(this.toolbar.find('.k-gantt-actions > .k-button:visible').toArray(), this.toolbar.find('.k-gantt-views > .k-state-selected:visible > a, .k-current-view:visible > a').toArray());
             },
             _current: function (element) {
                 var ganttStyles = Gantt.styles;

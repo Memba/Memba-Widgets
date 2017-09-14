@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -467,7 +467,9 @@
                     this._selectedDataItems = dataItems;
                     this._selectedIndexes = [];
                     for (var i = 0; i < this._selectedDataItems.length; i++) {
-                        this._selectedIndexes.push(undefined);
+                        var item = this._getElementByDataItem(this._selectedDataItems[i]);
+                        this._selectedIndexes.push(this._getIndecies(item)[0]);
+                        item.addClass(SELECTED);
                     }
                     this._triggerChange(removed, added);
                     if (this._valueDeferred) {
@@ -759,7 +761,7 @@
             _getElementByDataItem: function (dataItem) {
                 var dataView = this._dataView, valueGetter = this._valueGetter, element, match;
                 for (var i = 0; i < dataView.length; i++) {
-                    match = dataView[i].item && isPrimitive(dataView[i].item) ? dataView[i].item === dataItem : valueGetter(dataView[i].item) === valueGetter(dataItem);
+                    match = dataView[i].item && isPrimitive(dataView[i].item) ? dataView[i].item === dataItem : dataView[i].item && dataItem && valueGetter(dataView[i].item) == valueGetter(dataItem);
                     if (match) {
                         element = dataView[i];
                         break;
@@ -1109,10 +1111,10 @@
                 indices = indices.slice();
                 if (selectable === true || !indices.length) {
                     for (var idx = 0; idx < selectedIndexes.length; idx++) {
-                        if (selectedIndexes[idx] !== undefined) {
-                            this._getElementByIndex(selectedIndexes[idx]).removeClass(SELECTED);
-                        } else if (selectedDataItems[idx]) {
+                        if (selectedDataItems[idx]) {
                             this._getElementByDataItem(selectedDataItems[idx]).removeClass(SELECTED);
+                        } else if (selectedIndexes[idx] !== undefined) {
+                            this._getElementByIndex(selectedIndexes[idx]).removeClass(SELECTED);
                         }
                         removed.push({
                             index: selectedIndexes[idx],

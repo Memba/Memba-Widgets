@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.2.621 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -35,13 +35,13 @@
         name: "mg-MG",
         numberFormat: {
             pattern: ["-n"],
-            decimals: 0,
+            decimals: 2,
             ",": ",",
             ".": ".",
             groupSize: [3],
             percent: {
-                pattern: ["-n%","%n"],
-                decimals: 0,
+                pattern: ["-n%","n%"],
+                decimals: 2,
                 ",": ",",
                 ".": ".",
                 groupSize: [3],
@@ -51,7 +51,7 @@
                 name: "Malagasy Ariary",
                 abbr: "MGA",
                 pattern: ["-$n","$n"],
-                decimals: 2,
+                decimals: 0,
                 ",": ",",
                 ".": ".",
                 groupSize: [3],

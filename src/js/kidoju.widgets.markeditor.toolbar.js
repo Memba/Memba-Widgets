@@ -211,7 +211,7 @@
              */
             _addSeparators: function (element) {
                 var groups = element.children('.k-widget, a.k-button, .k-button-group');
-                groups.before('<span class=\'k-separator\' />');
+                groups.before('<span class="k-separator" />');
             },
 
             /* This function's cyclomatic complexity is too high. */
@@ -517,7 +517,7 @@
         */
         var PopupTool = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
-                this.element = $('<a href=\'#\' class=\'k-button k-button-icon\'>' + '<span class=\'' + options.spriteCssClass + '\'>' + '</span><span class=\'k-icon k-i-arrow-60-down\'></span>' + '</a>');
+                this.element = $('<a href="#" class="k-button k-button-icon">' + '<span class="' + options.spriteCssClass + '">' + '</span><span class="k-icon k-i-arrow-60-down"></span>' + '</a>');
                 this.element
                 .on('click touchend', this.open.bind(this))
                 .attr('data-command', options.command);
@@ -540,7 +540,7 @@
             },
             _popup: function () {
                 var element = this.element;
-                this.popup = $('<div class=\'k-spreadsheet-popup kj-markeditor-popup\' />')
+                this.popup = $('<div class="k-spreadsheet-popup kj-markeditor-popup" />')
                 .appendTo(element)
                 .kendoPopup({ anchor: element }).data('kendoPopup');
             }
@@ -628,9 +628,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-property="' + options.property + '" data-value="' + options.value + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -748,8 +748,8 @@
             options: { autoFocus: true },
             dialog: function () {
                 if (!this._dialog) {
-                    // this._dialog = $('<div class=\'k-spreadsheet-window k-action-window k-popup-edit-form\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
-                    this._dialog = $('<div class=\'k-spreadsheet-window k-action-window kj-markeditor-window\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
+                    // this._dialog = $('<div class="k-spreadsheet-window k-action-window k-popup-edit-form" />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
+                    this._dialog = $('<div class="k-spreadsheet-window k-action-window kj-markeditor-window" />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
                         messages: kendo.markeditor.messages.dialogs || DIALOG_MESSAGES,
                         errors: this.options.errors
                     })).appendTo(document.body).kendoWindow({
@@ -860,12 +860,12 @@
                 MarkEditorDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new StaticList(ul, {
                     dataSource: new DataSource({ data: this.options.buttons }),
-                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-icon k-i-#=iconClass#\'></span>#=text#' + '</a>',
+                    template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-icon k-i-#=iconClass#"></span>#=text#' + '</a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -889,7 +889,7 @@
          */
         var LinkDialog = MarkEditorDialog.extend({
             options: {
-                template: '<div class=\'k-edit-label\'><label>#: messages.linkDialog.labels.text #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                template: '<div class="k-edit-label"><label>#: messages.linkDialog.labels.text #:</label></div>' + '<div class="k-edit-field"><input class="k-textbox" data-bind="value: url" /></div>' + '<div class="k-action-buttons">' + ('<button class="k-button k-primary" data-bind="click: apply">#= messages.okText #</button>' + '<button class="k-button" data-bind="click: cancel">#= messages.cancel #</button>') + '</div>',
                 title: DIALOG_MESSAGES.linkDialog.title,
                 autoFocus: false
             },
@@ -937,7 +937,7 @@
          */
         var ImageDialog = MarkEditorDialog.extend({
             options: {
-                template: '<div class=\'k-edit-label\'><label>#: messages.imageDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                template: '<div class="k-edit-label"><label>#: messages.imageDialog.labels.url #:</label></div>' + '<div class="k-edit-field"><input class="k-textbox" data-bind="value: url" /></div>' + '<div class="k-action-buttons">' + ('<button class="k-button k-primary" data-bind="click: apply">#= messages.okText #</button>' + '<button class="k-button" data-bind="click: cancel">#= messages.cancel #</button>') + '</div>',
                 title: DIALOG_MESSAGES.imageDialog.title,
                 autoFocus: false
             },

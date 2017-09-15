@@ -347,7 +347,7 @@
             },
             _addSeparators: function (element) {
                 var groups = element.children('.k-widget, a.k-button, .k-button-group');
-                groups.before('<span class=\'k-separator\' />');
+                groups.before('<span class="k-separator" />');
             },
 
             /* This function's cyclomatic complexity is too high. */
@@ -514,7 +514,7 @@
          */
         var PopupTool = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
-                this.element = $('<a href=\'#\' class=\'k-button k-button-icon\'>' + '<span class=\'' + options.spriteCssClass + '\'>' + '</span><span class=\'k-icon k-i-arrow-60-down\'></span>' + '</a>');
+                this.element = $('<a href="#" class="k-button k-button-icon">' + '<span class="' + options.spriteCssClass + '">' + '</span><span class="k-icon k-i-arrow-60-down"></span>' + '</a>');
                 this.element
                     .on('click touchend', this.open.bind(this))
                     .attr('data-command', options.command);
@@ -534,7 +534,7 @@
             },
             _popup: function () {
                 var element = this.element;
-                this.popup = $('<div class=\'k-spreadsheet-popup kj-mathinput-popup\' />')
+                this.popup = $('<div class="k-spreadsheet-popup kj-mathinput-popup" />')
                     .appendTo(element)
                     .kendoPopup({ anchor: element }).data('kendoPopup');
             }
@@ -555,7 +555,7 @@
          init: function (options, toolbar) {
          this._dialogName = options.dialogName;
          this.toolbar = toolbar;
-         this.element = $('<button class=\'k-button k-button-icon\' title=\'' + options.attributes.title + '\'>' + '<span class=\'k-icon k-font-icon k-i-xls\' />' + '</button>').data('instance', this);
+         this.element = $('<button class="k-button k-button-icon" title="' + options.attributes.title + '">' + '<span class="k-icon k-font-icon k-i-xls" />' + '</button>').data('instance', this);
          this.element.bind('click', this.open.bind(this)).data('instance', this);
          },
          open: function () {
@@ -745,9 +745,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-value="' + options.value + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -872,9 +872,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-value="' + options.value + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -1181,9 +1181,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-value="' + options.value + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -1372,9 +1372,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-value="' + options.value + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -1528,9 +1528,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-value="' + options.value + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -1681,9 +1681,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-value="' + options.value + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -1784,9 +1784,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-value="' + options.value + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -1850,9 +1850,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-value="' + options.value + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -1917,9 +1917,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-value="' + options.value + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -2198,7 +2198,7 @@
             options: { autoFocus: true },
             dialog: function () {
                 if (!this._dialog) {
-                    this._dialog = $('<div class=\'k-spreadsheet-window k-action-window kj-mathinput-dialog\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
+                    this._dialog = $('<div class="k-spreadsheet-window k-action-window kj-mathinput-dialog" />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
                         messages: kendo.spreadsheet.messages.dialogs || DIALOG_MESSAGES,
                         errors: this.options.errors
                     })).appendTo(document.body).kendoWindow({
@@ -2401,13 +2401,13 @@
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new kendo.ui.StaticList(ul, {
                     dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    // template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
-                    template: '<a title=\'#=text#\' data-value=\'#=value#\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>',
+                    // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
+                    template: '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"></span></a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -2514,13 +2514,13 @@
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new kendo.ui.StaticList(ul, {
                     dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    // template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
-                    template: '<a title=\'#=text#\' data-value=\'#=value#\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>',
+                    // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
+                    template: '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"></span></a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -2808,13 +2808,13 @@
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new kendo.ui.StaticList(ul, {
                     dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    // template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
-                    template: '<a title=\'#=text#\' data-value=\'#=value#\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>',
+                    // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
+                    template: '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"></span></a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -2986,13 +2986,13 @@
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new kendo.ui.StaticList(ul, {
                     dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    // template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
-                    template: '<a title=\'#=text#\' data-value=\'#=value#\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>',
+                    // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
+                    template: '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"></span></a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -3129,13 +3129,13 @@
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new kendo.ui.StaticList(ul, {
                     dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    // template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
-                    template: '<a title=\'#=text#\' data-value=\'#=value#\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>',
+                    // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
+                    template: '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"></span></a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -3268,13 +3268,13 @@
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new kendo.ui.StaticList(ul, {
                     dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    // template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
-                    template: '<a title=\'#=text#\' data-value=\'#=value#\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>',
+                    // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
+                    template: '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"></span></a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -3358,13 +3358,13 @@
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new kendo.ui.StaticList(ul, {
                     dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    // template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
-                    template: '<a title=\'#=text#\' data-value=\'#=value#\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>',
+                    // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
+                    template: '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"></span></a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -3411,13 +3411,13 @@
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new kendo.ui.StaticList(ul, {
                     dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    // template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
-                    template: '<a title=\'#=text#\' data-value=\'#=value#\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>',
+                    // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
+                    template: '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"></span></a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -3451,13 +3451,13 @@
                 MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new kendo.ui.StaticList(ul, {
                     dataSource: new kendo.data.DataSource({ data: this.options.buttons }),
-                    // template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
-                    template: '<a title=\'#=text#\' data-value=\'#=value#\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>',
+                    // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
+                    template: '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"></span></a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();

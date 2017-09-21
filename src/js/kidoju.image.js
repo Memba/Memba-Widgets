@@ -9,14 +9,17 @@
 (function (f, define) {
     'use strict';
     define([
+        './vendor/nodeca/pako/pako_deflate.js',
         './window.assert',
         './window.logger'
     ], f);
-})(function () {
+})(function (pako_deflate) {
 
     'use strict';
 
-    (function ($, undefined) {
+    var pako = pako_deflate || window.pako;
+
+    (function (undefined) {
 
         var assert = window.assert;
         var logger = new window.Logger('kidoju.jpg');
@@ -1002,7 +1005,7 @@
             return encoder.encode(imgData);
         }
 
-    }(window.jQuery));
+    }());
 
     return window.kidoju;
 

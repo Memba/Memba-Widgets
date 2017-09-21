@@ -71,12 +71,12 @@
         });
 
         afterEach(function () {
-            // fixtures.empty();
+            fixtures.empty();
         });
 
     });
 
-    xdescribe('PNG Encoding', function () {
+    describe('PNG Encoding', function () {
 
         var fixtures = $(FIXTURES);
 
@@ -118,7 +118,7 @@
         });
 
         afterEach(function () {
-            // fixtures.empty();
+            fixtures.empty();
         });
 
     });

@@ -942,34 +942,30 @@
                 that.defaultValue = that.defaultValue || (that.nullable ? null : '');
                 // that.editor is the inline editor with a [...] button which triggers this.showDialog
                 that.editor = function (container, settings) {
-                    var table = $('<div/>')
-                        .css({ display: 'table' })
-                        .appendTo(container);
-                    var cell = $('<div/>')
-                        .css({
-                            display: 'table-cell',
-                            width: '100%',
-                            paddingRight: '8px'
-                        })
-                        .appendTo(table);
                     var binding = {};
                     binding[kendo.attr('bind')] = 'value: ' + settings.field;
+                    // We need a wrapper because container has { display: table-cell; }
+                    var wrapper = $('<div/>')
+                        .css({ display: 'flex' })
+                        .appendTo(container);
                     var input = $('<input/>')
                         .addClass('k-textbox')
-                        .css({ width: '100%' })
+                        .css({
+                            flex: 'auto',
+                            width: 'auto'
+                        })
+                        .css({ width: 'auto' })
                         .prop({ readonly: true })
                         .attr($.extend({}, settings.attributes, binding))
-                        .appendTo(cell);
+                        .appendTo(wrapper);
                     $('<button/>')
                         .text('...')
                         .addClass('k-button')
                         .css({
-                            display: 'table-cell',
-                            minWidth: '40px',
-                            margin: 0
+                            flex: 'none',
+                            marginRight: 0
                         })
-                        .height(input.height()) // to match input,
-                        .appendTo(table)
+                        .appendTo(wrapper)
                         .on(CLICK, $.proxy(that.showDialog, that, settings));
                 };
             },
@@ -1800,33 +1796,29 @@
                 that.defaultValue = that.defaultValue || (that.nullable ? null : '');
                 // This is the inline editor with a [...] button which triggers this.showDialog
                 that.editor = function (container, settings) {
-                    var table = $('<div/>')
-                        .css({ display: 'table' })
-                        .appendTo(container);
-                    var cell = $('<div/>')
-                        .css({
-                            display: 'table-cell',
-                            width: '100%',
-                            paddingRight: '8px'
-                        })
-                        .appendTo(table);
                     var binding = {};
                     binding[kendo.attr('bind')] = 'value: ' + settings.field;
+                    // We need a wrapper because container has { display: table-cell; }
+                    var wrapper = $('<div/>')
+                        .css({ display: 'flex' })
+                        .appendTo(container);
                     var input = $('<input/>')
-                        .addClass('k-textbox') // or k-input
-                        .css({ width: '100%' })
+                        .addClass('k-textbox')
+                        .css({
+                            flex: 'auto',
+                            width: 'auto'
+                        })
+                        .prop({ readonly: true })
                         .attr($.extend({}, settings.attributes, binding))
-                        .appendTo(cell);
+                        .appendTo(wrapper);
                     $('<button/>')
                         .text('...')
                         .addClass('k-button')
                         .css({
-                            display: 'table-cell',
-                            minWidth: '40px',
-                            margin: 0
+                            flex: 'none',
+                            marginRight: 0
                         })
-                        .height(input.height()) // to match input,
-                        .appendTo(table)
+                        .appendTo(wrapper)
                         .on(CLICK, $.proxy(that.showDialog, that, settings));
                 };
             },
@@ -1974,40 +1966,28 @@
                 that.type = STRING;
                 // this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 that.editor = function (container, settings) {
-                    var table = $('<div/>')
-                        .css({ display: 'table' })
-                        .appendTo(container);
-                    var cell = $('<div/>')
-                        .css({
-                            display: 'table-cell',
-                            width: '100%',
-                            paddingRight: '8px'
-                        })
-                        .appendTo(table);
                     var binding = {};
+                    // Note: _library is added to the data bound PageComponent in its init method
                     binding[kendo.attr('bind')] = 'value: ' + settings.field + ', source: _library';
+                    // We need a wrapper because container has { display: table-cell; }
+                    var wrapper = $('<div/>')
+                        .css({ display: 'flex' })
+                        .appendTo(container);
                     var codeInput = $('<div ' +
                         'data-' + kendo.ns + 'role="codeinput" ' +
                         'data-' + kendo.ns + 'default="' + settings.model.properties.defaults.validation + '" />')
-                        // Note: _library is added to the data bound PageComponent in its init method
                         .attr($.extend({}, settings.attributes, binding))
-                        .appendTo(cell);
-                    // We need a temporary textbox to calculate the height and align the button
-                    var temp = $('<input type="text" class="k-textbox">')
-                        .css({ visibility: 'hidden' })
-                        .appendTo(cell);
+                        .css({ flex: 'auto' })
+                        .appendTo(wrapper);
                     $('<button/>')
                         .text('...')
                         .addClass('k-button')
                         .css({
-                            display: 'table-cell',
-                            minWidth: '40px',
-                            margin: 0
+                            flex: 'none',
+                            marginRight: 0
                         })
-                        .height(temp.height())
-                        .appendTo(table)
+                        .appendTo(wrapper)
                         .on(CLICK, $.proxy(that.showDialog, that, settings));
-                    temp.remove();
                 };
             },
             showDialog: function (options/*, e*/) {

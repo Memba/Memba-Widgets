@@ -169,6 +169,17 @@
         };
 
         /**
+         * Assert isFunction
+         * @param value
+         * @param message
+         */
+        assert.isFunction = function (value, message) {
+            if (!$.isFunction(value)) {
+                throw new TypeError(message);
+            }
+        };
+
+        /**
          * Assert optional object (can be undefined but mot an empty object, i.e. {})
          * @param value
          * @param message
@@ -265,6 +276,9 @@
             },
             isEmptyObject: {
                 default: '`{0}` is expected to be an empty object'
+            },
+            isFunction: {
+                default: '`{0}` is expected to be a function'
             },
             isOptionalObject: {
                 default: '`{0}` is expected to be undefined or a plain object'

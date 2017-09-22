@@ -9,15 +9,17 @@
 (function (f, define) {
     'use strict';
     define([
-        './vendor/nodeca/pako/pako_deflate.js',
+        './vendor/nodeca/pako/pako_deflate.js', // Note: keep first
         './window.assert',
         './window.logger'
     ], f);
-})(function (pako_deflate) {
+})(function (pako) {
 
     'use strict';
 
-    var pako = pako_deflate || window.pako;
+    // Depending how pake.js is loaded
+    // We need `pako` for webpack and `window.pako` for grunt mocha
+    pako = pako || window.pako;
 
     (function (undefined) {
 

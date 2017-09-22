@@ -9,10 +9,10 @@
 (function (f, define) {
     'use strict';
     define([
-        './vendor/codemirror/lib/codemirror.js',
+        './vendor/codemirror/lib/codemirror.js',    // Keep first or change variables below
+        './vendor/codemirror/addon/lint/jshint.js', // Keep second or change variables below
         './vendor/codemirror/mode/javascript/javascript.js',
         './vendor/codemirror/addon/lint/lint.js',
-        './vendor/codemirror/addon/lint/jshint.js',
         './vendor/codemirror/addon/lint/javascript-lint.js',
         './window.assert',
         './window.logger',
@@ -20,13 +20,20 @@
         './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.tooltip'
     ], f);
-})(function (CodeMirror) {
+})(function (CodeMirror, JSHINT) {
 
     'use strict';
 
     // Depending how codemirror.js is loaded
     // We need `CodeMirror` for webpack and `window.CodeMirror` for grunt mocha
     CodeMirror = CodeMirror || window.CodeMirror;
+
+    // We need JSHINT as a global for CodeMirror linting to work - @see ./src/js/vendor/codemirror/addon/lint/javascript-lint.js
+    // window.JSHINT is for script tags
+    // JSHINT.JSHINT is for webpack
+    // JSHINT is for SystemJS (although it does not seem to work)
+    window.JSHINT = window.JSHINT || (JSHINT && JSHINT.JSHINT) || JSHINT;
+    // window.JSHINT should be a function, not an object containing the actual function
 
     (function ($, undefined) {
 

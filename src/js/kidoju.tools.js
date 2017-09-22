@@ -851,8 +851,6 @@
                             }
                         })
                         .data('kendoDialog');
-                    // Hides the display of "Fermer" after the "X" icon in the window title bar
-                    dialogWidget.wrapper.find('.k-window-titlebar > .k-dialog-close > .k-font-icon.k-i-x').text('');
                 }
                 return dialogWidget;
             },

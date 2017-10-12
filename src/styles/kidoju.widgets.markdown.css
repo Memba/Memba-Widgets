@@ -1,13 +1,3 @@
-.kj-markdown p,
-.kj-markdown h1,
-.kj-markdown h2,
-.kj-markdown h3,
-.kj-markdown h4,
-.kj-markdown h5,
-.kj-markdown h6 {
-    margin-left: 0;
-    margin-right: 0;
-}
 .kj-markdown h1,
 .kj-markdown h2,
 .kj-markdown h3,
@@ -55,4 +45,14 @@
     width: 1.1em;
     margin: 0 .1em;
     vertical-align: middle;
+}
+.km-content .km-listview .kj-markdown p,
+.km-content .km-listview .kj-markdown h1,
+.km-content .km-listview .kj-markdown h2,
+.km-content .km-listview .kj-markdown h3,
+.km-content .km-listview .kj-markdown h4,
+.km-content .km-listview .kj-markdown h5,
+.km-content .km-listview .kj-markdown h6 {
+    margin-left: 0;
+    margin-right: 0;
 }

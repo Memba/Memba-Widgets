@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -64,6 +64,16 @@
                 result = result.concat(leafColumns(columns[idx].columns));
             }
             return result;
+        }
+        function attrEquals(attrName, attrValue) {
+            return '[' + kendo.attr(attrName) + '=' + attrValue + ']';
+        }
+        function insertElementAt(index, element, container) {
+            if (index > 0) {
+                element.insertAfter(container.children().eq(index - 1));
+            } else {
+                container.prepend(element);
+            }
         }
         var ColumnMenu = Widget.extend({
             init: function (element, options) {
@@ -243,6 +253,7 @@
                 }
             },
             _click: function (e) {
+                var that = this;
                 e.preventDefault();
                 e.stopPropagation();
                 var options = this.options;
@@ -251,11 +262,26 @@
                 }
                 if (!this.popup && !this.pane) {
                     this._init();
+                } else {
+                    that._reorderColumnList();
                 }
                 if (this._isMobile) {
                     this.pane.navigate(this.view, this.options.animations.left);
                 } else {
                     this.popup.toggle();
+                }
+            },
+            _reorderColumnList: function () {
+                var that = this;
+                var i;
+                var listElement;
+                var columns = that._ownerColumns() || [];
+                var columnList = that._isMobile && that.view ? $(that.view.element).find('.k-columns-item').children('ul') : $(that.wrapper).find('.k-menu-group');
+                for (i = 0; i < columns.length; i++) {
+                    listElement = columnList.find(attrEquals('field', columns[i].originalField)).closest('li');
+                    if (listElement[0] && listElement.index() !== i) {
+                        insertElementAt(i, listElement, columnList);
+                    }
                 }
             },
             _open: function () {

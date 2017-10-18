@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -79,7 +79,7 @@
             tabs.children(IMG).addClass(IMAGE);
             tabs.children('a').addClass(LINK).children(IMG).addClass(IMAGE);
             tabs.filter(':not([disabled]):not([class*=k-state-disabled])').addClass(DEFAULTSTATE);
-            tabs.filter('li[disabled]').addClass(DISABLEDSTATE).removeAttr('disabled');
+            tabs.filter('li[disabled]').addClass(DISABLEDSTATE).attr('aria-disabled', 'true').removeAttr('disabled');
             tabs.filter(':not([class*=k-state])').children('a').filter(':focus').parent().addClass(ACTIVESTATE + ' ' + TABONTOP);
             tabs.attr('role', 'tab');
             tabs.filter('.' + ACTIVESTATE).attr('aria-selected', true);
@@ -209,9 +209,7 @@
                     return focused;
                 }
                 if (focused) {
-                    if (focused[0].id === id) {
-                        focused.removeAttr('id');
-                    }
+                    that.tabGroup.children('#' + id).removeAttr('id');
                     focused.removeClass(FOCUSEDSTATE);
                 }
                 if (candidate) {
@@ -591,7 +589,7 @@
             _toggleDisabled: function (element, enable) {
                 element = this.tabGroup.find(element);
                 element.each(function () {
-                    $(this).toggleClass(DEFAULTSTATE, enable).toggleClass(DISABLEDSTATE, !enable);
+                    $(this).toggleClass(DEFAULTSTATE, enable).toggleClass(DISABLEDSTATE, !enable).attr('aria-disabled', !enable);
                 });
             },
             _updateClasses: function () {
@@ -720,9 +718,8 @@
                 if (item.is('.' + DISABLEDSTATE + (!collapse ? ',.' + ACTIVESTATE : ''))) {
                     oldFocusedTab.removeClass(FOCUSEDSTATE);
                     that._focused = item;
-                    if (item.is('.' + DISABLEDSTATE)) {
-                        item.addClass(FOCUSEDSTATE);
-                    }
+                    item.addClass(FOCUSEDSTATE);
+                    that._current(item);
                     if (that._scrollableModeActive) {
                         that._scrollTabsToItem(item);
                     }

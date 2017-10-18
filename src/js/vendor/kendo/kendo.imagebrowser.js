@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -34,7 +34,7 @@
         depends: ['filebrowser']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, FileBrowser = kendo.ui.FileBrowser, isPlainObject = $.isPlainObject, proxy = $.proxy, extend = $.extend, browser = kendo.support.browser, isFunction = kendo.isFunction, trimSlashesRegExp = /(^\/|\/$)/g, ERROR = 'error', NS = '.kendoImageBrowser', LOADINGMASKCLASS = '.k-loading-mask', NAMEFIELD = 'name', SIZEFIELD = 'size', TYPEFIELD = 'type', DEFAULTSORTORDER = {
+        var kendo = window.kendo, FileBrowser = kendo.ui.FileBrowser, isPlainObject = $.isPlainObject, proxy = $.proxy, extend = $.extend, browser = kendo.support.browser, isFunction = kendo.isFunction, trimSlashesRegExp = /(^\/|\/$)/g, ERROR = 'error', NS = '.kendoImageBrowser', NAMEFIELD = 'name', SIZEFIELD = 'size', TYPEFIELD = 'type', DEFAULTSORTORDER = {
                 field: TYPEFIELD,
                 dir: 'asc'
             }, EMPTYTILE = kendo.template('<li class="k-tile-empty"><strong>${text}</strong></li>');
@@ -179,7 +179,7 @@
                         that.toolbar.find('.k-i-close').parent().addClass('k-state-disabled');
                         if (e.action === 'remove' || e.action === 'sync') {
                             e.preventDefault();
-                            that.listView.element.find(LOADINGMASKCLASS).remove();
+                            kendo.ui.progress(that.listView.element, false);
                         }
                     },
                     dataBound: function () {

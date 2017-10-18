@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -344,10 +344,18 @@
                 }
                 this[operation](data);
             },
-            _readData: function (newData) {
-                var data = this.data();
+            _readData: function (newData, requestParams) {
+                var data = this.data(), target = data, source, parentItem;
                 newData = DataSource.fn._readData.call(this, newData);
-                this._replaceData(data.toJSON().concat(newData), data);
+                source = data.toJSON().concat(newData);
+                if (requestParams && requestParams.id) {
+                    parentItem = this.get(requestParams.id);
+                    if (this.childNodes(parentItem).length > 0) {
+                        source = newData;
+                        target = this._subtree(this._childrenMap(this.data()), requestParams.id);
+                    }
+                }
+                this._replaceData(source, target);
                 if (newData instanceof ObservableArray) {
                     return newData;
                 }

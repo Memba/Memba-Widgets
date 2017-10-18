@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1016,7 +1016,7 @@
                 var axisCrossingValue = this.categoryAxisCrossingValue(valueAxis);
                 return [
                     axisCrossingValue,
-                    isNumber(point.value) ? point.value : axisCrossingValue
+                    dataviz.convertableToNumber(point.value) ? point.value : axisCrossingValue
                 ];
             },
             stackLimits: function (axisName, stackName) {
@@ -3810,6 +3810,7 @@
                 }
             }
         });
+        Bubble.prototype.defaults.highlight.zIndex = undefined;
         var BubbleChart = ScatterChart.extend({
             _initFields: function () {
                 this._maxSize = MIN_VALUE;
@@ -4821,7 +4822,7 @@
                     var labelTemplate = seriesVisible ? getTemplate(labels) : getTemplate(inactiveItemsLabels) || getTemplate(labels);
                     if (labelTemplate) {
                         text = labelTemplate({
-                            text: text,
+                            text: hasValue(text) ? text : '',
                             series: currentSeries
                         });
                     }
@@ -7199,7 +7200,8 @@
                     spacing: vertical ? 0 : options.spacing,
                     lineSpacing: vertical ? options.spacing : 0,
                     orientation: vertical ? 'vertical' : 'horizontal',
-                    reverse: options.rtl
+                    reverse: options.rtl,
+                    alignItems: vertical ? 'start' : 'center'
                 });
                 for (var idx = 0; idx < children.length; idx++) {
                     var legendItem = children[idx];
@@ -12159,9 +12161,9 @@
                 return new Tooltip(this.element, extend({}, this.options.tooltip, { rtl: this._isRtl() }));
             },
             _tooltipleave: function () {
-                var chart = this._instance, plotArea = chart._plotArea, highlight = chart._highlight;
-                plotArea.hideCrosshairs();
-                highlight.hide();
+                if (this._instance) {
+                    this._instance.hideElements();
+                }
             },
             _bindData: function (e) {
                 var chart = this, options = chart.options, series = chart._sourceSeries || options.series, seriesIx, seriesLength = series.length, data = chart.dataSource.view(), grouped = (chart.dataSource.group() || []).length > 0, processedSeries = [], seriesVisibility = this._seriesVisibility, currentSeries, groupedSeries;
@@ -12528,7 +12530,6 @@
                 var chart = this.chartElement[0];
                 if (target && target !== chart && !$.contains(chart, target)) {
                     this.trigger(LEAVE);
-                    this.hide();
                 }
             },
             _hideElement: function () {

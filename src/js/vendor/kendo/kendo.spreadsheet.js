@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -784,6 +784,12 @@
         });
         kendo.spreadsheet.ClearContentCommand = Command.extend({
             exec: function () {
+                if (!this.range().enable()) {
+                    return {
+                        reason: 'error',
+                        type: 'cannotModifyDisabled'
+                    };
+                }
                 this.getState();
                 this.range().skipHiddenCells().clearContent();
             }
@@ -5218,7 +5224,7 @@
                             } else if (x.type == 'percent' && existingFormatType != 'percent') {
                                 this.format(x.value * 100 == (x.value * 100 | 0) ? '0%' : '0.00%');
                             } else if (x.format) {
-                                if (!existingFormat || x.currency || existingFormatType == 'number' && x.type == 'number') {
+                                if (!existingFormat || x.currency || existingFormatType == 'number' && x.type == 'number' && x.format.length > existingFormat.length) {
                                     this.format(x.format);
                                 }
                             }
@@ -16633,7 +16639,7 @@
                 break;
             }
             if (fraction) {
-                ret += fraction.toFixed(fraclen).replace(/^0+/, '');
+                ret += runtime.toFixed(fraction, fraclen).replace(/^0+/, '');
             }
             return ret;
         },
@@ -16655,7 +16661,7 @@
             }
             ret = padLeft(ret | 0, length, '0');
             if (fraction) {
-                ret += fraction.toFixed(fraclen).replace(/^0+/, '');
+                ret += runtime.toFixed(fraction, fraclen).replace(/^0+/, '');
             }
             return ret;
         },
@@ -16663,7 +16669,7 @@
             return ch;
         },
         formatInt: function (culture, value, parts, declen, sep) {
-            value = value.toFixed(declen).replace(/\..*$/, '');
+            value = runtime.toFixed(value, declen).replace(/\..*$/, '');
             if (declen > 0) {
                 if (value === '0') {
                     value = '';
@@ -16711,7 +16717,7 @@
             return result;
         },
         formatDec: function (value, parts, declen) {
-            value = value.toFixed(declen);
+            value = runtime.toFixed(value, declen);
             var pos = value.indexOf('.');
             if (pos >= 0) {
                 value = value.substr(pos + 1).replace(/0+$/, '');
@@ -16736,6 +16742,25 @@
                 result.push(str);
             }
             return result;
+        },
+        toFixed: function toFixed(value, decimals) {
+            var str = String(value);
+            var pos = str.indexOf('.');
+            if (pos >= 0) {
+                var intpart = str.substr(0, pos) || 0;
+                var decpart = str.substr(pos + 1);
+                if (decpart.length > 14) {
+                    decpart = String(Math.round(decpart / Math.pow(10, decpart.length - 14)));
+                }
+                if (decpart.length < decimals) {
+                    while (decpart.length < decimals) {
+                        decpart += '0';
+                    }
+                    return intpart + '.' + decpart;
+                }
+                value = parseFloat(intpart + '.' + decpart);
+            }
+            return value.toFixed(decimals);
         }
     };
     function padLeft(val, width, ch) {
@@ -24539,10 +24564,40 @@
                 var handleClick = this._click.bind(this);
                 this.element.addClass('k-spreadsheet-toolbar');
                 this._addSeparators(this.element);
+                var that = this;
+                this.element.on('keydown', function (e) {
+                    var tool;
+                    if (e.keyCode === 9) {
+                        tool = that._nextTool(e.shiftKey ? -1 : 1);
+                        if (tool) {
+                            document.activeElement.blur();
+                            if ($(tool).is('.k-upload-button')) {
+                                $(tool).addClass('k-state-focused');
+                            }
+                            if ($(tool).find('input').length) {
+                                $(tool).find('input').focus();
+                            } else {
+                                tool.focus();
+                            }
+                            e.preventDefault();
+                        }
+                    }
+                });
+                this.element.on('focusout', function () {
+                    $(this).find('.k-toolbar-first-visible').removeClass('k-state-focused');
+                });
                 this.bind({
                     click: handleClick,
                     toggle: handleClick
                 });
+            },
+            _nextTool: function (direction) {
+                var that = this;
+                var tools = that.element.find('.k-widget, .k-button, .k-button-group > a');
+                var activeIndex = tools.index(document.activeElement.closest('.k-widget, .k-button, .k-button-group > a'));
+                if (activeIndex > 0) {
+                    return tools[activeIndex + direction];
+                }
             },
             _addSeparators: function (element) {
                 var groups = element.children('.k-widget, a.k-button, .k-button-group');
@@ -28080,9 +28135,6 @@
             var f, values;
             if (type == 'number') {
                 values = getData(a);
-                if (values.length == 1 && (begin > 0 || end < data.length || formatType(values[0], properties[begin].format) == 'date')) {
-                    values.push(values[0] + 1);
-                }
                 f = linearRegression(values);
             } else if (type == 'string' || type == 'formula' || type == 'boolean') {
                 f = function (N, i) {
@@ -28145,11 +28197,6 @@
             }
             return props;
         };
-    }
-    function formatType(value, format) {
-        if (format != null) {
-            return spreadsheet.formatting.type(value, format);
-        }
     }
     function clone(obj) {
         var copy = {};
@@ -28522,7 +28569,7 @@
         return i < a.length ? a[i] : a[a.length - 1];
     }
     function shouldDrawCell(cell) {
-        return cell.value != null || cell.merged || cell.background != null || cell.borderTop != null || cell.borderRight != null || cell.borderBottom != null || cell.borderLeft != null || cell.validation != null && !cell.validation.value;
+        return cell.value != null || cell.merged || cell.background != null || cell.borderRight != null || cell.borderBottom != null || cell.validation != null && !cell.validation.value;
     }
     function normalOrder(a, b) {
         if (a.top < b.top) {
@@ -28539,7 +28586,7 @@
             return 1;
         }
     }
-    function drawLayout(layout, group, options) {
+    function drawLayout(sheet, layout, group, options) {
         var ncols = Math.ceil(layout.width / options.pageWidth);
         var nrows = Math.ceil(layout.height / options.pageHeight);
         var pageWidth = options.pageWidth / layout.scale;
@@ -28610,7 +28657,7 @@
                 var borders = Borders();
                 cells.forEach(function (cell) {
                     drawCell(cell, content, options);
-                    borders.add(cell);
+                    borders.add(cell, sheet);
                 });
                 var bordersGroup = new drawing.Group();
                 borders.vert.forEach(function (a) {
@@ -28791,7 +28838,7 @@
         options.pageWidth = pageWidth;
         options.pageHeight = pageHeight;
         var layout = doLayout(sheet, sheet._ref(range), options);
-        drawLayout(layout, group, options);
+        drawLayout(sheet, layout, group, options);
         callback(group);
     }
     spreadsheet.Sheet.prototype.draw = function (range, options, callback) {
@@ -28816,7 +28863,15 @@
     function Borders() {
         var horiz = new Container();
         var vert = new Container();
-        function add(cell) {
+        function add(cell, sheet) {
+            if (sheet) {
+                var pb = sheet._properties;
+                var grid = sheet._grid;
+                cell.borderLeft = pb.get('vBorders', grid.index(cell.row, cell.col));
+                cell.borderRight = pb.get('vBorders', grid.index(cell.row, cell.col + cell.colspan));
+                cell.borderTop = pb.get('hBorders', grid.index(cell.row, cell.col));
+                cell.borderBottom = pb.get('hBorders', grid.index(cell.row + cell.rowspan, cell.col));
+            }
             if (cell.borderLeft) {
                 addVert(cell.row, cell.col, cell.borderLeft, cell.left, cell.top, cell.bottom);
             }
@@ -28870,8 +28925,7 @@
     }
     spreadsheet.draw = {
         Borders: Borders,
-        doLayout: doLayout,
-        drawLayout: drawLayout
+        doLayout: doLayout
     };
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
@@ -29040,8 +29094,9 @@
                     this._view.sheetsbar._createEditor();
                     e.preventDefault();
                     return;
-                } else if (key === keys.F10) {
+                } else if (key === keys.F10 && this._view.tabstrip) {
                     this._view.tabstrip.toolbars[this._view.tabstrip.element.find('li.k-state-active').text().toLowerCase()].element.find(':not(.k-overflow-anchor):kendoFocusable:first').focus();
+                    this._view.tabstrip.toolbars[this._view.tabstrip.element.find('li.k-state-active').text().toLowerCase()].element.find('.k-toolbar-first-visible').addClass('k-state-focused');
                     e.preventDefault();
                     return;
                 } else if (e.ctrlKey && key === keys.B) {

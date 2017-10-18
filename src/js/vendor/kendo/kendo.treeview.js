@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -185,21 +185,20 @@
                     $(this).addClass(KSTATEHOVER);
                 }).on('mouseleave' + NS, clickableItems, function () {
                     $(this).removeClass(KSTATEHOVER);
-                }).on(CLICK + NS, clickableItems, proxy(that._click, that)).on('dblclick' + NS, '.k-in:not(.k-state-disabled)', proxy(that._toggleButtonClick, that)).on(CLICK + NS, '.k-i-expand,.k-i-collapse', proxy(that._toggleButtonClick, that)).on('keydown' + NS, proxy(that._keydown, that)).on('keypress' + NS, proxy(that._keypress, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that)).on('mousedown' + NS, '.k-in,.k-checkbox-wrapper :checkbox,.k-i-expand,.k-i-collapse', proxy(that._mousedown, that)).on('change' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxChange, that)).on('click' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxClick, that)).on('click' + NS, '.checkbox-span', proxy(that._checkboxLabelClick, that)).on('click' + NS, '.k-request-retry', proxy(that._retryRequest, that)).on('click' + NS, function (e) {
+                }).on(CLICK + NS, clickableItems, proxy(that._click, that)).on('dblclick' + NS, '.k-in:not(.k-state-disabled)', proxy(that._toggleButtonClick, that)).on(CLICK + NS, '.k-i-expand,.k-i-collapse', proxy(that._toggleButtonClick, that)).on('keydown' + NS, proxy(that._keydown, that)).on('keypress' + NS, proxy(that._keypress, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that)).on('mousedown' + NS, '.k-in,.k-checkbox-wrapper :checkbox,.k-i-expand,.k-i-collapse', proxy(that._mousedown, that)).on('change' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxChange, that)).on('click' + NS, '.checkbox-span', proxy(that._checkboxLabelClick, that)).on('click' + NS, '.k-request-retry', proxy(that._retryRequest, that)).on('click' + NS, function (e) {
                     if (!$(e.target).is(':kendoFocusable')) {
                         that.focus();
                     }
                 });
             },
-            _checkboxClick: function (e) {
-                var checkbox = $(e.target);
+            _checkboxLabelClick: function (e) {
+                var checkbox = $(e.target.previousSibling);
+                checkbox.prop('checked', !checkbox.prop('checked'));
+                checkbox.trigger('change');
                 if (checkbox.data(INDETERMINATE)) {
                     checkbox.data(INDETERMINATE, false).prop(INDETERMINATE, false).prop(CHECKED, true);
                     this._checkboxChange(e);
                 }
-            },
-            _checkboxLabelClick: function (e) {
-                e.target.previousSibling.click();
             },
             _syncHtmlAndDataSource: function (root, dataSource) {
                 root = root || this.root;
@@ -589,6 +588,7 @@
                 if (!node.length) {
                     return;
                 }
+                this.updateIndeterminate(node);
                 var parentNode = this.parent(node), checkbox;
                 if (parentNode.length) {
                     this._setIndeterminate(parentNode);
@@ -962,7 +962,7 @@
                 };
                 var render = field != 'expanded' && field != 'checked';
                 function setCheckedState(root, state) {
-                    root.find('.k-checkbox-wrapper :checkbox').prop(CHECKED, state).data(INDETERMINATE, false).prop(INDETERMINATE, false);
+                    root.find('.k-checkbox-wrapper :checkbox').not('[disabled]').prop(CHECKED, state).data(INDETERMINATE, false).prop(INDETERMINATE, false);
                 }
                 if (field == 'selected') {
                     item = items[0];

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -64,7 +64,8 @@
                     global: true,
                     allowSelection: true,
                     filter: (!supportEventDelegation ? '.' + SELECTABLE + ' ' : '') + that.options.filter,
-                    tap: proxy(that._tap, that)
+                    tap: proxy(that._tap, that),
+                    touchAction: multiple ? 'none' : 'pan-x pan-y'
                 });
                 if (multiple) {
                     that.userEvents.bind('start', proxy(that._start, that)).bind('move', proxy(that._move, that)).bind('end', proxy(that._end, that)).bind('select', proxy(that._select, that));

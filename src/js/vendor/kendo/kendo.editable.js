@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -56,7 +56,7 @@
             return field.type || $.type(field) || 'string';
         }
         function convertToValueBinding(container) {
-            container.find(':input:not(:button, [' + kendo.attr('role') + '=upload], [' + kendo.attr('skip') + '], [type=file]), select').each(function () {
+            container.find(':input:not(:button, .k-combobox .k-input, [' + kendo.attr('role') + '=listbox], [' + kendo.attr('role') + '=upload], [' + kendo.attr('skip') + '], [type=file])').each(function () {
                 var bindAttr = kendo.attr('bind'), binding = this.getAttribute(bindAttr) || '', bindingName = this.type === 'checkbox' || this.type === 'radio' ? 'checked:' : 'value:', fieldName = this.name;
                 if (binding.indexOf(bindingName) === -1 && fieldName) {
                     binding += (binding.length ? ',' : '') + bindingName + fieldName;

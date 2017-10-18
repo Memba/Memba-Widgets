@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -25,7 +25,8 @@
 (function (f, define) {
     define('kendo.datepicker', [
         'kendo.calendar',
-        'kendo.popup'
+        'kendo.popup',
+        'kendo.dateinput'
     ], f);
 }(function () {
     var __meta__ = {
@@ -287,6 +288,7 @@
                 animation: {},
                 month: {},
                 dates: [],
+                disableDates: null,
                 ARIATemplate: 'Current focused date is #=kendo.toString(data.current, "D")#',
                 dateInput: false,
                 weekNumber: false
@@ -466,7 +468,7 @@
                 }
                 that._value = date;
                 that.dateView.value(date);
-                if (that._dateInput) {
+                if (that._dateInput && date) {
                     that._dateInput.value(date || value);
                 } else {
                     that.element.val(kendo.toString(date || value, options.format, options.culture));

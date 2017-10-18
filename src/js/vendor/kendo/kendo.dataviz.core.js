@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -298,14 +298,17 @@
         function clockwise(angle1, angle2) {
             return -angle1.x * angle2.y + angle1.y * angle2.x < 0;
         }
-        function isObject(value) {
-            return typeof value === 'object';
+        function isNumber(value) {
+            return typeof value === 'number' && !isNaN(value);
         }
         function isString(value) {
             return typeof value === STRING;
         }
-        function isNumber(value) {
-            return typeof value === 'number' && !isNaN(value);
+        function convertableToNumber(value) {
+            return isNumber(value) || isString(value) && isFinite(value);
+        }
+        function isObject(value) {
+            return typeof value === 'object';
         }
         function styleValue(value) {
             if (isNumber(value)) {
@@ -5925,6 +5928,7 @@
             removeClass: removeClass,
             alignPathToPixel: alignPathToPixel,
             clockwise: clockwise,
+            convertableToNumber: convertableToNumber,
             deepExtend: deepExtend,
             elementStyles: elementStyles,
             getSpacing: getSpacing,

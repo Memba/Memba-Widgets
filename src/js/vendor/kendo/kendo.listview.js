@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -300,7 +300,7 @@
                 var that = this, navigatable = that.options.navigatable, element = that.element, clickCallback = function (e) {
                         that.current($(e.currentTarget));
                         if (!$(e.target).is(':button,a,:input,a>.k-icon,textarea')) {
-                            element.focus();
+                            kendo.focusElement(element);
                         }
                     };
                 if (navigatable) {

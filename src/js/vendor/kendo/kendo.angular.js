@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -947,6 +947,9 @@
                 if (angular.isString(options.selectable)) {
                     cell = options.selectable.indexOf('cell') !== -1;
                     multiple = options.selectable.indexOf('multiple') !== -1;
+                }
+                if (widget._checkBoxSelection) {
+                    multiple = true;
                 }
                 elems = locals.selected = this.select();
                 items = locals.data = [];

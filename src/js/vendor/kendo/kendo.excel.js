@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -194,16 +194,34 @@
                 var this$1 = this;
                 var depth = this._depth();
                 var rows = [];
-                for (var idx = 0; idx < dataItems.length; idx++) {
-                    rows.push.apply(rows, this$1._dataRow(dataItems[idx], level, depth));
+                var hasChildren, childNodes;
+                var model;
+                if (this$1.options.dataSource instanceof kendo.data.TreeListDataSource) {
+                    for (var i = 0, length = dataItems.length; i < length; i++) {
+                        model = dataItems[i];
+                        childNodes = model.loaded() && this$1.options.dataSource.childNodes(model);
+                        hasChildren = childNodes && childNodes.length;
+                        rows.push.apply(rows, this._dataRow(model, this$1.hierarchy ? level : 0, depth));
+                        if (hasChildren) {
+                            rows = rows.concat(this._dataRows(childNodes, level + 1));
+                        }
+                    }
+                    if (this$1._hasFooterTemplate()) {
+                        rows.push.apply(rows, this$1._footer(dataItems[0], this$1.hierarchy ? level : 0, depth));
+                    }
+                } else {
+                    for (var idx = 0; idx < dataItems.length; idx++) {
+                        rows.push.apply(rows, this$1._dataRow(dataItems[idx], level, depth));
+                    }
                 }
                 return rows;
             },
-            _footer: function (dataItem) {
+            _footer: function (dataItem, level, depth) {
                 var this$1 = this;
                 var rows = [];
+                var groupFooter = false;
                 var footer = false;
-                var cells = this.columns.map(function (column) {
+                var cells = this.columns.map(function (column, index) {
                     if (column.groupFooterTemplate) {
                         var templateData = $.extend({}, this$1.aggregates, dataItem.aggregates, dataItem.aggregates[column.field], {
                             group: {
@@ -212,22 +230,45 @@
                                 value: dataItem.value
                             }
                         });
-                        footer = true;
+                        templateData[dataItem.field] = templateData;
+                        groupFooter = true;
                         return $.extend({
                             background: '#dfdfdf',
                             color: '#333',
                             value: column.groupFooterTemplate(templateData)
                         }, column.groupFooterCellOptions);
                     }
+                    if (this$1.options.dataSource instanceof kendo.data.TreeListDataSource) {
+                        if (column.footerTemplate) {
+                            footer = true;
+                            return $.extend({
+                                background: '#dfdfdf',
+                                color: '#333',
+                                colSpan: index ? 1 : depth - level + 1,
+                                value: column.footerTemplate($.extend({}, this$1.aggregates[dataItem.parentId][column.field]))
+                            }, column.footerCellOptions);
+                        }
+                        return $.extend({
+                            background: '#dfdfdf',
+                            color: '#333',
+                            colSpan: index ? 1 : depth - level + 1
+                        }, column.footerCellOptions);
+                    }
                     return $.extend({
                         background: '#dfdfdf',
                         color: '#333'
                     }, column.groupFooterCellOptions);
                 });
-                if (footer) {
+                if (groupFooter) {
                     rows.push({
                         type: 'group-footer',
                         cells: this._createPaddingCells(this.groups.length).concat(cells)
+                    });
+                }
+                if (footer) {
+                    rows.push({
+                        type: 'footer',
+                        cells: this._createPaddingCells(level).concat(cells)
                     });
                 }
                 return rows;
@@ -314,11 +355,25 @@
                     parentCell.colSpan += totalColSpan;
                 }
             },
+            _hasFooterTemplate: function () {
+                return !!$.grep(this.columns, function (c) {
+                    return c.footerTemplate;
+                }).length;
+            },
             _rows: function () {
                 var this$1 = this;
-                var rows = this._dataRows(this.data, 0);
+                var rows;
+                var isTreeDataSource = this$1.options.dataSource instanceof kendo.data.TreeListDataSource;
+                if (isTreeDataSource) {
+                    rows = this._dataRows(this$1.options.dataSource.rootNodes(), 0);
+                } else {
+                    rows = this._dataRows(this.data, 0);
+                }
                 if (this.columns.length) {
                     this._prependHeaderRows(rows);
+                    if (isTreeDataSource) {
+                        return rows;
+                    }
                     var footer = false;
                     var cells = this.columns.map(function (column) {
                         if (column.footerTemplate) {

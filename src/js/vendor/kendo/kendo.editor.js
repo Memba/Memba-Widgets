@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1197,8 +1197,8 @@
         var bomFill = browser.msie && browser.version < 9 ? '\uFEFF' : '';
         var emptyElementContent = '\uFEFF';
         var emptyTableCellContent = emptyElementContent;
-        if (browser.msie && browser.version == 10) {
-            emptyTableCellContent = '&nbsp;';
+        if (browser.msie || browser.edge) {
+            emptyTableCellContent = emptyElementContent = '&nbsp;';
         }
         extend(kendo.ui, {
             editor: {
@@ -2595,9 +2595,6 @@
                     if (!attributes.length) {
                         return;
                     }
-                    attributes.sort(function (a, b) {
-                        return a.nodeName > b.nodeName ? 1 : a.nodeName < b.nodeName ? -1 : 0;
-                    });
                     for (i = 0, l = attributes.length; i < l; i++) {
                         attribute = attributes[i];
                         name = attribute.nodeName;
@@ -5820,6 +5817,9 @@
                         var picker = e.sender;
                         picker.value(null);
                         picker._popup.element.on(MOUSEDOWN_NS, preventDefault);
+                        if (!picker._popup.element.is('[unselectable=\'on\']')) {
+                            picker._popup.element.attr({ unselectable: 'on' }).find('*').attr('unselectable', 'on');
+                        }
                     },
                     close: function (e) {
                         e.sender._popup.element.off(MOUSEDOWN_NS);

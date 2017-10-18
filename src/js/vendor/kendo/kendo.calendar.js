@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -111,6 +111,7 @@
                 min: new DATE(1900, 0, 1),
                 max: new DATE(2099, 11, 31),
                 dates: [],
+                disableDates: null,
                 url: '',
                 culture: '',
                 footer: '',
@@ -1207,13 +1208,14 @@
                 calendar.views[0].setDate(startDate, endDate);
                 calendar.views[0].setDate(endDate, new Date(temp));
             }
-            return Math.floor((+endDate - +startDate) / kendo.date.MS_PER_DAY);
+            var fromDateUTC = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+            var endDateUTC = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+            return Math.ceil((+endDateUTC - +fromDateUTC) / kendo.date.MS_PER_DAY);
         }
         function addDaysToArray(array, numberOfDays, fromDate, disableDates) {
             for (var i = 0; i <= numberOfDays; i++) {
-                var nextDayUTC = Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
-                var nextDay = new Date(nextDayUTC + i * kendo.date.MS_PER_DAY);
-                nextDay.setHours(0, 0, 0, 0);
+                var nextDay = new Date(fromDate.getTime());
+                nextDay = new Date(nextDay.setDate(nextDay.getDate() + i));
                 if (!disableDates(nextDay)) {
                     array.push(nextDay);
                 }

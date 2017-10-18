@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -11628,7 +11628,8 @@
                             this.singleToolBar = new DiagramToolBar(diagram, {
                                 tools: tools,
                                 click: proxy(this._toolBarClick, this),
-                                modal: true
+                                modal: true,
+                                popupZIndex: parseInt(diagram.element.closest('.k-window').css('zIndex'), 10) + 10
                             });
                             var popupWidth = outerWidth(this.singleToolBar._popup.element);
                             var popupHeight = outerHeight(this.singleToolBar._popup.element);
@@ -12135,8 +12136,12 @@
                 }
             },
             showAt: function (point) {
+                var popupZIndex = parseInt(this.options.popupZIndex, 10);
                 if (this._popup) {
                     this._popup.open(point.x, point.y);
+                    if (popupZIndex) {
+                        this._popup.wrapper.css('zIndex', popupZIndex);
+                    }
                 }
             },
             hide: function () {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2017.3.913'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2017.3.1018'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -3327,6 +3327,24 @@
                 }
             });
         };
+        kendo.focusElement = function (element) {
+            var scrollTopPositions = [];
+            var scrollableParents = element.parentsUntil('body').filter(function (index, element) {
+                var computedStyle = kendo.getComputedStyles(element, ['overflow']);
+                return computedStyle.overflow !== 'visible';
+            }).add(window);
+            scrollableParents.each(function (index, parent) {
+                scrollTopPositions[index] = $(parent).scrollTop();
+            });
+            try {
+                element[0].setActive();
+            } catch (e) {
+                element[0].focus();
+            }
+            scrollableParents.each(function (index, parent) {
+                $(parent).scrollTop(scrollTopPositions[index]);
+            });
+        };
         (function () {
             function postToProxy(dataURI, fileName, proxyURL, proxyTarget) {
                 var form = $('<form>').attr({
@@ -4984,7 +5002,7 @@
             },
             _urlChanged: function (e) {
                 var url = e.url;
-                var decode = typeof e.decode === 'undefined';
+                var decode = !!e.decode;
                 var back = e.backButtonPressed;
                 if (!url) {
                     url = '/';
@@ -7896,7 +7914,7 @@
                 return this.reader.aggregates(data);
             },
             success: function (data) {
-                var that = this, options = that.options;
+                var that = this, options = that.options, requestParams;
                 that.trigger(REQUESTEND, {
                     response: data,
                     type: 'read'
@@ -7911,7 +7929,8 @@
                     if (that._aggregate && options.serverAggregates) {
                         that._aggregateResult = that._readAggregates(data);
                     }
-                    data = that._readData(data);
+                    requestParams = arguments.length > 1 ? arguments[1] : undefined;
+                    data = that._readData(data, requestParams);
                     that._destroyed = [];
                 } else {
                     data = that._readData(data);
@@ -8344,18 +8363,10 @@
             pageSize: function (val) {
                 var that = this;
                 if (val !== undefined) {
-                    if (that.options.inPlaceSort) {
-                        that._query({
-                            pageSize: val,
-                            page: 1,
-                            sort: {}
-                        });
-                    } else {
-                        that._query({
-                            pageSize: val,
-                            page: 1
-                        });
-                    }
+                    that._query({
+                        pageSize: val,
+                        page: 1
+                    });
                     return;
                 }
                 return that.take();
@@ -11480,7 +11491,8 @@
                 }
                 if (support.pointers || support.msPointers) {
                     if (support.browser.version < 11) {
-                        element.css('-ms-touch-action', 'pinch-zoom double-tap-zoom');
+                        var defaultAction = 'pinch-zoom double-tap-zoom';
+                        element.css('-ms-touch-action', options.touchAction && options.touchAction != 'none' ? defaultAction + ' ' + options.touchAction : defaultAction);
                     } else {
                         element.css('touch-action', options.touchAction || 'none');
                     }
@@ -13514,7 +13526,7 @@
                 return location.left != flipPos.left || location.top != flipPos.top;
             },
             _align: function (origin, position) {
-                var that = this, element = that.wrapper, anchor = $(that.options.anchor), verticalOrigin = origin[0], horizontalOrigin = origin[1], verticalPosition = position[0], horizontalPosition = position[1], anchorOffset = getOffset(anchor), appendTo = $(that.options.appendTo), appendToOffset, width = outerWidth(element), height = outerHeight(element), anchorWidth = outerWidth(anchor), anchorHeight = outerHeight(anchor), top = anchorOffset.top, left = anchorOffset.left, round = Math.round;
+                var that = this, element = that.wrapper, anchor = $(that.options.anchor), verticalOrigin = origin[0], horizontalOrigin = origin[1], verticalPosition = position[0], horizontalPosition = position[1], anchorOffset = getOffset(anchor), appendTo = $(that.options.appendTo), appendToOffset, width = outerWidth(element), height = outerHeight(element) || outerHeight(element.children().first()), anchorWidth = outerWidth(anchor), anchorHeight = outerHeight(anchor), top = anchorOffset.top, left = anchorOffset.left, round = Math.round;
                 if (appendTo[0] != document.body) {
                     appendToOffset = getOffset(appendTo);
                     top -= appendToOffset.top;
@@ -13584,7 +13596,7 @@
             },
             _focusableElements: function () {
                 var elements = this.element.find(focusableNodesSelector).filter(function (i, item) {
-                    return item.tabIndex >= 0 && $(item).is(':visible');
+                    return item.tabIndex >= 0 && $(item).is(':visible') && !$(item).is(':disabled');
                 });
                 if (this.element.is('[tabindex]')) {
                     elements.push(this.element[0]);
@@ -23326,8 +23338,8 @@
         kendo.support.canvas = DrawingSurface.support.canvas;
         var Surface = Widget.extend({
             init: function (element, options) {
+                Widget.fn.init.call(this, element, {});
                 this.options = deepExtend({}, this.options, options);
-                Widget.fn.init.call(this, element, this.options);
                 this._instance = DrawingSurface.create(this.element[0], options);
                 if (this._instance.translate) {
                     this.translate = translate;
@@ -23602,14 +23614,17 @@
         function clockwise(angle1, angle2) {
             return -angle1.x * angle2.y + angle1.y * angle2.x < 0;
         }
-        function isObject(value) {
-            return typeof value === 'object';
+        function isNumber(value) {
+            return typeof value === 'number' && !isNaN(value);
         }
         function isString(value) {
             return typeof value === STRING;
         }
-        function isNumber(value) {
-            return typeof value === 'number' && !isNaN(value);
+        function convertableToNumber(value) {
+            return isNumber(value) || isString(value) && isFinite(value);
+        }
+        function isObject(value) {
+            return typeof value === 'object';
         }
         function styleValue(value) {
             if (isNumber(value)) {
@@ -29229,6 +29244,7 @@
             removeClass: removeClass,
             alignPathToPixel: alignPathToPixel,
             clockwise: clockwise,
+            convertableToNumber: convertableToNumber,
             deepExtend: deepExtend,
             elementStyles: elementStyles,
             getSpacing: getSpacing,
@@ -33116,7 +33132,7 @@
                 var axisCrossingValue = this.categoryAxisCrossingValue(valueAxis);
                 return [
                     axisCrossingValue,
-                    isNumber(point.value) ? point.value : axisCrossingValue
+                    dataviz.convertableToNumber(point.value) ? point.value : axisCrossingValue
                 ];
             },
             stackLimits: function (axisName, stackName) {
@@ -35910,6 +35926,7 @@
                 }
             }
         });
+        Bubble.prototype.defaults.highlight.zIndex = undefined;
         var BubbleChart = ScatterChart.extend({
             _initFields: function () {
                 this._maxSize = MIN_VALUE;
@@ -36921,7 +36938,7 @@
                     var labelTemplate = seriesVisible ? getTemplate(labels) : getTemplate(inactiveItemsLabels) || getTemplate(labels);
                     if (labelTemplate) {
                         text = labelTemplate({
-                            text: text,
+                            text: hasValue(text) ? text : '',
                             series: currentSeries
                         });
                     }
@@ -39299,7 +39316,8 @@
                     spacing: vertical ? 0 : options.spacing,
                     lineSpacing: vertical ? options.spacing : 0,
                     orientation: vertical ? 'vertical' : 'horizontal',
-                    reverse: options.rtl
+                    reverse: options.rtl,
+                    alignItems: vertical ? 'start' : 'center'
                 });
                 for (var idx = 0; idx < children.length; idx++) {
                     var legendItem = children[idx];
@@ -44259,9 +44277,9 @@
                 return new Tooltip(this.element, extend({}, this.options.tooltip, { rtl: this._isRtl() }));
             },
             _tooltipleave: function () {
-                var chart = this._instance, plotArea = chart._plotArea, highlight = chart._highlight;
-                plotArea.hideCrosshairs();
-                highlight.hide();
+                if (this._instance) {
+                    this._instance.hideElements();
+                }
             },
             _bindData: function (e) {
                 var chart = this, options = chart.options, series = chart._sourceSeries || options.series, seriesIx, seriesLength = series.length, data = chart.dataSource.view(), grouped = (chart.dataSource.group() || []).length > 0, processedSeries = [], seriesVisibility = this._seriesVisibility, currentSeries, groupedSeries;
@@ -44628,7 +44646,6 @@
                 var chart = this.chartElement[0];
                 if (target && target !== chart && !$.contains(chart, target)) {
                     this.trigger(LEAVE);
-                    this.hide();
                 }
             },
             _hideElement: function () {
@@ -65177,7 +65194,8 @@
                     global: true,
                     allowSelection: true,
                     filter: (!supportEventDelegation ? '.' + SELECTABLE + ' ' : '') + that.options.filter,
-                    tap: proxy(that._tap, that)
+                    tap: proxy(that._tap, that),
+                    touchAction: multiple ? 'none' : 'pan-x pan-y'
                 });
                 if (multiple) {
                     that.userEvents.bind('start', proxy(that._start, that)).bind('move', proxy(that._move, that)).bind('end', proxy(that._end, that)).bind('select', proxy(that._select, that));
@@ -65510,6 +65528,7 @@
                 min: new DATE(1900, 0, 1),
                 max: new DATE(2099, 11, 31),
                 dates: [],
+                disableDates: null,
                 url: '',
                 culture: '',
                 footer: '',
@@ -66606,13 +66625,14 @@
                 calendar.views[0].setDate(startDate, endDate);
                 calendar.views[0].setDate(endDate, new Date(temp));
             }
-            return Math.floor((+endDate - +startDate) / kendo.date.MS_PER_DAY);
+            var fromDateUTC = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+            var endDateUTC = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+            return Math.ceil((+endDateUTC - +fromDateUTC) / kendo.date.MS_PER_DAY);
         }
         function addDaysToArray(array, numberOfDays, fromDate, disableDates) {
             for (var i = 0; i <= numberOfDays; i++) {
-                var nextDayUTC = Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
-                var nextDay = new Date(nextDayUTC + i * kendo.date.MS_PER_DAY);
-                nextDay.setHours(0, 0, 0, 0);
+                var nextDay = new Date(fromDate.getTime());
+                nextDay = new Date(nextDay.setDate(nextDay.getDate() + i));
                 if (!disableDates(nextDay)) {
                     array.push(nextDay);
                 }
@@ -66743,9 +66763,807 @@
     (a3 || a2)();
 }));
 (function (f, define) {
+    define('kendo.dateinput', ['kendo.core'], f);
+}(function () {
+    var __meta__ = {
+        id: 'dateinput',
+        name: 'DateInput',
+        category: 'web',
+        description: 'The DateInput widget allows to edit date by typing.',
+        depends: ['core']
+    };
+    (function ($, undefined) {
+        var global = window;
+        var kendo = global.kendo;
+        var caret = kendo.caret;
+        var ui = kendo.ui;
+        var Widget = ui.Widget;
+        var keys = kendo.keys;
+        var ns = '.kendoDateInput';
+        var proxy = $.proxy;
+        var objectToString = {}.toString;
+        var INPUT_EVENT_NAME = (kendo.support.propertyChangeEvent ? 'propertychange.kendoDateInput input' : 'input') + ns;
+        var STATEDISABLED = 'k-state-disabled';
+        var STATEDEFAULT = 'k-state-default';
+        var STATEINVALID = 'k-state-invalid';
+        var DISABLED = 'disabled';
+        var READONLY = 'readonly';
+        var CHANGE = 'change';
+        var knownSymbols = 'dMyHhmftsz';
+        var DateInput = Widget.extend({
+            init: function (element, options) {
+                var that = this;
+                Widget.fn.init.call(that, element, options);
+                element = that.element;
+                options = that.options;
+                options.format = kendo._extractFormat(options.format || kendo.getCulture(options.culture).calendars.standard.patterns.d);
+                options.min = kendo.parseDate(element.attr('min')) || kendo.parseDate(options.min);
+                options.max = kendo.parseDate(element.attr('max')) || kendo.parseDate(options.max);
+                var insidePicker = (element.parent().attr('class') || '').indexOf('k-picker-wrap') >= 0;
+                if (insidePicker) {
+                    that.wrapper = element.parent();
+                } else {
+                    that.wrapper = element.wrap('<span class=\'k-widget k-dateinput\'></span>').parent();
+                    that.wrapper.addClass(element[0].className);
+                    that.wrapper[0].style.cssText = element[0].style.cssText;
+                    element.css({
+                        width: '100%',
+                        height: element[0].style.height
+                    });
+                }
+                $('<span class=\'k-icon k-i-warning\'></span>').insertAfter(element);
+                that._form();
+                that.element.addClass(insidePicker ? ' ' : 'k-textbox').attr('autocomplete', 'off').on('focusout' + ns, function () {
+                    that._change();
+                });
+                try {
+                    element[0].setAttribute('type', 'text');
+                } catch (e) {
+                    element[0].type = 'text';
+                }
+                var disabled = element.is('[disabled]') || $(that.element).parents('fieldset').is(':disabled');
+                if (disabled) {
+                    that.enable(false);
+                } else {
+                    that.readonly(element.is('[readonly]'));
+                }
+                that.value(that.options.value || element.val());
+                kendo.notify(that);
+            },
+            options: {
+                name: 'DateInput',
+                culture: '',
+                value: '',
+                format: '',
+                min: new Date(1900, 0, 1),
+                max: new Date(2099, 11, 31),
+                messages: {
+                    'year': 'year',
+                    'month': 'month',
+                    'day': 'day',
+                    'weekday': 'day of the week',
+                    'hour': 'hours',
+                    'minute': 'minutes',
+                    'second': 'seconds',
+                    'dayperiod': 'AM/PM'
+                }
+            },
+            events: [CHANGE],
+            min: function (value) {
+                if (value !== undefined) {
+                    this.options.min = value;
+                } else {
+                    return this.options.min;
+                }
+            },
+            max: function (value) {
+                if (value !== undefined) {
+                    this.options.max = value;
+                } else {
+                    return this.options.max;
+                }
+            },
+            setOptions: function (options) {
+                var that = this;
+                Widget.fn.setOptions.call(that, options);
+                this._unbindInput();
+                this._bindInput();
+                this._updateElementValue();
+            },
+            destroy: function () {
+                var that = this;
+                that.element.off(ns);
+                if (that._formElement) {
+                    that._formElement.off('reset', that._resetHandler);
+                }
+                Widget.fn.destroy.call(that);
+            },
+            value: function (value) {
+                if (value === undefined) {
+                    return this._dateTime.getDateObject();
+                }
+                if (value === null) {
+                    value = '';
+                }
+                if (objectToString.call(value) !== '[object Date]') {
+                    value = kendo.parseDate(value, this.options.format, this.options.culture);
+                }
+                if (value && !value.getTime()) {
+                    value = null;
+                }
+                this._dateTime = new customDateTime(value, this.options.format, this.options.culture, this.options.messages);
+                this._updateElementValue();
+                this._oldValue = value;
+            },
+            _updateElementValue: function () {
+                var stringAndFromat = this._dateTime.toPair(this.options.format, this.options.culture, this.options.messages);
+                this.element.val(stringAndFromat[0]);
+                this._oldText = stringAndFromat[0];
+                this._format = stringAndFromat[1];
+            },
+            readonly: function (readonly) {
+                this._editable({
+                    readonly: readonly === undefined ? true : readonly,
+                    disable: false
+                });
+            },
+            enable: function (enable) {
+                this._editable({
+                    readonly: false,
+                    disable: !(enable = enable === undefined ? true : enable)
+                });
+            },
+            _bindInput: function () {
+                var that = this;
+                that.element.on('paste' + ns, proxy(that._paste, that)).on('keydown' + ns, proxy(that._keydown, that)).on(INPUT_EVENT_NAME, proxy(that._input, that)).on('mouseup' + ns, proxy(that._mouseUp, that)).on('DOMMouseScroll' + ns + ' mousewheel' + ns, proxy(that._scroll, that));
+            },
+            _unbindInput: function () {
+                this.element.off('keydown' + ns).off('paste' + ns).off(INPUT_EVENT_NAME).off('mouseup' + ns).off('DOMMouseScroll' + ns + ' mousewheel' + ns);
+            },
+            _editable: function (options) {
+                var that = this;
+                var element = that.element;
+                var disable = options.disable;
+                var readonly = options.readonly;
+                var wrapper = that.wrapper;
+                that._unbindInput();
+                if (!readonly && !disable) {
+                    wrapper.addClass(STATEDEFAULT).removeClass(STATEDISABLED);
+                    element.removeAttr(DISABLED).removeAttr(READONLY);
+                    that._bindInput();
+                } else {
+                    if (disable) {
+                        wrapper.addClass(STATEDISABLED).removeClass(STATEDEFAULT);
+                        element.attr(DISABLED, disable);
+                        element.removeAttr(READONLY);
+                    }
+                    if (readonly) {
+                        element.attr(READONLY, readonly);
+                    }
+                }
+            },
+            _change: function () {
+                var that = this;
+                var oldValue = that._oldValue;
+                var value = that.value();
+                if (value && that.min() && value < that.min()) {
+                    that.value(that.min());
+                    value = that.value();
+                }
+                if (value && that.max() && value > that.max()) {
+                    that.value(that.max());
+                    value = that.value();
+                }
+                if (oldValue && value && value.getTime() !== oldValue.getTime() || oldValue && !value || !oldValue && value) {
+                    that._oldValue = value;
+                    that.trigger(CHANGE);
+                    that.element.trigger(CHANGE);
+                }
+            },
+            _input: function () {
+                var that = this;
+                var element = that.element[0];
+                var blinkInvalid = false;
+                if (kendo._activeElement() !== element) {
+                    return;
+                }
+                var diff = approximateStringMatching(this._oldText, this._format, this.element[0].value, caret(this.element[0])[0]);
+                var navigationOnly = diff.length === 1 && diff[0][1] === ' ';
+                if (!navigationOnly) {
+                    for (var i = 0; i < diff.length; i++) {
+                        var valid = this._dateTime.parsePart(diff[i][0], diff[i][1]);
+                        blinkInvalid = blinkInvalid || !valid;
+                    }
+                }
+                this._updateElementValue();
+                if (diff.length && diff[0][0] !== ' ') {
+                    this._selectSegment(diff[0][0]);
+                    if (!navigationOnly) {
+                        var difSym = diff[0][0];
+                        setTimeout(function () {
+                            that._selectSegment(difSym);
+                        });
+                    }
+                }
+                if (navigationOnly) {
+                    var newEvent = {
+                        keyCode: 39,
+                        preventDefault: function () {
+                        }
+                    };
+                    this._keydown(newEvent);
+                }
+                if (blinkInvalid) {
+                    clearTimeout(that._blinkInvalidTimeout);
+                    var stateInvalid = STATEINVALID;
+                    that.wrapper.addClass(STATEINVALID);
+                    that._blinkInvalidTimeout = setTimeout(function () {
+                        that.wrapper.removeClass(stateInvalid);
+                    }, 100);
+                }
+            },
+            _mouseUp: function () {
+                var selection = caret(this.element[0]);
+                if (selection[0] === selection[1]) {
+                    this._selectNearestSegment();
+                }
+            },
+            _scroll: function (e) {
+                if (kendo._activeElement() !== this.element[0] || this.element.is('[readonly]')) {
+                    return;
+                }
+                e = window.event || e;
+                var newEvent = {
+                    keyCode: 37,
+                    preventDefault: function () {
+                    }
+                };
+                if (e.shiftKey) {
+                    newEvent.keyCode = (e.wheelDelta || -e.detail) > 0 ? 37 : 39;
+                } else {
+                    newEvent.keyCode = (e.wheelDelta || -e.detail) > 0 ? 38 : 40;
+                }
+                this._keydown(newEvent);
+                e.returnValue = false;
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
+                if (e.stopPropagation) {
+                    e.stopPropagation();
+                }
+            },
+            _form: function () {
+                var that = this;
+                var element = that.element;
+                var formId = element.attr('form');
+                var form = formId ? $('#' + formId) : element.closest('form');
+                if (form[0]) {
+                    that._resetHandler = function () {
+                        setTimeout(function () {
+                            that.value(element[0].value);
+                        });
+                    };
+                    that._formElement = form.on('reset', that._resetHandler);
+                }
+            },
+            _paste: function (e) {
+                e.preventDefault();
+            },
+            _keydown: function (e) {
+                var key = e.keyCode;
+                var selection;
+                if (key == 37 || key == 39) {
+                    e.preventDefault();
+                    selection = caret(this.element[0]);
+                    if (selection[0] != selection[1]) {
+                        this._selectNearestSegment();
+                    }
+                    var dir = key == 37 ? -1 : 1;
+                    var index = dir == -1 ? caret(this.element[0])[0] - 1 : caret(this.element[0])[1] + 1;
+                    while (index >= 0 && index < this._format.length) {
+                        if (knownSymbols.indexOf(this._format[index]) >= 0) {
+                            this._selectSegment(this._format[index]);
+                            break;
+                        }
+                        index += dir;
+                    }
+                }
+                if (key == 38 || key == 40) {
+                    e.preventDefault();
+                    selection = caret(this.element[0]);
+                    var symbol = this._format[selection[0]];
+                    if (knownSymbols.indexOf(symbol) >= 0) {
+                        this._dateTime.modifyPart(symbol, key == 38 ? 1 : -1);
+                        this._updateElementValue();
+                        this._selectSegment(symbol);
+                    }
+                }
+                if (kendo.support.browser.msie && kendo.support.browser.version < 10) {
+                    var keycode = e.keyCode ? e.keyCode : e.which;
+                    if (keycode === 8 || keycode === 46) {
+                        var that = this;
+                        setTimeout(function () {
+                            that._input();
+                        }, 0);
+                    }
+                }
+                if (key === keys.ENTER) {
+                    this._change();
+                }
+            },
+            _selectNearestSegment: function () {
+                var selection = caret(this.element[0]);
+                var start = selection[0];
+                for (var i = start, j = start - 1; i < this._format.length || j >= 0; i++, j--) {
+                    if (i < this._format.length && knownSymbols.indexOf(this._format[i]) !== -1) {
+                        this._selectSegment(this._format[i]);
+                        return;
+                    }
+                    if (j >= 0 && knownSymbols.indexOf(this._format[j]) !== -1) {
+                        this._selectSegment(this._format[j]);
+                        return;
+                    }
+                }
+            },
+            _selectSegment: function (symbol) {
+                var begin = -1, end = 0;
+                for (var i = 0; i < this._format.length; i++) {
+                    if (this._format[i] === symbol) {
+                        end = i + 1;
+                        if (begin === -1) {
+                            begin = i;
+                        }
+                    }
+                }
+                if (begin < 0) {
+                    begin = 0;
+                }
+                caret(this.element, begin, end);
+            }
+        });
+        ui.plugin(DateInput);
+        var customDateTime = function (initDate, initFormat, initCulture, initMessages) {
+            var value = null;
+            var year = true, month = true, date = true, hours = true, minutes = true, seconds = true, milliseconds = true;
+            var typedMonthPart = '';
+            var typedDayPeriodPart = '';
+            var placeholders = {};
+            var zeros = [
+                '',
+                '0',
+                '00',
+                '000',
+                '0000'
+            ];
+            function pad(number, digits, end) {
+                number = number + '';
+                digits = digits || 2;
+                end = digits - number.length;
+                if (end) {
+                    return zeros[digits].substring(0, end) + number;
+                }
+                return number;
+            }
+            var dateFormatRegExp = /dddd|ddd|dd|d|MMMM|MMM|MM|M|yyyy|yy|HH|H|hh|h|mm|m|fff|ff|f|tt|ss|s|zzz|zz|z|"[^"]*"|'[^']*'/g;
+            var months = null, calendar = null, days = null, returnsFormat = false;
+            var matcher = function (match) {
+                var mins, sign;
+                var result;
+                switch (match) {
+                case 'd':
+                    result = date ? value.getDate() : placeholders.day;
+                    break;
+                case 'dd':
+                    result = date ? pad(value.getDate()) : placeholders.day;
+                    break;
+                case 'ddd':
+                    result = date && month && year ? days.namesAbbr[value.getDay()] : placeholders.weekday;
+                    break;
+                case 'dddd':
+                    result = date && month && year ? days.names[value.getDay()] : placeholders.weekday;
+                    break;
+                case 'M':
+                    result = month ? value.getMonth() + 1 : placeholders.month;
+                    break;
+                case 'MM':
+                    result = month ? pad(value.getMonth() + 1) : placeholders.month;
+                    break;
+                case 'MMM':
+                    result = month ? months.namesAbbr[value.getMonth()] : placeholders.month;
+                    break;
+                case 'MMMM':
+                    result = month ? months.names[value.getMonth()] : placeholders.month;
+                    break;
+                case 'yy':
+                    result = year ? pad(value.getFullYear() % 100) : placeholders.year;
+                    break;
+                case 'yyyy':
+                    result = year ? pad(value.getFullYear(), 4) : placeholders.year;
+                    break;
+                case 'h':
+                    result = hours ? value.getHours() % 12 || 12 : placeholders.hour;
+                    break;
+                case 'hh':
+                    result = hours ? pad(value.getHours() % 12 || 12) : placeholders.hour;
+                    break;
+                case 'H':
+                    result = hours ? value.getHours() : placeholders.hour;
+                    break;
+                case 'HH':
+                    result = hours ? pad(value.getHours()) : placeholders.hour;
+                    break;
+                case 'm':
+                    result = minutes ? value.getMinutes() : placeholders.minute;
+                    break;
+                case 'mm':
+                    result = minutes ? pad(value.getMinutes()) : placeholders.minute;
+                    break;
+                case 's':
+                    result = seconds ? value.getSeconds() : placeholders.second;
+                    break;
+                case 'ss':
+                    result = seconds ? pad(value.getSeconds()) : placeholders.second;
+                    break;
+                case 'f':
+                    result = milliseconds ? Math.floor(value.getMilliseconds() / 100) : milliseconds;
+                    break;
+                case 'ff':
+                    result = value.getMilliseconds();
+                    if (result > 99) {
+                        result = Math.floor(result / 10);
+                    }
+                    result = milliseconds ? pad(result) : match;
+                    break;
+                case 'fff':
+                    result = milliseconds ? pad(value.getMilliseconds(), 3) : match;
+                    break;
+                case 'tt':
+                    result = hours ? value.getHours() < 12 ? calendar.AM[0] : calendar.PM[0] : placeholders.dayperiod;
+                    break;
+                case 'zzz':
+                    mins = value.getTimezoneOffset();
+                    sign = mins < 0;
+                    result = Math.abs(mins / 60).toString().split('.')[0];
+                    mins = Math.abs(mins) - result * 60;
+                    result = (sign ? '+' : '-') + pad(result);
+                    result += ':' + pad(mins);
+                    break;
+                case 'z':
+                case 'zz':
+                    result = value.getTimezoneOffset() / 60;
+                    sign = result < 0;
+                    result = Math.abs(result).toString().split('.')[0];
+                    result = (sign ? '+' : '-') + (match === 'zz' ? pad(result) : result);
+                    break;
+                }
+                result = result !== undefined ? result : match.slice(1, match.length - 1);
+                if (returnsFormat) {
+                    result = '' + result;
+                    var formatResult = '';
+                    if (match == 'ddd') {
+                        match = 'EEE';
+                    }
+                    if (match == 'dddd') {
+                        match = 'EEEE';
+                    }
+                    for (var i = 0; i < result.length; i++) {
+                        formatResult += match[0];
+                    }
+                    return formatResult;
+                } else {
+                    return result;
+                }
+            };
+            function generateMatcher(retFormat) {
+                returnsFormat = retFormat;
+                return matcher;
+            }
+            function setExisting(symbol, val) {
+                switch (symbol) {
+                case 'y':
+                    year = val;
+                    break;
+                case 'M':
+                    month = val;
+                    if (!val) {
+                        value.setMonth(0);
+                        typedMonthPart = '';
+                    }
+                    break;
+                case 'd':
+                    date = val;
+                    break;
+                case 'H':
+                case 'h':
+                    hours = val;
+                    if (!val) {
+                        typedDayPeriodPart = '';
+                    }
+                    break;
+                case 'm':
+                    minutes = val;
+                    break;
+                case 's':
+                    seconds = val;
+                    break;
+                default:
+                    return;
+                }
+            }
+            this.setValue = function (val) {
+                date = val;
+            };
+            this.getValue = function () {
+                return date;
+            };
+            this.modifyPart = function (symbol, offset) {
+                var newValue = new Date(value && value.getTime ? value.getTime() : value);
+                switch (symbol) {
+                case 'y':
+                    newValue.setFullYear(newValue.getFullYear() + offset);
+                    break;
+                case 'M':
+                    var newMonth = newValue.getMonth() + offset;
+                    newValue.setMonth(newMonth);
+                    if (newValue.getMonth() % 12 !== (newMonth + 12) % 12) {
+                        newValue.setDate(1);
+                        newValue.setMonth(newMonth);
+                    }
+                    break;
+                case 'd':
+                case 'E':
+                    newValue.setDate(newValue.getDate() + offset);
+                    break;
+                case 'H':
+                case 'h':
+                    newValue.setHours(newValue.getHours() + offset);
+                    break;
+                case 'm':
+                    newValue.setMinutes(newValue.getMinutes() + offset);
+                    break;
+                case 's':
+                    newValue.setSeconds(newValue.getSeconds() + offset);
+                    break;
+                case 't':
+                    newValue.setHours((newValue.getHours() + 12) % 24);
+                    break;
+                default:
+                    break;
+                }
+                if (newValue.getFullYear() > 0) {
+                    setExisting(symbol, true);
+                    value = newValue;
+                }
+            };
+            this.parsePart = function (symbol, currentChar) {
+                if (!currentChar) {
+                    setExisting(symbol, false);
+                    return true;
+                }
+                var newValue = new Date(value && value.getTime ? value.getTime() : value);
+                var newHours;
+                switch (symbol) {
+                case 'd':
+                    var newDate = (date ? newValue.getDate() * 10 : 0) + parseInt(currentChar, 10);
+                    if (isNaN(newDate)) {
+                        return;
+                    }
+                    while (newDate > 31) {
+                        newDate = parseInt(newDate.toString().slice(1), 10);
+                    }
+                    if (newDate < 1) {
+                        date = false;
+                    } else {
+                        newValue.setDate(newDate);
+                        if (newValue.getMonth() !== value.getMonth()) {
+                            return;
+                        }
+                        date = true;
+                    }
+                    break;
+                case 'M':
+                    var newMonth = (month ? (newValue.getMonth() + 1) * 10 : 0) + parseInt(currentChar, 10);
+                    if (!isNaN(newMonth)) {
+                        while (newMonth > 12) {
+                            newMonth = parseInt(newMonth.toString().slice(1), 10);
+                        }
+                        if (newMonth < 1) {
+                            month = false;
+                        } else {
+                            newValue.setMonth(newMonth - 1);
+                            if (newValue.getMonth() !== newMonth - 1) {
+                                newValue.setDate(1);
+                                newValue.setMonth(newMonth - 1);
+                            }
+                            month = true;
+                        }
+                    } else {
+                        var monthNames = calendar.months.names;
+                        typedMonthPart += currentChar.toLowerCase();
+                        while (typedMonthPart.length > 0) {
+                            for (var i = 0; i < monthNames.length; i++) {
+                                if (monthNames[i].toLowerCase().indexOf(typedMonthPart) === 0) {
+                                    newValue.setMonth(i);
+                                    month = true;
+                                    value = newValue;
+                                    return true;
+                                }
+                            }
+                            typedMonthPart = typedMonthPart.substring(1, typedMonthPart.length);
+                        }
+                        return false;
+                    }
+                    break;
+                case 'y':
+                    var newYear = (year ? newValue.getFullYear() * 10 : 0) + parseInt(currentChar, 10);
+                    if (isNaN(newYear)) {
+                        return;
+                    }
+                    while (newYear > 9999) {
+                        newYear = parseInt(newYear.toString().slice(1), 10);
+                    }
+                    if (newYear < 1) {
+                        year = false;
+                    } else {
+                        newValue.setFullYear(newYear);
+                        year = true;
+                    }
+                    break;
+                case 'h':
+                    newHours = (hours ? (newValue.getHours() % 12 || 12) * 10 : 0) + parseInt(currentChar, 10);
+                    if (isNaN(newHours)) {
+                        return;
+                    }
+                    while (newHours > 12) {
+                        newHours = parseInt(newHours.toString().slice(1), 10);
+                    }
+                    newValue.setHours(Math.floor(newValue.getHours() / 12) * 12 + newHours % 12);
+                    hours = true;
+                    break;
+                case 'H':
+                    newHours = (hours ? newValue.getHours() * 10 : 0) + parseInt(currentChar, 10);
+                    if (isNaN(newHours)) {
+                        return;
+                    }
+                    while (newHours > 23) {
+                        newHours = parseInt(newHours.toString().slice(1), 10);
+                    }
+                    newValue.setHours(newHours);
+                    hours = true;
+                    break;
+                case 'm':
+                    var newMinutes = (minutes ? newValue.getMinutes() * 10 : 0) + parseInt(currentChar, 10);
+                    if (isNaN(newMinutes)) {
+                        return;
+                    }
+                    while (newMinutes > 59) {
+                        newMinutes = parseInt(newMinutes.toString().slice(1), 10);
+                    }
+                    newValue.setMinutes(newMinutes);
+                    minutes = true;
+                    break;
+                case 's':
+                    var newSeconds = (seconds ? newValue.getSeconds() * 10 : 0) + parseInt(currentChar, 10);
+                    if (isNaN(newSeconds)) {
+                        return;
+                    }
+                    while (newSeconds > 59) {
+                        newSeconds = parseInt(newSeconds.toString().slice(1), 10);
+                    }
+                    newValue.setSeconds(newSeconds);
+                    seconds = true;
+                    break;
+                case 't':
+                    if (hours) {
+                        typedDayPeriodPart += currentChar.toLowerCase();
+                        while (typedDayPeriodPart.length > 0) {
+                            if (calendar.AM[0].toLowerCase().indexOf(typedDayPeriodPart) === 0 && newValue.getHours() >= 12 || calendar.PM[0].toLowerCase().indexOf(typedDayPeriodPart) === 0 && newValue.getHours() < 12) {
+                                newValue.setHours((newValue.getHours() + 12) % 24);
+                                value = newValue;
+                                return true;
+                            }
+                            typedDayPeriodPart = typedDayPeriodPart.substring(1, typedDayPeriodPart.length);
+                        }
+                        return false;
+                    }
+                    break;
+                default:
+                    break;
+                }
+                value = newValue;
+                return true;
+            };
+            this.toPair = function (format, culture, messages) {
+                if (!format) {
+                    return [
+                        '',
+                        ''
+                    ];
+                }
+                culture = kendo.getCulture(culture);
+                calendar = culture.calendars.standard;
+                format = calendar.patterns[format] || format;
+                days = calendar.days;
+                months = calendar.months;
+                placeholders = messages;
+                return [
+                    format.replace(dateFormatRegExp, generateMatcher(false)),
+                    format.replace(dateFormatRegExp, generateMatcher(true))
+                ];
+            };
+            this.getDateObject = function () {
+                return year && month && date && hours && minutes && seconds && milliseconds ? new Date(value.getTime()) : null;
+            };
+            if (!initDate) {
+                value = new Date();
+                var sampleFormat = this.toPair(initFormat, initCulture, initMessages)[1];
+                for (var i = 0; i < sampleFormat.length; i++) {
+                    setExisting(sampleFormat[i], false);
+                }
+            } else {
+                value = new Date(initDate.getTime());
+            }
+        };
+        function approximateStringMatching(oldText, oldFormat, newText, caret) {
+            var oldTextSeparator = oldText[caret + oldText.length - newText.length];
+            oldText = oldText.substring(0, caret + oldText.length - newText.length);
+            newText = newText.substring(0, caret);
+            var diff = [];
+            var i;
+            if (oldText === newText && caret > 0) {
+                diff.push([
+                    oldFormat[caret - 1],
+                    newText[caret - 1]
+                ]);
+                return diff;
+            }
+            if (oldText.indexOf(newText) === 0 && (newText.length === 0 || oldFormat[newText.length - 1] !== oldFormat[newText.length])) {
+                var deletedSymbol = '';
+                for (i = newText.length; i < oldText.length; i++) {
+                    if (oldFormat[i] !== deletedSymbol && knownSymbols.indexOf(oldFormat[i]) >= 0) {
+                        deletedSymbol = oldFormat[i];
+                        diff.push([
+                            deletedSymbol,
+                            ''
+                        ]);
+                    }
+                }
+                return diff;
+            }
+            if (newText[newText.length - 1] === ' ' || newText[newText.length - 1] === oldTextSeparator) {
+                return [[
+                        oldFormat[caret - 1],
+                        ' '
+                    ]];
+            }
+            if (newText.indexOf(oldText) === 0 || knownSymbols.indexOf(oldFormat[caret - 1]) === -1) {
+                var symbol = oldFormat[0];
+                for (i = Math.max(0, oldText.length - 1); i < oldFormat.length; i++) {
+                    if (knownSymbols.indexOf(oldFormat[i]) >= 0) {
+                        symbol = oldFormat[i];
+                        break;
+                    }
+                }
+                return [[
+                        symbol,
+                        newText[caret - 1]
+                    ]];
+            }
+            return [[
+                    oldFormat[caret - 1],
+                    newText[caret - 1]
+                ]];
+        }
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
     define('kendo.datepicker', [
         'kendo.calendar',
-        'kendo.popup'
+        'kendo.popup',
+        'kendo.dateinput'
     ], f);
 }(function () {
     var __meta__ = {
@@ -67007,6 +67825,7 @@
                 animation: {},
                 month: {},
                 dates: [],
+                disableDates: null,
                 ARIATemplate: 'Current focused date is #=kendo.toString(data.current, "D")#',
                 dateInput: false,
                 weekNumber: false
@@ -67186,7 +68005,7 @@
                 }
                 that._value = date;
                 that.dateView.value(date);
-                if (that._dateInput) {
+                if (that._dateInput && date) {
                     that._dateInput.value(date || value);
                 } else {
                     that.element.val(kendo.toString(date || value, options.format, options.culture));
@@ -68060,9 +68879,12 @@
                 container.attr('role', 'alert');
             },
             _extractMessage: function (input, ruleKey) {
-                var that = this, customMessage = that.options.messages[ruleKey], fieldName = input.attr(NAME);
+                var that = this, customMessage = that.options.messages[ruleKey], fieldName = input.attr(NAME), nonDefaultMessage;
+                if (!kendo.ui.Validator.prototype.options.messages[ruleKey]) {
+                    nonDefaultMessage = kendo.isFunction(customMessage) ? customMessage(input) : customMessage;
+                }
                 customMessage = kendo.isFunction(customMessage) ? customMessage(input) : customMessage;
-                return kendo.format(input.attr(kendo.attr(ruleKey + '-msg')) || input.attr('validationMessage') || input.attr('title') || customMessage || '', fieldName, input.attr(ruleKey) || input.attr(kendo.attr(ruleKey)));
+                return kendo.format(input.attr(kendo.attr(ruleKey + '-msg')) || input.attr('validationMessage') || nonDefaultMessage || input.attr('title') || customMessage || '', fieldName, input.attr(ruleKey) || input.attr(kendo.attr(ruleKey)));
             },
             _checkValidity: function (input) {
                 var rules = this.options.rules, rule;
@@ -68124,7 +68946,7 @@
             return field.type || $.type(field) || 'string';
         }
         function convertToValueBinding(container) {
-            container.find(':input:not(:button, [' + kendo.attr('role') + '=upload], [' + kendo.attr('skip') + '], [type=file]), select').each(function () {
+            container.find(':input:not(:button, .k-combobox .k-input, [' + kendo.attr('role') + '=listbox], [' + kendo.attr('role') + '=upload], [' + kendo.attr('skip') + '], [type=file])').each(function () {
                 var bindAttr = kendo.attr('bind'), binding = this.getAttribute(bindAttr) || '', bindingName = this.type === 'checkbox' || this.type === 'radio' ? 'checked:' : 'value:', fieldName = this.name;
                 if (binding.indexOf(bindingName) === -1 && fieldName) {
                     binding += (binding.length ? ',' : '') + bindingName + fieldName;
@@ -68358,7 +69180,7 @@
             }]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, TabKeyTrap = kendo.ui.Popup.TabKeyTrap, Draggable = kendo.ui.Draggable, isPlainObject = $.isPlainObject, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, proxy = $.proxy, extend = $.extend, each = $.each, template = kendo.template, BODY = 'body', templates, NS = '.kendoWindow', KWINDOW = '.k-window', KWINDOWTITLE = '.k-window-title', KWINDOWTITLEBAR = KWINDOWTITLE + 'bar', KWINDOWCONTENT = '.k-window-content', KWINDOWRESIZEHANDLES = '.k-resize-handle', KOVERLAY = '.k-overlay', KCONTENTFRAME = 'k-content-frame', LOADING = 'k-i-loading', KHOVERSTATE = 'k-state-hover', KFOCUSEDSTATE = 'k-state-focused', MAXIMIZEDSTATE = 'k-window-maximized', VISIBLE = ':visible', HIDDEN = 'hidden', CURSOR = 'cursor', OPEN = 'open', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', CLOSE = 'close', REFRESH = 'refresh', MINIMIZE = 'minimize', MAXIMIZE = 'maximize', RESIZESTART = 'resizeStart', RESIZE = 'resize', RESIZEEND = 'resizeEnd', DRAGSTART = 'dragstart', DRAGEND = 'dragend', ERROR = 'error', OVERFLOW = 'overflow', DATADOCOVERFLOWRULE = 'original-overflow-rule', ZINDEX = 'zIndex', MINIMIZE_MAXIMIZE = '.k-window-actions .k-i-window-minimize,.k-window-actions .k-i-window-maximize', KPIN = '.k-i-pin', KUNPIN = '.k-i-unpin', PIN_UNPIN = KPIN + ',' + KUNPIN, TITLEBAR_BUTTONS = '.k-window-titlebar .k-window-action', REFRESHICON = '.k-window-titlebar .k-i-refresh', WINDOWEVENTSHANDLED = 'WindowEventsHandled', zero = /^0[a-z]*$/i, isLocalUrl = kendo.isLocalUrl;
+        var kendo = window.kendo, Widget = kendo.ui.Widget, TabKeyTrap = kendo.ui.Popup.TabKeyTrap, Draggable = kendo.ui.Draggable, isPlainObject = $.isPlainObject, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, proxy = $.proxy, extend = $.extend, each = $.each, template = kendo.template, BODY = 'body', templates, NS = '.kendoWindow', KWINDOW = '.k-window', KWINDOWTITLE = '.k-window-title', KWINDOWTITLEBAR = KWINDOWTITLE + 'bar', KWINDOWCONTENT = '.k-window-content', KDIALOGCONTENT = '.k-dialog-content', KWINDOWRESIZEHANDLES = '.k-resize-handle', KOVERLAY = '.k-overlay', KCONTENTFRAME = 'k-content-frame', LOADING = 'k-i-loading', KHOVERSTATE = 'k-state-hover', KFOCUSEDSTATE = 'k-state-focused', MAXIMIZEDSTATE = 'k-window-maximized', VISIBLE = ':visible', HIDDEN = 'hidden', CURSOR = 'cursor', OPEN = 'open', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', CLOSE = 'close', REFRESH = 'refresh', MINIMIZE = 'minimize', MAXIMIZE = 'maximize', RESIZESTART = 'resizeStart', RESIZE = 'resize', RESIZEEND = 'resizeEnd', DRAGSTART = 'dragstart', DRAGEND = 'dragend', ERROR = 'error', OVERFLOW = 'overflow', DATADOCOVERFLOWRULE = 'original-overflow-rule', ZINDEX = 'zIndex', MINIMIZE_MAXIMIZE = '.k-window-actions .k-i-window-minimize,.k-window-actions .k-i-window-maximize', KPIN = '.k-i-pin', KUNPIN = '.k-i-unpin', PIN_UNPIN = KPIN + ',' + KUNPIN, TITLEBAR_BUTTONS = '.k-window-titlebar .k-window-action', REFRESHICON = '.k-window-titlebar .k-i-refresh', WINDOWEVENTSHANDLED = 'WindowEventsHandled', zero = /^0[a-z]*$/i, isLocalUrl = kendo.isLocalUrl;
         function defined(x) {
             return typeof x != 'undefined';
         }
@@ -68443,7 +69265,7 @@
                         }
                     });
                     globalWindow.on('focus' + NS, function () {
-                        $(KWINDOWCONTENT).each(function (i, element) {
+                        $(KWINDOWCONTENT).not(KDIALOGCONTENT).each(function (i, element) {
                             kendo.widgetInstance($(element))._blur();
                         });
                     });
@@ -69913,6 +70735,17 @@
                 that._open = options.open;
                 that._filterSource(expression);
             },
+            _clearButton: function () {
+                if (!this._clear) {
+                    this._clear = $('<span unselectable="on" class="k-icon k-clear-value k-i-close" title="clear"></span>').attr({
+                        'role': 'button',
+                        'tabIndex': -1
+                    });
+                }
+                if (!this.options.clearButton) {
+                    this._clear.remove();
+                }
+            },
             search: function (word) {
                 var options = this.options;
                 word = typeof word === 'string' ? word : this._inputValue();
@@ -70000,7 +70833,7 @@
                 var focusedElm = that._focused;
                 var inputElm = that.element;
                 var inputId = inputElm.attr('id');
-                var labelElm = $('label[for=\'' + inputId + '\']');
+                var labelElm = $('label[for="' + inputId + '"]');
                 var ariaLabel = inputElm.attr('aria-label');
                 var ariaLabelledBy = inputElm.attr('aria-labelledby');
                 if (focusedElm === inputElm) {
@@ -70282,6 +71115,7 @@
                 that._dataSource();
                 if (that.listView.bound()) {
                     that._initialIndex = null;
+                    that.listView._current = null;
                 }
                 that.listView.setDataSource(that.dataSource);
                 if (that.options.autoBind) {
@@ -70467,6 +71301,7 @@
                             if (!that.popup.visible()) {
                                 that._blur();
                             }
+                            that._oldIndex = that.selectedIndex;
                         });
                     }
                     e.preventDefault();
@@ -71532,6 +72367,9 @@
             if (!data.item) {
                 itemTemplate = templates.placeholderTemplate;
             }
+            if (data.index === 0 && this.header && data.group) {
+                this.header.html(templates.fixedGroupTemplate(data.group));
+            }
             this.angular('cleanup', function () {
                 return { elements: [element] };
             });
@@ -71641,7 +72479,7 @@
                 template: '#:data#',
                 placeholderTemplate: 'loading...',
                 groupTemplate: '#:data#',
-                fixedGroupTemplate: 'fixed header template',
+                fixedGroupTemplate: '#:data#',
                 mapValueTo: 'index',
                 valueMapper: null
             },
@@ -72356,7 +73194,8 @@
                 if (firstVisibleDataItem && firstVisibleDataItem.item) {
                     var firstVisibleGroup = firstVisibleDataItem.group;
                     if (firstVisibleGroup !== group) {
-                        this.header[0].innerHTML = firstVisibleGroup || '';
+                        var fixedGroupText = firstVisibleGroup || '';
+                        this.header.html(this.templates.fixedGroupTemplate(fixedGroupText));
                         this.currentVisibleGroup = firstVisibleGroup;
                     }
                 }
@@ -72821,6 +73660,7 @@
             },
             open: function () {
                 var that = this;
+                var isFiltered = that.dataSource.filter() ? that.dataSource.filter().filters.length > 0 : false;
                 if (that.popup.visible()) {
                     return;
                 }
@@ -72831,9 +73671,8 @@
                         that.filterInput.val('');
                         that._prev = '';
                     }
-                    if (that.filterInput && that.options.minLength !== 1) {
+                    if (that.filterInput && that.options.minLength !== 1 && !isFiltered) {
                         that.refresh();
-                        that._dataSource();
                         that.popup.one('activate', that._focusInputHandler);
                         that.popup.open();
                         that._resizeFilterInput();
@@ -73024,7 +73863,7 @@
                 if (that.hasOptionLabel()) {
                     return $.isPlainObject(optionLabel) ? new ObservableObject(optionLabel) : that._assignInstance(that._optionLabelText(), '');
                 }
-                return null;
+                return undefined;
             },
             _buildOptions: function (data) {
                 var that = this;
@@ -73181,13 +74020,16 @@
                 }
                 if (that._state === STATE_FILTER && key === keys.ESC) {
                     that._clearFilter();
+                    that._open = false;
+                    that._state = STATE_ACCEPT;
                 }
                 if (key === keys.ENTER && that._typingTimeout && that.filterInput && isPopupVisible) {
                     e.preventDefault();
                     return;
                 }
-                if (key === keys.SPACEBAR) {
+                if (key === keys.SPACEBAR && !isInputActive) {
                     that.toggle(!isPopupVisible);
+                    e.preventDefault();
                 }
                 handled = that._move(e);
                 if (handled) {
@@ -76652,7 +77494,8 @@
                             this.singleToolBar = new DiagramToolBar(diagram, {
                                 tools: tools,
                                 click: proxy(this._toolBarClick, this),
-                                modal: true
+                                modal: true,
+                                popupZIndex: parseInt(diagram.element.closest('.k-window').css('zIndex'), 10) + 10
                             });
                             var popupWidth = outerWidth(this.singleToolBar._popup.element);
                             var popupHeight = outerHeight(this.singleToolBar._popup.element);
@@ -77159,8 +78002,12 @@
                 }
             },
             showAt: function (point) {
+                var popupZIndex = parseInt(this.options.popupZIndex, 10);
                 if (this._popup) {
                     this._popup.open(point.x, point.y);
+                    if (popupZIndex) {
+                        this._popup.wrapper.css('zIndex', popupZIndex);
+                    }
                 }
             },
             hide: function () {
@@ -79607,6 +80454,9 @@
                 if (angular.isString(options.selectable)) {
                     cell = options.selectable.indexOf('cell') !== -1;
                     multiple = options.selectable.indexOf('multiple') !== -1;
+                }
+                if (widget._checkBoxSelection) {
+                    multiple = true;
                 }
                 elems = locals.selected = this.select();
                 items = locals.data = [];

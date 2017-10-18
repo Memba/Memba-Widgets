@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -414,7 +414,7 @@
             },
             _urlChanged: function (e) {
                 var url = e.url;
-                var decode = typeof e.decode === 'undefined';
+                var decode = !!e.decode;
                 var back = e.backButtonPressed;
                 if (!url) {
                     url = '/';

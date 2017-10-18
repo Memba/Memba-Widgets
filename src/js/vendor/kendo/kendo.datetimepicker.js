@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.913 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -93,6 +93,7 @@
                 culture: '',
                 parseFormats: [],
                 dates: [],
+                disableDates: null,
                 min: new DATE(MIN),
                 max: new DATE(MAX),
                 interval: 30,
@@ -362,7 +363,7 @@
                         timeView.bind();
                     }
                 }
-                if (that._dateInput) {
+                if (that._dateInput && date) {
                     that._dateInput.value(date || value);
                 } else {
                     that.element.val(kendo.toString(date || value, options.format, options.culture));

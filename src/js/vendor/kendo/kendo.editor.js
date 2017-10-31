@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2017.3.1018 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -4932,7 +4932,7 @@
                 }
             },
             _convertToLi: function (p) {
-                var content;
+                var content, name = dom.name(p);
                 if (p.childNodes.length == 1) {
                     content = p.firstChild.innerHTML.replace(/^\w+[\.\)](&nbsp;)+ /, '');
                 } else {
@@ -4945,7 +4945,11 @@
                     if (/^(&nbsp;|\s)+$/i.test(p.firstChild.innerHTML)) {
                         dom.remove(p.firstChild);
                     }
-                    content = p.innerHTML;
+                    if (name != 'p') {
+                        content = '<' + name + '>' + p.innerHTML + '</' + name + '>';
+                    } else {
+                        content = p.innerHTML;
+                    }
                 }
                 dom.remove(p);
                 return dom.create(document, 'li', { innerHTML: content });
@@ -4973,8 +4977,19 @@
                 });
                 return html;
             },
+            _createList: function (type, styleType) {
+                return dom.create(document, type, { style: { listStyleType: styleType } });
+            },
             lists: function (placeholder) {
-                var blockChildren = $(placeholder).find(dom.blockElements.join(',')), lastMargin = -1, name, levels = {}, li = placeholder, rootMargin, listContainer, i, p, type, margin, list, listData;
+                var blockChildren = $(placeholder).find(dom.blockElements.join(',')), lastMargin = -1, name, levels = {}, li, rootMargin, rootIndex, lastRootLi, isLastRootLi, rootList, i, p, type, margin, list, listData, acceptedNameTags = [
+                        'p',
+                        'h1',
+                        'h2',
+                        'h3',
+                        'h4',
+                        'h5',
+                        'h6'
+                    ];
                 for (i = 0; i < blockChildren.length; i++) {
                     p = blockChildren[i];
                     listData = $(p).data();
@@ -4985,42 +5000,42 @@
                     }
                     var listType = this.listType(p, listData);
                     type = listType && listType.tag;
-                    if (!type || name != 'p') {
+                    if (!type || acceptedNameTags.indexOf(name) < 0) {
                         if (!p.innerHTML) {
                             dom.remove(p);
-                        } else {
-                            lastMargin = -1;
-                            li = placeholder;
+                        } else if (li && !isLastRootLi) {
+                            li.append(p);
                         }
                         continue;
                     }
-                    margin = parseFloat(p.style.marginLeft || 0);
-                    if (rootMargin === undefined) {
-                        rootMargin = margin;
-                    }
+                    margin = listData.level || parseFloat(p.style.marginLeft || 0);
                     var levelType = type + listIndex;
                     if (!levels[margin]) {
                         levels[margin] = {};
                     }
+                    if (!rootMargin || rootMargin < 0) {
+                        rootMargin = margin;
+                        rootIndex = listIndex;
+                        lastRootLi = $(placeholder).find('[data-list=\'' + rootIndex + '\']:last')[0];
+                        rootList = this._createList(type, listType.style);
+                        dom.insertBefore(rootList, p);
+                        lastMargin = margin;
+                        levels[margin][levelType] = rootList;
+                    }
+                    isLastRootLi = lastRootLi === p;
                     list = levels[margin][levelType];
                     if (margin > lastMargin || !list) {
-                        list = dom.create(document, type, { style: { listStyleType: listType.style } });
-                        if (li == placeholder || margin <= lastMargin) {
-                            if (listContainer && rootMargin !== margin) {
-                                listContainer.appendChild(list);
-                            } else {
-                                dom.insertBefore(list, p);
-                            }
-                            levels[margin] = {};
-                        } else {
-                            listContainer = li;
-                            li.appendChild(list);
-                        }
+                        list = this._createList(type, listType.style);
                         levels[margin][levelType] = list;
+                        li.appendChild(list);
                     }
                     li = this._convertToLi(p);
                     list.appendChild(li);
-                    lastMargin = margin;
+                    if (isLastRootLi) {
+                        rootMargin = lastMargin = -1;
+                    } else {
+                        lastMargin = margin;
+                    }
                 }
             },
             removeAttributes: function (element) {

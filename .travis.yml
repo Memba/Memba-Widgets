@@ -1,11 +1,13 @@
 sudo: false
 language: node_js
 node_js:
+  - "9"
   - "8"
   - "7"
   - "6"
   - "5"
   - "4"
 before_install:
-  - "npm install -g npm"
-  - "npm install -g grunt-cli"
+  - if [ $(echo $TRAVIS_NODE_VERSION | cut -d. -f1) -lt 9 ]; then npm install -g npm; fi
+  - npm --version
+  - npm install -g grunt-cli

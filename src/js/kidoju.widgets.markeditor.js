@@ -35,7 +35,6 @@
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var NULL = 'null';
-        var BEFORE_OPEN = 'beforeOpen';
         var CHANGE = 'change';
         var WIDGET_CLASS = 'k-widget kj-markeditor';
         var LINK = '[{0}]({1})';
@@ -116,8 +115,9 @@
              * Events
              */
             events: [
-                BEFORE_OPEN,
-                CHANGE
+                CHANGE,
+                'command',
+                'dialog'
             ],
 
             /**
@@ -237,7 +237,7 @@
              */
             _onToolBarDialog: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                if (!this.trigger(BEFORE_OPEN, { name: e.name, options: e.options })) {
+                if (!this.trigger('dialog', { name: e.name, options: e.options })) {
                     this._openDialog(e.name, e.options);
                 }
             },
@@ -284,69 +284,75 @@
              */
             _onToolBarAction: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                var options = this.options;
-                // Note: as long as it is not too complex, we can use a dispatcher as below
-                // In the future, maybe consider Command classes with execute methods that apply to a selection like in kendo.ui.spreadsheet
-                switch (e.command) {
-                    case 'ToolbarUndoCommand':
-                        this.codeMirror.undoSelection();
-                        break;
-                    case 'ToolbarRedoCommand':
-                        this.codeMirror.redoSelection();
-                        break;
-                    case 'ToolbarHeadingsCommand':
-                        this._replaceInSelectionsWith(RX_MD_AT_BOL, e.params.value + ' ', '$3');
-                        break;
-                    case 'ToolbarBoldCommand':
-                        this._wrapSelectionsWith('**', true);
-                        break;
-                    case 'ToolbarItalicCommand':
-                        this._wrapSelectionsWith('_', true);
-                        break;
+                if (!this.trigger('command', { command: e.command, params: e.params })) {
+                    var options = this.options;
+                    // Note: as long as it is not too complex, we can use a dispatcher as below
+                    // In the future, maybe consider Command classes with execute methods that apply to a selection like in kendo.ui.spreadsheet
+                    switch (e.command) {
+                        case 'ToolbarUndoCommand':
+                            this.codeMirror.undoSelection();
+                            break;
+                        case 'ToolbarRedoCommand':
+                            this.codeMirror.redoSelection();
+                            break;
+                        case 'ToolbarHeadingsCommand':
+                            this._replaceInSelectionsWith(
+                                RX_MD_AT_BOL, e.params.value + ' ', '$3');
+                            break;
+                        case 'ToolbarBoldCommand':
+                            this._wrapSelectionsWith('**', true);
+                            break;
+                        case 'ToolbarItalicCommand':
+                            this._wrapSelectionsWith('_', true);
+                            break;
                         /*
-                    case 'ToolbarStrikethroughCommand':
-                        this._wrapSelectionsWith('~~', true);
-                        break;
-                        */
-                    case 'ToolbarBulletedCommand':
-                        this._replaceInSelectionsWith(RX_MD_AT_BOL, '- ', '$3');
-                        this._wrapSelectionsWith('\n\n', false);
-                        break;
-                    case 'ToolbarNumberedCommand':
-                        this._replaceInSelectionsWith(RX_MD_AT_BOL, '1. ', '$3');
-                        this._wrapSelectionsWith('\n\n', false);
-                        break;
-                    case 'ToolbarBlockquoteCommand':
-                        this._replaceInSelectionsWith(RX_MD_AT_BOL, '> ', '$3');
-                        break;
-                    case 'ToolbarHruleCommand':
-                        // Note: '___' and '***' should also work
-                        this._replaceInSelectionsWith('---');
-                        this._wrapSelectionsWith('\n', true);
-                        break;
-                    case 'ToolbarLinkCommand':
-                        this._replaceInSelectionsWith(kendo.format(LINK, options.messages.link, e.params.value));
-                        break;
-                    case 'ToolbarImageCommand':
-                        this._replaceInSelectionsWith(kendo.format(IMAGE, options.messages.image, e.params.value));
-                        break;
-                    case 'ToolbarCodeCommand':
-                        this._wrapSelectionsWith('```', false);
-                        break;
-                    case 'ToolbarLatexCommand':
-                        // CodeMirror markdown/gfm mode does not highlight LaTeX
-                        // but there are options to implement this - @see https://github.com/codemirror/CodeMirror/issues/4857
-                        this._replaceInSelectionsWith(e.params.value.latex);
-                        this._wrapSelectionsWith(e.params.value.inline ? '$' : '$$', true);
-                        break;
-                    case 'ToolbarPreviewCommand':
-                        this.value(e.params.value);
-                        this.trigger(CHANGE);
-                        break;
-                    // Note: Emojis could use auto completion as in GitHub
-                    // see https://github.com/codemirror/CodeMirror/issues/4859
-                    default:
-                        $.noop();
+					case 'ToolbarStrikethroughCommand':
+						this._wrapSelectionsWith('~~', true);
+						break;
+						*/
+                        case 'ToolbarBulletedCommand':
+                            this._replaceInSelectionsWith(RX_MD_AT_BOL, '- ', '$3');
+                            this._wrapSelectionsWith('\n\n', false);
+                            break;
+                        case 'ToolbarNumberedCommand':
+                            this._replaceInSelectionsWith(RX_MD_AT_BOL, '1. ', '$3');
+                            this._wrapSelectionsWith('\n\n', false);
+                            break;
+                        case 'ToolbarBlockquoteCommand':
+                            this._replaceInSelectionsWith(RX_MD_AT_BOL, '> ', '$3');
+                            break;
+                        case 'ToolbarHruleCommand':
+                            // Note: '___' and '***' should also work
+                            this._replaceInSelectionsWith('---');
+                            this._wrapSelectionsWith('\n', true);
+                            break;
+                        case 'ToolbarLinkCommand':
+                            this._replaceInSelectionsWith(
+                                kendo.format(LINK, options.messages.link, e.params.value));
+                            break;
+                        case 'ToolbarImageCommand':
+                            this._replaceInSelectionsWith(
+                                kendo.format(IMAGE, options.messages.image,
+                                    e.params.value));
+                            break;
+                        case 'ToolbarCodeCommand':
+                            this._wrapSelectionsWith('```', false);
+                            break;
+                        case 'ToolbarLatexCommand':
+                            // CodeMirror markdown/gfm mode does not highlight LaTeX
+                            // but there are options to implement this - @see https://github.com/codemirror/CodeMirror/issues/4857
+                            this._replaceInSelectionsWith(e.params.value.latex);
+                            this._wrapSelectionsWith(e.params.value.inline ? '$' : '$$', true);
+                            break;
+                        case 'ToolbarPreviewCommand':
+                            this.value(e.params.value);
+                            this.trigger(CHANGE);
+                            break;
+                        // Note: Emojis could use auto completion as in GitHub
+                        // see https://github.com/codemirror/CodeMirror/issues/4859
+                        default:
+                            $.noop();
+                    }
                 }
             },
 

@@ -1,52 +1,62 @@
-.kj-assetmanager .k-tabstrip-left > div.k-content {
-    padding: 0;
+.kj-assetmanager .k-tabstrip.k-tabstrip-left {
+    border: none;
 }
-.kj-assetmanager .k-filebrowser {
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content {
+    padding: 0;
+    border-radius: 0;
+}
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser {
     padding: 0.5em;
 }
-.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar {
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser .k-filebrowser-toolbar {
     margin: 0;
 }
-.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-toolbar-wrap .k-upload {
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser .k-filebrowser-toolbar .k-toolbar-wrap .k-upload {
     margin-right: .5em;
     z-index: 1;
 }
-.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-toolbar-wrap .k-upload .k-icon {
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser .k-filebrowser-toolbar .k-toolbar-wrap .k-upload .k-icon {
     vertical-align: middle;
 }
-.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-toolbar-wrap .k-button {
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser .k-filebrowser-toolbar .k-toolbar-wrap .k-button {
     margin-right: .25em;
 }
-.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange {
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange {
     display: flex;
     align-items: center;
     max-width: 60%;
 }
-.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-progressbar {
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-progressbar {
     color: inherit;
     max-width: 40%;
     margin-right: .5em;
 }
-.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-textbox {
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-textbox {
     width: 100%;
 }
-.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-textbox .k-icon {
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-textbox .k-icon {
     color: inherit;
 }
-.kj-assetmanager .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-textbox .k-search {
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser .k-filebrowser-toolbar .k-tiles-arrange .k-textbox .k-search {
     top: 50%;
     margin: -8px 0 0;
 }
-.kj-assetmanager .k-filebrowser .k-listview.k-tiles {
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser .k-listview.k-tiles {
     border-top-style: none;
     height: 400px;
     margin: 0;
     overflow: auto;
 }
-.kj-assetmanager .k-filebrowser .k-listview.k-tiles .k-tile .k-image {
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser .k-listview.k-tiles .k-tile .k-image {
     width: 80px;
     height: auto;
 }
-.kj-assetmanager .k-filebrowser .k-pager-wrap.k-floatwrap {
+.kj-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser .k-pager-wrap.k-floatwrap {
     border-top: 0;
+}
+.kj-assetmanager-window.k-content.kj-no-padding {
+    padding: 0;
+}
+.kj-assetmanager-window.k-content.kj-hidden-overflow {
+    overflow: hidden;
 }

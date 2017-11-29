@@ -9,7 +9,7 @@
 (function (f, define) {
     'use strict';
     define([
-        './vendor/nodeca/pako/pako_deflate.js', // Note: keep first
+        './vendor/nodeca/pako/pako_deflate.js', // Keep first or change variables below
         './window.assert',
         './window.logger'
     ], f);

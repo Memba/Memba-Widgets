@@ -45,6 +45,7 @@
                         enabled: true,
                         hook: function (e) {
                             // assetManager.unbind('beforeOpen');
+                            debugger;
                             assetManager.unbind('click');
                             if ($(e.currentTarget).prop('checked')) {
                                 assetManager.bind('click', function(e) {
@@ -63,8 +64,31 @@
                             template: '<div><img alt="image" data-bind="attr: { src: url }"></img></div>' +
                             '<div><button data-bind="events: { click: click }">Save</button><button data-bind="events: { click: click }">Add</button></div>',
                             */
-                            template: '<div data-role="vectordrawing"></div>',
-                            open: function (e) {
+                            template: '<div data-role="vectordrawing" data-bind="events: { command: onCommand, dialog: onDialog }"></div>', // TODO remove new and open menu items (data-tools?)
+                            maximize: true,
+                            openImageDialog: function () {
+                                assert.instanceof(kendo.ui.Window, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
+                                var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
+                                debugger;
+
+                            },
+                            openUrl: function (url) {
+                                assert.instanceof(kendo.ui.Window, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
+                                var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
+                                url = $('<a/>').attr('href', url).get(0).href; // Note: a simple way to resolve a relative url
+                                return vectorDrawingWidget.open(url);
+                                // TODO promise????? app.notification of errors ????
+                            },
+                            resize: function (e) {
+                                assert.instanceof(kendo.ui.Window, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
+                                var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
+                                var container = e.sender.element;
+                                vectorDrawingWidget.element
+                                    .outerWidth(container.width())
+                                    .outerHeight(container.height());
+                                vectorDrawingWidget.resize();
+                            },
+                            saveAs: function (name, assetManager) {
                                 debugger;
                             }
                         },

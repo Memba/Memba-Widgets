@@ -1105,8 +1105,11 @@
                 // We now need to pass the dialog hooks to the markeditor widget in the preview dialog
                 // Note this is how we hook the asset manager in place of the default image dialog
                 var previewMarkEditor = element.find(kendo.roleSelector('markeditor')).data('kendoMarkEditor');
-                $.each(markeditor._events.beforeOpen || [], function (index, handler) {
-                    previewMarkEditor.bind('beforeOpen', handler);
+                $.each(markeditor._events.command || [], function (index, handler) {
+                    previewMarkEditor.bind('command', handler);
+                });
+                $.each(markeditor._events.dialog || [], function (index, handler) {
+                    previewMarkEditor.bind('dialog', handler);
                 });
 
                 /*

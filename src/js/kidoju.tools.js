@@ -33,13 +33,14 @@
 
     'use strict';
 
+    var kidoju = window.kidoju = window.kidoju || {};
+
     /* This function has too many statements. */
     /* jshint -W071 */
 
     (function ($, undefined) {
 
         var kendo = window.kendo;
-        var kidoju = window.kidoju = window.kidoju || {};
         var Model = kidoju.data.Model;
         var ObservableArray = kendo.data.ObservableArray;
         var PageComponent = kidoju.data.PageComponent;
@@ -952,9 +953,8 @@
                         .addClass('k-textbox')
                         .css({
                             flex: 'auto',
-                            width: 'auto'
+                            width: '100%' // 'auto' seems to imply a min-width
                         })
-                        .css({ width: 'auto' })
                         .prop({ readonly: true })
                         .attr($.extend({}, settings.attributes, binding))
                         .appendTo(wrapper);
@@ -1806,7 +1806,7 @@
                         .addClass('k-textbox')
                         .css({
                             flex: 'auto',
-                            width: 'auto'
+                            width: '100%' // 'auto' seems to imply a min-width
                         })
                         .prop({ readonly: true })
                         .attr($.extend({}, settings.attributes, binding))
@@ -4393,6 +4393,6 @@
 
     /* jshint +W071 */
 
-    return window.kidoju;
+    return kidoju;
 
 }, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

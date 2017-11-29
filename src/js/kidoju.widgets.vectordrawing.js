@@ -60,12 +60,12 @@
         var ToolService = diagram.ToolService;
         var ConnectorsAdorner = diagram.ConnectorsAdorner;
         var ResizingAdorner = diagram.ResizingAdorner;
+        var NUMBER = 'number';
         var STRING = 'string';
         var CHANGE = 'change';
         var DRAG = 'drag';
         var DRAG_END = 'dragEnd';
         var DRAG_START = 'dragStart';
-        var SVG_NS = 'http://www.w3.org/2000/svg';
         var RX_URL = /^https?:\/\//;
         var DEFAULT_SNAP_SIZE = 10;
         var MIN_SNAP_SIZE = 5;
@@ -76,7 +76,23 @@
          * Helpers
          *********************************************************************************/
 
-        // From kendo.drawing.js
+        /**
+         * This is a prerequisite for _downloadFile
+         * @see http://api.jquery.com/jquery.ajaxprefilter/
+         * @see https://github.com/jquery/jquery/blob/master/test/unit/ajax.js#L1767
+         */
+        $.ajaxPrefilter('arraybuffer', function (s) {
+            s.xhrFields = { responseType: 'arraybuffer' };
+            s.responseFields.arraybuffer = 'response';
+            s.converters['binary arraybuffer'] = true;
+        });
+
+        /**
+         * Get tranformation from matrix
+         * Note: Copied without change from kendo.drawing.js
+         * @param matrix
+         * @returns {*}
+         */
         function transform(matrix) {
             if (matrix === null) {
                 return null;
@@ -86,23 +102,13 @@
             }
             return new Transformation(matrix);
         }
-        function exportGroup(group) {
-            var root = new RootNode();
-            var bbox = group.clippedBBox();
-            var rootGroup = group;
-            if (bbox) {
-                var origin = bbox.getOrigin();
-                var exportRoot = new drawing.Group();
-                exportRoot.transform(transform().translate(-origin.x, -origin.y));
-                exportRoot.children.push(group);
-                rootGroup = exportRoot;
-            }
-            root.load([rootGroup]);
-            var svg = '<?xml version=\'1.0\' ?><svg xmlns=\'' + SVG_NS + '\' xmlns:xlink=\'http://www.w3.org/1999/xlink\' version=\'1.1\'>' + root.render() + '</svg>';
-            // TODO add viewBox
-            root.destroy();
-            return svg;
-        }
+
+        /**
+         * Export a PNG data stream
+         * Note: Copied and modified from kendo.drawing.js
+         * @param group
+         * @param options
+         */
         function exportImage(group, options) {
             var defaults = {
                 width: '800px',
@@ -127,8 +133,12 @@
             style.width = surfaceOptions.width;
             style.height = surfaceOptions.height;
             document.body.appendChild(container);
+            // BEGIN Commented by JLC
             // var surface = new Surface$3(container, surfaceOptions);
+            // END Commented by JLC
+            // BEGIN Added by JLC
             var surface = new drawing.canvas.Surface(container, surfaceOptions);
+            // END Added by JLC
             surface.suspendTracking();
             surface.draw(exportRoot);
             var promise = surface.image();
@@ -139,10 +149,57 @@
             promise.then(destroy, destroy);
             return promise;
         }
+
+        /**
+         * Export a group
+         * Note: Copied and modified from kendo.drawing.js
+         * @param group
+         * @returns {string}
+         */
+        function exportGroup(group) {
+            // BEGIN Added by JLC
+            var defaults = {
+                width: 800,
+                height: 600
+            };
+            // END Added by JLC
+            var root = new RootNode({ skipBaseHref: true });
+            var bbox = group.clippedBBox();
+            var rootGroup = group;
+            if (bbox) {
+                var origin = bbox.getOrigin();
+                var exportRoot = new drawing.Group();
+                exportRoot.transform(transform().translate(-origin.x, -origin.y));
+                exportRoot.children.push(group);
+                rootGroup = exportRoot;
+                var size = bbox.getSize();
+                // BEGIN Added by JLC
+                defaults.width = size.width;
+                defaults.height = size.height;
+                // END Added by JLC
+            }
+            root.load([rootGroup]);
+            // BEGIN Commented by JLC
+            // var svg = '<?xml version=\'1.0\' ?><svg xmlns=\'' + SVG_NS + '\' xmlns:xlink=\'http://www.w3.org/1999/xlink\' version=\'1.1\'>' + root.render() + '</svg>';
+            // END Commented by JLC
+            // BEGIN Added by JLC
+            var svg = '<?xml version="1.0" ?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="' +
+                defaults.height + '" width="' + defaults.width + '">' + root.render() + '</svg>';
+            // END Added by JLC
+            root.destroy();
+            return svg;
+        }
+
+        /**
+         * Export an SVG data stream
+         * Note: Copied and modified from kendo.drawing.js
+         * @param group
+         * @param options
+         */
         function exportSVG (group, options) {
             var svg = exportGroup(group);
-            // BEGIN: Add json of shapes and connections
-            if (options.json) {
+            // BEGIN: Added by JLC - Embed json in script tag considering SVG is too difficult to parse
+            if (options && options.json) {
                 var defs = '<defs>';
                 var pos = svg.indexOf(defs);
                 if (pos > -1) {
@@ -151,17 +208,30 @@
                         svg.substr(pos + defs.length);
                 }
             }
-            // END: Add json
+            // END: Added by JLC
             if (!options || !options.raw) {
                 svg = 'data:image/svg+xml;base64,' + window.btoa(svg);
             }
             return createPromise().resolve(svg);
         }
-        // From kendo.dataviz.diagram.js
+
+        /**
+         * Test draggable elements
+         * Note: Copied without change from kendo.dataviz.diagram.js
+         * @param element
+         * @returns {boolean}
+         */
         function canDrag(element) {
             var editable = element.options.editable;
             return editable && editable.drag !== false;
         }
+
+        /**
+         * Clone a data item
+         * Note: Copied without change from kendo.dataviz.diagram.js
+         * @param dataItem
+         * @returns {*}
+         */
         function cloneDataItem(dataItem) {
             var result = dataItem;
             if (dataItem instanceof kendo.data.Model) {
@@ -170,6 +240,12 @@
             }
             return result;
         }
+
+        /**
+         * Translate to origin
+         * Note: Copied without change from kendo.dataviz.diagram.js
+         * @param visual
+         */
         function translateToOrigin(visual) {
             var bbox = visual.drawingContainer().clippedBBox(null);
             if (bbox.origin.x !== 0 || bbox.origin.y !== 0) {
@@ -797,6 +873,12 @@
          * VectorDrawing widget
          */
         var VectorDrawing = Diagram.extend({
+
+            /**
+             * Init
+             * @param element
+             * @param options
+             */
             init: function (element, options) {
                 var that = this;
                 kendo.destroy(element);
@@ -848,6 +930,10 @@
                 // Resize after drawing especially to center
                 that._resize();
             },
+
+            /**
+             * Options
+             */
             options: {
                 name: 'VectorDrawing',
                 toolbar: {},
@@ -883,6 +969,16 @@
                     }
                 }
             },
+
+            /**
+             * Events
+             */
+            events: Diagram.fn.events.slice().concat(['command', 'dialog']),
+
+            /**************************************************************************************************************
+             * Layout functions
+             **************************************************************************************************************/
+
             /**
              * Update background layer
              * @private
@@ -906,6 +1002,11 @@
                     this.backgroundLayer.children[0].redraw(backgroundOptions);
                 }
             },
+
+            /**
+             * Update guide layer
+             * @private
+             */
             _updateGuideLayer: function () {
                 var height = this._artboard.height;
                 var width = this._artboard.width;
@@ -948,6 +1049,11 @@
                     this.guideLayer.children[4].redraw(sizeOptions);
                 }
             },
+
+            /**
+             * Pan to center
+             * @private
+             */
             _panToCenter: function () {
                 if (this.backgroundLayer && $.isArray(this.backgroundLayer.children) && this.backgroundLayer.children.length) {
                     var viewportBox = this.viewport();
@@ -957,6 +1063,11 @@
                     );
                 }
             },
+
+            /**
+             * Zoom
+             * @private
+             */
             _zoomMainLayer: function () {
                 var zoom = this._zoom;
                 var transform = new CompositeTransform(0, 0, zoom, zoom);
@@ -964,6 +1075,11 @@
                 transform.render(this.guideLayer);
                 Diagram.fn._zoomMainLayer.call(this);
             },
+
+            /**
+             * Transform
+             * @private
+             */
             _transformMainLayer: function () {
                 var pan = this._pan;
                 var zoom = this._zoom;
@@ -972,22 +1088,36 @@
                 transform.render(this.guideLayer);
                 Diagram.fn._transformMainLayer.call(this);
             },
+
+            /**
+             * Clear
+             */
             clear: function () {
                 Diagram.fn.clear.call(this);
                 // Keep the current artboard height/width
                 this._artboard.fill.color = this.options.artboard.fill.color;
                 this._updateBackgroundLayer();
             },
-            /**
+
+            /**************************************************************************************************************
              * Replace ToolService with VectorToolService
+             **************************************************************************************************************/
+
+            /**
+             * Create handles
              * @private
              */
             _createHandlers: function () {
                 Diagram.fn._createHandlers.call(this);
                 this.toolService = new VectorToolService(this);
             },
+
+            /**************************************************************************************************************
+             * Replace Shape with VectorShape in various methods
+             **************************************************************************************************************/
+
             /**
-             * Replace Shape with VectorShape
+             * Create shape
              * @param dataItem
              * @param options
              * @private
@@ -998,6 +1128,13 @@
                 var shape = new VectorShape(options, this);
                 return shape;
             },
+
+            /**
+             * Add shape
+             * @param item
+             * @param undoable
+             * @returns {*}
+             */
             addShape: function (item, undoable) {
                 var shape;
                 var shapeDefaults = this.options.shapeDefaults;
@@ -1024,6 +1161,14 @@
                 });
                 return shape;
             },
+
+            /**
+             * Add data items
+             * @param dataItem
+             * @param undoable
+             * @returns {*}
+             * @private
+             */
             _addDataItem: function (dataItem, undoable) {
                 if (!defined(dataItem)) {
                     return;
@@ -1039,6 +1184,13 @@
                 this._dataMap[dataItem.id] = shape;
                 return shape;
             },
+
+            /**
+             * Add data item
+             * @param dataItem
+             * @returns {*}
+             * @private
+             */
             _addDataItemByUid: function (dataItem) {
                 if (!defined(dataItem)) {
                     return;
@@ -1054,6 +1206,10 @@
                 this._dataMap[dataItem.uid] = shape;
                 return shape;
             },
+
+            /**
+             * Clone
+             */
             clone: function () {
                 var json = this.serialize();
                 json.options.id = diagram.randomId();
@@ -1062,8 +1218,13 @@
                 }
                 return new VectorShape(json.options);
             },
+
+            /**************************************************************************************************************
+             * Replace DiagramToolBar with VectorDrawingToolBar in various methods
+             **************************************************************************************************************/
+
             /**
-             * Replace DiagramToolBar with VectorDrawingToolBar
+             * Create global toolbar
              * @private
              */
             _createGlobalToolBar: function () {
@@ -1079,16 +1240,38 @@
                         shapeDefaults: this.options.shapeDefaults
                     })
                     .data('kendoVectorDrawingToolBar');
-                // TODO implement toolBarClick for hooks!!!!!!!!!!!!!!!!
             },
+
+            /**
+             * Event handler triggered when selection changes
+             * @param selected
+             * @param deselected
+             * @private
+             */
             _selectionChanged: function (selected, deselected) { // TODO Check if called
                 this.toolBar.refresh(selected);
                 Diagram.fn._selectionChanged.call(this, selected, deselected);
             },
+
+            /**
+             * Event handler triggered when opening a toolbar dialog
+             * @param e
+             * @private
+             */
             _onToolBarDialog: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                this._openDialog(e.name, e.options);
+                if (!this.trigger('dialog', { name: e.name, options: e.options })) {
+                    this._openDialog(e.name, e.options);
+                }
             },
+
+            /**
+             * Open dialog
+             * @param name
+             * @param options
+             * @returns {name}
+             * @private
+             */
             _openDialog: function (name, options) {
                 var dialog = kendo.vectordrawing.dialogs.create(name, options);
                 if (!$.isArray(this._dialogs)) {
@@ -1106,63 +1289,100 @@
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
+            /**
+             * Event handler triggered when the toolbar triggers an action (run on OK when dialogs are opened)
+             * @param e
+             * @private
+             */
             _onToolBarAction: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                // Note: as long as it is not too complex, we can use a dispatcher as below
-                // In the future, maybe consider Command classes with execute methods that apply to a selection like in kendo.ui.spreadsheet
-                switch (e.command) {
-                    case 'ToolbarNewCommand':
-                        this._onToolbarNew(e.params);
-                        break;
-                    case 'ToolbarOpenCommand':
-                        this._onToolbarOpen(e.params);
-                        break;
-                    case 'ToolbarSaveCommand':
-                        this._onToolbarSave(e.params);
-                        break;
-                    case 'DrawingToolChangeCommand':
-                        this._onDrawingToolChange(e.params);
-                        break;
-                    case 'PropertyChangeCommand':
-                        this._onPropertyChange(e.params);
-                        break;
-                    case 'ToolbarArrangeCommand':
-                        this._onToolbarArrange(e.params);
-                        break;
-                    case 'ToolbarRemoveCommand':
-                        this._onToolbarRemove(e.params);
-                        break;
-                    case 'GuidesChangeCommand':
-                        this._onGuidesChange(e.params);
-                        break;
-                    default:
-                        $.noop();
+                if (!this.trigger('command', { command: e.command, params: e.params })) {
+                    // Note: as long as it is not too complex, we can use a dispatcher as below
+                    // In the future, maybe consider Command classes with execute methods that apply to a selection like in kendo.ui.spreadsheet
+                    switch (e.command) {
+                        case 'ToolbarNewCommand':
+                            this._onToolbarNew(e.params);
+                            break;
+                        case 'ToolbarOpenCommand':
+                            this._onToolbarOpen(e.params);
+                            break;
+                        case 'ToolbarSaveCommand':
+                            this._onToolbarSave(e.params);
+                            break;
+                        case 'DrawingToolChangeCommand':
+                            this._onDrawingToolChange(e.params);
+                            break;
+                        case 'PropertyChangeCommand':
+                            this._onPropertyChange(e.params);
+                            break;
+                        case 'ToolbarArrangeCommand':
+                            this._onToolbarArrange(e.params);
+                            break;
+                        case 'ToolbarRemoveCommand':
+                            this._onToolbarRemove(e.params);
+                            break;
+                        case 'GuidesChangeCommand':
+                            this._onGuidesChange(e.params);
+                            break;
+                        default:
+                            $.noop();
+                    }
                 }
             },
 
             /* jshint +W074 */
 
+            /**
+             * Event handler triggered when creating a new file
+             * @private
+             */
             _onToolbarNew: function () {
                 this.clear();
             },
+
+            /**
+             * Event handler triggered when opening a file (open dialog)
+             * @param params
+             * @private
+             */
             _onToolbarOpen: function (params) {
                 this.clear();
                 this.open(params.file);
             },
-            _onToolbarSave: function () {
+
+            /**
+             * Event handler triggered when savnig a file
+             * @param params
+             * @private
+             */
+            _onToolbarSave: function (params) {
                 var that = this;
-                that.exportSVG({ json: true })
-                    .done(function (data) {
+                var name = params.value;
+                var exportFile = name.toLowerCase().endsWith('.png') ? that.exportImage : that.exportSVG;
+                exportFile.bind(that)({ json: true })
+                    .done(function (dataUri) {
                         kendo.saveAs({
-                            dataURI: data,
-                            fileName: that._file && that._file.name || 'untitle.svg'
+                            dataURI: dataUri,
+                            fileName: name
                         });
                     });
             },
+
+            /**
+             * Event handler triggered when selecting a new tool
+             * @param params
+             * @private
+             */
             _onDrawingToolChange: function (params) {
                 // the tool to be used is set by this.toolService._activateTool which is triggered by mouse events
                 this.toolService.selectedTool = params.value;
             },
+
+            /**
+             * Event handler triggred when changing a shape property
+             * @param params
+             * @private
+             */
             _onPropertyChange: function (params) {
                 assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
                 if (params.property === 'background') {
@@ -1178,6 +1398,12 @@
                     }
                 }
             },
+
+            /**
+             * Event handler triggered when rearranging a shape
+             * @param params
+             * @private
+             */
             _onToolbarArrange: function (params) {
                 assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
                 switch (params.value) {
@@ -1195,21 +1421,45 @@
                         break;
                 }
             },
+
+            /**
+             * Event handler triggered when removing a shape
+             * @param params
+             * @private
+             */
             _onToolbarRemove: function (params) {
                 this.remove(this.select());
             },
+
+            /**
+             * Event handler triggered when changing guides or image size
+             * @param params
+             * @private
+             */
             _onGuidesChange: function (params) {
                 // TODO Remember snap params.
                 this.options.editable.drag.snap = false;
             },
+
+            /**************************************************************************************************************
+             * Resize functions
+             **************************************************************************************************************/
+
             /**
-             * Resizing
+             * Resize
              */
             _resize: function () {
-                this.toolBar.resize();
+                if (this.toolBar instanceof kendo.ui.VectorDrawingToolBar) {
+                    this.toolBar.resize();
+                }
                 Diagram.fn._resize.call(this);
                 this._panToCenter();
             },
+
+            /**************************************************************************************************************
+             * Open/load functions
+             **************************************************************************************************************/
+
             /**
              * Export functions
              * Note: we need our own export functions:
@@ -1237,6 +1487,11 @@
                 wrap.clip(clipPath);
                 return wrap;
             },
+
+            /**
+             * Export as SVG
+             * @param options
+             */
             exportSVG: function (options) {
                 // return drawing.exportSVG(this.exportVisual(), options);
                 if (options.json) { // options.json === true
@@ -1250,144 +1505,254 @@
                 }
                 return exportSVG(this.exportVisual(), options);
             },
+
+            /**
+             * Export as PNG
+             * @param options
+             */
             exportImage: function (options) {
                 // return drawing.exportImage(this.exportVisual(options), options);
                 return exportImage(this.exportVisual(options), options);
             },
+
             /*
             exportPDF: function (options) {
                 return draw.exportPDF(this.exportVisual(), options);
             }
             */
+
+            /**************************************************************************************************************
+             * Open/load functions
+             **************************************************************************************************************/
+
             /**
-             * Open function
-             * Preferably we have one import function which detects svg from other image file formats (gif, png, jpg)
-             * 1) If an svg file contains a <script type:"application/json">, shapes and connectiosn are read from json and svg is discarded
-             * 2) Otherwise (svg without script) or any other image format, a new image shape is added to the canvas/surface
-             * @returns {string}
-             * @private
+             * Our public open function which clears the drawing and opens an image as a new drawing
+             * Note: In case you have a Content Security Policy beware that the url needs to match connectSrc to be loaded via $.get
+             * @param source
+             * @returns {*} a promise
              */
             open: function (source) {
                 var that = this;
-                // this.clear();
+                kendo.ui.progress(that.element, true, { opaque: true });
+                var promise = $.Deferred().reject(new Error('Invalid source: source is not a file or a url')).promise();
                 if (source instanceof window.File) {
-                    return that._openFile(source)
-                        .always(function () {
-                            that.toolBar._resetFileInput();
-                        });
+                    promise = that._openFile(source);
                 } else if (RX_URL.test(source)) {
-                    return that._openUrl(source);
+                    promise = that._downloadFile(source);
                 }
+                return promise
+                    .done(function (meta) {
+                        that._artboard.height = meta.height;
+                        that._artboard.width = meta.width;
+                        that._artboard.fill.color = that.options.artboard.fill.color; // TODO
+                        that._loadDataUri(meta.dataUri, meta.height, meta.width);
+                        that._updateBackgroundLayer();
+                        that._updateGuideLayer();
+                        that.resize(true);
+                    })
+                    .always(function () {
+                        that.toolBar._resetFileInput();
+                        kendo.ui.progress(that.element, false);
+                    });
             },
+
+            /**
+             * Our public import function which simply adds an image to the drawing
+             * @param url
+             */
+            import: function (source) {
+                var that = this;
+                kendo.ui.progress(that.element, true, { opaque: true });
+                var promise = $.Deferred().reject(new Error('Invalid source: source is not a file or a url')).promise();
+                if (source instanceof window.File) {
+                    promise = that._openFile(source);
+                } else if (RX_URL.test(source)) {
+                    // Note: import should not use _downloadFile because $.get requires connectSrc CSP and * is only fine for mediaSrc
+                    // The drawback is we cannot read the content of JPG and SVG files which are therefore converted to PNG via canvas.toDataURL
+                    promise = that._getDataUriWithSize(source);
+                }
+                return promise
+                    .done(function (meta) {
+                        that._loadDataUri(meta.dataUri, meta.height, meta.width);
+                        that.resize(true);
+                    })
+                    .always(function () {
+                        that.toolBar._resetFileInput();
+                        kendo.ui.progress(that.element, false);
+                    });
+            },
+
+            /**
+             * Open a window.File, especially from an html input element
+             * @param file
+             * @private
+             */
             _openFile: function (file) {
                 assert.instanceof(window.File, file, kendo.format(assert.messages.instanceof.default, 'file', 'window.File'));
-                var dfd = $.Deferred();
                 var that = this;
-                if (file.type.match(/^image\//)) {
+                var dfd = $.Deferred();
+                if ((file.type || '').match(/^image\//)) {
                     var reader = new FileReader();
                     reader.onload = function (e) {
-                        var source = e.target.result;
-                        var json = false;
-                        var prefix = 'data:image/svg+xml;base64,';
-                        var pos0 = source.indexOf(prefix);
-                        if (file.type === 'image/svg+xml' && pos0 === 0) {
-                            var svg = window.atob(source.substr(prefix.length));
-                            var tag1 = '<script type="application/json">';
-                            var tag2 = '</script>';
-                            var pos1 = svg.indexOf(tag1);
-                            var pos2 = svg.indexOf(tag2);
-                            if (pos1 > -1 && pos2 > pos1 + tag1.length) {
-                                json = svg.substr(pos1 + tag1.length, pos2 - pos1 - tag1.length);
-                            }
-                        }
-                        if (json) {
-                            try {
-                                that.load(JSON.parse(json));
-                                that._updateBackgroundLayer();
-                                that._updateGuideLayer();
-                                that._resize();
-                                dfd.resolve();
-                            } catch (exception) {
-                                dfd.reject(exception);
-                            }
-                        }
-                        else {
-                            that._loadImage(source)
-                                .done(dfd.resolve)
-                                .fail(dfd.reject);
-                        }
+                        that._getDataUriWithSize(e.target.result).done(dfd.resolve).fail(dfd.reject);
                     };
-                    reader.onerror = function (e) {
-                        dfd.reject(new Error('Unable to load file'));
+                    reader.onerror = function (err) {
+                        dfd.reject(err);
                     };
-                    // Read in the image file as a data URL.
+                    // Read the image file
                     reader.readAsDataURL(file);
                 } else {
-                    dfd.reject(new Error(kendo.format('`[0]` has unsupported type `{1}`', file.name, file.type)));
+                    dfd.reject(new Error(kendo.format('`[0]` has unsupported mime type `{1}`', file.name, file.type)));
                 }
                 return dfd.promise();
             },
-            _openUrl: function (url) {
+
+            /**
+             * Download file,
+             * We need this because this is the only way to get the textual content of an SVG file
+             * @see http://www.henryalgus.com/reading-binary-files-using-jquery-ajax/
+             * @see https://github.com/jquery/jquery/blob/master/test/unit/ajax.js#L1767
+             * @see https://stackoverflow.com/questions/12710001/how-to-convert-uint8-array-to-base64-encoded-string
+             * @param url
+             * @private
+             */
+            _downloadFile: function (url) {
                 assert.match(RX_URL, url, kendo.format(assert.messages.match.default, 'url', RX_URL));
                 var that = this;
-                var dfd = $.deferred();
+                var dfd = $.Deferred();
                 $.get({
-                    url: url
-                    // TODO cache and cors
+                    url: url,
+                    // crossDomain: true,
+                    dataType: 'arraybuffer'
                 })
-                    .done(function (data) {
-                        $.noop(); // TODO
-                        // debugger;
+                    .done(function (response, status, xhr) {
+                        if (xhr.status === 200) {
+                            var binary = '';
+                            var bytes = new window.Uint8Array(response);
+                            for (var idx = 0, len = bytes.byteLength; idx < len; idx++) {
+                                binary += String.fromCharCode(bytes[idx]);
+                            }
+                            var dataUri = 'data:' + xhr.getResponseHeader('content-type') + ';base64,' + window.btoa(binary);
+                            that._getDataUriWithSize(dataUri).done(dfd.resolve).fail(dfd.reject);
+                        } else {
+                            dfd.reject(new Error('TODO')); // TODO
+                        }
                     })
                     .fail(function (xhr, status, error) {
-                        $.noop(); // TODO
-                        // debugger;
+                        // Note: cross domain $.get from localhost is not allowed in Google Chrome and will end up here
+                        dfd.reject(new Error('TODO')); // TODO
                     });
                 return dfd.promise();
             },
-            _loadImage: function (source) {
-                var that = this;
+
+            /**
+             * Open dataUri)
+             * @param dataUri or url
+             * @private
+             */
+            _getDataUriWithSize: function (dataUri) {
+                assert.type(STRING, dataUri, kendo.format(assert.messages.type.default, 'dataUri', STRING));
                 var dfd = $.Deferred();
-                // Note: we could have added the shape directly
-                // but we would not have detected a load error
-                var img = $('<img/>')
-                    .appendTo('body')
+                var img = $('<img />')
+                    // crossOrigin prevents Uncaught DOMException: Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported.
+                    .attr('crossOrigin', 'Anonymous')
                     .css({
                         position: 'absolute',
                         top: 0,
                         left: -10000
                     })
-                    .on('load', function (e) {
-                        that._artboard.height = img.height();
-                        that._artboard.width = img.width();
-                        that._artboard.fill.color = that.options.artboard.fill.color;
-                        that.addShape({
-                            type: 'image',
-                            x: 0,
-                            y: 0,
+                    .appendTo('body')
+                    .on('load', function () {
+                        var meta = {
+                            dataUri: dataUri,
                             height: img.height(),
-                            width: img.width(),
-                            source: source
-                        });
-                        that._updateBackgroundLayer();
-                        that._updateGuideLayer();
-                        that.resize(true);
+                            width: img.width()
+                        };
+                        if (RX_URL.test(dataUri)) {
+                            // TODO: a function for kidoju.image
+                            var canvas = document.createElement('canvas');
+                            canvas.height =  meta.height;
+                            canvas.width =  meta.width;
+                            var ctx = canvas.getContext('2d');
+                            ctx.drawImage(img.get(0), canvas.width, canvas.height);
+                            meta.dataUri = canvas.toDataURL();
+                            debugger;
+                        }
                         img.off().remove();
-                        dfd.resolve();
+                        dfd.resolve(meta);
                     })
-                    .on('error', function () {
-                        dfd.reject(new Error('Unable to load image data'));
+                    .on('error', function (err) {
+                        img.off().remove();
+                        dfd.reject(err);
                     })
-                    .attr('src', source);
+                    .attr('src', dataUri);
                 return dfd.promise();
             },
+
             /**
+             * Loads a data uri
+             * @param dataUri
+             * @param height
+             * @param width
+             * @private
+             */
+            _loadDataUri: function (dataUri, height, width) {
+                assert.type(STRING, dataUri, kendo.format(assert.messages.type.default, 'dataUri', STRING));
+                assert.type(NUMBER, height, kendo.format(assert.messages.type.default, 'height', NUMBER));
+                assert.type(NUMBER, width, kendo.format(assert.messages.type.default, 'width', NUMBER));
+                var that = this;
+                var parts = dataUri.split(';base64,');
+                var contentType = parts[0].substr(5); // 5 is the length of data:
+                var json;
+                if (contentType === 'image/svg+xml') {
+                    json = that._extractJSON(window.atob(parts[1]));
+                }
+                if (json) {
+                    that.load(JSON.parse(json)); // TODO: does that.clear which is not what we want
+                } else {
+                    that.addShape({
+                        type: 'image',
+                        x: 0,
+                        y: 0,
+                        height: height,
+                        width: width,
+                        source: dataUri
+                    });
+                }
+            },
+
+            /**
+             * Extract json from svg file
+             * @param svg
+             * @returns {string}
+             * @private
+             */
+            _extractJSON: function (svg) {
+                var tag1 = '<script type="application/json">';
+                var tag2 = '</script>';
+                var pos1 = svg.indexOf(tag1);
+                var pos2 = svg.indexOf(tag2);
+                if (pos1 > -1 && pos2 > pos1 + tag1.length) {
+                    return svg.substr(pos1 + tag1.length, pos2 - pos1 - tag1.length);
+                }
+            },
+
+            /**************************************************************************************************************
              * Destroy functions
+             **************************************************************************************************************/
+
+            /**
+             * Destroy dialog
              * @private
              */
             _destroyDialog: function () {
                 this._dialogs.pop();
             },
+
+            /**
+             * Destroy global toolbar
+             * @private
+             */
             _destroyGlobalToolBar: function () {
                 if (this.toolBar) {
                     this.toolBar.hide();

@@ -61,9 +61,9 @@
                             }
                         }
                         var markeditor = $(kendo.roleSelector('markeditor')).data('kendoMarkEditor');
-                        markeditor.unbind('beforeOpen');
+                        markeditor.unbind('dialog');
                         if ($(e.currentTarget).prop('checked')) {
-                            markeditor.bind('beforeOpen', openDialog)
+                            markeditor.bind('dialog', openDialog)
                         }
                     }
                 });

@@ -19,7 +19,8 @@
         './vendor/kendo/kendo.combobox',
         './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.toolbar',
-        './vendor/kendo/kendo.window'
+        './vendor/kendo/kendo.window',
+        './vendor/kendo/kendo.dataviz.diagram'
     ], f);
 })(function () {
 
@@ -188,10 +189,17 @@
                 iconClass: 'folder-open'
             },
             save: {
-                type: 'button',
-                command: 'ToolbarSaveCommand',
-                overflow: 'never',
-                iconClass: 'save'
+                // type: 'button',
+                // command: 'ToolbarSaveCommand',
+                // overflow: 'never',
+                // iconClass: 'save'
+                type: 'vectorDialog',
+                dialogName: 'vectorSave',
+                iconClass: 'save',
+                overflow: 'never', // TODO: Review as commenting raises `component.overflow is not a constructor`
+                text: false
+                // group: 'tool',
+                // togglable: true
             },
             // Cut, Copy, Paste
             select: {
@@ -466,7 +474,7 @@
              */
             _addSeparators: function (element) {
                 var groups = element.children('.k-widget, a.k-button, .k-button-group');
-                groups.before('<span class=\'k-separator\' />');
+                groups.before('<span class="k-separator" />');
             },
 
             /* This function's cyclomatic complexity is too high. */
@@ -945,7 +953,7 @@
         });
         var PopupTool = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
-                this.element = $('<a href=\'#\' class=\'k-button k-button-icon\'>' + '<span class=\'' + options.spriteCssClass + '\'>' + '</span><span class=\'k-icon k-i-arrow-60-down\'></span>' + '</a>');
+                this.element = $('<a href="#" class="k-button k-button-icon">' + '<span class="' + options.spriteCssClass + '">' + '</span><span class="k-icon k-i-arrow-60-down"></span>' + '</a>');
                 this.element
                     .on('click touchend', this.open.bind(this))
                     .attr('data-command', options.command);
@@ -968,7 +976,7 @@
             },
             _popup: function () {
                 var element = this.element;
-                this.popup = $('<div class=\'k-spreadsheet-popup kj-vectordrawing-popup\' />')
+                this.popup = $('<div class="k-spreadsheet-popup kj-vectordrawing-popup" />')
                     .appendTo(element)
                     .kendoPopup({ anchor: element }).data('kendoPopup');
             }
@@ -1036,9 +1044,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' data-path=\'' + options.path + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-value="' + options.value + '" data-path="' + options.path + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -1187,7 +1195,7 @@
             _customColorPalette: function () {
                 var element = $('<div />', {
                     class: 'k-spreadsheet-window',
-                    html: '<div></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>' + TOOLBAR_MESSAGES.colorPalette.apply + '</button>' + '<button class=\'k-button\' data-bind=\'click: close\'>' + TOOLBAR_MESSAGES.colorPalette.cancel + '</button>' + '</div>'
+                    html: '<div></div>' + '<div class="k-action-buttons">' + '<button class="k-button k-primary" data-bind="click: apply">' + TOOLBAR_MESSAGES.colorPalette.apply + '</button>' + '<button class="k-button" data-bind="click: close">' + TOOLBAR_MESSAGES.colorPalette.cancel + '</button>' + '</div>'
                 });
                 var dialog = this.dialog = element.appendTo(document.body).kendoWindow({
                     animation: false,
@@ -1220,10 +1228,10 @@
                 kendo.bind(dialog.element.find('.k-action-buttons'), viewModel);
             },
             _resetButton: function () {
-                this.resetButton = $('<a class=\'k-button k-reset-color\' href=\'#\'>' + '<span class=\'k-icon k-i-reset-color\'></span>' + TOOLBAR_MESSAGES.colorPalette.reset + '</a>').appendTo(this.element);
+                this.resetButton = $('<a class="k-button k-reset-color" href="#">' + '<span class="k-icon k-i-reset-color"></span>' + TOOLBAR_MESSAGES.colorPalette.reset + '</a>').appendTo(this.element);
             },
             _customColorButton: function () {
-                this.customColorButton = $('<a class=\'k-button k-custom-color\' href=\'#\'>' + '<span class=\'k-icon\'></span>' + TOOLBAR_MESSAGES.colorPalette.customColor + '</a>').appendTo(this.element);
+                this.customColorButton = $('<a class="k-button k-custom-color" href="#">' + '<span class="k-icon"></span>' + TOOLBAR_MESSAGES.colorPalette.customColor + '</a>').appendTo(this.element);
             },
             resetColor: function () {
                 this.colorPalette.value(null);
@@ -1480,7 +1488,7 @@
             _commandPalette: function () {
                 var element = $('<div />').appendTo(this.popup.element);
                 this.buttons.forEach(function (options) {
-                    var button = '<a title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icontext\'>' +
+                    var button = '<a title="' + options.text + '" data-property="' + options.property + '" data-value="' + options.value + '" class="k-button k-button-icontext">' +
                         '<span><svg height="16" width="100"><g><path stroke="#808080" stroke-width="2" stroke-dasharray="' + options.dashArray + '" d="M0 10 L100 10" /></g></svg></span>' +
                         '</a>';
 
@@ -1562,9 +1570,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-property="' + options.property + '" data-value="' + options.value + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -1642,9 +1650,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-property="' + options.property + '" data-value="' + options.value + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -1839,9 +1847,9 @@
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a title="' + options.text + '" data-value="' + options.value + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + options.iconClass + '"></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].iconClass !== options.iconClass) {
-                        element.append($('<span class=\'k-separator\' />'));
+                        element.append($('<span class="k-separator" />'));
                     }
                     element.append(button);
                 });
@@ -1932,6 +1940,16 @@
             retry: 'Retry',
             revert: 'Revert',
             okText: 'OK',
+            saveDialog: {
+                title: 'Save As',
+                regex: /(\.png|\.svg)$/i,
+                default: 'untitled.png',
+                labels: {
+                    name: 'File name:',
+                    type: 'File type:',
+                    extensions: '[".PNG", ".SVG"]'
+                }
+            },
             shapeDialog: {
                 title: 'Shapes',
                 buttons: {
@@ -1944,7 +1962,7 @@
             imageDialog: {
                 title: 'Image',
                 labels: {
-                    url: 'Address'
+                    url: 'Source'
                 }
             },
             textDialog: {
@@ -1955,7 +1973,7 @@
             },
             // TODO : color dialogs miss a title
             opacityDialog: {
-                title: 'Stroke Width'
+                title: 'Opacity'
             },
             strokeWidthDialog: {
                 title: 'Stroke Width'
@@ -2035,7 +2053,7 @@
                 this.element.bind('click touchend', this.open.bind(this)).data('instance', this);
             },
             open: function () {
-                this.toolbar.dialog({ name: this._dialogName });
+                this.toolbar.dialog({ name: this._dialogName, options: { width: 400 } });
             }
         }));
 
@@ -2055,8 +2073,8 @@
             options: { autoFocus: true },
             dialog: function () {
                 if (!this._dialog) {
-                    // this._dialog = $('<div class=\'k-spreadsheet-window k-action-window k-popup-edit-form\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
-                    this._dialog = $('<div class=\'k-spreadsheet-window k-action-window\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
+                    // this._dialog = $('<div class="k-spreadsheet-window k-action-window k-popup-edit-form" />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
+                    this._dialog = $('<div class="k-spreadsheet-window k-action-window" />').addClass(this.options.className || '').append(kendo.template(this.options.template)({
                         messages: kendo.vectordrawing.messages.dialogs || DIALOG_MESSAGES,
                         errors: this.options.errors
                     })).appendTo(document.body).kendoWindow({
@@ -2106,6 +2124,55 @@
         });
 
         /**
+         * Save
+         */
+        var SaveDialog = VectorDrawingDialog.extend({
+            options: {
+                template: '<div class="k-edit-label"><label>#: messages.saveDialog.labels.name #</label></div>' + '<div class="k-edit-field"><input class="k-textbox" data-bind="value: name" /></div>' + '<div class="k-edit-label"><label>#: messages.saveDialog.labels.type #</label></div>' + '<div class="k-edit-field"><input data-role="dropdownlist" data-bind="value: type" data-source="#: messages.saveDialog.labels.extensions #" /></div>' +
+                    '<div class="k-action-buttons">' + ('<button class="k-button k-primary" data-bind="click: apply">#= messages.okText #</button>' + '<button class="k-button" data-bind="click: cancel">#= messages.cancel #</button>') + '</div>',
+                title: DIALOG_MESSAGES.saveDialog.title,
+                autoFocus: false
+            },
+            open: function (url) {
+                var self = this;
+                VectorDrawingDialog.fn.open.apply(self, arguments);
+                var element = self.dialog().element;
+                var name = (url || '').split('/').pop() || DIALOG_MESSAGES.saveDialog.default;
+                var type = name.split('.').pop().toUpperCase() || DIALOG_MESSAGES.saveDialog.default.split('.').pop().toUpperCase();
+                var model = kendo.observable({
+                    name: name,
+                    type: '.' + type,
+                    apply: function () {
+                        // TODO ----------------------- Add kendo UI validator
+                        self.trigger('action', {
+                            command: 'ToolbarSaveCommand',
+                            params: {
+                                type: 'save',
+                                value: model.name.replace(DIALOG_MESSAGES.saveDialog.regex, '') +  model.type.toLowerCase()
+                            }
+                        });
+                        self.close();
+                    },
+                    cancel: self.close.bind(self)
+                });
+                kendo.bind(element, model);
+                element.find('input').focus().on('keydown', function (e) {
+                    if (e.keyCode === 13) {
+                        model.name = $(this).val();
+                        e.stopPropagation();
+                        e.preventDefault();
+                        model.apply();
+                    } else if (e.keyCode === 27) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        model.cancel();
+                    }
+                });
+            }
+        });
+        kendo.vectordrawing.dialogs.register('vectorSave', SaveDialog);
+
+        /**
          * Shape
          */
         var ShapeDialog = VectorDrawingDialog.extend({
@@ -2140,12 +2207,12 @@
                 VectorDrawingDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new StaticList(ul, {
                     dataSource: new DataSource({ data: this.options.buttons }),
-                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
+                    template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -2169,7 +2236,7 @@
          */
         var ImageDialog = VectorDrawingDialog.extend({
             options: {
-                template: '<div class=\'k-edit-label\'><label>#: messages.imageDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                template: '<div class="k-edit-label"><label>#: messages.imageDialog.labels.url #:</label></div>' + '<div class="k-edit-field"><input class="k-textbox" data-bind="value: url" /></div>' + '<div class="k-action-buttons">' + ('<button class="k-button k-primary" data-bind="click: apply">#= messages.okText #</button>' + '<button class="k-button" data-bind="click: cancel">#= messages.cancel #</button>') + '</div>',
                 title: DIALOG_MESSAGES.imageDialog.title,
                 autoFocus: false
             },
@@ -2221,7 +2288,7 @@
          */
         var TextDialog = VectorDrawingDialog.extend({
             options: {
-                template: '<div class=\'k-edit-label\'><label>#: messages.textDialog.labels.text #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: text\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                template: '<div class="k-edit-label"><label>#: messages.textDialog.labels.text #:</label></div>' + '<div class="k-edit-field"><input class="k-textbox" data-bind="value: text" /></div>' + '<div class="k-action-buttons">' + ('<button class="k-button k-primary" data-bind="click: apply">#= messages.okText #</button>' + '<button class="k-button" data-bind="click: cancel">#= messages.cancel #</button>') + '</div>',
                 title: DIALOG_MESSAGES.textDialog.title,
                 autoFocus: false
             },
@@ -2282,7 +2349,7 @@
                 });
                 kendo.bind(this.element.find('.k-action-buttons'), this.viewModel);
             },
-            options: { template: '<div></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#: messages.apply #</button>' + '<button class=\'k-button\' data-bind=\'click: close\'>#: messages.cancel #</button>' + '</div>' },
+            options: { template: '<div></div>' + '<div class="k-action-buttons">' + '<button class="k-button k-primary" data-bind="click: apply">#: messages.apply #</button>' + '<button class="k-button" data-bind="click: close">#: messages.cancel #</button>' + '</div>' },
             apply: function () {
                 VectorDrawingDialog.fn.apply.call(this);
                 this.trigger('action', {
@@ -2398,7 +2465,7 @@
          */
         var OpacityDialog = VectorDrawingDialog.extend({
             init: function (options) {
-                var messages = kendo.vectordrawing.messages.dialogs.strokeWidthDialog || DIALOG_MESSAGES;
+                var messages = kendo.vectordrawing.messages.dialogs.opacityDialog || DIALOG_MESSAGES;
                 var defaultOptions = {
                     title: messages.title,
                     property: 'opacity'
@@ -2537,13 +2604,13 @@
                 VectorDrawingDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new StaticList(ul, {
                     dataSource: new DataSource({ data: this.options.buttons }),
-                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' +
-                        '<svg height=\'16\' width=\'100\'><g><path stroke=\'grey\' stroke-width=\'2\' stroke-dasharray=\'#=dashArray#\' d=\'M0 10 L100 10\' /></g></svg>' +
+                    template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' +
+                        '<svg height="16" width="100"><g><path stroke="grey" stroke-width="2" stroke-dasharray="#=dashArray#" d="M0 10 L100 10" /></g></svg>' +
 
                         // TODO Beware themes noting that I could not get #808080 and \#808080 to work instead of grey
 
@@ -2602,12 +2669,12 @@
                 VectorDrawingDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new StaticList(ul, {
                     dataSource: new DataSource({ data: this.options.buttons }),
-                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-icon k-i-#=iconClass#\'></span>#=text#' + '</a>',
+                    template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-icon k-i-#=iconClass#"></span>#=text#' + '</a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -2662,12 +2729,12 @@
                 VectorDrawingDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new StaticList(ul, {
                     dataSource: new DataSource({ data: this.options.buttons }),
-                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-icon k-i-#=iconClass#\'></span>#=text#' + '</a>',
+                    template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-icon k-i-#=iconClass#"></span>#=text#' + '</a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();
@@ -2699,7 +2766,7 @@
                 VectorDrawingDialog.fn.init.call(this, $.extend({ title: messages.title }, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 var sizes = this.options.sizes;
@@ -2749,7 +2816,7 @@
                 VectorDrawingDialog.fn.init.call(this, $.extend({ title: messages.title }, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 var fonts = this.options.fonts;
@@ -2813,12 +2880,12 @@
                 VectorDrawingDialog.fn.init.call(this, $.extend(defaultOptions, options));
                 this._list();
             },
-            options: { template: '<ul class=\'k-list k-reset\'></ul>' },
+            options: { template: '<ul class="k-list k-reset"></ul>' },
             _list: function () {
                 var ul = this.dialog().element.find('ul');
                 this.list = new StaticList(ul, {
                     dataSource: new DataSource({ data: this.options.buttons }),
-                    template: '<a title=\'#=text#\' data-property=\'#=property#\' data-value=\'#=value#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>' + '#=text#' + '</a>',
+                    template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
                     change: this.apply.bind(this)
                 });
                 this.list.dataSource.fetch();

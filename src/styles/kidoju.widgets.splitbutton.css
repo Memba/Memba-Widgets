@@ -22,9 +22,11 @@
     border: 0;
     vertical-align: sub;
 }
+/*
 .kj-splitbutton .k-button:not(.kj-splitbutton-arrow) .k-icon,
 .k-popup .k-button:not(.kj-splitbutton-arrow) .k-icon,
 .kj-splitbutton .k-button:not(.kj-splitbutton-arrow) .k-image,
 .k-popup .k-button:not(.kj-splitbutton-arrow) .k-image {
     margin-right: 0.25em;
 }
+*/

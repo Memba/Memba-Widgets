@@ -13,7 +13,7 @@
     <link href="./styles/fonts/kidoju.css" rel="stylesheet">
     <link href="./styles/kidoju.widgets.vectordrawing.css" rel="stylesheet">
     <!-- Weinre -->
-    <script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script>
+    <!--script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
     <!-- SystemJS loader -->
     <script src="../test/vendor/system.js"></script>
     <script>
@@ -63,31 +63,22 @@
                         }
                     }).data('kendoWindow');
                     windowWidget.resize(); // Important!
-                    $('button').click(function (e) {
-                        vectorDrawingWidget.exportImage()
-                        .done(function (data) {
-                            kendo.saveAs({
-                                dataURI: data,
-                                fileName: "vectordrawing.png"
-                            });
-                        });
-                    });
-                    $('#hook_image').change(function (e) {
+                    $('#commands').change(function (e) {
+                        vectorDrawingWidget.unbind('command');
                         if ($(e.target).prop('checked')) {
-                            vectorDrawingWidget.bind('toolbarClick', function (e) {
-                                alert('hook!');
+                            vectorDrawingWidget.bind('command', function (e) {
+                                e.preventDefault();
+                                alert(e.command + ' is hooked and is prevented from executing.');
                             });
-                        } else {
-                            vectorDrawingWidget.unbind('toolbarClick');
                         }
                     });
-                    $('#hook_save').change(function (e) {
+                    $('#dialogs').change(function (e) {
+                        vectorDrawingWidget.unbind('dialog');
                         if ($(e.target).prop('checked')) {
-                            vectorDrawingWidget.bind('toolbarClick', function (e) {
-                                alert('hook!');
+                            vectorDrawingWidget.bind('dialog', function (e) {
+                                e.preventDefault();
+                                alert(e.name + ' is hooked and is prevented from showing.');
                             });
-                        } else {
-                            vectorDrawingWidget.unbind('toolbarClick');
                         }
                     });
                 });
@@ -98,11 +89,8 @@
 <body>
 <h1>kidoju.widgets.vectordrawing</h1>
 <div>
-    <button>Export PNG</button>&nbsp;
-</div>
-<div>
-    <input id="hook_image" type="checkbox" />Hook Image
-    <input id="hook_save" type="checkbox" />Hook Save
+    <input id="commands" type="checkbox" />Hook Commands
+    <input id="dialogs" type="checkbox" />Hook Dialogs
 </div>
 <div id="window" style="padding:0;">
     <div id="drawing"></div>

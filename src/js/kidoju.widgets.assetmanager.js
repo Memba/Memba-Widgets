@@ -20,7 +20,7 @@
         './vendor/kendo/kendo.window',
         // './vendor/kendo/kendo.upload' // <--- does not work with AWS S3
         './kidoju.widgets.messagebox',
-        './kidoju.widgets.splitbutton'
+        './kidoju.widgets.vectordrawing'
     ], f);
 })(function () {
 
@@ -38,17 +38,16 @@
         var DropDownList = kendo.ui.DropDownList;
         var ListView = kendo.ui.ListView;
         var Pager = kendo.ui.Pager;
-        var SplitButton = kendo.ui.SplitButton;
         var TabStrip = kendo.ui.TabStrip;
         var Window = kendo.ui.Window;
-        var deepExtend = kendo.deepExtend;
+        // var deepExtend = kendo.deepExtend;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.assetmanager');
         var NUMBER = 'number';
         var STRING = 'string';
         var OBJECT = 'object';
         var ARRAY = 'array';
-        var UNDEFINED = 'undefined';
+        // var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
         var ERROR = 'error';
@@ -65,7 +64,6 @@
                     '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button">' +
                         '<span class="k-icon k-i-plus"></span>#:messages.toolbar.upload#<input type="file" name="file" accept="#=accept#" multiple />' +
                     '</div></div>' +
-                    '<div data-role="splitbutton"></div>' +
                     '<button type="button" class="k-button k-button-icon" title="#:messages.toolbar.create#"><span class="k-icon k-i-file-add"></span></button>' +
                     '<button type="button" class="k-button k-button-icon k-state-disabled" title="#:messages.toolbar.edit#"><span class="k-icon k-i-track-changes-enable"></span></button>' +
                     '<button type="button" class="k-button k-button-icon k-state-disabled" title="#:messages.toolbar.delete#"><span class="k-icon k-i-delete"></span></button>' +
@@ -75,8 +73,8 @@
                     '<div class="k-widget k-search-wrap k-textbox"><input placeholder="#=messages.toolbar.search#" class="k-input"><a href="\\#" class="k-icon k-i-zoom k-search"></a></div>' +
                 '</div>' +
             '</div>';
-        var ITEM_TMPL = '<li class="k-tile" ' + kendo.attr('uid') + '="#=uid#">' + // ' + kendo.attr('type') + '="#=type$()#">' +
-                '#if (/^image\\//.test(type$())) {#' +
+        var ITEM_TMPL = '<li class="k-tile" ' + kendo.attr('uid') + '="#=uid#">' + // ' + kendo.attr('type') + '="#=mime$()#">' +
+                '#if (/^image\\//.test(mime$())) {#' +
                     '<div class="k-thumb"><img alt="#=name$()#" src="#=url$()#" class="k-image"></span></div>' +
                 '#}else{#' +
                     '<div class="k-thumb"><span class="k-icon k-i-file"></span></div>' +
@@ -316,6 +314,7 @@
                             text: 'Cancel'
                         },
                         confirm: 'Confirm',
+                        newFile: 'New file',
                         ok: {
                             imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
                             text: 'OK'
@@ -327,7 +326,6 @@
                         create: 'Create New',
                         delete: 'Delete',
                         edit: 'Edit',
-                        import: 'Import',
                         search: 'Search',
                         upload: 'Upload'
                     }
@@ -457,7 +455,7 @@
                                 id: 'url',
                                 fields: {
                                     size: { type: NUMBER, editable: false },
-                                    type: { type: STRING, nullable: true }, // Note: we need this otherwise Google images without extensions cannot be viewed
+                                    mime: { type: STRING, nullable: true }, // Note: we need this otherwise Google images without extensions cannot be viewed
                                     url:  { type: STRING, editable: false, nullable: true }
                                 },
                                 name$: function () {
@@ -466,10 +464,10 @@
                                 size$: function () {
                                     return sizeFormatter(this.get('size'));
                                 },
-                                type$: function () {
-                                    var type = this.get('type');
-                                    if (type) {
-                                        return type;
+                                mime$: function () {
+                                    var mime = this.get('mime');
+                                    if (mime) {
+                                        return mime;
                                     }
                                     var url = this.get('url');
                                     if (url) {
@@ -496,6 +494,7 @@
              */
             _tabStrip: function () {
                 assert.isArray(this._collections, kendo.format(assert.messages.isArray.default, 'this._collections'));
+                assert.hasLength(this._collections, kendo.format(assert.messages.hasLength.default, 'this._collections'));
                 var tabStrip = $('<div></div>');
                 var ul = $('<ul></ul>').appendTo(tabStrip);
 
@@ -564,18 +563,6 @@
                     .data('kendoDropDownList');
                 assert.instanceof(DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
 
-                // Split button
-                that.splitButton = that.toolbar.find(kendo.roleSelector('splitbutton'))
-                    .kendoSplitButton({
-                        icon: 'hyperlink-open',
-                        text: options.messages.toolbar.import,
-                        menuButton: []
-                        // change: that._onDropDownListChange.bind(that)
-                        // dataBound: that._onDropDownListDataBound.bind(that)
-                    })
-                    .data('kendoSplitButton');
-                assert.instanceof(SplitButton, that.splitButton, kendo.format(assert.messages.instanceof.default, 'this.splitButton', 'kendo.ui.SplitButton'));
-
                 // Progress bar
                 that.progressBar = that.toolbar.find('div.k-tiles-arrange .k-progressbar')
                     .kendoProgressBar({
@@ -590,15 +577,17 @@
                 assert.instanceof(kendo.ui.ProgressBar, that.progressBar, kendo.format(assert.messages.instanceof.default, 'this.progressBar', 'kendo.ui.ProgressBar'));
 
                 // Event handler used to report upload transport progress in app.assets.js
-                $(document).on(PROGRESS + NS, function (e, value, status) {
-                    that.progressBar.value(value);
-                    if (status === 'complete') {
-                        // TODO: display/limit total storage
-                        setTimeout(function () {
-                            that.progressBar.value(0);
-                        }, 100);
-                    }
-                });
+                if (that.progressBar instanceof kendo.ui.ProgressBar) {
+                    $(document).on(PROGRESS + NS, function(e, value, status) {
+                        that.progressBar.value(value);
+                        if (status === 'complete') {
+                            // TODO: display/limit total storage
+                            setTimeout(function() {
+                                that.progressBar.value(0);
+                            }, 100);
+                        }
+                    });
+                }
 
                 // Search
                 that.searchInput = that.toolbar.find('input.k-input');
@@ -661,7 +650,6 @@
                 // Show/hide upload and delete buttons which are only available on tabs corresponding to editable collections
                 this.toolbar.find('.k-toolbar-wrap > .k-label').toggle(collection.depth > 0);
                 this.toolbar.find('.k-toolbar-wrap >.k-upload').toggle(tools.indexOf('upload') > -1);
-                this.toolbar.find('.k-toolbar-wrap >.kj-splitbutton').toggle(tools.indexOf('import') > -1); // TODO import targets
                 this.toolbar.find('.k-toolbar-wrap >.k-button').has('.k-i-file-add').toggle(tools.indexOf('create') > -1);
                 this.toolbar.find('.k-toolbar-wrap >.k-button').has('.k-i-track-changes-enable').toggle(tools.indexOf('edit') > -1);
                 this.toolbar.find('.k-toolbar-wrap >.k-button').has('.k-i-delete').toggle(tools.indexOf('destroy') > -1);
@@ -850,7 +838,6 @@
                 assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
                 assert.equal(this.collection.dataSource, this.listView.dataSource, kendo.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
                 var index;
-                debugger;
                 if (model._override) {
                     return model;
                 }
@@ -863,6 +850,23 @@
                     }
                 }
                 return dataSource.insert(++index, model);
+            },
+
+            /**
+             * Converts a dataURI into a Blob
+             * // TODO: this is a candidate method for app.image
+             * @see https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
+             */
+            _dataUri2Blob: function(dataUri) {
+                assert.type(STRING, dataUri, kendo.format(assert.messages.type.default, 'dataUri', STRING));
+                var parts = dataUri.split(';base64,');
+                var contentType = parts[0].substr(5); // 5 is length of data:
+                var base64 = window.atob(parts[1]);
+                var array = new window.Uint8Array(base64.length);
+                for (var idx = 0; idx < base64.length; idx++) {
+                    array[idx] = base64.charCodeAt(idx);
+                }
+                return new Blob([array.buffer], { type: contentType });
             },
 
             /**
@@ -954,57 +958,70 @@
 
             /**
              * Edit a new file in editor
+             * Note: This function delegates openUrl and saveAs to the editor definition for the collection (in app.assets.js)
              * @private
              */
             _editNew: function () {
+                assert.isPlainObject(this.collection, kendo.format(assert.messages.isPlainObject.default, 'this.collection'));
                 var that = this;
-                var windowWidget = that.getWindow();
-                windowWidget.viewModel = kendo.observable({
-                    // See kendo.saveAs and proxyURL
-                    // TODO http://docs.telerik.com/kendo-ui/framework/save-files/introduction
-                    url: '',
-                    fileName: '',
-                    dataURI: undefined,
-                    click: function (e) {
-                        debugger;
-                        if (e.action === 'save') {
-                            $.noop();
-                        }
+                if (that.collection.editor) {
+                    logger.debug({ method: '_editNew', message: 'Open asset editor'/*, data: dataItem.toJSON()*/ });
+                    var windowWidget = that._getWindow();
+                    windowWidget.viewModel = that._getWindowViewModel();
+                    windowWidget.title(that.options.messages.dialogs.newFile);
+                    windowWidget.content(that.collection.editor.template);
+                    kendo.bind(windowWidget.element, windowWidget.viewModel);
+                    if ($.isFunction(that.collection.editor.resize)) {
+                        windowWidget.bind('resize', function (e) {
+                            // that.collection.editor.resize is defined in app.assets.js
+                            that.collection.editor.resize.bind(e.sender)(e);
+                        });
                     }
-                });
-                windowWidget.content(that.collection.editor);
-                kendo.bind(windowWidget.element, windowWidget.viewModel);
-                windowWidget.center().open();
+                    windowWidget.center().open();
+                    if (that.collection.editor.maximize) {
+                        // Note: maximize requires a kendo.ui.Window instead of a kendo.ui.Dialog
+                        windowWidget.maximize();
+                    }
+                }
             },
 
             /**
              * Edit selected file in editor
+             * Note: This function delegates openUrl and saveAs to the editor definition for the collection (in app.assets.js)
              * @private
              */
             _editSelected: function () {
                 assert.isPlainObject(this.collection, kendo.format(assert.messages.isPlainObject.default, 'this.collection'));
                 assert.instanceof(kendo.ui.ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
                 assert.equal(this.collection.dataSource, this.listView.dataSource, kendo.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
-                var dataItem = this.listView.dataItem(this.listView.select());
-                if (dataItem instanceof kendo.data.Model) {
-                    logger.debug({ method: '_editSelected', message: 'Asset editing', data: dataItem.toJSON() });
-                    var windowWidget = this.getWindow();
-                    windowWidget.viewModel = kendo.observable({
-                        // See kendo.saveAs and proxyURL
-                        // TODO http://docs.telerik.com/kendo-ui/framework/save-files/introduction
-                        url: dataItem.url$(),
-                        fileName: '',
-                        dataURI: undefined,
-                        click: function (e) {
-                            debugger;
-                            if (e.action === 'save') {
-                                $.noop();
-                            }
-                        }
-                    });
-                    windowWidget.content(this.collection.editor.template);
+                var that = this;
+                var dataItem = that.listView.dataItem(that.listView.select());
+                if (that.collection.editor && dataItem instanceof kendo.data.Model) {
+                    logger.debug({ method: '_editSelected', message: 'Open asset editor', data: dataItem.toJSON() });
+                    var windowWidget = that._getWindow();
+                    windowWidget.viewModel = that._getWindowViewModel(dataItem.url$());
+                    windowWidget.title(windowWidget.viewModel.url.split('/').pop());
+                    windowWidget.content(that.collection.editor.template);
                     kendo.bind(windowWidget.element, windowWidget.viewModel);
+                    if ($.isFunction(that.collection.editor.resize)) {
+                        windowWidget.bind('resize', function (e) {
+                            // that.collection.editor.resize is defined in app.assets.js
+                            that.collection.editor.resize.bind(e.sender)(e);
+                        });
+                    }
+                    if ($.isFunction(that.collection.editor.openUrl)) {
+                        windowWidget.one('open', function (e) {
+                            // that.collection.editor.openUrl is defined in app.assets.js
+                            that.collection.editor.openUrl.bind(e.sender)(dataItem.url$());
+                        });
+                    } else {
+                        logger.warn({ method: '_editSelected', message: 'The collection does not designate an editor implementing openUrl' });
+                    }
                     windowWidget.center().open();
+                    if (that.collection.editor.maximize) {
+                        // Note: maximize requires a kendo.ui.Window instead of a kendo.ui.Dialog
+                        windowWidget.maximize();
+                    }
                 }
             },
 
@@ -1183,35 +1200,76 @@
             /**
              * Get an editor window
              */
-            getWindow: function (options) {
-                var that = this;
+            _getWindow: function (/*options*/) {
                 var windowWidget = $(WINDOW_SELECTOR).data('kendoWindow');
                 // Find or create dialog frame
                 if (!(windowWidget instanceof Window)) {
                     // Create dialog
-                    windowWidget = $(kendo.format('<div class="{0}"></div>', WINDOW_SELECTOR.substr(1)))
+                    windowWidget = $(kendo.format('<div class="{0} kj-no-padding kj-hidden-overflow"></div>', WINDOW_SELECTOR.substr(1)))
                         .appendTo(document.body)
                         .kendoWindow({
                             // Note: we are using a window to get maximize and close in the title bar
-                            actions: ['Close', 'Maximize'],
+                            actions: ['Maximize', 'Close'],
                             content: '',
+                            draggable: true,
                             modal: true,
+                            resizable: true,
+                            // title to be set
                             visible: false,
                             height: 600,
                             width: 800,
-                            close: function (e) {
+                            activate: function () {
+                                windowWidget.trigger('resize');
+                            },
+                            close: function () {
                                 // This is a reusable dialog, so we need to make sure it is ready for the next content
                                 // windowWidget.element.removeClass(NO_PADDING_CLASS);
-                                // The content method destroys widgets and unbinds data
-                                windowWidget.content('');
+                                windowWidget.unbind('resize');
+                                windowWidget.content(''); // The content method destroys widgets and unbinds data
                                 windowWidget.viewModel = undefined;
                             }
                         })
                         .data('kendoWindow');
                     // Hides the display of "Fermer" after the "X" icon in the window title bar
-                    windowWidget.wrapper.find('.k-window-titlebar > .k-dialog-close > .k-font-icon.k-i-x').text('');
+                    // windowWidget.wrapper.find('.k-window-titlebar > .k-dialog-close > .k-font-icon.k-i-x').text('');
                 }
                 return windowWidget;
+            },
+
+            /**
+             * Get a window view model
+             * @param url
+             * @private
+             */
+            _getWindowViewModel: function (url) {
+                var that = this;
+                return kendo.observable({
+                    url: url || '',
+                    onCommand: function (e) {
+                        // The editor has a save button which emits an event which we hook here
+                        // because the assetmanager knows transports to save whereas the editor is generic and does not know how or where to save.
+                        if (e.command === 'ToolbarSaveCommand') {
+                            e.preventDefault();
+                            if (that.collection.editor && $.isFunction(that.collection.editor.saveAs)) {
+                                // that.collection.editor.saveAs is defined in app.assets.js
+                                // and e.params.value is the file name
+                                that.collection.editor.saveAs.bind(e.sender)(e.params.value, that);
+                            } else {
+                                logger.warn({ method: '_getWindowViewModel', message: 'The collection does not designate an editor implementing saveAs' });
+                            }
+                        }
+                    },
+                    onDialog: function (e) {
+                        if (e.name === 'vectorImage') { // TODO: this is not generic naming
+                            e.preventDefault();
+                            if (that.collection.editor && $.isFunction(that.collection.editor.openImageDialog)) {
+                                that.collection.editor.openImageDialog.bind(e.sender)(/*  // TODO */);
+                            } else {
+                                logger.warn({ method: '_getWindowViewModel', message: 'The collection does not designate an editor implementing openImageDialog' });
+                            }
+                        }
+                    }
+                });
             },
 
             /**

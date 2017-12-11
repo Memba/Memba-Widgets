@@ -88,6 +88,7 @@
                 // We need a clone to avoid modifications to original data
                 for (var field in that.fields) {
                     if (that.fields.hasOwnProperty(field)) {
+                        // TODO Check https://docs.telerik.com/kendo-ui/controls/data-management/grid/how-to/binding/use-nested-model-properties
                         if (data && $.isFunction(data.hasOwnProperty) && data.hasOwnProperty(field) && $.type(data[field]) !== UNDEFINED) {
                             parsed[field] = that._parse(field, data[field]);
                         } else if (that.defaults && that.defaults.hasOwnProperty(field)) {

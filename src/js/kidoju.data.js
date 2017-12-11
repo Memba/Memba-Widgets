@@ -187,7 +187,6 @@
                     kendo.data.Model.fn.shouldSerialize.call(this, field);
             },
 
-
             /**
              * Modify original toJSON method to:
              * (1) only serialize actual editable fields with their id

@@ -117,7 +117,7 @@
                             id: { type: 'string', nullable: true, editable: false },
                             title: { type: 'string', defaultValue: 'hey' },
                             dob: { type: 'date' },
-                            age: { type: 'number', defaultValue: 10 }
+                            age: { type: 'number', defaultValue: function () { return 10; } }
                         }
                     };
 
@@ -179,23 +179,20 @@
                 var pastId = ObjectId();
                 var now = new Date();
                 var nowId = ObjectId();
-                var initObj = {
-                    id: pastId,
-                    date: past.toISOString()
-                };
 
                 function TestBad() {
-                    var badObject = new BadModel(initObj);
-                    var badChange = false;
+                    var badObject = new BadModel({
+                        id: pastId,
+                        date: past.toISOString()
+                    });
+                    var change = sinon.spy();
 
                     expect(badObject).to.have.property('id').that.is.equal(pastId);
                     // There lies the problem: the date property is supposed to be a Date and the string value has not been parsed/converted
                     expect(badObject).to.have.property('date').that.is.a('string');
                     expect(badObject.date).to.equal(past.toISOString());
 
-                    badObject.bind('change', function (e) {
-                        badChange = true;
-                    });
+                    badObject.bind('change', change);
 
                     badObject.accept({
                         id: nowId,
@@ -207,7 +204,7 @@
                     // badObject is not dirty, which is expected since we have not called set
                     expect(badObject).to.have.property('dirty').that.is.false;
                     // accordingly the change event has not been raised
-                    expect(badChange).to.be.false;
+                    expect(change).not.to.have.been.called;
 
                     // There lies the problem: the date property is supposed to be a Date and the string value has not been parsed/converted
                     expect(badObject).to.have.property('date').that.is.a('string');
@@ -215,17 +212,18 @@
                 }
 
                 function TestFixed() {
-                    var fixedObject = new FixedModel(initObj);
-                    var fixedChange = false;
+                    var fixedObject = new FixedModel({
+                        id: pastId,
+                        date: past.toISOString()
+                    });
+                    var change = sinon.spy();
 
                     expect(fixedObject).to.have.property('id').that.is.equal(pastId);
                     // The fix in kidoju.data.Model is discussed and explained at http://www.telerik.com/forums/parsing-on-initialization-of-kendo-data-model
                     expect(fixedObject).to.have.property('date').that.is.an.instanceof(Date);
                     expect(fixedObject.date.getTime()).to.equal(past.getTime());
 
-                    fixedObject.bind('change', function (e) {
-                        fixedChange = true;
-                    });
+                    fixedObject.bind('change', change);
 
                     fixedObject.accept({
                         id: nowId,
@@ -234,7 +232,7 @@
 
                     expect(fixedObject).to.have.property('id').that.is.equal(nowId);
                     expect(fixedObject).to.have.property('dirty').that.is.false;
-                    expect(fixedChange).to.be.false;
+                    expect(change).not.to.have.been.called;
 
                     // We have fixed our date parsing issue
                     expect(fixedObject).to.have.property('date').that.is.an.instanceof(Date);
@@ -245,6 +243,10 @@
                 TestBad();
                 TestFixed();
 
+            });
+
+            xit('We expect to parse nested properties', function () {
+                // TODO Check https://docs.telerik.com/kendo-ui/controls/data-management/grid/how-to/binding/use-nested-model-properties
             });
 
             it('We expect to parse nested models', function () {
@@ -304,9 +306,7 @@
             });
 
             xit('We expect to parse arrays of nested model', function () {
-
                 // TODO
-
             });
 
             it('We expect to raise a change event on the parent ObservableObject on accept', function () {
@@ -748,8 +748,8 @@
             it('if initialized from an empty array, the count of components should match', function (done) {
                 var pageComponentCollectionDataSource1 = new PageComponentCollectionDataSource();
                 var pageComponentCollectionDataSource2 = new PageComponentCollectionDataSource({ data: [] });
-                expect(pageComponentCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(pageComponentCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource1).to.have.nested.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource2).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource1.options.schema.model()).to.be.an.instanceof(PageComponent);
                 expect(new pageComponentCollectionDataSource2.options.schema.model()).to.be.an.instanceof(PageComponent);
                 $.when(
@@ -803,7 +803,7 @@
 
             it('if initialized from a proper array, the count of components should match and dirty === false', function (done) {
                 var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
-                expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length);
@@ -816,7 +816,7 @@
 
             it('if initialized from a proper array, attributes and properties should be instances of kendo.data.Model', function (done) {
                 var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
-                expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length);
@@ -838,8 +838,8 @@
             it('if initialized from a PageComponentCollectionDataSource, the number of components should match', function (done) {
                 var pageComponentCollectionDataSource1 = PageComponentCollectionDataSource.create(pageComponentCollectionArray);
                 var pageComponentCollectionDataSource2 = PageComponentCollectionDataSource.create(pageComponentCollectionDataSource1);
-                expect(pageComponentCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(pageComponentCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource1).to.have.nested.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource2).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource1.options.schema.model()).to.be.an.instanceof(PageComponent);
                 expect(new pageComponentCollectionDataSource2.options.schema.model()).to.be.an.instanceof(PageComponent);
                 $.when(
@@ -862,8 +862,8 @@
                         }
                     }
                 });
-                expect(pageComponentCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(pageComponentCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource1).to.have.nested.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource2).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource1.options.schema.model()).to.be.an.instanceof(PageComponent);
                 expect(new pageComponentCollectionDataSource2.options.schema.model()).to.be.an.instanceof(PageComponent);
                 $.when(
@@ -886,7 +886,7 @@
                         }
                     }
                 });
-                expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 $.when(
                     pageComponentCollectionDataSource.read(),
@@ -908,7 +908,7 @@
 
             it('If dataSource initialized from in-memory array, there should be one page component more', function (done) {
                 var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
-                expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length);
@@ -942,7 +942,7 @@
                         }
                     }
                 });
-                expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length);
@@ -965,7 +965,7 @@
 
             it('If dataSource initialized from in-memory array, there should be one updated page component', function (done) {
                 var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
-                expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     pageComponentCollectionDataSource.at(0).set('top', 111);
@@ -998,7 +998,7 @@
                         }
                     }
                 });
-                expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     pageComponentCollectionDataSource.at(0).set('top', 111);
@@ -1020,7 +1020,7 @@
 
             it('If dataSource initialized from in-memory array, there should be one page component less', function (done) {
                 var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
-                expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length);
@@ -1053,7 +1053,7 @@
                         }
                     }
                 });
-                expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource.total()).to.equal(pageComponentCollectionArray.length);
@@ -1073,7 +1073,7 @@
 
             it('it should implement toJSON', function (done) {
                 var pageComponentCollectionDataSource = new PageComponentCollectionDataSource({ data: pageComponentCollectionArray });
-                expect(pageComponentCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageComponentCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageComponentCollectionDataSource.options.schema.model()).to.be.an.instanceof(PageComponent);
                 pageComponentCollectionDataSource.read().then(function () {
                     expect(pageComponentCollectionDataSource).to.have.property('toJSON').that.is.a('function');
@@ -1117,7 +1117,7 @@
                 expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
                 expect(page).to.have.property('id').that.is.null;
                 expect(page).to.have.property('style', '');
-                expect(page.components.fetch).to.respond;
+                expect(page.components).to.respondTo('fetch');
                 page.components.fetch().then(function () {
                     expect(page.components.total()).to.equal(0);
                     done();
@@ -1130,7 +1130,7 @@
                 expect(page).to.have.property('id').that.is.null;
                 expect(page).to.have.property('style', '');
                 expect(page.dummy).to.be.undefined;
-                expect(page.components.fetch).to.respond;
+                expect(page.components).to.respondTo('fetch');
                 page.components.fetch().then(function () {
                     expect(page.components.total()).to.equal(0);
                     done();
@@ -1142,7 +1142,7 @@
                 expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
                 expect(page).to.have.property('id').that.is.null;
                 expect(page).to.have.property('style', '');
-                expect(page.components.fetch).to.respond;
+                expect(page.components).to.respondTo('fetch');
                 page.components.fetch().then(function () {
                     expect(page.components.total()).to.equal(2);
                     for (var i = 0; i < page.components.total(); i++) {
@@ -1167,7 +1167,7 @@
                 expect(page).to.have.property('components').that.is.an.instanceof(PageComponentCollectionDataSource);
                 expect(page).to.have.property('id').that.is.null;
                 expect(page).to.have.property('style', '');
-                expect(page.components.fetch).to.respond;
+                expect(page.components).to.respondTo('fetch');
                 page.components.fetch().then(function () {
                     expect(page.components.total()).to.equal(2);
                     var clone = page.clone();
@@ -1477,8 +1477,8 @@
             it('if initialized from an empty array, the count of pages should match', function (done) {
                 var pageCollectionDataSource1 = new PageCollectionDataSource();
                 var pageCollectionDataSource2 = new PageCollectionDataSource({ data: [] });
-                expect(pageCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(pageCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource1).to.have.nested.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource2).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource1.options.schema.model()).to.be.an.instanceof(Page);
                 expect(new pageCollectionDataSource2.options.schema.model()).to.be.an.instanceof(Page);
                 $.when(
@@ -1500,7 +1500,7 @@
                     { title: 'The guns of Navarone' }
                 ];
                 var pageCollectionDataSource = new PageCollectionDataSource({ data: books });
-                expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {                                     // TODO: any way to throw??????
                     expect(pageCollectionDataSource.total()).to.equal(books.length);
@@ -1541,7 +1541,7 @@
 
             it('if initialized from a proper array, the count of pages should match and dirty === false', function (done) {
                 var pageCollectionDataSource = new PageCollectionDataSource({ data: pageCollectionArray });
-                expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length);
@@ -1566,7 +1566,7 @@
                     return dfd.promise();
                 }
                 var pageCollectionDataSource = new PageCollectionDataSource({ data: pageCollectionArray });
-                expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length);
@@ -1588,8 +1588,8 @@
             it('if initialized from a PageCollectionDataSource, the number of pages should match', function (done) {
                 var pageCollectionDataSource1 = PageCollectionDataSource.create(pageCollectionArray);
                 var pageCollectionDataSource2 = PageCollectionDataSource.create(pageCollectionDataSource1);
-                expect(pageCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(pageCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource1).to.have.nested.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource2).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource1.options.schema.model()).to.be.an.instanceof(Page);
                 expect(new pageCollectionDataSource2.options.schema.model()).to.be.an.instanceof(Page);
                 $.when(
@@ -1612,8 +1612,8 @@
                         }
                     }
                 });
-                expect(pageCollectionDataSource1).to.have.deep.property('options.schema.model').that.is.a('function');
-                expect(pageCollectionDataSource2).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource1).to.have.nested.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource2).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource1.options.schema.model()).to.be.an.instanceof(Page);
                 expect(new pageCollectionDataSource2.options.schema.model()).to.be.an.instanceof(Page);
                 $.when(
@@ -1636,7 +1636,7 @@
                         }
                     }
                 });
-                expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 $.when(
                     pageCollectionDataSource.read(),
@@ -1669,7 +1669,7 @@
 
             it('If dataSource initialized from in-memory array, there should be one page component more', function (done) {
                 var pageCollectionDataSource = new PageCollectionDataSource({ data: pageCollectionArray });
-                expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length);
@@ -1703,7 +1703,7 @@
                         }
                     }
                 });
-                expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length);
@@ -1726,7 +1726,7 @@
 
             it('If dataSource initialized from in-memory array, there should be one updated page', function (done) {
                 var pageCollectionDataSource = new PageCollectionDataSource({ data: pageCollectionArray });
-                expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     pageCollectionDataSource.at(0).set('style', 'background-color: #555555;');
@@ -1759,7 +1759,7 @@
                         }
                     }
                 });
-                expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     pageCollectionDataSource.at(0).set('style', 'background-color: #555555;');
@@ -1781,7 +1781,7 @@
 
             it('If dataSource initialized from in-memory array, there should be one page less', function (done) {
                 var pageCollectionDataSource = new PageCollectionDataSource({ data: pageCollectionArray });
-                expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length);
@@ -1814,7 +1814,7 @@
                         }
                     }
                 });
-                expect(pageCollectionDataSource).to.have.deep.property('options.schema.model').that.is.a('function');
+                expect(pageCollectionDataSource).to.have.nested.property('options.schema.model').that.is.a('function');
                 expect(new pageCollectionDataSource.options.schema.model()).to.be.an.instanceof(Page);
                 pageCollectionDataSource.read().then(function () {
                     expect(pageCollectionDataSource.total()).to.equal(pageCollectionArray.length);
@@ -1848,7 +1848,7 @@
                 // Unfortunately, this is a Kendo UI requirement
                 stream = new Stream();
                 // expect(stream).to.have.property('id');
-                expect(stream.pages.fetch).to.respond;
+                expect(stream.pages).to.respondTo('fetch');
                 stream.pages.fetch().then(function () {
                     expect(stream.pages.total()).to.equal(0);
                     done();
@@ -1860,7 +1860,7 @@
                 // expect(stream).to.have.property('id');
                 expect(stream.pages).to.be.an.instanceof(PageCollectionDataSource);
                 expect(stream.dummay).to.be.undefined;
-                expect(stream.pages.fetch).to.respond;
+                expect(stream.pages).to.respondTo('fetch');
                 stream.pages.fetch().then(function () {
                     expect(stream.pages.total()).to.equal(0);
                     done();
@@ -1874,12 +1874,12 @@
                 ] });
                 // expect(stream).to.have.property('id');
                 expect(stream.pages).to.be.an.instanceof(PageCollectionDataSource);
-                expect(stream.pages.fetch).to.respond;
+                expect(stream.pages).to.respondTo('fetch');
                 stream.pages.fetch().then(function () {
                     expect(stream.pages.total()).to.equal(2);
                     var page = stream.pages.at(0);
                     expect(page).to.be.an.instanceof(Page);
-                    expect(stream.pages.load).to.respond;
+                    expect(stream.pages).to.respondTo('load');
                     page.load().then(function () {
                         expect(page.components).to.be.an.instanceof(PageComponentCollectionDataSource);
                         expect(page.components.total()).to.equal(2);

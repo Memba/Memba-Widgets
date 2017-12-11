@@ -81,44 +81,43 @@
              * @private
              */
             _parseData: function (data) {
-                /* This function's cyclomatic complexity is too high */
-                /* jshint -W074 */
                 var that = this;
+                var defaults = $.extend({}, that.defaults);
+                if (that._initializers) { // when defaultValue is a function
+                    for (var idx = 0; idx < that._initializers.length; idx++) {
+                        var name = that._initializers[idx];
+                        defaults[name] = that.defaults[name]();
+                    }
+                }
                 var parsed = {};
-                // We need a clone to avoid modifications to original data
-                for (var field in that.fields) {
-                    if (that.fields.hasOwnProperty(field)) {
-                        // TODO Check https://docs.telerik.com/kendo-ui/controls/data-management/grid/how-to/binding/use-nested-model-properties
-                        if (data && $.isFunction(data.hasOwnProperty) && data.hasOwnProperty(field) && $.type(data[field]) !== UNDEFINED) {
-                            parsed[field] = that._parse(field, data[field]);
-                        } else if (that.defaults && that.defaults.hasOwnProperty(field)) {
-                            if (that[field] instanceof kendo.data.DataSource) {
+                for (var prop in that.fields) {
+                    if (that.fields.hasOwnProperty(prop)) {
+                        var field = that.fields[prop];
+                        var from = field.from || prop;
+                        var value = !!data ? kendo.getter(from)(data) : undefined;
+                        if ($.type(value) === UNDEFINED) {
+                            value = defaults[prop];
+                        }
+                        parsed[prop] = that._parse(prop, value);
+                        /*
+                        if (data && $.isFunction(data.hasOwnProperty) && data.hasOwnProperty(prop) && $.type(data[prop]) !== UNDEFINED) {
+                            parsed[prop] = that._parse(prop, data[prop]);
+                        } else if (that.defaults && that.defaults.hasOwnProperty(prop)) {
+                            if (that[prop] instanceof kendo.data.DataSource) {
                                 // Important! Do not erase existing dataSources
-                                // unless data.hasOwnProperty(field) here above
-                                parsed[field] = that[field];
+                                // unless data.hasOwnProperty(prop) here above
+                                parsed[prop] = that[prop];
                             } else {
                                 // Important! We need to parse default values
                                 // especially to initialize Stream.pages.defaultValue
                                 // and Page.components.defaultValue
-                                parsed[field] = that._parse(field, that.defaults[field]);
+                                parsed[prop] = that._parse(prop, that.defaults[prop]);
                             }
-                        } else if (that.fields[field].type === 'string') {
-                            parsed[field] = '';
-                        } else if (that.fields[field].type === 'number') {
-                            parsed[field] = 0;
-                        } else if (that.fields[field].type === 'boolean') {
-                            parsed[field] = false;
-                        } else if (that.fields[field].type === 'date') {
-                            parsed[field] = new Date();
-                        } else {
-                            // Any field which is part of the model schema/definition
-                            // and which has no type and no defaultValue infers a null default value
-                            parsed[field] = null;
                         }
+                        */
                     }
                 }
                 return parsed;
-                /* jshint -W074 */
             },
 
             /**

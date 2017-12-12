@@ -75,13 +75,18 @@
         var Model = models.Model = kendo.data.Model.define({
 
             /**
-             * Function called in init(data) and accept(data)
-             * to parse data and convert fields to model field types
+             * Function called in init(data) and accept(data) to parse data and convert fields to model field types
+             * There are several issues with kendo.data.Model that we attempt to fix here:
+             * - If data is passed to init, missing properties do not get a default value
+             * - passing an ISO UTC string date as a value for a field of type date is not parsed
+             * - more generally filed parse functions are not executed on default values, which is an issue with complex types
+             * - events are not propagated to parents
              * @param data
              * @private
              */
             _parseData: function (data) {
                 var that = this;
+                // Build a set of defaults considering some default values are initializer functions
                 var defaults = $.extend({}, that.defaults);
                 if (that._initializers) { // when defaultValue is a function
                     for (var idx = 0; idx < that._initializers.length; idx++) {
@@ -89,32 +94,20 @@
                         defaults[name] = that.defaults[name]();
                     }
                 }
+                // Build our parsed data, discarding any fields that does not belong to our model
                 var parsed = {};
                 for (var prop in that.fields) {
                     if (that.fields.hasOwnProperty(prop)) {
                         var field = that.fields[prop];
+                        // Some fields get their data from another field
                         var from = field.from || prop;
-                        var value = !!data ? kendo.getter(from)(data) : undefined;
+                        // If from is `metrics.comments.count` we need `data`, `data.metrics` and `data.metrics.comments` to not be undefined
+                        // which `true` provides as the safe option of kendo.getter
+                        var value = !!data ? kendo.getter(from, true)(data) : undefined;
                         if ($.type(value) === UNDEFINED) {
                             value = defaults[prop];
                         }
                         parsed[prop] = that._parse(prop, value);
-                        /*
-                        if (data && $.isFunction(data.hasOwnProperty) && data.hasOwnProperty(prop) && $.type(data[prop]) !== UNDEFINED) {
-                            parsed[prop] = that._parse(prop, data[prop]);
-                        } else if (that.defaults && that.defaults.hasOwnProperty(prop)) {
-                            if (that[prop] instanceof kendo.data.DataSource) {
-                                // Important! Do not erase existing dataSources
-                                // unless data.hasOwnProperty(prop) here above
-                                parsed[prop] = that[prop];
-                            } else {
-                                // Important! We need to parse default values
-                                // especially to initialize Stream.pages.defaultValue
-                                // and Page.components.defaultValue
-                                parsed[prop] = that._parse(prop, that.defaults[prop]);
-                            }
-                        }
-                        */
                     }
                 }
                 return parsed;

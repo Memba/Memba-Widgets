@@ -1271,7 +1271,7 @@
                                 // If our component has a name property to record the result of a test interaction
                                 // Note: some components like textboxes have properties, others likes labels and images don't
                                 // assert.type(STRING, properties.name, kendo.format(assert.messages.type.default, 'properties.name', STRING));
-                                if ($.type(properties.name) === STRING) {
+                                if ($.type(properties.name) === STRING && $.type(properties.validation) === STRING) {
                                     var code;
                                     var libraryMatches = properties.validation.match(RX_VALIDATION_LIBRARY);
                                     if ($.isArray(libraryMatches) && libraryMatches.length === 4) {
@@ -1325,43 +1325,43 @@
                                                 all: all // all properties - TODO should be page properties only
                                             }
                                         );
+
+                                        // Update result
+                                        result[properties.name] = {
+                                            page: pageIdx,
+                                            name: properties.name,
+                                            question: properties.question,
+                                            tool: component.tool,
+                                            value: test[properties.name].value,
+                                            solution: properties.solution,
+                                            result: undefined,
+                                            omit: properties.omit,
+                                            failure: properties.failure,
+                                            success: properties.success,
+                                            disabled: properties.disabled,
+                                            // Functions used by getScoreArray for improved display in score grid
+                                            value$: function() {
+                                                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
+                                                assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                                                var tool = kidoju.tools[component.tool]; // also this.tool
+                                                assert.instanceof(kidoju.Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                                                return tool.value$(this);
+                                            },
+                                            solution$: function() {
+                                                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
+                                                assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                                                var tool = kidoju.tools[component.tool]; // also this.tool
+                                                assert.instanceof(kidoju.Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
+                                                return tool.solution$(this);
+                                            }
+                                        };
+
+                                        logger.debug({
+                                            message: properties.name + ' added to the worker pool',
+                                            method: 'PageCollectionDataSource.validateTestFromProperties',
+                                            data: { blobURL: blobURL, property: properties.name }
+                                        });
                                     }
-
-                                    // Update result
-                                    result[properties.name] = {
-                                        page: pageIdx,
-                                        name: properties.name,
-                                        question: properties.question,
-                                        tool: component.tool,
-                                        value: test[properties.name].value,
-                                        solution: properties.solution,
-                                        result: undefined,
-                                        omit: properties.omit,
-                                        failure: properties.failure,
-                                        success: properties.success,
-                                        disabled: properties.disabled,
-                                        // Functions used by getScoreArray for improved display in score grid
-                                        value$: function () {
-                                            assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-                                            assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
-                                            var tool = kidoju.tools[component.tool]; // also this.tool
-                                            assert.instanceof(kidoju.Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
-                                            return tool.value$(this);
-                                        },
-                                        solution$: function () {
-                                            assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-                                            assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
-                                            var tool = kidoju.tools[component.tool]; // also this.tool
-                                            assert.instanceof(kidoju.Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
-                                            return tool.solution$(this);
-                                        }
-                                    };
-
-                                    logger.debug({
-                                        message: properties.name + ' added to the worker pool',
-                                        method: 'PageCollectionDataSource.validateTestFromProperties',
-                                        data: { blobURL: blobURL, property: properties.name }
-                                    });
                                 }
                             });
                         });

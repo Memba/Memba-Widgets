@@ -2532,6 +2532,7 @@
                     }
                 }
                 // ret += '</table>';
+                return ret;
             },
 
             /**

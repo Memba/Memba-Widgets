@@ -20,13 +20,38 @@ export class ValueWidget extends ui.Widget {
      * @param options
      */
     constructor(element, options) {
-        super(element, options);
+        super(element, Object.assign({}, ValueWidget.options, options));
+        this.events = ValueWidget.events;
         this.wrapper = this.element;
-        this.value(options.value);
+        this.value(this.options.value);
     }
 
     /**
-     * Value getter/setter
+     * fn static getter
+     */
+    static get fn() {
+        return this;
+    }
+
+    /**
+     * Default events
+     */
+    static get events() {
+        return [CHANGE];
+    }
+
+    /**
+     * Default options
+     */
+    static get options() {
+        return Object.assign({}, this.prototype.options, {
+            name: 'ValueWidget',
+            value: ''
+        });
+    }
+
+    /**
+     * Value
      * @param value
      */
     value(value){
@@ -55,14 +80,5 @@ export class ValueWidget extends ui.Widget {
     }
 }
 
-// Add options
-ValueWidget.prototype.options = {
-    name: 'ValueWidget',
-    value: ''
-};
-// Add events
-ValueWidget.prototype.events = [ CHANGE ];
-// Create an alias of the prototype (required by kendo.ui.plugin)
-ValueWidget.fn = ValueWidget.prototype;
-// Create a jQuery plugin.
+// Create a jQuery plugin, this calls ValueWidget.fn.options.name
 ui.plugin(ValueWidget);

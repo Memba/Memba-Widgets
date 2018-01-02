@@ -5,6 +5,7 @@
 
 import $ from 'jquery'
 import * as kendo from 'kendo.data'
+import {ValueWidget} from './valueWidget';
 
 const CHANGE = 'change';
 const ui = kendo.ui;
@@ -22,8 +23,34 @@ export class DataSourceWidget extends ui.Widget {
      * @param options
      */
     constructor(element, options) {
-        super(element, options);
+        super(element, Object.assign({}, ValueWidget.options, options));
+        this.events = ValueWidget.events;
         this._dataSource();
+    }
+
+    /**
+     * fn static getter
+     */
+    static get fn() {
+        return this;
+    }
+
+    /**
+     * Default events
+     */
+    static get events() {
+        return [CHANGE];
+    }
+
+    /**
+     * Default options
+     */
+    static get options() {
+        return Object.assign({}, this.prototype.options, {
+            name: 'DataSourceWidget',
+            source: [],
+            value: ''
+        });
     }
 
     /**
@@ -31,23 +58,21 @@ export class DataSourceWidget extends ui.Widget {
      * @private
      */
     _dataSource() {
-        let that = this;
-
         // if the DataSource is defined and the _refreshHandler is wired up, unbind because
         // we need to rebuild the DataSource
-        if (that.dataSource instanceof DataSource && $.isFunction(that._refreshHandler)) {
-            that.dataSource.unbind(CHANGE, that._refreshHandler);
+        if (this.dataSource instanceof DataSource && $.isFunction(this._refreshHandler)) {
+            this.dataSource.unbind(CHANGE, this._refreshHandler);
         } else {
-            that._refreshHandler = $.proxy(that.refresh, that);
+            this._refreshHandler = this.refresh.bind(this);
         }
 
         // returns the datasource OR creates one if using array or configuration object
-        that.dataSource = DataSource.create(that.options.dataSource);
+        this.dataSource = DataSource.create(this.options.dataSource);
         // bind to the change event to refresh the widget
-        that.dataSource.bind(CHANGE, that._refreshHandler);
+        this.dataSource.bind(CHANGE, this._refreshHandler);
 
-        if (that.options.autoBind) {
-            that.dataSource.fetch();
+        if (this.options.autoBind) {
+            this.dataSource.fetch();
         }
     }
 
@@ -82,14 +107,5 @@ export class DataSourceWidget extends ui.Widget {
     }
 }
 
-// Add options
-DataSourceWidget.prototype.options = {
-    source: undefined,
-    value: ''
-};
-// Add events
-DataSourceWidget.prototype.events = [ 'change' ];
-// Create an alias of the prototype (required by kendo.ui.plugin)
-DataSourceWidget.fn = DataSourceWidget.prototype;
 // Create a jQuery plugin.
 ui.plugin(DataSourceWidget);

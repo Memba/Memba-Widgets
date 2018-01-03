@@ -11,8 +11,7 @@
 <div id="unbound"></div>
 <h2>Declarative</h2>
 <div id="bound">
-    <input data-bind="value: value">
-    <div data-role="valuewidget" data-bind="value: value"></div>
+    <div data-role="datasourcewidget" data-bind="source: data"></div>
 </div>
 <script type="text/javascript" charset="utf-8">
     System.config({
@@ -29,15 +28,15 @@
             'kendo.*': '../src/js/vendor/kendo/kendo.*.js'
         }
     });
-    System.import('./valueWidget.es6').then(function () {
+    System.import('./dataSourceWidget.es6').then(function () {
         var kendo = window.kendo;
         var viewModel = kendo.observable({
-            value: 'Hey!'
+            data: ['a', 'b', 'c']
         });
         $(function () {
             // Imperative
-            $('#unbound').kendoValueWidget({
-                value: 'Hello World'
+            $('#unbound').kendoDataSourceWidget({
+                dataSource: ['a', 'b', 'c']
             });
             // Declarative
             kendo.bind('#bound', viewModel);

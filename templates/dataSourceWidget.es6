@@ -4,8 +4,7 @@
  */
 
 import $ from 'jquery'
-import * as kendo from 'kendo.data'
-import {ValueWidget} from './valueWidget';
+import 'kendo.binder';
 
 const CHANGE = 'change';
 const ui = kendo.ui;
@@ -23,8 +22,8 @@ export class DataSourceWidget extends ui.Widget {
      * @param options
      */
     constructor(element, options) {
-        super(element, Object.assign({}, ValueWidget.options, options));
-        this.events = ValueWidget.events;
+        super(element, Object.assign({}, DataSourceWidget.options, options));
+        this.events = DataSourceWidget.events;
         this._dataSource();
     }
 
@@ -48,8 +47,8 @@ export class DataSourceWidget extends ui.Widget {
     static get options() {
         return Object.assign({}, this.prototype.options, {
             name: 'DataSourceWidget',
-            source: [],
-            value: ''
+            autoBind: true,
+            dataSource: []
         });
     }
 
@@ -89,9 +88,16 @@ export class DataSourceWidget extends ui.Widget {
 
     /**
      * Refresh
+     * Note: we should be more clever and use e.action and e.items
      */
     refresh() {
-        this.element.text(this._value);
+        var list = '<ul>';
+        for (var item of this.dataSource.view()) {
+            list += '<li>' + item + '</li>'
+        }
+        list += '</ul>';
+        this.element.empty();
+        this.element.append(list);
     }
 
     /**

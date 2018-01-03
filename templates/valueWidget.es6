@@ -3,6 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
+import $ from 'jquery'
 import 'kendo.binder';
 
 const kendo = window.kendo;

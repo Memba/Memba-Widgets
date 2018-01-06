@@ -613,7 +613,7 @@
                         .addClass(NOPAGE_CLASS)
                         .text(this.options.messages.noPage)
                         .css({
-                            position: 'fixed',
+                            position: 'absolute', // 'fixed',
                             top: '50%',
                             left: '50%',
                             transform: 'translate(-50%, -50%)'
@@ -1508,6 +1508,10 @@
                 kendo.unbind(that.element);
                 // unbind all other events
                 that.element.find('*').off();
+                // remove no page div
+                that.wrapper.children('.' + NOPAGE_CLASS).remove();
+                that.wrapper.children('.' + OVERLAY_CLASS).remove();
+                that.wrapper = undefined;
                 // empty and unwrap
                 that.element
                     .off()
@@ -1521,8 +1525,8 @@
             destroy: function () {
                 var that = this;
                 Widget.fn.destroy.call(that);
-                that._clear();
                 that.setDataSource(NULL);
+                that._clear();
                 kendo.destroy(that.element);
             }
 

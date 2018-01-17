@@ -37,6 +37,7 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
+        var TAP = 'tap';
         // var STATE_ACTIVE = 'k-state-active';
         var STATE_DISABLED = 'k-state-disabled';
         var STATE_SELECTED = 'k-state-selected';
@@ -748,7 +749,7 @@
                 element.off(NS);
                 if (enable) {
                     element
-                        .on(CLICK + NS, BUTTON_SELECTOR, $.proxy(that._onButtonClick, that));
+                        .on(CLICK + NS + ' ' + TAP + NS, BUTTON_SELECTOR, $.proxy(that._onButtonClick, that));
                 }
                 element.toggleClass(STATE_DISABLED, !enable);
             },

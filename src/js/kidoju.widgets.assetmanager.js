@@ -717,7 +717,7 @@
                         promises.push(that._uploadFile(fileList[i]));
                     }
                     that._showUploadProgress();
-                    $.when(promises).always(that._hideUploadProgress.bind(that));
+                    $.when.apply($, promises).always(that._hideUploadProgress.bind(that));
                 }
 
                 var that = this;

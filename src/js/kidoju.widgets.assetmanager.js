@@ -578,11 +578,11 @@
 
                 // Event handler used to report upload transport progress in app.assets.js
                 if (that.progressBar instanceof kendo.ui.ProgressBar) {
-                    $(document).on(PROGRESS + NS, function(e, value, status) {
+                    $(document).on(PROGRESS + NS, function (e, value, status) {
                         that.progressBar.value(value);
                         if (status === 'complete') {
                             // TODO: display/limit total storage
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 that.progressBar.value(0);
                             }, 100);
                         }
@@ -857,7 +857,7 @@
              * // TODO: this is a candidate method for app.image
              * @see https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
              */
-            _dataUri2Blob: function(dataUri) {
+            _dataUri2Blob: function (dataUri) {
                 assert.type(STRING, dataUri, kendo.format(assert.messages.type.default, 'dataUri', STRING));
                 var parts = dataUri.split(';base64,');
                 var contentType = parts[0].substr(5); // 5 is length of data:
@@ -965,7 +965,10 @@
                 assert.isPlainObject(this.collection, kendo.format(assert.messages.isPlainObject.default, 'this.collection'));
                 var that = this;
                 if (that.collection.editor) {
-                    logger.debug({ method: '_editNew', message: 'Open asset editor'/*, data: dataItem.toJSON()*/ });
+                    logger.debug({
+                        method: '_editNew',
+                        message: 'Open asset editor' // , data: dataItem.toJSON()
+                    });
                     var windowWidget = that._getWindow();
                     windowWidget.viewModel = that._getWindowViewModel();
                     windowWidget.title(that.options.messages.dialogs.newFile);

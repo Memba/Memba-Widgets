@@ -40,7 +40,7 @@
             var ctx = c.getContext('2d');
             ctx.fillStyle = 'red';
             ctx.fillRect(10, 10, 50, 50);
-            var imgData = ctx.getImageData(0,0,c.width,c.height);
+            var imgData = ctx.getImageData(0, 0, c.width, c.height);
             var jpeg = kidoju.image.jpegEncode(imgData, 5);
             var img = $('<img/>');
             img.attr({
@@ -86,7 +86,7 @@
             var ctx = c.getContext('2d');
             ctx.fillStyle = 'red';
             ctx.fillRect(10, 10, 50, 50);
-            var imgData = ctx.getImageData(0,0,c.width,c.height);
+            var imgData = ctx.getImageData(0, 0, c.width, c.height);
             var png = kidoju.image.pngEncode(imgData);
             var img = $('<img/>');
             img.attr({

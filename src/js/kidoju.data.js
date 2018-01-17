@@ -74,6 +74,9 @@
          */
         var Model = models.Model = kendo.data.Model.define({
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Function called in init(data) and accept(data) to parse data and convert fields to model field types
              * There are several issues with kendo.data.Model that we attempt to fix here:
@@ -112,6 +115,8 @@
                 }
                 return parsed;
             },
+
+            /* jshint +W074 */
 
             /**
              * Modify original init method
@@ -1340,14 +1345,14 @@
                                             success: properties.success,
                                             disabled: properties.disabled,
                                             // Functions used by getScoreArray for improved display in score grid
-                                            value$: function() {
+                                            value$: function () {
                                                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
                                                 assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                                                 var tool = kidoju.tools[component.tool]; // also this.tool
                                                 assert.instanceof(kidoju.Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
                                                 return tool.value$(this);
                                             },
-                                            solution$: function() {
+                                            solution$: function () {
                                                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
                                                 assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
                                                 var tool = kidoju.tools[component.tool]; // also this.tool

@@ -13,6 +13,9 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function (undefined) {
 
         var STRING = 'string';
@@ -304,6 +307,8 @@
         };
 
     }());
+
+    /* jshint +W071 */
 
     return window.assert;
 

@@ -24,7 +24,7 @@
     (function (undefined) {
 
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.jpg');
+        var logger = new window.Logger('kidoju.image');
         var kidoju = window.kidoju = window.kidoju || {};
         kidoju.image = kidoju.image || {};
 
@@ -33,12 +33,18 @@
          * Note there is also https://github.com/mozilla/pdf.js/blob/master/src/core/jpg.js
          *****************************************************************************************************/
 
+        /* This function has too many statements. */
+        /* jshint -W071 */
+
+        /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
+
         /**
          * A JPEGEncoder
          * @param quality
          * @constructor
          */
         function JPEGEncoder (quality) {
+            /* jshint maxstatements: 51 */
             // var self = this;
             // var fround = Math.round;
             var ffloor = Math.floor;
@@ -131,7 +137,11 @@
                 0xf9,0xfa
             ];
 
-            function initQuantTables (sf){
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            function initQuantTables(sf) {
+                /* jshint maxcomplexity: 9 */
                 var YQT = [
                     16, 11, 10, 16, 24, 40, 51, 61,
                     12, 12, 14, 19, 26, 58, 60, 55,
@@ -144,7 +154,7 @@
                 ];
 
                 for (var i = 0; i < 64; i++) {
-                    var t = ffloor((YQT[i]*sf+50)/100);
+                    var t = ffloor((YQT[i] * sf + 50) / 100);
                     if (t < 1) {
                         t = 1;
                     } else if (t > 255) {
@@ -163,7 +173,7 @@
                     99, 99, 99, 99, 99, 99, 99, 99
                 ];
                 for (var j = 0; j < 64; j++) {
-                    var u = ffloor((UVQT[j]*sf+50)/100);
+                    var u = ffloor((UVQT[j] * sf + 50) / 100);
                     if (u < 1) {
                         u = 1;
                     } else if (u > 255) {
@@ -187,10 +197,12 @@
                 }
             }
 
-            function computeHuffmanTbl (nrcodes, std_table){
+            /* jshint +W074 */
+
+            function computeHuffmanTbl (nrcodes, std_table) {
                 var codevalue = 0;
                 var pos_in_table = 0;
-                var HT = new Array();
+                var HT = []; // new Array();
                 for (var k = 1; k <= 16; k++) {
                     for (var j = 1; j <= nrcodes[k]; j++) {
                         HT[std_table[pos_in_table]] = [];
@@ -199,35 +211,35 @@
                         pos_in_table++;
                         codevalue++;
                     }
-                    codevalue*=2;
+                    codevalue *= 2;
                 }
                 return HT;
             }
 
             function initHuffmanTbl () {
-                YDC_HT = computeHuffmanTbl(std_dc_luminance_nrcodes,std_dc_luminance_values);
-                UVDC_HT = computeHuffmanTbl(std_dc_chrominance_nrcodes,std_dc_chrominance_values);
-                YAC_HT = computeHuffmanTbl(std_ac_luminance_nrcodes,std_ac_luminance_values);
-                UVAC_HT = computeHuffmanTbl(std_ac_chrominance_nrcodes,std_ac_chrominance_values);
+                YDC_HT = computeHuffmanTbl(std_dc_luminance_nrcodes, std_dc_luminance_values);
+                UVDC_HT = computeHuffmanTbl(std_dc_chrominance_nrcodes, std_dc_chrominance_values);
+                YAC_HT = computeHuffmanTbl(std_ac_luminance_nrcodes, std_ac_luminance_values);
+                UVAC_HT = computeHuffmanTbl(std_ac_chrominance_nrcodes, std_ac_chrominance_values);
             }
 
             function initCategoryNumber() {
                 var nrlower = 1;
                 var nrupper = 2;
                 for (var cat = 1; cat <= 15; cat++) {
-                    //Positive numbers
-                    for (var nr = nrlower; nr<nrupper; nr++) {
-                        category[32767+nr] = cat;
-                        bitcode[32767+nr] = [];
-                        bitcode[32767+nr][1] = cat;
-                        bitcode[32767+nr][0] = nr;
+                    // Positive numbers
+                    for (var nr = nrlower; nr < nrupper; nr++) {
+                        category[32767 + nr] = cat;
+                        bitcode[32767 + nr] = [];
+                        bitcode[32767 + nr][1] = cat;
+                        bitcode[32767 + nr][0] = nr;
                     }
-                    //Negative numbers
-                    for (var nrneg =-(nrupper-1); nrneg<=-nrlower; nrneg++) {
-                        category[32767+nrneg] = cat;
-                        bitcode[32767+nrneg] = [];
-                        bitcode[32767+nrneg][1] = cat;
-                        bitcode[32767+nrneg][0] = nrupper-1+nrneg;
+                    // Negative numbers
+                    for (var nrneg = -(nrupper - 1); nrneg <= -nrlower; nrneg++) {
+                        category[32767 + nrneg] = cat;
+                        bitcode[32767 + nrneg] = [];
+                        bitcode[32767 + nrneg][1] = cat;
+                        bitcode[32767 + nrneg][0] = nrupper - 1 + nrneg;
                     }
                     nrlower <<= 1;
                     nrupper <<= 1;
@@ -235,70 +247,77 @@
             }
 
             function initRGBYUVTable() {
-                for(var i = 0; i < 256;i++) {
-                    RGB_YUV_TABLE[i]      		=  19595 * i;
-                    RGB_YUV_TABLE[(i+ 256)>>0] 	=  38470 * i;
-                    RGB_YUV_TABLE[(i+ 512)>>0] 	=   7471 * i + 0x8000;
-                    RGB_YUV_TABLE[(i+ 768)>>0] 	= -11059 * i;
-                    RGB_YUV_TABLE[(i+1024)>>0] 	= -21709 * i;
-                    RGB_YUV_TABLE[(i+1280)>>0] 	=  32768 * i + 0x807FFF;
-                    RGB_YUV_TABLE[(i+1536)>>0] 	= -27439 * i;
-                    RGB_YUV_TABLE[(i+1792)>>0] 	= - 5329 * i;
+                for (var i = 0; i < 256; i++) {
+                    RGB_YUV_TABLE[i] =  19595 * i;
+                    RGB_YUV_TABLE[(i + 256) >> 0] = 38470 * i;
+                    RGB_YUV_TABLE[(i + 512) >> 0] = 7471 * i + 0x8000;
+                    RGB_YUV_TABLE[(i + 768) >> 0] = -11059 * i;
+                    RGB_YUV_TABLE[(i + 1024) >> 0] = -21709 * i;
+                    RGB_YUV_TABLE[(i + 1280) >> 0] =  32768 * i + 0x807FFF;
+                    RGB_YUV_TABLE[(i + 1536) >> 0] = -27439 * i;
+                    RGB_YUV_TABLE[(i + 1792) >> 0] = -5329 * i;
                 }
             }
 
             // IO functions
             function writeBits(bs) {
                 var value = bs[0];
-                var posval = bs[1]-1;
-                while ( posval >= 0 ) {
-                    if (value & (1 << posval) ) {
+                var posval = bs[1] - 1;
+                while (posval >= 0) {
+                    if (value & (1 << posval)) {
                         bytenew |= (1 << bytepos);
                     }
                     posval--;
                     bytepos--;
                     if (bytepos < 0) {
-                        if (bytenew == 0xFF) {
+                        if (bytenew === 0xFF) {
                             writeByte(0xFF);
                             writeByte(0);
                         }
                         else {
                             writeByte(bytenew);
                         }
-                        bytepos=7;
-                        bytenew=0;
+                        bytepos = 7;
+                        bytenew = 0;
                     }
                 }
             }
 
             function writeByte(value) {
-                //byteout.push(clt[value]); // write char directly instead of converting later
+                // byteout.push(clt[value]); // write char directly instead of converting later
                 byteout.push(value);
             }
 
             function writeWord(value) {
-                writeByte((value>>8)&0xFF);
-                writeByte((value   )&0xFF);
+                writeByte((value >> 8) & 0xFF);
+                writeByte((value) & 0xFF);
             }
 
             // DCT & quantization core
             function fDCTQuant(data, fdtbl) {
-                var d0, d1, d2, d3, d4, d5, d6, d7;
+                var d0;
+                var d1;
+                var d2;
+                var d3;
+                var d4;
+                var d5;
+                var d6;
+                var d7;
                 /* Pass 1: process rows. */
-                var dataOff=0;
+                var dataOff = 0;
                 var i;
                 var I8 = 8;
                 var I64 = 64;
-                for (i=0; i<I8; ++i)
+                for (i = 0; i < I8; ++i)
                 {
                     d0 = data[dataOff];
-                    d1 = data[dataOff+1];
-                    d2 = data[dataOff+2];
-                    d3 = data[dataOff+3];
-                    d4 = data[dataOff+4];
-                    d5 = data[dataOff+5];
-                    d6 = data[dataOff+6];
-                    d7 = data[dataOff+7];
+                    d1 = data[dataOff + 1];
+                    d2 = data[dataOff + 2];
+                    d3 = data[dataOff + 3];
+                    d4 = data[dataOff + 4];
+                    d5 = data[dataOff + 5];
+                    d6 = data[dataOff + 6];
+                    d7 = data[dataOff + 7];
 
                     var tmp0 = d0 + d7;
                     var tmp7 = d0 - d7;
@@ -316,11 +335,11 @@
                     var tmp12 = tmp1 - tmp2;
 
                     data[dataOff] = tmp10 + tmp11; /* phase 3 */
-                    data[dataOff+4] = tmp10 - tmp11;
+                    data[dataOff + 4] = tmp10 - tmp11;
 
                     var z1 = (tmp12 + tmp13) * 0.707106781; /* c4 */
-                    data[dataOff+2] = tmp13 + z1; /* phase 5 */
-                    data[dataOff+6] = tmp13 - z1;
+                    data[dataOff + 2] = tmp13 + z1; /* phase 5 */
+                    data[dataOff + 6] = tmp13 - z1;
 
                     /* Odd part */
                     tmp10 = tmp4 + tmp5; /* phase 2 */
@@ -329,24 +348,24 @@
 
                     /* The rotator is modified from fig 4-8 to avoid extra negations. */
                     var z5 = (tmp10 - tmp12) * 0.382683433; /* c6 */
-                    var z2 = 0.541196100 * tmp10 + z5; /* c2-c6 */
-                    var z4 = 1.306562965 * tmp12 + z5; /* c2+c6 */
+                    var z2 = 0.541196100 * tmp10 + z5; /* c2 - c6 */
+                    var z4 = 1.306562965 * tmp12 + z5; /* c2 + c6 */
                     var z3 = tmp11 * 0.707106781; /* c4 */
 
                     var z11 = tmp7 + z3;	/* phase 5 */
                     var z13 = tmp7 - z3;
 
-                    data[dataOff+5] = z13 + z2;	/* phase 6 */
-                    data[dataOff+3] = z13 - z2;
-                    data[dataOff+1] = z11 + z4;
-                    data[dataOff+7] = z11 - z4;
+                    data[dataOff + 5] = z13 + z2;	/* phase 6 */
+                    data[dataOff + 3] = z13 - z2;
+                    data[dataOff + 1] = z11 + z4;
+                    data[dataOff + 7] = z11 - z4;
 
                     dataOff += 8; /* advance pointer to next row */
                 }
 
                 /* Pass 2: process columns. */
                 dataOff = 0;
-                for (i=0; i<I8; ++i)
+                for (i = 0; i < I8; ++i)
                 {
                     d0 = data[dataOff];
                     d1 = data[dataOff + 8];
@@ -373,11 +392,11 @@
                     var tmp12p2 = tmp1p2 - tmp2p2;
 
                     data[dataOff] = tmp10p2 + tmp11p2; /* phase 3 */
-                    data[dataOff+32] = tmp10p2 - tmp11p2;
+                    data[dataOff + 32] = tmp10p2 - tmp11p2;
 
                     var z1p2 = (tmp12p2 + tmp13p2) * 0.707106781; /* c4 */
-                    data[dataOff+16] = tmp13p2 + z1p2; /* phase 5 */
-                    data[dataOff+48] = tmp13p2 - z1p2;
+                    data[dataOff + 16] = tmp13p2 + z1p2; /* phase 5 */
+                    data[dataOff + 48] = tmp13p2 - z1p2;
 
                     /* Odd part */
                     tmp10p2 = tmp4p2 + tmp5p2; /* phase 2 */
@@ -386,29 +405,29 @@
 
                     /* The rotator is modified from fig 4-8 to avoid extra negations. */
                     var z5p2 = (tmp10p2 - tmp12p2) * 0.382683433; /* c6 */
-                    var z2p2 = 0.541196100 * tmp10p2 + z5p2; /* c2-c6 */
-                    var z4p2 = 1.306562965 * tmp12p2 + z5p2; /* c2+c6 */
+                    var z2p2 = 0.541196100 * tmp10p2 + z5p2; /* c2 - c6 */
+                    var z4p2 = 1.306562965 * tmp12p2 + z5p2; /* c2 + c6 */
                     var z3p2 = tmp11p2 * 0.707106781; /* c4 */
 
                     var z11p2 = tmp7p2 + z3p2;	/* phase 5 */
                     var z13p2 = tmp7p2 - z3p2;
 
-                    data[dataOff+40] = z13p2 + z2p2; /* phase 6 */
-                    data[dataOff+24] = z13p2 - z2p2;
-                    data[dataOff+ 8] = z11p2 + z4p2;
-                    data[dataOff+56] = z11p2 - z4p2;
+                    data[dataOff + 40] = z13p2 + z2p2; /* phase 6 */
+                    data[dataOff + 24] = z13p2 - z2p2;
+                    data[dataOff + 8] = z11p2 + z4p2;
+                    data[dataOff + 56] = z11p2 - z4p2;
 
                     dataOff++; /* advance pointer to next column */
                 }
 
                 // Quantize/descale the coefficients
                 var fDCTQuant;
-                for (i=0; i<I64; ++i)
+                for (i = 0; i < I64; ++i)
                 {
                     // Apply the quantization and scaling factor & Round to nearest integer
-                    fDCTQuant = data[i]*fdtbl[i];
+                    fDCTQuant = data[i] * fdtbl[i];
                     outputfDCTQuant[i] = (fDCTQuant > 0.0) ? ((fDCTQuant + 0.5)|0) : ((fDCTQuant - 0.5)|0);
-                    //outputfDCTQuant[i] = fround(fDCTQuant);
+                    // outputfDCTQuant[i] = fround(fDCTQuant);
 
                 }
                 return outputfDCTQuant;
@@ -451,53 +470,59 @@
 
             function writeDQT() {
                 writeWord(0xFFDB); // marker
-                writeWord(132);	   // length
+                writeWord(132); // length
                 writeByte(0);
-                for (var i=0; i<64; i++) {
+                for (var i = 0; i < 64; i++) {
                     writeByte(YTable[i]);
                 }
                 writeByte(1);
-                for (var j=0; j<64; j++) {
+                for (var j = 0; j < 64; j++) {
                     writeByte(UVTable[j]);
                 }
             }
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             function writeDHT() {
+                /* jshint maxcomplexity: 9 */
                 writeWord(0xFFC4); // marker
                 writeWord(0x01A2); // length
 
                 writeByte(0); // HTYDCinfo
-                for (var i=0; i<16; i++) {
-                    writeByte(std_dc_luminance_nrcodes[i+1]);
+                for (var i = 0; i < 16; i++) {
+                    writeByte(std_dc_luminance_nrcodes[i + 1]);
                 }
-                for (var j=0; j<=11; j++) {
+                for (var j = 0; j <= 11; j++) {
                     writeByte(std_dc_luminance_values[j]);
                 }
 
                 writeByte(0x10); // HTYACinfo
-                for (var k=0; k<16; k++) {
-                    writeByte(std_ac_luminance_nrcodes[k+1]);
+                for (var k = 0; k < 16; k++) {
+                    writeByte(std_ac_luminance_nrcodes[k + 1]);
                 }
-                for (var l=0; l<=161; l++) {
+                for (var l = 0; l <= 161; l++) {
                     writeByte(std_ac_luminance_values[l]);
                 }
 
                 writeByte(1); // HTUDCinfo
-                for (var m=0; m<16; m++) {
-                    writeByte(std_dc_chrominance_nrcodes[m+1]);
+                for (var m = 0; m < 16; m++) {
+                    writeByte(std_dc_chrominance_nrcodes[m + 1]);
                 }
-                for (var n=0; n<=11; n++) {
+                for (var n = 0; n <= 11; n++) {
                     writeByte(std_dc_chrominance_values[n]);
                 }
 
                 writeByte(0x11); // HTUACinfo
-                for (var o=0; o<16; o++) {
-                    writeByte(std_ac_chrominance_nrcodes[o+1]);
+                for (var o = 0; o < 16; o++) {
+                    writeByte(std_ac_chrominance_nrcodes[o + 1]);
                 }
-                for (var p=0; p<=161; p++) {
+                for (var p = 0; p <= 161; p++) {
                     writeByte(std_ac_chrominance_values[p]);
                 }
             }
+
+            /* jshint +W074 */
 
             function writeSOS() {
                 writeWord(0xFFDA); // marker
@@ -522,45 +547,50 @@
                 var I63 = 63;
                 var I64 = 64;
                 var DU_DCT = fDCTQuant(CDU, fdtbl);
-                //ZigZag reorder
-                for (var j=0;j<I64;++j) {
-                    DU[ZigZag[j]]=DU_DCT[j];
+                // ZigZag reorder
+                for (var j = 0; j < I64; ++j) {
+                    DU[ZigZag[j]] = DU_DCT[j];
                 }
                 var Diff = DU[0] - DC; DC = DU[0];
-                //Encode DC
-                if (Diff==0) {
+                // Encode DC
+                if (Diff === 0) {
                     writeBits(HTDC[0]); // Diff might be 0
                 } else {
-                    pos = 32767+Diff;
+                    pos = 32767 + Diff;
                     writeBits(HTDC[category[pos]]);
                     writeBits(bitcode[pos]);
                 }
-                //Encode ACs
+                // Encode ACs
                 var end0pos = 63; // was const... which is crazy
-                for (; (end0pos>0)&&(DU[end0pos]==0); end0pos--) {};
-                //end0pos = first element in reverse order !=0
-                if ( end0pos == 0) {
+                /* jscs:disable disallowEmptyBlocks */
+                for (; (end0pos > 0) && (DU[end0pos] === 0); end0pos--) {}
+                /* jscs:enable disallowEmptyBlocks */
+                // end0pos = first element in reverse order !=0
+                if (end0pos === 0) {
                     writeBits(EOB);
                     return DC;
                 }
                 var i = 1;
                 var lng;
-                while ( i <= end0pos ) {
+                while (i <= end0pos) {
                     var startpos = i;
-                    for (; (DU[i]==0) && (i<=end0pos); ++i) {}
-                    var nrzeroes = i-startpos;
-                    if ( nrzeroes >= I16 ) {
+                    /* jscs:disable disallowEmptyBlocks */
+                    for (; (DU[i] === 0) && (i <= end0pos); ++i) {}
+                    /* jscs:enable disallowEmptyBlocks */
+                    var nrzeroes = i - startpos;
+                    if (nrzeroes >= I16) {
                         lng = nrzeroes>>4;
-                        for (var nrmarker=1; nrmarker <= lng; ++nrmarker)
+                        for (var nrmarker = 1; nrmarker <= lng; ++nrmarker) {
                             writeBits(M16zeroes);
+                        }
                         nrzeroes = nrzeroes&0xF;
                     }
-                    pos = 32767+DU[i];
-                    writeBits(HTAC[(nrzeroes<<4)+category[pos]]);
+                    pos = 32767 + DU[i];
+                    writeBits(HTAC[(nrzeroes << 4) + category[pos]]);
                     writeBits(bitcode[pos]);
                     i++;
                 }
-                if ( end0pos != I63 ) {
+                if (end0pos !== I63) {
                     writeBits(EOB);
                 }
                 return DC;
@@ -568,7 +598,7 @@
 
             function initCharLookupTable () {
                 var sfcc = String.fromCharCode;
-                for(var i=0; i < 256; i++){ ///// ACHTUNG // 255
+                for (var i = 0; i < 256; i++) { // ACHTUNG 255
                     clt[i] = sfcc(i);
                 }
             }
@@ -577,105 +607,111 @@
 
                 var time_start = new Date().getTime();
 
-                if(quality) setQuality(quality);
+                if (quality) {
+                    setQuality(quality);
+                }
 
                 // Initialize bit writer
-                byteout = new Array();
-                bytenew=0;
-                bytepos=7;
+                byteout = []; // new Array();
+                bytenew = 0;
+                bytepos = 7;
 
                 // Add JPEG headers
                 writeWord(0xFFD8); // SOI
                 writeAPP0();
                 writeDQT();
-                writeSOF0(image.width,image.height);
+                writeSOF0(image.width, image.height);
                 writeDHT();
                 writeSOS();
 
 
                 // Encode 8x8 macroblocks
-                var DCY=0;
-                var DCU=0;
-                var DCV=0;
+                var DCY = 0;
+                var DCU = 0;
+                var DCV = 0;
 
-                bytenew=0;
-                bytepos=7;
+                bytenew = 0;
+                bytepos = 7;
 
 
-                this.encode.displayName = "_encode_";
+                this.encode.displayName = '_encode_';
 
                 var imageData = image.data;
                 var width = image.width;
                 var height = image.height;
 
-                var quadWidth = width*4;
-                var tripleWidth = width*3;
+                var quadWidth = width * 4;
+                var tripleWidth = width * 3;
 
-                var x, y = 0;
-                var r, g, b;
-                var start,p, col,row,pos;
-                while(y < height){
+                var x;
+                var y = 0;
+                var r;
+                var g;
+                var b;
+                var start;
+                var p;
+                var col;
+                var row;
+                var pos;
+                while (y < height) {
                     x = 0;
-                    while(x < quadWidth){
+                    while (x < quadWidth){
                         start = quadWidth * y + x;
                         p = start;
                         col = -1;
                         row = 0;
 
-                        for(pos=0; pos < 64; pos++){
-                            row = pos >> 3;// /8
-                            col = ( pos & 7 ) * 4; // %8
-                            p = start + ( row * quadWidth ) + col;
+                        for (pos = 0; pos < 64; pos++){
+                            row = pos >> 3; // /8
+                            col = (pos & 7) * 4; // %8
+                            p = start + (row * quadWidth) + col;
 
-                            if(y+row >= height){ // padding bottom
-                                p-= (quadWidth*(y+1+row-height));
+                            if (y + row >= height){ // padding bottom
+                                p-= (quadWidth * (y + 1 + row - height));
                             }
 
-                            if(x+col >= quadWidth){ // padding right
-                                p-= ((x+col) - quadWidth +4)
+                            if (x + col >= quadWidth){ // padding right
+                                p-= ((x + col) - quadWidth + 4);
                             }
 
-                            r = imageData[ p++ ];
-                            g = imageData[ p++ ];
-                            b = imageData[ p++ ];
+                            r = imageData[p++];
+                            g = imageData[p++];
+                            b = imageData[p++];
 
 
                             /* // calculate YUV values dynamically
-							YDU[pos]=((( 0.29900)*r+( 0.58700)*g+( 0.11400)*b))-128; //-0x80
-							UDU[pos]=(((-0.16874)*r+(-0.33126)*g+( 0.50000)*b));
-							VDU[pos]=((( 0.50000)*r+(-0.41869)*g+(-0.08131)*b));
+							YDU[pos]=((( 0.29900) * r + ( 0.58700) * g + ( 0.11400) * b)) - 128; //-0x80
+							UDU[pos]=(((-0.16874) * r + (-0.33126) * g + ( 0.50000) * b));
+							VDU[pos]=((( 0.50000) * r + (-0.41869) * g + (-0.08131) * b));
 							*/
 
                             // use lookup table (slightly faster)
-                            YDU[pos] = ((RGB_YUV_TABLE[r]             + RGB_YUV_TABLE[(g +  256)>>0] + RGB_YUV_TABLE[(b +  512)>>0]) >> 16)-128;
-                            UDU[pos] = ((RGB_YUV_TABLE[(r +  768)>>0] + RGB_YUV_TABLE[(g + 1024)>>0] + RGB_YUV_TABLE[(b + 1280)>>0]) >> 16)-128;
-                            VDU[pos] = ((RGB_YUV_TABLE[(r + 1280)>>0] + RGB_YUV_TABLE[(g + 1536)>>0] + RGB_YUV_TABLE[(b + 1792)>>0]) >> 16)-128;
+                            YDU[pos] = ((RGB_YUV_TABLE[r] + RGB_YUV_TABLE[(g + 256) >> 0] + RGB_YUV_TABLE[(b +  512) >> 0]) >> 16) - 128;
+                            UDU[pos] = ((RGB_YUV_TABLE[(r + 768) >> 0] + RGB_YUV_TABLE[(g + 1024) >> 0] + RGB_YUV_TABLE[(b + 1280) >> 0]) >> 16) - 128;
+                            VDU[pos] = ((RGB_YUV_TABLE[(r + 1280) >> 0] + RGB_YUV_TABLE[(g + 1536)>>0] + RGB_YUV_TABLE[(b + 1792) >> 0]) >> 16) - 128;
 
                         }
 
                         DCY = processDU(YDU, fdtbl_Y, DCY, YDC_HT, YAC_HT);
                         DCU = processDU(UDU, fdtbl_UV, DCU, UVDC_HT, UVAC_HT);
                         DCV = processDU(VDU, fdtbl_UV, DCV, UVDC_HT, UVAC_HT);
-                        x+=32;
+                        x += 32;
                     }
-                    y+=8;
+                    y += 8;
                 }
 
-
-                ////////////////////////////////////////////////////////////////
-
                 // Do the bit alignment of the EOI marker
-                if ( bytepos >= 0 ) {
+                if (bytepos >= 0) {
                     var fillbits = [];
-                    fillbits[1] = bytepos+1;
-                    fillbits[0] = (1<<(bytepos+1))-1;
+                    fillbits[1] = bytepos + 1;
+                    fillbits[0] = (1 << (bytepos + 1)) - 1;
                     writeBits(fillbits);
                 }
 
-                writeWord(0xFFD9); //EOI
+                writeWord(0xFFD9); // EOI
 
                 // BEGIN Commented by JLC
-                // //return new Uint8Array(byteout);
+                // // return new Uint8Array(byteout);
                 // return new Buffer(byteout);
                 //
                 // var jpegDataUri = 'data:image/jpeg;base64,' + btoa(byteout.join(''));
@@ -711,23 +747,27 @@
                     quality = 100;
                 }
 
-                if(currentQuality == quality) return; // don't recalc if unchanged
+                if (currentQuality === quality) {
+                    return; // don't recalc if unchanged
+                }
 
                 var sf = 0;
                 if (quality < 50) {
                     sf = Math.floor(5000 / quality);
                 } else {
-                    sf = Math.floor(200 - quality*2);
+                    sf = Math.floor(200 - quality * 2);
                 }
 
                 initQuantTables(sf);
                 currentQuality = quality;
-                //console.log('Quality set to: '+quality +'%');
+                // console.log('Quality set to: '+quality +'%');
             }
 
-            function init(){
+            function init() {
                 var time_start = new Date().getTime();
-                if(!quality) quality = 50;
+                if (!quality) {
+                    quality = 50;
+                }
                 // Create tables
                 initCharLookupTable();
                 initHuffmanTbl();
@@ -736,12 +776,16 @@
 
                 setQuality(quality);
                 var duration = new Date().getTime() - time_start;
-                //console.log('Initialization '+ duration + 'ms');
+                // console.log('Initialization '+ duration + 'ms');
             }
 
             init();
 
         }
+
+        /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
+
+        /* jshint +W071 */
 
         /**
          * A PNGEncoder
@@ -787,7 +831,8 @@
              * @returns {Array}
              */
             function makeTable() {
-                var c, table = [];
+                var c;
+                var table = [];
 
                 for (var n = 0; n < 256; n++) {
                     c = n;
@@ -809,8 +854,8 @@
              * @returns {number}
              */
             function crc32(crc, buf, len, pos) {
-                var t = makeTable(),
-                    end = pos + len;
+                var t = makeTable();
+                var end = pos + len;
 
                 crc ^= -1;
 
@@ -847,17 +892,17 @@
              */
             function filterData (imgData) {
                 // TODO no filter for now
-                var filterType = 0;//no filter
+                var filterType = 0;// no filter
                 // var {width, height, data} = imageData;
                 var data = imgData.data;
                 var height = imgData.height;
                 var width = imgData.width;
-                var byteWidth = width * 4; //r,g,b,a
+                var byteWidth = width * 4; // r,g,b,a
                 var filter = new Uint8Array((byteWidth + 1) * height);
                 var filterTypePos = 0;
                 var fromPos = 0;
                 for (var i = 0; i < height; i++) {
-                    filter[filterTypePos] = filterType; //we need to write one additional byte with filter value each in row at the beginning
+                    filter[filterTypePos] = filterType; // we need to write one additional byte with filter value each in row at the beginning
                     copy(data, filter, filterTypePos + 1, byteWidth, fromPos); // just copy the data without filtering
                     filterTypePos += (byteWidth + 1);
                     fromPos += byteWidth;
@@ -875,7 +920,7 @@
                 var ihdr = new Uint8Array(13);
                 writeAsBigEndian(ihdr, width, 0);
                 writeAsBigEndian(ihdr, height, 4);
-                ihdr[8] = 8;  // Bit depth: 8 bits per sample //todo add this as option maybe (need to recalculate bpp for this)
+                ihdr[8] = 8;  // Bit depth: 8 bits per sample // todo add this as option maybe (need to recalculate bpp for this)
                 ihdr[9] = colorType;  // Color type: 6 = RGBA // todo add this as option maybe (need to recalculate bpp for this)
                 ihdr[10] = 0;  // Compression method: DEFLATE (pako comes handy)
                 ihdr[11] = 0;  // Filter method: Adaptive
@@ -907,10 +952,10 @@
                 var parts = [];
                 parts.push(new Uint8Array(PNG_SIGNATURE));
                 parts.push(writeIHDRChunk(imgData.width, imgData.height, colorType));
-                var filtered = filterData(imgData, colorType);//this._filterData(imgData);
+                var filtered = filterData(imgData, colorType);// this._filterData(imgData);
                 var compressed = pako.deflate(filtered, Object.assign({
                     /**
-                     * //compression level 0-9
+                     * // compression level 0-9
                      * #define Z_NO_COMPRESSION         0
                      #define Z_BEST_SPEED             1
                      #define Z_BEST_COMPRESSION       9
@@ -922,7 +967,7 @@
                      */
                     windowBits: 15,
                     /**
-                     * - chunk size used for deflating data chunks, this should be power of 2 and must not be less than 256 and more than 32*1024
+                     * - chunk size used for deflating data chunks, this should be power of 2 and must not be less than 256 and more than 32 * 1024
                      */
                     chunkSize: 32 * 1024,
                     /**
@@ -977,7 +1022,7 @@
          * @returns {*}
          */
         kidoju.image.getImageData = function (idOrElement) {
-            var imgElement = (typeof(idOrElement)=='string') ? document.getElementById(idOrElement) : idOrElement;
+            var imgElement = (typeof(idOrElement) === 'string') ? document.getElementById(idOrElement) : idOrElement;
             var c = document.createElement('canvas');
             c.width = imgElement.width;
             c.height = imgElement.height;
@@ -1005,7 +1050,7 @@
         kidoju.image.pngEncode = function (imgData, options) {
             var encoder = new PNGEncoder(options);
             return encoder.encode(imgData);
-        }
+        };
 
     }());
 

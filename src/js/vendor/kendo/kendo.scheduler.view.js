@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -223,12 +223,18 @@
                     return [];
                 }
                 if (start === null) {
+                    if (end.slot.end <= startTime) {
+                        return [];
+                    }
                     start = {
                         inRange: true,
                         slot: collections[end.slot.collectionIndex].first()
                     };
                 }
                 if (end === null) {
+                    if (start.slot.start >= endTime) {
+                        return [];
+                    }
                     end = {
                         inRange: true,
                         slot: collections[start.slot.collectionIndex].last()
@@ -253,12 +259,18 @@
                     return [];
                 }
                 if (start === null) {
+                    if (end.slot.end <= startTime) {
+                        return [];
+                    }
                     do {
                         startTime += kendo.date.MS_PER_DAY;
                         start = this._startSlot(startTime, collections, isAllDay);
                     } while (!start.inRange && startTime >= start.slot.end);
                 }
                 if (end === null) {
+                    if (start.slot.start >= endTime) {
+                        return [];
+                    }
                     do {
                         endTime -= kendo.date.MS_PER_DAY;
                         end = this._endSlot(endTime, collections, isAllDay);
@@ -780,8 +792,9 @@
                 this.eventCount = eventCount;
                 this.isDaySlot = true;
                 if (this.element.children.length) {
-                    this.firstChildHeight = this.element.children[0].offsetHeight + 3;
-                    this.firstChildTop = this.element.children[0].offsetTop;
+                    var firstChild = this.element.children[0];
+                    this.firstChildHeight = firstChild.offsetHeight;
+                    this.firstChildTop = firstChild.offsetTop;
                 } else {
                     this.firstChildHeight = 3;
                     this.firstChildTop = 0;
@@ -1056,12 +1069,17 @@
                 var pad = prev ? -1 : 1;
                 var length = events.length;
                 var idx = prev ? length - 1 : 0;
+                if (selectedEvents.length) {
+                    var lastSelected = selectedEvents[selectedEvents.length - 1];
+                    for (var i = 0; i < events.length; i++) {
+                        if (events[i].uid === lastSelected) {
+                            idx = i + pad;
+                        }
+                    }
+                }
                 while (idx < length && idx > -1) {
                     event = events[idx];
                     if (!prev && event.start.startDate() >= slot.startDate() || prev && event.start.startDate() <= slot.startDate()) {
-                        if (selectedEvents.length) {
-                            event = events[idx + pad];
-                        }
                         if (event && $.inArray(event.uid, selectedEvents) === -1) {
                             found = !!event;
                             break;
@@ -1352,9 +1370,14 @@
                 this._resizeHint.remove();
                 this._resizeHint = $();
             },
-            _removeMoveHint: function () {
-                this._moveHint.remove();
-                this._moveHint = $();
+            _removeMoveHint: function (uid) {
+                if (uid) {
+                    this._moveHint.filter('[data-uid=\'' + uid + '\']').remove();
+                    this._moveHint = this._moveHint.filter('[data-uid!=\'' + uid + '\']');
+                } else {
+                    this._moveHint.remove();
+                    this._moveHint = $();
+                }
             },
             _scrollTo: function (element, container) {
                 var elementOffset = element.offsetTop, elementOffsetDir = element.offsetHeight, containerScroll = container.scrollTop, containerOffsetDir = container.clientHeight, bottomDistance = elementOffset + elementOffsetDir, result = 0;

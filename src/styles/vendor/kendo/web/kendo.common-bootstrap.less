@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -22,7 +22,8 @@
                                                                                                                                                                                                        
 
 */
-@input-height: 1.94em;
+@input-height: 1.93571428em;
+@input-padding-y: 0.17857143em;
 @input-indent: .8em;
 @editor-icon-size: 32px;
 @menu-link-padding: 1.2em 1.2em 1.1em;
@@ -144,6 +145,15 @@ input.k-textbox {
     height: 1.167em;
 }
 
+.k-toolbar {
+    padding: 0.57142857em calc(0.57142857em - 0.2em);
+    border-radius: 4px;
+}
+
+.k-toolbar .k-overflow-anchor {
+    width: calc((52/14)*1em);
+}
+
 .k-webkit .k-rtl .k-widget .k-dropdown-wrap .k-input,
 .k-webkit .k-rtl .k-widget .k-numeric-wrap .k-input {
     margin-right: 0;
@@ -170,6 +180,13 @@ input.k-textbox {
 .k-pager-wrap > .k-link {
     height: 2.3em;
     line-height: 2.3em;
+}
+
+.k-pager-numbers {
+    .k-link,
+    .k-state-selected {
+        height: 2.3em;
+    }
 }
 
 .k-pager-wrap > .k-link,
@@ -247,4 +264,9 @@ input.k-textbox {
             padding-right: 0.167em;
         }
     }
+}
+
+.k-safari.k-mobile .k-picker-wrap .k-input,
+.k-safari.k-mobile .k-numeric-wrap .k-input {
+    height: 1.88em;
 }

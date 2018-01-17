@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -435,7 +435,15 @@
                     if (visible) {
                         this._move(current ? 'focusNext' : 'focusFirst');
                     } else if (that.value()) {
-                        that.popup.open();
+                        that._filterSource({
+                            value: that.ignoreCase ? that.value().toLowerCase() : that.value(),
+                            operator: that.options.filter,
+                            field: that.options.dataTextField,
+                            ignoreCase: that.ignoreCase
+                        }).done(function () {
+                            that._resetFocusItem();
+                            that.popup.open();
+                        });
                     }
                     e.preventDefault();
                 } else if (key === keys.UP) {
@@ -597,7 +605,7 @@
                 wrapper.attr('role', 'presentation');
                 wrapper[0].style.cssText = DOMelement.style.cssText;
                 element.css({
-                    width: '100%',
+                    width: '',
                     height: DOMelement.style.height
                 });
                 that._focused = that.element;

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -362,6 +362,10 @@
                     })) {
                     return;
                 }
+                that._removeFilter(expression);
+            },
+            _removeFilter: function (expression) {
+                var that = this;
                 expression.filters = $.grep(expression.filters, function (filter) {
                     if (filter.filters) {
                         filter.filters = clearFilter(filter.filters, that.field);
@@ -377,8 +381,33 @@
             _submit: function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                this.filter(this.filterModel.toJSON());
+                var expression = this.filterModel.toJSON();
+                var containsFilters = $.grep(expression.filters, function (filter) {
+                    return filter.value !== '';
+                });
+                if (this._checkForNullOrEmptyFilter(expression) || containsFilters && containsFilters.length) {
+                    this.filter(expression);
+                } else {
+                    this._removeFilter(expression);
+                }
                 this._closeForm();
+            },
+            _checkForNullOrEmptyFilter: function (expression) {
+                if (!expression || !expression.filters || !expression.filters.length) {
+                    return false;
+                }
+                var firstNullOrEmpty = false;
+                var secondNullOrEmpty = false;
+                var operator;
+                if (expression.filters[0]) {
+                    operator = expression.filters[0].operator;
+                    firstNullOrEmpty = operator == 'isnull' || operator == 'isnotnull' || operator == 'isnotempty' || operator == 'isempty';
+                }
+                if (expression.filters[1]) {
+                    operator = expression.filters[1].operator;
+                    secondNullOrEmpty = operator == 'isnull' || operator == 'isnotnull' || operator == 'isnotempty' || operator == 'isempty';
+                }
+                return !this.options.extra && firstNullOrEmpty || this.options.extra && (firstNullOrEmpty || secondNullOrEmpty);
             },
             _reset: function () {
                 this.clear();
@@ -521,7 +550,7 @@
                 return $.map(expression.filters, function (filter) {
                     return flatFilterValues(filter);
                 });
-            } else if (expression.value !== null && expression.value !== undefined) {
+            } else if (expression.value !== undefined) {
                 return [expression.value];
             } else {
                 return [];
@@ -531,7 +560,7 @@
             var getter = kendo.getter(field, true), result = [], index = 0, seen = {};
             while (index < items.length) {
                 var item = items[index++], text = getter(item);
-                if (text !== undefined && text !== null && !seen.hasOwnProperty(text)) {
+                if (text !== undefined && !seen.hasOwnProperty(text)) {
                     result.push(item);
                     seen[text] = true;
                 }
@@ -573,7 +602,12 @@
                     field = this.model.fields[this.field];
                     if (field) {
                         if (field.type == 'number') {
-                            this._parse = parseFloat;
+                            this._parse = function (value) {
+                                if (typeof value === 'string' && value.toLowerCase() === 'null') {
+                                    return null;
+                                }
+                                return parseFloat(value);
+                            };
                         } else if (field.parse) {
                             this._parse = proxy(field.parse, field);
                         }
@@ -822,7 +856,13 @@
                     var checkBoxVal = that._parse($(ele).val());
                     for (var i = 0; i < values.length; i++) {
                         if (that.type == 'date') {
-                            found = values[i].getTime() == checkBoxVal.getTime();
+                            if (values[i] && checkBoxVal) {
+                                found = values[i].getTime() == checkBoxVal.getTime();
+                            } else if (values[i] === null && checkBoxVal === null) {
+                                found = true;
+                            } else {
+                                found = false;
+                            }
                         } else {
                             found = values[i] == checkBoxVal;
                         }
@@ -958,6 +998,7 @@
             _keydown: FilterMenu.fn._keydown,
             _reset: FilterMenu.fn._reset,
             _closeForm: FilterMenu.fn._closeForm,
+            _removeFilter: FilterMenu.fn._removeFilter,
             clear: FilterMenu.fn.clear,
             _merge: FilterMenu.fn._merge
         });

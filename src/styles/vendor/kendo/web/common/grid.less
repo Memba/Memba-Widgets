@@ -113,6 +113,10 @@
     bottom: 2px;
 }
 
+.k-ff .k-grid .k-filter-row .k-i-filter-clear {
+    top: 1px;
+}
+
 .k-ie10 .k-grid-header a:active
 {
     background-color: transparent; /*remove gray background*/
@@ -638,6 +642,16 @@ form.k-filter-menu .k-textbox
     float: left;
 }
 
+.k-dirty-cell {
+    position: relative;
+
+    .k-dirty {
+        margin: 0;
+        top: 0;
+        left: 0;
+    }
+}
+
 .k-dirty
 {
     position: absolute;
@@ -918,6 +932,25 @@ html .k-grid-edit-row .k-tooltip
     }
 }
 
+.k-grid .k-grouping-row {
+    td {
+        border-bottom-width: 0;
+    }
+
+    & + tr td {
+        border-top-width: 1px;
+    }
+
+    & + tr td.k-group-cell {
+        border-top-width: 0;
+    }
+}
+
+.k-grid .k-group-cell {
+    border-bottom-width: 0;
+    border-top-width: 0;
+}
+
 .k-window .k-popup-edit-form .k-edit-field {
     input.k-checkbox {
         position: absolute;
@@ -933,7 +966,7 @@ html .k-grid-edit-row .k-tooltip
     }
 
     label.k-checkbox-label {
-        margin-top: 0.6em;
+        margin-top: 0.5em;
     }
 }
 
@@ -981,16 +1014,16 @@ html .k-grid-edit-row .k-tooltip
             left: .2em;
         }
 
-        .k-grid .k-pager-numbers.k-state-expanded {
-            transform: translatey(-100%);
-            -webkit-transform: translatey(-100%);
+        .km-pane-wrapper .k-grid .k-pager-numbers.k-state-expanded {
+            transform: translate(-50%, -100%);
+            -webkit-transform: translate(-50%, -100%);
         }
 
         .km-pane-wrapper .k-grid .k-pager-numbers {
             position: relative;
             left: 50%;
-            transform: translate(-50%, -100%);
-            -webkit-transform: translate(-50%, -100%);
+            transform: translateX(-50%);
+            -webkit-transform: translateX(-50%);
         }
 
         .k-rtl .k-grid .k-pager-numbers {

@@ -67,7 +67,7 @@ div.k-treeview
     margin-top: .2em;
 }
 .k-treeview .k-checkbox-label {
-    padding-left: calc(@checkbox-size + 0.7ex);
+    padding-left: ~"calc(@{checkbox-size} + 0.7ex)";
 }
 
 .k-treeview .k-icon,
@@ -135,7 +135,6 @@ div.k-treeview
 
 .k-rtl .k-treeview .k-i-expand,
 .k-rtl .k-treeview .k-i-collapse {
-    transform: scaleX(-1);
     margin-left: 0;
     margin-right: -16px;
 }

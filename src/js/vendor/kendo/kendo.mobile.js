@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2017.3.1026'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2018.1.117'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -4621,7 +4621,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, extend = $.extend, odataFilters = {
+        var kendo = window.kendo, extend = $.extend, NEWLINE = '\r\n', DOUBLELINE = '\r\n\r\n', isFunction = kendo.isFunction, odataFilters = {
                 eq: 'eq',
                 neq: 'ne',
                 gt: 'gt',
@@ -4743,6 +4743,140 @@
                 }
             }
         }
+        function hex16() {
+            return Math.floor((1 + Math.random()) * 65536).toString(16).substr(1);
+        }
+        function createBoundary(prefix) {
+            return prefix + hex16() + '-' + hex16() + '-' + hex16();
+        }
+        function createDelimeter(boundary, close) {
+            var result = NEWLINE + '--' + boundary;
+            if (close) {
+                result += '--';
+            }
+            return result;
+        }
+        function createCommand(transport, item, httpVerb, command) {
+            var transportUrl = transport.options[command].url;
+            var commandPrefix = kendo.format('{0} ', httpVerb);
+            if (isFunction(transportUrl)) {
+                return commandPrefix + transportUrl(item);
+            } else {
+                return commandPrefix + transportUrl;
+            }
+        }
+        function getOperationHeader(changeset, changeId) {
+            var header = '';
+            header += createDelimeter(changeset, false);
+            header += NEWLINE + 'Content-Type: application/http';
+            header += NEWLINE + 'Content-Transfer-Encoding: binary';
+            header += NEWLINE + 'Content-ID: ' + changeId;
+            return header;
+        }
+        function getOperationContent(item) {
+            var content = '';
+            content += NEWLINE + 'Content-Type: application/json;odata=minimalmetadata';
+            content += NEWLINE + 'Prefer: return=representation';
+            content += DOUBLELINE + kendo.stringify(item);
+            return content;
+        }
+        function getOperations(collection, changeset, changeId, command, transport, skipContent) {
+            var requestBody = '';
+            for (var i = 0; i < collection.length; i++) {
+                requestBody += getOperationHeader(changeset, changeId);
+                requestBody += DOUBLELINE + createCommand(transport, collection[i], transport.options[command].type, command) + ' HTTP/1.1';
+                if (!skipContent) {
+                    requestBody += getOperationContent(collection[i]);
+                }
+                requestBody += NEWLINE;
+                changeId++;
+            }
+            return requestBody;
+        }
+        function processCollection(colection, boundary, changeset, changeId, transport, command, skipContent) {
+            var requestBody = '';
+            requestBody += getBoundary(boundary, changeset);
+            requestBody += getOperations(colection, changeset, changeId, command, transport, skipContent);
+            requestBody += createDelimeter(changeset, true);
+            requestBody += NEWLINE;
+            return requestBody;
+        }
+        function getBoundary(boundary, changeset) {
+            var requestBody = '';
+            requestBody += '--' + boundary + NEWLINE;
+            requestBody += 'Content-Type: multipart/mixed; boundary=' + changeset + NEWLINE;
+            return requestBody;
+        }
+        function createBatchRequest(transport, colections) {
+            var options = {};
+            var boundary = createBoundary('sf_batch_');
+            var requestBody = '';
+            var changeId = 0;
+            var batchURL = transport.options.batch.url;
+            var changeset = createBoundary('sf_changeset_');
+            options.type = transport.options.batch.type;
+            options.url = isFunction(batchURL) ? batchURL() : batchURL;
+            options.headers = { 'Content-Type': 'multipart/mixed; boundary=' + boundary };
+            if (colections.updated.length) {
+                requestBody += processCollection(colections.updated, boundary, changeset, changeId, transport, 'update', false);
+                changeId += colections.updated.length;
+                changeset = createBoundary('sf_changeset_');
+            }
+            if (colections.destroyed.length) {
+                requestBody += processCollection(colections.destroyed, boundary, changeset, changeId, transport, 'destroy', true);
+                changeId += colections.destroyed.length;
+                changeset = createBoundary('sf_changeset_');
+            }
+            if (colections.created.length) {
+                requestBody += processCollection(colections.created, boundary, changeset, changeId, transport, 'create', false);
+            }
+            requestBody += createDelimeter(boundary, true);
+            options.data = requestBody;
+            return options;
+        }
+        function parseBatchResponse(responseText) {
+            var responseMarkers = responseText.match(/--changesetresponse_[a-z0-9-]+$/gm);
+            var markerIndex = 0;
+            var collections = [];
+            var changeBody;
+            var status;
+            var code;
+            var marker;
+            var jsonModel;
+            collections.push({
+                models: [],
+                passed: true
+            });
+            for (var i = 0; i < responseMarkers.length; i++) {
+                marker = responseMarkers[i];
+                if (marker.lastIndexOf('--', marker.length - 1)) {
+                    if (i < responseMarkers.length - 1) {
+                        collections.push({
+                            models: [],
+                            passed: true
+                        });
+                    }
+                    continue;
+                }
+                if (!markerIndex) {
+                    markerIndex = responseText.indexOf(marker);
+                } else {
+                    markerIndex = responseText.indexOf(marker, markerIndex + marker.length);
+                }
+                changeBody = responseText.substring(markerIndex, responseText.indexOf('--', markerIndex + 1));
+                status = changeBody.match(/^HTTP\/1\.\d (\d{3}) (.*)$/gm).pop();
+                code = kendo.parseFloat(status.match(/\d{3}/g).pop());
+                if (code >= 200 && code <= 299) {
+                    jsonModel = changeBody.match(/\{.*\}/gm);
+                    if (jsonModel) {
+                        collections[collections.length - 1].models.push(JSON.parse(jsonModel[0]));
+                    }
+                } else {
+                    collections[collections.length - 1].passed = false;
+                }
+            }
+            return collections;
+        }
         extend(true, kendo.data, {
             schemas: {
                 odata: {
@@ -4819,12 +4953,19 @@
                 'odata-v4': {
                     type: 'json',
                     data: function (data) {
-                        data = $.extend({}, data);
-                        stripMetadata(data);
-                        if (data.value) {
-                            return data.value;
+                        if ($.isArray(data)) {
+                            for (var i = 0; i < data.length; i++) {
+                                stripMetadata(data[i]);
+                            }
+                            return data;
+                        } else {
+                            data = $.extend({}, data);
+                            stripMetadata(data);
+                            if (data.value) {
+                                return data.value;
+                            }
+                            return [data];
                         }
-                        return [data];
                     },
                     total: function (data) {
                         return data['@odata.count'];
@@ -4833,6 +4974,7 @@
             },
             transports: {
                 'odata-v4': {
+                    batch: { type: 'POST' },
                     read: {
                         cache: true,
                         dataType: 'json'
@@ -4861,6 +5003,44 @@
                             delete result.$inlinecount;
                         }
                         return result;
+                    },
+                    submit: function (e) {
+                        var that = this;
+                        var options = createBatchRequest(that, e.data);
+                        var collections = e.data;
+                        if (!collections.updated.length && !collections.destroyed.length && !collections.created.length) {
+                            return;
+                        }
+                        $.ajax(extend(true, {}, {
+                            success: function (response) {
+                                var responses = parseBatchResponse(response);
+                                var index = 0;
+                                var current;
+                                if (collections.updated.length) {
+                                    current = responses[index];
+                                    if (current.passed) {
+                                        e.success(current.models.length ? current.models : [], 'update');
+                                    }
+                                    index++;
+                                }
+                                if (collections.destroyed.length) {
+                                    current = responses[index];
+                                    if (current.passed) {
+                                        e.success([], 'destroy');
+                                    }
+                                    index++;
+                                }
+                                if (collections.created.length) {
+                                    current = responses[index];
+                                    if (current.passed) {
+                                        e.success(current.models, 'create');
+                                    }
+                                }
+                            },
+                            error: function (response, status, error) {
+                                e.error(response, status, error);
+                            }
+                        }, options));
                     }
                 }
             }
@@ -5232,16 +5412,21 @@
                 }
                 return -1;
             },
-            forEach: function (callback) {
-                var idx = 0, length = this.length;
+            forEach: function (callback, thisArg) {
+                var idx = 0;
+                var length = this.length;
+                var context = thisArg || window;
                 for (; idx < length; idx++) {
-                    callback(this[idx], idx, this);
+                    callback.call(context, this[idx], idx, this);
                 }
             },
-            map: function (callback) {
-                var idx = 0, result = [], length = this.length;
+            map: function (callback, thisArg) {
+                var idx = 0;
+                var result = [];
+                var length = this.length;
+                var context = thisArg || window;
                 for (; idx < length; idx++) {
-                    result[idx] = callback(this[idx], idx, this);
+                    result[idx] = callback.call(context, this[idx], idx, this);
                 }
                 return result;
             },
@@ -5269,40 +5454,53 @@
                 }
                 return result;
             },
-            filter: function (callback) {
-                var idx = 0, result = [], item, length = this.length;
+            filter: function (callback, thisArg) {
+                var idx = 0;
+                var result = [];
+                var item;
+                var length = this.length;
+                var context = thisArg || window;
                 for (; idx < length; idx++) {
                     item = this[idx];
-                    if (callback(item, idx, this)) {
+                    if (callback.call(context, item, idx, this)) {
                         result[result.length] = item;
                     }
                 }
                 return result;
             },
-            find: function (callback) {
-                var idx = 0, item, length = this.length;
+            find: function (callback, thisArg) {
+                var idx = 0;
+                var item;
+                var length = this.length;
+                var context = thisArg || window;
                 for (; idx < length; idx++) {
                     item = this[idx];
-                    if (callback(item, idx, this)) {
+                    if (callback.call(context, item, idx, this)) {
                         return item;
                     }
                 }
             },
-            every: function (callback) {
-                var idx = 0, item, length = this.length;
+            every: function (callback, thisArg) {
+                var idx = 0;
+                var item;
+                var length = this.length;
+                var context = thisArg || window;
                 for (; idx < length; idx++) {
                     item = this[idx];
-                    if (!callback(item, idx, this)) {
+                    if (!callback.call(context, item, idx, this)) {
                         return false;
                     }
                 }
                 return true;
             },
-            some: function (callback) {
-                var idx = 0, item, length = this.length;
+            some: function (callback, thisArg) {
+                var idx = 0;
+                var item;
+                var length = this.length;
+                var context = thisArg || window;
                 for (; idx < length; idx++) {
                     item = this[idx];
-                    if (callback(item, idx, this)) {
+                    if (callback.call(context, item, idx, this)) {
                         return true;
                     }
                 }
@@ -5510,18 +5708,31 @@
         }
         var parsers = {
             'number': function (value) {
+                if (typeof value === STRING && value.toLowerCase() === 'null') {
+                    return null;
+                }
                 return kendo.parseFloat(value);
             },
             'date': function (value) {
+                if (typeof value === STRING && value.toLowerCase() === 'null') {
+                    return null;
+                }
                 return kendo.parseDate(value);
             },
             'boolean': function (value) {
                 if (typeof value === STRING) {
-                    return value.toLowerCase() === 'true';
+                    if (value.toLowerCase() === 'null') {
+                        return null;
+                    } else {
+                        return value.toLowerCase() === 'true';
+                    }
                 }
                 return value != null ? !!value : value;
             },
             'string': function (value) {
+                if (typeof value === STRING && value.toLowerCase() === 'null') {
+                    return null;
+                }
                 return value != null ? value + '' : value;
             },
             'default': function (value) {
@@ -6393,6 +6604,7 @@
                     add: noop
                 };
                 parameterMap = options.parameterMap;
+                that.submit = options.submit;
                 if (isFunction(options.push)) {
                     that.push = options.push;
                 }
@@ -6720,14 +6932,13 @@
                 }
             }
         }
-        function removeModel(data, model, skip, take) {
+        function removeModel(data, model) {
             var length = data.length;
-            var startIndex = skip || 0;
-            var endIndex = typeof take !== 'undefined' ? math.min(startIndex + take, length) : length;
+            var dataItem;
             var idx;
-            for (idx = startIndex; idx < endIndex; idx++) {
-                var dataItem = data.at(idx);
-                if (dataItem.uid == model.uid) {
+            for (idx = 0; idx < length; idx++) {
+                dataItem = data[idx];
+                if (dataItem.uid && dataItem.uid == model.uid) {
                     data.splice(idx, 1);
                     return dataItem;
                 }
@@ -7148,11 +7359,7 @@
             remove: function (model) {
                 var result, that = this, hasGroups = that._isServerGrouped();
                 this._eachItem(that._data, function (items) {
-                    if (that.options.useRanges && !that.options.serverPaging) {
-                        result = removeModel(items, model, that.currentRangeStart(), that.take());
-                    } else {
-                        result = removeModel(items, model);
-                    }
+                    result = removeModel(items, model);
                     if (result && hasGroups) {
                         if (!result.isNew || !result.isNew()) {
                             that._destroyed.push(result);
@@ -8284,20 +8491,13 @@
             },
             _removeModelFromRanges: function (model) {
                 var that = this;
-                var result, found, range;
+                var result, range;
                 for (var idx = 0, length = this._ranges.length; idx < length; idx++) {
                     range = this._ranges[idx];
                     this._eachItem(range.data, function (items) {
-                        if (that.options.useRanges && !that.options.serverPaging) {
-                            result = removeModel(items, model, that.currentRangeStart(), that.take());
-                        } else {
-                            result = removeModel(items, model);
-                        }
-                        if (result) {
-                            found = true;
-                        }
+                        result = removeModel(items, model);
                     });
-                    if (found) {
+                    if (result) {
                         break;
                     }
                 }
@@ -12590,7 +12790,7 @@
                 }
             },
             _start: function (e) {
-                var that = this, options = that.options, container = options.container, hint = options.hint;
+                var that = this, options = that.options, container = options.container ? $(options.container) : null, hint = options.hint;
                 if (this._shouldIgnoreTarget(e.touch.initialTouch) || options.holdToDrag && !that._activated) {
                     that.userEvents.cancel();
                     return;
@@ -12929,8 +13129,9 @@
                 that.element.hide().addClass('k-popup k-group k-reset').toggleClass('k-rtl', !!options.isRtl).css({ position: ABSOLUTE }).appendTo(options.appendTo).attr('aria-hidden', true).on('mouseenter' + NS, function () {
                     that._hovered = true;
                 }).on('wheel' + NS, function (e) {
-                    var scrollArea = $(this).find('.k-list').parent();
-                    if (scrollArea.scrollTop() === 0 && e.originalEvent.deltaY < 0 || scrollArea.scrollTop() === scrollArea.prop('scrollHeight') - scrollArea.prop('offsetHeight') && e.originalEvent.deltaY > 0) {
+                    var list = $(e.target).find('.k-list');
+                    var scrollArea = list.parent();
+                    if (list.length && list.is(':visible') && (scrollArea.scrollTop() === 0 && e.originalEvent.deltaY < 0 || scrollArea.scrollTop() === scrollArea.prop('scrollHeight') - scrollArea.prop('offsetHeight') && e.originalEvent.deltaY > 0)) {
                         e.preventDefault();
                     }
                 }).on('mouseleave' + NS, function () {
@@ -13434,6 +13635,10 @@
                 return elements.get((current + (e.shiftKey ? -1 : 1)) % count);
             },
             _focus: function (element) {
+                if (element.nodeName == 'IFRAME') {
+                    element.contentWindow.document.body.focus();
+                    return;
+                }
                 element.focus();
                 if (element.nodeName == 'INPUT' && element.setSelectionRange && this._haveSelectionRange(element)) {
                     element.setSelectionRange(0, element.value.length);
@@ -13545,6 +13750,7 @@
                 this.events.cancel();
             },
             destroy: function () {
+                Widget.fn.destroy.call(this);
                 this.events.destroy();
             },
             _triggerTouch: function (type, e) {
@@ -18923,6 +19129,9 @@
                             var first = $(options[0]);
                             if (!/\S/.test(first.text()) && /^\?/.test(first.val())) {
                                 first.remove();
+                            }
+                            for (var i = 0; i < options.length; i++) {
+                                $(options[i]).off('$destroy');
                             }
                         }
                     }(element[0].options));

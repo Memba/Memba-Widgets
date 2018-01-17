@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -56,7 +56,6 @@
                 that.element.addClass(SELECTABLE);
                 that.relatedTarget = that.options.relatedTarget;
                 multiple = that.options.multiple;
-                INPUTSELECTOR = that.options.inputSelectors;
                 if (this.options.aria && multiple) {
                     that.element.attr('aria-multiselectable', true);
                 }
@@ -235,13 +234,13 @@
             },
             _select: function (e) {
                 if (this._allowSelection(e.event.target)) {
-                    if (!msie || msie && !$(kendo._activeElement()).is(INPUTSELECTOR)) {
+                    if (!msie || msie && !$(kendo._activeElement()).is(this.options.inputSelectors)) {
                         e.preventDefault();
                     }
                 }
             },
             _allowSelection: function (target) {
-                if ($(target).is(INPUTSELECTOR)) {
+                if ($(target).is(this.options.inputSelectors)) {
                     this.userEvents.cancel();
                     this._downTarget = null;
                     return false;

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -396,7 +396,7 @@ kendo.ui.Upload.prototype.options.localization =
 $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "cancel": "İptal Et",
   "dropFilesHere": "Yüklemek için dosyaları buraya bırakın",
-  "headerStatusUploaded": "Tamalandı",
+  "headerStatusUploaded": "Tamamlandı",
   "headerStatusUploading": "Yükleniyor",
   "remove": "Kaldır",
   "retry": "Tekrar Dene",

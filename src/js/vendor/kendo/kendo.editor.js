@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1073,6 +1073,11 @@
                 var body = this.body;
                 return range && dom.isAncestorOrSelf(body, range.startContainer) && dom.isAncestorOrSelf(body, range.endContainer);
             },
+            _deleteSavedRange: function () {
+                if ('_range' in this) {
+                    delete this._range;
+                }
+            },
             selectedHtml: function () {
                 return kendo.ui.editor.Serializer.domToXhtml(this.getRange().cloneContents());
             },
@@ -1179,20 +1184,6 @@
         Tool.exec = function (editor, name, value) {
             editor.exec(name, { value: value });
         };
-        var FormatTool = Tool.extend({
-            init: function (options) {
-                Tool.fn.init.call(this, options);
-            },
-            command: function (commandArguments) {
-                var that = this;
-                return new kendo.ui.editor.FormatCommand(extend(commandArguments, { formatter: that.options.formatter }));
-            },
-            update: function (ui, nodes) {
-                var isFormatted = this.options.finder.isFormatted(nodes);
-                ui.toggleClass('k-state-selected', isFormatted);
-                ui.attr('aria-pressed', isFormatted);
-            }
-        });
         EditorUtils.registerTool('separator', new Tool({ template: new ToolTemplate({ template: EditorUtils.separatorTemplate }) }));
         var bomFill = browser.msie && browser.version < 9 ? '\uFEFF' : '';
         var emptyElementContent = '\uFEFF';
@@ -1205,7 +1196,6 @@
                 ToolTemplate: ToolTemplate,
                 EditorUtils: EditorUtils,
                 Tool: Tool,
-                FormatTool: FormatTool,
                 _bomFill: bomFill,
                 emptyElementContent: emptyElementContent,
                 emptyTableCellContent: emptyTableCellContent
@@ -1790,16 +1780,19 @@
             isInline: function (node) {
                 return inline[Dom.name(node)];
             },
+            isBr: function (node) {
+                return Dom.name(node) == 'br';
+            },
             list: function (node) {
                 var name = node ? Dom.name(node) : '';
                 return name == 'ul' || name == 'ol' || name == 'dl';
             },
             scrollContainer: function (doc) {
                 var wnd = Dom.windowFromDocument(doc), scrollContainer = (wnd.contentWindow || wnd).document || wnd.ownerDocument || wnd;
-                if (kendo.support.browser.webkit || scrollContainer.compatMode == 'BackCompat') {
+                if (scrollContainer.compatMode == 'BackCompat') {
                     scrollContainer = scrollContainer.body;
                 } else {
-                    scrollContainer = scrollContainer.documentElement;
+                    scrollContainer = scrollContainer.scrollingElement || scrollContainer.documentElement;
                 }
                 return scrollContainer;
             },
@@ -1988,6 +1981,11 @@
             },
             create: function (document, tagName, attributes) {
                 return Dom.attr(document.createElement(tagName), attributes);
+            },
+            createEmptyNode: function (document, tagName, attributes) {
+                var node = Dom.attr(document.createElement(tagName), attributes);
+                node.innerHTML = '\uFEFF';
+                return node;
             },
             attr: function (element, attributes) {
                 attributes = extend({}, attributes);
@@ -2740,7 +2738,97 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('editor/range', ['editor/serializer'], f);
+    define('editor/components', ['editor/serializer'], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo, DropDownList = kendo.ui.DropDownList, dom = kendo.ui.editor.Dom;
+        var SelectBox = DropDownList.extend({
+            init: function (element, options) {
+                var that = this;
+                DropDownList.fn.init.call(that, element, options);
+                if (kendo.support.mobileOS.ios) {
+                    this._initSelectOverlay();
+                    this.bind('dataBound', $.proxy(this._initSelectOverlay, this));
+                }
+                that.text(that.options.title);
+                that.bind('open', function () {
+                    if (that.options.autoSize) {
+                        var list = that.list, listWidth;
+                        list.css({
+                            whiteSpace: 'nowrap',
+                            width: 'auto'
+                        });
+                        listWidth = list.width();
+                        if (listWidth) {
+                            listWidth += 20;
+                        } else {
+                            listWidth = that._listWidth;
+                        }
+                        list.css('width', listWidth + kendo.support.scrollbar());
+                        that._listWidth = listWidth;
+                    }
+                });
+            },
+            options: {
+                name: 'SelectBox',
+                index: -1
+            },
+            _initSelectOverlay: function () {
+                var selectBox = this;
+                var value = selectBox.value();
+                var view = this.dataSource.view();
+                var item;
+                var html = '';
+                var encode = kendo.htmlEncode;
+                for (var i = 0; i < view.length; i++) {
+                    item = view[i];
+                    html += '<option value=\'' + encode(item.value) + '\'';
+                    if (item.value == value) {
+                        html += ' selected';
+                    }
+                    html += '>' + encode(item.text) + '</option>';
+                }
+                var select = $('<select class=\'k-select-overlay\'>' + html + '</select>');
+                var wrapper = $(this.element).closest('.k-widget');
+                wrapper.next('.k-select-overlay').remove();
+                select.insertAfter(wrapper);
+                select.on('change', function () {
+                    selectBox.value(this.value);
+                    selectBox.trigger('change');
+                });
+            },
+            value: function (value) {
+                var that = this, result = DropDownList.fn.value.call(that, value);
+                if (value === undefined) {
+                    return result;
+                }
+                if (!DropDownList.fn.value.call(that)) {
+                    that.text(that.options.title);
+                }
+            },
+            decorate: function (body) {
+                var that = this, dataSource = that.dataSource, items = dataSource.data(), i, tag, className, style;
+                if (body) {
+                    that.list.css('background-color', dom.getEffectiveBackground($(body)));
+                }
+                for (i = 0; i < items.length; i++) {
+                    tag = items[i].tag || 'span';
+                    className = items[i].className;
+                    style = dom.inlineStyle(body, tag, { className: className });
+                    style = style.replace(/"/g, '\'');
+                    items[i].style = style + ';display:inline-block';
+                }
+                dataSource.trigger('change');
+            }
+        });
+        kendo.ui.plugin(SelectBox);
+        kendo.ui.editor.SelectBox = SelectBox;
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/range', ['editor/components'], f);
 }(function () {
     (function ($) {
         var kendo = window.kendo, Class = kendo.Class, extend = $.extend, Editor = kendo.ui.editor, browser = kendo.support.browser, dom = Editor.Dom, findNodeIndex = dom.findNodeIndex, isDataNode = dom.isDataNode, findClosestAncestor = dom.findClosestAncestor, getNodeLength = dom.getNodeLength, normalize = dom.normalize;
@@ -3724,28 +3812,274 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('editor/system', ['editor/range'], f);
+    define('editor/immutables', ['editor/range'], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo, Class = kendo.Class, Editor = kendo.ui.editor, dom = Editor.Dom, template = kendo.template, RangeUtils = Editor.RangeUtils, complexBlocks = [
+                'ul',
+                'ol',
+                'tbody',
+                'thead',
+                'table'
+            ], toolsToBeUpdated = [
+                'bold',
+                'italic',
+                'underline',
+                'strikethrough',
+                'superscript',
+                'subscript',
+                'forecolor',
+                'backcolor',
+                'fontname',
+                'fontsize',
+                'createlink',
+                'unlink',
+                'autolink',
+                'addcolumnleft',
+                'addcolumnright',
+                'addrowabove',
+                'addrowbelow',
+                'deleterow',
+                'deletecolumn',
+                'mergecells',
+                'formatting',
+                'cleanformatting'
+            ], IMMUTABALE = 'k-immutable', IMMUTABALE_MARKER_SELECTOR = '[' + IMMUTABALE + ']', IMMUTABLE_SELECTOR = '[contenteditable=\'false\']';
+        var rootCondition = function (node) {
+            return $(node).is('body,.k-editor');
+        };
+        var immutable = function (node) {
+            return node.getAttribute && node.getAttribute('contenteditable') == 'false';
+        };
+        var immutableParent = function (node) {
+            return dom.closestBy(node, immutable, rootCondition);
+        };
+        var expandImmutablesIn = function (range) {
+            var startImmutableParent = immutableParent(range.startContainer);
+            var endImmutableParent = immutableParent(range.endContainer);
+            if (startImmutableParent || endImmutableParent) {
+                if (startImmutableParent) {
+                    range.setStartBefore(startImmutableParent);
+                }
+                if (endImmutableParent) {
+                    range.setEndAfter(endImmutableParent);
+                }
+            }
+        };
+        var immutablesContext = function (range) {
+            if (immutableParent(range.commonAncestorContainer)) {
+                return true;
+            } else if (immutableParent(range.startContainer) || immutableParent(range.endContainer)) {
+                var editableNodes = RangeUtils.editableTextNodes(range);
+                if (editableNodes.length === 0) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        var randomId = function (length) {
+            var result = '';
+            var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            for (var i = length || 10; i > 0; --i) {
+                result += chars.charAt(Math.round(Math.random() * (chars.length - 1)));
+            }
+            return result;
+        };
+        var removeImmutables = function (root) {
+            var serializedImmutables = { empty: true }, nodeName, id, serialized;
+            $(root).find(IMMUTABLE_SELECTOR).each(function (i, node) {
+                nodeName = dom.name(node);
+                id = randomId();
+                serialized = '<' + nodeName + ' ' + IMMUTABALE + '=\'' + id + '\'></' + nodeName + '>';
+                serializedImmutables[id] = {
+                    node: node,
+                    style: $(node).attr('style')
+                };
+                serializedImmutables.empty = false;
+                $(node).replaceWith(serialized);
+            });
+            return serializedImmutables;
+        };
+        var restoreImmutables = function (root, serializedImmutables) {
+            var id, immutable;
+            $(root).find(IMMUTABALE_MARKER_SELECTOR).each(function (i, node) {
+                id = node.getAttribute(IMMUTABALE);
+                immutable = serializedImmutables[id];
+                $(node).replaceWith(immutable.node);
+                if (immutable.style != $(immutable.node).attr('style')) {
+                    $(immutable.node).removeAttr('style').attr('style', immutable.style);
+                }
+            });
+        };
+        var deletingKey = function (keyCode) {
+            var keys = kendo.keys;
+            return keyCode === keys.BACKSPACE || keyCode == keys.DELETE;
+        };
+        var updateToolOptions = function (tool) {
+            var options = tool ? tool.options : undefined;
+            if (options && options.finder) {
+                options.finder._initOptions({ immutables: true });
+            }
+        };
+        var Immutables = Class.extend({
+            init: function (editor) {
+                this.editor = editor;
+                this.serializedImmutables = {};
+                this.options = $.extend({}, editor && editor.options && editor.options.immutables);
+                var tools = editor.toolbar.tools;
+                updateToolOptions(tools.justifyLeft);
+                updateToolOptions(tools.justifyCenter);
+                updateToolOptions(tools.justifyRight);
+                updateToolOptions(tools.justifyFull);
+            },
+            serialize: function (node) {
+                var result = this._toHtml(node), id;
+                if (result.indexOf(IMMUTABALE) === -1) {
+                    id = this.randomId();
+                    result = result.replace(/>/, ' ' + IMMUTABALE + '="' + id + '">');
+                } else {
+                    id = result.match(/k-immutable\s*=\s*['"](.*)['"]/)[1];
+                }
+                this.serializedImmutables[id] = node;
+                return result;
+            },
+            _toHtml: function (node) {
+                var serialization = this.options.serialization;
+                var serializationType = typeof serialization;
+                var nodeName;
+                switch (serializationType) {
+                case 'string':
+                    return template(serialization)(node);
+                case 'function':
+                    return serialization(node);
+                default:
+                    nodeName = dom.name(node);
+                    return '<' + nodeName + '></' + nodeName + '>';
+                }
+            },
+            deserialize: function (node) {
+                var that = this;
+                var deserialization = this.options.deserialization;
+                $(IMMUTABALE_MARKER_SELECTOR, node).each(function () {
+                    var id = this.getAttribute(IMMUTABALE);
+                    var immutable = that.serializedImmutables[id];
+                    if (kendo.isFunction(deserialization)) {
+                        deserialization(this, immutable);
+                    }
+                    $(this).replaceWith(immutable);
+                });
+                that.serializedImmutables = {};
+            },
+            randomId: function (length) {
+                return randomId(length);
+            },
+            keydown: function (e, range) {
+                var isDeleting = deletingKey(e.keyCode);
+                var shouldCancelEvent = isDeleting && this._cancelDeleting(e, range) || !isDeleting && this._cancelTyping(e, range);
+                if (shouldCancelEvent) {
+                    e.preventDefault();
+                    return true;
+                }
+            },
+            _cancelTyping: function (e, range) {
+                var editor = this.editor;
+                var keyboard = editor.keyboard;
+                return range.collapsed && !keyboard.typingInProgress && keyboard.isTypingKey(e) && immutablesContext(range);
+            },
+            _cancelDeleting: function (e, range) {
+                var keys = kendo.keys;
+                var backspace = e.keyCode === keys.BACKSPACE;
+                var del = e.keyCode == keys.DELETE;
+                if (!backspace && !del) {
+                    return false;
+                }
+                var cancelDeleting = false;
+                if (range.collapsed) {
+                    if (immutablesContext(range)) {
+                        return true;
+                    }
+                    var immutable = this.nextImmutable(range, del);
+                    if (immutable && backspace) {
+                        var closestSelectionLi = dom.closest(range.commonAncestorContainer, 'li');
+                        if (closestSelectionLi) {
+                            var closestImmutableLi = dom.closest(immutable, 'li');
+                            if (closestImmutableLi && closestImmutableLi !== closestSelectionLi) {
+                                return cancelDeleting;
+                            }
+                        }
+                    }
+                    if (immutable && !dom.tableCell(immutable)) {
+                        if (dom.parentOfType(immutable, complexBlocks) === dom.parentOfType(range.commonAncestorContainer, complexBlocks)) {
+                            while (immutable && immutable.parentNode.childNodes.length == 1) {
+                                immutable = immutable.parentNode;
+                            }
+                            if (dom.tableCell(immutable)) {
+                                return cancelDeleting;
+                            }
+                            this._removeImmutable(immutable, range);
+                        }
+                        cancelDeleting = true;
+                    }
+                }
+                return cancelDeleting;
+            },
+            nextImmutable: function (range, forwards) {
+                var commonContainer = range.commonAncestorContainer;
+                if (dom.isBom(commonContainer) || (forwards && RangeUtils.isEndOf(range, commonContainer) || !forwards && RangeUtils.isStartOf(range, commonContainer))) {
+                    var next = this._nextNode(commonContainer, forwards);
+                    if (next && dom.isBlock(next) && !immutableParent(next)) {
+                        while (next && next.children && next.children[forwards ? 0 : next.children.length - 1]) {
+                            next = next.children[forwards ? 0 : next.children.length - 1];
+                        }
+                    }
+                    return immutableParent(next);
+                }
+            },
+            _removeImmutable: function (immutable, range) {
+                var editor = this.editor;
+                var startRestorePoint = new Editor.RestorePoint(range, editor.body);
+                dom.remove(immutable);
+                Editor._finishUpdate(editor, startRestorePoint);
+            },
+            _nextNode: function (node, forwards) {
+                var sibling = forwards ? 'nextSibling' : 'previousSibling';
+                var current = node, next;
+                while (current && !next) {
+                    next = current[sibling];
+                    if (next && dom.isDataNode(next) && /^\s|[\ufeff]$/.test(next.nodeValue)) {
+                        current = next;
+                        next = current[sibling];
+                    }
+                    if (!next) {
+                        current = current.parentNode;
+                    }
+                }
+                return next;
+            }
+        });
+        Immutables.immutable = immutable;
+        Immutables.immutableParent = immutableParent;
+        Immutables.expandImmutablesIn = expandImmutablesIn;
+        Immutables.immutablesContext = immutablesContext;
+        Immutables.toolsToBeUpdated = toolsToBeUpdated;
+        Immutables.removeImmutables = removeImmutables;
+        Immutables.restoreImmutables = restoreImmutables;
+        Editor.Immutables = Immutables;
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/command', ['editor/immutables'], f);
 }(function () {
     (function ($) {
-        var kendo = window.kendo, Class = kendo.Class, editorNS = kendo.ui.editor, EditorUtils = editorNS.EditorUtils, RangeUtils = editorNS.RangeUtils, registerTool = EditorUtils.registerTool, dom = editorNS.Dom, Tool = editorNS.Tool, ToolTemplate = editorNS.ToolTemplate, RestorePoint = editorNS.RestorePoint, Marker = editorNS.Marker, browser = kendo.support.browser, br = '<br class="k-br">', extend = $.extend;
-        var nodeTypes = dom.nodeTypes;
-        var PREVIOUS_SIBLING = 'previousSibling';
+        var kendo = window.kendo, Class = kendo.Class, editorNS = kendo.ui.editor, dom = editorNS.Dom, RestorePoint = editorNS.RestorePoint, Marker = editorNS.Marker, extend = $.extend;
         function finishUpdate(editor, startRestorePoint) {
             var endRestorePoint = editor.selectionRestorePoint = new RestorePoint(editor.getRange(), editor.body);
             var command = new GenericCommand(startRestorePoint, endRestorePoint);
             command.editor = editor;
             editor.undoRedoStack.push(command);
             return endRestorePoint;
-        }
-        function selected(node, range) {
-            return range.startContainer === node && range.endContainer === node && range.startOffset === 0 && range.endOffset == node.childNodes.length;
-        }
-        function getSibling(node, direction, condition) {
-            var sibling = node ? node[direction] : null;
-            while (sibling && !condition(sibling)) {
-                sibling = sibling[direction];
-            }
-            return sibling;
         }
         var Command = Class.extend({
             init: function (options) {
@@ -3809,4590 +4143,17 @@
                 this.editor.selectRange(this.startRestorePoint.toRange());
             }
         });
-        var InsertHtmlCommand = Command.extend({
-            init: function (options) {
-                Command.fn.init.call(this, options);
-                this.managesUndoRedo = true;
-            },
-            exec: function () {
-                var editor = this.editor;
-                var options = this.options;
-                var range = options.range;
-                var body = editor.body;
-                var startRestorePoint = new RestorePoint(range, body);
-                var html = options.html || options.value || '';
-                editor.selectRange(range);
-                editor.clipboard.paste(html, options);
-                if (options.postProcess) {
-                    options.postProcess(editor, editor.getRange());
-                }
-                var genericCommand = new GenericCommand(startRestorePoint, new RestorePoint(editor.getRange(), body));
-                genericCommand.editor = editor;
-                editor.undoRedoStack.push(genericCommand);
-                editor.focus();
-            }
-        });
-        var InsertHtmlTool = Tool.extend({
-            initialize: function (ui, initOptions) {
-                var editor = initOptions.editor, options = this.options, dataSource = options.items ? options.items : editor.options.insertHtml;
-                this._selectBox = new editorNS.SelectBox(ui, {
-                    dataSource: dataSource,
-                    dataTextField: 'text',
-                    dataValueField: 'value',
-                    change: function () {
-                        Tool.exec(editor, 'insertHtml', this.value());
-                    },
-                    title: editor.options.messages.insertHtml,
-                    highlightFirst: false
-                });
-            },
-            command: function (commandArguments) {
-                return new InsertHtmlCommand(commandArguments);
-            },
-            update: function (ui) {
-                var selectbox = ui.data('kendoSelectBox') || ui.find('select').data('kendoSelectBox');
-                selectbox.close();
-                selectbox.value(selectbox.options.title);
-            }
-        });
-        var tableCells = 'td,th,caption';
-        var tableCellsWrappers = 'table,tbody,thead,tfoot,tr';
-        var tableElements = tableCellsWrappers + ',' + tableCells;
-        var inTable = function (range) {
-            return !range.collapsed && $(range.commonAncestorContainer).is(tableCellsWrappers);
-        };
-        var RemoveTableContent = Class.extend({
-            remove: function (range) {
-                var that = this;
-                var marker = new Marker();
-                marker.add(range, false);
-                var nodes = RangeUtils.getAll(range, function (node) {
-                    return $(node).is(tableElements);
-                });
-                var doc = RangeUtils.documentFromRange(range);
-                var start = marker.start;
-                var end = marker.end;
-                var cellsTypes = tableCells.split(',');
-                var startCell = dom.parentOfType(start, cellsTypes);
-                var endCell = dom.parentOfType(end, cellsTypes);
-                that._removeContent(start, startCell, true);
-                that._removeContent(end, endCell, false);
-                $(nodes).each(function (i, node) {
-                    node = $(node);
-                    (node.is(tableCells) ? node : node.find(tableCells)).each(function (j, cell) {
-                        cell.innerHTML = '&#65279;';
-                    });
-                });
-                if (startCell && !start.previousSibling) {
-                    dom.insertBefore(doc.createTextNode('\uFEFF'), start);
-                }
-                if (endCell && !end.nextSibling) {
-                    dom.insertAfter(doc.createTextNode('\uFEFF'), end);
-                }
-                if (startCell) {
-                    range.setStartBefore(start);
-                } else if (nodes[0]) {
-                    startCell = $(nodes[0]);
-                    startCell = startCell.is(tableCells) ? startCell : startCell.find(tableCells).first();
-                    if (startCell.length) {
-                        range.setStart(startCell.get(0), 0);
-                    }
-                }
-                range.collapse(true);
-                dom.remove(start);
-                dom.remove(end);
-            },
-            _removeContent: function (start, top, forwards) {
-                if (top) {
-                    var sibling = forwards ? 'nextSibling' : 'previousSibling', next, getNext = function (node) {
-                            while (node && !node[sibling]) {
-                                node = node.parentNode;
-                            }
-                            return node && $.contains(top, node) ? node[sibling] : null;
-                        };
-                    start = getNext(start);
-                    while (start) {
-                        next = getNext(start);
-                        dom.remove(start);
-                        start = next;
-                    }
-                }
-            }
-        });
-        var TypingHandler = Class.extend({
-            init: function (editor) {
-                this.editor = editor;
-            },
-            keydown: function (e) {
-                var that = this, editor = that.editor, keyboard = editor.keyboard, isTypingKey = keyboard.isTypingKey(e), evt = extend($.Event(), e);
-                that.editor.trigger('keydown', evt);
-                if (evt.isDefaultPrevented()) {
-                    e.preventDefault();
-                    return true;
-                }
-                if (!evt.isDefaultPrevented() && isTypingKey && !keyboard.isTypingInProgress()) {
-                    var range = editor.getRange();
-                    var body = editor.body;
-                    that.startRestorePoint = new RestorePoint(range, body);
-                    if (inTable(range)) {
-                        var removeTableContent = new RemoveTableContent(editor);
-                        removeTableContent.remove(range);
-                        editor.selectRange(range);
-                    }
-                    if (browser.webkit && !range.collapsed && selected(body, range)) {
-                        body.innerHTML = '';
-                    }
-                    if (editor.immutables && editorNS.Immutables.immutablesContext(range)) {
-                        var backspaceHandler = new editorNS.BackspaceHandler(editor);
-                        backspaceHandler.deleteSelection(range);
-                    }
-                    keyboard.startTyping(function () {
-                        that.endRestorePoint = finishUpdate(editor, that.startRestorePoint);
-                    });
-                    return true;
-                }
-                return false;
-            },
-            keyup: function (e) {
-                var keyboard = this.editor.keyboard;
-                this.editor.trigger('keyup', e);
-                if (keyboard.isTypingInProgress()) {
-                    keyboard.endTyping();
-                    return true;
-                }
-                return false;
-            }
-        });
-        var BackspaceHandler = Class.extend({
-            init: function (editor) {
-                this.editor = editor;
-            },
-            _addCaret: function (container) {
-                var caret = dom.create(this.editor.document, 'a');
-                dom.insertAt(container, caret, 0);
-                dom.stripBomNode(caret.previousSibling);
-                dom.stripBomNode(caret.nextSibling);
-                return caret;
-            },
-            _restoreCaret: function (caret) {
-                var range = this.editor.createRange();
-                if (!caret.nextSibling && dom.isDataNode(caret.previousSibling)) {
-                    range.setStart(caret.previousSibling, caret.previousSibling.length);
-                } else {
-                    range.setStartAfter(caret);
-                }
-                range.collapse(true);
-                this.editor.selectRange(range);
-                dom.remove(caret);
-            },
-            _handleDelete: function (range) {
-                var node = range.endContainer;
-                var block = dom.closestEditableOfType(node, dom.blockElements);
-                if (block && editorNS.RangeUtils.isEndOf(range, block)) {
-                    var next = dom.next(block);
-                    if (!next || dom.name(next) != 'p') {
-                        return false;
-                    }
-                    var caret = this._addCaret(next);
-                    this._merge(block, next);
-                    this._restoreCaret(caret);
-                    return true;
-                }
-                return false;
-            },
-            _cleanBomBefore: function (range) {
-                var offset = range.startOffset;
-                var node = range.startContainer;
-                var text = node.nodeValue;
-                var count = 0;
-                while (offset - count >= 0 && text[offset - count - 1] == '\uFEFF') {
-                    count++;
-                }
-                if (count > 0) {
-                    node.deleteData(offset - count, count);
-                    range.setStart(node, Math.max(0, offset - count));
-                    range.collapse(true);
-                    this.editor.selectRange(range);
-                }
-            },
-            _handleBackspace: function (range) {
-                var node = range.startContainer;
-                var li = dom.closestEditableOfType(node, ['li']);
-                var block = dom.closestEditableOfType(node, 'p,h1,h2,h3,h4,h5,h6'.split(','));
-                var editor = this.editor;
-                var previousSibling;
-                if (dom.isDataNode(node)) {
-                    if (range.collapsed && /^\s[\ufeff]+$/.test(node.nodeValue)) {
-                        range.setStart(node, 0);
-                        range.setEnd(node, node.length);
-                        editor.selectRange(range);
-                        return false;
-                    }
-                    this._cleanBomBefore(range);
-                }
-                previousSibling = getSibling(block, PREVIOUS_SIBLING, function (sibling) {
-                    return !dom.htmlIndentSpace(sibling);
-                });
-                if (range.collapsed && range.startOffset !== range.endOffset && range.startOffset < 0) {
-                    range.startOffset = 0;
-                    range.endOffset = 0;
-                    editor.selectRange(range);
-                }
-                var startAtLi = li && editorNS.RangeUtils.isStartOf(range, li);
-                var liIndex = li && $(li).index();
-                var startAtNonFirstLi = startAtLi && liIndex > 0;
-                if (startAtNonFirstLi) {
-                    block = li;
-                    previousSibling = dom.prev(li);
-                }
-                if (block && previousSibling && editorNS.RangeUtils.isStartOf(range, block) || startAtNonFirstLi) {
-                    var caret = this._addCaret(block);
-                    this._merge(previousSibling, block);
-                    this._restoreCaret(caret);
-                    return true;
-                }
-                if (startAtLi && liIndex === 0) {
-                    var child = li.firstChild;
-                    if (!child) {
-                        li.innerHTML = editorNS.emptyElementContent;
-                        child = li.firstChild;
-                    }
-                    var formatter = new editorNS.ListFormatter(dom.name(li.parentNode), 'p');
-                    range.selectNodeContents(li);
-                    formatter.toggle(range);
-                    if (dom.insignificant(child)) {
-                        range.setStartBefore(child);
-                    } else {
-                        range.setStart(child, 0);
-                    }
-                    editor.selectRange(range);
-                    return true;
-                }
-                var rangeStartNode = node.childNodes[range.startOffset - 1];
-                var linkRange = range;
-                var anchor = rangeStartNode && dom.closestEditableOfType(rangeStartNode, ['a']);
-                var previousNode = getSibling(rangeStartNode || node, PREVIOUS_SIBLING, function (sibling) {
-                    return !dom.isDataNode(sibling) || !dom.isBom(sibling) && sibling.length > 0;
-                });
-                if (anchor || (range.startOffset === 0 || rangeStartNode) && dom.is(previousNode, 'a')) {
-                    anchor = anchor || previousNode;
-                    linkRange = editor.createRange();
-                    linkRange.setStart(anchor, anchor.childNodes.length);
-                    linkRange.collapse(true);
-                }
-                anchor = anchor || dom.closestEditableOfType(rangeStartNode || linkRange.startContainer, ['a']);
-                var isEndOfLink = anchor && editorNS.RangeUtils.isEndOf(linkRange, anchor);
-                if (isEndOfLink) {
-                    var command = new editorNS.UnlinkCommand({
-                        range: linkRange,
-                        body: editor.body,
-                        immutables: !!editor.immutables
-                    });
-                    editor.execCommand(command);
-                    editor._selectionChange();
-                }
-                return false;
-            },
-            _handleSelection: function (range) {
-                var ancestor = range.commonAncestorContainer;
-                var table = dom.closest(ancestor, 'table');
-                var emptyParagraphContent = editorNS.emptyElementContent;
-                var editor = this.editor;
-                if (inTable(range)) {
-                    var removeTableContent = new RemoveTableContent(editor);
-                    removeTableContent.remove(range);
-                    editor.selectRange(range);
-                    return true;
-                }
-                var marker = new Marker();
-                marker.add(range, false);
-                if (editor.immutables) {
-                    this._handleImmutables(marker);
-                }
-                this._surroundFullySelectedAnchor(marker, range);
-                range.setStartAfter(marker.start);
-                range.setEndBefore(marker.end);
-                var start = range.startContainer;
-                var end = range.endContainer;
-                range.deleteContents();
-                if (table && $(table).text() === '') {
-                    range.selectNode(table);
-                    range.deleteContents();
-                }
-                ancestor = range.commonAncestorContainer;
-                if (dom.name(ancestor) === 'p' && ancestor.innerHTML === '') {
-                    ancestor.innerHTML = emptyParagraphContent;
-                    range.setStart(ancestor, 0);
-                }
-                this._join(start, end);
-                dom.insertAfter(editor.document.createTextNode('\uFEFF'), marker.start);
-                marker.remove(range);
-                start = range.startContainer;
-                if (dom.name(start) == 'tr') {
-                    start = start.childNodes[Math.max(0, range.startOffset - 1)];
-                    range.setStart(start, dom.getNodeLength(start));
-                }
-                range.collapse(true);
-                editor.selectRange(range);
-                return true;
-            },
-            _handleImmutables: function (marker) {
-                var immutableParent = editorNS.Immutables.immutableParent;
-                var startImmutable = immutableParent(marker.start);
-                var endImmutable = immutableParent(marker.start);
-                if (startImmutable) {
-                    dom.insertBefore(marker.start, startImmutable);
-                }
-                if (endImmutable) {
-                    dom.insertAfter(marker.end, endImmutable);
-                }
-                if (startImmutable) {
-                    dom.remove(startImmutable);
-                }
-                if (endImmutable && endImmutable.parentNode) {
-                    dom.remove(endImmutable);
-                }
-            },
-            _surroundFullySelectedAnchor: function (marker, range) {
-                var start = marker.start, startParent = $(start).closest('a').get(0), end = marker.end, endParent = $(end).closest('a').get(0);
-                if (startParent && RangeUtils.isStartOf(range, startParent)) {
-                    dom.insertBefore(start, startParent);
-                }
-                if (endParent && RangeUtils.isEndOf(range, endParent)) {
-                    dom.insertAfter(end, endParent);
-                }
-            },
-            _root: function (node) {
-                while (node && node.parentNode && dom.name(node.parentNode) != 'body') {
-                    node = node.parentNode;
-                }
-                return node;
-            },
-            _join: function (start, end) {
-                start = this._root(start);
-                end = this._root(end);
-                if (start != end && dom.is(end, 'p')) {
-                    this._merge(start, end);
-                }
-            },
-            _merge: function (dest, src) {
-                dom.removeTrailingBreak(dest);
-                while (dest && src.firstChild) {
-                    if (dest.nodeType == 1) {
-                        dest = dom.list(dest) ? dest.children[dest.children.length - 1] : dest;
-                        if (dest) {
-                            dest.appendChild(src.firstChild);
-                        }
-                    } else if (dest.nodeType === nodeTypes.TEXT_NODE) {
-                        this._mergeWithTextNode(dest, src.firstChild);
-                    } else {
-                        dest.parentNode.appendChild(src.firstChild);
-                    }
-                }
-                dom.remove(src);
-            },
-            _mergeWithTextNode: function (textNode, appendedNode) {
-                if (textNode && textNode.nodeType === nodeTypes.TEXT_NODE) {
-                    if (textNode.nextSibling && this._isCaret(textNode.nextSibling)) {
-                        dom.insertAfter(appendedNode, textNode.nextSibling);
-                    } else {
-                        dom.insertAfter(appendedNode, textNode);
-                    }
-                }
-            },
-            _isCaret: function (element) {
-                return $(element).is('a');
-            },
-            keydown: function (e) {
-                var method, startRestorePoint;
-                var editor = this.editor;
-                var range = editor.getRange();
-                var keyCode = e.keyCode;
-                var keys = kendo.keys;
-                var backspace = keyCode === keys.BACKSPACE;
-                var del = keyCode == keys.DELETE;
-                if (editor.immutables && editor.immutables.keydown(e, range)) {
-                    return;
-                }
-                if ((backspace || del) && !range.collapsed) {
-                    method = '_handleSelection';
-                } else if (backspace) {
-                    method = '_handleBackspace';
-                } else if (del) {
-                    method = '_handleDelete';
-                }
-                if (!method) {
-                    return;
-                }
-                startRestorePoint = new RestorePoint(range, editor.body);
-                if (this[method](range)) {
-                    e.preventDefault();
-                    finishUpdate(editor, startRestorePoint);
-                }
-            },
-            deleteSelection: function (range) {
-                this._handleSelection(range);
-            },
-            keyup: $.noop
-        });
-        var SystemHandler = Class.extend({
-            init: function (editor) {
-                this.editor = editor;
-                this.systemCommandIsInProgress = false;
-            },
-            createUndoCommand: function () {
-                this.startRestorePoint = this.endRestorePoint = finishUpdate(this.editor, this.startRestorePoint);
-            },
-            changed: function () {
-                if (this.startRestorePoint) {
-                    return this.startRestorePoint.html != this.editor.body.innerHTML;
-                }
-                return false;
-            },
-            keydown: function (e) {
-                var that = this, editor = that.editor, keyboard = editor.keyboard;
-                if (keyboard.isModifierKey(e)) {
-                    if (keyboard.isTypingInProgress()) {
-                        keyboard.endTyping(true);
-                    }
-                    that.startRestorePoint = new RestorePoint(editor.getRange(), editor.body);
-                    return true;
-                }
-                if (keyboard.isSystem(e)) {
-                    that.systemCommandIsInProgress = true;
-                    if (that.changed()) {
-                        that.systemCommandIsInProgress = false;
-                        that.createUndoCommand();
-                    }
-                    return true;
-                }
-                return false;
-            },
-            keyup: function () {
-                var that = this;
-                if (that.systemCommandIsInProgress && that.changed()) {
-                    that.systemCommandIsInProgress = false;
-                    that.createUndoCommand();
-                    return true;
-                }
-                return false;
-            }
-        });
-        var SelectAllHandler = Class.extend({
-            init: function (editor) {
-                this.editor = editor;
-            },
-            keydown: function (e) {
-                if (!browser.webkit || e.isDefaultPrevented() || !(e.ctrlKey && e.keyCode == 65 && !e.altKey && !e.shiftKey)) {
-                    return;
-                }
-                if (this.editor.options.immutables) {
-                    this._toSelectableImmutables();
-                }
-                this._selectEditorBody();
-            },
-            _selectEditorBody: function () {
-                var editor = this.editor;
-                var range = editor.getRange();
-                range.selectNodeContents(editor.body);
-                editor.selectRange(range);
-            },
-            _toSelectableImmutables: function () {
-                var editor = this.editor, body = editor.body, immutable = editorNS.Immutables.immutable, emptyTextNode = dom.emptyTextNode, first = body.firstChild, last = body.lastChild;
-                while (emptyTextNode(first)) {
-                    first = first.nextSibling;
-                }
-                while (emptyTextNode(last)) {
-                    last = last.previousSibling;
-                }
-                if (first && immutable(first)) {
-                    $(br).prependTo(body);
-                }
-                if (last && immutable(last)) {
-                    $(br).appendTo(body);
-                }
-            },
-            keyup: $.noop
-        });
-        var Keyboard = Class.extend({
-            init: function (handlers) {
-                this.handlers = handlers;
-                this.typingInProgress = false;
-            },
-            isCharacter: function (keyCode) {
-                return keyCode >= 48 && keyCode <= 90 || keyCode >= 96 && keyCode <= 111 || keyCode >= 186 && keyCode <= 192 || keyCode >= 219 && keyCode <= 222 || keyCode == 229;
-            },
-            toolFromShortcut: function (tools, e) {
-                var key = String.fromCharCode(e.keyCode), toolName, toolOptions, modifier = this._getShortcutModifier(e, navigator.platform);
-                for (toolName in tools) {
-                    toolOptions = $.extend({
-                        ctrl: false,
-                        alt: false,
-                        shift: false
-                    }, tools[toolName].options);
-                    if ((toolOptions.key == key || toolOptions.key == e.keyCode) && toolOptions.ctrl == modifier && toolOptions.alt == e.altKey && toolOptions.shift == e.shiftKey) {
-                        return toolName;
-                    }
-                }
-            },
-            _getShortcutModifier: function (e, platform) {
-                var mac = platform.toUpperCase().indexOf('MAC') >= 0;
-                return mac ? e.metaKey : e.ctrlKey;
-            },
-            toolsFromShortcut: function (tools, e) {
-                var key = String.fromCharCode(e.keyCode), toolName, o, matchesKey, found = [];
-                var matchKey = function (toolKey) {
-                    return toolKey == key || toolKey == e.keyCode || toolKey == e.charCode;
-                };
-                for (toolName in tools) {
-                    o = $.extend({
-                        ctrl: false,
-                        alt: false,
-                        shift: false
-                    }, tools[toolName].options);
-                    matchesKey = $.isArray(o.key) ? $.grep(o.key, matchKey).length > 0 : matchKey(o.key);
-                    if (matchesKey && o.ctrl == e.ctrlKey && o.alt == e.altKey && o.shift == e.shiftKey) {
-                        found.push(tools[toolName]);
-                    }
-                }
-                return found;
-            },
-            isTypingKey: function (e) {
-                var keyCode = e.keyCode;
-                return this.isCharacter(keyCode) && !e.ctrlKey && !e.altKey || keyCode == 32 || keyCode == 13 || keyCode == 8 || keyCode == 46 && !e.shiftKey && !e.ctrlKey && !e.altKey;
-            },
-            isModifierKey: function (e) {
-                var keyCode = e.keyCode;
-                return keyCode == 17 && !e.shiftKey && !e.altKey || keyCode == 16 && !e.ctrlKey && !e.altKey || keyCode == 18 && !e.ctrlKey && !e.shiftKey;
-            },
-            isSystem: function (e) {
-                return e.keyCode == 46 && e.ctrlKey && !e.altKey && !e.shiftKey;
-            },
-            startTyping: function (callback) {
-                this.onEndTyping = callback;
-                this.typingInProgress = true;
-            },
-            stopTyping: function () {
-                if (this.typingInProgress && this.onEndTyping) {
-                    this.onEndTyping();
-                }
-                this.typingInProgress = false;
-            },
-            endTyping: function (force) {
-                var that = this;
-                that.clearTimeout();
-                if (force) {
-                    that.stopTyping();
-                } else {
-                    that.timeout = window.setTimeout($.proxy(that.stopTyping, that), 1000);
-                }
-            },
-            isTypingInProgress: function () {
-                return this.typingInProgress;
-            },
-            clearTimeout: function () {
-                window.clearTimeout(this.timeout);
-            },
-            notify: function (e, what) {
-                var i, handlers = this.handlers;
-                for (i = 0; i < handlers.length; i++) {
-                    if (handlers[i][what](e)) {
-                        break;
-                    }
-                }
-            },
-            keydown: function (e) {
-                this.notify(e, 'keydown');
-            },
-            keyup: function (e) {
-                this.notify(e, 'keyup');
-            }
-        });
-        var Clipboard = Class.extend({
-            init: function (editor) {
-                this.editor = editor;
-                var pasteCleanup = editor.options.pasteCleanup;
-                this.cleaners = [
-                    new ScriptCleaner(pasteCleanup),
-                    new TabCleaner(pasteCleanup),
-                    new MSWordFormatCleaner(pasteCleanup),
-                    new WebkitFormatCleaner(pasteCleanup),
-                    new HtmlTagsCleaner(pasteCleanup),
-                    new HtmlAttrCleaner(pasteCleanup),
-                    new HtmlContentCleaner(pasteCleanup),
-                    new CustomCleaner(pasteCleanup)
-                ];
-            },
-            htmlToFragment: function (html) {
-                var editor = this.editor, doc = editor.document, container = dom.create(doc, 'div'), fragment = doc.createDocumentFragment();
-                container.innerHTML = html;
-                while (container.firstChild) {
-                    fragment.appendChild(container.firstChild);
-                }
-                return fragment;
-            },
-            isBlock: function (html) {
-                return /<(div|p|ul|ol|table|h[1-6])/i.test(html);
-            },
-            _startModification: function () {
-                var range;
-                var restorePoint;
-                var editor = this.editor;
-                if (this._inProgress) {
-                    return;
-                }
-                this._inProgress = true;
-                range = editor.getRange();
-                restorePoint = new RestorePoint(range, editor.body);
-                dom.persistScrollTop(editor.document);
-                return {
-                    range: range,
-                    restorePoint: restorePoint
-                };
-            },
-            _endModification: function (modificationInfo) {
-                finishUpdate(this.editor, modificationInfo.restorePoint);
-                this.editor._selectionChange();
-                this._inProgress = false;
-            },
-            _contentModification: function (before, after) {
-                var that = this;
-                var editor = that.editor;
-                var modificationInfo = that._startModification();
-                if (!modificationInfo) {
-                    return;
-                }
-                before.call(that, editor, modificationInfo.range);
-                setTimeout(function () {
-                    after.call(that, editor, modificationInfo.range);
-                    that._endModification(modificationInfo);
-                });
-            },
-            _removeBomNodes: function (range) {
-                var nodes = editorNS.RangeUtils.textNodes(range);
-                for (var i = 0; i < nodes.length; i++) {
-                    nodes[i].nodeValue = dom.stripBom(nodes[i].nodeValue);
-                }
-            },
-            _onBeforeCopy: function (range) {
-                var marker = new Marker();
-                marker.add(range);
-                this._removeBomNodes(range);
-                marker.remove(range);
-                this.editor.selectRange(range);
-            },
-            oncopy: function () {
-                this._onBeforeCopy(this.editor.getRange());
-            },
-            oncut: function () {
-                this._onBeforeCopy(this.editor.getRange());
-                this._contentModification($.noop, $.noop);
-            },
-            _fileToDataURL: function (blob) {
-                var deferred = $.Deferred();
-                var reader = new FileReader();
-                if (!(blob instanceof window.File) && blob.getAsFile) {
-                    blob = blob.getAsFile();
-                }
-                reader.onload = $.proxy(deferred.resolve, deferred);
-                reader.readAsDataURL(blob);
-                return deferred.promise();
-            },
-            _triggerPaste: function (html, options) {
-                var args = { html: html || '' };
-                args.html = args.html.replace(/\ufeff/g, '');
-                this.editor.trigger('paste', args);
-                this.paste(args.html, options || {});
-            },
-            _handleImagePaste: function (e) {
-                if (!('FileReader' in window) || browser.msie && browser.version > 10) {
-                    return;
-                }
-                var clipboardData = e.clipboardData || e.originalEvent.clipboardData || window.clipboardData || {};
-                var items = clipboardData.items || clipboardData.files;
-                return this._insertImages(items);
-            },
-            _insertImages: function (items) {
-                if (!items) {
-                    return;
-                }
-                var images = $.grep(items, function (item) {
-                    return /^image\//i.test(item.type);
-                });
-                var html = $.grep(items, function (item) {
-                    return /^text\/html/i.test(item.type);
-                });
-                if (html.length || !images.length) {
-                    return;
-                }
-                var modificationInfo = this._startModification();
-                if (!modificationInfo) {
-                    return;
-                }
-                $.when.apply($, $.map(images, this._fileToDataURL)).done($.proxy(function () {
-                    var results = Array.prototype.slice.call(arguments);
-                    var html = $.map(results, function (e) {
-                        return '<img src="' + e.target.result + '" />';
-                    }).join('');
-                    this._triggerPaste(html);
-                    this._endModification(modificationInfo);
-                }, this));
-                return true;
-            },
-            onpaste: function (e) {
-                if (this._handleImagePaste(e)) {
-                    e.preventDefault();
-                    return;
-                }
-                this.expandImmutablesIn();
-                this._contentModification(function beforePaste(editor, range) {
-                    var clipboardNode = dom.create(editor.document, 'div', {
-                        className: 'k-paste-container',
-                        innerHTML: '\uFEFF'
-                    });
-                    var browser = kendo.support.browser;
-                    var body = editor.body;
-                    this._decoreateClipboardNode(clipboardNode, body);
-                    body.appendChild(clipboardNode);
-                    if (browser.webkit) {
-                        this._moveToCaretPosition(clipboardNode, range);
-                    }
-                    if (browser.msie && browser.version < 11) {
-                        e.preventDefault();
-                        var r = editor.createRange();
-                        r.selectNodeContents(clipboardNode);
-                        editor.selectRange(r);
-                        var textRange = editor.document.body.createTextRange();
-                        textRange.moveToElementText(clipboardNode);
-                        $(body).unbind('paste');
-                        textRange.execCommand('Paste');
-                        $(body).bind('paste', $.proxy(this.onpaste, this));
-                    } else {
-                        var clipboardRange = editor.createRange();
-                        clipboardRange.selectNodeContents(clipboardNode);
-                        editor.selectRange(clipboardRange);
-                    }
-                    range.deleteContents();
-                }, function afterPaste(editor, range) {
-                    var html = '', containers;
-                    editor.selectRange(range);
-                    containers = $(editor.body).children('.k-paste-container');
-                    containers.each(function () {
-                        var lastChild = this.lastChild;
-                        if (lastChild && dom.is(lastChild, 'br')) {
-                            dom.remove(lastChild);
-                        }
-                        html += this.innerHTML;
-                    });
-                    containers.remove();
-                    this._triggerPaste(html, { clean: true });
-                });
-            },
-            ondragover: function (e) {
-                if (browser.msie || browser.edge) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                }
-            },
-            ondrop: function (e) {
-                if (!('FileReader' in window)) {
-                    return;
-                }
-                var dataTransfer = (e.originalEvent || e).dataTransfer || {};
-                var items = dataTransfer.items || dataTransfer.files;
-                if (this._insertImages(items)) {
-                    e.preventDefault();
-                }
-            },
-            _decoreateClipboardNode: function (node, body) {
-                if (!browser.msie && !browser.webkit) {
-                    return;
-                }
-                node = $(node);
-                node.css({
-                    borderWidth: '0px',
-                    width: '0px',
-                    height: '0px',
-                    overflow: 'hidden',
-                    margin: '0',
-                    padding: '0'
-                });
-                if (browser.msie) {
-                    var documentElement = $(body.ownerDocument.documentElement);
-                    node.css({
-                        fontVariant: 'normal',
-                        fontWeight: 'normal',
-                        lineSpacing: 'normal',
-                        lineHeight: 'normal',
-                        textDecoration: 'none'
-                    });
-                    var color = documentElement.css('color');
-                    if (color) {
-                        node.css('color', color);
-                    }
-                    var fontFamily = documentElement.css('fontFamily');
-                    if (fontFamily) {
-                        node.css('fontFamily', fontFamily);
-                    }
-                    var fontSize = documentElement.css('fontSize');
-                    if (fontSize) {
-                        node.css('fontSize', fontSize);
-                    }
-                }
-            },
-            _moveToCaretPosition: function (node, range) {
-                var that = this;
-                var body = that.editor.body;
-                var nodeOffset = dom.offset(node, body);
-                var caretOffset = that._caretOffset(range, body);
-                var translateX = caretOffset.left - nodeOffset.left;
-                var translateY = caretOffset.top - nodeOffset.top;
-                var translate = 'translate(' + translateX + 'px,' + translateY + 'px)';
-                $(node).css({
-                    '-webkit-transform': translate,
-                    'transform': translate
-                });
-            },
-            _caretOffset: function (range, body) {
-                var editor = this.editor;
-                var caret = dom.create(editor.document, 'span', { innerHTML: '\uFEFF' });
-                var startContainer = range.startContainer;
-                var rangeChanged;
-                if (range.collapsed) {
-                    var isStartTextNode = dom.isDataNode(startContainer);
-                    if (isStartTextNode && (dom.isBom(startContainer) || range.startOffset === 0)) {
-                        dom.insertBefore(caret, startContainer);
-                    } else if (isStartTextNode && range.startOffset === startContainer.length) {
-                        dom.insertAfter(caret, startContainer);
-                    } else {
-                        range.insertNode(caret);
-                        rangeChanged = true;
-                    }
-                } else {
-                    startContainer = startContainer === body ? startContainer.childNodes[range.startOffset] : startContainer;
-                    dom.insertBefore(caret, startContainer);
-                }
-                var offset = dom.offset(caret, body);
-                var prev = caret.previousSibling;
-                var next = caret.nextSibling;
-                dom.remove(caret);
-                if (rangeChanged && dom.isDataNode(prev) && dom.isDataNode(next) && !dom.isBom(prev) && !dom.isBom(next)) {
-                    var prevLength = prev.length;
-                    next.data = prev.data + next.data;
-                    range.setStart(next, prevLength);
-                    dom.remove(prev);
-                    range.collapse(true);
-                    editor.selectRange(range);
-                }
-                return offset;
-            },
-            expandImmutablesIn: function (range) {
-                var editor = this.editor;
-                if (editor && editor.options.immutables) {
-                    var body = editor.body;
-                    range = range || editor.getRange();
-                    kendo.ui.editor.Immutables.expandImmutablesIn(range);
-                    if (range.startContainer === body && range.startOffset === 0) {
-                        var doc = body.ownerDocument;
-                        var bomNode = doc.createTextNode('\uFEFF');
-                        body.insertBefore(bomNode, body.childNodes[0]);
-                        range.setStartBefore(bomNode);
-                    }
-                    editor.selectRange(range);
-                }
-            },
-            splittableParent: function (block, node) {
-                var parentNode, body;
-                if (block) {
-                    return dom.closestEditableOfType(node, [
-                        'p',
-                        'ul',
-                        'ol'
-                    ]) || node.parentNode;
-                }
-                parentNode = node.parentNode;
-                body = node.ownerDocument.body;
-                if (dom.isInline(parentNode)) {
-                    while (parentNode.parentNode != body && !dom.isBlock(parentNode.parentNode)) {
-                        parentNode = parentNode.parentNode;
-                    }
-                }
-                return parentNode;
-            },
-            paste: function (html, options) {
-                var editor = this.editor, i, l;
-                this.expandImmutablesIn();
-                options = extend({
-                    clean: false,
-                    split: true
-                }, options);
-                if (!options.skipCleaners) {
-                    for (i = 0, l = this.cleaners.length; i < l; i++) {
-                        if (this.cleaners[i].applicable(html)) {
-                            html = this.cleaners[i].clean(html);
-                        }
-                    }
-                }
-                if (options.clean) {
-                    html = html.replace(/(<br>(\s|&nbsp;)*)+(<\/?(div|p|li|col|t))/gi, '$3');
-                    html = html.replace(/<(a|span)[^>]*><\/\1>/gi, '');
-                }
-                html = html.replace(/^<li/i, '<ul><li').replace(/li>$/g, 'li></ul>');
-                var block = this.isBlock(html);
-                editor.focus();
-                var range = editor.getRange();
-                range.deleteContents();
-                if (range.startContainer == editor.document) {
-                    range.selectNodeContents(editor.body);
-                }
-                var marker = new Marker();
-                var caret = marker.addCaret(range);
-                var parent = this.splittableParent(block, caret);
-                var unwrap = false;
-                var splittable = parent != editor.body && !dom.is(parent, 'td');
-                if (options.split && splittable && (block || dom.isInline(parent))) {
-                    range.selectNode(caret);
-                    editorNS.RangeUtils.split(range, parent, true);
-                    unwrap = true;
-                }
-                var fragment = this.htmlToFragment(html);
-                if (fragment.firstChild && fragment.firstChild.className === 'k-paste-container') {
-                    var fragmentsHtml = [];
-                    for (i = 0, l = fragment.childNodes.length; i < l; i++) {
-                        fragmentsHtml.push(fragment.childNodes[i].innerHTML);
-                    }
-                    fragment = this.htmlToFragment(fragmentsHtml.join('<br />'));
-                }
-                $(fragment.childNodes).filter('table').addClass('k-table').end().find('table').addClass('k-table');
-                range.insertNode(fragment);
-                parent = this.splittableParent(block, caret);
-                if (unwrap) {
-                    while (caret.parentNode != parent) {
-                        dom.unwrap(caret.parentNode);
-                    }
-                    dom.unwrap(caret.parentNode);
-                }
-                dom.normalize(range.commonAncestorContainer);
-                caret.style.display = 'inline';
-                dom.restoreScrollTop(editor.document);
-                dom.scrollTo(caret);
-                marker.removeCaret(range);
-                var rangeEnd = range.commonAncestorContainer.parentNode;
-                if (range.collapsed && dom.name(rangeEnd) == 'tbody') {
-                    range.setStartAfter($(rangeEnd).closest('table')[0]);
-                    range.collapse(true);
-                }
-                editor.selectRange(range);
-            }
-        });
-        var Cleaner = Class.extend({
-            init: function (options) {
-                this.options = options || {};
-                this.replacements = [];
-            },
-            clean: function (html, customReplacements) {
-                var that = this, replacements = customReplacements || that.replacements, i, l;
-                for (i = 0, l = replacements.length; i < l; i += 2) {
-                    html = html.replace(replacements[i], replacements[i + 1]);
-                }
-                return html;
-            }
-        });
-        var ScriptCleaner = Cleaner.extend({
-            init: function (options) {
-                Cleaner.fn.init.call(this, options);
-                this.replacements = [
-                    /<(\/?)script([^>]*)>/i,
-                    '<$1telerik:script$2>'
-                ];
-            },
-            applicable: function (html) {
-                return !this.options.none && /<script[^>]*>/i.test(html);
-            }
-        });
-        var TabCleaner = Cleaner.extend({
-            init: function (options) {
-                Cleaner.fn.init.call(this, options);
-                var replacement = ' ';
-                this.replacements = [
-                    /<span\s+class="Apple-tab-span"[^>]*>\s*<\/span>/gi,
-                    replacement,
-                    /\t/gi,
-                    replacement,
-                    /&nbsp;&nbsp; &nbsp;/gi,
-                    replacement
-                ];
-            },
-            applicable: function (html) {
-                return /&nbsp;&nbsp; &nbsp;|class="?Apple-tab-span/i.test(html);
-            }
-        });
-        var MSWordFormatCleaner = Cleaner.extend({
-            init: function (options) {
-                Cleaner.fn.init.call(this, options);
-                this.junkReplacements = [
-                    /<\?xml[^>]*>/gi,
-                    '',
-                    /<!--(.|\n)*?-->/g,
-                    '',
-                    /&quot;/g,
-                    '\'',
-                    /<o:p>&nbsp;<\/o:p>/gi,
-                    '&nbsp;',
-                    /<\/?(meta|link|style|o:|v:|x:)[^>]*>((?:.|\n)*?<\/(meta|link|style|o:|v:|x:)[^>]*>)?/gi,
-                    '',
-                    /<\/o>/g,
-                    ''
-                ];
-                this.replacements = this.junkReplacements.concat([
-                    /(?:<br>&nbsp;[\s\r\n]+|<br>)*(<\/?(h[1-6]|hr|p|div|table|tbody|thead|tfoot|th|tr|td|li|ol|ul|caption|address|pre|form|blockquote|dl|dt|dd|dir|fieldset)[^>]*>)(?:<br>&nbsp;[\s\r\n]+|<br>)*/g,
-                    '$1',
-                    /<br><br>/g,
-                    '<BR><BR>',
-                    /<br>(?!\n)/g,
-                    ' ',
-                    /<table([^>]*)>(\s|&nbsp;)+<t/gi,
-                    '<table$1><t',
-                    /<tr[^>]*>(\s|&nbsp;)*<\/tr>/gi,
-                    '',
-                    /<tbody[^>]*>(\s|&nbsp;)*<\/tbody>/gi,
-                    '',
-                    /<table[^>]*>(\s|&nbsp;)*<\/table>/gi,
-                    '',
-                    /<BR><BR>/g,
-                    '<br>',
-                    /^\s*(&nbsp;)+/gi,
-                    '',
-                    /(&nbsp;|<br[^>]*>)+\s*$/gi,
-                    '',
-                    /mso-[^;"]*;?/gi,
-                    '',
-                    /<(\/?)b(\s[^>]*)?>/gi,
-                    '<$1strong$2>',
-                    /<(\/?)font(\s[^>]*)?>/gi,
-                    this.convertFontMatch,
-                    /<(\/?)i(\s[^>]*)?>/gi,
-                    '<$1em$2>',
-                    /style=(["|'])\s*\1/g,
-                    '',
-                    /(<br[^>]*>)?\n/g,
-                    function ($0, $1) {
-                        return $1 ? $0 : ' ';
-                    }
-                ]);
-            },
-            convertFontMatch: function (match, closing, args) {
-                var faceRe = /face=['"]([^'"]+)['"]/i;
-                var face = faceRe.exec(args);
-                var family = args && face && face[1];
-                if (closing) {
-                    return '</span>';
-                } else if (family) {
-                    return '<span style="font-family:' + family + '">';
-                } else {
-                    return '<span>';
-                }
-            },
-            applicable: function (html) {
-                return /class="?Mso/i.test(html) || /style="[^"]*mso-/i.test(html) || /urn:schemas-microsoft-com:office/.test(html);
-            },
-            stripEmptyAnchors: function (html) {
-                return html.replace(/<a([^>]*)>\s*<\/a>/gi, function (a, attributes) {
-                    if (!attributes || attributes.indexOf('href') < 0) {
-                        return '';
-                    }
-                    return a;
-                });
-            },
-            listType: function (p, listData) {
-                var html = p.innerHTML;
-                var text = dom.innerText(p);
-                var startingSymbol;
-                var matchSymbol = html.match(/^(?:<span [^>]*texhtml[^>]*>)?<span [^>]*(?:Symbol|Wingdings)[^>]*>([^<]+)/i);
-                var symbol = matchSymbol && matchSymbol[1];
-                var isNumber = /^[a-z\d]/i.test(symbol);
-                var trimStartText = function (text) {
-                    return text.replace(/^(?:&nbsp;|[\u00a0\n\r\s])+/, '');
-                };
-                if (matchSymbol) {
-                    startingSymbol = true;
-                }
-                html = html.replace(/<\/?\w+[^>]*>/g, '').replace(/&nbsp;/g, '\xA0');
-                if (!startingSymbol && /^[\u2022\u00b7\u00a7\u00d8o]\u00a0+/.test(html) || startingSymbol && /^.\u00a0+/.test(html) || symbol && !isNumber && listData) {
-                    return {
-                        tag: 'ul',
-                        style: this._guessUnorderedListStyle(trimStartText(text))
-                    };
-                }
-                if (/^\s*\w+[\.\)][\u00a0 ]{2,}/.test(html)) {
-                    return {
-                        tag: 'ol',
-                        style: this._guessOrderedListStyle(trimStartText(text))
-                    };
-                }
-            },
-            _convertToLi: function (p) {
-                var content, name = dom.name(p);
-                if (p.childNodes.length == 1) {
-                    content = p.firstChild.innerHTML.replace(/^\w+[\.\)](&nbsp;)+ /, '');
-                } else {
-                    dom.remove(p.firstChild);
-                    if (p.firstChild.nodeType == 3) {
-                        if (/^[ivxlcdm]+\.$/i.test(p.firstChild.nodeValue)) {
-                            dom.remove(p.firstChild);
-                        }
-                    }
-                    if (/^(&nbsp;|\s)+$/i.test(p.firstChild.innerHTML)) {
-                        dom.remove(p.firstChild);
-                    }
-                    if (name != 'p') {
-                        content = '<' + name + '>' + p.innerHTML + '</' + name + '>';
-                    } else {
-                        content = p.innerHTML;
-                    }
-                }
-                dom.remove(p);
-                return dom.create(document, 'li', { innerHTML: content });
-            },
-            _guessUnorderedListStyle: function (symbol) {
-                if (/^[\u2022\u00b7\u00FC\u00D8\u002dv-]/.test(symbol)) {
-                    return null;
-                } else if (/^o/.test(symbol)) {
-                    return 'circle';
-                } else {
-                    return 'square';
-                }
-            },
-            _guessOrderedListStyle: function (symbol) {
-                var listType = null;
-                if (!/^\d/.test(symbol)) {
-                    listType = (/^[a-z]/.test(symbol) ? 'lower-' : 'upper-') + (/^[ivxlcdm]/i.test(symbol) ? 'roman' : 'alpha');
-                }
-                return listType;
-            },
-            extractListLevels: function (html) {
-                var msoListRegExp = /style=['"]?[^'"]*?mso-list:\s?[a-zA-Z]+(\d+)\s[a-zA-Z]+(\d+)\s(\w+)/gi;
-                html = html.replace(msoListRegExp, function (match, list, level) {
-                    return kendo.format('data-list="{0}" data-level="{1}" {2}', list, level, match);
-                });
-                return html;
-            },
-            _createList: function (type, styleType) {
-                return dom.create(document, type, { style: { listStyleType: styleType } });
-            },
-            lists: function (placeholder) {
-                var blockChildren = $(placeholder).find(dom.blockElements.join(',')), lastMargin = -1, name, levels = {}, li, rootMargin, rootIndex, lastRootLi, isLastRootLi, rootList, i, p, type, margin, list, listData, acceptedNameTags = [
-                        'p',
-                        'h1',
-                        'h2',
-                        'h3',
-                        'h4',
-                        'h5',
-                        'h6'
-                    ];
-                for (i = 0; i < blockChildren.length; i++) {
-                    p = blockChildren[i];
-                    listData = $(p).data();
-                    var listIndex = listData.list;
-                    name = dom.name(p);
-                    if (name == 'td') {
-                        continue;
-                    }
-                    var listType = this.listType(p, listData);
-                    type = listType && listType.tag;
-                    if (!type || acceptedNameTags.indexOf(name) < 0) {
-                        if (!p.innerHTML) {
-                            dom.remove(p);
-                        } else if (li && !isLastRootLi) {
-                            li.append(p);
-                        }
-                        continue;
-                    }
-                    margin = listData.level || parseFloat(p.style.marginLeft || 0);
-                    var levelType = type + listIndex;
-                    if (!levels[margin]) {
-                        levels[margin] = {};
-                    }
-                    if (!rootMargin || rootMargin < 0) {
-                        rootMargin = margin;
-                        rootIndex = listIndex;
-                        lastRootLi = $(placeholder).find('[data-list=\'' + rootIndex + '\']:last')[0];
-                        rootList = this._createList(type, listType.style);
-                        dom.insertBefore(rootList, p);
-                        lastMargin = margin;
-                        levels[margin][levelType] = rootList;
-                    }
-                    isLastRootLi = lastRootLi === p;
-                    list = levels[margin][levelType];
-                    if (margin > lastMargin || !list) {
-                        list = this._createList(type, listType.style);
-                        levels[margin][levelType] = list;
-                        li.appendChild(list);
-                    }
-                    li = this._convertToLi(p);
-                    list.appendChild(li);
-                    if (isLastRootLi) {
-                        rootMargin = lastMargin = -1;
-                    } else {
-                        lastMargin = margin;
-                    }
-                }
-            },
-            removeAttributes: function (element) {
-                var attributes = element.attributes, i = attributes.length;
-                while (i--) {
-                    if (dom.name(attributes[i]) != 'colspan') {
-                        element.removeAttributeNode(attributes[i]);
-                    }
-                }
-            },
-            createColGroup: function (row) {
-                var cells = row.cells;
-                var table = $(row).closest('table');
-                var colgroup = table.children('colgroup');
-                if (cells.length < 2) {
-                    return;
-                } else if (colgroup.length) {
-                    cells = colgroup.children();
-                    colgroup[0].parentNode.removeChild(colgroup[0]);
-                }
-                colgroup = $($.map(cells, function (cell) {
-                    var width = cell.width;
-                    if (width && parseInt(width, 10) !== 0) {
-                        return kendo.format('<col style="width:{0}px;"/>', width);
-                    }
-                    return '<col />';
-                }).join(''));
-                if (!colgroup.is('colgroup')) {
-                    colgroup = $('<colgroup/>').append(colgroup);
-                }
-                colgroup.prependTo(table);
-            },
-            convertHeaders: function (row) {
-                var cells = row.cells, i, boldedCells = $.map(cells, function (cell) {
-                        var child = $(cell).children('p').children('strong')[0];
-                        if (child && dom.name(child) == 'strong') {
-                            return child;
-                        }
-                    });
-                if (boldedCells.length == cells.length) {
-                    for (i = 0; i < boldedCells.length; i++) {
-                        dom.unwrap(boldedCells[i]);
-                    }
-                    $(row).closest('table').find('colgroup').after('<thead></thead>').end().find('thead').append(row);
-                    for (i = 0; i < cells.length; i++) {
-                        dom.changeTag(cells[i], 'th');
-                    }
-                }
-            },
-            removeParagraphs: function (cells) {
-                var i, j, len, cell, paragraphs;
-                for (i = 0; i < cells.length; i++) {
-                    this.removeAttributes(cells[i]);
-                    cell = $(cells[i]);
-                    paragraphs = cell.children('p');
-                    for (j = 0, len = paragraphs.length; j < len; j++) {
-                        if (j < len - 1) {
-                            dom.insertAfter(dom.create(document, 'br'), paragraphs[j]);
-                        }
-                        dom.unwrap(paragraphs[j]);
-                    }
-                }
-            },
-            removeDefaultColors: function (spans) {
-                for (var i = 0; i < spans.length; i++) {
-                    if (/^\s*color:\s*[^;]*;?$/i.test(spans[i].style.cssText)) {
-                        dom.unwrap(spans[i]);
-                    }
-                }
-            },
-            tables: function (placeholder) {
-                var tables = $(placeholder).find('table'), that = this, rows, firstRow, longestRow, i, j;
-                for (i = 0; i < tables.length; i++) {
-                    rows = tables[i].rows;
-                    longestRow = firstRow = rows[0];
-                    for (j = 1; j < rows.length; j++) {
-                        if (rows[j].cells.length > longestRow.cells.length) {
-                            longestRow = rows[j];
-                        }
-                    }
-                    that.createColGroup(longestRow);
-                    that.convertHeaders(firstRow);
-                    that.removeAttributes(tables[i]);
-                    that.removeParagraphs(tables.eq(i).find('td,th'));
-                    that.removeDefaultColors(tables.eq(i).find('span'));
-                }
-            },
-            headers: function (placeholder) {
-                var titles = $(placeholder).find('p.MsoTitle');
-                for (var i = 0; i < titles.length; i++) {
-                    dom.changeTag(titles[i], 'h1');
-                }
-            },
-            removeFormatting: function (placeholder) {
-                $(placeholder).find('*').each(function () {
-                    $(this).css({
-                        fontSize: '',
-                        fontFamily: ''
-                    });
-                    if (!this.getAttribute('style') && !this.style.cssText) {
-                        this.removeAttribute('style');
-                    }
-                });
-            },
-            clean: function (html) {
-                var that = this, placeholder;
-                var filters = this.options;
-                if (filters.none) {
-                    html = Cleaner.fn.clean.call(that, html, this.junkReplacements);
-                    html = that.stripEmptyAnchors(html);
-                } else {
-                    html = this.extractListLevels(html);
-                    html = Cleaner.fn.clean.call(that, html);
-                    html = that.stripEmptyAnchors(html);
-                    placeholder = dom.create(document, 'div', { innerHTML: html });
-                    that.headers(placeholder);
-                    if (filters.msConvertLists) {
-                        that.lists(placeholder);
-                    }
-                    that.tables(placeholder);
-                    if (filters.msAllFormatting) {
-                        that.removeFormatting(placeholder);
-                    }
-                    html = placeholder.innerHTML.replace(/(<[^>]*)\s+class="?[^"\s>]*"?/gi, '$1');
-                }
-                return html;
-            }
-        });
-        var WebkitFormatCleaner = Cleaner.extend({
-            init: function (options) {
-                Cleaner.fn.init.call(this, options);
-                this.replacements = [
-                    /\s+class="Apple-style-span[^"]*"/gi,
-                    '',
-                    /<(div|p|h[1-6])\s+style="[^"]*"/gi,
-                    '<$1',
-                    /^<div>(.*)<\/div>$/,
-                    '$1'
-                ];
-            },
-            applicable: function (html) {
-                return /class="?Apple-style-span|style="[^"]*-webkit-nbsp-mode/i.test(html);
-            }
-        });
-        var DomCleaner = Cleaner.extend({
-            clean: function (html) {
-                var container = dom.create(document, 'div', { innerHTML: html });
-                container = this.cleanDom(container);
-                return container.innerHTML;
-            },
-            cleanDom: function (container) {
-                return container;
-            }
-        });
-        var HtmlTagsCleaner = DomCleaner.extend({
-            cleanDom: function (container) {
-                var tags = this.collectTags();
-                $(container).find(tags).each(function () {
-                    dom.unwrap(this);
-                });
-                return container;
-            },
-            collectTags: function () {
-                if (this.options.span) {
-                    return 'span';
-                }
-            },
-            applicable: function () {
-                return this.options.span;
-            }
-        });
-        var HtmlAttrCleaner = DomCleaner.extend({
-            cleanDom: function (container) {
-                var attributes = this.collectAttr();
-                var nodes = $(container).find('[' + attributes.join('],[') + ']');
-                nodes.removeAttr(attributes.join(' '));
-                return container;
-            },
-            collectAttr: function () {
-                if (this.options.css) {
-                    return [
-                        'class',
-                        'style'
-                    ];
-                }
-                return [];
-            },
-            applicable: function () {
-                return this.options.css;
-            }
-        });
-        var TextContainer = function () {
-            this.text = '';
-            this.add = function (text) {
-                this.text += text;
-            };
-        };
-        var HtmlTextLines = Class.extend({
-            init: function (separators) {
-                this.separators = separators || {
-                    text: ' ',
-                    line: '<br/>'
-                };
-                this.lines = [];
-                this.inlineBlockText = [];
-                this.resetLine();
-            },
-            appendText: function (text) {
-                if (text.nodeType === 3) {
-                    text = text.nodeValue;
-                }
-                this.textContainer.add(text);
-            },
-            appendInlineBlockText: function (text) {
-                this.inlineBlockText.push(text);
-            },
-            flashInlineBlockText: function () {
-                if (this.inlineBlockText.length) {
-                    this.appendText(this.inlineBlockText.join(' '));
-                    this.inlineBlockText = [];
-                }
-            },
-            endLine: function () {
-                this.flashInlineBlockText();
-                this.resetLine();
-            },
-            html: function () {
-                var separators = this.separators;
-                var result = '';
-                var lines = this.lines;
-                this.flashInlineBlockText();
-                for (var i = 0, il = lines.length, il1 = il - 1; i < il; i++) {
-                    var line = lines[i];
-                    for (var j = 0, jl = line.length, jl1 = jl - 1; j < jl; j++) {
-                        var text = line[j].text;
-                        result += text;
-                        if (j !== jl1) {
-                            result += separators.text;
-                        }
-                    }
-                    if (i !== il1) {
-                        result += separators.line;
-                    }
-                }
-                return result;
-            },
-            resetLine: function () {
-                this.textContainer = new TextContainer();
-                this.line = [];
-                this.line.push(this.textContainer);
-                this.lines.push(this.line);
-            }
-        });
-        var DomEnumerator = Class.extend({
-            init: function (callback) {
-                this.callback = callback;
-            },
-            enumerate: function (node) {
-                if (!node) {
-                    return;
-                }
-                var preventDown = this.callback(node);
-                var child = node.firstChild;
-                if (!preventDown && child) {
-                    this.enumerate(child);
-                }
-                this.enumerate(node.nextSibling);
-            }
-        });
-        var HtmlContentCleaner = Cleaner.extend({
-            init: function (options) {
-                Cleaner.fn.init.call(this, options);
-                this.hasText = false;
-                this.enumerator = new DomEnumerator($.proxy(this.buildText, this));
-            },
-            clean: function (html) {
-                var container = dom.create(document, 'div', { innerHTML: html });
-                return this.cleanDom(container);
-            },
-            cleanDom: function (container) {
-                this.separators = this.getDefaultSeparators();
-                this.htmlLines = new HtmlTextLines(this.separators);
-                this.enumerator.enumerate(container.firstChild);
-                this.hasText = false;
-                return this.htmlLines.html();
-            },
-            buildText: function (node) {
-                if (dom.isDataNode(node)) {
-                    if (dom.isEmptyspace(node)) {
-                        return;
-                    }
-                    this.htmlLines.appendText(node.nodeValue.replace('\n', this.separators.line));
-                    this.hasText = true;
-                } else if (dom.isBlock(node) && this.hasText) {
-                    var action = this.actions[dom.name(node)] || this.actions.block;
-                    return action(this, node);
-                }
-            },
-            applicable: function () {
-                var o = this.options;
-                return o.all || o.keepNewLines;
-            },
-            getDefaultSeparators: function () {
-                if (this.options.all) {
-                    return {
-                        text: ' ',
-                        line: ' '
-                    };
-                } else {
-                    return {
-                        text: ' ',
-                        line: '<br/>'
-                    };
-                }
-            },
-            actions: {
-                ul: $.noop,
-                ol: $.noop,
-                table: $.noop,
-                thead: $.noop,
-                tbody: $.noop,
-                td: function (cleaner, node) {
-                    var tdCleaner = new HtmlContentCleaner({ all: true });
-                    var cellText = tdCleaner.cleanDom(node);
-                    cleaner.htmlLines.appendInlineBlockText(cellText);
-                    return true;
-                },
-                block: function (cleaner) {
-                    cleaner.htmlLines.endLine();
-                }
-            }
-        });
-        var CustomCleaner = Cleaner.extend({
-            clean: function (html) {
-                return this.options.custom(html);
-            },
-            applicable: function () {
-                return typeof this.options.custom === 'function';
-            }
-        });
-        var PrintCommand = Command.extend({
-            init: function (options) {
-                Command.fn.init.call(this, options);
-                this.managesUndoRedo = true;
-            },
-            exec: function () {
-                var editor = this.editor;
-                if (kendo.support.browser.msie) {
-                    editor.document.execCommand('print', false, null);
-                } else if (editor.window.print) {
-                    editor.window.print();
-                }
-            }
-        });
-        var ExportPdfCommand = Command.extend({
-            init: function (options) {
-                this.async = true;
-                Command.fn.init.call(this, options);
-            },
-            exec: function () {
-                var that = this;
-                var range = that.lockRange(true);
-                var editor = that.editor;
-                editor._destroyResizings();
-                editor.saveAsPDF().then(function () {
-                    that.releaseRange(range);
-                    editor._initializeColumnResizing();
-                    editor._initializeRowResizing();
-                    editor._initializeTableResizing();
-                });
-            }
-        });
         extend(editorNS, {
             _finishUpdate: finishUpdate,
             Command: Command,
-            GenericCommand: GenericCommand,
-            InsertHtmlCommand: InsertHtmlCommand,
-            InsertHtmlTool: InsertHtmlTool,
-            TypingHandler: TypingHandler,
-            SystemHandler: SystemHandler,
-            BackspaceHandler: BackspaceHandler,
-            SelectAllHandler: SelectAllHandler,
-            Keyboard: Keyboard,
-            Clipboard: Clipboard,
-            Cleaner: Cleaner,
-            ScriptCleaner: ScriptCleaner,
-            TabCleaner: TabCleaner,
-            MSWordFormatCleaner: MSWordFormatCleaner,
-            WebkitFormatCleaner: WebkitFormatCleaner,
-            HtmlTagsCleaner: HtmlTagsCleaner,
-            HtmlAttrCleaner: HtmlAttrCleaner,
-            HtmlContentCleaner: HtmlContentCleaner,
-            HtmlTextLines: HtmlTextLines,
-            CustomCleaner: CustomCleaner,
-            PrintCommand: PrintCommand,
-            ExportPdfCommand: ExportPdfCommand
+            GenericCommand: GenericCommand
         });
-        registerTool('insertHtml', new InsertHtmlTool({
-            template: new ToolTemplate({
-                template: EditorUtils.dropDownListTemplate,
-                title: 'Insert HTML',
-                initialValue: 'Insert HTML'
-            })
-        }));
-        registerTool('print', new Tool({
-            command: PrintCommand,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Print'
-            })
-        }));
-        registerTool('pdf', new Tool({
-            command: ExportPdfCommand,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Export PDF'
-            })
-        }));
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('editor/inlineformat', ['editor/system'], f);
-}(function () {
-    (function ($) {
-        var kendo = window.kendo, Class = kendo.Class, Editor = kendo.ui.editor, formats = kendo.ui.Editor.fn.options.formats, EditorUtils = Editor.EditorUtils, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, FormatTool = Editor.FormatTool, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, extend = $.extend, registerTool = Editor.EditorUtils.registerTool, registerFormat = Editor.EditorUtils.registerFormat, preventDefault = function (ev) {
-                ev.preventDefault();
-            }, MOUSEDOWN_NS = 'mousedown.kendoEditor', KEYDOWN_NS = 'keydown.kendoEditor', KMARKER = 'k-marker';
-        var InlineFormatFinder = Class.extend({
-            init: function (format) {
-                this.format = format;
-            },
-            numberOfSiblings: function (referenceNode) {
-                var textNodesCount = 0, elementNodesCount = 0, markerCount = 0, parentNode = referenceNode.parentNode, node;
-                for (node = parentNode.firstChild; node; node = node.nextSibling) {
-                    if (node != referenceNode) {
-                        if (node.className == KMARKER) {
-                            markerCount++;
-                        } else if (node.nodeType == 3) {
-                            textNodesCount++;
-                        } else {
-                            elementNodesCount++;
-                        }
-                    }
-                }
-                if (markerCount > 1 && parentNode.firstChild.className == KMARKER && parentNode.lastChild.className == KMARKER) {
-                    return 0;
-                } else {
-                    return elementNodesCount + textNodesCount;
-                }
-            },
-            findSuitable: function (sourceNode, skip) {
-                if (!skip && this.numberOfSiblings(sourceNode) > 0) {
-                    return null;
-                }
-                var node = sourceNode.parentNode;
-                var tags = this.format[0].tags;
-                while (!dom.ofType(node, tags)) {
-                    if (this.numberOfSiblings(node) > 0) {
-                        return null;
-                    }
-                    node = node.parentNode;
-                }
-                return node;
-            },
-            findFormat: function (sourceNode) {
-                var format = this.format, attrEquals = dom.attrEquals, i, len, node, tags, attributes;
-                for (i = 0, len = format.length; i < len; i++) {
-                    node = sourceNode;
-                    tags = format[i].tags;
-                    attributes = format[i].attr;
-                    if (node && dom.ofType(node, tags) && attrEquals(node, attributes)) {
-                        return node;
-                    }
-                    while (node) {
-                        node = dom.parentOfType(node, tags);
-                        if (node && attrEquals(node, attributes)) {
-                            return node;
-                        }
-                    }
-                }
-                return null;
-            },
-            isFormatted: function (nodes) {
-                var i, len;
-                for (i = 0, len = nodes.length; i < len; i++) {
-                    if (this.findFormat(nodes[i])) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-        var InlineFormatter = Class.extend({
-            init: function (format, values) {
-                this.finder = new InlineFormatFinder(format);
-                this.attributes = extend({}, format[0].attr, values);
-                this.tag = format[0].tags[0];
-            },
-            wrap: function (node) {
-                return dom.wrap(node, dom.create(node.ownerDocument, this.tag, this.attributes));
-            },
-            activate: function (range, nodes) {
-                if (this.finder.isFormatted(nodes)) {
-                    this.split(range);
-                    this.remove(nodes);
-                } else {
-                    this.apply(nodes);
-                }
-            },
-            toggle: function (range) {
-                var textNodes = this.immutables() ? RangeUtils.editableTextNodes : RangeUtils.textNodes;
-                var nodes = textNodes(range);
-                if (nodes.length > 0) {
-                    this.activate(range, nodes);
-                }
-            },
-            immutables: function () {
-                return this.editor && this.editor.options.immutables;
-            },
-            apply: function (nodes) {
-                var formatNodes = [];
-                var i, l, node, formatNode;
-                var attributes = this.attributes;
-                var styleAttr = attributes ? attributes.style || {} : {};
-                for (i = 0, l = nodes.length; i < l; i++) {
-                    node = nodes[i];
-                    formatNode = this.finder.findSuitable(node);
-                    if (formatNode) {
-                        if (dom.is(formatNode, 'font')) {
-                            if (styleAttr.color) {
-                                formatNode.removeAttribute('color');
-                            }
-                            if (styleAttr.fontName) {
-                                formatNode.removeAttribute('face');
-                            }
-                            if (styleAttr.fontSize) {
-                                formatNode.removeAttribute('size');
-                            }
-                        }
-                        dom.attr(formatNode, attributes);
-                    } else {
-                        while (!dom.isBlock(node.parentNode) && node.parentNode.childNodes.length == 1 && node.parentNode.contentEditable !== 'true') {
-                            node = node.parentNode;
-                        }
-                        formatNode = this.wrap(node);
-                    }
-                    formatNodes.push(formatNode);
-                }
-                this.consolidate(formatNodes);
-            },
-            remove: function (nodes) {
-                var i, l, formatNode;
-                for (i = 0, l = nodes.length; i < l; i++) {
-                    formatNode = this.finder.findFormat(nodes[i]);
-                    if (formatNode) {
-                        if (this.attributes && this.attributes.style) {
-                            dom.unstyle(formatNode, this.attributes.style);
-                            if (!formatNode.style.cssText && !formatNode.attributes['class']) {
-                                dom.unwrap(formatNode);
-                            }
-                        } else {
-                            dom.unwrap(formatNode);
-                        }
-                    }
-                }
-            },
-            split: function (range) {
-                var nodes = RangeUtils.textNodes(range);
-                var l = nodes.length;
-                var i, formatNode;
-                if (l > 0) {
-                    for (i = 0; i < l; i++) {
-                        formatNode = this.finder.findFormat(nodes[i]);
-                        if (formatNode) {
-                            RangeUtils.split(range, formatNode, true);
-                        }
-                    }
-                }
-            },
-            consolidate: function (nodes) {
-                var node, last;
-                while (nodes.length > 1) {
-                    node = nodes.pop();
-                    last = nodes[nodes.length - 1];
-                    if (node.previousSibling && node.previousSibling.className == KMARKER) {
-                        last.appendChild(node.previousSibling);
-                    }
-                    if (node.tagName == last.tagName && node.previousSibling == last && node.style.cssText == last.style.cssText) {
-                        while (node.firstChild) {
-                            last.appendChild(node.firstChild);
-                        }
-                        dom.remove(node);
-                    }
-                }
-            }
-        });
-        var GreedyInlineFormatFinder = InlineFormatFinder.extend({
-            init: function (format, greedyProperty) {
-                this.format = format;
-                this.greedyProperty = greedyProperty;
-                InlineFormatFinder.fn.init.call(this, format);
-            },
-            getInlineCssValue: function (node) {
-                var attributes = node.attributes;
-                var trim = $.trim;
-                var i, l, attribute, name, attributeValue, css, pair, cssIndex, len;
-                var propertyAndValue, property, value;
-                if (!attributes) {
-                    return;
-                }
-                for (i = 0, l = attributes.length; i < l; i++) {
-                    attribute = attributes[i];
-                    name = attribute.nodeName;
-                    attributeValue = attribute.nodeValue;
-                    if (attribute.specified && name == 'style') {
-                        css = trim(attributeValue || node.style.cssText).split(';');
-                        for (cssIndex = 0, len = css.length; cssIndex < len; cssIndex++) {
-                            pair = css[cssIndex];
-                            if (pair.length) {
-                                propertyAndValue = pair.split(':');
-                                property = trim(propertyAndValue[0].toLowerCase());
-                                value = trim(propertyAndValue[1]);
-                                if (property != this.greedyProperty) {
-                                    continue;
-                                }
-                                return property.indexOf('color') >= 0 ? dom.toHex(value) : value;
-                            }
-                        }
-                    }
-                }
-            },
-            getFormatInner: function (node) {
-                var $node = $(dom.isDataNode(node) ? node.parentNode : node);
-                var parents = $node.parentsUntil('[contentEditable]').addBack().toArray().reverse();
-                var i, len, value;
-                for (i = 0, len = parents.length; i < len; i++) {
-                    value = this.greedyProperty == 'className' ? parents[i].className : this.getInlineCssValue(parents[i]);
-                    if (value) {
-                        return value;
-                    }
-                }
-                return 'inherit';
-            },
-            getFormat: function (nodes) {
-                var result = this.getFormatInner(nodes[0]), i, len;
-                for (i = 1, len = nodes.length; i < len; i++) {
-                    if (result != this.getFormatInner(nodes[i])) {
-                        return '';
-                    }
-                }
-                return result;
-            },
-            isFormatted: function (nodes) {
-                return this.getFormat(nodes) !== '';
-            }
-        });
-        var GreedyInlineFormatter = InlineFormatter.extend({
-            init: function (format, values, greedyProperty) {
-                InlineFormatter.fn.init.call(this, format, values);
-                this.values = values;
-                this.finder = new GreedyInlineFormatFinder(format, greedyProperty);
-                if (greedyProperty) {
-                    this.greedyProperty = kendo.toCamelCase(greedyProperty);
-                }
-            },
-            activate: function (range, nodes) {
-                var greedyProperty = this.greedyProperty;
-                var action = 'apply';
-                this.split(range);
-                if (greedyProperty && this.values.style[greedyProperty] == 'inherit') {
-                    action = 'remove';
-                }
-                this[action](nodes);
-            }
-        });
-        var InlineFormatTool = FormatTool.extend({
-            init: function (options) {
-                FormatTool.fn.init.call(this, extend(options, {
-                    finder: new InlineFormatFinder(options.format),
-                    formatter: function () {
-                        return new InlineFormatter(options.format);
-                    }
-                }));
-            }
-        });
-        var DelayedExecutionTool = Tool.extend({
-            update: function (ui, nodes) {
-                var list = ui.data(this.type);
-                list.close();
-                list.value(this.finder.getFormat(nodes));
-            }
-        });
-        var FontTool = DelayedExecutionTool.extend({
-            init: function (options) {
-                Tool.fn.init.call(this, options);
-                this.type = kendo.support.browser.msie || kendo.support.touch ? 'kendoDropDownList' : 'kendoComboBox';
-                this.format = [{
-                        tags: [
-                            'span',
-                            'font'
-                        ]
-                    }];
-                this.finder = new GreedyInlineFormatFinder(this.format, options.cssAttr);
-            },
-            command: function (commandArguments) {
-                var options = this.options, format = this.format, style = {};
-                return new Editor.FormatCommand(extend(commandArguments, {
-                    formatter: function () {
-                        style[options.domAttr] = commandArguments.value;
-                        return new GreedyInlineFormatter(format, { style: style }, options.cssAttr);
-                    }
-                }));
-            },
-            initialize: function (ui, initOptions) {
-                var editor = initOptions.editor, options = this.options, toolName = options.name, dataSource, range, defaultValue = [];
-                if (options.defaultValue) {
-                    defaultValue = [{
-                            text: editor.options.messages[options.defaultValue[0].text],
-                            value: options.defaultValue[0].value
-                        }];
-                }
-                dataSource = defaultValue.concat(options.items ? options.items : editor.options[toolName] || []);
-                ui.attr({ title: initOptions.title });
-                ui[this.type]({
-                    dataTextField: 'text',
-                    dataValueField: 'value',
-                    dataSource: dataSource,
-                    change: function () {
-                        editor._range = range;
-                        Tool.exec(editor, toolName, this.value());
-                    },
-                    close: function () {
-                        setTimeout(function () {
-                            if ('_range' in editor) {
-                                delete editor._range;
-                            }
-                        }, 0);
-                    },
-                    highlightFirst: false
-                });
-                ui.closest('.k-widget').removeClass('k-' + toolName).find('*').addBack().attr('unselectable', 'on');
-                var widget = ui.data(this.type);
-                widget.value('inherit');
-                widget.wrapper.on(MOUSEDOWN_NS, '.k-select,.k-input', function () {
-                    var newRange = editor.getRange();
-                    range = editor._containsRange(newRange) ? newRange : range;
-                }).on(KEYDOWN_NS, function (e) {
-                    if (e.keyCode === kendo.keys.ENTER) {
-                        e.preventDefault();
-                    }
-                });
-            }
-        });
-        var ColorTool = Tool.extend({
-            init: function (options) {
-                Tool.fn.init.call(this, options);
-                this.format = [{
-                        tags: [
-                            'span',
-                            'font'
-                        ]
-                    }];
-                this.finder = new GreedyInlineFormatFinder(this.format, options.cssAttr);
-            },
-            options: { palette: 'websafe' },
-            update: function () {
-                this._widget.close();
-            },
-            command: function (commandArguments) {
-                var options = this.options, format = this.format, style = {};
-                return new Editor.FormatCommand(extend(commandArguments, {
-                    formatter: function () {
-                        style[options.domAttr] = commandArguments.value;
-                        return new GreedyInlineFormatter(format, { style: style }, options.cssAttr);
-                    }
-                }));
-            },
-            initialize: function (ui, initOptions) {
-                var editor = initOptions.editor, toolName = this.name, options = extend({}, ColorTool.fn.options, this.options), palette = options.palette, columns = options.columns;
-                ui = this._widget = new kendo.ui.ColorPicker(ui, {
-                    toolIcon: 'k-icon k-i-' + EditorUtils.getToolCssClass(options.name),
-                    palette: palette,
-                    columns: columns,
-                    change: function () {
-                        var color = ui.value();
-                        if (color) {
-                            Tool.exec(editor, toolName, color);
-                        }
-                        editor.focus();
-                    },
-                    open: function (e) {
-                        var picker = e.sender;
-                        picker.value(null);
-                        picker._popup.element.on(MOUSEDOWN_NS, preventDefault);
-                        if (!picker._popup.element.is('[unselectable=\'on\']')) {
-                            picker._popup.element.attr({ unselectable: 'on' }).find('*').attr('unselectable', 'on');
-                        }
-                    },
-                    close: function (e) {
-                        e.sender._popup.element.off(MOUSEDOWN_NS);
-                    },
-                    activate: function (e) {
-                        e.preventDefault();
-                        ui.trigger('change');
-                    }
-                });
-                ui.wrapper.attr({
-                    title: initOptions.title,
-                    unselectable: 'on'
-                }).find('*').attr('unselectable', 'on');
-            }
-        });
-        extend(Editor, {
-            InlineFormatFinder: InlineFormatFinder,
-            InlineFormatter: InlineFormatter,
-            DelayedExecutionTool: DelayedExecutionTool,
-            GreedyInlineFormatFinder: GreedyInlineFormatFinder,
-            GreedyInlineFormatter: GreedyInlineFormatter,
-            InlineFormatTool: InlineFormatTool,
-            FontTool: FontTool,
-            ColorTool: ColorTool
-        });
-        registerFormat('bold', [
-            {
-                tags: [
-                    'strong',
-                    'b'
-                ]
-            },
-            {
-                tags: ['span'],
-                attr: { style: { fontWeight: 'bold' } }
-            }
-        ]);
-        registerTool('bold', new InlineFormatTool({
-            key: 'B',
-            ctrl: true,
-            format: formats.bold,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Bold'
-            })
-        }));
-        registerFormat('italic', [
-            {
-                tags: [
-                    'em',
-                    'i'
-                ]
-            },
-            {
-                tags: ['span'],
-                attr: { style: { fontStyle: 'italic' } }
-            }
-        ]);
-        registerTool('italic', new InlineFormatTool({
-            key: 'I',
-            ctrl: true,
-            format: formats.italic,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Italic'
-            })
-        }));
-        registerFormat('underline', [
-            {
-                tags: ['span'],
-                attr: { style: { textDecoration: 'underline' } }
-            },
-            { tags: ['u'] }
-        ]);
-        registerTool('underline', new InlineFormatTool({
-            key: 'U',
-            ctrl: true,
-            format: formats.underline,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Underline'
-            })
-        }));
-        registerFormat('strikethrough', [
-            {
-                tags: [
-                    'del',
-                    'strike'
-                ]
-            },
-            {
-                tags: ['span'],
-                attr: { style: { textDecoration: 'line-through' } }
-            }
-        ]);
-        registerTool('strikethrough', new InlineFormatTool({
-            format: formats.strikethrough,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Strikethrough'
-            })
-        }));
-        registerFormat('superscript', [{ tags: ['sup'] }]);
-        registerTool('superscript', new InlineFormatTool({
-            format: formats.superscript,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Superscript'
-            })
-        }));
-        registerFormat('subscript', [{ tags: ['sub'] }]);
-        registerTool('subscript', new InlineFormatTool({
-            format: formats.subscript,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Subscript'
-            })
-        }));
-        registerTool('foreColor', new ColorTool({
-            cssAttr: 'color',
-            domAttr: 'color',
-            name: 'foreColor',
-            template: new ToolTemplate({
-                template: EditorUtils.colorPickerTemplate,
-                title: 'Color'
-            })
-        }));
-        registerTool('backColor', new ColorTool({
-            cssAttr: 'background-color',
-            domAttr: 'backgroundColor',
-            name: 'backColor',
-            template: new ToolTemplate({
-                template: EditorUtils.colorPickerTemplate,
-                title: 'Background Color'
-            })
-        }));
-        registerTool('fontName', new FontTool({
-            cssAttr: 'font-family',
-            domAttr: 'fontFamily',
-            name: 'fontName',
-            defaultValue: [{
-                    text: 'fontNameInherit',
-                    value: 'inherit'
-                }],
-            template: new ToolTemplate({
-                template: EditorUtils.comboBoxTemplate,
-                title: 'Font Name'
-            })
-        }));
-        registerTool('fontSize', new FontTool({
-            cssAttr: 'font-size',
-            domAttr: 'fontSize',
-            name: 'fontSize',
-            defaultValue: [{
-                    text: 'fontSizeInherit',
-                    value: 'inherit'
-                }],
-            template: new ToolTemplate({
-                template: EditorUtils.comboBoxTemplate,
-                title: 'Font Size'
-            })
-        }));
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('editor/formatblock', ['editor/inlineformat'], f);
-}(function () {
-    (function ($) {
-        var kendo = window.kendo, Class = kendo.Class, extend = $.extend, Editor = kendo.ui.editor, formats = kendo.ui.Editor.fn.options.formats, dom = Editor.Dom, Command = Editor.Command, ToolTemplate = Editor.ToolTemplate, FormatTool = Editor.FormatTool, EditorUtils = Editor.EditorUtils, registerTool = EditorUtils.registerTool, registerFormat = EditorUtils.registerFormat, RangeUtils = Editor.RangeUtils;
-        var BlockFormatFinder = Class.extend({
-            init: function (format) {
-                this.format = format;
-            },
-            contains: function (node, children) {
-                var i, len, child;
-                for (i = 0, len = children.length; i < len; i++) {
-                    child = children[i];
-                    if (!child || !dom.isAncestorOrSelf(node, child)) {
-                        return false;
-                    }
-                }
-                return true;
-            },
-            findSuitable: function (nodes) {
-                var format = this.format, suitable = [], i, len, candidate;
-                for (i = 0, len = nodes.length; i < len; i++) {
-                    for (var f = format.length - 1; f >= 0; f--) {
-                        candidate = dom.ofType(nodes[i], format[f].tags) ? nodes[i] : dom.closestEditableOfType(nodes[i], format[f].tags);
-                        if (candidate) {
-                            break;
-                        }
-                    }
-                    if (!candidate || candidate.contentEditable === 'true') {
-                        return [];
-                    }
-                    if ($.inArray(candidate, suitable) < 0) {
-                        suitable.push(candidate);
-                    }
-                }
-                this._resolveListsItems(suitable);
-                for (i = 0, len = suitable.length; i < len; i++) {
-                    if (this.contains(suitable[i], suitable)) {
-                        return [suitable[i]];
-                    }
-                }
-                return suitable;
-            },
-            _resolveListsItems: function (nodes) {
-                var i, node, wrapper;
-                for (i = 0; i < nodes.length; i++) {
-                    node = nodes[i];
-                    wrapper = dom.is(node, 'li') ? node : dom.wrapper(node);
-                    wrapper = wrapper && dom.list(wrapper) ? wrapper.children[0] : wrapper;
-                    if (dom.is(wrapper, 'li')) {
-                        node = nodes[i] = wrapper;
-                    }
-                }
-            },
-            findFormat: function (sourceNode) {
-                var format = this.format, i, len, node, tags, attributes;
-                var editableParent = dom.editableParent(sourceNode);
-                var immutables = this.options && this.options.immutables;
-                var ImmutablesNS = Editor.Immutables;
-                for (i = 0, len = format.length; i < len; i++) {
-                    node = sourceNode;
-                    tags = format[i].tags;
-                    attributes = format[i].attr;
-                    if (immutables && tags && tags[0] == 'immutable') {
-                        var immutable = ImmutablesNS.immutableParent(node);
-                        if (immutable && dom.attrEquals(immutable, attributes)) {
-                            return node;
-                        }
-                    }
-                    while (node && dom.isAncestorOf(editableParent, node)) {
-                        if (dom.ofType(node, tags) && dom.attrEquals(node, attributes)) {
-                            return node;
-                        }
-                        node = node.parentNode;
-                    }
-                }
-                return null;
-            },
-            getFormat: function (nodes) {
-                var that = this, findFormat = function (node) {
-                        return that.findFormat(dom.isDataNode(node) ? node.parentNode : node);
-                    }, result = findFormat(nodes[0]), i, len;
-                if (!result) {
-                    return '';
-                }
-                for (i = 1, len = nodes.length; i < len; i++) {
-                    if (result != findFormat(nodes[i])) {
-                        return '';
-                    }
-                }
-                return result.nodeName.toLowerCase();
-            },
-            isFormatted: function (nodes) {
-                for (var i = 0, len = nodes.length; i < len; i++) {
-                    if (!this.findFormat(nodes[i])) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        });
-        var BlockFormatter = Class.extend({
-            init: function (format, values) {
-                this.format = format;
-                this.values = values;
-                this.finder = new BlockFormatFinder(format);
-            },
-            wrap: function (tag, attributes, nodes) {
-                var commonAncestor = nodes.length == 1 ? dom.blockParentOrBody(nodes[0]) : dom.commonAncestor.apply(null, nodes);
-                if (dom.isInline(commonAncestor)) {
-                    commonAncestor = dom.blockParentOrBody(commonAncestor);
-                }
-                var ancestors = dom.significantChildNodes(commonAncestor), position = dom.findNodeIndex(ancestors[0]), wrapper = dom.create(commonAncestor.ownerDocument, tag, attributes), i, ancestor;
-                for (i = 0; i < ancestors.length; i++) {
-                    ancestor = ancestors[i];
-                    if (dom.isBlock(ancestor)) {
-                        dom.attr(ancestor, attributes);
-                        if (wrapper.childNodes.length) {
-                            dom.insertBefore(wrapper, ancestor);
-                            wrapper = wrapper.cloneNode(false);
-                        }
-                        position = dom.findNodeIndex(ancestor) + 1;
-                        continue;
-                    }
-                    wrapper.appendChild(ancestor);
-                }
-                if (wrapper.firstChild) {
-                    dom.insertAt(commonAncestor, wrapper, position);
-                }
-            },
-            apply: function (nodes) {
-                var format, values = this.values;
-                function attributes(format) {
-                    return extend({}, format && format.attr, values);
-                }
-                this._handleImmutables(nodes, true);
-                var images = dom.filter('img', nodes);
-                var imageFormat = EditorUtils.formatByName('img', this.format);
-                var imageAttributes = attributes(imageFormat);
-                $.each(images, function () {
-                    dom.attr(this, imageAttributes);
-                });
-                if (images.length == nodes.length) {
-                    return;
-                }
-                var nonImages = dom.filter('img', nodes, true);
-                var formatNodes = this.finder.findSuitable(nonImages);
-                if (formatNodes.length) {
-                    for (var i = 0, len = formatNodes.length; i < len; i++) {
-                        format = EditorUtils.formatByName(dom.name(formatNodes[i]), this.format);
-                        dom.attr(formatNodes[i], attributes(format));
-                    }
-                } else {
-                    format = this.format[0];
-                    this.wrap(format.tags[0], attributes(format), nonImages);
-                }
-            },
-            _handleImmutables: function (nodes, applyFormatting) {
-                if (!this.immutables()) {
-                    return;
-                }
-                var immutableFormat = EditorUtils.formatByName('immutable', this.format);
-                if (!immutableFormat) {
-                    return;
-                }
-                var ImmutablesNS = Editor.Immutables;
-                var l = nodes.length - 1;
-                for (var i = l; i >= 0; i--) {
-                    var immutableParent = ImmutablesNS.immutableParent(nodes[i]);
-                    if (!immutableParent) {
-                        continue;
-                    }
-                    if (immutableParent !== nodes[i + 1]) {
-                        if (applyFormatting) {
-                            dom.attr(immutableParent, immutableFormat.attr);
-                        } else {
-                            dom.unstyle(immutableParent, immutableFormat.attr.style);
-                        }
-                    }
-                    nodes.splice(i, 1);
-                }
-            },
-            immutables: function () {
-                return this.editor && this.editor.options.immutables;
-            },
-            remove: function (nodes) {
-                var i, l, formatNode, namedFormat, name;
-                this._handleImmutables(nodes, false);
-                for (i = 0, l = nodes.length; i < l; i++) {
-                    formatNode = this.finder.findFormat(nodes[i]);
-                    if (formatNode) {
-                        name = dom.name(formatNode);
-                        if (name == 'div' && !formatNode.getAttribute('class')) {
-                            dom.unwrap(formatNode);
-                        } else {
-                            namedFormat = EditorUtils.formatByName(name, this.format);
-                            if (namedFormat.attr.style) {
-                                dom.unstyle(formatNode, namedFormat.attr.style);
-                            }
-                            if (namedFormat.attr.className) {
-                                dom.removeClass(formatNode, namedFormat.attr.className);
-                            }
-                        }
-                    }
-                }
-            },
-            toggle: function (range) {
-                var that = this, nodes = dom.filterBy(RangeUtils.nodes(range), dom.htmlIndentSpace, true);
-                if (that.finder.isFormatted(nodes)) {
-                    that.remove(nodes);
-                } else {
-                    that.apply(nodes);
-                }
-            }
-        });
-        var GreedyBlockFormatter = Class.extend({
-            init: function (format, values) {
-                var that = this;
-                that.format = format;
-                that.values = values;
-                that.finder = new BlockFormatFinder(format);
-            },
-            apply: function (nodes) {
-                var format = this.format;
-                var blocks = dom.blockParents(nodes);
-                var formatTag = format[0].tags[0];
-                var i, len, list, formatter, range;
-                var element;
-                var tagName;
-                var block;
-                var immutalbeParent;
-                if (blocks.length) {
-                    for (i = 0, len = blocks.length; i < len; i++) {
-                        block = blocks[i];
-                        immutalbeParent = this.immutables() && Editor.Immutables.immutableParent(block);
-                        if (!immutalbeParent) {
-                            tagName = dom.name(block);
-                            if (tagName == 'li') {
-                                list = block.parentNode;
-                                formatter = new Editor.ListFormatter(list.nodeName.toLowerCase(), formatTag);
-                                range = this.editor.createRange();
-                                range.selectNode(blocks[i]);
-                                formatter.toggle(range);
-                            } else if (formatTag && (tagName == 'td' || block.attributes.contentEditable)) {
-                                new BlockFormatter(format, this.values).apply(block.childNodes);
-                            } else {
-                                element = dom.changeTag(block, formatTag);
-                                dom.attr(element, format[0].attr);
-                            }
-                        }
-                    }
-                } else {
-                    var blockFormatter = new BlockFormatter(format, this.values);
-                    blockFormatter.editor = this.editor;
-                    blockFormatter.apply(nodes);
-                }
-            },
-            toggle: function (range) {
-                var nodes = RangeUtils.textNodes(range);
-                if (!nodes.length) {
-                    range.selectNodeContents(range.commonAncestorContainer);
-                    nodes = RangeUtils.textNodes(range);
-                    if (!nodes.length) {
-                        nodes = dom.significantChildNodes(range.commonAncestorContainer);
-                    }
-                }
-                this.apply(nodes);
-            },
-            immutables: function () {
-                return this.editor && this.editor.options.immutables;
-            }
-        });
-        var FormatCommand = Command.extend({
-            init: function (options) {
-                options.formatter = options.formatter();
-                var finder = options.formatter.finder;
-                if (finder && EditorUtils.formatByName('immutable', finder.format)) {
-                    finder._initOptions({ immutables: options.immutables });
-                }
-                Command.fn.init.call(this, options);
-            }
-        });
-        var BlockFormatTool = FormatTool.extend({
-            init: function (options) {
-                FormatTool.fn.init.call(this, extend(options, {
-                    finder: new BlockFormatFinder(options.format),
-                    formatter: function () {
-                        return new BlockFormatter(options.format);
-                    }
-                }));
-            }
-        });
-        extend(Editor, {
-            BlockFormatFinder: BlockFormatFinder,
-            BlockFormatter: BlockFormatter,
-            GreedyBlockFormatter: GreedyBlockFormatter,
-            FormatCommand: FormatCommand,
-            BlockFormatTool: BlockFormatTool
-        });
-        var listElements = [
-            'ul',
-            'ol',
-            'li'
-        ];
-        registerFormat('justifyLeft', [
-            {
-                tags: dom.nonListBlockElements,
-                attr: { style: { textAlign: 'left' } }
-            },
-            {
-                tags: ['img'],
-                attr: {
-                    style: {
-                        'float': 'left',
-                        display: '',
-                        marginLeft: '',
-                        marginRight: ''
-                    }
-                }
-            },
-            {
-                tags: ['immutable'],
-                attr: {
-                    style: {
-                        'float': 'left',
-                        display: '',
-                        marginLeft: '',
-                        marginRight: ''
-                    }
-                }
-            },
-            {
-                tags: listElements,
-                attr: {
-                    style: {
-                        textAlign: 'left',
-                        listStylePosition: ''
-                    }
-                }
-            }
-        ]);
-        registerTool('justifyLeft', new BlockFormatTool({
-            format: formats.justifyLeft,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Justify Left'
-            })
-        }));
-        registerFormat('justifyCenter', [
-            {
-                tags: dom.nonListBlockElements,
-                attr: { style: { textAlign: 'center' } }
-            },
-            {
-                tags: ['img'],
-                attr: {
-                    style: {
-                        display: 'block',
-                        marginLeft: 'auto',
-                        marginRight: 'auto',
-                        'float': ''
-                    }
-                }
-            },
-            {
-                tags: ['immutable'],
-                attr: {
-                    style: {
-                        display: 'block',
-                        marginLeft: 'auto',
-                        marginRight: 'auto',
-                        'float': ''
-                    }
-                }
-            },
-            {
-                tags: listElements,
-                attr: {
-                    style: {
-                        textAlign: 'center',
-                        listStylePosition: 'inside'
-                    }
-                }
-            }
-        ]);
-        registerTool('justifyCenter', new BlockFormatTool({
-            format: formats.justifyCenter,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Justify Center'
-            })
-        }));
-        registerFormat('justifyRight', [
-            {
-                tags: dom.nonListBlockElements,
-                attr: { style: { textAlign: 'right' } }
-            },
-            {
-                tags: ['img'],
-                attr: {
-                    style: {
-                        'float': 'right',
-                        display: '',
-                        marginLeft: '',
-                        marginRight: ''
-                    }
-                }
-            },
-            {
-                tags: ['immutable'],
-                attr: {
-                    style: {
-                        'float': 'right',
-                        display: '',
-                        marginLeft: '',
-                        marginRight: ''
-                    }
-                }
-            },
-            {
-                tags: listElements,
-                attr: {
-                    style: {
-                        textAlign: 'right',
-                        listStylePosition: 'inside'
-                    }
-                }
-            }
-        ]);
-        registerTool('justifyRight', new BlockFormatTool({
-            format: formats.justifyRight,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Justify Right'
-            })
-        }));
-        registerFormat('justifyFull', [
-            {
-                tags: dom.nonListBlockElements,
-                attr: { style: { textAlign: 'justify' } }
-            },
-            {
-                tags: ['img'],
-                attr: {
-                    style: {
-                        display: 'block',
-                        marginLeft: 'auto',
-                        marginRight: 'auto',
-                        'float': ''
-                    }
-                }
-            },
-            {
-                tags: ['immutable'],
-                attr: {
-                    style: {
-                        display: 'block',
-                        marginLeft: 'auto',
-                        marginRight: 'auto',
-                        'float': ''
-                    }
-                }
-            },
-            {
-                tags: listElements,
-                attr: {
-                    style: {
-                        textAlign: 'justify',
-                        listStylePosition: ''
-                    }
-                }
-            }
-        ]);
-        registerTool('justifyFull', new BlockFormatTool({
-            format: formats.justifyFull,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Justify Full'
-            })
-        }));
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('editor/linebreak', ['editor/formatblock'], f);
-}(function () {
-    (function ($) {
-        var kendo = window.kendo, extend = $.extend, editorNS = kendo.ui.editor, dom = editorNS.Dom, Command = editorNS.Command, Tool = editorNS.Tool, BlockFormatter = editorNS.BlockFormatter, normalize = dom.normalize, RangeUtils = editorNS.RangeUtils, registerTool = editorNS.EditorUtils.registerTool;
-        var ParagraphCommand = Command.extend({
-            init: function (options) {
-                this.options = options;
-                Command.fn.init.call(this, options);
-            },
-            _insertMarker: function (doc, range) {
-                var marker = dom.create(doc, 'a'), container;
-                marker.className = 'k-marker';
-                range.insertNode(marker);
-                if (!marker.parentNode) {
-                    container = range.commonAncestorContainer;
-                    container.innerHTML = '';
-                    container.appendChild(marker);
-                }
-                normalize(marker.parentNode);
-                return marker;
-            },
-            _moveFocus: function (range, candidate) {
-                if (dom.isEmpty(candidate)) {
-                    range.setStartBefore(candidate);
-                } else {
-                    range.selectNodeContents(candidate);
-                    var focusNode = RangeUtils.textNodes(range)[0];
-                    if (!focusNode) {
-                        while (candidate.childNodes.length && !dom.is(candidate.firstChild, 'br')) {
-                            candidate = candidate.firstChild;
-                        }
-                        focusNode = candidate;
-                    }
-                    if (dom.isEmpty(focusNode)) {
-                        range.setStartBefore(focusNode);
-                    } else {
-                        if (dom.emptyNode(focusNode)) {
-                            focusNode.innerHTML = '\uFEFF';
-                        }
-                        var startNode = focusNode.firstChild || focusNode;
-                        if (dom.isDataNode(startNode)) {
-                            range.setStart(startNode, 0);
-                        } else {
-                            range.setStartBefore(startNode);
-                        }
-                    }
-                }
-            },
-            shouldTrim: function (range) {
-                var blocks = 'p,h1,h2,h3,h4,h5,h6'.split(','), startInBlock = dom.parentOfType(range.startContainer, blocks), endInBlock = dom.parentOfType(range.endContainer, blocks);
-                return startInBlock && !endInBlock || !startInBlock && endInBlock;
-            },
-            _blankAfter: function (node) {
-                while (node && (dom.isMarker(node) || dom.stripBom(node.nodeValue) === '')) {
-                    node = node.nextSibling;
-                }
-                return !node;
-            },
-            exec: function () {
-                var range = this.getRange(), doc = RangeUtils.documentFromRange(range), parent, previous, next, emptyParagraphContent = editorNS.emptyElementContent, paragraph, marker, li, heading, rng, shouldTrim;
-                this.expandImmutablesIn(range);
-                shouldTrim = this.shouldTrim(range);
-                range.deleteContents();
-                marker = this._insertMarker(doc, range);
-                dom.stripBomNode(marker.previousSibling);
-                dom.stripBomNode(marker.nextSibling);
-                li = dom.closestEditableOfType(marker, ['li']);
-                heading = dom.closestEditableOfType(marker, 'h1,h2,h3,h4,h5,h6'.split(','));
-                if (li) {
-                    if (dom.emptyNode(li)) {
-                        paragraph = dom.create(doc, 'p');
-                        if (dom.next(li)) {
-                            rng = range.cloneRange();
-                            rng.selectNode(li);
-                            RangeUtils.split(rng, li.parentNode);
-                        }
-                        var br = $('br', li);
-                        if (br.length == 1) {
-                            br.remove();
-                        }
-                        var parentNode = li.parentNode;
-                        var parentChildrenLength = li.parentNode.children.length;
-                        var firstChild = parentChildrenLength > 1 && li.childNodes.length == 1 && li.children[0];
-                        dom.insertAfter(paragraph, parentNode);
-                        dom.remove(parentChildrenLength == 1 ? li.parentNode : li);
-                        if (firstChild && firstChild !== marker) {
-                            paragraph.appendChild(firstChild);
-                            paragraph.appendChild(marker);
-                        } else {
-                            paragraph.innerHTML = emptyParagraphContent;
-                        }
-                        next = paragraph;
-                    }
-                } else if (heading && this._blankAfter(marker)) {
-                    paragraph = dom.create(doc, 'p');
-                    dom.insertAfter(paragraph, heading);
-                    paragraph.innerHTML = emptyParagraphContent;
-                    dom.remove(marker);
-                    next = paragraph;
-                }
-                if (!next) {
-                    if (!(li || heading)) {
-                        new BlockFormatter([{ tags: ['p'] }]).apply([marker]);
-                    }
-                    range.selectNode(marker);
-                    parent = dom.parentOfType(marker, [li ? 'li' : heading ? dom.name(heading) : 'p']);
-                    RangeUtils.split(range, parent, shouldTrim);
-                    previous = parent.previousSibling;
-                    if (dom.is(previous, 'li') && previous.firstChild && !dom.is(previous.firstChild, 'br')) {
-                        previous = previous.firstChild;
-                    }
-                    next = parent.nextSibling;
-                    this.clean(previous);
-                    this.clean(next, { links: true });
-                    if (dom.is(next, 'li') && next.firstChild && !dom.is(next.firstChild, 'br')) {
-                        next = next.firstChild;
-                    }
-                    dom.remove(parent);
-                    normalize(previous);
-                }
-                normalize(next);
-                this._moveFocus(range, next);
-                range.collapse(true);
-                dom.scrollTo(next, true);
-                RangeUtils.selectRange(range);
-            },
-            clean: function (node, options) {
-                var root = node;
-                if (node.firstChild && dom.is(node.firstChild, 'br')) {
-                    dom.remove(node.firstChild);
-                }
-                if (dom.isDataNode(node) && !node.nodeValue) {
-                    node = node.parentNode;
-                }
-                if (node) {
-                    var siblings = false;
-                    while (node.firstChild && node.firstChild.nodeType == 1) {
-                        siblings = siblings || dom.significantNodes(node.childNodes).length > 1;
-                        node = node.firstChild;
-                    }
-                    if (!dom.isEmpty(node) && /^\s*$/.test(node.innerHTML) && !siblings) {
-                        $(root).find('.k-br').remove();
-                        node.innerHTML = editorNS.emptyElementContent;
-                    }
-                    if (options && options.links) {
-                        while (node != root) {
-                            if (dom.is(node, 'a') && dom.emptyNode(node)) {
-                                dom.unwrap(node);
-                                break;
-                            }
-                            node = node.parentNode;
-                        }
-                    }
-                }
-            }
-        });
-        var NewLineCommand = Command.extend({
-            init: function (options) {
-                this.options = options;
-                Command.fn.init.call(this, options);
-            },
-            exec: function () {
-                var range = this.getRange();
-                this.expandImmutablesIn(range);
-                var br = dom.create(RangeUtils.documentFromRange(range), 'br');
-                var filler;
-                var browser = kendo.support.browser;
-                var oldIE = browser.msie && browser.version < 11;
-                range.deleteContents();
-                range.insertNode(br);
-                normalize(br.parentNode);
-                if (!oldIE && (!br.nextSibling || dom.isWhitespace(br.nextSibling))) {
-                    filler = br.cloneNode(true);
-                    filler.className = 'k-br';
-                    dom.insertAfter(filler, br);
-                }
-                range.setStartAfter(br);
-                range.collapse(true);
-                dom.scrollTo(br.nextSibling || br, true);
-                RangeUtils.selectRange(range);
-            }
-        });
-        extend(editorNS, {
-            ParagraphCommand: ParagraphCommand,
-            NewLineCommand: NewLineCommand
-        });
-        registerTool('insertLineBreak', new Tool({
-            key: 13,
-            shift: true,
-            command: NewLineCommand
-        }));
-        registerTool('insertParagraph', new Tool({
-            key: 13,
-            command: ParagraphCommand
-        }));
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('editor/lists', ['editor/linebreak'], f);
-}(function () {
-    (function ($) {
-        var kendo = window.kendo, Class = kendo.Class, extend = $.extend, Editor = kendo.ui.editor, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, EditorUtils = Editor.EditorUtils, Command = Editor.Command, ToolTemplate = Editor.ToolTemplate, FormatTool = Editor.FormatTool, BlockFormatFinder = Editor.BlockFormatFinder, textNodes = RangeUtils.textNodes, registerTool = Editor.EditorUtils.registerTool;
-        var ListFormatFinder = BlockFormatFinder.extend({
-            init: function (tag) {
-                this.tag = tag;
-                var tags = this.tags = [
-                    tag == 'ul' ? 'ol' : 'ul',
-                    tag
-                ];
-                BlockFormatFinder.fn.init.call(this, [{ tags: tags }]);
-            },
-            isFormatted: function (nodes) {
-                var formatNodes = [];
-                var formatNode, i;
-                for (i = 0; i < nodes.length; i++) {
-                    formatNode = this.findFormat(nodes[i]);
-                    if (formatNode && dom.name(formatNode) == this.tag) {
-                        formatNodes.push(formatNode);
-                    }
-                }
-                if (formatNodes.length < 1) {
-                    return false;
-                }
-                if (formatNodes.length != nodes.length) {
-                    return false;
-                }
-                for (i = 0; i < formatNodes.length; i++) {
-                    if (formatNodes[i].parentNode != formatNode.parentNode) {
-                        break;
-                    }
-                    if (formatNodes[i] != formatNode) {
-                        return false;
-                    }
-                }
-                return true;
-            },
-            findSuitable: function (nodes) {
-                var candidate = this.findFormat(nodes[0]);
-                if (candidate && dom.name(candidate) == this.tag) {
-                    return candidate;
-                }
-                return null;
-            }
-        });
-        var ListFormatter = Class.extend({
-            init: function (tag, unwrapTag) {
-                var that = this;
-                that.finder = new ListFormatFinder(tag);
-                that.tag = tag;
-                that.unwrapTag = unwrapTag;
-            },
-            isList: function (node) {
-                return dom.list(node);
-            },
-            immutables: function () {
-                return this.editor && !!this.editor.options.immutables;
-            },
-            wrap: function (list, nodes) {
-                var li = dom.create(list.ownerDocument, 'li'), i, node, isImmutable = this.immutables() ? Editor.Immutables.immutable : $.noop;
-                for (i = 0; i < nodes.length; i++) {
-                    node = nodes[i];
-                    if (dom.is(node, 'li')) {
-                        list.appendChild(node);
-                        continue;
-                    }
-                    if (this.isList(node)) {
-                        while (node.firstChild) {
-                            list.appendChild(node.firstChild);
-                        }
-                        continue;
-                    }
-                    if (dom.is(node, 'td')) {
-                        while (node.firstChild) {
-                            li.appendChild(node.firstChild);
-                        }
-                        list.appendChild(li);
-                        node.appendChild(list);
-                        list = list.cloneNode(false);
-                        li = li.cloneNode(false);
-                        continue;
-                    }
-                    li.appendChild(node);
-                    if (dom.isBlock(node)) {
-                        list.appendChild(li);
-                        if (!isImmutable(node)) {
-                            dom.unwrap(node);
-                        }
-                        li = li.cloneNode(false);
-                    }
-                }
-                if (li.firstChild) {
-                    list.appendChild(li);
-                }
-            },
-            containsAny: function (parent, nodes) {
-                for (var i = 0; i < nodes.length; i++) {
-                    if (dom.isAncestorOrSelf(parent, nodes[i])) {
-                        return true;
-                    }
-                }
-                return false;
-            },
-            suitable: function (candidate, nodes) {
-                if (candidate.className == 'k-marker') {
-                    var sibling = candidate.nextSibling;
-                    if (sibling && dom.isBlock(sibling)) {
-                        return false;
-                    }
-                    sibling = candidate.previousSibling;
-                    if (sibling && dom.isBlock(sibling)) {
-                        return false;
-                    }
-                }
-                return this.containsAny(candidate, nodes) || dom.isInline(candidate) || candidate.nodeType == 3;
-            },
-            _parentLists: function (node) {
-                var editable = dom.closestEditable(node);
-                return $(node).parentsUntil(editable, 'ul,ol');
-            },
-            split: function (range) {
-                var nodes = textNodes(range);
-                var start, end, parents;
-                if (nodes.length) {
-                    start = dom.parentOfType(nodes[0], ['li']);
-                    end = dom.parentOfType(nodes[nodes.length - 1], ['li']);
-                    range.setStartBefore(start);
-                    range.setEndAfter(end);
-                    for (var i = 0, l = nodes.length; i < l; i++) {
-                        var formatNode = this.finder.findFormat(nodes[i]);
-                        if (formatNode) {
-                            parents = this._parentLists(formatNode);
-                            if (parents.length) {
-                                RangeUtils.split(range, parents.last()[0], true);
-                            } else {
-                                RangeUtils.split(range, formatNode, true);
-                            }
-                        }
-                    }
-                }
-            },
-            merge: function (tag, formatNode) {
-                var prev = formatNode.previousSibling, next;
-                while (prev && (prev.className == 'k-marker' || prev.nodeType == 3 && dom.isWhitespace(prev))) {
-                    prev = prev.previousSibling;
-                }
-                if (prev && dom.name(prev) == tag) {
-                    while (formatNode.firstChild) {
-                        prev.appendChild(formatNode.firstChild);
-                    }
-                    dom.remove(formatNode);
-                    formatNode = prev;
-                }
-                next = formatNode.nextSibling;
-                while (next && (next.className == 'k-marker' || next.nodeType == 3 && dom.isWhitespace(next))) {
-                    next = next.nextSibling;
-                }
-                if (next && dom.name(next) == tag) {
-                    while (formatNode.lastChild) {
-                        next.insertBefore(formatNode.lastChild, next.firstChild);
-                    }
-                    dom.remove(formatNode);
-                }
-            },
-            breakable: function (node) {
-                return node != node.ownerDocument.body && !/table|tbody|tr|td/.test(dom.name(node)) && !node.attributes.contentEditable;
-            },
-            applyOnSection: function (section, nodes) {
-                var tag = this.tag;
-                var commonAncestor = dom.closestSplittableParent(nodes);
-                var ancestors = [];
-                var formatNode = this.finder.findSuitable(nodes);
-                if (!formatNode) {
-                    formatNode = new ListFormatFinder(tag == 'ul' ? 'ol' : 'ul').findSuitable(nodes);
-                }
-                var childNodes;
-                if (/table|tbody/.test(dom.name(commonAncestor))) {
-                    childNodes = $.map(nodes, function (node) {
-                        return dom.parentOfType(node, ['td']);
-                    });
-                } else {
-                    childNodes = dom.significantChildNodes(commonAncestor);
-                    if ($.grep(childNodes, dom.isBlock).length) {
-                        childNodes = $.grep(childNodes, $.proxy(function (node) {
-                            return this.containsAny(node, nodes);
-                        }, this));
-                    }
-                    if (!childNodes.length) {
-                        childNodes = nodes;
-                    }
-                }
-                function pushAncestor() {
-                    ancestors.push(this);
-                }
-                for (var i = 0; i < childNodes.length; i++) {
-                    var child = childNodes[i];
-                    var suitable = (!formatNode || !dom.isAncestorOrSelf(formatNode, child)) && this.suitable(child, nodes);
-                    if (!suitable) {
-                        continue;
-                    }
-                    if (formatNode && this.isList(child)) {
-                        $.each(child.children, pushAncestor);
-                        dom.remove(child);
-                    } else {
-                        ancestors.push(child);
-                    }
-                }
-                if (ancestors.length == childNodes.length && this.breakable(commonAncestor)) {
-                    ancestors = [commonAncestor];
-                }
-                if (!formatNode) {
-                    formatNode = dom.create(commonAncestor.ownerDocument, tag);
-                    dom.insertBefore(formatNode, ancestors[0]);
-                }
-                this.wrap(formatNode, ancestors);
-                while (dom.isBom(formatNode.nextSibling)) {
-                    dom.remove(formatNode.nextSibling);
-                }
-                if (!dom.is(formatNode, tag)) {
-                    dom.changeTag(formatNode, tag);
-                }
-                this.merge(tag, formatNode);
-            },
-            apply: function (nodes) {
-                var i = 0, sections = [], lastSection, lastNodes, section, node, l = nodes.length, immutableParent = this.immutables() ? Editor.Immutables.immutableParent : $.noop;
-                function addLastSection() {
-                    if (lastSection) {
-                        sections.push({
-                            section: lastSection,
-                            nodes: lastNodes
-                        });
-                    }
-                }
-                for (i = 0; i < l; i++) {
-                    node = immutableParent(nodes[i]) || nodes[i];
-                    section = dom.closestEditable(node, [
-                        'td',
-                        'body'
-                    ]);
-                    if (!lastSection || section != lastSection) {
-                        addLastSection();
-                        lastNodes = [node];
-                        lastSection = section;
-                    } else {
-                        lastNodes.push(node);
-                    }
-                }
-                addLastSection();
-                for (i = 0; i < sections.length; i++) {
-                    this.applyOnSection(sections[i].section, sections[i].nodes);
-                }
-            },
-            unwrap: function (ul) {
-                var fragment = ul.ownerDocument.createDocumentFragment(), unwrapTag = this.unwrapTag, parents, li, p, child;
-                for (li = ul.firstChild; li; li = li.nextSibling) {
-                    p = dom.create(ul.ownerDocument, unwrapTag || 'p');
-                    while (li.firstChild) {
-                        child = li.firstChild;
-                        if (dom.isBlock(child)) {
-                            if (p.firstChild) {
-                                fragment.appendChild(p);
-                                p = dom.create(ul.ownerDocument, unwrapTag || 'p');
-                            }
-                            fragment.appendChild(child);
-                        } else {
-                            p.appendChild(child);
-                        }
-                    }
-                    if (p.firstChild) {
-                        fragment.appendChild(p);
-                    }
-                }
-                parents = this._parentLists(ul);
-                if (parents[0]) {
-                    dom.insertAfter(fragment, parents.last()[0]);
-                    parents.last().remove();
-                } else {
-                    dom.insertAfter(fragment, ul);
-                }
-                dom.remove(ul);
-            },
-            remove: function (nodes) {
-                var formatNode;
-                for (var i = 0, l = nodes.length; i < l; i++) {
-                    formatNode = this.finder.findFormat(nodes[i]);
-                    if (formatNode) {
-                        this.unwrap(formatNode);
-                    }
-                }
-            },
-            toggle: function (range) {
-                var that = this, nodes = textNodes(range), ancestor = range.commonAncestorContainer;
-                if (!nodes.length) {
-                    range.selectNodeContents(ancestor);
-                    nodes = textNodes(range);
-                    if (!nodes.length) {
-                        var text = ancestor.ownerDocument.createTextNode('');
-                        range.startContainer.appendChild(text);
-                        nodes = [text];
-                        range.selectNode(text.parentNode);
-                    }
-                }
-                nodes = dom.filterBy(nodes, dom.htmlIndentSpace, true);
-                if (that.finder.isFormatted(nodes)) {
-                    that.split(range);
-                    that.remove(nodes);
-                } else {
-                    that.apply(nodes);
-                }
-            }
-        });
-        var ListCommand = Command.extend({
-            init: function (options) {
-                options.formatter = new ListFormatter(options.tag);
-                Command.fn.init.call(this, options);
-            }
-        });
-        var ListTool = FormatTool.extend({
-            init: function (options) {
-                this.options = options;
-                FormatTool.fn.init.call(this, extend(options, { finder: new ListFormatFinder(options.tag) }));
-            },
-            command: function (commandArguments) {
-                return new ListCommand(extend(commandArguments, { tag: this.options.tag }));
-            }
-        });
-        extend(Editor, {
-            ListFormatFinder: ListFormatFinder,
-            ListFormatter: ListFormatter,
-            ListCommand: ListCommand,
-            ListTool: ListTool
-        });
-        registerTool('insertUnorderedList', new ListTool({
-            tag: 'ul',
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Insert unordered list'
-            })
-        }));
-        registerTool('insertOrderedList', new ListTool({
-            tag: 'ol',
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Insert ordered list'
-            })
-        }));
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('editor/link', ['editor/lists'], f);
-}(function () {
-    (function ($, undefined) {
-        var kendo = window.kendo, Class = kendo.Class, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, InlineFormatter = Editor.InlineFormatter, InlineFormatFinder = Editor.InlineFormatFinder, textNodes = RangeUtils.textNodes, editableTextNodes = RangeUtils.editableTextNodes, registerTool = Editor.EditorUtils.registerTool, keys = kendo.keys;
-        var HTTP_PROTOCOL = 'http://';
-        var protocolRegExp = /^\w*:\/\//;
-        var endLinkCharsRegExp = /[\w\/\$\-_\*\?]/i;
-        var LinkFormatFinder = Class.extend({
-            findSuitable: function (sourceNode) {
-                return dom.parentOfType(sourceNode, ['a']);
-            }
-        });
-        var LinkFormatter = Class.extend({
-            init: function () {
-                this.finder = new LinkFormatFinder();
-            },
-            apply: function (range, attributes) {
-                var nodes = this.immutables ? editableTextNodes(range) : textNodes(range);
-                var markers, doc, formatter, a, parent;
-                if (attributes.innerHTML) {
-                    doc = RangeUtils.documentFromRange(range);
-                    markers = RangeUtils.getMarkers(range);
-                    range.deleteContents();
-                    a = dom.create(doc, 'a', attributes);
-                    range.insertNode(a);
-                    parent = a.parentNode;
-                    if (dom.name(parent) == 'a') {
-                        dom.insertAfter(a, parent);
-                    }
-                    if (dom.emptyNode(parent)) {
-                        dom.remove(parent);
-                    }
-                    var ref = a;
-                    for (var i = 0; i < markers.length; i++) {
-                        dom.insertAfter(markers[i], ref);
-                        ref = markers[i];
-                    }
-                    if (markers.length) {
-                        dom.insertBefore(doc.createTextNode('\uFEFF'), markers[1]);
-                        dom.insertAfter(doc.createTextNode('\uFEFF'), markers[1]);
-                        range.setStartBefore(markers[0]);
-                        range.setEndAfter(markers[markers.length - 1]);
-                    }
-                } else {
-                    formatter = new InlineFormatter([{ tags: ['a'] }], attributes);
-                    formatter.finder = this.finder;
-                    formatter.apply(nodes);
-                }
-            }
-        });
-        var UnlinkCommand = Command.extend({
-            init: function (options) {
-                var that = this;
-                options.formatter = {
-                    toggle: function (range) {
-                        var nodes = that.immutables() ? editableTextNodes(range) : textNodes(range);
-                        new InlineFormatter([{ tags: ['a'] }]).remove(nodes);
-                    }
-                };
-                this.options = options;
-                Command.fn.init.call(this, options);
-            }
-        });
-        var LinkCommand = Command.extend({
-            init: function (options) {
-                var that;
-                this.options = options;
-                Command.fn.init.call(this, options);
-                this.formatter = new LinkFormatter();
-                if (!options.url) {
-                    this.attributes = null;
-                    this.async = true;
-                } else {
-                    this.exec = function () {
-                        this.formatter.immutables = that && that.immutables();
-                        this.formatter.apply(options.range, {
-                            href: options.url,
-                            innerHTML: options.text || options.url,
-                            target: options.target
-                        });
-                    };
-                }
-            },
-            _dialogTemplate: function () {
-                return kendo.template('<div class="k-editor-dialog k-popup-edit-form">' + '<div class="k-edit-form-container">' + '<div class=\'k-edit-label\'>' + '<label for=\'k-editor-link-url\'>#: messages.linkWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type=\'text\' class=\'k-input k-textbox\' id=\'k-editor-link-url\'>' + '</div>' + '<div class=\'k-edit-label k-editor-link-text-row\'>' + '<label for=\'k-editor-link-text\'>#: messages.linkText #</label>' + '</div>' + '<div class=\'k-edit-field k-editor-link-text-row\'>' + '<input type=\'text\' class=\'k-input k-textbox\' id=\'k-editor-link-text\'>' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for=\'k-editor-link-title\'>#: messages.linkToolTip #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type=\'text\' class=\'k-input k-textbox\' id=\'k-editor-link-title\'>' + '</div>' + '<div class=\'k-edit-label\'></div>' + '<div class=\'k-edit-field\'>' + '<input type=\'checkbox\' class=\'k-checkbox\' id=\'k-editor-link-target\'>' + '<label for=\'k-editor-link-target\' class=\'k-checkbox-label\'>#: messages.linkOpenInNewWindow #</label>' + '</div>' + '<div class=\'k-edit-buttons k-state-default\'>' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>')({ messages: this.editor.options.messages });
-            },
-            exec: function () {
-                var messages = this.editor.options.messages;
-                this._initialText = '';
-                this._range = this.lockRange(true);
-                this.formatter.immutables = this.immutables();
-                var nodes = textNodes(this._range);
-                var a = nodes.length ? this.formatter.finder.findSuitable(nodes[0]) : null;
-                var img = nodes.length && dom.name(nodes[0]) == 'img';
-                var dialog = this.createDialog(this._dialogTemplate(), {
-                    title: messages.createLink,
-                    close: proxy(this._close, this),
-                    visible: false
-                });
-                if (a) {
-                    this._range.selectNodeContents(a);
-                    nodes = textNodes(this._range);
-                }
-                this._initialText = this.linkText(nodes);
-                dialog.find('.k-dialog-insert').click(proxy(this._apply, this)).end().find('.k-dialog-close').click(proxy(this._close, this)).end().find('.k-edit-field input').keydown(proxy(this._keydown, this)).end().find('#k-editor-link-url').val(this.linkUrl(a)).end().find('#k-editor-link-text').val(this._initialText).end().find('#k-editor-link-title').val(a ? a.title : '').end().find('#k-editor-link-target').attr('checked', a ? a.target == '_blank' : false).end().find('.k-editor-link-text-row').toggle(!img);
-                this._dialog = dialog.data('kendoWindow').center().open();
-                $('#k-editor-link-url', dialog).focus().select();
-            },
-            _keydown: function (e) {
-                var keys = kendo.keys;
-                if (e.keyCode == keys.ENTER) {
-                    this._apply(e);
-                } else if (e.keyCode == keys.ESC) {
-                    this._close(e);
-                }
-            },
-            _apply: function (e) {
-                var element = this._dialog.element;
-                var href = $('#k-editor-link-url', element).val();
-                var title, text, target;
-                var textInput = $('#k-editor-link-text', element);
-                if (href && href != HTTP_PROTOCOL) {
-                    if (href.indexOf('@') > 0 && !/^(\w+:)|(\/\/)/i.test(href)) {
-                        href = 'mailto:' + href;
-                    }
-                    this.attributes = { href: href };
-                    title = $('#k-editor-link-title', element).val();
-                    if (title) {
-                        this.attributes.title = title;
-                    }
-                    if (textInput.is(':visible')) {
-                        text = textInput.val();
-                        if (!text && !this._initialText) {
-                            this.attributes.innerHTML = href;
-                        } else if (text && text !== this._initialText) {
-                            this.attributes.innerHTML = dom.stripBom(text);
-                        }
-                    }
-                    target = $('#k-editor-link-target', element).is(':checked');
-                    this.attributes.target = target ? '_blank' : null;
-                    this.formatter.apply(this._range, this.attributes);
-                }
-                this._close(e);
-                if (this.change) {
-                    this.change();
-                }
-            },
-            _close: function (e) {
-                e.preventDefault();
-                this._dialog.destroy();
-                dom.windowFromDocument(RangeUtils.documentFromRange(this._range)).focus();
-                this.releaseRange(this._range);
-            },
-            linkUrl: function (anchor) {
-                if (anchor) {
-                    return anchor.getAttribute('href', 2);
-                }
-                return HTTP_PROTOCOL;
-            },
-            linkText: function (nodes) {
-                var text = '';
-                var i;
-                for (i = 0; i < nodes.length; i++) {
-                    text += nodes[i].nodeValue;
-                }
-                return dom.stripBom(text || '');
-            },
-            redo: function () {
-                var range = this.lockRange(true);
-                this.formatter.apply(range, this.attributes);
-                this.releaseRange(range);
-            }
-        });
-        var AutoLinkCommand = Command.extend({
-            init: function (options) {
-                Command.fn.init.call(this, options);
-                this.formatter = new LinkFormatter();
-            },
-            exec: function () {
-                var detectedLink = this.detectLink();
-                if (!detectedLink) {
-                    return;
-                }
-                var range = this.getRange();
-                var linkMarker = new kendo.ui.editor.Marker();
-                var linkRange = range.cloneRange();
-                linkRange.setStart(detectedLink.start.node, detectedLink.start.offset);
-                linkRange.setEnd(detectedLink.end.node, detectedLink.end.offset);
-                range = this.lockRange();
-                linkMarker.add(linkRange);
-                this.formatter.apply(linkRange, { href: this._ensureWebProtocol(detectedLink.text) });
-                linkMarker.remove(linkRange);
-                this.releaseRange(range);
-            },
-            detectLink: function () {
-                var range = this.getRange();
-                var startNode = range.startContainer;
-                var startOffset = range.startOffset;
-                var prev = startNode.previousSibling;
-                if (!prev && (dom.isBom(startNode) && !startNode.nextSibling || !startOffset && dom.isDataNode(startNode))) {
-                    startNode = startNode.parentNode;
-                    startOffset = 0;
-                }
-                var traverser = new LeftDomTextTraverser({
-                    node: startNode,
-                    offset: startOffset,
-                    cancelAtNode: function (node) {
-                        return node && dom.name(node) === 'a';
-                    }
-                });
-                var detection = new DomTextLinkDetection(traverser);
-                return detection.detectLink();
-            },
-            changesContent: function () {
-                return !!this.detectLink();
-            },
-            _ensureWebProtocol: function (linkText) {
-                var hasProtocol = this._hasProtocolPrefix(linkText);
-                return hasProtocol ? linkText : this._prefixWithWebProtocol(linkText);
-            },
-            _hasProtocolPrefix: function (linkText) {
-                return protocolRegExp.test(linkText);
-            },
-            _prefixWithWebProtocol: function (linkText) {
-                return HTTP_PROTOCOL + linkText;
-            }
-        });
-        var UnlinkTool = Tool.extend({
-            init: function (options) {
-                this.options = options;
-                this.finder = new InlineFormatFinder([{ tags: ['a'] }]);
-                Tool.fn.init.call(this, $.extend(options, { command: UnlinkCommand }));
-            },
-            initialize: function (ui, options) {
-                Tool.fn.initialize.call(this, ui, options);
-                ui.addClass('k-state-disabled');
-            },
-            update: function (ui, nodes) {
-                ui.toggleClass('k-state-disabled', !this.finder.isFormatted(nodes)).removeClass('k-state-hover');
-            }
-        });
-        var DomTextLinkDetection = Class.extend({
-            init: function (traverser) {
-                this.traverser = traverser;
-                this.start = DomPos();
-                this.end = DomPos();
-                this.text = '';
-            },
-            detectLink: function () {
-                var node = this.traverser.node;
-                var offset = this.traverser.offset;
-                if (dom.isDataNode(node)) {
-                    var text = node.data.substring(0, offset);
-                    if (/\s{2}$/.test(dom.stripBom(text))) {
-                        return;
-                    }
-                } else if (offset === 0) {
-                    var p = dom.closestEditableOfType(node, dom.blockElements);
-                    if (p && p.previousSibling) {
-                        this.traverser.init({ node: p.previousSibling });
-                    }
-                }
-                this.traverser.traverse($.proxy(this._detectEnd, this));
-                if (!this.end.blank()) {
-                    this.traverser = this.traverser.clone(this.end);
-                    this.traverser.traverse($.proxy(this._detectStart, this));
-                    if (!this._isLinkDetected()) {
-                        var puntuationOptions = this.traverser.extendOptions(this.start);
-                        var puntuationTraverser = new RightDomTextTraverser(puntuationOptions);
-                        puntuationTraverser.traverse($.proxy(this._skipStartPuntuation, this));
-                        if (!this._isLinkDetected()) {
-                            this.start = DomPos();
-                        }
-                    }
-                }
-                if (this.start.blank()) {
-                    return null;
-                } else {
-                    return {
-                        start: this.start,
-                        end: this.end,
-                        text: this.text
-                    };
-                }
-            },
-            _isLinkDetected: function () {
-                return protocolRegExp.test(this.text) || /^w{3}\./i.test(this.text);
-            },
-            _detectEnd: function (text, node) {
-                var i = lastIndexOfRegExp(text, endLinkCharsRegExp);
-                if (i > -1) {
-                    this.end.node = node;
-                    this.end.offset = i + 1;
-                    return false;
-                }
-            },
-            _detectStart: function (text, node) {
-                var i = lastIndexOfRegExp(text, /\s/);
-                var ii = i + 1;
-                this.text = text.substring(ii) + this.text;
-                this.start.node = node;
-                this.start.offset = ii;
-                if (i > -1) {
-                    return false;
-                }
-            },
-            _skipStartPuntuation: function (text, node, offset) {
-                var i = indexOfRegExp(text, /\w/);
-                var ii = i;
-                if (i === -1) {
-                    ii = text.length;
-                }
-                this.text = this.text.substring(ii);
-                this.start.node = node;
-                this.start.offset = ii + (offset | 0);
-                if (i > -1) {
-                    return false;
-                }
-            }
-        });
-        function lastIndexOfRegExp(str, search) {
-            var i = str.length;
-            while (i-- && !search.test(str[i])) {
-            }
-            return i;
-        }
-        function indexOfRegExp(str, search) {
-            var r = search.exec(str);
-            return r ? r.index : -1;
-        }
-        var DomPos = function () {
-            return {
-                node: null,
-                offset: null,
-                blank: function () {
-                    return this.node === null && this.offset === null;
-                }
-            };
-        };
-        var DomTextTraverser = Class.extend({
-            init: function (options) {
-                this.node = options.node;
-                this.offset = options.offset === undefined ? dom.isDataNode(this.node) && this.node.length || 0 : options.offset;
-                this.cancelAtNode = options.cancelAtNode || this.cancelAtNode || $.noop;
-            },
-            traverse: function (callback) {
-                if (!callback) {
-                    return;
-                }
-                this.cancel = false;
-                this._traverse(callback, this.node, this.offset);
-            },
-            _traverse: function (callback, node, offset) {
-                if (!node || this.cancel) {
-                    return;
-                }
-                if (node.nodeType === 3) {
-                    var text = node.data;
-                    if (offset !== undefined) {
-                        text = this.subText(text, offset);
-                    }
-                    this.cancel = callback(text, node, offset) === false;
-                } else {
-                    var edgeNode = this.edgeNode(node);
-                    this.cancel = this.cancel || this.cancelAtNode(edgeNode);
-                    return this._traverse(callback, edgeNode);
-                }
-                var next = this.next(node);
-                if (!next) {
-                    var parent = node.parentNode;
-                    while (!next && dom.isInline(parent)) {
-                        next = this.next(parent);
-                        parent = parent.parentNode;
-                    }
-                }
-                this.cancel = this.cancel || this.cancelAtNode(next);
-                this._traverse(callback, next);
-            },
-            extendOptions: function (o) {
-                return $.extend({
-                    node: this.node,
-                    offset: this.offset,
-                    cancelAtNode: this.cancelAtNode
-                }, o || {});
-            },
-            edgeNode: function (node) {
-            },
-            next: function (node) {
-            },
-            subText: function (text, offset) {
-            }
-        });
-        var LeftDomTextTraverser = DomTextTraverser.extend({
-            subText: function (text, splitIndex) {
-                return text.substring(0, splitIndex);
-            },
-            next: function (node) {
-                return node.previousSibling;
-            },
-            edgeNode: function (node) {
-                return node.lastChild;
-            },
-            clone: function (options) {
-                var o = this.extendOptions(options);
-                return new LeftDomTextTraverser(o);
-            }
-        });
-        var RightDomTextTraverser = DomTextTraverser.extend({
-            subText: function (text, splitIndex) {
-                return text.substring(splitIndex);
-            },
-            next: function (node) {
-                return node.nextSibling;
-            },
-            edgeNode: function (node) {
-                return node.firstChild;
-            },
-            clone: function (options) {
-                var o = this.extendOptions(options);
-                return new RightDomTextTraverser(o);
-            }
-        });
-        extend(kendo.ui.editor, {
-            LinkFormatFinder: LinkFormatFinder,
-            LinkFormatter: LinkFormatter,
-            UnlinkCommand: UnlinkCommand,
-            LinkCommand: LinkCommand,
-            AutoLinkCommand: AutoLinkCommand,
-            UnlinkTool: UnlinkTool,
-            DomTextLinkDetection: DomTextLinkDetection,
-            LeftDomTextTraverser: LeftDomTextTraverser,
-            RightDomTextTraverser: RightDomTextTraverser
-        });
-        registerTool('createLink', new Tool({
-            key: 'K',
-            ctrl: true,
-            command: LinkCommand,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Create Link'
-            })
-        }));
-        registerTool('unlink', new UnlinkTool({
-            key: 'K',
-            ctrl: true,
-            shift: true,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Remove Link'
-            })
-        }));
-        registerTool('autoLink', new Tool({
-            key: [
-                keys.ENTER,
-                keys.SPACEBAR
-            ],
-            keyPressCommand: true,
-            command: AutoLinkCommand
-        }));
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('editor/file', [
-        'kendo.filebrowser',
-        'editor/link'
-    ], f);
-}(function () {
-    (function ($, undefined) {
-        var kendo = window.kendo, extend = $.extend, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, dom = Editor.Dom, registerTool = EditorUtils.registerTool, ToolTemplate = Editor.ToolTemplate, RangeUtils = Editor.RangeUtils, Command = Editor.Command, LinkFormatter = Editor.LinkFormatter, textNodes = RangeUtils.textNodes, keys = kendo.keys, KEDITORFILEURL = '#k-editor-file-url', KEDITORFILETEXT = '#k-editor-file-text', KEDITORFILETITLE = '#k-editor-file-title';
-        var FileCommand = Command.extend({
-            init: function (options) {
-                var that = this;
-                Command.fn.init.call(that, options);
-                that.formatter = new LinkFormatter();
-                that.async = true;
-                that.attributes = {};
-            },
-            insertFile: function (file, range) {
-                var attributes = this.attributes;
-                var doc = RangeUtils.documentFromRange(range);
-                if (attributes.href && attributes.href != 'http://') {
-                    if (!file) {
-                        file = dom.create(doc, 'a', { href: attributes.href });
-                        file.innerHTML = attributes.innerHTML;
-                        file.title = attributes.title;
-                        range.deleteContents();
-                        range.insertNode(file);
-                        if (!file.nextSibling) {
-                            dom.insertAfter(doc.createTextNode('\uFEFF'), file);
-                        }
-                        range.setStartAfter(file);
-                        range.setEndAfter(file);
-                        RangeUtils.selectRange(range);
-                        return true;
-                    } else {
-                        dom.attr(file, attributes);
-                    }
-                }
-                return false;
-            },
-            _dialogTemplate: function (showBrowser) {
-                return kendo.template('<div class="k-editor-dialog k-popup-edit-form">' + '<div class="k-edit-form-container">' + '<div class="k-edit-form-content">' + '# if (showBrowser) { #' + '<div class="k-filebrowser"></div>' + '# } #' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-url">#: messages.fileWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-url">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-text">#: messages.fileText #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-text">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-title">#: messages.fileTitle #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-title">' + '</div>' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>')({
-                    messages: this.editor.options.messages,
-                    showBrowser: showBrowser
-                });
-            },
-            redo: function () {
-                var that = this, range = that.lockRange();
-                this.formatter.apply(range, this.attributes);
-                that.releaseRange(range);
-            },
-            exec: function () {
-                var that = this, range = that.lockRange(), nodes = textNodes(range), applied = false, file = nodes.length ? this.formatter.finder.findSuitable(nodes[0]) : null, dialog, isIE = kendo.support.browser.msie, options = that.editor.options, messages = options.messages, fileBrowser = options.fileBrowser, showBrowser = !!(kendo.ui.FileBrowser && fileBrowser && fileBrowser.transport && fileBrowser.transport.read !== undefined), dialogOptions = {
-                        title: messages.insertFile,
-                        visible: false,
-                        resizable: showBrowser
-                    };
-                this.expandImmutablesIn(range);
-                function apply(e) {
-                    var element = dialog.element, href = element.find(KEDITORFILEURL).val().replace(/ /g, '%20'), innerHTML = element.find(KEDITORFILETEXT).val(), title = element.find(KEDITORFILETITLE).val();
-                    that.attributes = {
-                        href: href,
-                        innerHTML: innerHTML !== '' ? innerHTML : href,
-                        title: title
-                    };
-                    applied = that.insertFile(file, range);
-                    close(e);
-                    if (that.change) {
-                        that.change();
-                    }
-                }
-                function close(e) {
-                    e.preventDefault();
-                    dialog.destroy();
-                    dom.windowFromDocument(RangeUtils.documentFromRange(range)).focus();
-                    if (!applied) {
-                        that.releaseRange(range);
-                    }
-                }
-                function keyDown(e) {
-                    if (e.keyCode == keys.ENTER) {
-                        apply(e);
-                    } else if (e.keyCode == keys.ESC) {
-                        close(e);
-                    }
-                }
-                dialogOptions.close = close;
-                if (showBrowser) {
-                    dialogOptions.width = 750;
-                }
-                dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').click(apply).end().find('.k-dialog-close').click(close).end().find('.k-edit-field input').keydown(keyDown).end().find(KEDITORFILEURL).val(file ? file.getAttribute('href', 2) : 'http://').end().find(KEDITORFILETEXT).val(file ? file.innerText : '').end().find(KEDITORFILETITLE).val(file ? file.title : '').end().data('kendoWindow');
-                var element = dialog.element;
-                if (showBrowser) {
-                    that._fileBrowser = new kendo.ui.FileBrowser(element.find('.k-filebrowser'), extend({}, fileBrowser));
-                    that._fileBrowser.bind('change', function (ev) {
-                        if (ev.selected.get('type') === 'f') {
-                            element.find(KEDITORFILEURL).val(this.value());
-                        }
-                    });
-                    that._fileBrowser.bind('apply', apply);
-                }
-                if (isIE) {
-                    var dialogHeight = element.closest('.k-window').height();
-                    element.css('max-height', dialogHeight);
-                }
-                dialog.center().open();
-                element.find(KEDITORFILEURL).focus().select();
-            }
-        });
-        kendo.ui.editor.FileCommand = FileCommand;
-        registerTool('insertFile', new Editor.Tool({
-            command: FileCommand,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Insert File'
-            })
-        }));
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('editor/image', [
-        'kendo.imagebrowser',
-        'editor/link'
-    ], f);
-}(function () {
-    (function ($, undefined) {
-        var kendo = window.kendo, extend = $.extend, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, dom = Editor.Dom, registerTool = EditorUtils.registerTool, ToolTemplate = Editor.ToolTemplate, RangeUtils = Editor.RangeUtils, Command = Editor.Command, keys = kendo.keys, KEDITORIMAGEURL = '#k-editor-image-url', KEDITORIMAGETITLE = '#k-editor-image-title', KEDITORIMAGEWIDTH = '#k-editor-image-width', KEDITORIMAGEHEIGHT = '#k-editor-image-height';
-        var ImageCommand = Command.extend({
-            init: function (options) {
-                var that = this;
-                Command.fn.init.call(that, options);
-                that.async = true;
-                that.attributes = {};
-            },
-            insertImage: function (img, range) {
-                var attributes = this.attributes;
-                var doc = RangeUtils.documentFromRange(range);
-                if (attributes.src && attributes.src != 'http://') {
-                    var removeIEAttributes = function () {
-                        setTimeout(function () {
-                            if (!attributes.width) {
-                                img.removeAttribute('width');
-                            }
-                            if (!attributes.height) {
-                                img.removeAttribute('height');
-                            }
-                            img.removeAttribute('complete');
-                        });
-                    };
-                    if (!img) {
-                        img = dom.create(doc, 'img', attributes);
-                        img.onload = img.onerror = removeIEAttributes;
-                        range.deleteContents();
-                        range.insertNode(img);
-                        if (!img.nextSibling) {
-                            dom.insertAfter(doc.createTextNode('\uFEFF'), img);
-                        }
-                        removeIEAttributes();
-                        range.setStartAfter(img);
-                        range.setEndAfter(img);
-                        RangeUtils.selectRange(range);
-                        return true;
-                    } else {
-                        img.onload = img.onerror = removeIEAttributes;
-                        dom.attr(img, attributes);
-                        removeIEAttributes();
-                    }
-                }
-                return false;
-            },
-            _dialogTemplate: function (showBrowser) {
-                return kendo.template('<div class="k-editor-dialog k-popup-edit-form">' + '<div class="k-edit-form-container">' + '<div class="k-edit-form-content">' + '# if (showBrowser) { #' + '<div class="k-filebrowser k-imagebrowser"></div>' + '# } #' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-url">#: messages.imageWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-url">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-title">#: messages.imageAltText #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-title">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-width">#: messages.imageWidth #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-width">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-height">#: messages.imageHeight #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-height">' + '</div>' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>')({
-                    messages: this.editor.options.messages,
-                    showBrowser: showBrowser
-                });
-            },
-            redo: function () {
-                var that = this, range = that.lockRange();
-                if (!that.insertImage(RangeUtils.image(range), range)) {
-                    that.releaseRange(range);
-                }
-            },
-            exec: function () {
-                var that = this, range = that.lockRange(), applied = false, img = RangeUtils.image(range), imageWidth = img && img.getAttribute('width') || '', imageHeight = img && img.getAttribute('height') || '', dialog, isIE = kendo.support.browser.msie, options = that.editor.options, messages = options.messages, imageBrowser = options.imageBrowser, showBrowser = !!(kendo.ui.ImageBrowser && imageBrowser && imageBrowser.transport && imageBrowser.transport.read !== undefined), dialogOptions = {
-                        title: messages.insertImage,
-                        visible: false,
-                        resizable: showBrowser
-                    };
-                this.expandImmutablesIn(range);
-                function apply(e) {
-                    var element = dialog.element, w = parseInt(element.find(KEDITORIMAGEWIDTH).val(), 10), h = parseInt(element.find(KEDITORIMAGEHEIGHT).val(), 10);
-                    that.attributes = {
-                        src: element.find(KEDITORIMAGEURL).val().replace(/ /g, '%20'),
-                        alt: element.find(KEDITORIMAGETITLE).val()
-                    };
-                    that.attributes.width = null;
-                    that.attributes.height = null;
-                    if (!isNaN(w) && w > 0) {
-                        that.attributes.width = w;
-                    }
-                    if (!isNaN(h) && h > 0) {
-                        that.attributes.height = h;
-                    }
-                    applied = that.insertImage(img, range);
-                    close(e);
-                    if (that.change) {
-                        that.change();
-                    }
-                }
-                function close(e) {
-                    e.preventDefault();
-                    dialog.destroy();
-                    dom.windowFromDocument(RangeUtils.documentFromRange(range)).focus();
-                    if (!applied) {
-                        that.releaseRange(range);
-                    }
-                }
-                function keyDown(e) {
-                    if (e.keyCode == keys.ENTER) {
-                        apply(e);
-                    } else if (e.keyCode == keys.ESC) {
-                        close(e);
-                    }
-                }
-                dialogOptions.close = close;
-                if (showBrowser) {
-                    dialogOptions.width = 750;
-                }
-                dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').click(apply).end().find('.k-dialog-close').click(close).end().find('.k-edit-field input').keydown(keyDown).end().find(KEDITORIMAGEURL).val(img ? img.getAttribute('src', 2) : 'http://').end().find(KEDITORIMAGETITLE).val(img ? img.alt : '').end().find(KEDITORIMAGEWIDTH).val(imageWidth).end().find(KEDITORIMAGEHEIGHT).val(imageHeight).end().data('kendoWindow');
-                var element = dialog.element;
-                if (showBrowser) {
-                    this._imageBrowser = new kendo.ui.ImageBrowser(element.find('.k-imagebrowser'), extend({}, imageBrowser));
-                    this._imageBrowser.bind('change', function (ev) {
-                        if (ev.selected.get('type') === 'f') {
-                            element.find(KEDITORIMAGEURL).val(this.value());
-                        }
-                    });
-                    this._imageBrowser.bind('apply', apply);
-                }
-                if (isIE) {
-                    var dialogHeight = element.closest('.k-window').height();
-                    element.css('max-height', dialogHeight);
-                }
-                dialog.center().open();
-                element.find(KEDITORIMAGEURL).focus().select();
-            }
-        });
-        kendo.ui.editor.ImageCommand = ImageCommand;
-        registerTool('insertImage', new Editor.Tool({
-            command: ImageCommand,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Insert Image'
-            })
-        }));
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('editor/components', ['editor/image'], f);
-}(function () {
-    (function ($, undefined) {
-        var kendo = window.kendo, DropDownList = kendo.ui.DropDownList, dom = kendo.ui.editor.Dom;
-        var SelectBox = DropDownList.extend({
-            init: function (element, options) {
-                var that = this;
-                DropDownList.fn.init.call(that, element, options);
-                if (kendo.support.mobileOS.ios) {
-                    this._initSelectOverlay();
-                    this.bind('dataBound', $.proxy(this._initSelectOverlay, this));
-                }
-                that.text(that.options.title);
-                that.bind('open', function () {
-                    if (that.options.autoSize) {
-                        var list = that.list, listWidth;
-                        list.css({
-                            whiteSpace: 'nowrap',
-                            width: 'auto'
-                        });
-                        listWidth = list.width();
-                        if (listWidth) {
-                            listWidth += 20;
-                        } else {
-                            listWidth = that._listWidth;
-                        }
-                        list.css('width', listWidth + kendo.support.scrollbar());
-                        that._listWidth = listWidth;
-                    }
-                });
-            },
-            options: {
-                name: 'SelectBox',
-                index: -1
-            },
-            _initSelectOverlay: function () {
-                var selectBox = this;
-                var value = selectBox.value();
-                var view = this.dataSource.view();
-                var item;
-                var html = '';
-                var encode = kendo.htmlEncode;
-                for (var i = 0; i < view.length; i++) {
-                    item = view[i];
-                    html += '<option value=\'' + encode(item.value) + '\'';
-                    if (item.value == value) {
-                        html += ' selected';
-                    }
-                    html += '>' + encode(item.text) + '</option>';
-                }
-                var select = $('<select class=\'k-select-overlay\'>' + html + '</select>');
-                var wrapper = $(this.element).closest('.k-widget');
-                wrapper.next('.k-select-overlay').remove();
-                select.insertAfter(wrapper);
-                select.on('change', function () {
-                    selectBox.value(this.value);
-                    selectBox.trigger('change');
-                });
-            },
-            value: function (value) {
-                var that = this, result = DropDownList.fn.value.call(that, value);
-                if (value === undefined) {
-                    return result;
-                }
-                if (!DropDownList.fn.value.call(that)) {
-                    that.text(that.options.title);
-                }
-            },
-            decorate: function (body) {
-                var that = this, dataSource = that.dataSource, items = dataSource.data(), i, tag, className, style;
-                if (body) {
-                    that.list.css('background-color', dom.getEffectiveBackground($(body)));
-                }
-                for (i = 0; i < items.length; i++) {
-                    tag = items[i].tag || 'span';
-                    className = items[i].className;
-                    style = dom.inlineStyle(body, tag, { className: className });
-                    style = style.replace(/"/g, '\'');
-                    items[i].style = style + ';display:inline-block';
-                }
-                dataSource.trigger('change');
-            }
-        });
-        kendo.ui.plugin(SelectBox);
-        kendo.ui.editor.SelectBox = SelectBox;
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('editor/indent', ['editor/components'], f);
-}(function () {
-    (function ($, undefined) {
-        var kendo = window.kendo, Class = kendo.Class, extend = $.extend, Editor = kendo.ui.editor, dom = Editor.Dom, EditorUtils = Editor.EditorUtils, registerTool = EditorUtils.registerTool, Command = Editor.Command, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, RangeUtils = Editor.RangeUtils, blockElements = dom.blockElements, BlockFormatFinder = Editor.BlockFormatFinder, BlockFormatter = Editor.BlockFormatter;
-        function indent(node, value) {
-            var isRtl = $(node).css('direction') == 'rtl', indentDirection = isRtl ? 'Right' : 'Left', property = dom.name(node) != 'td' ? 'margin' + indentDirection : 'padding' + indentDirection;
-            if (value === undefined) {
-                return node.style[property] || 0;
-            } else {
-                if (value > 0) {
-                    node.style[property] = value + 'px';
-                } else {
-                    node.style[property] = '';
-                    if (!node.style.cssText) {
-                        node.removeAttribute('style');
-                    }
-                }
-            }
-        }
-        var IndentFormatter = Class.extend({
-            init: function () {
-                this.finder = new BlockFormatFinder([{ tags: dom.blockElements }]);
-            },
-            apply: function (nodes) {
-                nodes = dom.filterBy(nodes, dom.htmlIndentSpace, true);
-                var formatNodes = this.finder.findSuitable(nodes), targets = [], i, len, formatNode, parentList, sibling;
-                formatNodes = this.mapImmutables(formatNodes);
-                if (formatNodes.length) {
-                    for (i = 0, len = formatNodes.length; i < len; i++) {
-                        if (dom.is(formatNodes[i], 'li')) {
-                            if (!$(formatNodes[i]).index()) {
-                                targets.push(formatNodes[i].parentNode);
-                            } else if ($.inArray(formatNodes[i].parentNode, targets) < 0) {
-                                targets.push(formatNodes[i]);
-                            }
-                        } else {
-                            targets.push(formatNodes[i]);
-                        }
-                    }
-                    while (targets.length) {
-                        formatNode = targets.shift();
-                        if (dom.is(formatNode, 'li')) {
-                            parentList = formatNode.parentNode;
-                            sibling = $(formatNode).prev('li');
-                            var siblingList = sibling.find('ul,ol').last();
-                            var nestedList = $(formatNode).children('ul,ol')[0];
-                            if (nestedList && sibling[0]) {
-                                if (siblingList[0]) {
-                                    siblingList.append(formatNode);
-                                    siblingList.append($(nestedList).children());
-                                    dom.remove(nestedList);
-                                } else {
-                                    sibling.append(nestedList);
-                                    nestedList.insertBefore(formatNode, nestedList.firstChild);
-                                }
-                            } else {
-                                nestedList = sibling.children('ul,ol')[0];
-                                if (!nestedList) {
-                                    nestedList = dom.create(formatNode.ownerDocument, dom.name(parentList));
-                                    sibling.append(nestedList);
-                                }
-                                while (formatNode && formatNode.parentNode == parentList) {
-                                    nestedList.appendChild(formatNode);
-                                    formatNode = targets.shift();
-                                }
-                            }
-                        } else {
-                            var marginLeft = parseInt(indent(formatNode), 10) + 30;
-                            indent(formatNode, marginLeft);
-                            for (var targetIndex = 0; targetIndex < targets.length; targetIndex++) {
-                                if ($.contains(formatNode, targets[targetIndex])) {
-                                    targets.splice(targetIndex, 1);
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    var formatter = new BlockFormatter([{ tags: ['p'] }], { style: { marginLeft: 30 } });
-                    formatter.apply(nodes);
-                }
-            },
-            mapImmutables: function (nodes) {
-                if (!this.immutables) {
-                    return nodes;
-                } else {
-                    var immutables = [];
-                    return $.map(nodes, function (node) {
-                        var immutable = Editor.Immutables.immutableParent(node);
-                        if (immutable) {
-                            if ($.inArray(immutable, immutables) === -1) {
-                                immutables.push(immutable);
-                            } else {
-                                return null;
-                            }
-                        }
-                        return immutable || node;
-                    });
-                }
-            },
-            remove: function (nodes) {
-                nodes = dom.filterBy(nodes, dom.htmlIndentSpace, true);
-                var formatNodes = this.finder.findSuitable(nodes), targetNode, i, len, list, listParent, siblings, formatNode, marginLeft;
-                formatNodes = this.mapImmutables(formatNodes);
-                for (i = 0, len = formatNodes.length; i < len; i++) {
-                    formatNode = $(formatNodes[i]);
-                    if (formatNode.is('li')) {
-                        list = formatNode.parent();
-                        listParent = list.parent();
-                        if (listParent.is('li,ul,ol') && !indent(list[0])) {
-                            if (targetNode && $.contains(targetNode, listParent[0])) {
-                                continue;
-                            }
-                            siblings = formatNode.nextAll('li');
-                            if (siblings.length) {
-                                $(list[0].cloneNode(false)).appendTo(formatNode).append(siblings);
-                            }
-                            if (listParent.is('li')) {
-                                formatNode.insertAfter(listParent);
-                            } else {
-                                formatNode.appendTo(listParent);
-                            }
-                            if (!list.children('li').length) {
-                                list.remove();
-                            }
-                            continue;
-                        } else {
-                            if (targetNode == list[0]) {
-                                continue;
-                            }
-                            targetNode = list[0];
-                        }
-                    } else {
-                        targetNode = formatNodes[i];
-                    }
-                    marginLeft = parseInt(indent(targetNode), 10) - 30;
-                    indent(targetNode, marginLeft);
-                }
-            }
-        });
-        var IndentCommand = Command.extend({
-            init: function (options) {
-                var that = this;
-                options.formatter = {
-                    toggle: $.proxy(function (range) {
-                        var indentFormatter = new IndentFormatter();
-                        indentFormatter.immutables = this.editor && this.editor.options.immutables;
-                        indentFormatter.apply(RangeUtils.nodes(range));
-                    }, that)
-                };
-                Command.fn.init.call(this, options);
-            }
-        });
-        var OutdentCommand = Command.extend({
-            init: function (options) {
-                var that = this;
-                options.formatter = {
-                    toggle: $.proxy(function (range) {
-                        var indentFormatter = new IndentFormatter();
-                        indentFormatter.immutables = this.editor && this.editor.options.immutables;
-                        indentFormatter.remove(RangeUtils.nodes(range));
-                    }, that)
-                };
-                Command.fn.init.call(this, options);
-            }
-        });
-        var OutdentTool = Tool.extend({
-            init: function (options) {
-                Tool.fn.init.call(this, options);
-                this.finder = new BlockFormatFinder([{ tags: blockElements }]);
-            },
-            initialize: function (ui, options) {
-                Tool.fn.initialize.call(this, ui, options);
-                $.extend(this.options, { immutables: options.editor && options.editor.options.immutables });
-                ui.addClass('k-state-disabled');
-            },
-            update: function (ui, nodes) {
-                var suitableNodes = this.finder.findSuitable(nodes), isOutdentable, listParentsCount, i, len, suitable, immutableParent;
-                for (i = 0, len = suitableNodes.length; i < len; i++) {
-                    suitable = suitableNodes[i];
-                    if (this.options.immutables) {
-                        immutableParent = Editor.Immutables.immutableParent(suitable);
-                        if (immutableParent) {
-                            suitable = immutableParent;
-                        }
-                    }
-                    isOutdentable = indent(suitable);
-                    if (!isOutdentable) {
-                        listParentsCount = $(suitable).parents('ul,ol').length;
-                        isOutdentable = dom.is(suitable, 'li') && (listParentsCount > 1 || indent(suitable.parentNode)) || dom.ofType(suitable, [
-                            'ul',
-                            'ol'
-                        ]) && listParentsCount > 0;
-                    }
-                    if (isOutdentable) {
-                        ui.removeClass('k-state-disabled');
-                        return;
-                    }
-                }
-                ui.addClass('k-state-disabled').removeClass('k-state-hover');
-            }
-        });
-        extend(Editor, {
-            IndentFormatter: IndentFormatter,
-            IndentCommand: IndentCommand,
-            OutdentCommand: OutdentCommand,
-            OutdentTool: OutdentTool
-        });
-        registerTool('indent', new Tool({
-            command: IndentCommand,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Indent'
-            })
-        }));
-        registerTool('outdent', new OutdentTool({
-            command: OutdentCommand,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Outdent'
-            })
-        }));
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('editor/viewhtml', ['editor/indent'], f);
-}(function () {
-    (function ($, undefined) {
-        var kendo = window.kendo, extend = $.extend, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate;
-        var ViewHtmlCommand = Command.extend({
-            init: function (options) {
-                var cmd = this;
-                cmd.options = options;
-                Command.fn.init.call(cmd, options);
-                cmd.attributes = null;
-                cmd.async = true;
-            },
-            exec: function () {
-                var that = this, editor = that.editor, options = editor.options, messages = editor.options.messages, dialog = $(kendo.template(ViewHtmlCommand.template)(messages)).appendTo(document.body), textarea = '.k-editor-textarea', content;
-                options.serialization.immutables = editor.immutables;
-                content = ViewHtmlCommand.indent(editor.value());
-                options.serialization.immutables = undefined;
-                function apply(e) {
-                    options.deserialization.immutables = editor.immutables;
-                    editor.value(dialog.find(textarea).val());
-                    options.deserialization.immutables = undefined;
-                    close(e);
-                    if (that.change) {
-                        that.change();
-                    }
-                    editor.trigger('change');
-                }
-                function close(e) {
-                    e.preventDefault();
-                    dialog.data('kendoWindow').destroy();
-                    if (editor.immutables) {
-                        editor.immutables.serializedImmutables = {};
-                    }
-                    editor.focus();
-                }
-                this.createDialog(dialog, {
-                    title: messages.viewHtml,
-                    close: close,
-                    visible: false
-                }).find(textarea).val(content).end().find('.k-dialog-update').click(apply).end().find('.k-dialog-close').click(close).end().data('kendoWindow').center().open();
-                dialog.find(textarea).focus();
-            }
-        });
-        extend(ViewHtmlCommand, {
-            template: '<div class=\'k-editor-dialog k-popup-edit-form k-viewhtml-dialog\'>' + '<div class=\'k-edit-form-container\'></div>' + '<textarea class=\'k-editor-textarea k-input\'></textarea>' + '<div class=\'k-edit-buttons k-state-default\'>' + '<button class=\'k-dialog-update k-button k-primary\'>#: dialogUpdate #</button>' + '<button class=\'k-dialog-close k-button\'>#: dialogCancel #</button>' + '</div>' + '</div>' + '</div>',
-            indent: function (content) {
-                return content.replace(/<\/(p|li|ul|ol|h[1-6]|table|tr|td|th)>/gi, '</$1>\n').replace(/<(ul|ol)([^>]*)><li/gi, '<$1$2>\n<li').replace(/<br \/>/gi, '<br />\n').replace(/\n$/, '');
-            }
-        });
-        kendo.ui.editor.ViewHtmlCommand = ViewHtmlCommand;
-        Editor.EditorUtils.registerTool('viewHtml', new Tool({
-            command: ViewHtmlCommand,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'View HTML'
-            })
-        }));
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('editor/formatting', ['editor/viewhtml'], f);
-}(function () {
-    (function ($) {
-        var kendo = window.kendo, Editor = kendo.ui.editor, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, DelayedExecutionTool = Editor.DelayedExecutionTool, Command = Editor.Command, dom = Editor.Dom, EditorUtils = Editor.EditorUtils, RangeUtils = Editor.RangeUtils, registerTool = EditorUtils.registerTool;
-        var FormattingTool = DelayedExecutionTool.extend({
-            init: function (options) {
-                var that = this;
-                Tool.fn.init.call(that, kendo.deepExtend({}, that.options, options));
-                that.type = 'kendoSelectBox';
-                that.finder = {
-                    getFormat: function () {
-                        return '';
-                    }
-                };
-            },
-            options: {
-                items: [
-                    {
-                        text: 'Paragraph',
-                        value: 'p'
-                    },
-                    {
-                        text: 'Quotation',
-                        value: 'blockquote'
-                    },
-                    {
-                        text: 'Heading 1',
-                        value: 'h1'
-                    },
-                    {
-                        text: 'Heading 2',
-                        value: 'h2'
-                    },
-                    {
-                        text: 'Heading 3',
-                        value: 'h3'
-                    },
-                    {
-                        text: 'Heading 4',
-                        value: 'h4'
-                    },
-                    {
-                        text: 'Heading 5',
-                        value: 'h5'
-                    },
-                    {
-                        text: 'Heading 6',
-                        value: 'h6'
-                    }
-                ],
-                width: 110
-            },
-            toFormattingItem: function (item) {
-                var value = item.value;
-                if (!value) {
-                    return item;
-                }
-                if (item.tag || item.className) {
-                    return item;
-                }
-                var dot = value.indexOf('.');
-                if (dot === 0) {
-                    item.className = value.substring(1);
-                } else if (dot == -1) {
-                    item.tag = value;
-                } else {
-                    item.tag = value.substring(0, dot);
-                    item.className = value.substring(dot + 1);
-                }
-                return item;
-            },
-            command: function (args) {
-                var that = this;
-                var item = args.value;
-                item = this.toFormattingItem(item);
-                return new Editor.FormatCommand({
-                    range: args.range,
-                    formatter: function () {
-                        var formatter, tags = (item.tag || item.context || 'span').split(','), format = [{
-                                    tags: tags,
-                                    attr: { className: item.className || '' }
-                                }];
-                        if ($.inArray(tags[0], dom.inlineElements) >= 0) {
-                            formatter = new Editor.GreedyInlineFormatter(format);
-                        } else {
-                            formatter = new Editor.GreedyBlockFormatter(format);
-                        }
-                        formatter.editor = that.editor;
-                        return formatter;
-                    }
-                });
-            },
-            initialize: function (ui, initOptions) {
-                var editor = initOptions.editor;
-                var options = this.options;
-                var toolName = options.name;
-                var that = this;
-                that.editor = editor;
-                ui.width(options.width);
-                ui.kendoSelectBox({
-                    dataTextField: 'text',
-                    dataValueField: 'value',
-                    dataSource: options.items || editor.options[toolName],
-                    title: editor.options.messages[toolName],
-                    autoSize: true,
-                    change: function () {
-                        var dataItem = this.dataItem();
-                        if (dataItem) {
-                            Tool.exec(editor, toolName, dataItem.toJSON());
-                        }
-                    },
-                    dataBound: function () {
-                        var i, items = this.dataSource.data();
-                        for (i = 0; i < items.length; i++) {
-                            items[i] = that.toFormattingItem(items[i]);
-                        }
-                    },
-                    highlightFirst: false,
-                    template: kendo.template('<span unselectable="on" style="display:block;#=(data.style||"")#">#:data.text#</span>')
-                });
-                ui.addClass('k-decorated').closest('.k-widget').removeClass('k-' + toolName).find('*').addBack().attr('unselectable', 'on');
-            },
-            getFormattingValue: function (items, nodes) {
-                for (var i = 0; i < items.length; i++) {
-                    var item = items[i];
-                    var tag = item.tag || item.context || '';
-                    var className = item.className ? '.' + item.className : '';
-                    var selector = tag + className;
-                    var element = $(nodes[0]).closest(selector)[0];
-                    if (!element) {
-                        continue;
-                    }
-                    if (nodes.length == 1) {
-                        return item.value;
-                    }
-                    for (var n = 1; n < nodes.length; n++) {
-                        if (!$(nodes[n]).closest(selector)[0]) {
-                            break;
-                        } else if (n == nodes.length - 1) {
-                            return item.value;
-                        }
-                    }
-                }
-                return '';
-            },
-            update: function (ui, nodes) {
-                var selectBox = $(ui).data(this.type);
-                if (!selectBox) {
-                    return;
-                }
-                var dataSource = selectBox.dataSource, items = dataSource.data(), i, context, ancestor = dom.commonAncestor.apply(null, nodes);
-                if (ancestor != dom.closestEditable(ancestor) && this._ancestor == ancestor) {
-                    return;
-                } else {
-                    this._ancestor = ancestor;
-                }
-                for (i = 0; i < items.length; i++) {
-                    context = items[i].context;
-                    items[i].visible = !context || !!$(ancestor).closest(context).length;
-                }
-                dataSource.filter([{
-                        field: 'visible',
-                        operator: 'eq',
-                        value: true
-                    }]);
-                DelayedExecutionTool.fn.update.call(this, ui, nodes);
-                selectBox.value(this.getFormattingValue(dataSource.view(), nodes));
-                selectBox.wrapper.toggleClass('k-state-disabled', !dataSource.view().length);
-            },
-            destroy: function () {
-                this._ancestor = null;
-            }
-        });
-        var CleanFormatCommand = Command.extend({
-            exec: function () {
-                var range = this.lockRange(true);
-                this.tagsToClean = this.options.remove || 'strong,em,span,sup,sub,del,b,i,u,font'.split(',');
-                RangeUtils.wrapSelectedElements(range);
-                var nodes = RangeUtils.mapAll(range, function (node) {
-                    return node;
-                });
-                for (var c = nodes.length - 1; c >= 0; c--) {
-                    var node = nodes[c];
-                    if (!this.immutableParent(node)) {
-                        this.clean(node);
-                    }
-                }
-                this.releaseRange(range);
-            },
-            clean: function (node) {
-                if (!node || dom.isMarker(node)) {
-                    return;
-                }
-                var name = dom.name(node);
-                if (name == 'ul' || name == 'ol') {
-                    var listFormatter = new Editor.ListFormatter(name);
-                    var prev = node.previousSibling;
-                    var next = node.nextSibling;
-                    listFormatter.unwrap(node);
-                    for (; prev && prev != next; prev = prev.nextSibling) {
-                        this.clean(prev);
-                    }
-                } else if (name == 'blockquote') {
-                    dom.changeTag(node, 'p');
-                } else if (node.nodeType == 1 && !dom.insignificant(node)) {
-                    for (var i = node.childNodes.length - 1; i >= 0; i--) {
-                        this.clean(node.childNodes[i]);
-                    }
-                    node.removeAttribute('style');
-                    node.removeAttribute('class');
-                } else {
-                    unwrapListItem(node);
-                }
-                if ($.inArray(name, this.tagsToClean) > -1) {
-                    dom.unwrap(node);
-                }
-            },
-            immutableParent: function (node) {
-                return this.immutables() && Editor.Immutables.immutableParent(node);
-            }
-        });
-        function unwrapListItem(node) {
-            var li = dom.closestEditableOfType(node, ['li']);
-            if (li) {
-                var listFormatter = new Editor.ListFormatter(dom.name(li.parentNode));
-                var range = kendo.ui.editor.W3CRange.fromNode(node);
-                range.selectNode(li);
-                listFormatter.toggle(range);
-            }
-        }
-        $.extend(Editor, {
-            FormattingTool: FormattingTool,
-            CleanFormatCommand: CleanFormatCommand
-        });
-        registerTool('formatting', new FormattingTool({
-            template: new ToolTemplate({
-                template: EditorUtils.dropDownListTemplate,
-                title: 'Format'
-            })
-        }));
-        registerTool('cleanFormatting', new Tool({
-            command: CleanFormatCommand,
-            template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
-                title: 'Clean formatting'
-            })
-        }));
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('editor/toolbar', ['editor/formatting'], f);
+    define('editor/toolbar', ['editor/range'], f);
 }(function () {
     (function ($, undefined) {
         var kendo = window.kendo;
@@ -8403,9 +4164,9 @@
         var proxy = $.proxy;
         var keys = kendo.keys;
         var NS = '.kendoEditor';
-        var EditorUtils = kendo.ui.editor.EditorUtils;
-        var ToolTemplate = kendo.ui.editor.ToolTemplate;
-        var Tool = kendo.ui.editor.Tool;
+        var EditorUtils = editorNS.EditorUtils;
+        var ToolTemplate = editorNS.ToolTemplate;
+        var Tool = editorNS.Tool;
         var outerWidth = kendo._outerWidth;
         var outerHeight = kendo._outerHeight;
         var OVERFLOWANCHOR = 'overflowAnchor';
@@ -9015,7 +4776,7 @@
                 return 'custom';
             },
             refreshTools: function () {
-                var that = this, editorNS = kendo.ui.editor, editor = that._editor, range = editor.getRange(), nodes = editorNS.RangeUtils.textNodes(range), immutables = editor.options.immutables, immutablesContext = that._immutablesContext(range);
+                var that = this, editor = that._editor, range = editor.getRange(), nodes = editorNS.RangeUtils.textNodes(range), immutables = editor.options.immutables, immutablesContext = that._immutablesContext(range);
                 nodes = editorNS.Dom.filterBy(nodes, editorNS.Dom.htmlIndentSpace, true);
                 if (!nodes.length) {
                     nodes = [range.startContainer];
@@ -9036,7 +4797,6 @@
             },
             _immutablesContext: function (range) {
                 if (this._editor.options.immutables) {
-                    var editorNS = kendo.ui.editor;
                     if (range.collapsed) {
                         return editorNS.Immutables.immutablesContext(range);
                     } else {
@@ -9178,7 +4938,3209 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('editor/tables', ['editor/toolbar'], f);
+    define('editor/plugins/viewhtml', ['editor/command'], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo, extend = $.extend, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate;
+        var ViewHtmlCommand = Command.extend({
+            init: function (options) {
+                var cmd = this;
+                cmd.options = options;
+                Command.fn.init.call(cmd, options);
+                cmd.attributes = null;
+                cmd.async = true;
+            },
+            exec: function () {
+                var that = this, editor = that.editor, options = editor.options, messages = editor.options.messages, dialog = $(kendo.template(ViewHtmlCommand.template)(messages)).appendTo(document.body), textarea = '.k-editor-textarea', content;
+                options.serialization.immutables = editor.immutables;
+                content = ViewHtmlCommand.indent(editor.value());
+                options.serialization.immutables = undefined;
+                function apply(e) {
+                    options.deserialization.immutables = editor.immutables;
+                    editor.value(dialog.find(textarea).val());
+                    options.deserialization.immutables = undefined;
+                    close(e);
+                    if (that.change) {
+                        that.change();
+                    }
+                    editor.trigger('change');
+                }
+                function close(e) {
+                    e.preventDefault();
+                    dialog.data('kendoWindow').destroy();
+                    if (editor.immutables) {
+                        editor.immutables.serializedImmutables = {};
+                    }
+                    editor.focus();
+                }
+                this.createDialog(dialog, {
+                    title: messages.viewHtml,
+                    close: close,
+                    visible: false
+                }).find(textarea).val(content).end().find('.k-dialog-update').click(apply).end().find('.k-dialog-close').click(close).end().data('kendoWindow').center().open();
+                dialog.find(textarea).focus();
+            }
+        });
+        extend(ViewHtmlCommand, {
+            template: '<div class=\'k-editor-dialog k-popup-edit-form k-viewhtml-dialog\'>' + '<div class=\'k-edit-form-container\'></div>' + '<textarea class=\'k-editor-textarea k-input\'></textarea>' + '<div class=\'k-edit-buttons k-state-default\'>' + '<button class=\'k-dialog-update k-button k-primary\'>#: dialogUpdate #</button>' + '<button class=\'k-dialog-close k-button\'>#: dialogCancel #</button>' + '</div>' + '</div>' + '</div>',
+            indent: function (content) {
+                return content.replace(/<\/(p|li|ul|ol|h[1-6]|table|tr|td|th)>/gi, '</$1>\n').replace(/<(ul|ol)([^>]*)><li/gi, '<$1$2>\n<li').replace(/<br \/>/gi, '<br />\n').replace(/\n$/, '');
+            }
+        });
+        kendo.ui.editor.ViewHtmlCommand = ViewHtmlCommand;
+        Editor.EditorUtils.registerTool('viewHtml', new Tool({
+            command: ViewHtmlCommand,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'View HTML'
+            })
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/format', ['editor/command'], f);
+}(function () {
+    (function ($) {
+        var kendo = window.kendo, extend = $.extend, Editor = kendo.ui.editor, Tool = Editor.Tool, Command = Editor.Command, EditorUtils = Editor.EditorUtils;
+        var FormatCommand = Command.extend({
+            init: function (options) {
+                options.formatter = options.formatter();
+                var finder = options.formatter.finder;
+                if (finder && EditorUtils.formatByName('immutable', finder.format)) {
+                    finder._initOptions({ immutables: options.immutables });
+                }
+                Command.fn.init.call(this, options);
+            }
+        });
+        var FormatTool = Tool.extend({
+            init: function (options) {
+                Tool.fn.init.call(this, options);
+            },
+            command: function (commandArguments) {
+                var that = this;
+                return new FormatCommand(extend(commandArguments, { formatter: that.options.formatter }));
+            },
+            update: function (ui, nodes) {
+                var isFormatted = this.options.finder.isFormatted(nodes);
+                ui.toggleClass('k-state-selected', isFormatted);
+                ui.attr('aria-pressed', isFormatted);
+            }
+        });
+        $.extend(Editor, {
+            FormatCommand: FormatCommand,
+            FormatTool: FormatTool
+        });
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/inlineformat', ['editor/plugins/format'], f);
+}(function () {
+    (function ($) {
+        var kendo = window.kendo, Class = kendo.Class, Editor = kendo.ui.editor, formats = kendo.ui.Editor.fn.options.formats, EditorUtils = Editor.EditorUtils, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, FormatTool = Editor.FormatTool, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, extend = $.extend, registerTool = Editor.EditorUtils.registerTool, registerFormat = Editor.EditorUtils.registerFormat, preventDefault = function (ev) {
+                ev.preventDefault();
+            }, MOUSEDOWN_NS = 'mousedown.kendoEditor', KEYDOWN_NS = 'keydown.kendoEditor', KMARKER = 'k-marker';
+        var InlineFormatFinder = Class.extend({
+            init: function (format) {
+                this.format = format;
+            },
+            numberOfSiblings: function (referenceNode) {
+                var textNodesCount = 0, elementNodesCount = 0, markerCount = 0, parentNode = referenceNode.parentNode, node;
+                for (node = parentNode.firstChild; node; node = node.nextSibling) {
+                    if (node != referenceNode) {
+                        if (node.className == KMARKER) {
+                            markerCount++;
+                        } else if (node.nodeType == 3) {
+                            textNodesCount++;
+                        } else {
+                            elementNodesCount++;
+                        }
+                    }
+                }
+                if (markerCount > 1 && parentNode.firstChild.className == KMARKER && parentNode.lastChild.className == KMARKER) {
+                    return 0;
+                } else {
+                    return elementNodesCount + textNodesCount;
+                }
+            },
+            findSuitable: function (sourceNode, skip) {
+                if (!skip && this.numberOfSiblings(sourceNode) > 0) {
+                    return null;
+                }
+                var node = sourceNode.parentNode;
+                var tags = this.format[0].tags;
+                while (!dom.ofType(node, tags)) {
+                    if (this.numberOfSiblings(node) > 0) {
+                        return null;
+                    }
+                    node = node.parentNode;
+                }
+                return node;
+            },
+            findFormat: function (sourceNode) {
+                var format = this.format, attrEquals = dom.attrEquals, i, len, node, tags, attributes;
+                for (i = 0, len = format.length; i < len; i++) {
+                    node = sourceNode;
+                    tags = format[i].tags;
+                    attributes = format[i].attr;
+                    if (node && dom.ofType(node, tags) && attrEquals(node, attributes)) {
+                        return node;
+                    }
+                    while (node) {
+                        node = dom.parentOfType(node, tags);
+                        if (node && attrEquals(node, attributes)) {
+                            return node;
+                        }
+                    }
+                }
+                return null;
+            },
+            isFormatted: function (nodes) {
+                var i, len;
+                for (i = 0, len = nodes.length; i < len; i++) {
+                    if (this.findFormat(nodes[i])) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+        var InlineFormatter = Class.extend({
+            init: function (format, values) {
+                this.finder = new InlineFormatFinder(format);
+                this.attributes = extend({}, format[0].attr, values);
+                this.tag = format[0].tags[0];
+            },
+            wrap: function (node) {
+                return dom.wrap(node, dom.create(node.ownerDocument, this.tag, this.attributes));
+            },
+            activate: function (range, nodes) {
+                if (this.finder.isFormatted(nodes)) {
+                    this.split(range);
+                    this.remove(nodes);
+                } else {
+                    this.apply(nodes);
+                }
+            },
+            toggle: function (range) {
+                var textNodes = this.immutables() ? RangeUtils.editableTextNodes : RangeUtils.textNodes;
+                var nodes = textNodes(range);
+                if (nodes.length > 0) {
+                    this.activate(range, nodes);
+                }
+            },
+            immutables: function () {
+                return this.editor && this.editor.options.immutables;
+            },
+            apply: function (nodes) {
+                var formatNodes = [];
+                var i, l, node, formatNode;
+                var attributes = this.attributes;
+                var styleAttr = attributes ? attributes.style || {} : {};
+                for (i = 0, l = nodes.length; i < l; i++) {
+                    node = nodes[i];
+                    formatNode = this.finder.findSuitable(node);
+                    if (formatNode) {
+                        if (dom.is(formatNode, 'font')) {
+                            if (styleAttr.color) {
+                                formatNode.removeAttribute('color');
+                            }
+                            if (styleAttr.fontName) {
+                                formatNode.removeAttribute('face');
+                            }
+                            if (styleAttr.fontSize) {
+                                formatNode.removeAttribute('size');
+                            }
+                        }
+                        dom.attr(formatNode, attributes);
+                    } else {
+                        while (!dom.isBlock(node.parentNode) && node.parentNode.childNodes.length == 1 && node.parentNode.contentEditable !== 'true') {
+                            node = node.parentNode;
+                        }
+                        formatNode = this.wrap(node);
+                    }
+                    formatNodes.push(formatNode);
+                }
+                this.consolidate(formatNodes);
+            },
+            remove: function (nodes) {
+                var i, l, formatNode;
+                for (i = 0, l = nodes.length; i < l; i++) {
+                    formatNode = this.finder.findFormat(nodes[i]);
+                    if (formatNode) {
+                        if (this.attributes && this.attributes.style) {
+                            dom.unstyle(formatNode, this.attributes.style);
+                            if (!formatNode.style.cssText && !formatNode.attributes['class']) {
+                                dom.unwrap(formatNode);
+                            }
+                        } else {
+                            dom.unwrap(formatNode);
+                        }
+                    }
+                }
+            },
+            split: function (range) {
+                var nodes = RangeUtils.textNodes(range);
+                var l = nodes.length;
+                var i, formatNode;
+                if (l > 0) {
+                    for (i = 0; i < l; i++) {
+                        formatNode = this.finder.findFormat(nodes[i]);
+                        if (formatNode) {
+                            RangeUtils.split(range, formatNode, true);
+                        }
+                    }
+                }
+            },
+            consolidate: function (nodes) {
+                var node, last;
+                while (nodes.length > 1) {
+                    node = nodes.pop();
+                    last = nodes[nodes.length - 1];
+                    if (node.previousSibling && node.previousSibling.className == KMARKER) {
+                        last.appendChild(node.previousSibling);
+                    }
+                    if (node.tagName == last.tagName && node.previousSibling == last && node.style.cssText == last.style.cssText) {
+                        while (node.firstChild) {
+                            last.appendChild(node.firstChild);
+                        }
+                        dom.remove(node);
+                    }
+                }
+            }
+        });
+        var GreedyInlineFormatFinder = InlineFormatFinder.extend({
+            init: function (format, greedyProperty) {
+                this.format = format;
+                this.greedyProperty = greedyProperty;
+                InlineFormatFinder.fn.init.call(this, format);
+            },
+            getInlineCssValue: function (node) {
+                var attributes = node.attributes;
+                var trim = $.trim;
+                var i, l, attribute, name, attributeValue, css, pair, cssIndex, len;
+                var propertyAndValue, property, value;
+                if (!attributes) {
+                    return;
+                }
+                for (i = 0, l = attributes.length; i < l; i++) {
+                    attribute = attributes[i];
+                    name = attribute.nodeName;
+                    attributeValue = attribute.nodeValue;
+                    if (attribute.specified && name == 'style') {
+                        css = trim(attributeValue || node.style.cssText).split(';');
+                        for (cssIndex = 0, len = css.length; cssIndex < len; cssIndex++) {
+                            pair = css[cssIndex];
+                            if (pair.length) {
+                                propertyAndValue = pair.split(':');
+                                property = trim(propertyAndValue[0].toLowerCase());
+                                value = trim(propertyAndValue[1]);
+                                if (property != this.greedyProperty) {
+                                    continue;
+                                }
+                                return property.indexOf('color') >= 0 ? dom.toHex(value) : value;
+                            }
+                        }
+                    }
+                }
+            },
+            getFormatInner: function (node) {
+                var $node = $(dom.isDataNode(node) ? node.parentNode : node);
+                var parents = $node.parentsUntil('[contentEditable]').addBack().toArray().reverse();
+                var i, len, value;
+                for (i = 0, len = parents.length; i < len; i++) {
+                    value = this.greedyProperty == 'className' ? parents[i].className : this.getInlineCssValue(parents[i]);
+                    if (value) {
+                        return value;
+                    }
+                }
+                return 'inherit';
+            },
+            getFormat: function (nodes) {
+                var result = this.getFormatInner(nodes[0]), i, len;
+                for (i = 1, len = nodes.length; i < len; i++) {
+                    if (result != this.getFormatInner(nodes[i])) {
+                        return '';
+                    }
+                }
+                return result;
+            },
+            isFormatted: function (nodes) {
+                return this.getFormat(nodes) !== '';
+            }
+        });
+        var GreedyInlineFormatter = InlineFormatter.extend({
+            init: function (format, values, greedyProperty) {
+                InlineFormatter.fn.init.call(this, format, values);
+                this.values = values;
+                this.finder = new GreedyInlineFormatFinder(format, greedyProperty);
+                if (greedyProperty) {
+                    this.greedyProperty = kendo.toCamelCase(greedyProperty);
+                }
+            },
+            activate: function (range, nodes) {
+                var greedyProperty = this.greedyProperty;
+                var action = 'apply';
+                this.split(range);
+                if (greedyProperty && this.values.style[greedyProperty] == 'inherit') {
+                    action = 'remove';
+                }
+                this[action](nodes);
+            }
+        });
+        var InlineFormatTool = FormatTool.extend({
+            init: function (options) {
+                FormatTool.fn.init.call(this, extend(options, {
+                    finder: new InlineFormatFinder(options.format),
+                    formatter: function () {
+                        return new InlineFormatter(options.format);
+                    }
+                }));
+            }
+        });
+        var DelayedExecutionTool = Tool.extend({
+            update: function (ui, nodes) {
+                var list = ui.data(this.type);
+                list.close();
+                list.value(this.finder.getFormat(nodes));
+            }
+        });
+        var FontTool = DelayedExecutionTool.extend({
+            init: function (options) {
+                Tool.fn.init.call(this, options);
+                this.type = kendo.support.browser.msie || kendo.support.touch ? 'kendoDropDownList' : 'kendoComboBox';
+                this.format = [{
+                        tags: [
+                            'span',
+                            'font'
+                        ]
+                    }];
+                this.finder = new GreedyInlineFormatFinder(this.format, options.cssAttr);
+            },
+            command: function (commandArguments) {
+                var options = this.options, format = this.format, style = {};
+                return new Editor.FormatCommand(extend(commandArguments, {
+                    formatter: function () {
+                        style[options.domAttr] = commandArguments.value;
+                        return new GreedyInlineFormatter(format, { style: style }, options.cssAttr);
+                    }
+                }));
+            },
+            initialize: function (ui, initOptions) {
+                var editor = initOptions.editor, options = this.options, toolName = options.name, dataSource, range, defaultValue = [];
+                if (options.defaultValue) {
+                    defaultValue = [{
+                            text: editor.options.messages[options.defaultValue[0].text],
+                            value: options.defaultValue[0].value
+                        }];
+                }
+                dataSource = defaultValue.concat(options.items ? options.items : editor.options[toolName] || []);
+                ui.attr({ title: initOptions.title });
+                ui[this.type]({
+                    dataTextField: 'text',
+                    dataValueField: 'value',
+                    dataSource: dataSource,
+                    change: function () {
+                        editor._range = range;
+                        Tool.exec(editor, toolName, this.value());
+                    },
+                    close: function () {
+                        setTimeout(function () {
+                            editor._deleteSavedRange();
+                        }, 0);
+                    },
+                    highlightFirst: false
+                });
+                ui.closest('.k-widget').removeClass('k-' + toolName).find('*').addBack().attr('unselectable', 'on');
+                var widget = ui.data(this.type);
+                widget.value('inherit');
+                widget.wrapper.on(MOUSEDOWN_NS, '.k-select,.k-input', function () {
+                    var newRange = editor.getRange();
+                    range = editor._containsRange(newRange) ? newRange : range;
+                }).on(KEYDOWN_NS, function (e) {
+                    if (e.keyCode === kendo.keys.ENTER) {
+                        editor._deleteSavedRange();
+                        e.preventDefault();
+                    }
+                });
+            }
+        });
+        var ColorTool = Tool.extend({
+            init: function (options) {
+                Tool.fn.init.call(this, options);
+                this.format = [{
+                        tags: [
+                            'span',
+                            'font'
+                        ]
+                    }];
+                this.finder = new GreedyInlineFormatFinder(this.format, options.cssAttr);
+            },
+            options: { palette: 'websafe' },
+            update: function () {
+                this._widget.close();
+            },
+            command: function (commandArguments) {
+                var options = this.options, format = this.format, style = {};
+                return new Editor.FormatCommand(extend(commandArguments, {
+                    formatter: function () {
+                        style[options.domAttr] = commandArguments.value;
+                        return new GreedyInlineFormatter(format, { style: style }, options.cssAttr);
+                    }
+                }));
+            },
+            initialize: function (ui, initOptions) {
+                var editor = initOptions.editor, toolName = this.name, options = extend({}, ColorTool.fn.options, this.options), palette = options.palette, columns = options.columns;
+                ui = this._widget = new kendo.ui.ColorPicker(ui, {
+                    toolIcon: 'k-icon k-i-' + EditorUtils.getToolCssClass(options.name),
+                    palette: palette,
+                    columns: columns,
+                    change: function () {
+                        var color = ui.value();
+                        if (color) {
+                            Tool.exec(editor, toolName, color);
+                        }
+                        editor.focus();
+                    },
+                    open: function (e) {
+                        var picker = e.sender;
+                        picker.value(null);
+                        picker._popup.element.on(MOUSEDOWN_NS, preventDefault);
+                        if (!picker._popup.element.is('[unselectable=\'on\']')) {
+                            picker._popup.element.attr({ unselectable: 'on' }).find('*').attr('unselectable', 'on');
+                        }
+                    },
+                    close: function (e) {
+                        e.sender._popup.element.off(MOUSEDOWN_NS);
+                    },
+                    activate: function (e) {
+                        e.preventDefault();
+                        ui.trigger('change');
+                    }
+                });
+                ui.wrapper.attr({
+                    title: initOptions.title,
+                    unselectable: 'on'
+                }).find('*').attr('unselectable', 'on');
+            }
+        });
+        extend(Editor, {
+            InlineFormatFinder: InlineFormatFinder,
+            InlineFormatter: InlineFormatter,
+            DelayedExecutionTool: DelayedExecutionTool,
+            GreedyInlineFormatFinder: GreedyInlineFormatFinder,
+            GreedyInlineFormatter: GreedyInlineFormatter,
+            InlineFormatTool: InlineFormatTool,
+            FontTool: FontTool,
+            ColorTool: ColorTool
+        });
+        registerFormat('bold', [
+            {
+                tags: [
+                    'strong',
+                    'b'
+                ]
+            },
+            {
+                tags: ['span'],
+                attr: { style: { fontWeight: 'bold' } }
+            }
+        ]);
+        registerTool('bold', new InlineFormatTool({
+            key: 'B',
+            ctrl: true,
+            format: formats.bold,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Bold'
+            })
+        }));
+        registerFormat('italic', [
+            {
+                tags: [
+                    'em',
+                    'i'
+                ]
+            },
+            {
+                tags: ['span'],
+                attr: { style: { fontStyle: 'italic' } }
+            }
+        ]);
+        registerTool('italic', new InlineFormatTool({
+            key: 'I',
+            ctrl: true,
+            format: formats.italic,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Italic'
+            })
+        }));
+        registerFormat('underline', [
+            {
+                tags: ['span'],
+                attr: { style: { textDecoration: 'underline' } }
+            },
+            { tags: ['u'] }
+        ]);
+        registerTool('underline', new InlineFormatTool({
+            key: 'U',
+            ctrl: true,
+            format: formats.underline,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Underline'
+            })
+        }));
+        registerFormat('strikethrough', [
+            {
+                tags: [
+                    'del',
+                    'strike'
+                ]
+            },
+            {
+                tags: ['span'],
+                attr: { style: { textDecoration: 'line-through' } }
+            }
+        ]);
+        registerTool('strikethrough', new InlineFormatTool({
+            format: formats.strikethrough,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Strikethrough'
+            })
+        }));
+        registerFormat('superscript', [{ tags: ['sup'] }]);
+        registerTool('superscript', new InlineFormatTool({
+            format: formats.superscript,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Superscript'
+            })
+        }));
+        registerFormat('subscript', [{ tags: ['sub'] }]);
+        registerTool('subscript', new InlineFormatTool({
+            format: formats.subscript,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Subscript'
+            })
+        }));
+        registerTool('foreColor', new ColorTool({
+            cssAttr: 'color',
+            domAttr: 'color',
+            name: 'foreColor',
+            template: new ToolTemplate({
+                template: EditorUtils.colorPickerTemplate,
+                title: 'Color'
+            })
+        }));
+        registerTool('backColor', new ColorTool({
+            cssAttr: 'background-color',
+            domAttr: 'backgroundColor',
+            name: 'backColor',
+            template: new ToolTemplate({
+                template: EditorUtils.colorPickerTemplate,
+                title: 'Background Color'
+            })
+        }));
+        registerTool('fontName', new FontTool({
+            cssAttr: 'font-family',
+            domAttr: 'fontFamily',
+            name: 'fontName',
+            defaultValue: [{
+                    text: 'fontNameInherit',
+                    value: 'inherit'
+                }],
+            template: new ToolTemplate({
+                template: EditorUtils.comboBoxTemplate,
+                title: 'Font Name'
+            })
+        }));
+        registerTool('fontSize', new FontTool({
+            cssAttr: 'font-size',
+            domAttr: 'fontSize',
+            name: 'fontSize',
+            defaultValue: [{
+                    text: 'fontSizeInherit',
+                    value: 'inherit'
+                }],
+            template: new ToolTemplate({
+                template: EditorUtils.comboBoxTemplate,
+                title: 'Font Size'
+            })
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/link', ['editor/plugins/inlineformat'], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo, Class = kendo.Class, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, InlineFormatter = Editor.InlineFormatter, InlineFormatFinder = Editor.InlineFormatFinder, textNodes = RangeUtils.textNodes, editableTextNodes = RangeUtils.editableTextNodes, registerTool = Editor.EditorUtils.registerTool, keys = kendo.keys;
+        var HTTP_PROTOCOL = 'http://';
+        var protocolRegExp = /^\w*:\/\//;
+        var endLinkCharsRegExp = /[\w\/\$\-_\*\?]/i;
+        var LinkFormatFinder = Class.extend({
+            findSuitable: function (sourceNode) {
+                return dom.parentOfType(sourceNode, ['a']);
+            }
+        });
+        var LinkFormatter = Class.extend({
+            init: function () {
+                this.finder = new LinkFormatFinder();
+            },
+            apply: function (range, attributes) {
+                var nodes = this.immutables ? editableTextNodes(range) : textNodes(range);
+                var markers, doc, formatter, a, parent;
+                if (attributes.innerHTML) {
+                    doc = RangeUtils.documentFromRange(range);
+                    markers = RangeUtils.getMarkers(range);
+                    range.deleteContents();
+                    a = dom.create(doc, 'a', attributes);
+                    range.insertNode(a);
+                    parent = a.parentNode;
+                    if (dom.name(parent) == 'a') {
+                        dom.insertAfter(a, parent);
+                    }
+                    if (dom.emptyNode(parent)) {
+                        dom.remove(parent);
+                    }
+                    var ref = a;
+                    for (var i = 0; i < markers.length; i++) {
+                        dom.insertAfter(markers[i], ref);
+                        ref = markers[i];
+                    }
+                    if (markers.length) {
+                        dom.insertBefore(doc.createTextNode('\uFEFF'), markers[1]);
+                        dom.insertAfter(doc.createTextNode('\uFEFF'), markers[1]);
+                        range.setStartBefore(markers[0]);
+                        range.setEndAfter(markers[markers.length - 1]);
+                    }
+                } else {
+                    formatter = new InlineFormatter([{ tags: ['a'] }], attributes);
+                    formatter.finder = this.finder;
+                    formatter.apply(nodes);
+                }
+            }
+        });
+        var UnlinkCommand = Command.extend({
+            init: function (options) {
+                var that = this;
+                options.formatter = {
+                    toggle: function (range) {
+                        var nodes = that.immutables() ? editableTextNodes(range) : textNodes(range);
+                        new InlineFormatter([{ tags: ['a'] }]).remove(nodes);
+                    }
+                };
+                this.options = options;
+                Command.fn.init.call(this, options);
+            }
+        });
+        var LinkCommand = Command.extend({
+            init: function (options) {
+                var that;
+                this.options = options;
+                Command.fn.init.call(this, options);
+                this.formatter = new LinkFormatter();
+                if (!options.url) {
+                    this.attributes = null;
+                    this.async = true;
+                } else {
+                    this.exec = function () {
+                        this.formatter.immutables = that && that.immutables();
+                        this.formatter.apply(options.range, {
+                            href: options.url,
+                            innerHTML: options.text || options.url,
+                            target: options.target
+                        });
+                    };
+                }
+            },
+            _dialogTemplate: function () {
+                return kendo.template('<div class="k-editor-dialog k-popup-edit-form">' + '<div class="k-edit-form-container">' + '<div class=\'k-edit-label\'>' + '<label for=\'k-editor-link-url\'>#: messages.linkWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type=\'text\' class=\'k-input k-textbox\' id=\'k-editor-link-url\'>' + '</div>' + '<div class=\'k-edit-label k-editor-link-text-row\'>' + '<label for=\'k-editor-link-text\'>#: messages.linkText #</label>' + '</div>' + '<div class=\'k-edit-field k-editor-link-text-row\'>' + '<input type=\'text\' class=\'k-input k-textbox\' id=\'k-editor-link-text\'>' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for=\'k-editor-link-title\'>#: messages.linkToolTip #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type=\'text\' class=\'k-input k-textbox\' id=\'k-editor-link-title\'>' + '</div>' + '<div class=\'k-edit-label\'></div>' + '<div class=\'k-edit-field\'>' + '<input type=\'checkbox\' class=\'k-checkbox\' id=\'k-editor-link-target\'>' + '<label for=\'k-editor-link-target\' class=\'k-checkbox-label\'>#: messages.linkOpenInNewWindow #</label>' + '</div>' + '<div class=\'k-edit-buttons k-state-default\'>' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>')({ messages: this.editor.options.messages });
+            },
+            exec: function () {
+                var messages = this.editor.options.messages;
+                this._initialText = '';
+                this._range = this.lockRange(true);
+                this.formatter.immutables = this.immutables();
+                var nodes = textNodes(this._range);
+                var a = nodes.length ? this.formatter.finder.findSuitable(nodes[0]) : null;
+                var img = nodes.length && dom.name(nodes[0]) == 'img';
+                var dialog = this.createDialog(this._dialogTemplate(), {
+                    title: messages.createLink,
+                    close: proxy(this._close, this),
+                    visible: false
+                });
+                if (a) {
+                    this._range.selectNodeContents(a);
+                    nodes = textNodes(this._range);
+                }
+                this._initialText = this.linkText(nodes);
+                dialog.find('.k-dialog-insert').click(proxy(this._apply, this)).end().find('.k-dialog-close').click(proxy(this._close, this)).end().find('.k-edit-field input').keydown(proxy(this._keydown, this)).end().find('#k-editor-link-url').val(this.linkUrl(a)).end().find('#k-editor-link-text').val(this._initialText).end().find('#k-editor-link-title').val(a ? a.title : '').end().find('#k-editor-link-target').attr('checked', a ? a.target == '_blank' : false).end().find('.k-editor-link-text-row').toggle(!img);
+                this._dialog = dialog.data('kendoWindow').center().open();
+                $('#k-editor-link-url', dialog).focus().select();
+            },
+            _keydown: function (e) {
+                var keys = kendo.keys;
+                if (e.keyCode == keys.ENTER) {
+                    this._apply(e);
+                } else if (e.keyCode == keys.ESC) {
+                    this._close(e);
+                }
+            },
+            _apply: function (e) {
+                var element = this._dialog.element;
+                var href = $('#k-editor-link-url', element).val();
+                var title, text, target;
+                var textInput = $('#k-editor-link-text', element);
+                if (href && href != HTTP_PROTOCOL) {
+                    if (href.indexOf('@') > 0 && !/^(\w+:)|(\/\/)/i.test(href)) {
+                        href = 'mailto:' + href;
+                    }
+                    this.attributes = { href: href };
+                    title = $('#k-editor-link-title', element).val();
+                    if (title) {
+                        this.attributes.title = title;
+                    }
+                    if (textInput.is(':visible')) {
+                        text = textInput.val();
+                        if (!text && !this._initialText) {
+                            this.attributes.innerHTML = href;
+                        } else if (text && text !== this._initialText) {
+                            this.attributes.innerHTML = dom.stripBom(text);
+                        }
+                    }
+                    target = $('#k-editor-link-target', element).is(':checked');
+                    this.attributes.target = target ? '_blank' : null;
+                    this.formatter.apply(this._range, this.attributes);
+                }
+                this._close(e);
+                if (this.change) {
+                    this.change();
+                }
+            },
+            _close: function (e) {
+                e.preventDefault();
+                this._dialog.destroy();
+                dom.windowFromDocument(RangeUtils.documentFromRange(this._range)).focus();
+                this.releaseRange(this._range);
+            },
+            linkUrl: function (anchor) {
+                if (anchor) {
+                    return anchor.getAttribute('href', 2);
+                }
+                return HTTP_PROTOCOL;
+            },
+            linkText: function (nodes) {
+                var text = '';
+                var i;
+                for (i = 0; i < nodes.length; i++) {
+                    text += nodes[i].nodeValue;
+                }
+                return dom.stripBom(text || '');
+            },
+            redo: function () {
+                var range = this.lockRange(true);
+                this.formatter.apply(range, this.attributes);
+                this.releaseRange(range);
+            }
+        });
+        var AutoLinkCommand = Command.extend({
+            init: function (options) {
+                Command.fn.init.call(this, options);
+                this.formatter = new LinkFormatter();
+            },
+            exec: function () {
+                var detectedLink = this.detectLink();
+                if (!detectedLink) {
+                    return;
+                }
+                var range = this.getRange();
+                var linkMarker = new kendo.ui.editor.Marker();
+                var linkRange = range.cloneRange();
+                linkRange.setStart(detectedLink.start.node, detectedLink.start.offset);
+                linkRange.setEnd(detectedLink.end.node, detectedLink.end.offset);
+                range = this.lockRange();
+                linkMarker.add(linkRange);
+                this.formatter.apply(linkRange, { href: this._ensureWebProtocol(detectedLink.text) });
+                linkMarker.remove(linkRange);
+                this.releaseRange(range);
+            },
+            detectLink: function () {
+                var range = this.getRange();
+                var startNode = range.startContainer;
+                var startOffset = range.startOffset;
+                var prev = startNode.previousSibling;
+                if (!prev && (dom.isBom(startNode) && !startNode.nextSibling || !startOffset && dom.isDataNode(startNode))) {
+                    startNode = startNode.parentNode;
+                    startOffset = 0;
+                }
+                var traverser = new LeftDomTextTraverser({
+                    node: startNode,
+                    offset: startOffset,
+                    cancelAtNode: function (node) {
+                        return node && dom.name(node) === 'a';
+                    }
+                });
+                var detection = new DomTextLinkDetection(traverser);
+                return detection.detectLink();
+            },
+            changesContent: function () {
+                return !!this.detectLink();
+            },
+            _ensureWebProtocol: function (linkText) {
+                var hasProtocol = this._hasProtocolPrefix(linkText);
+                return hasProtocol ? linkText : this._prefixWithWebProtocol(linkText);
+            },
+            _hasProtocolPrefix: function (linkText) {
+                return protocolRegExp.test(linkText);
+            },
+            _prefixWithWebProtocol: function (linkText) {
+                return HTTP_PROTOCOL + linkText;
+            }
+        });
+        var UnlinkTool = Tool.extend({
+            init: function (options) {
+                this.options = options;
+                this.finder = new InlineFormatFinder([{ tags: ['a'] }]);
+                Tool.fn.init.call(this, $.extend(options, { command: UnlinkCommand }));
+            },
+            initialize: function (ui, options) {
+                Tool.fn.initialize.call(this, ui, options);
+                ui.addClass('k-state-disabled');
+            },
+            update: function (ui, nodes) {
+                ui.toggleClass('k-state-disabled', !this.finder.isFormatted(nodes)).removeClass('k-state-hover');
+            }
+        });
+        var DomTextLinkDetection = Class.extend({
+            init: function (traverser) {
+                this.traverser = traverser;
+                this.start = DomPos();
+                this.end = DomPos();
+                this.text = '';
+            },
+            detectLink: function () {
+                var node = this.traverser.node;
+                var offset = this.traverser.offset;
+                if (dom.isDataNode(node)) {
+                    var text = node.data.substring(0, offset);
+                    if (/\s{2}$/.test(dom.stripBom(text))) {
+                        return;
+                    }
+                } else if (offset === 0) {
+                    var p = dom.closestEditableOfType(node, dom.blockElements);
+                    if (p && p.previousSibling) {
+                        this.traverser.init({ node: p.previousSibling });
+                    }
+                }
+                this.traverser.traverse($.proxy(this._detectEnd, this));
+                if (!this.end.blank()) {
+                    this.traverser = this.traverser.clone(this.end);
+                    this.traverser.traverse($.proxy(this._detectStart, this));
+                    if (!this._isLinkDetected()) {
+                        var puntuationOptions = this.traverser.extendOptions(this.start);
+                        var puntuationTraverser = new RightDomTextTraverser(puntuationOptions);
+                        puntuationTraverser.traverse($.proxy(this._skipStartPuntuation, this));
+                        if (!this._isLinkDetected()) {
+                            this.start = DomPos();
+                        }
+                    }
+                }
+                if (this.start.blank()) {
+                    return null;
+                } else {
+                    return {
+                        start: this.start,
+                        end: this.end,
+                        text: this.text
+                    };
+                }
+            },
+            _isLinkDetected: function () {
+                return protocolRegExp.test(this.text) || /^w{3}\./i.test(this.text);
+            },
+            _detectEnd: function (text, node) {
+                var i = lastIndexOfRegExp(text, endLinkCharsRegExp);
+                if (i > -1) {
+                    this.end.node = node;
+                    this.end.offset = i + 1;
+                    return false;
+                }
+            },
+            _detectStart: function (text, node) {
+                var i = lastIndexOfRegExp(text, /\s/);
+                var ii = i + 1;
+                this.text = text.substring(ii) + this.text;
+                this.start.node = node;
+                this.start.offset = ii;
+                if (i > -1) {
+                    return false;
+                }
+            },
+            _skipStartPuntuation: function (text, node, offset) {
+                var i = indexOfRegExp(text, /\w/);
+                var ii = i;
+                if (i === -1) {
+                    ii = text.length;
+                }
+                this.text = this.text.substring(ii);
+                this.start.node = node;
+                this.start.offset = ii + (offset | 0);
+                if (i > -1) {
+                    return false;
+                }
+            }
+        });
+        function lastIndexOfRegExp(str, search) {
+            var i = str.length;
+            while (i-- && !search.test(str[i])) {
+            }
+            return i;
+        }
+        function indexOfRegExp(str, search) {
+            var r = search.exec(str);
+            return r ? r.index : -1;
+        }
+        var DomPos = function () {
+            return {
+                node: null,
+                offset: null,
+                blank: function () {
+                    return this.node === null && this.offset === null;
+                }
+            };
+        };
+        var DomTextTraverser = Class.extend({
+            init: function (options) {
+                this.node = options.node;
+                this.offset = options.offset === undefined ? dom.isDataNode(this.node) && this.node.length || 0 : options.offset;
+                this.cancelAtNode = options.cancelAtNode || this.cancelAtNode || $.noop;
+            },
+            traverse: function (callback) {
+                if (!callback) {
+                    return;
+                }
+                this.cancel = false;
+                this._traverse(callback, this.node, this.offset);
+            },
+            _traverse: function (callback, node, offset) {
+                if (!node || this.cancel) {
+                    return;
+                }
+                if (node.nodeType === 3) {
+                    var text = node.data;
+                    if (offset !== undefined) {
+                        text = this.subText(text, offset);
+                    }
+                    this.cancel = callback(text, node, offset) === false;
+                } else {
+                    var edgeNode = this.edgeNode(node);
+                    this.cancel = this.cancel || this.cancelAtNode(edgeNode);
+                    return this._traverse(callback, edgeNode);
+                }
+                var next = this.next(node);
+                if (!next) {
+                    var parent = node.parentNode;
+                    while (!next && dom.isInline(parent)) {
+                        next = this.next(parent);
+                        parent = parent.parentNode;
+                    }
+                }
+                this.cancel = this.cancel || this.cancelAtNode(next);
+                this._traverse(callback, next);
+            },
+            extendOptions: function (o) {
+                return $.extend({
+                    node: this.node,
+                    offset: this.offset,
+                    cancelAtNode: this.cancelAtNode
+                }, o || {});
+            },
+            edgeNode: function (node) {
+            },
+            next: function (node) {
+            },
+            subText: function (text, offset) {
+            }
+        });
+        var LeftDomTextTraverser = DomTextTraverser.extend({
+            subText: function (text, splitIndex) {
+                return text.substring(0, splitIndex);
+            },
+            next: function (node) {
+                return node.previousSibling;
+            },
+            edgeNode: function (node) {
+                return node.lastChild;
+            },
+            clone: function (options) {
+                var o = this.extendOptions(options);
+                return new LeftDomTextTraverser(o);
+            }
+        });
+        var RightDomTextTraverser = DomTextTraverser.extend({
+            subText: function (text, splitIndex) {
+                return text.substring(splitIndex);
+            },
+            next: function (node) {
+                return node.nextSibling;
+            },
+            edgeNode: function (node) {
+                return node.firstChild;
+            },
+            clone: function (options) {
+                var o = this.extendOptions(options);
+                return new RightDomTextTraverser(o);
+            }
+        });
+        extend(kendo.ui.editor, {
+            LinkFormatFinder: LinkFormatFinder,
+            LinkFormatter: LinkFormatter,
+            UnlinkCommand: UnlinkCommand,
+            LinkCommand: LinkCommand,
+            AutoLinkCommand: AutoLinkCommand,
+            UnlinkTool: UnlinkTool,
+            DomTextLinkDetection: DomTextLinkDetection,
+            LeftDomTextTraverser: LeftDomTextTraverser,
+            RightDomTextTraverser: RightDomTextTraverser
+        });
+        registerTool('createLink', new Tool({
+            key: 'K',
+            ctrl: true,
+            command: LinkCommand,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Create Link'
+            })
+        }));
+        registerTool('unlink', new UnlinkTool({
+            key: 'K',
+            ctrl: true,
+            shift: true,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Remove Link'
+            })
+        }));
+        registerTool('autoLink', new Tool({
+            key: [
+                keys.ENTER,
+                keys.SPACEBAR
+            ],
+            keyPressCommand: true,
+            command: AutoLinkCommand
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/formatblock', ['editor/plugins/format'], f);
+}(function () {
+    (function ($) {
+        var kendo = window.kendo, Class = kendo.Class, extend = $.extend, Editor = kendo.ui.editor, formats = kendo.ui.Editor.fn.options.formats, dom = Editor.Dom, ToolTemplate = Editor.ToolTemplate, FormatTool = Editor.FormatTool, EditorUtils = Editor.EditorUtils, registerTool = EditorUtils.registerTool, registerFormat = EditorUtils.registerFormat, RangeUtils = Editor.RangeUtils;
+        var BlockFormatFinder = Class.extend({
+            init: function (format) {
+                this.format = format;
+            },
+            contains: function (node, children) {
+                var i, len, child;
+                for (i = 0, len = children.length; i < len; i++) {
+                    child = children[i];
+                    if (!child || !dom.isAncestorOrSelf(node, child)) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            findSuitable: function (nodes) {
+                var format = this.format, suitable = [], i, len, candidate;
+                for (i = 0, len = nodes.length; i < len; i++) {
+                    for (var f = format.length - 1; f >= 0; f--) {
+                        candidate = dom.ofType(nodes[i], format[f].tags) ? nodes[i] : dom.closestEditableOfType(nodes[i], format[f].tags);
+                        if (candidate) {
+                            break;
+                        }
+                    }
+                    if (!candidate || candidate.contentEditable === 'true') {
+                        return [];
+                    }
+                    if ($.inArray(candidate, suitable) < 0) {
+                        suitable.push(candidate);
+                    }
+                }
+                this._resolveListsItems(suitable);
+                for (i = 0, len = suitable.length; i < len; i++) {
+                    if (this.contains(suitable[i], suitable)) {
+                        return [suitable[i]];
+                    }
+                }
+                return suitable;
+            },
+            _resolveListsItems: function (nodes) {
+                var i, node, wrapper;
+                for (i = 0; i < nodes.length; i++) {
+                    node = nodes[i];
+                    wrapper = dom.is(node, 'li') ? node : dom.wrapper(node);
+                    wrapper = wrapper && dom.list(wrapper) ? wrapper.children[0] : wrapper;
+                    if (dom.is(wrapper, 'li')) {
+                        node = nodes[i] = wrapper;
+                    }
+                }
+            },
+            findFormat: function (sourceNode) {
+                var format = this.format, i, len, node, tags, attributes;
+                var editableParent = dom.editableParent(sourceNode);
+                var immutables = this.options && this.options.immutables;
+                var ImmutablesNS = Editor.Immutables;
+                for (i = 0, len = format.length; i < len; i++) {
+                    node = sourceNode;
+                    tags = format[i].tags;
+                    attributes = format[i].attr;
+                    if (immutables && tags && tags[0] == 'immutable') {
+                        var immutable = ImmutablesNS.immutableParent(node);
+                        if (immutable && dom.attrEquals(immutable, attributes)) {
+                            return node;
+                        }
+                    }
+                    while (node && dom.isAncestorOf(editableParent, node)) {
+                        if (dom.ofType(node, tags) && dom.attrEquals(node, attributes)) {
+                            return node;
+                        }
+                        node = node.parentNode;
+                    }
+                }
+                return null;
+            },
+            getFormat: function (nodes) {
+                var that = this, findFormat = function (node) {
+                        return that.findFormat(dom.isDataNode(node) ? node.parentNode : node);
+                    }, result = findFormat(nodes[0]), i, len;
+                if (!result) {
+                    return '';
+                }
+                for (i = 1, len = nodes.length; i < len; i++) {
+                    if (result != findFormat(nodes[i])) {
+                        return '';
+                    }
+                }
+                return result.nodeName.toLowerCase();
+            },
+            isFormatted: function (nodes) {
+                for (var i = 0, len = nodes.length; i < len; i++) {
+                    if (!this.findFormat(nodes[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
+        var BlockFormatter = Class.extend({
+            init: function (format, values) {
+                this.format = format;
+                this.values = values;
+                this.finder = new BlockFormatFinder(format);
+            },
+            wrap: function (tag, attributes, nodes) {
+                var commonAncestor = nodes.length == 1 ? dom.blockParentOrBody(nodes[0]) : dom.commonAncestor.apply(null, nodes);
+                if (dom.isInline(commonAncestor)) {
+                    commonAncestor = dom.blockParentOrBody(commonAncestor);
+                }
+                var ancestors = dom.significantChildNodes(commonAncestor), position = dom.findNodeIndex(ancestors[0]), wrapper = dom.create(commonAncestor.ownerDocument, tag, attributes), i, ancestor;
+                for (i = 0; i < ancestors.length; i++) {
+                    ancestor = ancestors[i];
+                    if (dom.isBlock(ancestor)) {
+                        dom.attr(ancestor, attributes);
+                        if (wrapper.childNodes.length) {
+                            dom.insertBefore(wrapper, ancestor);
+                            wrapper = wrapper.cloneNode(false);
+                        }
+                        position = dom.findNodeIndex(ancestor) + 1;
+                        continue;
+                    }
+                    wrapper.appendChild(ancestor);
+                }
+                if (wrapper.firstChild) {
+                    dom.insertAt(commonAncestor, wrapper, position);
+                }
+            },
+            apply: function (nodes) {
+                var format, values = this.values;
+                function attributes(format) {
+                    return extend({}, format && format.attr, values);
+                }
+                this._handleImmutables(nodes, true);
+                var images = dom.filter('img', nodes);
+                var imageFormat = EditorUtils.formatByName('img', this.format);
+                var imageAttributes = attributes(imageFormat);
+                $.each(images, function () {
+                    dom.attr(this, imageAttributes);
+                });
+                if (images.length == nodes.length) {
+                    return;
+                }
+                var nonImages = dom.filter('img', nodes, true);
+                var formatNodes = this.finder.findSuitable(nonImages);
+                if (formatNodes.length) {
+                    for (var i = 0, len = formatNodes.length; i < len; i++) {
+                        format = EditorUtils.formatByName(dom.name(formatNodes[i]), this.format);
+                        dom.attr(formatNodes[i], attributes(format));
+                    }
+                } else {
+                    format = this.format[0];
+                    this.wrap(format.tags[0], attributes(format), nonImages);
+                }
+            },
+            _handleImmutables: function (nodes, applyFormatting) {
+                if (!this.immutables()) {
+                    return;
+                }
+                var immutableFormat = EditorUtils.formatByName('immutable', this.format);
+                if (!immutableFormat) {
+                    return;
+                }
+                var ImmutablesNS = Editor.Immutables;
+                var l = nodes.length - 1;
+                for (var i = l; i >= 0; i--) {
+                    var immutableParent = ImmutablesNS.immutableParent(nodes[i]);
+                    if (!immutableParent) {
+                        continue;
+                    }
+                    if (immutableParent !== nodes[i + 1]) {
+                        if (applyFormatting) {
+                            dom.attr(immutableParent, immutableFormat.attr);
+                        } else {
+                            dom.unstyle(immutableParent, immutableFormat.attr.style);
+                        }
+                    }
+                    nodes.splice(i, 1);
+                }
+            },
+            immutables: function () {
+                return this.editor && this.editor.options.immutables;
+            },
+            remove: function (nodes) {
+                var i, l, formatNode, namedFormat, name;
+                this._handleImmutables(nodes, false);
+                for (i = 0, l = nodes.length; i < l; i++) {
+                    formatNode = this.finder.findFormat(nodes[i]);
+                    if (formatNode) {
+                        name = dom.name(formatNode);
+                        if (name == 'div' && !formatNode.getAttribute('class')) {
+                            dom.unwrap(formatNode);
+                        } else {
+                            namedFormat = EditorUtils.formatByName(name, this.format);
+                            if (namedFormat.attr.style) {
+                                dom.unstyle(formatNode, namedFormat.attr.style);
+                            }
+                            if (namedFormat.attr.className) {
+                                dom.removeClass(formatNode, namedFormat.attr.className);
+                            }
+                        }
+                    }
+                }
+            },
+            toggle: function (range) {
+                var that = this, nodes = dom.filterBy(RangeUtils.nodes(range), dom.htmlIndentSpace, true);
+                if (that.finder.isFormatted(nodes)) {
+                    that.remove(nodes);
+                } else {
+                    that.apply(nodes);
+                }
+            }
+        });
+        var GreedyBlockFormatter = Class.extend({
+            init: function (format, values) {
+                var that = this;
+                that.format = format;
+                that.values = values;
+                that.finder = new BlockFormatFinder(format);
+            },
+            apply: function (nodes) {
+                var format = this.format;
+                var blocks = dom.blockParents(nodes);
+                var formatTag = format[0].tags[0];
+                var i, len, list, formatter, range;
+                var element;
+                var tagName;
+                var block;
+                var immutalbeParent;
+                if (blocks.length) {
+                    for (i = 0, len = blocks.length; i < len; i++) {
+                        block = blocks[i];
+                        immutalbeParent = this.immutables() && Editor.Immutables.immutableParent(block);
+                        if (!immutalbeParent) {
+                            tagName = dom.name(block);
+                            if (tagName == 'li') {
+                                list = block.parentNode;
+                                formatter = new Editor.ListFormatter(list.nodeName.toLowerCase(), formatTag);
+                                range = this.editor.createRange();
+                                range.selectNode(blocks[i]);
+                                formatter.toggle(range);
+                            } else if (formatTag && (tagName == 'td' || block.attributes.contentEditable)) {
+                                new BlockFormatter(format, this.values).apply(block.childNodes);
+                            } else {
+                                element = dom.changeTag(block, formatTag);
+                                dom.attr(element, format[0].attr);
+                            }
+                        }
+                    }
+                } else {
+                    var blockFormatter = new BlockFormatter(format, this.values);
+                    blockFormatter.editor = this.editor;
+                    blockFormatter.apply(nodes);
+                }
+            },
+            toggle: function (range) {
+                var nodes = RangeUtils.textNodes(range);
+                if (!nodes.length) {
+                    range.selectNodeContents(range.commonAncestorContainer);
+                    nodes = RangeUtils.textNodes(range);
+                    if (!nodes.length) {
+                        nodes = dom.significantChildNodes(range.commonAncestorContainer);
+                    }
+                }
+                this.apply(nodes);
+            },
+            immutables: function () {
+                return this.editor && this.editor.options.immutables;
+            }
+        });
+        var BlockFormatTool = FormatTool.extend({
+            init: function (options) {
+                FormatTool.fn.init.call(this, extend(options, {
+                    finder: new BlockFormatFinder(options.format),
+                    formatter: function () {
+                        return new BlockFormatter(options.format);
+                    }
+                }));
+            }
+        });
+        extend(Editor, {
+            BlockFormatFinder: BlockFormatFinder,
+            BlockFormatter: BlockFormatter,
+            GreedyBlockFormatter: GreedyBlockFormatter,
+            BlockFormatTool: BlockFormatTool
+        });
+        var listElements = [
+            'ul',
+            'ol',
+            'li'
+        ];
+        registerFormat('justifyLeft', [
+            {
+                tags: dom.nonListBlockElements,
+                attr: { style: { textAlign: 'left' } }
+            },
+            {
+                tags: ['img'],
+                attr: {
+                    style: {
+                        'float': 'left',
+                        display: '',
+                        marginLeft: '',
+                        marginRight: ''
+                    }
+                }
+            },
+            {
+                tags: ['immutable'],
+                attr: {
+                    style: {
+                        'float': 'left',
+                        display: '',
+                        marginLeft: '',
+                        marginRight: ''
+                    }
+                }
+            },
+            {
+                tags: listElements,
+                attr: {
+                    style: {
+                        textAlign: 'left',
+                        listStylePosition: ''
+                    }
+                }
+            }
+        ]);
+        registerTool('justifyLeft', new BlockFormatTool({
+            format: formats.justifyLeft,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Justify Left'
+            })
+        }));
+        registerFormat('justifyCenter', [
+            {
+                tags: dom.nonListBlockElements,
+                attr: { style: { textAlign: 'center' } }
+            },
+            {
+                tags: ['img'],
+                attr: {
+                    style: {
+                        display: 'block',
+                        marginLeft: 'auto',
+                        marginRight: 'auto',
+                        'float': ''
+                    }
+                }
+            },
+            {
+                tags: ['immutable'],
+                attr: {
+                    style: {
+                        display: 'block',
+                        marginLeft: 'auto',
+                        marginRight: 'auto',
+                        'float': ''
+                    }
+                }
+            },
+            {
+                tags: listElements,
+                attr: {
+                    style: {
+                        textAlign: 'center',
+                        listStylePosition: 'inside'
+                    }
+                }
+            }
+        ]);
+        registerTool('justifyCenter', new BlockFormatTool({
+            format: formats.justifyCenter,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Justify Center'
+            })
+        }));
+        registerFormat('justifyRight', [
+            {
+                tags: dom.nonListBlockElements,
+                attr: { style: { textAlign: 'right' } }
+            },
+            {
+                tags: ['img'],
+                attr: {
+                    style: {
+                        'float': 'right',
+                        display: '',
+                        marginLeft: '',
+                        marginRight: ''
+                    }
+                }
+            },
+            {
+                tags: ['immutable'],
+                attr: {
+                    style: {
+                        'float': 'right',
+                        display: '',
+                        marginLeft: '',
+                        marginRight: ''
+                    }
+                }
+            },
+            {
+                tags: listElements,
+                attr: {
+                    style: {
+                        textAlign: 'right',
+                        listStylePosition: 'inside'
+                    }
+                }
+            }
+        ]);
+        registerTool('justifyRight', new BlockFormatTool({
+            format: formats.justifyRight,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Justify Right'
+            })
+        }));
+        registerFormat('justifyFull', [
+            {
+                tags: dom.nonListBlockElements,
+                attr: { style: { textAlign: 'justify' } }
+            },
+            {
+                tags: ['img'],
+                attr: {
+                    style: {
+                        display: 'block',
+                        marginLeft: 'auto',
+                        marginRight: 'auto',
+                        'float': ''
+                    }
+                }
+            },
+            {
+                tags: ['immutable'],
+                attr: {
+                    style: {
+                        display: 'block',
+                        marginLeft: 'auto',
+                        marginRight: 'auto',
+                        'float': ''
+                    }
+                }
+            },
+            {
+                tags: listElements,
+                attr: {
+                    style: {
+                        textAlign: 'justify',
+                        listStylePosition: ''
+                    }
+                }
+            }
+        ]);
+        registerTool('justifyFull', new BlockFormatTool({
+            format: formats.justifyFull,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Justify Full'
+            })
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/lists', ['editor/plugins/formatblock'], f);
+}(function () {
+    (function ($) {
+        var kendo = window.kendo, Class = kendo.Class, extend = $.extend, Editor = kendo.ui.editor, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, EditorUtils = Editor.EditorUtils, Command = Editor.Command, ToolTemplate = Editor.ToolTemplate, FormatTool = Editor.FormatTool, BlockFormatFinder = Editor.BlockFormatFinder, textNodes = RangeUtils.textNodes, registerTool = Editor.EditorUtils.registerTool;
+        var ListFormatFinder = BlockFormatFinder.extend({
+            init: function (tag) {
+                this.tag = tag;
+                var tags = this.tags = [
+                    tag == 'ul' ? 'ol' : 'ul',
+                    tag
+                ];
+                BlockFormatFinder.fn.init.call(this, [{ tags: tags }]);
+            },
+            isFormatted: function (nodes) {
+                var formatNodes = [];
+                var formatNode, i;
+                for (i = 0; i < nodes.length; i++) {
+                    formatNode = this.findFormat(nodes[i]);
+                    if (formatNode && dom.name(formatNode) == this.tag) {
+                        formatNodes.push(formatNode);
+                    }
+                }
+                if (formatNodes.length < 1) {
+                    return false;
+                }
+                if (formatNodes.length != nodes.length) {
+                    return false;
+                }
+                for (i = 0; i < formatNodes.length; i++) {
+                    if (formatNodes[i].parentNode != formatNode.parentNode) {
+                        break;
+                    }
+                    if (formatNodes[i] != formatNode) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            findSuitable: function (nodes) {
+                var candidate = this.findFormat(nodes[0]);
+                if (candidate && dom.name(candidate) == this.tag) {
+                    return candidate;
+                }
+                return null;
+            }
+        });
+        var ListFormatter = Class.extend({
+            init: function (tag, unwrapTag) {
+                var that = this;
+                that.finder = new ListFormatFinder(tag);
+                that.tag = tag;
+                that.unwrapTag = unwrapTag;
+            },
+            isList: function (node) {
+                return dom.list(node);
+            },
+            immutables: function () {
+                return this.editor && !!this.editor.options.immutables;
+            },
+            wrap: function (list, nodes) {
+                var li = dom.create(list.ownerDocument, 'li'), i, node, isImmutable = this.immutables() ? Editor.Immutables.immutable : $.noop;
+                for (i = 0; i < nodes.length; i++) {
+                    node = nodes[i];
+                    if (dom.is(node, 'li')) {
+                        list.appendChild(node);
+                        continue;
+                    }
+                    if (this.isList(node)) {
+                        while (node.firstChild) {
+                            list.appendChild(node.firstChild);
+                        }
+                        continue;
+                    }
+                    if (dom.is(node, 'td')) {
+                        while (node.firstChild) {
+                            li.appendChild(node.firstChild);
+                        }
+                        list.appendChild(li);
+                        node.appendChild(list);
+                        list = list.cloneNode(false);
+                        li = li.cloneNode(false);
+                        continue;
+                    }
+                    li.appendChild(node);
+                    if (dom.isBlock(node)) {
+                        list.appendChild(li);
+                        if (!isImmutable(node)) {
+                            dom.unwrap(node);
+                        }
+                        li = li.cloneNode(false);
+                    }
+                }
+                if (li.firstChild) {
+                    list.appendChild(li);
+                }
+            },
+            containsAny: function (parent, nodes) {
+                for (var i = 0; i < nodes.length; i++) {
+                    if (dom.isAncestorOrSelf(parent, nodes[i])) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            suitable: function (candidate, nodes) {
+                if (candidate.className == 'k-marker') {
+                    var sibling = candidate.nextSibling;
+                    if (sibling && dom.isBlock(sibling)) {
+                        return false;
+                    }
+                    sibling = candidate.previousSibling;
+                    if (sibling && dom.isBlock(sibling)) {
+                        return false;
+                    }
+                }
+                return this.containsAny(candidate, nodes) || dom.isInline(candidate) || candidate.nodeType == 3;
+            },
+            _parentLists: function (node) {
+                var editable = dom.closestEditable(node);
+                return $(node).parentsUntil(editable, 'ul,ol');
+            },
+            split: function (range) {
+                var nodes = textNodes(range);
+                var start, end, parents;
+                if (nodes.length) {
+                    start = dom.parentOfType(nodes[0], ['li']);
+                    end = dom.parentOfType(nodes[nodes.length - 1], ['li']);
+                    range.setStartBefore(start);
+                    range.setEndAfter(end);
+                    for (var i = 0, l = nodes.length; i < l; i++) {
+                        var formatNode = this.finder.findFormat(nodes[i]);
+                        if (formatNode) {
+                            parents = this._parentLists(formatNode);
+                            if (parents.length) {
+                                RangeUtils.split(range, parents.last()[0], true);
+                            } else {
+                                RangeUtils.split(range, formatNode, true);
+                            }
+                        }
+                    }
+                }
+            },
+            merge: function (tag, formatNode) {
+                var prev = formatNode.previousSibling, next;
+                while (prev && (prev.className == 'k-marker' || prev.nodeType == 3 && dom.isWhitespace(prev))) {
+                    prev = prev.previousSibling;
+                }
+                if (prev && dom.name(prev) == tag) {
+                    while (formatNode.firstChild) {
+                        prev.appendChild(formatNode.firstChild);
+                    }
+                    dom.remove(formatNode);
+                    formatNode = prev;
+                }
+                next = formatNode.nextSibling;
+                while (next && (next.className == 'k-marker' || next.nodeType == 3 && dom.isWhitespace(next))) {
+                    next = next.nextSibling;
+                }
+                if (next && dom.name(next) == tag) {
+                    while (formatNode.lastChild) {
+                        next.insertBefore(formatNode.lastChild, next.firstChild);
+                    }
+                    dom.remove(formatNode);
+                }
+            },
+            breakable: function (node) {
+                return node != node.ownerDocument.body && !/table|tbody|tr|td/.test(dom.name(node)) && !node.attributes.contentEditable;
+            },
+            applyOnSection: function (section, nodes) {
+                var tag = this.tag;
+                var commonAncestor = dom.closestSplittableParent(nodes);
+                var ancestors = [];
+                var formatNode = this.finder.findSuitable(nodes);
+                if (!formatNode) {
+                    formatNode = new ListFormatFinder(tag == 'ul' ? 'ol' : 'ul').findSuitable(nodes);
+                }
+                var childNodes;
+                if (/table|tbody/.test(dom.name(commonAncestor))) {
+                    childNodes = $.map(nodes, function (node) {
+                        return dom.parentOfType(node, ['td']);
+                    });
+                } else {
+                    childNodes = dom.significantChildNodes(commonAncestor);
+                    if ($.grep(childNodes, dom.isBlock).length) {
+                        childNodes = $.grep(childNodes, $.proxy(function (node) {
+                            return this.containsAny(node, nodes);
+                        }, this));
+                    }
+                    if (!childNodes.length) {
+                        childNodes = nodes;
+                    }
+                }
+                function pushAncestor() {
+                    ancestors.push(this);
+                }
+                for (var i = 0; i < childNodes.length; i++) {
+                    var child = childNodes[i];
+                    var suitable = (!formatNode || !dom.isAncestorOrSelf(formatNode, child)) && this.suitable(child, nodes);
+                    if (!suitable) {
+                        continue;
+                    }
+                    if (formatNode && this.isList(child)) {
+                        $.each(child.children, pushAncestor);
+                        dom.remove(child);
+                    } else {
+                        ancestors.push(child);
+                    }
+                }
+                if (ancestors.length == childNodes.length && this.breakable(commonAncestor)) {
+                    ancestors = [commonAncestor];
+                }
+                if (!formatNode) {
+                    formatNode = dom.create(commonAncestor.ownerDocument, tag);
+                    dom.insertBefore(formatNode, ancestors[0]);
+                }
+                this.wrap(formatNode, ancestors);
+                while (dom.isBom(formatNode.nextSibling)) {
+                    dom.remove(formatNode.nextSibling);
+                }
+                if (!dom.is(formatNode, tag)) {
+                    dom.changeTag(formatNode, tag);
+                }
+                this.merge(tag, formatNode);
+            },
+            apply: function (nodes) {
+                var i = 0, sections = [], lastSection, lastNodes, section, node, l = nodes.length, immutableParent = this.immutables() ? Editor.Immutables.immutableParent : $.noop;
+                function addLastSection() {
+                    if (lastSection) {
+                        sections.push({
+                            section: lastSection,
+                            nodes: lastNodes
+                        });
+                    }
+                }
+                for (i = 0; i < l; i++) {
+                    node = immutableParent(nodes[i]) || nodes[i];
+                    section = dom.closestEditable(node, [
+                        'td',
+                        'body'
+                    ]);
+                    if (!lastSection || section != lastSection) {
+                        addLastSection();
+                        lastNodes = [node];
+                        lastSection = section;
+                    } else {
+                        lastNodes.push(node);
+                    }
+                }
+                addLastSection();
+                for (i = 0; i < sections.length; i++) {
+                    this.applyOnSection(sections[i].section, sections[i].nodes);
+                }
+            },
+            unwrap: function (ul) {
+                var fragment = ul.ownerDocument.createDocumentFragment(), unwrapTag = this.unwrapTag, parents, li, p, child;
+                for (li = ul.firstChild; li; li = li.nextSibling) {
+                    p = dom.create(ul.ownerDocument, unwrapTag || 'p');
+                    while (li.firstChild) {
+                        child = li.firstChild;
+                        if (dom.isBlock(child)) {
+                            if (p.firstChild) {
+                                fragment.appendChild(p);
+                                p = dom.create(ul.ownerDocument, unwrapTag || 'p');
+                            }
+                            fragment.appendChild(child);
+                        } else {
+                            p.appendChild(child);
+                        }
+                    }
+                    if (p.firstChild) {
+                        fragment.appendChild(p);
+                    }
+                }
+                parents = this._parentLists(ul);
+                if (parents[0]) {
+                    dom.insertAfter(fragment, parents.last()[0]);
+                    parents.last().remove();
+                } else {
+                    dom.insertAfter(fragment, ul);
+                }
+                dom.remove(ul);
+            },
+            remove: function (nodes) {
+                var formatNode;
+                for (var i = 0, l = nodes.length; i < l; i++) {
+                    formatNode = this.finder.findFormat(nodes[i]);
+                    if (formatNode) {
+                        this.unwrap(formatNode);
+                    }
+                }
+            },
+            toggle: function (range) {
+                var that = this, nodes = textNodes(range), ancestor = range.commonAncestorContainer;
+                if (!nodes.length) {
+                    range.selectNodeContents(ancestor);
+                    nodes = textNodes(range);
+                    if (!nodes.length) {
+                        var text = ancestor.ownerDocument.createTextNode('');
+                        range.startContainer.appendChild(text);
+                        nodes = [text];
+                        range.selectNode(text.parentNode);
+                    }
+                }
+                nodes = dom.filterBy(nodes, dom.htmlIndentSpace, true);
+                if (that.finder.isFormatted(nodes)) {
+                    that.split(range);
+                    that.remove(nodes);
+                } else {
+                    that.apply(nodes);
+                }
+            }
+        });
+        var ListCommand = Command.extend({
+            init: function (options) {
+                options.formatter = new ListFormatter(options.tag);
+                Command.fn.init.call(this, options);
+            }
+        });
+        var ListTool = FormatTool.extend({
+            init: function (options) {
+                this.options = options;
+                FormatTool.fn.init.call(this, extend(options, { finder: new ListFormatFinder(options.tag) }));
+            },
+            command: function (commandArguments) {
+                return new ListCommand(extend(commandArguments, { tag: this.options.tag }));
+            }
+        });
+        extend(Editor, {
+            ListFormatFinder: ListFormatFinder,
+            ListFormatter: ListFormatter,
+            ListCommand: ListCommand,
+            ListTool: ListTool
+        });
+        registerTool('insertUnorderedList', new ListTool({
+            tag: 'ul',
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Insert unordered list'
+            })
+        }));
+        registerTool('insertOrderedList', new ListTool({
+            tag: 'ol',
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Insert ordered list'
+            })
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/formatting', ['editor/plugins/inlineformat'], f);
+}(function () {
+    (function ($) {
+        var kendo = window.kendo, Editor = kendo.ui.editor, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, DelayedExecutionTool = Editor.DelayedExecutionTool, Command = Editor.Command, dom = Editor.Dom, EditorUtils = Editor.EditorUtils, RangeUtils = Editor.RangeUtils, registerTool = EditorUtils.registerTool;
+        var FormattingTool = DelayedExecutionTool.extend({
+            init: function (options) {
+                var that = this;
+                Tool.fn.init.call(that, kendo.deepExtend({}, that.options, options));
+                that.type = 'kendoSelectBox';
+                that.finder = {
+                    getFormat: function () {
+                        return '';
+                    }
+                };
+            },
+            options: {
+                items: [
+                    {
+                        text: 'Paragraph',
+                        value: 'p'
+                    },
+                    {
+                        text: 'Quotation',
+                        value: 'blockquote'
+                    },
+                    {
+                        text: 'Heading 1',
+                        value: 'h1'
+                    },
+                    {
+                        text: 'Heading 2',
+                        value: 'h2'
+                    },
+                    {
+                        text: 'Heading 3',
+                        value: 'h3'
+                    },
+                    {
+                        text: 'Heading 4',
+                        value: 'h4'
+                    },
+                    {
+                        text: 'Heading 5',
+                        value: 'h5'
+                    },
+                    {
+                        text: 'Heading 6',
+                        value: 'h6'
+                    }
+                ],
+                width: 110
+            },
+            toFormattingItem: function (item) {
+                var value = item.value;
+                if (!value) {
+                    return item;
+                }
+                if (item.tag || item.className) {
+                    return item;
+                }
+                var dot = value.indexOf('.');
+                if (dot === 0) {
+                    item.className = value.substring(1);
+                } else if (dot == -1) {
+                    item.tag = value;
+                } else {
+                    item.tag = value.substring(0, dot);
+                    item.className = value.substring(dot + 1);
+                }
+                return item;
+            },
+            command: function (args) {
+                var that = this;
+                var item = args.value;
+                item = this.toFormattingItem(item);
+                return new Editor.FormatCommand({
+                    range: args.range,
+                    formatter: function () {
+                        var formatter, tags = (item.tag || item.context || 'span').split(','), format = [{
+                                    tags: tags,
+                                    attr: { className: item.className || '' }
+                                }];
+                        if ($.inArray(tags[0], dom.inlineElements) >= 0) {
+                            formatter = new Editor.GreedyInlineFormatter(format);
+                        } else {
+                            formatter = new Editor.GreedyBlockFormatter(format);
+                        }
+                        formatter.editor = that.editor;
+                        return formatter;
+                    }
+                });
+            },
+            initialize: function (ui, initOptions) {
+                var editor = initOptions.editor;
+                var options = this.options;
+                var toolName = options.name;
+                var that = this;
+                that.editor = editor;
+                ui.width(options.width);
+                ui.kendoSelectBox({
+                    dataTextField: 'text',
+                    dataValueField: 'value',
+                    dataSource: options.items || editor.options[toolName],
+                    title: editor.options.messages[toolName],
+                    autoSize: true,
+                    change: function () {
+                        var dataItem = this.dataItem();
+                        if (dataItem) {
+                            Tool.exec(editor, toolName, dataItem.toJSON());
+                        }
+                    },
+                    dataBound: function () {
+                        var i, items = this.dataSource.data();
+                        for (i = 0; i < items.length; i++) {
+                            items[i] = that.toFormattingItem(items[i]);
+                        }
+                    },
+                    highlightFirst: false,
+                    template: kendo.template('<span unselectable="on" style="display:block;#=(data.style||"")#">#:data.text#</span>')
+                });
+                ui.addClass('k-decorated').closest('.k-widget').removeClass('k-' + toolName).find('*').addBack().attr('unselectable', 'on');
+            },
+            getFormattingValue: function (items, nodes) {
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    var tag = item.tag || item.context || '';
+                    var className = item.className ? '.' + item.className : '';
+                    var selector = tag + className;
+                    var element = $(nodes[0]).closest(selector)[0];
+                    if (!element) {
+                        continue;
+                    }
+                    if (nodes.length == 1) {
+                        return item.value;
+                    }
+                    for (var n = 1; n < nodes.length; n++) {
+                        if (!$(nodes[n]).closest(selector)[0]) {
+                            break;
+                        } else if (n == nodes.length - 1) {
+                            return item.value;
+                        }
+                    }
+                }
+                return '';
+            },
+            update: function (ui, nodes) {
+                var selectBox = $(ui).data(this.type);
+                if (!selectBox) {
+                    return;
+                }
+                var dataSource = selectBox.dataSource, items = dataSource.data(), i, context, ancestor = dom.commonAncestor.apply(null, nodes);
+                if (ancestor != dom.closestEditable(ancestor) && this._ancestor == ancestor) {
+                    return;
+                } else {
+                    this._ancestor = ancestor;
+                }
+                for (i = 0; i < items.length; i++) {
+                    context = items[i].context;
+                    items[i].visible = !context || !!$(ancestor).closest(context).length;
+                }
+                dataSource.filter([{
+                        field: 'visible',
+                        operator: 'eq',
+                        value: true
+                    }]);
+                DelayedExecutionTool.fn.update.call(this, ui, nodes);
+                selectBox.value(this.getFormattingValue(dataSource.view(), nodes));
+                selectBox.wrapper.toggleClass('k-state-disabled', !dataSource.view().length);
+            },
+            destroy: function () {
+                this._ancestor = null;
+            }
+        });
+        var CleanFormatCommand = Command.extend({
+            exec: function () {
+                var range = this.lockRange(true);
+                this.tagsToClean = this.options.remove || 'strong,em,span,sup,sub,del,b,i,u,font'.split(',');
+                RangeUtils.wrapSelectedElements(range);
+                var nodes = RangeUtils.mapAll(range, function (node) {
+                    return node;
+                });
+                for (var c = nodes.length - 1; c >= 0; c--) {
+                    var node = nodes[c];
+                    if (!this.immutableParent(node)) {
+                        this.clean(node);
+                    }
+                }
+                this.releaseRange(range);
+            },
+            clean: function (node) {
+                if (!node || dom.isMarker(node)) {
+                    return;
+                }
+                var name = dom.name(node);
+                if (name == 'ul' || name == 'ol') {
+                    var listFormatter = new Editor.ListFormatter(name);
+                    var prev = node.previousSibling;
+                    var next = node.nextSibling;
+                    listFormatter.unwrap(node);
+                    for (; prev && prev != next; prev = prev.nextSibling) {
+                        this.clean(prev);
+                    }
+                } else if (name == 'blockquote') {
+                    dom.changeTag(node, 'p');
+                } else if (node.nodeType == 1 && !dom.insignificant(node)) {
+                    for (var i = node.childNodes.length - 1; i >= 0; i--) {
+                        this.clean(node.childNodes[i]);
+                    }
+                    node.removeAttribute('style');
+                    node.removeAttribute('class');
+                } else {
+                    unwrapListItem(node);
+                }
+                if ($.inArray(name, this.tagsToClean) > -1) {
+                    dom.unwrap(node);
+                }
+            },
+            immutableParent: function (node) {
+                return this.immutables() && Editor.Immutables.immutableParent(node);
+            }
+        });
+        function unwrapListItem(node) {
+            var li = dom.closestEditableOfType(node, ['li']);
+            if (li) {
+                var listFormatter = new Editor.ListFormatter(dom.name(li.parentNode));
+                var range = kendo.ui.editor.W3CRange.fromNode(node);
+                range.selectNode(li);
+                listFormatter.toggle(range);
+            }
+        }
+        $.extend(Editor, {
+            FormattingTool: FormattingTool,
+            CleanFormatCommand: CleanFormatCommand
+        });
+        registerTool('formatting', new FormattingTool({
+            template: new ToolTemplate({
+                template: EditorUtils.dropDownListTemplate,
+                title: 'Format'
+            })
+        }));
+        registerTool('cleanFormatting', new Tool({
+            command: CleanFormatCommand,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Clean formatting'
+            })
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/image', [
+        'kendo.imagebrowser',
+        'editor/command'
+    ], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo, extend = $.extend, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, dom = Editor.Dom, registerTool = EditorUtils.registerTool, ToolTemplate = Editor.ToolTemplate, RangeUtils = Editor.RangeUtils, Command = Editor.Command, keys = kendo.keys, KEDITORIMAGEURL = '#k-editor-image-url', KEDITORIMAGETITLE = '#k-editor-image-title', KEDITORIMAGEWIDTH = '#k-editor-image-width', KEDITORIMAGEHEIGHT = '#k-editor-image-height';
+        var ImageCommand = Command.extend({
+            init: function (options) {
+                var that = this;
+                Command.fn.init.call(that, options);
+                that.async = true;
+                that.attributes = {};
+            },
+            insertImage: function (img, range) {
+                var attributes = this.attributes;
+                var doc = RangeUtils.documentFromRange(range);
+                if (attributes.src && attributes.src != 'http://') {
+                    var removeIEAttributes = function () {
+                        setTimeout(function () {
+                            if (!attributes.width) {
+                                img.removeAttribute('width');
+                            }
+                            if (!attributes.height) {
+                                img.removeAttribute('height');
+                            }
+                            img.removeAttribute('complete');
+                        });
+                    };
+                    if (!img) {
+                        img = dom.create(doc, 'img', attributes);
+                        img.onload = img.onerror = removeIEAttributes;
+                        range.deleteContents();
+                        range.insertNode(img);
+                        if (!img.nextSibling) {
+                            dom.insertAfter(doc.createTextNode('\uFEFF'), img);
+                        }
+                        removeIEAttributes();
+                        range.setStartAfter(img);
+                        range.setEndAfter(img);
+                        RangeUtils.selectRange(range);
+                        return true;
+                    } else {
+                        img.onload = img.onerror = removeIEAttributes;
+                        dom.attr(img, attributes);
+                        removeIEAttributes();
+                    }
+                }
+                return false;
+            },
+            _dialogTemplate: function (showBrowser) {
+                return kendo.template('<div class="k-editor-dialog k-popup-edit-form">' + '<div class="k-edit-form-container">' + '<div class="k-edit-form-content">' + '# if (showBrowser) { #' + '<div class="k-filebrowser k-imagebrowser"></div>' + '# } #' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-url">#: messages.imageWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-url">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-title">#: messages.imageAltText #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-title">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-width">#: messages.imageWidth #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-width">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-image-height">#: messages.imageHeight #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-image-height">' + '</div>' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>')({
+                    messages: this.editor.options.messages,
+                    showBrowser: showBrowser
+                });
+            },
+            redo: function () {
+                var that = this, range = that.lockRange();
+                if (!that.insertImage(RangeUtils.image(range), range)) {
+                    that.releaseRange(range);
+                }
+            },
+            exec: function () {
+                var that = this, range = that.lockRange(), applied = false, img = RangeUtils.image(range), imageWidth = img && img.getAttribute('width') || '', imageHeight = img && img.getAttribute('height') || '', dialog, isIE = kendo.support.browser.msie, options = that.editor.options, messages = options.messages, imageBrowser = options.imageBrowser, showBrowser = !!(kendo.ui.ImageBrowser && imageBrowser && imageBrowser.transport && imageBrowser.transport.read !== undefined), dialogOptions = {
+                        title: messages.insertImage,
+                        visible: false,
+                        resizable: showBrowser
+                    };
+                this.expandImmutablesIn(range);
+                function apply(e) {
+                    var element = dialog.element, w = parseInt(element.find(KEDITORIMAGEWIDTH).val(), 10), h = parseInt(element.find(KEDITORIMAGEHEIGHT).val(), 10);
+                    that.attributes = {
+                        src: element.find(KEDITORIMAGEURL).val().replace(/ /g, '%20'),
+                        alt: element.find(KEDITORIMAGETITLE).val()
+                    };
+                    that.attributes.width = null;
+                    that.attributes.height = null;
+                    if (!isNaN(w) && w > 0) {
+                        that.attributes.width = w;
+                    }
+                    if (!isNaN(h) && h > 0) {
+                        that.attributes.height = h;
+                    }
+                    applied = that.insertImage(img, range);
+                    close(e);
+                    if (that.change) {
+                        that.change();
+                    }
+                }
+                function close(e) {
+                    e.preventDefault();
+                    dialog.destroy();
+                    dom.windowFromDocument(RangeUtils.documentFromRange(range)).focus();
+                    if (!applied) {
+                        that.releaseRange(range);
+                    }
+                }
+                function keyDown(e) {
+                    if (e.keyCode == keys.ENTER) {
+                        apply(e);
+                    } else if (e.keyCode == keys.ESC) {
+                        close(e);
+                    }
+                }
+                dialogOptions.close = close;
+                if (showBrowser) {
+                    dialogOptions.width = 750;
+                }
+                dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').click(apply).end().find('.k-dialog-close').click(close).end().find('.k-edit-field input').keydown(keyDown).end().find(KEDITORIMAGEURL).val(img ? img.getAttribute('src', 2) : 'http://').end().find(KEDITORIMAGETITLE).val(img ? img.alt : '').end().find(KEDITORIMAGEWIDTH).val(imageWidth).end().find(KEDITORIMAGEHEIGHT).val(imageHeight).end().data('kendoWindow');
+                var element = dialog.element;
+                if (showBrowser) {
+                    this._imageBrowser = new kendo.ui.ImageBrowser(element.find('.k-imagebrowser'), extend({}, imageBrowser));
+                    this._imageBrowser.bind('change', function (ev) {
+                        if (ev.selected.get('type') === 'f') {
+                            element.find(KEDITORIMAGEURL).val(this.value());
+                        }
+                    });
+                    this._imageBrowser.bind('apply', apply);
+                }
+                if (isIE) {
+                    var dialogHeight = element.closest('.k-window').height();
+                    element.css('max-height', dialogHeight);
+                }
+                dialog.center().open();
+                element.find(KEDITORIMAGEURL).focus().select();
+            }
+        });
+        kendo.ui.editor.ImageCommand = ImageCommand;
+        registerTool('insertImage', new Editor.Tool({
+            command: ImageCommand,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Insert Image'
+            })
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/import', ['editor/main'], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, registerTool = EditorUtils.registerTool, ToolTemplate = Editor.ToolTemplate, loadingOverlay = '<div contenteditable="false" class="k-loading-mask" style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px;"><div class="k-loading-image"></div><div class="k-loading-color"></div></div>';
+        var ImportCommand = Command.extend({
+            exec: function () {
+                (this.editor._uploadWidget || this._initializeUploadWidget()).element.click();
+            },
+            _initializeUploadWidget: function () {
+                var cmd = this;
+                var editor = cmd.editor;
+                var importOptions = editor.options['import'];
+                var upload = $('<input id="editorImport" name="files" type="file" />').kendoUpload({
+                    success: proxy(cmd._onUploadSuccess, cmd),
+                    progress: proxy(cmd._onUploadProgress, cmd),
+                    select: proxy(cmd._onUploadSelect, cmd),
+                    error: proxy(cmd._onUploadError, cmd),
+                    complete: proxy(cmd._onUploadComplete, cmd),
+                    showFileList: false,
+                    multiple: false,
+                    async: {
+                        saveUrl: importOptions.proxyUrl,
+                        autoUpload: true,
+                        saveField: 'file'
+                    },
+                    validation: {
+                        allowedExtensions: importOptions.allowedExtensions,
+                        maxFileSize: importOptions.maxFileSize
+                    }
+                }).getKendoUpload();
+                editor._uploadWidget = upload;
+                return upload;
+            },
+            _onUploadComplete: function (ev) {
+                this._trigger('complete', ev);
+                ev.sender.clearAllFiles();
+                this._removeLoadingOverlay();
+            },
+            _onUploadSuccess: function (ev) {
+                this.editor.value(ev.response.html.replace(/<\/?body>/gi, ''));
+                this._trigger('success', ev);
+            },
+            _onUploadProgress: function (ev) {
+                this._trigger('progress', ev);
+            },
+            _onUploadSelect: function (ev) {
+                this._trigger('select', ev);
+                if (!ev.files[0].validationErrors) {
+                    this._initLoadingOverlay();
+                }
+            },
+            _onUploadError: function (ev) {
+                this._trigger('error', ev);
+            },
+            _trigger: function (eventType, uploadEvent) {
+                var editor = this.editor;
+                var importOptions = editor.options['import'];
+                if (typeof importOptions[eventType] === 'function') {
+                    importOptions[eventType].call(editor, uploadEvent);
+                }
+            },
+            _initLoadingOverlay: function () {
+                var editable = this.editor.body;
+                if (Editor.Dom.is(editable, 'body')) {
+                    this._iframeWrapper = this._container = this.editor.wrapper.find('iframe').parent().css({ position: 'relative' }).append(loadingOverlay);
+                } else {
+                    this._container = $(editable).append(loadingOverlay);
+                }
+                kendo.ui.progress(this._container, true);
+            },
+            _removeLoadingOverlay: function () {
+                kendo.ui.progress(this._container, false);
+                $(this._iframeWrapper).css({ position: '' });
+                delete this._container;
+                delete this._iframeWrapper;
+            }
+        });
+        extend(Editor, { ImportCommand: ImportCommand });
+        registerTool('import', new Tool({
+            command: ImportCommand,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Import'
+            })
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/insert', ['editor/command'], f);
+}(function () {
+    (function ($) {
+        var kendo = window.kendo, editorNS = kendo.ui.editor, Command = editorNS.Command, GenericCommand = editorNS.GenericCommand, EditorUtils = editorNS.EditorUtils, registerTool = EditorUtils.registerTool, Tool = editorNS.Tool, ToolTemplate = editorNS.ToolTemplate, RestorePoint = editorNS.RestorePoint, extend = $.extend;
+        var InsertHtmlCommand = Command.extend({
+            init: function (options) {
+                Command.fn.init.call(this, options);
+                this.managesUndoRedo = true;
+            },
+            exec: function () {
+                var editor = this.editor;
+                var options = this.options;
+                var range = options.range;
+                var body = editor.body;
+                var startRestorePoint = new RestorePoint(range, body);
+                var html = options.html || options.value || '';
+                editor.selectRange(range);
+                editor.clipboard.paste(html, options);
+                if (options.postProcess) {
+                    options.postProcess(editor, editor.getRange());
+                }
+                var genericCommand = new GenericCommand(startRestorePoint, new RestorePoint(editor.getRange(), body));
+                genericCommand.editor = editor;
+                editor.undoRedoStack.push(genericCommand);
+                editor.focus();
+            }
+        });
+        var InsertHtmlTool = Tool.extend({
+            initialize: function (ui, initOptions) {
+                var editor = initOptions.editor, options = this.options, dataSource = options.items ? options.items : editor.options.insertHtml;
+                this._selectBox = new editorNS.SelectBox(ui, {
+                    dataSource: dataSource,
+                    dataTextField: 'text',
+                    dataValueField: 'value',
+                    change: function () {
+                        Tool.exec(editor, 'insertHtml', this.value());
+                    },
+                    title: editor.options.messages.insertHtml,
+                    highlightFirst: false
+                });
+            },
+            command: function (commandArguments) {
+                return new InsertHtmlCommand(commandArguments);
+            },
+            update: function (ui) {
+                var selectbox = ui.data('kendoSelectBox') || ui.find('select').data('kendoSelectBox');
+                selectbox.close();
+                selectbox.value(selectbox.options.title);
+            }
+        });
+        extend(editorNS, {
+            InsertHtmlCommand: InsertHtmlCommand,
+            InsertHtmlTool: InsertHtmlTool
+        });
+        registerTool('insertHtml', new InsertHtmlTool({
+            template: new ToolTemplate({
+                template: EditorUtils.dropDownListTemplate,
+                title: 'Insert HTML',
+                initialValue: 'Insert HTML'
+            })
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/export', ['editor/main'], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, registerTool = EditorUtils.registerTool, ToolTemplate = Editor.ToolTemplate, defaultExportAsItems = [
+                {
+                    text: 'Docx',
+                    value: 'docx'
+                },
+                {
+                    text: 'Rtf',
+                    value: 'rtf'
+                },
+                {
+                    text: 'Pdf',
+                    value: 'pdf'
+                },
+                {
+                    text: 'Html',
+                    value: 'html'
+                },
+                {
+                    text: 'Plain Text',
+                    value: 'txt'
+                }
+            ];
+        var ExportAsCommand = Command.extend({
+            init: function (options) {
+                var cmd = this;
+                cmd.options = options;
+                Command.fn.init.call(cmd, options);
+                cmd.attributes = null;
+                cmd.exportType = options.exportType;
+            },
+            exec: function () {
+                var cmd = this;
+                var range = this.lockRange(true);
+                cmd.postToProxy();
+                cmd.releaseRange(range);
+            },
+            postToProxy: function () {
+                this.generateForm().appendTo('body').submit().remove();
+            },
+            generateForm: function () {
+                var cmd = this;
+                var exportAsOptions = cmd.editor.options.exportAs;
+                var form = $('<form>').attr({
+                    action: exportAsOptions && exportAsOptions.proxyURL || '',
+                    method: 'POST'
+                });
+                form.append([
+                    cmd.valueInput(),
+                    cmd.exportTypeInput(),
+                    cmd.fileNameInput()
+                ]);
+                return form;
+            },
+            valueInput: function () {
+                var editor = this.editor;
+                return $('<input>').attr({
+                    value: editor.encodedValue(),
+                    name: 'value',
+                    type: 'hidden'
+                });
+            },
+            exportTypeInput: function () {
+                var cmd = this;
+                return $('<input>').attr({
+                    value: cmd.exportType,
+                    name: 'exportType',
+                    type: 'hidden'
+                });
+            },
+            fileNameInput: function () {
+                var editor = this.editor;
+                var exportAsOptions = editor.options.exportAs;
+                var fileName = exportAsOptions && exportAsOptions.fileName || editor.element.attr('id') || 'editor';
+                return $('<input>').attr({
+                    value: fileName,
+                    name: 'fileName',
+                    type: 'hidden'
+                });
+            }
+        });
+        var ExportAsTool = Tool.extend({
+            init: function (options) {
+                var tool = this;
+                Tool.fn.init.call(tool, kendo.deepExtend({}, tool.options, options));
+                tool.type = 'kendoSelectBox';
+            },
+            options: {
+                items: defaultExportAsItems,
+                width: 115
+            },
+            command: function (args) {
+                var value = args.value;
+                return new Editor.ExportAsCommand({
+                    range: args.range,
+                    exportType: value.exportType
+                });
+            },
+            initialize: function (ui, initOptions) {
+                var tool = this;
+                var editor = initOptions.editor;
+                var options = tool.options;
+                var toolName = options.name;
+                var changeHandler = proxy(tool.changeHandler, tool);
+                var dataSource = options.items || editor.options[toolName];
+                dataSource.unshift({
+                    text: editor.options.messages[toolName],
+                    value: ''
+                });
+                tool.editor = editor;
+                ui.width(options.width);
+                ui.kendoSelectBox({
+                    dataTextField: 'text',
+                    dataValueField: 'value',
+                    dataSource: dataSource,
+                    autoSize: true,
+                    change: changeHandler,
+                    open: function (e) {
+                        var sender = e.sender;
+                        sender.items()[0].style.display = 'none';
+                        sender.unbind('open');
+                    },
+                    highlightFirst: false,
+                    template: kendo.template('<span unselectable="on" style="display:block;#=(data.style||"")#">#:data.text#</span>')
+                });
+                ui.addClass('k-decorated').closest('.k-widget').removeClass('k-' + toolName).find('*').addBack().attr('unselectable', 'on');
+            },
+            changeHandler: function (e) {
+                var sender = e.sender;
+                var dataItem = sender.dataItem();
+                var value = dataItem && dataItem.value;
+                this._exec(value);
+                sender.value('');
+            },
+            _exec: function (value) {
+                if (value) {
+                    Tool.exec(this.editor, this.options.name, { exportType: value });
+                }
+            },
+            destroy: function () {
+                this._ancestor = null;
+            }
+        });
+        extend(Editor, {
+            ExportAsTool: ExportAsTool,
+            ExportAsCommand: ExportAsCommand
+        });
+        registerTool('exportAs', new ExportAsTool({
+            template: new ToolTemplate({
+                template: EditorUtils.dropDownListTemplate,
+                title: 'Export As'
+            })
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/indent', ['editor/plugins/formatblock'], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo, Class = kendo.Class, extend = $.extend, Editor = kendo.ui.editor, dom = Editor.Dom, EditorUtils = Editor.EditorUtils, registerTool = EditorUtils.registerTool, Command = Editor.Command, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, RangeUtils = Editor.RangeUtils, blockElements = dom.blockElements, BlockFormatFinder = Editor.BlockFormatFinder, BlockFormatter = Editor.BlockFormatter;
+        function indent(node, value) {
+            var isRtl = $(node).css('direction') == 'rtl', indentDirection = isRtl ? 'Right' : 'Left', property = dom.name(node) != 'td' ? 'margin' + indentDirection : 'padding' + indentDirection;
+            if (value === undefined) {
+                return node.style[property] || 0;
+            } else {
+                if (value > 0) {
+                    node.style[property] = value + 'px';
+                } else {
+                    node.style[property] = '';
+                    if (!node.style.cssText) {
+                        node.removeAttribute('style');
+                    }
+                }
+            }
+        }
+        var IndentFormatter = Class.extend({
+            init: function () {
+                this.finder = new BlockFormatFinder([{ tags: dom.blockElements }]);
+            },
+            apply: function (nodes) {
+                nodes = dom.filterBy(nodes, dom.htmlIndentSpace, true);
+                var formatNodes = this.finder.findSuitable(nodes), targets = [], i, len, formatNode, parentList, sibling;
+                formatNodes = this.mapImmutables(formatNodes);
+                if (formatNodes.length) {
+                    for (i = 0, len = formatNodes.length; i < len; i++) {
+                        if (dom.is(formatNodes[i], 'li')) {
+                            if (!$(formatNodes[i]).index()) {
+                                targets.push(formatNodes[i].parentNode);
+                            } else if ($.inArray(formatNodes[i].parentNode, targets) < 0) {
+                                targets.push(formatNodes[i]);
+                            }
+                        } else {
+                            targets.push(formatNodes[i]);
+                        }
+                    }
+                    while (targets.length) {
+                        formatNode = targets.shift();
+                        if (dom.is(formatNode, 'li')) {
+                            parentList = formatNode.parentNode;
+                            sibling = $(formatNode).prev('li');
+                            var siblingList = sibling.find('ul,ol').last();
+                            var nestedList = $(formatNode).children('ul,ol')[0];
+                            if (nestedList && sibling[0]) {
+                                if (siblingList[0]) {
+                                    siblingList.append(formatNode);
+                                    siblingList.append($(nestedList).children());
+                                    dom.remove(nestedList);
+                                } else {
+                                    sibling.append(nestedList);
+                                    nestedList.insertBefore(formatNode, nestedList.firstChild);
+                                }
+                            } else {
+                                nestedList = sibling.children('ul,ol')[0];
+                                if (!nestedList) {
+                                    nestedList = dom.create(formatNode.ownerDocument, dom.name(parentList));
+                                    sibling.append(nestedList);
+                                }
+                                while (formatNode && formatNode.parentNode == parentList) {
+                                    nestedList.appendChild(formatNode);
+                                    formatNode = targets.shift();
+                                }
+                            }
+                        } else {
+                            var marginLeft = parseInt(indent(formatNode), 10) + 30;
+                            indent(formatNode, marginLeft);
+                            for (var targetIndex = 0; targetIndex < targets.length; targetIndex++) {
+                                if ($.contains(formatNode, targets[targetIndex])) {
+                                    targets.splice(targetIndex, 1);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    var formatter = new BlockFormatter([{ tags: ['p'] }], { style: { marginLeft: 30 } });
+                    formatter.apply(nodes);
+                }
+            },
+            mapImmutables: function (nodes) {
+                if (!this.immutables) {
+                    return nodes;
+                } else {
+                    var immutables = [];
+                    return $.map(nodes, function (node) {
+                        var immutable = Editor.Immutables.immutableParent(node);
+                        if (immutable) {
+                            if ($.inArray(immutable, immutables) === -1) {
+                                immutables.push(immutable);
+                            } else {
+                                return null;
+                            }
+                        }
+                        return immutable || node;
+                    });
+                }
+            },
+            remove: function (nodes) {
+                nodes = dom.filterBy(nodes, dom.htmlIndentSpace, true);
+                var formatNodes = this.finder.findSuitable(nodes), targetNode, i, len, list, listParent, siblings, formatNode, marginLeft;
+                formatNodes = this.mapImmutables(formatNodes);
+                for (i = 0, len = formatNodes.length; i < len; i++) {
+                    formatNode = $(formatNodes[i]);
+                    if (formatNode.is('li')) {
+                        list = formatNode.parent();
+                        listParent = list.parent();
+                        if (listParent.is('li,ul,ol') && !indent(list[0])) {
+                            if (targetNode && $.contains(targetNode, listParent[0])) {
+                                continue;
+                            }
+                            siblings = formatNode.nextAll('li');
+                            if (siblings.length) {
+                                $(list[0].cloneNode(false)).appendTo(formatNode).append(siblings);
+                            }
+                            if (listParent.is('li')) {
+                                formatNode.insertAfter(listParent);
+                            } else {
+                                formatNode.appendTo(listParent);
+                            }
+                            if (!list.children('li').length) {
+                                list.remove();
+                            }
+                            continue;
+                        } else {
+                            if (targetNode == list[0]) {
+                                continue;
+                            }
+                            targetNode = list[0];
+                        }
+                    } else {
+                        targetNode = formatNodes[i];
+                    }
+                    marginLeft = parseInt(indent(targetNode), 10) - 30;
+                    indent(targetNode, marginLeft);
+                }
+            }
+        });
+        var IndentCommand = Command.extend({
+            init: function (options) {
+                var that = this;
+                options.formatter = {
+                    toggle: $.proxy(function (range) {
+                        var indentFormatter = new IndentFormatter();
+                        indentFormatter.immutables = this.editor && this.editor.options.immutables;
+                        indentFormatter.apply(RangeUtils.nodes(range));
+                    }, that)
+                };
+                Command.fn.init.call(this, options);
+            }
+        });
+        var OutdentCommand = Command.extend({
+            init: function (options) {
+                var that = this;
+                options.formatter = {
+                    toggle: $.proxy(function (range) {
+                        var indentFormatter = new IndentFormatter();
+                        indentFormatter.immutables = this.editor && this.editor.options.immutables;
+                        indentFormatter.remove(RangeUtils.nodes(range));
+                    }, that)
+                };
+                Command.fn.init.call(this, options);
+            }
+        });
+        var OutdentTool = Tool.extend({
+            init: function (options) {
+                Tool.fn.init.call(this, options);
+                this.finder = new BlockFormatFinder([{ tags: blockElements }]);
+            },
+            initialize: function (ui, options) {
+                Tool.fn.initialize.call(this, ui, options);
+                $.extend(this.options, { immutables: options.editor && options.editor.options.immutables });
+                ui.addClass('k-state-disabled');
+            },
+            update: function (ui, nodes) {
+                var suitableNodes = this.finder.findSuitable(nodes), isOutdentable, listParentsCount, i, len, suitable, immutableParent;
+                for (i = 0, len = suitableNodes.length; i < len; i++) {
+                    suitable = suitableNodes[i];
+                    if (this.options.immutables) {
+                        immutableParent = Editor.Immutables.immutableParent(suitable);
+                        if (immutableParent) {
+                            suitable = immutableParent;
+                        }
+                    }
+                    isOutdentable = indent(suitable);
+                    if (!isOutdentable) {
+                        listParentsCount = $(suitable).parents('ul,ol').length;
+                        isOutdentable = dom.is(suitable, 'li') && (listParentsCount > 1 || indent(suitable.parentNode)) || dom.ofType(suitable, [
+                            'ul',
+                            'ol'
+                        ]) && listParentsCount > 0;
+                    }
+                    if (isOutdentable) {
+                        ui.removeClass('k-state-disabled');
+                        return;
+                    }
+                }
+                ui.addClass('k-state-disabled').removeClass('k-state-hover');
+            }
+        });
+        extend(Editor, {
+            IndentFormatter: IndentFormatter,
+            IndentCommand: IndentCommand,
+            OutdentCommand: OutdentCommand,
+            OutdentTool: OutdentTool
+        });
+        registerTool('indent', new Tool({
+            command: IndentCommand,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Indent'
+            })
+        }));
+        registerTool('outdent', new OutdentTool({
+            command: OutdentCommand,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Outdent'
+            })
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/linebreak', ['editor/plugins/formatblock'], f);
+}(function () {
+    (function ($) {
+        var kendo = window.kendo, extend = $.extend, editorNS = kendo.ui.editor, dom = editorNS.Dom, Command = editorNS.Command, Tool = editorNS.Tool, BlockFormatter = editorNS.BlockFormatter, normalize = dom.normalize, RangeUtils = editorNS.RangeUtils, registerTool = editorNS.EditorUtils.registerTool;
+        var ParagraphCommand = Command.extend({
+            init: function (options) {
+                this.options = options;
+                Command.fn.init.call(this, options);
+            },
+            _insertMarker: function (doc, range) {
+                var marker = dom.create(doc, 'a'), container;
+                marker.className = 'k-marker';
+                range.insertNode(marker);
+                if (!marker.parentNode) {
+                    container = range.commonAncestorContainer;
+                    container.innerHTML = '';
+                    container.appendChild(marker);
+                }
+                normalize(marker.parentNode);
+                return marker;
+            },
+            _moveFocus: function (range, candidate) {
+                if (dom.isEmpty(candidate)) {
+                    range.setStartBefore(candidate);
+                } else {
+                    range.selectNodeContents(candidate);
+                    var focusNode = RangeUtils.textNodes(range)[0];
+                    if (!focusNode) {
+                        while (candidate.childNodes.length && !dom.is(candidate.firstChild, 'br')) {
+                            candidate = candidate.firstChild;
+                        }
+                        focusNode = candidate;
+                    }
+                    if (dom.isEmpty(focusNode)) {
+                        range.setStartBefore(focusNode);
+                    } else {
+                        if (dom.emptyNode(focusNode)) {
+                            focusNode.innerHTML = '\uFEFF';
+                        }
+                        var startNode = focusNode.firstChild || focusNode;
+                        if (dom.isDataNode(startNode)) {
+                            range.setStart(startNode, 0);
+                        } else {
+                            range.setStartBefore(startNode);
+                        }
+                    }
+                }
+            },
+            shouldTrim: function (range) {
+                var blocks = 'p,h1,h2,h3,h4,h5,h6'.split(','), startInBlock = dom.parentOfType(range.startContainer, blocks), endInBlock = dom.parentOfType(range.endContainer, blocks);
+                return startInBlock && !endInBlock || !startInBlock && endInBlock;
+            },
+            _blankAfter: function (node) {
+                while (node && (dom.isMarker(node) || dom.stripBom(node.nodeValue) === '')) {
+                    node = node.nextSibling;
+                }
+                return !node;
+            },
+            exec: function () {
+                var range = this.getRange(), doc = RangeUtils.documentFromRange(range), parent, previous, next, emptyParagraphContent = editorNS.emptyElementContent, paragraph, marker, li, heading, tableNode, rng, shouldTrim;
+                this.expandImmutablesIn(range);
+                shouldTrim = this.shouldTrim(range);
+                range.deleteContents();
+                marker = this._insertMarker(doc, range);
+                dom.stripBomNode(marker.previousSibling);
+                dom.stripBomNode(marker.nextSibling);
+                li = dom.closestEditableOfType(marker, ['li']);
+                heading = dom.closestEditableOfType(marker, 'h1,h2,h3,h4,h5,h6'.split(','));
+                tableNode = dom.is(marker.parentNode, 'table') && marker.parentNode;
+                if (li) {
+                    if (dom.emptyNode(li)) {
+                        paragraph = dom.create(doc, 'p');
+                        if (dom.next(li)) {
+                            rng = range.cloneRange();
+                            rng.selectNode(li);
+                            RangeUtils.split(rng, li.parentNode);
+                        }
+                        var br = $('br', li);
+                        if (br.length == 1) {
+                            br.remove();
+                        }
+                        var parentNode = li.parentNode;
+                        var parentChildrenLength = li.parentNode.children.length;
+                        var firstChild = parentChildrenLength > 1 && li.childNodes.length == 1 && li.children[0];
+                        dom.insertAfter(paragraph, parentNode);
+                        dom.remove(parentChildrenLength == 1 ? li.parentNode : li);
+                        if (firstChild && firstChild !== marker) {
+                            paragraph.appendChild(firstChild);
+                            paragraph.appendChild(marker);
+                        } else {
+                            paragraph.innerHTML = emptyParagraphContent;
+                        }
+                        next = paragraph;
+                    }
+                } else if (heading && this._blankAfter(marker)) {
+                    paragraph = this._insertParagraphAfter(heading);
+                    dom.remove(marker);
+                    next = paragraph;
+                } else if (tableNode) {
+                    paragraph = this._insertParagraphAfter(tableNode);
+                    dom.remove(marker);
+                    next = paragraph;
+                }
+                if (!next) {
+                    if (!(li || heading)) {
+                        new BlockFormatter([{ tags: ['p'] }]).apply([marker]);
+                    }
+                    range.selectNode(marker);
+                    parent = dom.parentOfType(marker, [li ? 'li' : heading ? dom.name(heading) : 'p']);
+                    RangeUtils.split(range, parent, shouldTrim);
+                    previous = parent.previousSibling;
+                    if (dom.is(previous, 'li') && previous.firstChild && !dom.is(previous.firstChild, 'br')) {
+                        previous = previous.firstChild;
+                    }
+                    next = parent.nextSibling;
+                    this.clean(previous);
+                    this.clean(next, { links: true });
+                    if (dom.is(next, 'li') && next.firstChild && !dom.is(next.firstChild, 'br')) {
+                        next = next.firstChild;
+                    }
+                    dom.remove(parent);
+                    normalize(previous);
+                }
+                normalize(next);
+                this._moveFocus(range, next);
+                range.collapse(true);
+                dom.scrollTo(next, true);
+                RangeUtils.selectRange(range);
+            },
+            _insertParagraphAfter: function (node) {
+                var range = this.getRange();
+                var doc = RangeUtils.documentFromRange(range);
+                var emptyElementContent = editorNS.emptyElementContent;
+                var paragraph = dom.create(doc, 'p');
+                dom.insertAfter(paragraph, node);
+                paragraph.innerHTML = emptyElementContent;
+                return paragraph;
+            },
+            clean: function (node, options) {
+                var root = node;
+                if (node.firstChild && dom.is(node.firstChild, 'br')) {
+                    dom.remove(node.firstChild);
+                }
+                if (dom.isDataNode(node) && !node.nodeValue) {
+                    node = node.parentNode;
+                }
+                if (node) {
+                    var siblings = false;
+                    while (node.firstChild && node.firstChild.nodeType == 1) {
+                        siblings = siblings || dom.significantNodes(node.childNodes).length > 1;
+                        node = node.firstChild;
+                    }
+                    if (!dom.isEmpty(node) && /^\s*$/.test(node.innerHTML) && !siblings) {
+                        $(root).find('.k-br').remove();
+                        node.innerHTML = editorNS.emptyElementContent;
+                    }
+                    if (options && options.links) {
+                        while (node != root) {
+                            if (dom.is(node, 'a') && dom.emptyNode(node)) {
+                                dom.unwrap(node);
+                                break;
+                            }
+                            node = node.parentNode;
+                        }
+                    }
+                }
+            }
+        });
+        var NewLineCommand = Command.extend({
+            init: function (options) {
+                this.options = options;
+                Command.fn.init.call(this, options);
+            },
+            exec: function () {
+                var range = this.getRange();
+                this.expandImmutablesIn(range);
+                var br = dom.create(RangeUtils.documentFromRange(range), 'br');
+                var node = range.startContainer;
+                var filler;
+                var browser = kendo.support.browser;
+                var oldIE = browser.msie && browser.version < 11;
+                var tableNode = dom.is(node, 'table') && node;
+                range.deleteContents();
+                if (tableNode) {
+                    dom.insertAfter(br, tableNode);
+                } else {
+                    range.insertNode(br);
+                }
+                normalize(br.parentNode);
+                if (!oldIE && (!br.nextSibling || dom.isWhitespace(br.nextSibling))) {
+                    filler = br.cloneNode(true);
+                    filler.className = 'k-br';
+                    dom.insertAfter(filler, br);
+                }
+                range.setStartAfter(br);
+                range.collapse(true);
+                dom.scrollTo(br.nextSibling || br, true);
+                RangeUtils.selectRange(range);
+            }
+        });
+        extend(editorNS, {
+            ParagraphCommand: ParagraphCommand,
+            NewLineCommand: NewLineCommand
+        });
+        registerTool('insertLineBreak', new Tool({
+            key: 13,
+            shift: true,
+            command: NewLineCommand
+        }));
+        registerTool('insertParagraph', new Tool({
+            key: 13,
+            command: ParagraphCommand
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/file', [
+        'kendo.filebrowser',
+        'editor/plugins/link'
+    ], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo, extend = $.extend, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, dom = Editor.Dom, registerTool = EditorUtils.registerTool, ToolTemplate = Editor.ToolTemplate, RangeUtils = Editor.RangeUtils, Command = Editor.Command, LinkFormatter = Editor.LinkFormatter, textNodes = RangeUtils.textNodes, keys = kendo.keys, KEDITORFILEURL = '#k-editor-file-url', KEDITORFILETEXT = '#k-editor-file-text', KEDITORFILETITLE = '#k-editor-file-title';
+        var FileCommand = Command.extend({
+            init: function (options) {
+                var that = this;
+                Command.fn.init.call(that, options);
+                that.formatter = new LinkFormatter();
+                that.async = true;
+                that.attributes = {};
+            },
+            insertFile: function (file, range) {
+                var attributes = this.attributes;
+                var doc = RangeUtils.documentFromRange(range);
+                if (attributes.href && attributes.href != 'http://') {
+                    if (!file) {
+                        file = dom.create(doc, 'a', { href: attributes.href });
+                        file.innerHTML = attributes.innerHTML;
+                        file.title = attributes.title;
+                        range.deleteContents();
+                        range.insertNode(file);
+                        if (!file.nextSibling) {
+                            dom.insertAfter(doc.createTextNode('\uFEFF'), file);
+                        }
+                        range.setStartAfter(file);
+                        range.setEndAfter(file);
+                        RangeUtils.selectRange(range);
+                        return true;
+                    } else {
+                        dom.attr(file, attributes);
+                    }
+                }
+                return false;
+            },
+            _dialogTemplate: function (showBrowser) {
+                return kendo.template('<div class="k-editor-dialog k-popup-edit-form">' + '<div class="k-edit-form-container">' + '<div class="k-edit-form-content">' + '# if (showBrowser) { #' + '<div class="k-filebrowser"></div>' + '# } #' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-url">#: messages.fileWebAddress #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-url">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-text">#: messages.fileText #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-text">' + '</div>' + '<div class=\'k-edit-label\'>' + '<label for="k-editor-file-title">#: messages.fileTitle #</label>' + '</div>' + '<div class=\'k-edit-field\'>' + '<input type="text" class="k-input k-textbox" id="k-editor-file-title">' + '</div>' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-dialog-insert k-button k-primary">#: messages.dialogInsert #</button>' + '<button class="k-dialog-close k-button">#: messages.dialogCancel #</button>' + '</div>' + '</div>' + '</div>')({
+                    messages: this.editor.options.messages,
+                    showBrowser: showBrowser
+                });
+            },
+            redo: function () {
+                var that = this, range = that.lockRange();
+                this.formatter.apply(range, this.attributes);
+                that.releaseRange(range);
+            },
+            exec: function () {
+                var that = this, range = that.lockRange(), nodes = textNodes(range), applied = false, file = nodes.length ? this.formatter.finder.findSuitable(nodes[0]) : null, dialog, isIE = kendo.support.browser.msie, options = that.editor.options, messages = options.messages, fileBrowser = options.fileBrowser, showBrowser = !!(kendo.ui.FileBrowser && fileBrowser && fileBrowser.transport && fileBrowser.transport.read !== undefined), dialogOptions = {
+                        title: messages.insertFile,
+                        visible: false,
+                        resizable: showBrowser
+                    };
+                this.expandImmutablesIn(range);
+                function apply(e) {
+                    var element = dialog.element, href = element.find(KEDITORFILEURL).val().replace(/ /g, '%20'), innerHTML = element.find(KEDITORFILETEXT).val(), title = element.find(KEDITORFILETITLE).val();
+                    that.attributes = {
+                        href: href,
+                        innerHTML: innerHTML !== '' ? innerHTML : href,
+                        title: title
+                    };
+                    applied = that.insertFile(file, range);
+                    close(e);
+                    if (that.change) {
+                        that.change();
+                    }
+                }
+                function close(e) {
+                    e.preventDefault();
+                    dialog.destroy();
+                    dom.windowFromDocument(RangeUtils.documentFromRange(range)).focus();
+                    if (!applied) {
+                        that.releaseRange(range);
+                    }
+                }
+                function keyDown(e) {
+                    if (e.keyCode == keys.ENTER) {
+                        apply(e);
+                    } else if (e.keyCode == keys.ESC) {
+                        close(e);
+                    }
+                }
+                dialogOptions.close = close;
+                if (showBrowser) {
+                    dialogOptions.width = 750;
+                }
+                dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').click(apply).end().find('.k-dialog-close').click(close).end().find('.k-edit-field input').keydown(keyDown).end().find(KEDITORFILEURL).val(file ? file.getAttribute('href', 2) : 'http://').end().find(KEDITORFILETEXT).val(file ? file.innerText : '').end().find(KEDITORFILETITLE).val(file ? file.title : '').end().data('kendoWindow');
+                var element = dialog.element;
+                if (showBrowser) {
+                    that._fileBrowser = new kendo.ui.FileBrowser(element.find('.k-filebrowser'), extend({}, fileBrowser));
+                    that._fileBrowser.bind('change', function (ev) {
+                        if (ev.selected.get('type') === 'f') {
+                            element.find(KEDITORFILEURL).val(this.value());
+                        }
+                    });
+                    that._fileBrowser.bind('apply', apply);
+                }
+                if (isIE) {
+                    var dialogHeight = element.closest('.k-window').height();
+                    element.css('max-height', dialogHeight);
+                }
+                dialog.center().open();
+                element.find(KEDITORFILEURL).focus().select();
+            }
+        });
+        kendo.ui.editor.FileCommand = FileCommand;
+        registerTool('insertFile', new Editor.Tool({
+            command: FileCommand,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Insert File'
+            })
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/tables', ['editor/plugins/formatblock'], f);
 }(function () {
     (function ($, undefined) {
         var kendo = window.kendo, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, dom = Editor.Dom, EditorUtils = Editor.EditorUtils, RangeUtils = Editor.RangeUtils, Command = Editor.Command, NS = 'kendoEditor', ACTIVESTATE = 'k-state-active', SELECTEDSTATE = 'k-state-selected', Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, InsertHtmlCommand = Editor.InsertHtmlCommand, BlockFormatFinder = Editor.BlockFormatFinder, registerTool = Editor.EditorUtils.registerTool, getTouches = kendo.getTouches;
@@ -9586,159 +8548,1632 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('editor/export', ['editor/main'], f);
+    define('editor/plugins/clipboard', ['editor/command'], f);
 }(function () {
-    (function ($, undefined) {
-        var kendo = window.kendo, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, registerTool = EditorUtils.registerTool, ToolTemplate = Editor.ToolTemplate, defaultExportAsItems = [
-                {
-                    text: 'Docx',
-                    value: 'docx'
-                },
-                {
-                    text: 'Rtf',
-                    value: 'rtf'
-                },
-                {
-                    text: 'Pdf',
-                    value: 'pdf'
-                },
-                {
-                    text: 'Html',
-                    value: 'html'
-                },
-                {
-                    text: 'Plain Text',
-                    value: 'txt'
+    (function ($) {
+        var kendo = window.kendo, Class = kendo.Class, editorNS = kendo.ui.editor, RangeUtils = editorNS.RangeUtils, dom = editorNS.Dom, RestorePoint = editorNS.RestorePoint, Marker = editorNS.Marker, browser = kendo.support.browser, extend = $.extend;
+        var Clipboard = Class.extend({
+            init: function (editor) {
+                this.editor = editor;
+                var pasteCleanup = editor.options.pasteCleanup;
+                this.cleaners = [
+                    new ScriptCleaner(pasteCleanup),
+                    new TabCleaner(pasteCleanup),
+                    new MSWordFormatCleaner(pasteCleanup),
+                    new WebkitFormatCleaner(pasteCleanup),
+                    new HtmlTagsCleaner(pasteCleanup),
+                    new HtmlAttrCleaner(pasteCleanup),
+                    new HtmlContentCleaner(pasteCleanup),
+                    new CustomCleaner(pasteCleanup)
+                ];
+            },
+            htmlToFragment: function (html) {
+                var editor = this.editor, doc = editor.document, container = dom.create(doc, 'div'), fragment = doc.createDocumentFragment();
+                container.innerHTML = html;
+                while (container.firstChild) {
+                    fragment.appendChild(container.firstChild);
                 }
-            ];
-        var ExportAsCommand = Command.extend({
+                return fragment;
+            },
+            isBlock: function (html) {
+                return /<(div|p|ul|ol|table|h[1-6])/i.test(html);
+            },
+            _startModification: function () {
+                var range;
+                var restorePoint;
+                var editor = this.editor;
+                if (this._inProgress) {
+                    return;
+                }
+                this._inProgress = true;
+                range = editor.getRange();
+                restorePoint = new RestorePoint(range, editor.body);
+                dom.persistScrollTop(editor.document);
+                return {
+                    range: range,
+                    restorePoint: restorePoint
+                };
+            },
+            _endModification: function (modificationInfo) {
+                editorNS._finishUpdate(this.editor, modificationInfo.restorePoint);
+                this.editor._selectionChange();
+                this._inProgress = false;
+            },
+            _contentModification: function (before, after) {
+                var that = this;
+                var editor = that.editor;
+                var modificationInfo = that._startModification();
+                if (!modificationInfo) {
+                    return;
+                }
+                before.call(that, editor, modificationInfo.range);
+                setTimeout(function () {
+                    after.call(that, editor, modificationInfo.range);
+                    that._endModification(modificationInfo);
+                });
+            },
+            _removeBomNodes: function (range) {
+                var nodes = RangeUtils.textNodes(range);
+                for (var i = 0; i < nodes.length; i++) {
+                    nodes[i].nodeValue = dom.stripBom(nodes[i].nodeValue) || nodes[i].nodeValue;
+                }
+            },
+            _onBeforeCopy: function (range) {
+                var marker = new Marker();
+                marker.add(range);
+                this._removeBomNodes(range);
+                marker.remove(range);
+                this.editor.selectRange(range);
+            },
+            oncopy: function () {
+                this._onBeforeCopy(this.editor.getRange());
+            },
+            oncut: function () {
+                this._onBeforeCopy(this.editor.getRange());
+                this._contentModification($.noop, $.noop);
+            },
+            _fileToDataURL: function (blob) {
+                var deferred = $.Deferred();
+                var reader = new FileReader();
+                if (!(blob instanceof window.File) && blob.getAsFile) {
+                    blob = blob.getAsFile();
+                }
+                reader.onload = $.proxy(deferred.resolve, deferred);
+                reader.readAsDataURL(blob);
+                return deferred.promise();
+            },
+            _triggerPaste: function (html, options) {
+                var args = { html: html || '' };
+                args.html = args.html.replace(/\ufeff/g, '');
+                this.editor.trigger('paste', args);
+                this.paste(args.html, options || {});
+            },
+            _handleImagePaste: function (e) {
+                if (!('FileReader' in window) || browser.msie && browser.version > 10) {
+                    return;
+                }
+                var clipboardData = e.clipboardData || e.originalEvent.clipboardData || window.clipboardData || {};
+                var items = clipboardData.items || clipboardData.files;
+                return this._insertImages(items);
+            },
+            _insertImages: function (items) {
+                if (!items) {
+                    return;
+                }
+                var images = $.grep(items, function (item) {
+                    return /^image\//i.test(item.type);
+                });
+                var html = $.grep(items, function (item) {
+                    return /^text\/html/i.test(item.type);
+                });
+                if (html.length || !images.length) {
+                    return;
+                }
+                var modificationInfo = this._startModification();
+                if (!modificationInfo) {
+                    return;
+                }
+                $.when.apply($, $.map(images, this._fileToDataURL)).done($.proxy(function () {
+                    var results = Array.prototype.slice.call(arguments);
+                    var html = $.map(results, function (e) {
+                        return '<img src="' + e.target.result + '" />';
+                    }).join('');
+                    this._triggerPaste(html);
+                    this._endModification(modificationInfo);
+                }, this));
+                return true;
+            },
+            onpaste: function (e) {
+                if (this._handleImagePaste(e)) {
+                    e.preventDefault();
+                    return;
+                }
+                this.expandImmutablesIn();
+                this._contentModification(function beforePaste(editor, range) {
+                    var clipboardNode = dom.create(editor.document, 'div', {
+                        className: 'k-paste-container',
+                        innerHTML: '\uFEFF'
+                    });
+                    var browser = kendo.support.browser;
+                    var body = editor.body;
+                    this._decoreateClipboardNode(clipboardNode, body);
+                    body.appendChild(clipboardNode);
+                    if (browser.webkit) {
+                        this._moveToCaretPosition(clipboardNode, range);
+                    }
+                    if (browser.msie && browser.version < 11) {
+                        e.preventDefault();
+                        var r = editor.createRange();
+                        r.selectNodeContents(clipboardNode);
+                        editor.selectRange(r);
+                        var textRange = editor.document.body.createTextRange();
+                        textRange.moveToElementText(clipboardNode);
+                        $(body).unbind('paste');
+                        textRange.execCommand('Paste');
+                        $(body).bind('paste', $.proxy(this.onpaste, this));
+                    } else {
+                        var clipboardRange = editor.createRange();
+                        clipboardRange.selectNodeContents(clipboardNode);
+                        editor.selectRange(clipboardRange);
+                    }
+                    range.deleteContents();
+                }, function afterPaste(editor, range) {
+                    var html = '', containers;
+                    editor.selectRange(range);
+                    containers = $(editor.body).children('.k-paste-container');
+                    containers.each(function () {
+                        var lastChild = this.lastChild;
+                        if (lastChild && dom.is(lastChild, 'br')) {
+                            dom.remove(lastChild);
+                        }
+                        html += this.innerHTML;
+                    });
+                    containers.remove();
+                    this._triggerPaste(html, { clean: true });
+                });
+            },
+            ondragover: function (e) {
+                if (browser.msie || browser.edge) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            },
+            ondrop: function (e) {
+                if (!('FileReader' in window)) {
+                    return;
+                }
+                var dataTransfer = (e.originalEvent || e).dataTransfer || {};
+                var items = dataTransfer.items || dataTransfer.files;
+                if (this._insertImages(items)) {
+                    e.preventDefault();
+                }
+            },
+            _decoreateClipboardNode: function (node, body) {
+                if (!browser.msie && !browser.webkit) {
+                    return;
+                }
+                node = $(node);
+                node.css({
+                    borderWidth: '0px',
+                    width: '0px',
+                    height: '0px',
+                    overflow: 'hidden',
+                    margin: '0',
+                    padding: '0'
+                });
+                if (browser.msie) {
+                    var documentElement = $(body.ownerDocument.documentElement);
+                    node.css({
+                        fontVariant: 'normal',
+                        fontWeight: 'normal',
+                        lineSpacing: 'normal',
+                        lineHeight: 'normal',
+                        textDecoration: 'none'
+                    });
+                    var color = documentElement.css('color');
+                    if (color) {
+                        node.css('color', color);
+                    }
+                    var fontFamily = documentElement.css('fontFamily');
+                    if (fontFamily) {
+                        node.css('fontFamily', fontFamily);
+                    }
+                    var fontSize = documentElement.css('fontSize');
+                    if (fontSize) {
+                        node.css('fontSize', fontSize);
+                    }
+                }
+            },
+            _moveToCaretPosition: function (node, range) {
+                var that = this;
+                var body = that.editor.body;
+                var nodeOffset = dom.offset(node, body);
+                var caretOffset = that._caretOffset(range, body);
+                var translateX = caretOffset.left - nodeOffset.left;
+                var translateY = caretOffset.top - nodeOffset.top;
+                var translate = 'translate(' + translateX + 'px,' + translateY + 'px)';
+                $(node).css({
+                    '-webkit-transform': translate,
+                    'transform': translate
+                });
+            },
+            _caretOffset: function (range, body) {
+                var editor = this.editor;
+                var caret = dom.create(editor.document, 'span', { innerHTML: '\uFEFF' });
+                var startContainer = range.startContainer;
+                var rangeChanged;
+                if (range.collapsed) {
+                    var isStartTextNode = dom.isDataNode(startContainer);
+                    if (isStartTextNode && (dom.isBom(startContainer) || range.startOffset === 0)) {
+                        dom.insertBefore(caret, startContainer);
+                    } else if (isStartTextNode && range.startOffset === startContainer.length) {
+                        dom.insertAfter(caret, startContainer);
+                    } else {
+                        range.insertNode(caret);
+                        rangeChanged = true;
+                    }
+                } else {
+                    startContainer = startContainer === body ? startContainer.childNodes[range.startOffset] : startContainer;
+                    dom.insertBefore(caret, startContainer);
+                }
+                var offset = dom.offset(caret, body);
+                var prev = caret.previousSibling;
+                var next = caret.nextSibling;
+                dom.remove(caret);
+                if (rangeChanged && dom.isDataNode(prev) && dom.isDataNode(next) && !dom.isBom(prev) && !dom.isBom(next)) {
+                    var prevLength = prev.length;
+                    next.data = prev.data + next.data;
+                    range.setStart(next, prevLength);
+                    dom.remove(prev);
+                    range.collapse(true);
+                    editor.selectRange(range);
+                }
+                return offset;
+            },
+            expandImmutablesIn: function (range) {
+                var editor = this.editor;
+                if (editor && editor.options.immutables) {
+                    var body = editor.body;
+                    range = range || editor.getRange();
+                    kendo.ui.editor.Immutables.expandImmutablesIn(range);
+                    if (range.startContainer === body && range.startOffset === 0) {
+                        var doc = body.ownerDocument;
+                        var bomNode = doc.createTextNode('\uFEFF');
+                        body.insertBefore(bomNode, body.childNodes[0]);
+                        range.setStartBefore(bomNode);
+                    }
+                    editor.selectRange(range);
+                }
+            },
+            splittableParent: function (block, node) {
+                var parentNode, body;
+                if (block) {
+                    return dom.closestEditableOfType(node, [
+                        'p',
+                        'ul',
+                        'ol'
+                    ]) || node.parentNode;
+                }
+                parentNode = node.parentNode;
+                body = node.ownerDocument.body;
+                if (dom.isInline(parentNode)) {
+                    while (parentNode.parentNode != body && !dom.isBlock(parentNode.parentNode)) {
+                        parentNode = parentNode.parentNode;
+                    }
+                }
+                return parentNode;
+            },
+            paste: function (html, options) {
+                var editor = this.editor, i, l, childNodes;
+                this.expandImmutablesIn();
+                options = extend({
+                    clean: false,
+                    split: true
+                }, options);
+                if (!options.skipCleaners) {
+                    for (i = 0, l = this.cleaners.length; i < l; i++) {
+                        if (this.cleaners[i].applicable(html)) {
+                            html = this.cleaners[i].clean(html);
+                        }
+                    }
+                }
+                if (options.clean) {
+                    html = html.replace(/(<br>(\s|&nbsp;)*)+(<\/?(div|p|li|col|t))/gi, '$3');
+                    html = html.replace(/<(a|span)[^>]*><\/\1>/gi, '');
+                }
+                html = html.replace(/^<li/i, '<ul><li').replace(/li>$/g, 'li></ul>');
+                var block = this.isBlock(html);
+                editor.focus();
+                var range = editor.getRange();
+                range.deleteContents();
+                if (range.startContainer == editor.document) {
+                    range.selectNodeContents(editor.body);
+                }
+                var marker = new Marker();
+                var caret = marker.addCaret(range);
+                var parent = this.splittableParent(block, caret);
+                var unwrap = false;
+                var splittable = parent != editor.body && !dom.is(parent, 'td');
+                if (options.split && splittable && (block || dom.isInline(parent))) {
+                    range.selectNode(caret);
+                    RangeUtils.split(range, parent, true);
+                    unwrap = true;
+                }
+                var fragment = this.htmlToFragment(html);
+                if (fragment.firstChild && fragment.firstChild.className === 'k-paste-container') {
+                    var fragmentsHtml = [];
+                    for (i = 0, l = fragment.childNodes.length; i < l; i++) {
+                        fragmentsHtml.push(fragment.childNodes[i].innerHTML);
+                    }
+                    fragment = this.htmlToFragment(fragmentsHtml.join('<br />'));
+                }
+                childNodes = fragment.childNodes;
+                $(childNodes).filter('table').addClass('k-table').end().find('table').addClass('k-table');
+                $(childNodes).each(function (index, elm) {
+                    if (dom.isBlock(elm) && elm.innerHTML === '') {
+                        elm.appendChild(editor.document.createTextNode('\uFEFF'));
+                    }
+                });
+                range.insertNode(fragment);
+                parent = this.splittableParent(block, caret);
+                if (unwrap) {
+                    while (caret.parentNode != parent) {
+                        dom.unwrap(caret.parentNode);
+                    }
+                    dom.unwrap(caret.parentNode);
+                }
+                dom.normalize(range.commonAncestorContainer);
+                caret.style.display = 'inline';
+                dom.restoreScrollTop(editor.document);
+                dom.scrollTo(caret);
+                marker.removeCaret(range);
+                var rangeEnd = range.commonAncestorContainer.parentNode;
+                if (range.collapsed && dom.name(rangeEnd) == 'tbody') {
+                    range.setStartAfter($(rangeEnd).closest('table')[0]);
+                    range.collapse(true);
+                }
+                var focusedTable = $(range.commonAncestorContainer.parentNode).closest('table');
+                if (focusedTable.get(0)) {
+                    var siblingNodes = focusedTable.parent().contents();
+                    var lastSiblingIndex = siblingNodes.length - 1;
+                    var lastSibling = siblingNodes.get(lastSiblingIndex);
+                    while (lastSibling.nodeValue !== null && (lastSibling.nodeValue === ' ' || lastSibling.nodeValue === '')) {
+                        lastSiblingIndex -= 1;
+                        lastSibling = siblingNodes.get(lastSiblingIndex);
+                    }
+                    if (lastSibling === focusedTable.get(0)) {
+                        dom.insertAfter(dom.createEmptyNode(editor.document, 'p'), focusedTable[0]);
+                    }
+                }
+                editor.selectRange(range);
+            }
+        });
+        var Cleaner = Class.extend({
             init: function (options) {
-                var cmd = this;
-                cmd.options = options;
-                Command.fn.init.call(cmd, options);
-                cmd.attributes = null;
-                cmd.exportType = options.exportType;
+                this.options = options || {};
+                this.replacements = [];
+            },
+            clean: function (html, customReplacements) {
+                var that = this, replacements = customReplacements || that.replacements, i, l;
+                for (i = 0, l = replacements.length; i < l; i += 2) {
+                    html = html.replace(replacements[i], replacements[i + 1]);
+                }
+                return html;
+            }
+        });
+        var ScriptCleaner = Cleaner.extend({
+            init: function (options) {
+                Cleaner.fn.init.call(this, options);
+                this.replacements = [
+                    /<(\/?)script([^>]*)>/i,
+                    '<$1telerik:script$2>'
+                ];
+            },
+            applicable: function (html) {
+                return !this.options.none && /<script[^>]*>/i.test(html);
+            }
+        });
+        var TabCleaner = Cleaner.extend({
+            init: function (options) {
+                Cleaner.fn.init.call(this, options);
+                var replacement = ' ';
+                this.replacements = [
+                    /<span\s+class="Apple-tab-span"[^>]*>\s*<\/span>/gi,
+                    replacement,
+                    /\t/gi,
+                    replacement,
+                    /&nbsp;&nbsp; &nbsp;/gi,
+                    replacement
+                ];
+            },
+            applicable: function (html) {
+                return /&nbsp;&nbsp; &nbsp;|class="?Apple-tab-span/i.test(html);
+            }
+        });
+        var MSWordFormatCleaner = Cleaner.extend({
+            init: function (options) {
+                Cleaner.fn.init.call(this, options);
+                this.junkReplacements = [
+                    /<\?xml[^>]*>/gi,
+                    '',
+                    /<!--(.|\n)*?-->/g,
+                    '',
+                    /&quot;/g,
+                    '\'',
+                    /<o:p>&nbsp;<\/o:p>/gi,
+                    '&nbsp;',
+                    /<\/?(meta|link|style|o:|v:|x:)[^>]*>((?:.|\n)*?<\/(meta|link|style|o:|v:|x:)[^>]*>)?/gi,
+                    '',
+                    /<\/o>/g,
+                    ''
+                ];
+                this.replacements = this.junkReplacements.concat([
+                    /(?:<br>&nbsp;[\s\r\n]+|<br>)*(<\/?(h[1-6]|hr|p|div|table|tbody|thead|tfoot|th|tr|td|li|ol|ul|caption|address|pre|form|blockquote|dl|dt|dd|dir|fieldset)[^>]*>)(?:<br>&nbsp;[\s\r\n]+|<br>)*/g,
+                    '$1',
+                    /<br><br>/g,
+                    '<BR><BR>',
+                    /<br>(?!\n)/g,
+                    ' ',
+                    /<table([^>]*)>(\s|&nbsp;)+<t/gi,
+                    '<table$1><t',
+                    /<tr[^>]*>(\s|&nbsp;)*<\/tr>/gi,
+                    '',
+                    /<tbody[^>]*>(\s|&nbsp;)*<\/tbody>/gi,
+                    '',
+                    /<table[^>]*>(\s|&nbsp;)*<\/table>/gi,
+                    '',
+                    /<BR><BR>/g,
+                    '<br>',
+                    /^\s*(&nbsp;)+/gi,
+                    '',
+                    /(&nbsp;|<br[^>]*>)+\s*$/gi,
+                    '',
+                    /mso-[^;"]*;?/gi,
+                    '',
+                    /<(\/?)b(\s[^>]*)?>/gi,
+                    '<$1strong$2>',
+                    /<(\/?)font(\s[^>]*)?>/gi,
+                    this.convertFontMatch,
+                    /<(\/?)i(\s[^>]*)?>/gi,
+                    '<$1em$2>',
+                    /style=(["|'])\s*\1/g,
+                    '',
+                    /(<br[^>]*>)?\n/g,
+                    function ($0, $1) {
+                        return $1 ? $0 : ' ';
+                    }
+                ]);
+            },
+            convertFontMatch: function (match, closing, args) {
+                var faceRe = /face=['"]([^'"]+)['"]/i;
+                var face = faceRe.exec(args);
+                var family = args && face && face[1];
+                if (closing) {
+                    return '</span>';
+                } else if (family) {
+                    return '<span style="font-family:' + family + '">';
+                } else {
+                    return '<span>';
+                }
+            },
+            applicable: function (html) {
+                return /class="?Mso/i.test(html) || /style="[^"]*mso-/i.test(html) || /urn:schemas-microsoft-com:office/.test(html);
+            },
+            stripEmptyAnchors: function (html) {
+                return html.replace(/<a([^>]*)>\s*<\/a>/gi, function (a, attributes) {
+                    if (!attributes || attributes.indexOf('href') < 0) {
+                        return '';
+                    }
+                    return a;
+                });
+            },
+            listType: function (p, listData) {
+                var html = p.innerHTML;
+                var text = dom.innerText(p);
+                var startingSymbol;
+                var matchSymbol = html.match(/^(?:<span [^>]*texhtml[^>]*>)?<span [^>]*(?:Symbol|Wingdings)[^>]*>([^<]+)/i);
+                var symbol = matchSymbol && matchSymbol[1];
+                var isNumber = /^[a-z\d]/i.test(symbol);
+                var trimStartText = function (text) {
+                    return text.replace(/^(?:&nbsp;|[\u00a0\n\r\s])+/, '');
+                };
+                if (matchSymbol) {
+                    startingSymbol = true;
+                }
+                html = html.replace(/<\/?\w+[^>]*>/g, '').replace(/&nbsp;/g, '\xA0');
+                if (!startingSymbol && /^[\u2022\u00b7\u00a7\u00d8o]\u00a0+/.test(html) || startingSymbol && /^.\u00a0+/.test(html) || symbol && !isNumber && listData) {
+                    return {
+                        tag: 'ul',
+                        style: this._guessUnorderedListStyle(trimStartText(text))
+                    };
+                }
+                if (/^\s*\w+[\.\)][\u00a0 ]{2,}/.test(html)) {
+                    return {
+                        tag: 'ol',
+                        style: this._guessOrderedListStyle(trimStartText(text))
+                    };
+                }
+            },
+            _convertToLi: function (p) {
+                var content, name = dom.name(p);
+                if (p.childNodes.length == 1) {
+                    content = p.firstChild.innerHTML.replace(/^\w+[\.\)](&nbsp;)+ /, '');
+                } else {
+                    dom.remove(p.firstChild);
+                    if (p.firstChild.nodeType == 3) {
+                        if (/^[ivxlcdm]+\.$/i.test(p.firstChild.nodeValue)) {
+                            dom.remove(p.firstChild);
+                        }
+                    }
+                    if (/^(&nbsp;|\s)+$/i.test(p.firstChild.innerHTML)) {
+                        dom.remove(p.firstChild);
+                    }
+                    if (name != 'p') {
+                        content = '<' + name + '>' + p.innerHTML + '</' + name + '>';
+                    } else {
+                        content = p.innerHTML;
+                    }
+                }
+                dom.remove(p);
+                return dom.create(document, 'li', { innerHTML: content });
+            },
+            _guessUnorderedListStyle: function (symbol) {
+                if (/^[\u2022\u00b7\u00FC\u00D8\u002dv-]/.test(symbol)) {
+                    return null;
+                } else if (/^o/.test(symbol)) {
+                    return 'circle';
+                } else {
+                    return 'square';
+                }
+            },
+            _guessOrderedListStyle: function (symbol) {
+                var listType = null;
+                if (!/^\d/.test(symbol)) {
+                    listType = (/^[a-z]/.test(symbol) ? 'lower-' : 'upper-') + (/^[ivxlcdm]/i.test(symbol) ? 'roman' : 'alpha');
+                }
+                return listType;
+            },
+            extractListLevels: function (html) {
+                var msoListRegExp = /style=['"]?[^'"]*?mso-list:\s?[a-zA-Z]+(\d+)\s[a-zA-Z]+(\d+)\s(\w+)/gi;
+                html = html.replace(msoListRegExp, function (match, list, level) {
+                    return kendo.format('data-list="{0}" data-level="{1}" {2}', list, level, match);
+                });
+                return html;
+            },
+            _createList: function (type, styleType) {
+                return dom.create(document, type, { style: { listStyleType: styleType } });
+            },
+            lists: function (placeholder) {
+                var blockChildren = $(placeholder).find(dom.blockElements.join(',')), lastMargin = -1, name, levels = {}, li, rootMargin, rootIndex, lastRootLi, isLastRootLi, rootList, i, p, type, margin, list, listData, acceptedNameTags = [
+                        'p',
+                        'h1',
+                        'h2',
+                        'h3',
+                        'h4',
+                        'h5',
+                        'h6'
+                    ];
+                for (i = 0; i < blockChildren.length; i++) {
+                    p = blockChildren[i];
+                    listData = $(p).data();
+                    var listIndex = listData.list;
+                    name = dom.name(p);
+                    if (name == 'td') {
+                        continue;
+                    }
+                    var listType = this.listType(p, listData);
+                    type = listType && listType.tag;
+                    if (!type || acceptedNameTags.indexOf(name) < 0) {
+                        if (!p.innerHTML) {
+                            dom.remove(p);
+                        } else if (li && !isLastRootLi) {
+                            li.append(p);
+                        }
+                        continue;
+                    }
+                    margin = listData.level || parseFloat(p.style.marginLeft || 0);
+                    var levelType = type + listIndex;
+                    if (!levels[margin]) {
+                        levels[margin] = {};
+                    }
+                    if (!rootMargin || rootMargin < 0) {
+                        rootMargin = margin;
+                        rootIndex = listIndex;
+                        lastRootLi = $(placeholder).find('[data-list=\'' + rootIndex + '\']:last')[0];
+                        rootList = this._createList(type, listType.style);
+                        dom.insertBefore(rootList, p);
+                        lastMargin = margin;
+                        levels[margin][levelType] = rootList;
+                    }
+                    isLastRootLi = lastRootLi === p;
+                    list = levels[margin][levelType];
+                    if (margin > lastMargin || !list) {
+                        list = this._createList(type, listType.style);
+                        levels[margin][levelType] = list;
+                        li.appendChild(list);
+                    }
+                    li = this._convertToLi(p);
+                    list.appendChild(li);
+                    if (isLastRootLi) {
+                        rootMargin = lastMargin = -1;
+                    } else {
+                        lastMargin = margin;
+                    }
+                }
+            },
+            removeAttributes: function (element) {
+                var attributes = element.attributes, i = attributes.length;
+                while (i--) {
+                    if (dom.name(attributes[i]) != 'colspan') {
+                        element.removeAttributeNode(attributes[i]);
+                    }
+                }
+            },
+            createColGroup: function (row) {
+                var cells = row.cells;
+                var table = $(row).closest('table');
+                var colgroup = table.children('colgroup');
+                if (cells.length < 2) {
+                    return;
+                } else if (colgroup.length) {
+                    cells = colgroup.children();
+                    colgroup[0].parentNode.removeChild(colgroup[0]);
+                }
+                colgroup = $($.map(cells, function (cell) {
+                    var width = cell.width;
+                    if (width && parseInt(width, 10) !== 0) {
+                        return kendo.format('<col style="width:{0}px;"/>', width);
+                    }
+                    return '<col />';
+                }).join(''));
+                if (!colgroup.is('colgroup')) {
+                    colgroup = $('<colgroup/>').append(colgroup);
+                }
+                colgroup.prependTo(table);
+            },
+            convertHeaders: function (row) {
+                var cells = row.cells, i, boldedCells = $.map(cells, function (cell) {
+                        var child = $(cell).children('p').children('strong')[0];
+                        if (child && dom.name(child) == 'strong') {
+                            return child;
+                        }
+                    });
+                if (boldedCells.length == cells.length) {
+                    for (i = 0; i < boldedCells.length; i++) {
+                        dom.unwrap(boldedCells[i]);
+                    }
+                    $(row).closest('table').find('colgroup').after('<thead></thead>').end().find('thead').append(row);
+                    for (i = 0; i < cells.length; i++) {
+                        dom.changeTag(cells[i], 'th');
+                    }
+                }
+            },
+            removeParagraphs: function (cells) {
+                var i, j, len, cell, paragraphs;
+                for (i = 0; i < cells.length; i++) {
+                    this.removeAttributes(cells[i]);
+                    cell = $(cells[i]);
+                    paragraphs = cell.children('p');
+                    for (j = 0, len = paragraphs.length; j < len; j++) {
+                        if (j < len - 1) {
+                            dom.insertAfter(dom.create(document, 'br'), paragraphs[j]);
+                        }
+                        dom.unwrap(paragraphs[j]);
+                    }
+                }
+            },
+            removeDefaultColors: function (spans) {
+                for (var i = 0; i < spans.length; i++) {
+                    if (/^\s*color:\s*[^;]*;?$/i.test(spans[i].style.cssText)) {
+                        dom.unwrap(spans[i]);
+                    }
+                }
+            },
+            tables: function (placeholder) {
+                var tables = $(placeholder).find('table'), that = this, rows, firstRow, longestRow, i, j;
+                for (i = 0; i < tables.length; i++) {
+                    rows = tables[i].rows;
+                    longestRow = firstRow = rows[0];
+                    for (j = 1; j < rows.length; j++) {
+                        if (rows[j].cells.length > longestRow.cells.length) {
+                            longestRow = rows[j];
+                        }
+                    }
+                    that.createColGroup(longestRow);
+                    that.convertHeaders(firstRow);
+                    that.removeAttributes(tables[i]);
+                    that.removeParagraphs(tables.eq(i).find('td,th'));
+                    that.removeDefaultColors(tables.eq(i).find('span'));
+                }
+            },
+            headers: function (placeholder) {
+                var titles = $(placeholder).find('p.MsoTitle');
+                for (var i = 0; i < titles.length; i++) {
+                    dom.changeTag(titles[i], 'h1');
+                }
+            },
+            removeFormatting: function (placeholder) {
+                $(placeholder).find('*').each(function () {
+                    $(this).css({
+                        fontSize: '',
+                        fontFamily: ''
+                    });
+                    if (!this.getAttribute('style') && !this.style.cssText) {
+                        this.removeAttribute('style');
+                    }
+                });
+            },
+            clean: function (html) {
+                var that = this, placeholder;
+                var filters = this.options;
+                if (filters.none) {
+                    html = Cleaner.fn.clean.call(that, html, this.junkReplacements);
+                    html = that.stripEmptyAnchors(html);
+                } else {
+                    html = this.extractListLevels(html);
+                    html = Cleaner.fn.clean.call(that, html);
+                    html = that.stripEmptyAnchors(html);
+                    placeholder = dom.create(document, 'div', { innerHTML: html });
+                    that.headers(placeholder);
+                    if (filters.msConvertLists) {
+                        that.lists(placeholder);
+                    }
+                    that.tables(placeholder);
+                    if (filters.msAllFormatting) {
+                        that.removeFormatting(placeholder);
+                    }
+                    html = placeholder.innerHTML.replace(/(<[^>]*)\s+class="?[^"\s>]*"?/gi, '$1');
+                }
+                return html;
+            }
+        });
+        var WebkitFormatCleaner = Cleaner.extend({
+            init: function (options) {
+                Cleaner.fn.init.call(this, options);
+                this.replacements = [
+                    /\s+class="Apple-style-span[^"]*"/gi,
+                    '',
+                    /<(div|p|h[1-6])\s+style="[^"]*"/gi,
+                    '<$1',
+                    /^<div>(.*)<\/div>$/,
+                    '$1'
+                ];
+            },
+            applicable: function (html) {
+                return /class="?Apple-style-span|style="[^"]*-webkit-nbsp-mode/i.test(html);
+            }
+        });
+        var DomCleaner = Cleaner.extend({
+            clean: function (html) {
+                var container = dom.create(document, 'div', { innerHTML: html });
+                container = this.cleanDom(container);
+                return container.innerHTML;
+            },
+            cleanDom: function (container) {
+                return container;
+            }
+        });
+        var HtmlTagsCleaner = DomCleaner.extend({
+            cleanDom: function (container) {
+                var tags = this.collectTags();
+                $(container).find(tags).each(function () {
+                    dom.unwrap(this);
+                });
+                return container;
+            },
+            collectTags: function () {
+                if (this.options.span) {
+                    return 'span';
+                }
+            },
+            applicable: function () {
+                return this.options.span;
+            }
+        });
+        var HtmlAttrCleaner = DomCleaner.extend({
+            cleanDom: function (container) {
+                var attributes = this.collectAttr();
+                var nodes = $(container).find('[' + attributes.join('],[') + ']');
+                nodes.removeAttr(attributes.join(' '));
+                return container;
+            },
+            collectAttr: function () {
+                if (this.options.css) {
+                    return [
+                        'class',
+                        'style'
+                    ];
+                }
+                return [];
+            },
+            applicable: function () {
+                return this.options.css;
+            }
+        });
+        var TextContainer = function () {
+            this.text = '';
+            this.add = function (text) {
+                this.text += text;
+            };
+        };
+        var HtmlTextLines = Class.extend({
+            init: function (separators) {
+                this.separators = separators || {
+                    text: ' ',
+                    line: '<br/>'
+                };
+                this.lines = [];
+                this.inlineBlockText = [];
+                this.resetLine();
+            },
+            appendText: function (text) {
+                if (text.nodeType === 3) {
+                    text = text.nodeValue;
+                }
+                this.textContainer.add(text);
+            },
+            appendInlineBlockText: function (text) {
+                this.inlineBlockText.push(text);
+            },
+            flashInlineBlockText: function () {
+                if (this.inlineBlockText.length) {
+                    this.appendText(this.inlineBlockText.join(' '));
+                    this.inlineBlockText = [];
+                }
+            },
+            endLine: function () {
+                this.flashInlineBlockText();
+                this.resetLine();
+            },
+            html: function () {
+                var separators = this.separators;
+                var result = '';
+                var lines = this.lines;
+                this.flashInlineBlockText();
+                for (var i = 0, il = lines.length, il1 = il - 1; i < il; i++) {
+                    var line = lines[i];
+                    for (var j = 0, jl = line.length, jl1 = jl - 1; j < jl; j++) {
+                        var text = line[j].text;
+                        result += text;
+                        if (j !== jl1) {
+                            result += separators.text;
+                        }
+                    }
+                    if (i !== il1) {
+                        result += separators.line;
+                    }
+                }
+                return result;
+            },
+            resetLine: function () {
+                this.textContainer = new TextContainer();
+                this.line = [];
+                this.line.push(this.textContainer);
+                this.lines.push(this.line);
+            }
+        });
+        var DomEnumerator = Class.extend({
+            init: function (callback) {
+                this.callback = callback;
+            },
+            enumerate: function (node) {
+                if (!node) {
+                    return;
+                }
+                var preventDown = this.callback(node);
+                var child = node.firstChild;
+                if (!preventDown && child) {
+                    this.enumerate(child);
+                }
+                this.enumerate(node.nextSibling);
+            }
+        });
+        var HtmlContentCleaner = Cleaner.extend({
+            init: function (options) {
+                Cleaner.fn.init.call(this, options);
+                this.hasText = false;
+                this.enumerator = new DomEnumerator($.proxy(this.buildText, this));
+            },
+            clean: function (html) {
+                var container = dom.create(document, 'div', { innerHTML: html });
+                return this.cleanDom(container);
+            },
+            cleanDom: function (container) {
+                this.separators = this.getDefaultSeparators();
+                this.htmlLines = new HtmlTextLines(this.separators);
+                this.enumerator.enumerate(container.firstChild);
+                this.hasText = false;
+                return this.htmlLines.html();
+            },
+            buildText: function (node) {
+                if (dom.isDataNode(node)) {
+                    if (dom.isEmptyspace(node)) {
+                        return;
+                    }
+                    this.htmlLines.appendText(node.nodeValue.replace('\n', this.separators.line));
+                    this.hasText = true;
+                } else if (dom.isBlock(node) && this.hasText) {
+                    var action = this.actions[dom.name(node)] || this.actions.block;
+                    return action(this, node);
+                } else if (dom.isBr(node)) {
+                    this.htmlLines.appendText(this.separators.line);
+                }
+            },
+            applicable: function () {
+                var o = this.options;
+                return o.all || o.keepNewLines;
+            },
+            getDefaultSeparators: function () {
+                if (this.options.all) {
+                    return {
+                        text: ' ',
+                        line: ' '
+                    };
+                } else {
+                    return {
+                        text: ' ',
+                        line: '<br/>'
+                    };
+                }
+            },
+            actions: {
+                ul: $.noop,
+                ol: $.noop,
+                table: $.noop,
+                thead: $.noop,
+                tbody: $.noop,
+                td: function (cleaner, node) {
+                    var tdCleaner = new HtmlContentCleaner({ all: true });
+                    var cellText = tdCleaner.cleanDom(node);
+                    cleaner.htmlLines.appendInlineBlockText(cellText);
+                    return true;
+                },
+                block: function (cleaner) {
+                    cleaner.htmlLines.endLine();
+                }
+            }
+        });
+        var CustomCleaner = Cleaner.extend({
+            clean: function (html) {
+                return this.options.custom(html);
+            },
+            applicable: function () {
+                return typeof this.options.custom === 'function';
+            }
+        });
+        extend(editorNS, {
+            Clipboard: Clipboard,
+            Cleaner: Cleaner,
+            ScriptCleaner: ScriptCleaner,
+            TabCleaner: TabCleaner,
+            MSWordFormatCleaner: MSWordFormatCleaner,
+            WebkitFormatCleaner: WebkitFormatCleaner,
+            HtmlTagsCleaner: HtmlTagsCleaner,
+            HtmlAttrCleaner: HtmlAttrCleaner,
+            HtmlContentCleaner: HtmlContentCleaner,
+            HtmlTextLines: HtmlTextLines,
+            CustomCleaner: CustomCleaner
+        });
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/keyboard', ['editor/command'], f);
+}(function () {
+    (function ($) {
+        var kendo = window.kendo, Class = kendo.Class, editorNS = kendo.ui.editor, RangeUtils = editorNS.RangeUtils, dom = editorNS.Dom, RestorePoint = editorNS.RestorePoint, Marker = editorNS.Marker, browser = kendo.support.browser, br = '<br class="k-br">', extend = $.extend;
+        var nodeTypes = dom.nodeTypes;
+        var PREVIOUS_SIBLING = 'previousSibling';
+        function selected(node, range) {
+            return range.startContainer === node && range.endContainer === node && range.startOffset === 0 && range.endOffset == node.childNodes.length;
+        }
+        function getSibling(node, direction, condition) {
+            var sibling = node ? node[direction] : null;
+            while (sibling && !condition(sibling)) {
+                sibling = sibling[direction];
+            }
+            return sibling;
+        }
+        var tableCells = 'td,th,caption';
+        var tableCellsWrappers = 'table,tbody,thead,tfoot,tr';
+        var tableElements = tableCellsWrappers + ',' + tableCells;
+        var inTable = function (range) {
+            return !range.collapsed && $(range.commonAncestorContainer).is(tableCellsWrappers);
+        };
+        var RemoveTableContent = Class.extend({
+            remove: function (range) {
+                var that = this;
+                var marker = new Marker();
+                marker.add(range, false);
+                var nodes = RangeUtils.getAll(range, function (node) {
+                    return $(node).is(tableElements);
+                });
+                var doc = RangeUtils.documentFromRange(range);
+                var start = marker.start;
+                var end = marker.end;
+                var cellsTypes = tableCells.split(',');
+                var startCell = dom.parentOfType(start, cellsTypes);
+                var endCell = dom.parentOfType(end, cellsTypes);
+                that._removeContent(start, startCell, true);
+                that._removeContent(end, endCell, false);
+                $(nodes).each(function (i, node) {
+                    node = $(node);
+                    (node.is(tableCells) ? node : node.find(tableCells)).each(function (j, cell) {
+                        cell.innerHTML = '&#65279;';
+                    });
+                });
+                if (startCell && !start.previousSibling) {
+                    dom.insertBefore(doc.createTextNode('\uFEFF'), start);
+                }
+                if (endCell && !end.nextSibling) {
+                    dom.insertAfter(doc.createTextNode('\uFEFF'), end);
+                }
+                if (startCell) {
+                    range.setStartBefore(start);
+                } else if (nodes[0]) {
+                    startCell = $(nodes[0]);
+                    startCell = startCell.is(tableCells) ? startCell : startCell.find(tableCells).first();
+                    if (startCell.length) {
+                        range.setStart(startCell.get(0), 0);
+                    }
+                }
+                range.collapse(true);
+                dom.remove(start);
+                dom.remove(end);
+            },
+            _removeContent: function (start, top, forwards) {
+                if (top) {
+                    var sibling = forwards ? 'nextSibling' : 'previousSibling', next, getNext = function (node) {
+                            while (node && !node[sibling]) {
+                                node = node.parentNode;
+                            }
+                            return node && $.contains(top, node) ? node[sibling] : null;
+                        };
+                    start = getNext(start);
+                    while (start) {
+                        next = getNext(start);
+                        dom.remove(start);
+                        start = next;
+                    }
+                }
+            }
+        });
+        var TypingHandler = Class.extend({
+            init: function (editor) {
+                this.editor = editor;
+            },
+            keydown: function (e) {
+                var that = this, editor = that.editor, keyboard = editor.keyboard, isTypingKey = keyboard.isTypingKey(e), evt = extend($.Event(), e);
+                that.editor.trigger('keydown', evt);
+                if (evt.isDefaultPrevented()) {
+                    e.preventDefault();
+                    return true;
+                }
+                if (!evt.isDefaultPrevented() && isTypingKey && !keyboard.isTypingInProgress()) {
+                    var range = editor.getRange();
+                    var body = editor.body;
+                    that.startRestorePoint = new RestorePoint(range, body);
+                    if (inTable(range)) {
+                        var removeTableContent = new RemoveTableContent(editor);
+                        removeTableContent.remove(range);
+                        editor.selectRange(range);
+                    }
+                    if (browser.webkit && !range.collapsed && selected(body, range)) {
+                        body.innerHTML = '';
+                    }
+                    if (editor.immutables && editorNS.Immutables.immutablesContext(range)) {
+                        var backspaceHandler = new editorNS.BackspaceHandler(editor);
+                        backspaceHandler.deleteSelection(range);
+                    }
+                    keyboard.startTyping(function () {
+                        that.endRestorePoint = editorNS._finishUpdate(editor, that.startRestorePoint);
+                    });
+                    return true;
+                }
+                return false;
+            },
+            keyup: function (e) {
+                var keyboard = this.editor.keyboard;
+                this.editor.trigger('keyup', e);
+                if (keyboard.isTypingInProgress()) {
+                    keyboard.endTyping();
+                    return true;
+                }
+                return false;
+            }
+        });
+        var BackspaceHandler = Class.extend({
+            init: function (editor) {
+                this.editor = editor;
+            },
+            _addCaret: function (container) {
+                var caret = dom.create(this.editor.document, 'a');
+                dom.insertAt(container, caret, 0);
+                dom.stripBomNode(caret.previousSibling);
+                dom.stripBomNode(caret.nextSibling);
+                return caret;
+            },
+            _restoreCaret: function (caret) {
+                var range = this.editor.createRange();
+                if (!caret.nextSibling && dom.isDataNode(caret.previousSibling)) {
+                    range.setStart(caret.previousSibling, caret.previousSibling.length);
+                } else {
+                    range.setStartAfter(caret);
+                }
+                range.collapse(true);
+                this.editor.selectRange(range);
+                dom.remove(caret);
+            },
+            _handleDelete: function (range) {
+                var node = range.endContainer;
+                var block = dom.closestEditableOfType(node, dom.blockElements);
+                if (block && editorNS.RangeUtils.isEndOf(range, block)) {
+                    var next = dom.next(block);
+                    if (!next || dom.name(next) != 'p') {
+                        return false;
+                    }
+                    var caret = this._addCaret(next);
+                    this._merge(block, next);
+                    this._restoreCaret(caret);
+                    return true;
+                }
+                return false;
+            },
+            _cleanBomBefore: function (range) {
+                var offset = range.startOffset;
+                var node = range.startContainer;
+                var text = node.nodeValue;
+                var count = 0;
+                while (offset - count >= 0 && text[offset - count - 1] == '\uFEFF') {
+                    count++;
+                }
+                if (count > 0) {
+                    node.deleteData(offset - count, count);
+                    range.setStart(node, Math.max(0, offset - count));
+                    range.collapse(true);
+                    this.editor.selectRange(range);
+                }
+            },
+            _handleBackspace: function (range) {
+                var node = range.startContainer;
+                var li = dom.closestEditableOfType(node, ['li']);
+                var block = dom.closestEditableOfType(node, 'p,h1,h2,h3,h4,h5,h6'.split(','));
+                var editor = this.editor;
+                var previousSibling;
+                if (dom.isDataNode(node)) {
+                    if (range.collapsed && /^\s[\ufeff]+$/.test(node.nodeValue)) {
+                        range.setStart(node, 0);
+                        range.setEnd(node, node.length);
+                        editor.selectRange(range);
+                        return false;
+                    }
+                    this._cleanBomBefore(range);
+                }
+                previousSibling = getSibling(block, PREVIOUS_SIBLING, function (sibling) {
+                    return !dom.htmlIndentSpace(sibling);
+                });
+                if (range.collapsed && range.startOffset !== range.endOffset && range.startOffset < 0) {
+                    range.startOffset = 0;
+                    range.endOffset = 0;
+                    editor.selectRange(range);
+                }
+                var startAtLi = li && editorNS.RangeUtils.isStartOf(range, li);
+                var liIndex = li && $(li).index();
+                var startAtNonFirstLi = startAtLi && liIndex > 0;
+                if (startAtNonFirstLi) {
+                    block = li;
+                    previousSibling = dom.prev(li);
+                }
+                if (block && previousSibling && dom.is(previousSibling, 'table') && editorNS.RangeUtils.isStartOf(range, block)) {
+                    if (block.innerText === '') {
+                        block.innerHTML = '\uFEFF';
+                    }
+                    return true;
+                }
+                if (block && previousSibling && editorNS.RangeUtils.isStartOf(range, block) || startAtNonFirstLi) {
+                    var caret = this._addCaret(block);
+                    this._merge(previousSibling, block);
+                    this._restoreCaret(caret);
+                    return true;
+                }
+                if (startAtLi && liIndex === 0) {
+                    var child = li.firstChild;
+                    if (!child) {
+                        li.innerHTML = editorNS.emptyElementContent;
+                        child = li.firstChild;
+                    }
+                    var formatter = new editorNS.ListFormatter(dom.name(li.parentNode), 'p');
+                    range.selectNodeContents(li);
+                    formatter.toggle(range);
+                    if (dom.insignificant(child)) {
+                        range.setStartBefore(child);
+                    } else {
+                        range.setStart(child, 0);
+                    }
+                    editor.selectRange(range);
+                    return true;
+                }
+                var rangeStartNode = node.childNodes[range.startOffset - 1];
+                var linkRange = range;
+                var anchor = rangeStartNode && dom.closestEditableOfType(rangeStartNode, ['a']);
+                var previousNode = getSibling(rangeStartNode || node, PREVIOUS_SIBLING, function (sibling) {
+                    return !dom.isDataNode(sibling) || !dom.isBom(sibling) && sibling.length > 0;
+                });
+                if (anchor || (range.startOffset === 0 || rangeStartNode) && dom.is(previousNode, 'a')) {
+                    anchor = anchor || previousNode;
+                    linkRange = editor.createRange();
+                    linkRange.setStart(anchor, anchor.childNodes.length);
+                    linkRange.collapse(true);
+                }
+                anchor = anchor || dom.closestEditableOfType(rangeStartNode || linkRange.startContainer, ['a']);
+                var isEndOfLink = anchor && editorNS.RangeUtils.isEndOf(linkRange, anchor);
+                if (isEndOfLink) {
+                    var command = new editorNS.UnlinkCommand({
+                        range: linkRange,
+                        body: editor.body,
+                        immutables: !!editor.immutables
+                    });
+                    editor.execCommand(command);
+                    editor._selectionChange();
+                }
+                return false;
+            },
+            _handleSelection: function (range) {
+                var ancestor = range.commonAncestorContainer;
+                var table = dom.closest(ancestor, 'table');
+                var emptyParagraphContent = editorNS.emptyElementContent;
+                var editor = this.editor;
+                if (inTable(range)) {
+                    var removeTableContent = new RemoveTableContent(editor);
+                    removeTableContent.remove(range);
+                    editor.selectRange(range);
+                    return true;
+                }
+                var marker = new Marker();
+                marker.add(range, false);
+                if (editor.immutables) {
+                    this._handleImmutables(marker);
+                }
+                this._surroundFullySelectedAnchor(marker, range);
+                range.setStartAfter(marker.start);
+                range.setEndBefore(marker.end);
+                var start = range.startContainer;
+                var end = range.endContainer;
+                range.deleteContents();
+                if (table && $(table).text() === '') {
+                    range.selectNode(table);
+                    range.deleteContents();
+                }
+                ancestor = range.commonAncestorContainer;
+                if (dom.name(ancestor) === 'p' && ancestor.innerHTML === '') {
+                    ancestor.innerHTML = emptyParagraphContent;
+                    range.setStart(ancestor, 0);
+                }
+                this._join(start, end);
+                dom.insertAfter(editor.document.createTextNode('\uFEFF'), marker.start);
+                marker.remove(range);
+                start = range.startContainer;
+                if (dom.name(start) == 'tr') {
+                    start = start.childNodes[Math.max(0, range.startOffset - 1)];
+                    range.setStart(start, dom.getNodeLength(start));
+                }
+                range.collapse(true);
+                editor.selectRange(range);
+                return true;
+            },
+            _handleImmutables: function (marker) {
+                var immutableParent = editorNS.Immutables.immutableParent;
+                var startImmutable = immutableParent(marker.start);
+                var endImmutable = immutableParent(marker.start);
+                if (startImmutable) {
+                    dom.insertBefore(marker.start, startImmutable);
+                }
+                if (endImmutable) {
+                    dom.insertAfter(marker.end, endImmutable);
+                }
+                if (startImmutable) {
+                    dom.remove(startImmutable);
+                }
+                if (endImmutable && endImmutable.parentNode) {
+                    dom.remove(endImmutable);
+                }
+            },
+            _surroundFullySelectedAnchor: function (marker, range) {
+                var start = marker.start, startParent = $(start).closest('a').get(0), end = marker.end, endParent = $(end).closest('a').get(0);
+                if (startParent && RangeUtils.isStartOf(range, startParent)) {
+                    dom.insertBefore(start, startParent);
+                }
+                if (endParent && RangeUtils.isEndOf(range, endParent)) {
+                    dom.insertAfter(end, endParent);
+                }
+            },
+            _root: function (node) {
+                while (node && dom.name(node) != 'body' && node.parentNode && dom.name(node.parentNode) != 'body') {
+                    node = node.parentNode;
+                }
+                return node;
+            },
+            _join: function (start, end) {
+                start = this._root(start);
+                end = this._root(end);
+                if (start != end && dom.is(end, 'p')) {
+                    this._merge(start, end);
+                }
+            },
+            _merge: function (dest, src) {
+                dom.removeTrailingBreak(dest);
+                while (dest && src.firstChild) {
+                    if (dest.nodeType == 1) {
+                        dest = dom.list(dest) ? dest.children[dest.children.length - 1] : dest;
+                        if (dest) {
+                            dest.appendChild(src.firstChild);
+                        }
+                    } else if (dest.nodeType === nodeTypes.TEXT_NODE) {
+                        this._mergeWithTextNode(dest, src.firstChild);
+                    } else {
+                        dest.parentNode.appendChild(src.firstChild);
+                    }
+                }
+                dom.remove(src);
+            },
+            _mergeWithTextNode: function (textNode, appendedNode) {
+                if (textNode && textNode.nodeType === nodeTypes.TEXT_NODE) {
+                    if (textNode.nextSibling && this._isCaret(textNode.nextSibling)) {
+                        dom.insertAfter(appendedNode, textNode.nextSibling);
+                    } else {
+                        dom.insertAfter(appendedNode, textNode);
+                    }
+                }
+            },
+            _isCaret: function (element) {
+                return $(element).is('a');
+            },
+            keydown: function (e) {
+                var method, startRestorePoint;
+                var editor = this.editor;
+                var range = editor.getRange();
+                var keyCode = e.keyCode;
+                var keys = kendo.keys;
+                var backspace = keyCode === keys.BACKSPACE;
+                var del = keyCode == keys.DELETE;
+                if (editor.immutables && editor.immutables.keydown(e, range)) {
+                    return;
+                }
+                if ((backspace || del) && !range.collapsed) {
+                    method = '_handleSelection';
+                } else if (backspace) {
+                    method = '_handleBackspace';
+                } else if (del) {
+                    method = '_handleDelete';
+                }
+                if (!method) {
+                    return;
+                }
+                startRestorePoint = new RestorePoint(range, editor.body);
+                if (this[method](range)) {
+                    e.preventDefault();
+                    editorNS._finishUpdate(editor, startRestorePoint);
+                }
+            },
+            deleteSelection: function (range) {
+                this._handleSelection(range);
+            },
+            keyup: $.noop
+        });
+        var SystemHandler = Class.extend({
+            init: function (editor) {
+                this.editor = editor;
+                this.systemCommandIsInProgress = false;
+            },
+            createUndoCommand: function () {
+                this.startRestorePoint = this.endRestorePoint = editorNS._finishUpdate(this.editor, this.startRestorePoint);
+            },
+            changed: function () {
+                if (this.startRestorePoint) {
+                    return this.startRestorePoint.html != this.editor.body.innerHTML;
+                }
+                return false;
+            },
+            keydown: function (e) {
+                var that = this, editor = that.editor, keyboard = editor.keyboard;
+                if (keyboard.isModifierKey(e)) {
+                    if (keyboard.isTypingInProgress()) {
+                        keyboard.endTyping(true);
+                    }
+                    that.startRestorePoint = new RestorePoint(editor.getRange(), editor.body);
+                    return true;
+                }
+                if (keyboard.isSystem(e)) {
+                    that.systemCommandIsInProgress = true;
+                    if (that.changed()) {
+                        that.systemCommandIsInProgress = false;
+                        that.createUndoCommand();
+                    }
+                    return true;
+                }
+                return false;
+            },
+            keyup: function () {
+                var that = this;
+                if (that.systemCommandIsInProgress && that.changed()) {
+                    that.systemCommandIsInProgress = false;
+                    that.createUndoCommand();
+                    return true;
+                }
+                return false;
+            }
+        });
+        var SelectAllHandler = Class.extend({
+            init: function (editor) {
+                this.editor = editor;
+            },
+            keydown: function (e) {
+                if (!browser.webkit || e.isDefaultPrevented() || !(e.ctrlKey && e.keyCode == 65 && !e.altKey && !e.shiftKey)) {
+                    return;
+                }
+                if (this.editor.options.immutables) {
+                    this._toSelectableImmutables();
+                }
+                this._selectEditorBody();
+            },
+            _selectEditorBody: function () {
+                var editor = this.editor;
+                var range = editor.getRange();
+                range.selectNodeContents(editor.body);
+                editor.selectRange(range);
+            },
+            _toSelectableImmutables: function () {
+                var editor = this.editor, body = editor.body, immutable = editorNS.Immutables.immutable, emptyTextNode = dom.emptyTextNode, first = body.firstChild, last = body.lastChild;
+                while (emptyTextNode(first)) {
+                    first = first.nextSibling;
+                }
+                while (emptyTextNode(last)) {
+                    last = last.previousSibling;
+                }
+                if (first && immutable(first)) {
+                    $(br).prependTo(body);
+                }
+                if (last && immutable(last)) {
+                    $(br).appendTo(body);
+                }
+            },
+            keyup: $.noop
+        });
+        var Keyboard = Class.extend({
+            init: function (handlers) {
+                this.handlers = handlers;
+                this.typingInProgress = false;
+            },
+            isCharacter: function (keyCode) {
+                return keyCode >= 48 && keyCode <= 90 || keyCode >= 96 && keyCode <= 111 || keyCode >= 186 && keyCode <= 192 || keyCode >= 219 && keyCode <= 222 || keyCode == 229;
+            },
+            toolFromShortcut: function (tools, e) {
+                var key = String.fromCharCode(e.keyCode), toolName, toolOptions, modifier = this._getShortcutModifier(e, navigator.platform);
+                for (toolName in tools) {
+                    toolOptions = $.extend({
+                        ctrl: false,
+                        alt: false,
+                        shift: false
+                    }, tools[toolName].options);
+                    if ((toolOptions.key == key || toolOptions.key == e.keyCode) && toolOptions.ctrl == modifier && toolOptions.alt == e.altKey && toolOptions.shift == e.shiftKey) {
+                        return toolName;
+                    }
+                }
+            },
+            _getShortcutModifier: function (e, platform) {
+                var mac = platform.toUpperCase().indexOf('MAC') >= 0;
+                return mac ? e.metaKey : e.ctrlKey;
+            },
+            toolsFromShortcut: function (tools, e) {
+                var key = String.fromCharCode(e.keyCode), toolName, o, matchesKey, found = [];
+                var matchKey = function (toolKey) {
+                    return toolKey == key || toolKey == e.keyCode || toolKey == e.charCode;
+                };
+                for (toolName in tools) {
+                    o = $.extend({
+                        ctrl: false,
+                        alt: false,
+                        shift: false
+                    }, tools[toolName].options);
+                    matchesKey = $.isArray(o.key) ? $.grep(o.key, matchKey).length > 0 : matchKey(o.key);
+                    if (matchesKey && o.ctrl == e.ctrlKey && o.alt == e.altKey && o.shift == e.shiftKey) {
+                        found.push(tools[toolName]);
+                    }
+                }
+                return found;
+            },
+            isTypingKey: function (e) {
+                var keyCode = e.keyCode;
+                return this.isCharacter(keyCode) && !e.ctrlKey && !e.altKey || keyCode == 32 || keyCode == 13 || keyCode == 8 || keyCode == 46 && !e.shiftKey && !e.ctrlKey && !e.altKey;
+            },
+            isModifierKey: function (e) {
+                var keyCode = e.keyCode;
+                return keyCode == 17 && !e.shiftKey && !e.altKey || keyCode == 16 && !e.ctrlKey && !e.altKey || keyCode == 18 && !e.ctrlKey && !e.shiftKey;
+            },
+            isSystem: function (e) {
+                return e.keyCode == 46 && e.ctrlKey && !e.altKey && !e.shiftKey;
+            },
+            startTyping: function (callback) {
+                this.onEndTyping = callback;
+                this.typingInProgress = true;
+            },
+            stopTyping: function () {
+                if (this.typingInProgress && this.onEndTyping) {
+                    this.onEndTyping();
+                }
+                this.typingInProgress = false;
+            },
+            endTyping: function (force) {
+                var that = this;
+                that.clearTimeout();
+                if (force) {
+                    that.stopTyping();
+                } else {
+                    that.timeout = window.setTimeout($.proxy(that.stopTyping, that), 1000);
+                }
+            },
+            isTypingInProgress: function () {
+                return this.typingInProgress;
+            },
+            clearTimeout: function () {
+                window.clearTimeout(this.timeout);
+            },
+            notify: function (e, what) {
+                var i, handlers = this.handlers;
+                for (i = 0; i < handlers.length; i++) {
+                    if (handlers[i][what](e)) {
+                        break;
+                    }
+                }
+            },
+            keydown: function (e) {
+                this.notify(e, 'keydown');
+            },
+            keyup: function (e) {
+                this.notify(e, 'keyup');
+            }
+        });
+        extend(editorNS, {
+            TypingHandler: TypingHandler,
+            SystemHandler: SystemHandler,
+            BackspaceHandler: BackspaceHandler,
+            SelectAllHandler: SelectAllHandler,
+            Keyboard: Keyboard
+        });
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/plugins/exportpdf', ['editor/command'], f);
+}(function () {
+    (function ($) {
+        var kendo = window.kendo, editorNS = kendo.ui.editor, Command = editorNS.Command, EditorUtils = editorNS.EditorUtils, registerTool = EditorUtils.registerTool, Tool = editorNS.Tool, ToolTemplate = editorNS.ToolTemplate, extend = $.extend;
+        var ExportPdfCommand = Command.extend({
+            init: function (options) {
+                this.async = true;
+                Command.fn.init.call(this, options);
             },
             exec: function () {
-                var cmd = this;
-                var range = this.lockRange(true);
-                cmd.postToProxy();
-                cmd.releaseRange(range);
-            },
-            postToProxy: function () {
-                this.generateForm().appendTo('body').submit().remove();
-            },
-            generateForm: function () {
-                var cmd = this;
-                var exportAsOptions = cmd.editor.options.exportAs;
-                var form = $('<form>').attr({
-                    action: exportAsOptions && exportAsOptions.proxyURL || '',
-                    method: 'POST'
-                });
-                form.append([
-                    cmd.valueInput(),
-                    cmd.exportTypeInput(),
-                    cmd.fileNameInput()
-                ]);
-                return form;
-            },
-            valueInput: function () {
-                var editor = this.editor;
-                return $('<input>').attr({
-                    value: editor.encodedValue(),
-                    name: 'value',
-                    type: 'hidden'
-                });
-            },
-            exportTypeInput: function () {
-                var cmd = this;
-                return $('<input>').attr({
-                    value: cmd.exportType,
-                    name: 'exportType',
-                    type: 'hidden'
-                });
-            },
-            fileNameInput: function () {
-                var editor = this.editor;
-                var exportAsOptions = editor.options.exportAs;
-                var fileName = exportAsOptions && exportAsOptions.fileName || editor.element.attr('id') || 'editor';
-                return $('<input>').attr({
-                    value: fileName,
-                    name: 'fileName',
-                    type: 'hidden'
+                var that = this;
+                var range = that.lockRange(true);
+                var editor = that.editor;
+                editor._destroyResizings();
+                editor.saveAsPDF().then(function () {
+                    that.releaseRange(range);
+                    editor._initializeColumnResizing();
+                    editor._initializeRowResizing();
+                    editor._initializeTableResizing();
                 });
             }
         });
-        var ExportAsTool = Tool.extend({
-            init: function (options) {
-                var tool = this;
-                Tool.fn.init.call(tool, kendo.deepExtend({}, tool.options, options));
-                tool.type = 'kendoSelectBox';
-            },
-            options: {
-                items: defaultExportAsItems,
-                width: 115
-            },
-            command: function (args) {
-                var value = args.value;
-                return new Editor.ExportAsCommand({
-                    range: args.range,
-                    exportType: value.exportType
-                });
-            },
-            initialize: function (ui, initOptions) {
-                var tool = this;
-                var editor = initOptions.editor;
-                var options = tool.options;
-                var toolName = options.name;
-                var changeHandler = proxy(tool.changeHandler, tool);
-                var dataSource = options.items || editor.options[toolName];
-                dataSource.unshift({
-                    text: editor.options.messages[toolName],
-                    value: ''
-                });
-                tool.editor = editor;
-                ui.width(options.width);
-                ui.kendoSelectBox({
-                    dataTextField: 'text',
-                    dataValueField: 'value',
-                    dataSource: dataSource,
-                    autoSize: true,
-                    change: changeHandler,
-                    open: function (e) {
-                        var sender = e.sender;
-                        sender.items()[0].style.display = 'none';
-                        sender.unbind('open');
-                    },
-                    highlightFirst: false,
-                    template: kendo.template('<span unselectable="on" style="display:block;#=(data.style||"")#">#:data.text#</span>')
-                });
-                ui.addClass('k-decorated').closest('.k-widget').removeClass('k-' + toolName).find('*').addBack().attr('unselectable', 'on');
-            },
-            changeHandler: function (e) {
-                var sender = e.sender;
-                var dataItem = sender.dataItem();
-                var value = dataItem && dataItem.value;
-                this._exec(value);
-                sender.value('');
-            },
-            _exec: function (value) {
-                if (value) {
-                    Tool.exec(this.editor, this.options.name, { exportType: value });
-                }
-            },
-            destroy: function () {
-                this._ancestor = null;
-            }
-        });
-        extend(Editor, {
-            ExportAsTool: ExportAsTool,
-            ExportAsCommand: ExportAsCommand
-        });
-        registerTool('exportAs', new ExportAsTool({
+        extend(editorNS, { ExportPdfCommand: ExportPdfCommand });
+        registerTool('pdf', new Tool({
+            command: ExportPdfCommand,
             template: new ToolTemplate({
-                template: EditorUtils.dropDownListTemplate,
-                title: 'Export As'
+                template: EditorUtils.buttonTemplate,
+                title: 'Export PDF'
             })
         }));
     }(window.kendo.jQuery));
@@ -9746,89 +10181,30 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('editor/import', ['editor/main'], f);
+    define('editor/plugins/print', ['editor/command'], f);
 }(function () {
-    (function ($, undefined) {
-        var kendo = window.kendo, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, registerTool = EditorUtils.registerTool, ToolTemplate = Editor.ToolTemplate, loadingOverlay = '<div contenteditable="false" class="k-loading-mask" style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px;"><div class="k-loading-image"></div><div class="k-loading-color"></div></div>';
-        var ImportCommand = Command.extend({
+    (function ($) {
+        var kendo = window.kendo, editorNS = kendo.ui.editor, Command = editorNS.Command, EditorUtils = editorNS.EditorUtils, registerTool = EditorUtils.registerTool, Tool = editorNS.Tool, ToolTemplate = editorNS.ToolTemplate, extend = $.extend;
+        var PrintCommand = Command.extend({
+            init: function (options) {
+                Command.fn.init.call(this, options);
+                this.managesUndoRedo = true;
+            },
             exec: function () {
-                (this.editor._uploadWidget || this._initializeUploadWidget()).element.click();
-            },
-            _initializeUploadWidget: function () {
-                var cmd = this;
-                var editor = cmd.editor;
-                var importOptions = editor.options['import'];
-                var upload = $('<input id="editorImport" name="files" type="file" />').kendoUpload({
-                    success: proxy(cmd._onUploadSuccess, cmd),
-                    progress: proxy(cmd._onUploadProgress, cmd),
-                    select: proxy(cmd._onUploadSelect, cmd),
-                    error: proxy(cmd._onUploadError, cmd),
-                    complete: proxy(cmd._onUploadComplete, cmd),
-                    showFileList: false,
-                    multiple: false,
-                    async: {
-                        saveUrl: importOptions.proxyUrl,
-                        autoUpload: true,
-                        saveField: 'file'
-                    },
-                    validation: {
-                        allowedExtensions: importOptions.allowedExtensions,
-                        maxFileSize: importOptions.maxFileSize
-                    }
-                }).getKendoUpload();
-                editor._uploadWidget = upload;
-                return upload;
-            },
-            _onUploadComplete: function (ev) {
-                this._trigger('complete', ev);
-                ev.sender.clearAllFiles();
-                this._removeLoadingOverlay();
-            },
-            _onUploadSuccess: function (ev) {
-                this.editor.value(ev.response.html.replace(/<\/?body>/gi, ''));
-                this._trigger('success', ev);
-            },
-            _onUploadProgress: function (ev) {
-                this._trigger('progress', ev);
-            },
-            _onUploadSelect: function (ev) {
-                this._trigger('select', ev);
-                if (!ev.files[0].validationErrors) {
-                    this._initLoadingOverlay();
-                }
-            },
-            _onUploadError: function (ev) {
-                this._trigger('error', ev);
-            },
-            _trigger: function (eventType, uploadEvent) {
                 var editor = this.editor;
-                var importOptions = editor.options['import'];
-                if (typeof importOptions[eventType] === 'function') {
-                    importOptions[eventType].call(editor, uploadEvent);
+                if (kendo.support.browser.msie) {
+                    editor.document.execCommand('print', false, null);
+                } else if (editor.window.print) {
+                    editor.window.print();
                 }
-            },
-            _initLoadingOverlay: function () {
-                var editable = this.editor.body;
-                if (Editor.Dom.is(editable, 'body')) {
-                    this._iframeWrapper = this._container = this.editor.wrapper.find('iframe').parent().css({ position: 'relative' }).append(loadingOverlay);
-                } else {
-                    this._container = $(editable).append(loadingOverlay);
-                }
-                kendo.ui.progress(this._container, true);
-            },
-            _removeLoadingOverlay: function () {
-                kendo.ui.progress(this._container, false);
-                $(this._iframeWrapper).css({ position: '' });
-                delete this._container;
-                delete this._iframeWrapper;
             }
         });
-        extend(Editor, { ImportCommand: ImportCommand });
-        registerTool('import', new Tool({
-            command: ImportCommand,
+        extend(editorNS, { PrintCommand: PrintCommand });
+        registerTool('print', new Tool({
+            command: PrintCommand,
             template: new ToolTemplate({
                 template: EditorUtils.buttonTemplate,
-                title: 'Import'
+                title: 'Print'
             })
         }));
     }(window.kendo.jQuery));
@@ -11382,265 +11758,7 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('editor/immutables', ['editor/tables'], f);
-}(function () {
-    (function ($, undefined) {
-        var kendo = window.kendo, Class = kendo.Class, Editor = kendo.ui.editor, dom = Editor.Dom, template = kendo.template, RangeUtils = Editor.RangeUtils, complexBlocks = [
-                'ul',
-                'ol',
-                'tbody',
-                'thead',
-                'table'
-            ], toolsToBeUpdated = [
-                'bold',
-                'italic',
-                'underline',
-                'strikethrough',
-                'superscript',
-                'subscript',
-                'forecolor',
-                'backcolor',
-                'fontname',
-                'fontsize',
-                'createlink',
-                'unlink',
-                'autolink',
-                'addcolumnleft',
-                'addcolumnright',
-                'addrowabove',
-                'addrowbelow',
-                'deleterow',
-                'deletecolumn',
-                'mergecells',
-                'formatting',
-                'cleanformatting'
-            ], IMMUTABALE = 'k-immutable', IMMUTABALE_MARKER_SELECTOR = '[' + IMMUTABALE + ']', IMMUTABLE_SELECTOR = '[contenteditable=\'false\']';
-        var rootCondition = function (node) {
-            return $(node).is('body,.k-editor');
-        };
-        var immutable = function (node) {
-            return node.getAttribute && node.getAttribute('contenteditable') == 'false';
-        };
-        var immutableParent = function (node) {
-            return dom.closestBy(node, immutable, rootCondition);
-        };
-        var expandImmutablesIn = function (range) {
-            var startImmutableParent = immutableParent(range.startContainer);
-            var endImmutableParent = immutableParent(range.endContainer);
-            if (startImmutableParent || endImmutableParent) {
-                if (startImmutableParent) {
-                    range.setStartBefore(startImmutableParent);
-                }
-                if (endImmutableParent) {
-                    range.setEndAfter(endImmutableParent);
-                }
-            }
-        };
-        var immutablesContext = function (range) {
-            if (immutableParent(range.commonAncestorContainer)) {
-                return true;
-            } else if (immutableParent(range.startContainer) || immutableParent(range.endContainer)) {
-                var editableNodes = RangeUtils.editableTextNodes(range);
-                if (editableNodes.length === 0) {
-                    return true;
-                }
-            }
-            return false;
-        };
-        var randomId = function (length) {
-            var result = '';
-            var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            for (var i = length || 10; i > 0; --i) {
-                result += chars.charAt(Math.round(Math.random() * (chars.length - 1)));
-            }
-            return result;
-        };
-        var removeImmutables = function (root) {
-            var serializedImmutables = { empty: true }, nodeName, id, serialized;
-            $(root).find(IMMUTABLE_SELECTOR).each(function (i, node) {
-                nodeName = dom.name(node);
-                id = randomId();
-                serialized = '<' + nodeName + ' ' + IMMUTABALE + '=\'' + id + '\'></' + nodeName + '>';
-                serializedImmutables[id] = {
-                    node: node,
-                    style: $(node).attr('style')
-                };
-                serializedImmutables.empty = false;
-                $(node).replaceWith(serialized);
-            });
-            return serializedImmutables;
-        };
-        var restoreImmutables = function (root, serializedImmutables) {
-            var id, immutable;
-            $(root).find(IMMUTABALE_MARKER_SELECTOR).each(function (i, node) {
-                id = node.getAttribute(IMMUTABALE);
-                immutable = serializedImmutables[id];
-                $(node).replaceWith(immutable.node);
-                if (immutable.style != $(immutable.node).attr('style')) {
-                    $(immutable.node).removeAttr('style').attr('style', immutable.style);
-                }
-            });
-        };
-        var deletingKey = function (keyCode) {
-            var keys = kendo.keys;
-            return keyCode === keys.BACKSPACE || keyCode == keys.DELETE;
-        };
-        var updateToolOptions = function (tool) {
-            var options = tool ? tool.options : undefined;
-            if (options && options.finder) {
-                options.finder._initOptions({ immutables: true });
-            }
-        };
-        var Immutables = Class.extend({
-            init: function (editor) {
-                this.editor = editor;
-                this.serializedImmutables = {};
-                this.options = $.extend({}, editor && editor.options && editor.options.immutables);
-                var tools = editor.toolbar.tools;
-                updateToolOptions(tools.justifyLeft);
-                updateToolOptions(tools.justifyCenter);
-                updateToolOptions(tools.justifyRight);
-                updateToolOptions(tools.justifyFull);
-            },
-            serialize: function (node) {
-                var result = this._toHtml(node), id;
-                if (result.indexOf(IMMUTABALE) === -1) {
-                    id = this.randomId();
-                    result = result.replace(/>/, ' ' + IMMUTABALE + '="' + id + '">');
-                } else {
-                    id = result.match(/k-immutable\s*=\s*['"](.*)['"]/)[1];
-                }
-                this.serializedImmutables[id] = node;
-                return result;
-            },
-            _toHtml: function (node) {
-                var serialization = this.options.serialization;
-                var serializationType = typeof serialization;
-                var nodeName;
-                switch (serializationType) {
-                case 'string':
-                    return template(serialization)(node);
-                case 'function':
-                    return serialization(node);
-                default:
-                    nodeName = dom.name(node);
-                    return '<' + nodeName + '></' + nodeName + '>';
-                }
-            },
-            deserialize: function (node) {
-                var that = this;
-                var deserialization = this.options.deserialization;
-                $(IMMUTABALE_MARKER_SELECTOR, node).each(function () {
-                    var id = this.getAttribute(IMMUTABALE);
-                    var immutable = that.serializedImmutables[id];
-                    if (kendo.isFunction(deserialization)) {
-                        deserialization(this, immutable);
-                    }
-                    $(this).replaceWith(immutable);
-                });
-                that.serializedImmutables = {};
-            },
-            randomId: function (length) {
-                return randomId(length);
-            },
-            keydown: function (e, range) {
-                var isDeleting = deletingKey(e.keyCode);
-                var shouldCancelEvent = isDeleting && this._cancelDeleting(e, range) || !isDeleting && this._cancelTyping(e, range);
-                if (shouldCancelEvent) {
-                    e.preventDefault();
-                    return true;
-                }
-            },
-            _cancelTyping: function (e, range) {
-                var editor = this.editor;
-                var keyboard = editor.keyboard;
-                return range.collapsed && !keyboard.typingInProgress && keyboard.isTypingKey(e) && immutablesContext(range);
-            },
-            _cancelDeleting: function (e, range) {
-                var keys = kendo.keys;
-                var backspace = e.keyCode === keys.BACKSPACE;
-                var del = e.keyCode == keys.DELETE;
-                if (!backspace && !del) {
-                    return false;
-                }
-                var cancelDeleting = false;
-                if (range.collapsed) {
-                    if (immutablesContext(range)) {
-                        return true;
-                    }
-                    var immutable = this.nextImmutable(range, del);
-                    if (immutable && backspace) {
-                        var closestSelectionLi = dom.closest(range.commonAncestorContainer, 'li');
-                        if (closestSelectionLi) {
-                            var closestImmutableLi = dom.closest(immutable, 'li');
-                            if (closestImmutableLi && closestImmutableLi !== closestSelectionLi) {
-                                return cancelDeleting;
-                            }
-                        }
-                    }
-                    if (immutable && !dom.tableCell(immutable)) {
-                        if (dom.parentOfType(immutable, complexBlocks) === dom.parentOfType(range.commonAncestorContainer, complexBlocks)) {
-                            while (immutable && immutable.parentNode.childNodes.length == 1) {
-                                immutable = immutable.parentNode;
-                            }
-                            if (dom.tableCell(immutable)) {
-                                return cancelDeleting;
-                            }
-                            this._removeImmutable(immutable, range);
-                        }
-                        cancelDeleting = true;
-                    }
-                }
-                return cancelDeleting;
-            },
-            nextImmutable: function (range, forwards) {
-                var commonContainer = range.commonAncestorContainer;
-                if (dom.isBom(commonContainer) || (forwards && RangeUtils.isEndOf(range, commonContainer) || !forwards && RangeUtils.isStartOf(range, commonContainer))) {
-                    var next = this._nextNode(commonContainer, forwards);
-                    if (next && dom.isBlock(next) && !immutableParent(next)) {
-                        while (next && next.children && next.children[forwards ? 0 : next.children.length - 1]) {
-                            next = next.children[forwards ? 0 : next.children.length - 1];
-                        }
-                    }
-                    return immutableParent(next);
-                }
-            },
-            _removeImmutable: function (immutable, range) {
-                var editor = this.editor;
-                var startRestorePoint = new Editor.RestorePoint(range, editor.body);
-                dom.remove(immutable);
-                Editor._finishUpdate(editor, startRestorePoint);
-            },
-            _nextNode: function (node, forwards) {
-                var sibling = forwards ? 'nextSibling' : 'previousSibling';
-                var current = node, next;
-                while (current && !next) {
-                    next = current[sibling];
-                    if (next && dom.isDataNode(next) && /^\s|[\ufeff]$/.test(next.nodeValue)) {
-                        current = next;
-                        next = current[sibling];
-                    }
-                    if (!next) {
-                        current = current.parentNode;
-                    }
-                }
-                return next;
-            }
-        });
-        Immutables.immutable = immutable;
-        Immutables.immutableParent = immutableParent;
-        Immutables.expandImmutablesIn = expandImmutablesIn;
-        Immutables.immutablesContext = immutablesContext;
-        Immutables.toolsToBeUpdated = toolsToBeUpdated;
-        Immutables.removeImmutables = removeImmutables;
-        Immutables.restoreImmutables = restoreImmutables;
-        Editor.Immutables = Immutables;
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('editor/table-wizard/table-wizard-command', ['editor/tables'], f);
+    define('editor/table-wizard/table-wizard-command', ['editor/plugins/tables'], f);
 }(function () {
     (function ($, undefined) {
         var kendo = window.kendo, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, RangeUtils = Editor.RangeUtils, dom = Editor.Dom, registerTool = EditorUtils.registerTool, ToolTemplate = Editor.ToolTemplate, Command = Editor.Command;
@@ -11692,6 +11810,19 @@
                 range.insertNode(table);
                 range.collapse(true);
                 this.editor.selectRange(range);
+                this._ensureFocusableAfterTable(table);
+            },
+            _ensureFocusableAfterTable: function (table) {
+                var siblingNodes = $(table).parent().contents();
+                var lastSiblingIndex = siblingNodes.length - 1;
+                var lastSibling = siblingNodes.get(lastSiblingIndex);
+                while (lastSibling.nodeValue !== null && (lastSibling.nodeValue === ' ' || lastSibling.nodeValue === '')) {
+                    lastSiblingIndex -= 1;
+                    lastSibling = siblingNodes.get(lastSiblingIndex);
+                }
+                if (lastSibling === table) {
+                    dom.insertAfter(dom.createEmptyNode(this.editor.document, 'p'), table);
+                }
             },
             updateTable: function (data, table, selectedCells) {
                 var cmd = this;
@@ -12290,6 +12421,11 @@
                 cellData.borderColor = cellView.borderColor.value();
                 cellData.borderStyle = cellView.borderStyle.value();
                 cellData.wrapText = cellView.wrapText.checked;
+                if (!cellData.width) {
+                    cellData.selectAllCells = true;
+                    cellData.width = 100 / table.tableProperties.columns;
+                    cellData.widthUnit = '%';
+                }
             },
             _collectAccessibilityViewValues: function (table) {
                 var tableProperties = table.tableProperties;
@@ -12488,27 +12624,33 @@
         'editor/dom',
         'editor/serializer',
         'editor/range',
-        'editor/system',
-        'editor/inlineformat',
-        'editor/formatblock',
-        'editor/linebreak',
-        'editor/lists',
-        'editor/link',
-        'editor/file',
-        'editor/image',
+        'editor/command',
         'editor/components',
-        'editor/indent',
-        'editor/viewhtml',
-        'editor/formatting',
         'editor/toolbar',
-        'editor/tables',
-        'editor/export',
-        'editor/import',
+        'editor/immutables',
+        'editor/plugins/viewhtml',
+        'editor/plugins/link',
+        'editor/plugins/lists',
+        'editor/plugins/formatting',
+        'editor/plugins/image',
+        'editor/plugins/import',
+        'editor/plugins/insert',
+        'editor/plugins/export',
+        'editor/plugins/indent',
+        'editor/plugins/linebreak',
+        'editor/plugins/format',
+        'editor/plugins/inlineformat',
+        'editor/plugins/formatblock',
+        'editor/plugins/file',
+        'editor/plugins/tables',
+        'editor/plugins/clipboard',
+        'editor/plugins/keyboard',
+        'editor/plugins/exportpdf',
+        'editor/plugins/print',
         'editor/resizing/column-resizing',
         'editor/resizing/row-resizing',
         'editor/resizing/table-resizing',
         'editor/resizing/table-resize-handle',
-        'editor/immutables',
         'editor/table-wizard/table-wizard-command',
         'editor/table-wizard/table-wizard-dialog'
     ], f);

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -150,7 +150,7 @@
             }) + '\n     </cols>' : '') + '\n\n   <sheetData>\n     ' + foreach(data, function (row, ri) {
                 var rowIndex = typeof row.index === 'number' ? row.index + 1 : ri + 1;
                 return '\n         <row r="' + rowIndex + '" x14ac:dyDescent="0.25"\n              ' + (row.height === 0 ? 'hidden="1"' : row.height ? 'ht="' + toHeight(row.height) + '" customHeight="1"' : '') + '>\n           ' + foreach(row.data, function (cell) {
-                    return '\n             <c r="' + cell.ref + '" ' + (cell.style ? 's="' + cell.style + '"' : '') + ' ' + (cell.type ? 't="' + cell.type + '"' : '') + '>\n               ' + (cell.formula != null ? '<f>' + ESC(cell.formula) + '</f>' : '') + '\n               ' + (cell.value != null ? '<v>' + ESC(cell.value) + '</v>' : '') + '\n             </c>';
+                    return '\n             <c r="' + cell.ref + '" ' + (cell.style ? 's="' + cell.style + '"' : '') + ' ' + (cell.type ? 't="' + cell.type + '"' : '') + '>\n               ' + (cell.formula != null ? writeFormula(cell.formula) : '') + '\n               ' + (cell.value != null ? '<v>' + ESC(cell.value) + '</v>' : '') + '\n             </c>';
                 }) + '\n         </row>\n       ';
             }) + '\n   </sheetData>\n\n   ' + (autoFilter ? '<autoFilter ref="' + autoFilter.from + ':' + autoFilter.to + '"/>' : filter ? spreadsheetFilters(filter) : '') + '\n\n   ' + (mergeCells.length ? '\n     <mergeCells count="' + mergeCells.length + '">\n       ' + foreach(mergeCells, function (ref) {
                 return '<mergeCell ref="' + ref + '"/>';
@@ -177,7 +177,7 @@
             var uniqueCount = ref.uniqueCount;
             var indexes = ref.indexes;
             return XMLHEAD + '\n<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="' + count + '" uniqueCount="' + uniqueCount + '">\n  ' + foreach(Object.keys(indexes), function (index) {
-                return '\n    <si><t>' + ESC(index.substring(1)) + '</t></si>';
+                return '\n    <si><t xml:space="preserve">' + ESC(index.substring(1)) + '</t></si>';
             }) + '\n</sst>';
         };
         var STYLES = function (ref) {
@@ -196,6 +196,12 @@
                 return '\n      <xf xfId="0"\n          ' + (style.fontId ? 'fontId="' + style.fontId + '" applyFont="1"' : '') + '\n          ' + (style.fillId ? 'fillId="' + style.fillId + '" applyFill="1"' : '') + '\n          ' + (style.numFmtId ? 'numFmtId="' + style.numFmtId + '" applyNumberFormat="1"' : '') + '\n          ' + (style.textAlign || style.verticalAlign || style.wrap ? 'applyAlignment="1"' : '') + '\n          ' + (style.borderId ? 'borderId="' + style.borderId + '" applyBorder="1"' : '') + '>\n        ' + (style.textAlign || style.verticalAlign || style.wrap ? '\n        <alignment\n          ' + (style.textAlign ? 'horizontal="' + ESC(style.textAlign) + '"' : '') + '\n          ' + (style.verticalAlign ? 'vertical="' + ESC(style.verticalAlign) + '"' : '') + '\n          ' + (style.wrap ? 'wrapText="1"' : '') + ' />\n        ' : '') + '\n      </xf>\n    ';
             }) + '\n  </cellXfs>\n  <cellStyles count="1">\n    <cellStyle name="Normal" xfId="0" builtinId="0"/>\n  </cellStyles>\n  <dxfs count="0" />\n  <tableStyles count="0" defaultTableStyle="TableStyleMedium2" defaultPivotStyle="PivotStyleMedium9" />\n</styleSheet>';
         };
+        function writeFormula(formula) {
+            if (typeof formula == 'string') {
+                return '<f>' + ESC(formula) + '</f>';
+            }
+            return '<f t="array" ref="' + formula.ref + '">' + ESC(formula.src) + '</f>';
+        }
         function numChar(colIndex) {
             var letter = Math.floor(colIndex / 26) - 1;
             return (letter >= 0 ? numChar(letter) : '') + String.fromCharCode(65 + colIndex % 26);

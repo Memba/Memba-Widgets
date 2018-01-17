@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -347,7 +347,7 @@
             },
             _createClearIcon: function () {
                 var that = this;
-                $('<button type=\'button\' class=\'k-button k-button-icon\' title = ' + that.options.messages.clear + '/>').attr('aria-label', that.options.messages.clear).attr(kendo.attr('bind'), 'visible:operatorVisible').html('<span class=\'k-icon k-i-close\'/>').click(proxy(that.clearFilter, that)).appendTo(that.wrapper);
+                $('<button type=\'button\' class=\'k-button k-button-icon\' title = ' + that.options.messages.clear + '/>').attr('aria-label', that.options.messages.clear).attr(kendo.attr('bind'), 'visible:operatorVisible').html('<span class=\'k-icon k-i-filter-clear\'/>').click(proxy(that.clearFilter, that)).appendTo(that.wrapper);
             },
             clearFilter: function () {
                 this._clearInProgress = true;

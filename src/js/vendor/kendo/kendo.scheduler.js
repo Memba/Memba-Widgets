@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1791,6 +1791,8 @@
                 var wrapper = that.wrapper;
                 var current = view.current();
                 var selection = that._selection;
+                var oldSelection = that._old ? that._old.selection : null;
+                var oldEventsLength = that._old ? that._old.eventsLength : null;
                 if (!selection) {
                     return;
                 }
@@ -1801,9 +1803,9 @@
                 }
                 view.select(selection);
                 current = view.current();
-                if (current && that._old !== current) {
+                if (current && (oldSelection !== current || selection.events && oldEventsLength !== selection.events.length)) {
                     var currentUid = $(current).data('uid');
-                    if (that._old && currentUid && currentUid === $(that._old).data('uid')) {
+                    if (that._old && currentUid && currentUid === $(that._old.selection).data('uid') && (selection.events && that._old.eventsLength === selection.events.length)) {
                         return;
                     }
                     var labelFormat;
@@ -1819,7 +1821,10 @@
                     current.setAttribute('id', that._ariaId);
                     current.setAttribute('aria-label', labelFormat);
                     wrapper.attr('aria-activedescendant', that._ariaId);
-                    that._old = current;
+                    that._old = {
+                        selection: current,
+                        eventsLength: events.length
+                    };
                     that.trigger('change', {
                         start: selection.start,
                         end: selection.end,
@@ -2054,17 +2059,21 @@
                 that._adjustSelectedDate();
             },
             _createSelection: function (item) {
-                var uid, slot, selection;
-                if (!this._selection || !this._ctrlKey && !this._shiftKey) {
-                    this._selection = {
+                var selection = this._selection;
+                var uid;
+                var slot;
+                item = $(item);
+                if (item.is('.k-event')) {
+                    uid = item.attr(kendo.attr('uid'));
+                    if (selection && selection.events.indexOf(uid) !== -1 && !this._ctrlKey) {
+                        return;
+                    }
+                }
+                if (!selection || !this._ctrlKey && !this._shiftKey) {
+                    selection = this._selection = {
                         events: [],
                         groupIndex: 0
                     };
-                }
-                item = $(item);
-                selection = this._selection;
-                if (item.is('.k-event')) {
-                    uid = item.attr(kendo.attr('uid'));
                 }
                 slot = this.view().selectionByElement(item);
                 if (slot) {
@@ -2258,16 +2267,18 @@
             _movable: function () {
                 var startSlot;
                 var endSlot;
+                var startResources;
                 var startTime;
                 var endTime;
                 var event;
                 var clonedEvent;
                 var that = this;
                 var originSlot;
-                var originSlotPosition;
-                var originStart;
-                var originEnd;
+                var originStartTime;
+                var originalEvent;
                 var distance = 0;
+                var clonedEvents = [];
+                var cachedEvents = [];
                 var isMobile = that._isMobile();
                 var movable = that.options.editable && that.options.editable.move !== false;
                 var resizable = that.options.editable && that.options.editable.resize !== false;
@@ -2297,16 +2308,23 @@
                             }
                             event = that.occurrenceByUid(eventElement.attr(kendo.attr('uid')));
                             clonedEvent = event.clone();
-                            originStart = clonedEvent.start;
-                            originEnd = clonedEvent.end;
+                            originalEvent = event.clone();
                             clonedEvent.update(view._eventOptionsForMove(clonedEvent));
+                            clonedEvents = [];
+                            if (that._selection) {
+                                var events = that._selection.events;
+                                for (var i = 0; i < events.length; i++) {
+                                    var evtClone = that.occurrenceByUid(events[i]).clone();
+                                    evtClone.update(view._eventOptionsForMove(evtClone));
+                                    clonedEvents.push(evtClone);
+                                }
+                            } else {
+                                clonedEvents.push(clonedEvent);
+                            }
                             startSlot = view._slotByPosition(e.x.startLocation, e.y.startLocation);
-                            startTime = startSlot.startOffset(e.x.startLocation, e.y.startLocation, that.options.snap);
+                            startResources = view._resourceBySlot(startSlot);
+                            originStartTime = startTime = startSlot.startOffset(e.x.startLocation, e.y.startLocation, that.options.snap);
                             endSlot = startSlot;
-                            originSlotPosition = {
-                                x: e.x.startLocation,
-                                y: e.y.startLocation
-                            };
                             originSlot = startSlot;
                             if (!startSlot || that.trigger('moveStart', { event: event })) {
                                 e.preventDefault();
@@ -2316,30 +2334,41 @@
                             var slot = view._slotByPosition(e.x.location, e.y.location);
                             var distance;
                             var range;
+                            var i;
                             if (!slot) {
                                 return;
                             }
                             endTime = slot.startOffset(e.x.location, e.y.location, that.options.snap);
                             if (slot.isDaySlot !== startSlot.isDaySlot) {
-                                clonedEvent.isAllDay = slot.isDaySlot;
                                 if (slot.isDaySlot !== originSlot.isDaySlot) {
-                                    startSlot = view._slotByPosition(e.x.location, e.y.location);
-                                    startTime = startSlot.startOffset(e.x.location, e.y.location, that.options.snap);
-                                    clonedEvent.start = kendo.timezone.toLocalDate(startTime);
-                                    if (slot.isDaySlot) {
-                                        clonedEvent.end = kendo.timezone.toLocalDate(endTime);
-                                    } else {
-                                        clonedEvent.end = kendo.timezone.toLocalDate(slot.endOffset(e.x.location, e.y.location, that.options.snap));
+                                    var slotIndex = $(startSlot.element).index();
+                                    var targetSlotElement = $(slot.element).parent().children().eq(slotIndex);
+                                    startSlot = view._slotByPosition(targetSlotElement.offset().left, targetSlotElement.offset().top);
+                                    startTime = startSlot.startOffset(e.x.location, e.y.location, true);
+                                    cachedEvents = clonedEvents.map(function (event) {
+                                        return event.clone();
+                                    });
+                                    for (i = 0; i < clonedEvents.length; i++) {
+                                        if (clonedEvents[i].isAllDay != slot.isDaySlot) {
+                                            clonedEvents[i].isAllDay = slot.isDaySlot;
+                                            clonedEvents[i].end = kendo.date.getDate(clonedEvents[i].start);
+                                            clonedEvents[i].start = kendo.date.getDate(clonedEvents[i].start);
+                                            if (!slot.isDaySlot) {
+                                                kendo.date.setTime(clonedEvents[i].start, kendo.date.getMilliseconds(view.startTime()));
+                                                kendo.date.setTime(clonedEvents[i].end, kendo.date.getMilliseconds(view.startTime()) + view._timeSlotInterval());
+                                            }
+                                        }
                                     }
                                 } else {
                                     startSlot = $.extend(true, {}, originSlot);
-                                    startTime = startSlot.startOffset(originSlotPosition.x, originSlotPosition.y, that.options.snap);
-                                    clonedEvent.start = originStart;
-                                    clonedEvent.end = originEnd;
+                                    startTime = originStartTime;
+                                    clonedEvents = cachedEvents;
                                 }
                             }
                             distance = endTime - startTime;
-                            view._updateMoveHint(clonedEvent, slot.groupIndex, distance);
+                            for (i = 0; i < clonedEvents.length; i++) {
+                                view._updateMoveHint(clonedEvents[i], slot.groupIndex, distance);
+                            }
                             range = moveEventRange(clonedEvent, distance);
                             if (!that.trigger('move', {
                                     event: event,
@@ -2355,7 +2384,9 @@
                                 })) {
                                 endSlot = slot;
                             } else {
-                                view._updateMoveHint(clonedEvent, slot.groupIndex, distance);
+                                for (i = 0; i < clonedEvents.length; i++) {
+                                    view._updateMoveHint(clonedEvents[i], slot.groupIndex, distance);
+                                }
                             }
                         }).bind('dragend', function (e) {
                             that.view()._removeMoveHint();
@@ -2364,7 +2395,6 @@
                             var start = range.start;
                             var end = range.end;
                             var endResources = that.view()._resourceBySlot(endSlot);
-                            var startResources = that.view()._resourceBySlot(startSlot);
                             var prevented = that.trigger('moveEnd', {
                                 event: event,
                                 slot: {
@@ -2377,19 +2407,32 @@
                                 resources: endResources
                             });
                             if (!prevented && (event.start.getTime() !== start.getTime() || event.end.getTime() !== end.getTime() || originSlot.isDaySlot !== endSlot.isDaySlot || kendo.stringify(endResources) !== kendo.stringify(startResources))) {
-                                var updatedEventOptions = that.view()._eventOptionsForMove(event);
-                                var eventOptions = $.extend({
-                                    isAllDay: endSlot.isDaySlot,
-                                    start: start,
-                                    end: end
-                                }, updatedEventOptions, endResources);
-                                that._updateEvent(null, event, eventOptions, endSlot.groupIndex);
+                                that._isMultiDrag = clonedEvents.length > 1;
+                                for (var i = 0; i < clonedEvents.length; i++) {
+                                    var evt = clonedEvents[i];
+                                    range = moveEventRange(evt, distance);
+                                    var updatedEventOptions = that.view()._eventOptionsForMove(evt);
+                                    var eventOptions = $.extend({
+                                        isAllDay: evt.isAllDay,
+                                        start: range.start,
+                                        end: range.end
+                                    }, updatedEventOptions, endResources);
+                                    that._updateEvent(null, evt, eventOptions);
+                                }
+                                if (that._isMultiDrag) {
+                                    that.dataSource.sync();
+                                    that._isMultiDrag = false;
+                                }
                             }
                             e.currentTarget.removeClass('k-event-active');
                             this.cancelHold();
+                            clonedEvents = [];
+                            cachedEvents = [];
                         }).bind('dragcancel', function () {
                             that.view()._removeMoveHint();
                             this.cancelHold();
+                            clonedEvents = [];
+                            cachedEvents = [];
                         });
                     }
                     if (isMobile) {
@@ -2566,7 +2609,7 @@
                     }
                 });
             },
-            _updateEvent: function (dir, event, eventInfo, groupIndex) {
+            _updateEvent: function (dir, event, eventInfo) {
                 var that = this;
                 var updateEvent = function (event, callback) {
                     try {
@@ -2580,8 +2623,9 @@
                         if (callback) {
                             callback();
                         }
-                        that._updateSelection(event, [event.uid], groupIndex);
-                        that.dataSource.sync();
+                        if (!that._isMultiDrag) {
+                            that.dataSource.sync();
+                        }
                     }
                 };
                 var recurrenceHead = function (event) {
@@ -2610,13 +2654,18 @@
                 };
                 var updateOccurrence = function () {
                     var head = recurrenceHead(event);
+                    var eventUid;
                     var callback = function () {
                         that._convertDates(head);
+                        if (that._selection) {
+                            that._selection.events.push(eventUid);
+                        }
                     };
                     var exception = head.toOccurrence({
                         start: event.start,
                         end: event.end
                     });
+                    eventUid = exception.uid;
                     updateEvent(that.dataSource.add(exception), callback);
                 };
                 if (event.recurrenceRule || event.isOccurrence()) {
@@ -2778,16 +2827,15 @@
                 });
             },
             _showRecurringDialog: function (model, editOccurrence, editSeries, messages) {
-                var that = this;
-                var editable = that.options.editable;
+                var editable = this.options.editable;
                 var editRecurringMode = isPlainObject(editable) ? editable.editRecurringMode : 'dialog';
-                if (editRecurringMode === 'series') {
-                    editSeries();
-                } else if (editRecurringMode === 'occurrence') {
+                if (editRecurringMode === 'occurrence' || this._isMultiDrag) {
                     editOccurrence();
+                } else if (editRecurringMode === 'series') {
+                    editSeries();
                 } else {
                     this._unbindResize();
-                    that.showDialog({
+                    this.showDialog({
                         model: model,
                         title: messages.title,
                         text: messages.text,
@@ -3353,6 +3401,7 @@
                         return item == 'pdf' || item.name == 'pdf';
                     }).length > 0,
                     ns: kendo.ns,
+                    view: that._selectedViewName,
                     views: that.views,
                     viewsCount: that._viewsCount
                 }));

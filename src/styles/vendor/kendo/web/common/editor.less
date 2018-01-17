@@ -90,12 +90,7 @@ table.k-editor
     padding: 0;
 }
 
-.k-webkit .k-editor-toolbar li,
-.k-safari .k-editor-toolbar li,
-.k-ff .k-editor-toolbar li,
-.k-ie9 .k-editor-toolbar li,
-.k-ie10 .k-editor-toolbar li,
-.k-edge .k-editor-toolbar li
+.k-editor-toolbar li
 {
     display: inline-block;
     padding: .1em 0;
@@ -243,21 +238,25 @@ table.k-editor
     border-left-width: 1px;
 }
 
-.k-button-group .k-state-disabled
-{
-    display: none;
-}
+.k-editor-toolbar {
 
-.k-button-group .k-state-hover,
-.k-button-group .k-state-active
-{
-    vertical-align: middle;
-}
+    .k-button-group .k-state-disabled
+    {
+        display: none;
+    }
 
-.k-button-group .k-state-disabled
-{
-    filter: alpha(opacity=30);
-    opacity: .3;
+    .k-button-group .k-state-hover,
+    .k-button-group .k-state-active
+    {
+        vertical-align: middle;
+    }
+
+    .k-button-group .k-state-disabled
+    {
+        filter: alpha(opacity=30);
+        opacity: .3;
+    }
+
 }
 
 .k-editor .k-editable-area
@@ -428,7 +427,7 @@ a.k-tool {
     opacity: 0;
 }
 
-.k-toolbar-resizable {
+.k-editor .k-toolbar-resizable {
     min-height: 2.4375em;
     position: relative
 }

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -807,7 +807,7 @@
                 var slot = slotRange.collection.at(startIndex);
                 var container = slot.container;
                 if (!container) {
-                    container = $(kendo.format('<div class="k-events-container" style="top:{0};left:{1};width:{2}"/>', startSlot.offsetTop + startSlot.firstChildTop + startSlot.firstChildHeight - 3 + 'px', startSlot.offsetLeft + 'px', startSlot.offsetWidth + 'px'));
+                    container = $(kendo.format('<div class="k-events-container" style="top:{0};left:{1};width:{2}"/>', startSlot.offsetTop + startSlot.firstChildTop + startSlot.firstChildHeight + 'px', startSlot.offsetLeft + 'px', startSlot.offsetWidth + 'px'));
                     slot.container = container;
                     this.content[0].appendChild(container[0]);
                 }
@@ -846,7 +846,7 @@
                 var rows = SchedulerView.createRows(events);
                 for (var idx = 0, length = Math.min(rows.length, eventCount); idx < length; idx++) {
                     var rowEvents = rows[idx].events;
-                    var eventTop = startSlot.offsetTop + startSlot.firstChildHeight + idx * eventHeight + 3 * idx + 'px';
+                    var eventTop = startSlot.offsetTop + startSlot.firstChildTop + startSlot.firstChildHeight + idx * eventHeight + 3 * idx + 'px';
                     for (var j = 0, eventLength = rowEvents.length; j < eventLength; j++) {
                         rowEvents[j].element[0].style.top = eventTop;
                     }
@@ -864,7 +864,7 @@
                             end: slotIndex,
                             width: slot.clientWidth - 2,
                             left: slot.offsetLeft + 2,
-                            top: slot.offsetTop + slot.firstChildHeight + eventCount * eventHeight + 3 * eventCount
+                            top: slot.offsetTop + slot.firstChildTop + slot.firstChildHeight + eventCount * eventHeight + 3 * eventCount
                         }));
                         this.content[0].appendChild(slot.more[0]);
                     }
@@ -923,7 +923,7 @@
                 var end = start + event.duration();
                 var group = this.groups[groupIndex];
                 var ranges = group.ranges(start, end, true, event.isAllDay);
-                this._removeMoveHint();
+                this._removeMoveHint(event.uid);
                 for (var rangeIndex = 0; rangeIndex < ranges.length; rangeIndex++) {
                     this._groupedView._createMoveHint(ranges[rangeIndex], event);
                 }
@@ -983,20 +983,42 @@
                 var event;
                 var idx;
                 var length;
+                var range;
+                var start;
+                var end;
                 for (idx = 0, length = events.length; idx < length; idx++) {
                     event = events[idx];
                     if (this._isInDateSlot(event)) {
                         var group = this.groups[groupIndex];
+                        var view = this._groupedView._view;
+                        var isMobilePhoneView = view._isMobilePhoneView();
                         if (!group._continuousEvents) {
                             group._continuousEvents = [];
                         }
                         var ranges = group.slotRanges(event, true);
                         var rangeCount = ranges.length;
-                        for (var rangeIndex = 0; rangeIndex < rangeCount; rangeIndex++) {
-                            var range = ranges[rangeIndex];
-                            var start = event.start;
-                            var end = event.end;
-                            this._groupedView._positionEvent(event, group, range, rangeCount, start, end, rangeIndex);
+                        if (isMobilePhoneView) {
+                            range = ranges[0];
+                            start = range.start.start;
+                            end = range.end.end;
+                            var rangeStart = new Date(Math.max(event.start.getTime(), kendo.timezone.toLocalDate(range.start.start)));
+                            var rangeEnd = new Date(Math.min(event.end.getTime(), kendo.timezone.toLocalDate(ranges[ranges.length - 1].end.end))).getTime();
+                            var newStart = new Date(start);
+                            var newEnd = new Date(start);
+                            while (rangeStart.getTime() < rangeEnd) {
+                                var dateRange = group.daySlotRanges(newStart, newEnd, true)[0];
+                                newEnd.setDate(newEnd.getDate() + 1);
+                                newStart.setDate(newStart.getDate() + 1);
+                                this._groupedView._positionEvent(event, group, dateRange, 1, start, end, 0);
+                                rangeStart = kendo.date.addDays(rangeStart, 1);
+                            }
+                        } else {
+                            for (var rangeIndex = 0; rangeIndex < rangeCount; rangeIndex++) {
+                                range = ranges[rangeIndex];
+                                start = event.start;
+                                end = event.end;
+                                this._groupedView._positionEvent(event, group, range, rangeCount, start, end, rangeIndex);
+                            }
                         }
                     }
                 }

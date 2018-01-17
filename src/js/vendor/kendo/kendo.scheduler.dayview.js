@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -78,9 +78,10 @@
         }
         function getWorkDays(options) {
             var workDays = [];
-            var dayIndex = options.workWeekStart;
+            var dayIndex = options.workWeekStart % 7;
+            var workWeekEnd = Math.abs(options.workWeekEnd % 7);
             workDays.push(dayIndex);
-            while (options.workWeekEnd != dayIndex) {
+            while (workWeekEnd != dayIndex) {
                 if (dayIndex > 6) {
                     dayIndex -= 7;
                 } else {
@@ -224,12 +225,13 @@
                 var ranges = group.ranges(start, end, multiday, event.isAllDay);
                 start = kendo.timezone.toLocalDate(start);
                 end = kendo.timezone.toLocalDate(end);
-                this._removeMoveHint();
+                this._removeMoveHint(event.uid);
                 if (!multiday && (getMilliseconds(end) === 0 || getMilliseconds(end) < getMilliseconds(this.startTime()))) {
                     if (ranges.length > 1) {
                         ranges.pop();
                     }
                 }
+                var eventHint = $();
                 for (var rangeIndex = 0; rangeIndex < ranges.length; rangeIndex++) {
                     var range = ranges[rangeIndex];
                     var startSlot = range.start;
@@ -249,6 +251,7 @@
                                 end: end
                             }), !multiday);
                             this._appendMoveHint(hint, css);
+                            eventHint = eventHint.add(hint);
                         }
                     } else {
                         if (this._isRtl) {
@@ -267,6 +270,7 @@
                             end: end
                         }), !multiday);
                         this._appendMoveHint(hint, css);
+                        eventHint = eventHint.add(hint);
                     }
                 }
                 var content = this.content;
@@ -276,7 +280,7 @@
                         content = this.content;
                     }
                 }
-                this._moveHint.appendTo(content);
+                eventHint.appendTo(content);
             },
             _appendMoveHint: function (hint, css) {
                 hint.addClass('k-event-drag-hint');
@@ -853,11 +857,11 @@
                     }
                 }
                 html += '<tbody>';
-                var appendRow = function (date, majorTick) {
+                var appendRow = function (date, majorTick, middleRow) {
                     var content = '';
                     var groupIdx = 0;
                     var idx, length;
-                    content = '<tr' + (majorTick ? ' class="k-middle-row"' : '') + '>';
+                    content = '<tr' + (middleRow ? ' class="k-middle-row"' : '') + '>';
                     if (byDate) {
                         for (idx = 0, length = columnCount; idx < length; idx++) {
                             for (groupIdx = 0; groupIdx < groupsCount; groupIdx++) {
@@ -1212,8 +1216,8 @@
                 if (event._date('end') > event._date('start')) {
                     endTime = +event._date('end') + (MS_PER_DAY - 1);
                 }
-                endTime = getMilliseconds(new Date(endTime));
-                startTime = getMilliseconds(new Date(startTime));
+                endTime = event._endTime ? endTime - event._date('end') : getMilliseconds(new Date(endTime));
+                startTime = event._startTime ? startTime - event._date('start') : getMilliseconds(new Date(startTime));
                 slotEndTime = getMilliseconds(slotEndTime);
                 slotStartTime = getMilliseconds(slotStartTime);
                 if (slotStartTime === startTime && startTime === endTime) {

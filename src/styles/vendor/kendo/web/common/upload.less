@@ -167,6 +167,7 @@ html .k-upload
     border-style: solid;
     border-width: 0 0 1px;
     padding: .65em .17em .65em 1em;
+    white-space: nowrap;
 
     .k-upload-action {
         background: 0 0;
@@ -221,6 +222,7 @@ html .k-upload
 .k-file-name-size-wrapper {
     vertical-align: middle;
     margin-left: 1em;
+    max-width: calc(100% - 24px - 1em - 6em);
 }
 
 .k-file-extension-wrapper:before,
@@ -285,13 +287,11 @@ html .k-upload
 
 .k-file-name {
     position: relative;
-    min-width: 10em;
-    max-width: 16.667em;
+    max-width: 100%;
     vertical-align: middle;
     line-height: 1.2em;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .k-file-size,

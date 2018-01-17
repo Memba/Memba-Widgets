@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -43,9 +43,10 @@
         }
         function getWorkDays(options) {
             var workDays = [];
-            var dayIndex = options.workWeekStart;
+            var dayIndex = options.workWeekStart % 7;
+            var workWeekEnd = Math.abs(options.workWeekEnd % 7);
             workDays.push(dayIndex);
-            while (options.workWeekEnd != dayIndex) {
+            while (workWeekEnd != dayIndex) {
                 if (dayIndex > 6) {
                     dayIndex -= 7;
                 } else {
@@ -329,7 +330,7 @@
                     width: width
                 };
                 hint.css(css);
-                view._moveHint = view._moveHint.add(hint);
+                view._appendMoveHint(hint);
             },
             _adjustLeftPosition: function (left) {
                 var view = this._view;
@@ -627,7 +628,7 @@
                         width: slot.offsetWidth
                     };
                     hint.css(css);
-                    view._moveHint = view._moveHint.add(hint);
+                    view._appendMoveHint(hint);
                 }
             },
             _adjustLeftPosition: function (left) {
@@ -1425,7 +1426,7 @@
                         adjustedStartDate = getDate(start);
                         setTime(adjustedStartDate, startTime);
                         tail = true;
-                    } else if (endTime < eventStartTime) {
+                    } else if (endTime <= eventStartTime) {
                         adjustedStartDate = getDate(start);
                         adjustedStartDate = kendo.date.addDays(adjustedStartDate, 1);
                         setTime(adjustedStartDate, startTime);
@@ -1470,11 +1471,11 @@
                             if (!group._continuousEvents) {
                                 group._continuousEvents = [];
                             }
-                            var ranges = group.slotRanges(adjustedEvent.occurrence, false);
-                            var range = ranges[0];
-                            var startIndex = range.start.index;
-                            var endIndex = range.end.index;
                             if (this._isInTimeSlot(adjustedEvent.occurrence)) {
+                                var ranges = group.slotRanges(adjustedEvent.occurrence, false);
+                                var range = ranges[0];
+                                var startIndex = range.start.index;
+                                var endIndex = range.end.index;
                                 this._groupedView._renderEvent(eventGroup, event, adjustedEvent, group, range, container, startIndex, endIndex);
                             }
                         }
@@ -1600,14 +1601,20 @@
                 var eventDuraton = clonedEvent.duration();
                 clonedEvent.start = new Date(clonedEvent.start.getTime() + distance);
                 clonedEvent.end = new Date(+clonedEvent.start + eventDuraton);
-                var adjustedEvent = this._adjustEvent(clonedEvent);
-                var ranges = group.slotRanges(adjustedEvent.occurrence, false);
-                this._removeMoveHint();
-                for (var rangeIndex = 0; rangeIndex < ranges.length; rangeIndex++) {
-                    this._groupedView._createMoveHint(ranges[rangeIndex], adjustedEvent);
+                this._removeMoveHint(event.uid);
+                if (this._isInDateSlot(clonedEvent)) {
+                    if (clonedEvent.isAllDay || clonedEvent.duration() >= MS_PER_DAY || this._isInTimeSlot(clonedEvent)) {
+                        var adjustedEvent = this._adjustEvent(clonedEvent);
+                        var ranges = group.slotRanges(adjustedEvent.occurrence, false);
+                        for (var rangeIndex = 0; rangeIndex < ranges.length; rangeIndex++) {
+                            this._groupedView._createMoveHint(ranges[rangeIndex], adjustedEvent);
+                        }
+                    }
                 }
-                var content = this.content;
-                this._moveHint.appendTo(content);
+            },
+            _appendMoveHint: function (hint) {
+                hint.appendTo(this.content);
+                this._moveHint = this._moveHint.add(hint);
             },
             _updateResizeHint: function (event, groupIndex, startTime, endTime) {
                 var group = this.groups[groupIndex];

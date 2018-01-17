@@ -254,6 +254,13 @@
     .box-sizing(content-box);
 }
 
+
+
+.k-scheduler-dayview div:not(.k-scheduler-header) .k-today:not(.k-nonwork-hour),
+.k-scheduler-timelineview .k-today:not(.k-nonwork-hour) {
+    background-color: transparent;
+}
+
 .k-scheduler-monthview .k-hidden,
 .k-scheduler-monthview .k-hidden > div
 {
@@ -966,8 +973,17 @@ div[name="recurrenceRule"] > .k-dropdown
     display: none;
 }
 
-.k-scheduler-toolbar li.k-nav-current .k-sm-date-format
-{
+.k-scheduler-toolbar .k-nav-current .k-lg-date-format,
+.k-scheduler-toolbar .k-nav-current .k-sm-date-format {
+    vertical-align: top;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.k-scheduler-toolbar .k-nav-current .k-lg-date-format {
+    display: inline-block;
+}
+.k-scheduler-toolbar .k-nav-current .k-sm-date-format {
     display: none;
 }
 
@@ -1005,7 +1021,7 @@ div[name="recurrenceRule"] > .k-dropdown
 
     .k-scheduler-toolbar li.k-nav-current .k-sm-date-format
     {
-        display: inline;
+        display: inline-block;
     }
 
     .k-scheduler-toolbar > ul.k-scheduler-views > li.k-current-view

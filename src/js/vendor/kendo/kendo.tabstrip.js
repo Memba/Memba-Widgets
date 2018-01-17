@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -279,7 +279,7 @@
                 }
             },
             refresh: function (e) {
-                var that = this, options = that.options, text = kendo.getter(options.dataTextField), content = kendo.getter(options.dataContentField), contentUrl = kendo.getter(options.dataContentUrlField), image = kendo.getter(options.dataImageUrlField), url = kendo.getter(options.dataUrlField), sprite = kendo.getter(options.dataSpriteCssClass), idx, tabs = [], tab, action, view = that.dataSource.view(), length;
+                var that = this, options = that.options, encoded = kendo.getter(options.dataEncodedField), text = kendo.getter(options.dataTextField), content = kendo.getter(options.dataContentField), contentUrl = kendo.getter(options.dataContentUrlField), image = kendo.getter(options.dataImageUrlField), url = kendo.getter(options.dataUrlField), sprite = kendo.getter(options.dataSpriteCssClass), idx, tabs = [], tab, action, view = that.dataSource.view(), length;
                 e = e || {};
                 action = e.action;
                 if (action) {
@@ -287,6 +287,9 @@
                 }
                 for (idx = 0, length = view.length; idx < length; idx++) {
                     tab = { text: text(view[idx]) };
+                    if (options.dataEncodedField) {
+                        tab.encoded = encoded(view[idx]);
+                    }
                     if (options.dataContentField) {
                         tab.content = content(view[idx]);
                     }
@@ -373,6 +376,7 @@
             ],
             options: {
                 name: 'TabStrip',
+                dataEncodedField: '',
                 dataTextField: '',
                 dataContentField: '',
                 dataImageUrlField: '',

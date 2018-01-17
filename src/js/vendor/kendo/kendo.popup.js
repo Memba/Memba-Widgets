@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -68,8 +68,9 @@
                 that.element.hide().addClass('k-popup k-group k-reset').toggleClass('k-rtl', !!options.isRtl).css({ position: ABSOLUTE }).appendTo(options.appendTo).attr('aria-hidden', true).on('mouseenter' + NS, function () {
                     that._hovered = true;
                 }).on('wheel' + NS, function (e) {
-                    var scrollArea = $(this).find('.k-list').parent();
-                    if (scrollArea.scrollTop() === 0 && e.originalEvent.deltaY < 0 || scrollArea.scrollTop() === scrollArea.prop('scrollHeight') - scrollArea.prop('offsetHeight') && e.originalEvent.deltaY > 0) {
+                    var list = $(e.target).find('.k-list');
+                    var scrollArea = list.parent();
+                    if (list.length && list.is(':visible') && (scrollArea.scrollTop() === 0 && e.originalEvent.deltaY < 0 || scrollArea.scrollTop() === scrollArea.prop('scrollHeight') - scrollArea.prop('offsetHeight') && e.originalEvent.deltaY > 0)) {
                         e.preventDefault();
                     }
                 }).on('mouseleave' + NS, function () {
@@ -573,6 +574,10 @@
                 return elements.get((current + (e.shiftKey ? -1 : 1)) % count);
             },
             _focus: function (element) {
+                if (element.nodeName == 'IFRAME') {
+                    element.contentWindow.document.body.focus();
+                    return;
+                }
                 element.focus();
                 if (element.nodeName == 'INPUT' && element.setSelectionRange && this._haveSelectionRange(element)) {
                     element.setSelectionRange(0, element.value.length);

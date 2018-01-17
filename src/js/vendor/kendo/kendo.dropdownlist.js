@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -194,7 +194,7 @@
                         that._filterSource();
                     }
                 } else if (that._allowOpening()) {
-                    that._open = true;
+                    that._focusFilter = true;
                     that.popup.one('activate', that._focusInputHandler);
                     that.popup._hovered = true;
                     that.popup.open();
@@ -702,7 +702,8 @@
                 if (filterInput && filterInput[0] === element[0] && touchEnabled) {
                     return;
                 }
-                if (filterInput && (compareElement[0] === active || this._open)) {
+                if (filterInput && (compareElement[0] === active || this._focusFilter)) {
+                    this._focusFilter = false;
                     this._prevent = true;
                     this._focused = element.focus();
                 }

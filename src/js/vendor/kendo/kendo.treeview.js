@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -47,6 +47,8 @@
                 url: 'dataUrlField',
                 spriteCssClass: 'dataSpriteCssClassField',
                 imageUrl: 'dataImageUrlField'
+            }, isJQueryInstance = function (obj) {
+                return obj instanceof kendo.jQuery || obj instanceof window.jQuery;
             }, isDomElement = function (o) {
                 return typeof HTMLElement === 'object' ? o instanceof HTMLElement : o && typeof o === 'object' && o.nodeType === 1 && typeof o.nodeName === STRING;
             };
@@ -185,7 +187,9 @@
                     $(this).addClass(KSTATEHOVER);
                 }).on('mouseleave' + NS, clickableItems, function () {
                     $(this).removeClass(KSTATEHOVER);
-                }).on(CLICK + NS, clickableItems, proxy(that._click, that)).on('dblclick' + NS, '.k-in:not(.k-state-disabled)', proxy(that._toggleButtonClick, that)).on(CLICK + NS, '.k-i-expand,.k-i-collapse', proxy(that._toggleButtonClick, that)).on('keydown' + NS, proxy(that._keydown, that)).on('keypress' + NS, proxy(that._keypress, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that)).on('mousedown' + NS, '.k-in,.k-checkbox-wrapper :checkbox,.k-i-expand,.k-i-collapse', proxy(that._mousedown, that)).on('change' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxChange, that)).on('click' + NS, '.checkbox-span', proxy(that._checkboxLabelClick, that)).on('click' + NS, '.k-request-retry', proxy(that._retryRequest, that)).on('click' + NS, function (e) {
+                }).on(CLICK + NS, clickableItems, proxy(that._click, that)).on('dblclick' + NS, '.k-in:not(.k-state-disabled)', proxy(that._toggleButtonClick, that)).on(CLICK + NS, '.k-i-expand,.k-i-collapse', proxy(that._toggleButtonClick, that)).on('keydown' + NS, proxy(that._keydown, that)).on('keypress' + NS, proxy(that._keypress, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that)).on('mousedown' + NS, '.k-in,.k-checkbox-wrapper :checkbox,.k-i-expand,.k-i-collapse', proxy(that._mousedown, that)).on('change' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxChange, that)).on('click' + NS, '.checkbox-span', proxy(that._checkboxLabelClick, that)).on('click' + NS, '.k-request-retry', proxy(that._retryRequest, that)).on('click' + NS, '.k-link.k-state-disabled', function (e) {
+                    e.preventDefault();
+                }).on('click' + NS, function (e) {
                     if (!$(e.target).is(':kendoFocusable')) {
                         that.focus();
                     }
@@ -193,12 +197,11 @@
             },
             _checkboxLabelClick: function (e) {
                 var checkbox = $(e.target.previousSibling);
+                if (checkbox.is('[disabled]')) {
+                    return;
+                }
                 checkbox.prop('checked', !checkbox.prop('checked'));
                 checkbox.trigger('change');
-                if (checkbox.data(INDETERMINATE)) {
-                    checkbox.data(INDETERMINATE, false).prop(INDETERMINATE, false).prop(CHECKED, true);
-                    this._checkboxChange(e);
-                }
             },
             _syncHtmlAndDataSource: function (root, dataSource) {
                 root = root || this.root;
@@ -300,7 +303,9 @@
                             var destination = options.destination;
                             var position = options.position;
                             function triggerDragEnd(source) {
-                                widget.updateIndeterminate();
+                                if (widget.options.checkboxes && widget.options.checkboxes.checkChildren) {
+                                    widget.updateIndeterminate();
+                                }
                                 widget.trigger(DRAGEND, {
                                     originalEvent: options.originalEvent,
                                     sourceNode: source && source[0],
@@ -574,31 +579,41 @@
                 var subnodes = subGroup(node).children();
                 var i;
                 var checkbox;
+                var dataItem;
                 if (subnodes.length) {
                     for (i = 0; i < subnodes.length; i++) {
                         this.updateIndeterminate(subnodes.eq(i));
                     }
                     checkbox = this._setIndeterminate(node);
+                    dataItem = this.dataItem(node);
                     if (checkbox && checkbox.prop(CHECKED)) {
-                        this.dataItem(node).checked = true;
+                        dataItem.checked = true;
+                    } else {
+                        if (dataItem) {
+                            delete dataItem.checked;
+                        }
                     }
                 }
             },
-            _bubbleIndeterminate: function (node) {
+            _bubbleIndeterminate: function (node, skipDownward) {
                 if (!node.length) {
                     return;
                 }
-                this.updateIndeterminate(node);
+                if (!skipDownward) {
+                    this.updateIndeterminate(node);
+                }
                 var parentNode = this.parent(node), checkbox;
                 if (parentNode.length) {
                     this._setIndeterminate(parentNode);
                     checkbox = parentNode.children('div').find('.k-checkbox-wrapper :checkbox');
+                    this._skip = true;
                     if (checkbox.prop(INDETERMINATE) === false) {
                         this.dataItem(parentNode).set(CHECKED, checkbox.prop(CHECKED));
                     } else {
                         delete this.dataItem(parentNode).checked;
                     }
-                    this._bubbleIndeterminate(parentNode);
+                    this._skip = false;
+                    this._bubbleIndeterminate(parentNode, true);
                 }
             },
             _checkboxChange: function (e) {
@@ -1114,6 +1129,9 @@
                 var loadOnDemand = options.loadOnDemand;
                 var checkChildren = options.checkboxes && options.checkboxes.checkChildren;
                 var i;
+                if (this._skip) {
+                    return;
+                }
                 if (e.field) {
                     if (!items[0] || !items[0].level) {
                         return;
@@ -1359,7 +1377,7 @@
             },
             _toObservableData: function (node) {
                 var dataItem = node, dataSource, uid;
-                if (node instanceof window.jQuery || isDomElement(node)) {
+                if (isJQueryInstance(node) || isDomElement(node)) {
                     dataSource = this._objectOrSelf(node).dataSource;
                     uid = $(node).attr(kendo.attr('uid'));
                     dataItem = dataSource.getByUid(uid);

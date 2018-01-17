@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2017.3.1026 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -5833,6 +5833,7 @@
         var IMAGE_CACHE = {};
         var nodeInfo = {};
         nodeInfo._root = nodeInfo;
+        var microsoft = browser.msie || browser.edge;
         var TextRect = Text.extend({
             init: function (str, rect, options) {
                 Text.fn.init.call(this, str, rect.getOrigin(), options);
@@ -5899,7 +5900,7 @@
                 return el.closest(selector);
             }
             while (el && !/^\[object (?:HTML)?Document\]$/.test(String(el))) {
-                if (matches(el, selector)) {
+                if (el.nodeType == 1 && matches(el, selector)) {
                     return el;
                 }
                 el = el.parentNode;
@@ -6878,7 +6879,7 @@
                     val = style.getPropertyValue('-moz-' + prop);
                 } else if (browser.opera) {
                     val = style.getPropertyValue('-o-' + prop);
-                } else if (browser.msie || browser.edge) {
+                } else if (microsoft) {
                     val = style.getPropertyValue('-ms-' + prop);
                 }
             }
@@ -6896,7 +6897,7 @@
                 style.setProperty('-moz-' + prop, value, important);
             } else if (browser.opera) {
                 style.setProperty('-o-' + prop, value, important);
-            } else if (browser.msie || browser.edge) {
+            } else if (microsoft) {
                 style.setProperty('-ms-' + prop, value, important);
                 prop = 'ms' + prop.replace(/(^|-)([a-z])/g, function (s, p1, p2) {
                     return p1 + p2.toUpperCase();
@@ -7208,25 +7209,29 @@
             }
             var fake = [];
             function pseudo(kind, place) {
-                var style = getComputedStyle(element, kind);
+                var style = getComputedStyle(element, kind), content = style.content;
                 updateCounters(style);
-                if (style.content && style.content != 'normal' && style.content != 'none' && style.width != '0px') {
+                if (content && content != 'normal' && content != 'none' && style.width != '0px') {
                     var psel = element.ownerDocument.createElement(KENDO_PSEUDO_ELEMENT);
                     psel.style.cssText = getCssText(style);
-                    psel.textContent = evalPseudoElementContent(element, style.content);
+                    psel.textContent = evalPseudoElementContent(element, content);
                     element.insertBefore(psel, place);
                     fake.push(psel);
                 }
             }
             pseudo(':before', element.firstChild);
             pseudo(':after', null);
-            var saveClass = element.className;
-            element.className += ' kendo-pdf-hide-pseudo-elements';
-            _renderElement(element, group);
-            element.className = saveClass;
-            fake.forEach(function (el) {
-                element.removeChild(el);
-            });
+            if (fake.length > 0) {
+                var saveClass = element.className;
+                element.className += ' kendo-pdf-hide-pseudo-elements';
+                _renderElement(element, group);
+                element.className = saveClass;
+                fake.forEach(function (el) {
+                    element.removeChild(el);
+                });
+            } else {
+                _renderElement(element, group);
+            }
         }
         function _renderElement(element, group) {
             var style = getComputedStyle(element);
@@ -8109,7 +8114,7 @@
             var whiteSpace = getPropertyValue(style, 'white-space');
             var textTransform = getPropertyValue(style, 'text-transform');
             var textOverflow, saveTextOverflow;
-            if (browser.msie || browser.edge) {
+            if (microsoft) {
                 textOverflow = style.textOverflow;
                 if (textOverflow == 'ellipsis') {
                     saveTextOverflow = element.style.textOverflow;
@@ -8127,7 +8132,7 @@
             var hasDecoration = underline || lineThrough || overline;
             while (!doChunk()) {
             }
-            if ((browser.msie || browser.edge) && textOverflow == 'ellipsis') {
+            if (microsoft && textOverflow == 'ellipsis') {
                 element.style.textOverflow = saveTextOverflow;
             }
             if (hasDecoration) {
@@ -8136,7 +8141,7 @@
             }
             return;
             function actuallyGetRangeBoundingRect(range) {
-                if (browser.msie || browser.edge || browser.chrome) {
+                if (microsoft || browser.chrome) {
                     var rectangles = range.getClientRects(), box = {
                             top: Infinity,
                             right: -Infinity,
@@ -8212,7 +8217,7 @@
                         box = actuallyGetRangeBoundingRect(range);
                     }
                 }
-                if (browser.msie || browser.edge) {
+                if (microsoft) {
                     box = range.getClientRects()[0];
                 }
                 var str = range.toString();
@@ -8241,7 +8246,7 @@
                 drawText(str, box);
             }
             function drawText(str, box) {
-                if ((browser.msie || browser.edge) && !isNaN(lineHeight)) {
+                if (microsoft && !isNaN(lineHeight)) {
                     var height = getFontHeight(font);
                     var top = (box.top + box.bottom - height) / 2;
                     box = {

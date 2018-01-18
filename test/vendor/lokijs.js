@@ -168,7 +168,7 @@
       // if both are numbers (string encoded or not), compare as numbers
       cv1 = Number(prop1);
       cv2 = Number(prop2);
-      
+
       if (cv1 === cv1 && cv2 === cv2) {
         if (cv1 < cv2) return true;
         if (cv1 > cv2) return false;
@@ -178,11 +178,11 @@
       if (cv1 === cv1 && cv2 !== cv2) {
         return true;
       }
-      
+
       if (cv2 === cv2 && cv1 !== cv1) {
         return false;
       }
-      
+
       if (prop1 < prop2) return true;
       if (prop1 > prop2) return false;
       if (prop1 == prop2) return equal;
@@ -240,11 +240,11 @@
         if (cv1 < cv2) return false;
         return equal;
       }
-      
+
       if (cv1 === cv1 && cv2 !== cv2) {
         return false;
       }
-      
+
       if (cv2 === cv2 && cv1 !== cv1) {
         return true;
       }
@@ -294,11 +294,19 @@
      */
     function compoundeval(properties, obj1, obj2) {
       var res = 0;
-      var prop, field;
+      var prop, field, val1, val2, arr;
       for (var i = 0, len = properties.length; i < len; i++) {
         prop = properties[i];
         field = prop[0];
-        res = sortHelper(obj1[field], obj2[field], prop[1]);
+        if (~field.indexOf('.')) {
+          arr = field.split('.');
+          val1 = arr.reduce(function(obj, i) { return obj && obj[i] || undefined; }, obj1);
+          val2 = arr.reduce(function(obj, i) { return obj && obj[i] || undefined; }, obj2);
+        } else {
+          val1 = obj1[field];
+          val2 = obj2[field];
+        }
+        res = sortHelper(val1, val2, prop[1]);
         if (res !== 0) {
           return res;
         }
@@ -558,14 +566,14 @@
         break;
       case "shallow":
         // more compatible method for older browsers
-        cloned = data.prototype?Object.create(data.prototype):{};
+        cloned = Object.create(data.constructor.prototype);
         Object.keys(data).map(function (i) {
           cloned[i] = data[i];
         });
         break;
       case "shallow-assign":
         // should be supported by newer environments/browsers
-        cloned = data.prototype?Object.create(data.prototype):{};
+        cloned = Object.create(data.constructor.prototype);
         Object.assign(cloned, data);
         break;
       default:
@@ -658,16 +666,17 @@
      * @param {object=} data - optional object passed with the event
      * @memberof LokiEventEmitter
      */
-    LokiEventEmitter.prototype.emit = function (eventName, data) {
+    LokiEventEmitter.prototype.emit = function (eventName) {
       var self = this;
+      var selfArgs = Array.prototype.slice.call(arguments, 1);
       if (eventName && this.events[eventName]) {
         this.events[eventName].forEach(function (listener) {
           if (self.asyncListeners) {
             setTimeout(function () {
-              listener(data);
+              listener.apply(self, selfArgs);
             }, 1);
           } else {
-            listener(data);
+            listener.apply(self, selfArgs);
           }
 
         });
@@ -775,11 +784,7 @@
 
       var getENV = function () {
         if (typeof global !== 'undefined' && (global.android || global.NSObject)) {
-           // If no adapter is set use the default nativescript adapter
-           if (!options.adapter) {
-             //var LokiNativescriptAdapter = require('./loki-nativescript-adapter');
-             //options.adapter=new LokiNativescriptAdapter();
-           }
+           // If no adapter assume nativescript which needs adapter to be passed manually
            return 'NATIVESCRIPT'; //nativescript
         }
 
@@ -815,9 +820,7 @@
         this.ENV = 'NODEJS';
       }
 
-      //if (typeof (options) !== 'undefined') {
       this.configureOptions(options, true);
-      //}
 
       this.on('init', this.clearChanges);
 
@@ -975,7 +978,7 @@
           databaseCopy.collections[idx].ttl = null;
         }
       }
-      
+
       return databaseCopy;
     };
 
@@ -1031,6 +1034,23 @@
       // no such collection
       this.emit('warning', 'collection ' + collectionName + ' not found');
       return null;
+    };
+
+    /**
+     * Renames an existing loki collection
+     * @param {string} oldName - name of collection to rename
+     * @param {string} newName - new name of collection
+     * @returns {Collection} reference to the newly renamed collection
+     * @memberof Loki
+     */
+    Loki.prototype.renameCollection = function (oldName, newName) {
+      var c = this.getCollection(oldName);
+
+      if (c) {
+        c.name = newName;
+      }
+
+      return c;
     };
 
     Loki.prototype.listCollections = function () {
@@ -1089,7 +1109,7 @@
         return null;
       case 'throttledSavePending':
       case 'throttledCallbacks':
-        return undefined;        
+        return undefined;
       default:
         return value;
       }
@@ -1121,8 +1141,8 @@
 
     /**
      * Database level destructured JSON serialization routine to allow alternate serialization methods.
-     * Internally, Loki supports destructuring via loki "serializationMethod' option and 
-     * the optional LokiPartitioningAdapter class. It is also available if you wish to do 
+     * Internally, Loki supports destructuring via loki "serializationMethod' option and
+     * the optional LokiPartitioningAdapter class. It is also available if you wish to do
      * your own structured persistence or data exchange.
      *
      * @param {object=} options - output format options for use externally to loki
@@ -1305,8 +1325,8 @@
 
     /**
      * Database level destructured JSON deserialization routine to minimize memory overhead.
-     * Internally, Loki supports destructuring via loki "serializationMethod' option and 
-     * the optional LokiPartitioningAdapter class. It is also available if you wish to do 
+     * Internally, Loki supports destructuring via loki "serializationMethod' option and
+     * the optional LokiPartitioningAdapter class. It is also available if you wish to do
      * your own structured persistence or data exchange.
      *
      * @param {string|array} destructuredSource - destructured json or array to deserialize from
@@ -1537,7 +1557,7 @@
       for (i; i < len; i += 1) {
         coll = dbObject.collections[i];
 
-        copyColl = this.addCollection(coll.name, { disableChangesApi: coll.disableChangesApi });
+        copyColl = this.addCollection(coll.name, { disableChangesApi: coll.disableChangesApi, disableDeltaChangesApi: coll.disableDeltaChangesApi });
 
         copyColl.adaptiveBinaryIndices = coll.hasOwnProperty('adaptiveBinaryIndices')?(coll.adaptiveBinaryIndices === true): false;
         copyColl.transactional = coll.transactional;
@@ -1592,7 +1612,7 @@
             copyColl.ensureUniqueIndex(copyColl.uniqueNames[j]);
           }
         }
-        
+
         // in case they are loading a database created before we added dynamic views, handle undefined
         if (typeof (coll.DynamicViews) === 'undefined') continue;
 
@@ -1716,7 +1736,7 @@
      */
 
     /**
-     * In in-memory persistence adapter for an in-memory database.  
+     * In in-memory persistence adapter for an in-memory database.
      * This simple 'key/value' adapter is intended for unit testing and diagnostics.
      *
      * @param {object=} options - memory adapter options
@@ -1754,16 +1774,18 @@
             callback(self.hashStore[dbname].value);
           }
           else {
-            callback (new Error("unable to load database, " + dbname + " was not found in memory adapter"));
+            // database doesn't exist, return falsy
+            callback (null);
           }
         }, this.options.asyncTimeout);
       }
       else {
         if (this.hashStore.hasOwnProperty(dbname)) {
+          // database doesn't exist, return falsy
           callback(this.hashStore[dbname].value);
         }
         else {
-          callback (new Error("unable to load database, " + dbname + " was not found in memory adapter"));
+          callback (null);
         }
       }
     };
@@ -1787,7 +1809,7 @@
           self.hashStore[dbname] = {
             savecount: saveCount+1,
             lastsave: new Date(),
-            value: dbstring 
+            value: dbstring
           };
 
           callback();
@@ -1799,7 +1821,7 @@
         this.hashStore[dbname] = {
           savecount: saveCount+1,
           lastsave: new Date(),
-          value: dbstring 
+          value: dbstring
         };
 
         callback();
@@ -1817,7 +1839,7 @@
       if (this.hashStore.hasOwnProperty(dbname)) {
         delete this.hashStore[dbname];
       }
-      
+
       if (typeof callback === "function") {
         callback();
       }
@@ -1827,9 +1849,9 @@
      * An adapter for adapters.  Converts a non reference mode adapter into a reference mode adapter
      * which can perform destructuring and partioning.  Each collection will be stored in its own key/save and
      * only dirty collections will be saved.  If you  turn on paging with default page size of 25megs and save
-     * a 75 meg collection it should use up roughly 3 save slots (key/value pairs sent to inner adapter). 
+     * a 75 meg collection it should use up roughly 3 save slots (key/value pairs sent to inner adapter).
      * A dirty collection that spans three pages will save all three pages again
-     * Paging mode was added mainly because Chrome has issues saving 'too large' of a string within a 
+     * Paging mode was added mainly because Chrome has issues saving 'too large' of a string within a
      * single indexeddb row.  If a single document update causes the collection to be flagged as dirty, all
      * of that collection's pages will be written on next save.
      *
@@ -1891,6 +1913,14 @@
 
       // load the db container (without data)
       this.adapter.loadDatabase(dbname, function(result) {
+        // empty database condition is for inner adapter return null/undefined/falsy
+        if (!result) {
+          // partition 0 not found so new database, no need to try to load other partitions.
+          // return same falsy result to loadDatabase to signify no database exists (yet)
+          callback(result);
+          return;
+        }
+
         if (typeof result !== "string") {
           callback(new Error("LokiPartitioningAdapter received an unexpected response from inner adapter loadDatabase()"));
         }
@@ -2009,7 +2039,7 @@
      * @param {object} dbref - reference to database which we will partition and save.
      * @param {function} callback - adapter callback to return load result to caller
      *
-     * @memberof LokiPartitioningAdapter     
+     * @memberof LokiPartitioningAdapter
      */
     LokiPartitioningAdapter.prototype.exportDatabase = function(dbname, dbref, callback) {
       var self=this;
@@ -2372,15 +2402,28 @@
               self.emit('loaded', 'database ' + self.filename + ' loaded');
             }
           } else {
+            // falsy result means new database
+            if (!dbString) {
+              cFun(null);
+              self.emit('loaded', 'empty database ' + self.filename + ' loaded');
+              return;
+            }
+
+            // instanceof error means load faulted
+            if (dbString instanceof Error) {
+                cFun(dbString);
+                return;
+            }
+
             // if adapter has returned an js object (other than null or error) attempt to load from JSON object
-            if (typeof (dbString) === "object" && dbString !== null && !(dbString instanceof Error)) {
+            if (typeof (dbString) === "object") {
               self.loadJSONObject(dbString, options || {});
               cFun(null); // return null on success
               self.emit('loaded', 'database ' + self.filename + ' loaded');
-            } else {
-              // error from adapter (either null or instance of error), pass on to 'user' callback
-              cFun(dbString);
+              return;
             }
+
+            cFun("unexpected adapter response : " + dbString);
           }
         });
 
@@ -2398,7 +2441,7 @@
      * If you are configured with autosave, you do not need to call this method yourself.
      *
      * @param {object} options - if throttling saves and loads, this controls how we drain save queue before loading
-     * @param {boolean} options.recursiveWait - (default: true) wait recursively until no saves are queued 
+     * @param {boolean} options.recursiveWait - (default: true) wait recursively until no saves are queued
      * @param {bool} options.recursiveWaitLimit - (default: false) limit our recursive waiting to a duration
      * @param {int} options.recursiveWaitLimitDelay - (default: 2000) cutoff in ms to stop recursively re-draining
      * @param {function=} callback - (Optional) user supplied async callback / error handler
@@ -2558,7 +2601,7 @@
           throw err;
         }
       };
-      
+
       // we aren't even using options, so we will support syntax where
       // callback is passed as first and only argument
       if (typeof options === 'function' && !callback) {
@@ -2804,10 +2847,10 @@
           rs = rs.offset(step.value);
           break; // offset makes copy so update reference
         case "map":
-          rs = rs.map(step.value);
+          rs = rs.map(step.value, step.dataOptions);
           break;
         case "eqJoin":
-          rs = rs.eqJoin(step.joinData, step.leftJoinKey, step.rightJoinKey, step.mapFun);
+          rs = rs.eqJoin(step.joinData, step.leftJoinKey, step.rightJoinKey, step.mapFun, step.dataOptions);
           break;
           // following cases break chain by returning array data so make any of these last in transform steps
         case "mapReduce":
@@ -2897,8 +2940,17 @@
 
       var wrappedComparer =
         (function (prop, desc, data) {
+          var val1, val2, arr;
           return function (a, b) {
-            return sortHelper(data[a][prop], data[b][prop], desc);
+            if (~prop.indexOf('.')) {
+              arr = prop.split('.');
+              val1 = arr.reduce(function(obj, i) { return obj && obj[i] || undefined; }, data[a]);
+              val2 = arr.reduce(function(obj, i) { return obj && obj[i] || undefined; }, data[b]);
+            } else {
+              val1 = data[a][prop];
+              val2 = data[b][prop];
+            }
+            return sortHelper(val1, val2, desc);
           };
         })(propname, isdesc, this.collection.data);
 
@@ -3068,7 +3120,7 @@
             queryObjectOp = queryObject[p];
           }
         }
-        // if more than one expression in single query object, 
+        // if more than one expression in single query object,
         // convert implicit $and to explicit $and
         if (filters.length > 1) {
           return this.find({ '$and': filters }, firstOnly);
@@ -3351,6 +3403,12 @@
         options.forceCloneMethod = options.forceCloneMethod || 'shallow';
       }
 
+      // if collection has delta changes active, then force clones and use 'parse-stringify' for effective change tracking of nested objects
+      if (!this.collection.disableDeltaChangesApi) {
+        options.forceClones = true;
+        options.forceCloneMethod = 'parse-stringify';
+      }
+
       // if this has no filters applied, just return collection.data
       if (!this.filterInitialized) {
         if (this.filteredrows.length === 0) {
@@ -3471,14 +3529,18 @@
     /**
      * eqJoin() - Left joining two sets of data. Join keys can be defined or calculated properties
      * eqJoin expects the right join key values to be unique.  Otherwise left data will be joined on the last joinData object with that key
-     * @param {Array} joinData - Data array to join to.
+     * @param {Array|Resultset|Collection} joinData - Data array to join to.
      * @param {(string|function)} leftJoinKey - Property name in this result set to join on or a function to produce a value to join on
      * @param {(string|function)} rightJoinKey - Property name in the joinData to join on or a function to produce a value to join on
      * @param {function=} mapFun - (Optional) A function that receives each matching pair and maps them into output objects - function(left,right){return joinedObject}
+     * @param {object=} dataOptions - options to data() before input to your map function
+     * @param {bool} dataOptions.removeMeta - allows removing meta before calling mapFun
+     * @param {boolean} dataOptions.forceClones - forcing the return of cloned objects to your map object
+     * @param {string} dataOptions.forceCloneMethod - Allows overriding the default or collection specified cloning method.
      * @returns {Resultset} A resultset with data in the format [{left: leftObj, right: rightObj}]
      * @memberof Resultset
      */
-    Resultset.prototype.eqJoin = function (joinData, leftJoinKey, rightJoinKey, mapFun) {
+    Resultset.prototype.eqJoin = function (joinData, leftJoinKey, rightJoinKey, mapFun, dataOptions) {
 
       var leftData = [],
         leftDataLength,
@@ -3491,12 +3553,14 @@
         joinMap = {};
 
       //get the left data
-      leftData = this.data();
+      leftData = this.data(dataOptions);
       leftDataLength = leftData.length;
 
       //get the right data
-      if (joinData instanceof Resultset) {
-        rightData = joinData.data();
+      if (joinData instanceof Collection) {
+        rightData = joinData.chain().data(dataOptions);
+      } else if (joinData instanceof Resultset) {
+        rightData = joinData.data(dataOptions);
       } else if (Array.isArray(joinData)) {
         rightData = joinData;
       } else {
@@ -3535,8 +3599,17 @@
       return this;
     };
 
-    Resultset.prototype.map = function (mapFun) {
-      var data = this.data().map(mapFun);
+    /**
+     * Applies a map function into a new collection for further chaining.
+     * @param {function} mapFun - javascript map function
+     * @param {object=} dataOptions - options to data() before input to your map function
+     * @param {bool} dataOptions.removeMeta - allows removing meta before calling mapFun
+     * @param {boolean} dataOptions.forceClones - forcing the return of cloned objects to your map object
+     * @param {string} dataOptions.forceCloneMethod - Allows overriding the default or collection specified cloning method.
+     * @memberof Resultset
+     */
+    Resultset.prototype.map = function (mapFun, dataOptions) {
+      var data = this.data(dataOptions).map(mapFun);
       //return return a new resultset with no filters
       this.collection = new Collection('mappedData');
       this.collection.insert(data);
@@ -4310,10 +4383,11 @@
      * @param {boolean} [options.adaptiveBinaryIndices=true] - collection indices will be actively rebuilt rather than lazily
      * @param {boolean} [options.asyncListeners=false] - whether listeners are invoked asynchronously
      * @param {boolean} [options.disableChangesApi=true] - set to false to enable Changes API
+     * @param {boolean} [options.disableDeltaChangesApi=true] - set to false to enable Delta Changes API (requires Changes API, forces cloning)
      * @param {boolean} [options.autoupdate=false] - use Object.observe to update objects automatically
      * @param {boolean} [options.clone=false] - specify whether inserts and queries clone to/from user
      * @param {boolean} [options.serializableIndices=true[]] - converts date values on binary indexed properties to epoch time
-     * @param {string} [options.cloneMethod='parse-stringify' - 'parse-stringify', 'jquery-extend-deep', 'shallow', 'shallow-assign'
+     * @param {string} [options.cloneMethod='parse-stringify'] - 'parse-stringify', 'jquery-extend-deep', 'shallow', 'shallow-assign'
      * @param {int} options.ttlInterval - time interval for clearing out 'aged' documents; not set by default.
      * @see {@link Loki#addCollection} for normal creation of collections
      */
@@ -4391,14 +4465,18 @@
       // disable track changes
       this.disableChangesApi = options.hasOwnProperty('disableChangesApi') ? options.disableChangesApi : true;
 
+      // disable delta update object style on changes
+      this.disableDeltaChangesApi = options.hasOwnProperty('disableDeltaChangesApi') ? options.disableDeltaChangesApi : true;
+      if (this.disableChangesApi) { this.disableDeltaChangesApi = true; }
+
       // option to observe objects and update them automatically, ignored if Object.observe is not supported
       this.autoupdate = options.hasOwnProperty('autoupdate') ? options.autoupdate : false;
 
       // by default, if you insert a document into a collection with binary indices, if those indexed properties contain
-      // a DateTime we will convert to epoch time format so that (across serializations) its value position will be the 
+      // a DateTime we will convert to epoch time format so that (across serializations) its value position will be the
       // same 'after' serialization as it was 'before'.
       this.serializableIndices = options.hasOwnProperty('serializableIndices') ? options.serializableIndices : true;
-      
+
       //option to activate a cleaner daemon - clears "aged" documents at set intervals.
       this.ttl = {
         age: null,
@@ -4476,13 +4554,52 @@
        * This method creates a clone of the current status of an object and associates operation and collection name,
        * so the parent db can aggregate and generate a changes object for the entire db
        */
-      function createChange(name, op, obj) {
+      function createChange(name, op, obj, old) {
         self.changes.push({
           name: name,
           operation: op,
-          obj: JSON.parse(JSON.stringify(obj))
+          obj: op == 'U' && !self.disableDeltaChangesApi ? getChangeDelta(obj, old) : JSON.parse(JSON.stringify(obj))
         });
       }
+
+      //Compare changed object (which is a forced clone) with existing object and return the delta
+      function getChangeDelta(obj, old) {
+        if (old) {
+          return getObjectDelta(old, obj);
+        }
+        else {
+          return JSON.parse(JSON.stringify(obj));
+        }
+      }
+
+      this.getChangeDelta = getChangeDelta;
+
+      function getObjectDelta(oldObject, newObject) {
+        var propertyNames = newObject !== null && typeof newObject === 'object' ? Object.keys(newObject) : null;
+        if (propertyNames && propertyNames.length && ['string', 'boolean', 'number'].indexOf(typeof(newObject)) < 0) {
+          var delta = {};
+          for (var i = 0; i < propertyNames.length; i++) {
+            var propertyName = propertyNames[i];
+            if (newObject.hasOwnProperty(propertyName)) {
+              if (!oldObject.hasOwnProperty(propertyName) || self.uniqueNames.indexOf(propertyName) >= 0 || propertyName == '$loki' || propertyName == 'meta') {
+                delta[propertyName] = newObject[propertyName];
+              }
+              else {
+                var propertyDelta = getObjectDelta(oldObject[propertyName], newObject[propertyName]);
+                if (typeof propertyDelta !== "undefined" && propertyDelta != {}) {
+                  delta[propertyName] = propertyDelta;
+                }
+              }
+            }
+          }
+          return Object.keys(delta).length === 0 ? undefined : delta;
+        }
+        else {
+          return oldObject === newObject ? undefined : newObject;
+        }
+      }
+
+      this.getObjectDelta = getObjectDelta;
 
       // clear all the changes
       function flushChanges() {
@@ -4542,8 +4659,8 @@
         createChange(self.name, 'I', obj);
       }
 
-      function createUpdateChange(obj) {
-        createChange(self.name, 'U', obj);
+      function createUpdateChange(obj, old) {
+        createChange(self.name, 'U', obj, old);
       }
 
       function insertMetaWithChange(obj) {
@@ -4551,9 +4668,9 @@
         createInsertChange(obj);
       }
 
-      function updateMetaWithChange(obj) {
+      function updateMetaWithChange(obj, old) {
         updateMeta(obj);
-        createUpdateChange(obj);
+        createUpdateChange(obj, old);
       }
 
 
@@ -4569,6 +4686,7 @@
 
       this.setChangesApi = function (enabled) {
         self.disableChangesApi = !enabled;
+        if (!enabled) { self.disableDeltaChangesApi = false; }
         setHandlers();
       };
       /**
@@ -4578,8 +4696,8 @@
         insertHandler(obj);
       });
 
-      this.on('update', function updateCallback(obj) {
-        updateHandler(obj);
+      this.on('update', function updateCallback(obj, old) {
+        updateHandler(obj, old);
       });
 
       this.on('delete', function deleteCallback(obj) {
@@ -4631,7 +4749,7 @@
      *     }
      *   }
      * ]);
-     * 
+     *
      * var results = users.chain('progeny').data();
      */
     Collection.prototype.addTransform = function (name, transform) {
@@ -4711,6 +4829,12 @@
       };
     };
 
+    /**
+     * Updates or applies collection TTL settings.
+     * @param {int} age - age (in ms) to expire document from collection
+     * @param {int} interval - time (in ms) to clear collection of aged documents.
+     * @memberof Collection
+     */
     Collection.prototype.setTTL = function (age, interval) {
       if (age < 0) {
         clearInterval(this.ttl.daemon);
@@ -4788,13 +4912,21 @@
       this.binaryIndices[property] = index;
 
       var wrappedComparer =
-        (function (p, data) {
+        (function (prop, data) {
+          var val1, val2, arr;
           return function (a, b) {
-            var objAp = data[a][p],
-              objBp = data[b][p];
-            if (objAp !== objBp) {
-              if (ltHelper(objAp, objBp, false)) return -1;
-              if (gtHelper(objAp, objBp, false)) return 1;
+            if (~prop.indexOf('.')) {
+              arr = prop.split('.');
+              val1 = arr.reduce(function(obj, i) { return obj && obj[i] || undefined; }, data[a]);
+              val2 = arr.reduce(function(obj, i) { return obj && obj[i] || undefined; }, data[b]);
+            } else {
+              val1 = data[a][prop];
+              val2 = data[b][prop];
+            }
+
+            if (val1 !== val2) {
+              if (ltHelper(val1, val2, false)) return -1;
+              if (gtHelper(val1, val2, false)) return 1;
             }
             return 0;
           };
@@ -4987,7 +5119,7 @@
      *     age: 50,
      *     address: 'Asgard'
      * });
-     * 
+     *
      * // alternatively, insert array of documents
      * users.insert([{ name: 'Thor', age: 35}, { name: 'Loki', age: 30}]);
      */
@@ -5154,7 +5286,7 @@
         position = arr[1]; // position in data array
 
         // if configured to clone, do so now... otherwise just use same obj reference
-        newInternal = this.cloneObjects ? clone(doc, this.cloneMethod) : doc;
+        newInternal = this.cloneObjects || !this.disableDeltaChangesApi ? clone(doc, this.cloneMethod) : doc;
 
         this.emit('pre-update', doc);
 
@@ -5193,7 +5325,7 @@
         this.commit();
         this.dirty = true; // for autosave scenarios
 
-        this.emit('update', doc, this.cloneObjects ? clone(oldInternal, this.cloneMethod) : null);
+        this.emit('update', doc, this.cloneObjects || !this.disableDeltaChangesApi ? clone(oldInternal, this.cloneMethod) : null);
         return doc;
       } catch (err) {
         this.rollback();
@@ -5556,14 +5688,14 @@
     };
 
     /**
-     * Internal method used for index maintenance and indexed searching.  
+     * Internal method used for index maintenance and indexed searching.
      * Calculates the beginning of an index range for a given value.
      * For index maintainance (adaptive:true), we will return a valid index position to insert to.
      * For querying (adaptive:false/undefined), we will :
      *    return lower bound/index of range of that value (if found)
      *    return next lower index position if not found (hole)
      * If index is empty it is assumed to be handled at higher level, so
-     * this method assumes there is at least 1 document in index. 
+     * this method assumes there is at least 1 document in index.
      *
      * @param {string} prop - name of property which has binary index
      * @param {any} val - value to find within index
@@ -5575,7 +5707,7 @@
       var min = 0;
       var max = index.length - 1;
       var mid = 0;
-      
+
       if (index.length === 0) {
         return -1;
       }
@@ -5645,12 +5777,12 @@
       if (aeqHelper(val, rcd[index[ubound]][prop])) {
         return ubound;
       }
-      
+
        // if not in index and our value is less than the found one
       if (gtHelper(val, rcd[index[ubound]][prop], false)) {
         return ubound+1;
       }
-      
+
       // either hole or first nonmatch
       if (aeqHelper(val, rcd[index[ubound-1]][prop])) {
         return ubound-1;
@@ -5683,7 +5815,7 @@
       if (rcd.length === 0) {
         return [0, -1];
       }
-      
+
       var minVal = rcd[index[min]][prop];
       var maxVal = rcd[index[max]][prop];
 
@@ -5749,18 +5881,18 @@
         if (ltHelper(val[1], minVal, false)) {
           return [0, -1];
         }
-        
+
         lbound = this.calculateRangeStart(prop, val[0]);
         ubound = this.calculateRangeEnd(prop, val[1]);
 
         if (lbound < 0) lbound++;
         if (ubound > max) ubound--;
-        
+
         if (!gtHelper(rcd[index[lbound]][prop], val[0], true)) lbound++;
         if (!ltHelper(rcd[index[ubound]][prop], val[1], true)) ubound--;
-        
+
         if (ubound < lbound) return [0, -1];
-        
+
         return ([lbound, ubound]);
       case '$in':
         var idxset = [],
@@ -5785,7 +5917,7 @@
         case '$aeq':
         case '$dteq':
         case '$gte':
-        case '$lt': 
+        case '$lt':
           lbound = this.calculateRangeStart(prop, val);
           lval = rcd[index[lbound]][prop];
           break;
@@ -5804,8 +5936,8 @@
           break;
         default: break;
       }
-      
-      
+
+
       switch (op) {
       case '$eq':
       case '$aeq':
@@ -5817,7 +5949,7 @@
         if (!aeqHelper(lval, val)) {
           return [0, -1];
         }
-        
+
         return [lbound, ubound];
 
       //case '$dteq':
@@ -5825,7 +5957,7 @@
       //  if (lval > val || lval < val) {
       //    return [0, -1];
       //  }
-        
+
       //  return [lbound, ubound];
 
       case '$gt':
@@ -6058,16 +6190,20 @@
     /**
      * Join two collections on specified properties
      *
-     * @param {array} joinData - array of documents to 'join' to this collection
+     * @param {array|Resultset|Collection} joinData - array of documents to 'join' to this collection
      * @param {string} leftJoinProp - property name in collection
      * @param {string} rightJoinProp - property name in joinData
      * @param {function=} mapFun - (Optional) map function to use
+     * @param {object=} dataOptions - options to data() before input to your map function
+     * @param {bool} dataOptions.removeMeta - allows removing meta before calling mapFun
+     * @param {boolean} dataOptions.forceClones - forcing the return of cloned objects to your map object
+     * @param {string} dataOptions.forceCloneMethod - Allows overriding the default or collection specified cloning method.
      * @returns {Resultset} Result of the mapping operation
      * @memberof Collection
      */
-    Collection.prototype.eqJoin = function (joinData, leftJoinProp, rightJoinProp, mapFun) {
+    Collection.prototype.eqJoin = function (joinData, leftJoinProp, rightJoinProp, mapFun, dataOptions) {
       // logic in Resultset class
-      return new Resultset(this).eqJoin(joinData, leftJoinProp, rightJoinProp, mapFun);
+      return new Resultset(this).eqJoin(joinData, leftJoinProp, rightJoinProp, mapFun, dataOptions);
     };
 
     /* ------ STAGING API -------- */

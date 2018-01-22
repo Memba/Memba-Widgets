@@ -90,7 +90,7 @@ module.exports = function(config) {
           { pattern: 'src/styles/vendor/kendo/web/kendo.common.min.css', served: true, included: true },
           { pattern: 'src/styles/vendor/kendo/web/kendo.default.min.css', served: true, included: true },
           { pattern: 'src/styles/vendor/kendo/web/kendo.default.mobile.min.css', served: true, included: true },
-          { pattern: 'src/js/vendor/jquery/jquery-3.2.1.min.js', served: true, included: true },
+          { pattern: 'src/js/vendor/jquery/jquery-3.3.1.min.js', served: true, included: true },
           { pattern: 'src/js/vendor/kendo/kendo.all.min.js', served: true, included: true },
           { pattern: 'src/js/window.assert.js', served: true, included: true },
           { pattern: 'src/js/window.log.js', served: true, included: true },

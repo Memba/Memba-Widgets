@@ -17,7 +17,7 @@
 
     'use strict';
 
-    // Depending how pake.js is loaded
+    // Depending how pako.js is loaded
     // We need `pako` for webpack and `window.pako` for grunt mocha
     pako = pako || window.pako;
 

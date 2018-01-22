@@ -24,4 +24,4 @@ These widgets require [jQuery](http://jquery.com/) and [Kendo UI framework](http
 
 ## Copyright
 
-Copyright (c) 2013-2017 Memba Sarl. All rights reserved.
+Copyright (c) 2013-2018 Memba Sarl. All rights reserved.

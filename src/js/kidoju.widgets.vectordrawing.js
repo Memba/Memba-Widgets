@@ -14,6 +14,7 @@
         './vendor/kendo/kendo.userevents',
         './vendor/kendo/kendo.drawing',
         './vendor/kendo/kendo.dataviz.diagram',
+        './kidoju.image',
         './kidoju.widgets.vectordrawing.toolbar'
     ], f);
 })(function () {
@@ -104,6 +105,39 @@
         }
 
         /**
+         * Extend drawing.canvas.Surface
+         */
+        drawing.canvas.Surface.prototype.getImageData = function () {
+            var ref = this;
+            var root = ref._root;
+            var rootElement = ref._rootElement;
+            var loadingStates = [];
+            root.traverse(function (childNode) {
+                if (childNode.loading) {
+                    loadingStates.push(childNode.loading);
+                }
+            });
+            var promise = createPromise();
+            var resolveDataURL = function () {
+                root._invalidate();
+                try {
+                    // This function is the same as Surface$3.image() except the line below
+                    // BEGIN Commented by JLC
+                    // var data = rootElement.toDataURL();
+                    // END Commented by JLC
+                    // BEGIN Added by JLC
+                    var data = rootElement.getContext('2d').getImageData(0, 0, rootElement.width, rootElement.height);
+                    // END Added by JLC
+                    promise.resolve(data);
+                } catch (e) {
+                    promise.reject(e);
+                }
+            };
+            kendo.drawing.util.promiseAll(loadingStates).then(resolveDataURL, resolveDataURL);
+            return promise;
+        };
+
+        /**
          * Export a PNG data stream
          * Note: Copied and modified from kendo.drawing.js
          * @param group
@@ -141,7 +175,12 @@
             // END Added by JLC
             surface.suspendTracking();
             surface.draw(exportRoot);
-            var promise = surface.image();
+            // BEGIN Commented by JLC
+            // var promise = surface.image();
+            // END Commented by JLC
+            // BEGIN Added by JLC
+            var promise = surface.getImageData();
+            // END Added by JLC
             var destroy = function () {
                 surface.destroy();
                 document.body.removeChild(container);
@@ -1233,9 +1272,9 @@
                     .kendoVectorDrawingToolBar({
                         tools: this.options.toolbar.tools,
                         resizable: this.options.toolbar.resizable,
-                        // click: $.proxy(this._toolBarClick, this),
-                        action: $.proxy(this._onToolBarAction, this),
-                        dialog: $.proxy(this._onToolBarDialog, this),
+                        // click: this._toolBarClick.bind(this),
+                        action: this._onToolBarAction.bind(this),
+                        dialog: this._onToolBarDialog.bind(this),
                         connectionDefaults: this.options.connectionDefaults,
                         shapeDefaults: this.options.shapeDefaults
                     })
@@ -1259,7 +1298,7 @@
              * @private
              */
             _onToolBarDialog: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
                 if (!this.trigger('dialog', { name: e.name, options: e.options })) {
                     this._openDialog(e.name, e.options);
                 }
@@ -1281,7 +1320,10 @@
                     dialog.bind('action', this._onToolBarAction.bind(this));
                     dialog.bind('deactivate', this._destroyDialog.bind(this));
                     this._dialogs.push(dialog);
-                    dialog.open();
+                    dialog.open({
+                        // TODO: Add opacity, ... https://github.com/kidoju/Kidoju-Widgets/issues/224
+                        source: this._source
+                    });
                     return dialog;
                 }
             },
@@ -1295,7 +1337,7 @@
              * @private
              */
             _onToolBarAction: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
                 if (!this.trigger('command', { command: e.command, params: e.params })) {
                     // Note: as long as it is not too complex, we can use a dispatcher as below
                     // In the future, maybe consider Command classes with execute methods that apply to a selection like in kendo.ui.spreadsheet
@@ -1351,19 +1393,38 @@
             },
 
             /**
-             * Event handler triggered when savnig a file
+             * Event handler triggered when saving a file
              * @param params
              * @private
              */
             _onToolbarSave: function (params) {
-                var that = this;
+                assert.isPlainObject(params, assert.format(assert.messages.isPlainObject.default, 'params'));
+                assert.type(STRING, params.value, assert.format(assert.messages.type.default, 'params.value', STRING));
                 var name = params.value;
-                var exportFile = name.toLowerCase().endsWith('.png') ? that.exportImage : that.exportSVG;
-                exportFile.bind(that)({ json: true })
+                var pos = name.lastIndexOf('.');
+                assert.ok(pos > 0, '`name` should have an extension');
+                var extension = name.substr(pos + 1).toLowerCase();
+                name = name.substr(0, pos);
+                var json = false;
+                if (extension.endsWith('+')) {
+                    json = true;
+                    extension = extension.slice(0, -1);
+                }
+                var exportFile = (extension === 'jpg' || extension === 'png') ? this.exportImage : this.exportSVG;
+                exportFile.bind(this)({ json: json }) // json: true only applies to exportSVG
                     .done(function (dataUri) {
+                        // Important: dataUri is actually the result of getImageData for exportImage and it needs to be encoded to make a dataUri
+                        // Beware any error here will be caught in the try/catch of kendo.drawing.canvas.Surface.prototype.getImageData defined in kidoju.widgets.vectordrawing.js
+                        if (extension === 'jpg') {
+                            // Default quality is 50 which is a bit low
+                            dataUri = kidoju.image.jpegEncode(dataUri, 70);
+                        } else if (extension === 'png') {
+                            // We do our own encoding because canvas.toDataURL does no compression
+                            dataUri = kidoju.image.pngEncode(dataUri);
+                        }
                         kendo.saveAs({
                             dataURI: dataUri,
-                            fileName: name
+                            fileName: name + '.' + extension
                         });
                     });
             },
@@ -1384,7 +1445,7 @@
              * @private
              */
             _onPropertyChange: function (params) {
-                assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
+                assert.isPlainObject(params, assert.format(assert.messages.isPlainObject.default, 'params'));
                 if (params.property === 'background') {
                     this._artboard.fill.color = $.type(params.value) === STRING ? params.value : this.options.artboard.fill.color;
                     this._updateBackgroundLayer();
@@ -1405,7 +1466,7 @@
              * @private
              */
             _onToolbarArrange: function (params) {
-                assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
+                assert.isPlainObject(params, assert.format(assert.messages.isPlainObject.default, 'params'));
                 switch (params.value) {
                     case 'forward':
                         window.alert('Not yet implemented!'); // TODO
@@ -1542,6 +1603,7 @@
                 }
                 return promise
                     .done(function (meta) {
+                        that._source = (source instanceof window.File ? source.name : source.split('/').pop());
                         that._artboard.height = meta.height;
                         that._artboard.width = meta.width;
                         that._artboard.fill.color = that.options.artboard.fill.color; // TODO
@@ -1588,7 +1650,7 @@
              * @private
              */
             _openFile: function (file) {
-                assert.instanceof(window.File, file, kendo.format(assert.messages.instanceof.default, 'file', 'window.File'));
+                assert.instanceof(window.File, file, assert.format(assert.messages.instanceof.default, 'file', 'window.File'));
                 var that = this;
                 var dfd = $.Deferred();
                 if ((file.type || '').match(/^image\//)) {
@@ -1613,11 +1675,12 @@
              * @see http://www.henryalgus.com/reading-binary-files-using-jquery-ajax/
              * @see https://github.com/jquery/jquery/blob/master/test/unit/ajax.js#L1767
              * @see https://stackoverflow.com/questions/12710001/how-to-convert-uint8-array-to-base64-encoded-string
+             * TODO: Use app.fs - https://github.com/kidoju/Kidoju-Widgets/issues/219
              * @param url
              * @private
              */
             _downloadFile: function (url) {
-                assert.match(RX_URL, url, kendo.format(assert.messages.match.default, 'url', RX_URL));
+                assert.match(RX_URL, url, assert.format(assert.messages.match.default, 'url', RX_URL));
                 var that = this;
                 var dfd = $.Deferred();
                 $.get({
@@ -1635,12 +1698,12 @@
                             var dataUri = 'data:' + xhr.getResponseHeader('content-type') + ';base64,' + window.btoa(binary);
                             that._getDataUriWithSize(dataUri).done(dfd.resolve).fail(dfd.reject);
                         } else {
-                            dfd.reject(new Error('TODO')); // TODO
+                            dfd.reject(new Error('TODO')); // TODO raise error event
                         }
                     })
                     .fail(function (xhr, status, error) {
                         // Note: cross domain $.get from localhost is not allowed in Google Chrome and will end up here
-                        dfd.reject(new Error('TODO')); // TODO
+                        dfd.reject(new Error('TODO'));  // TODO raise error event
                     });
                 return dfd.promise();
             },
@@ -1651,7 +1714,7 @@
              * @private
              */
             _getDataUriWithSize: function (dataUri) {
-                assert.type(STRING, dataUri, kendo.format(assert.messages.type.default, 'dataUri', STRING));
+                assert.type(STRING, dataUri, assert.format(assert.messages.type.default, 'dataUri', STRING));
                 var dfd = $.Deferred();
                 var img = $('<img />')
                     // crossOrigin prevents Uncaught DOMException: Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported.
@@ -1697,9 +1760,9 @@
              * @private
              */
             _loadDataUri: function (dataUri, height, width) {
-                assert.type(STRING, dataUri, kendo.format(assert.messages.type.default, 'dataUri', STRING));
-                assert.type(NUMBER, height, kendo.format(assert.messages.type.default, 'height', NUMBER));
-                assert.type(NUMBER, width, kendo.format(assert.messages.type.default, 'width', NUMBER));
+                assert.type(STRING, dataUri, assert.format(assert.messages.type.default, 'dataUri', STRING));
+                assert.type(NUMBER, height, assert.format(assert.messages.type.default, 'height', NUMBER));
+                assert.type(NUMBER, width, assert.format(assert.messages.type.default, 'width', NUMBER));
                 var that = this;
                 var parts = dataUri.split(';base64,');
                 var contentType = parts[0].substr(5); // 5 is the length of data:

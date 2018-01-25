@@ -46,6 +46,7 @@
         var BOOLEAN = 'boolean';
         var NUMBER = 'number';
         var STRING = 'string';
+        var RX_FILE_ID = /^[\w]{3,50}$/;
         // var RX_DASHTYPE = /^(dash|dashDot|dot|longDash|longDashDot|longDashDotDot|solid)$/;
         // var RX_FONT = /^(normal\s+|italic\s+|oblique\s+|initial\s+|inherit\s+)?([0-9\.]+[a-z]+\s+)?(.+)$/;
         kendo.vectordrawing = { messages: {}};
@@ -1942,12 +1943,12 @@
             okText: 'OK',
             saveDialog: {
                 title: 'Save As',
-                regex: /(\.png|\.svg)$/i,
+                regex: /(\.jpg|\.png|\.svg)$/i,
                 default: 'untitled.png',
                 labels: {
                     name: 'File name:',
                     type: 'File type:',
-                    extensions: '[".PNG", ".SVG"]'
+                    extensions: '[".JPG", ".PNG", ".SVG", ".SVG+"]'
                 }
             },
             shapeDialog: {
@@ -2128,34 +2129,61 @@
          */
         var SaveDialog = VectorDrawingDialog.extend({
             options: {
-                template: '<div class="k-edit-label"><label>#: messages.saveDialog.labels.name #</label></div>' + '<div class="k-edit-field"><input class="k-textbox" data-bind="value: name" /></div>' + '<div class="k-edit-label"><label>#: messages.saveDialog.labels.type #</label></div>' + '<div class="k-edit-field"><input data-role="dropdownlist" data-bind="value: type" data-source="#: messages.saveDialog.labels.extensions #" /></div>' +
-                    '<div class="k-action-buttons">' + ('<button class="k-button k-primary" data-bind="click: apply">#= messages.okText #</button>' + '<button class="k-button" data-bind="click: cancel">#= messages.cancel #</button>') + '</div>',
+                template: '<div class="k-edit-label"><label>#: messages.saveDialog.labels.name #</label></div>' +
+                    '<div class="k-edit-field"><input type="text" name="name" class="k-textbox" data-bind="value: name" /></div>' +
+                    '<div class="k-edit-label"><label>#: messages.saveDialog.labels.type #</label></div>' +
+                    '<div class="k-edit-field"><input data-role="dropdownlist" data-bind="value: type" data-source="#: messages.saveDialog.labels.extensions #" /></div>' +
+                    '<div class="k-action-buttons">' +
+                    '<button class="k-button k-primary" data-bind="click: apply">#= messages.okText #</button>' +
+                    '<button class="k-button" data-bind="click: cancel">#= messages.cancel #</button>' +
+                    '</div>',
                 title: DIALOG_MESSAGES.saveDialog.title,
                 autoFocus: false
             },
-            open: function (url) {
+            open: function (options) {
                 var self = this;
                 VectorDrawingDialog.fn.open.apply(self, arguments);
                 var element = self.dialog().element;
-                var name = (url || '').split('/').pop() || DIALOG_MESSAGES.saveDialog.default;
-                var type = name.split('.').pop().toUpperCase() || DIALOG_MESSAGES.saveDialog.default.split('.').pop().toUpperCase();
+                var source = (options || {}).source || DIALOG_MESSAGES.saveDialog.default;
+                var type = DIALOG_MESSAGES.saveDialog.default.split('.').pop().toUpperCase();
+                var name = source.split('/').pop();
+                var pos = name.lastIndexOf('.');
+                if (pos > 0) {
+                    type = name.substr(pos + 1).toUpperCase();
+                    name = name.substr(0, pos);
+                }
                 var model = kendo.observable({
-                    name: name,
+                    name: name, // without extension
                     type: '.' + type,
                     apply: function () {
-                        // TODO ----------------------- Add kendo UI validator
-                        self.trigger('action', {
-                            command: 'ToolbarSaveCommand',
-                            params: {
-                                type: 'save',
-                                value: model.name.replace(DIALOG_MESSAGES.saveDialog.regex, '') +  model.type.toLowerCase()
-                            }
-                        });
-                        self.close();
+                        if (validator.validate()) {
+                            self.trigger('action', {
+                                command: 'ToolbarSaveCommand',
+                                params: {
+                                    type: 'save',
+                                    value: model.name.replace(DIALOG_MESSAGES.saveDialog.regex, '') + model.type.toLowerCase()
+                                }
+                            });
+                            validator.destroy();
+                            self.close();
+                        }
                     },
                     cancel: self.close.bind(self)
                 });
                 kendo.bind(element, model);
+                var validator = element.kendoValidator({
+                    messages: {
+                        name: 'Please enter 3 to 50 alphanumeric characters or underscores' // TODO i18n
+                    },
+                    rules: {
+                        name: function(input) {
+                            if (input.is("[name=name]")) {
+                                return RX_FILE_ID.test(input.val());
+                            }
+                            return true;
+                        }
+                    }
+                }).data('kendoValidator');
                 element.find('input').focus().on('keydown', function (e) {
                     if (e.keyCode === 13) {
                         model.name = $(this).val();

@@ -27,13 +27,16 @@
         var STRING = 'string';
         var DIALOG_DIV = '<div class="{0}"></div>';
         var TABSTRIP_HEADER_CLASS = 'k-tabstrip k-header';
-        var NO_PADDING_CLASS = 'no-padding';
+        var NO_PADDING_CLASS = 'kj-no-padding';
         // var BUTTON_TEMPLATE = '<img alt="{0}" src="{1}" class="k-image">{0}';
-        var DIALOG_SELECTOR = 'kj-dialog';
+        var DIALOG_SELECTOR = 'kj-tools-dialog';
         var RX_URL = /^https?\:\/\//;
 
-        // TODO Consider adding:
-        // - Style editor
+        // TODO Progressively migrate all tools dialogs:
+        // - Style Editor
+        // - Table Editor
+        // - Chart Editor
+        // - ...
 
         /**
          * This is a controller to display shared dialogs across pages
@@ -58,7 +61,6 @@
                     onOKAction = options;
                     options = {};
                 }
-                // TODO: Consider promises as in getDialog(...).then(...)
                 assert.isFunction(onOKAction, assert.format(assert.messages.isFunction.default, 'onOKAction'));
                 var dialogWidget = $(DIALOG_SELECTOR + selector).data('kendoDialog');
                 // Find or create dialog frame
@@ -138,7 +140,7 @@
                 dialogWidget.title(options.title);
                 dialogWidget.content('<div data-' + kendo.ns + 'role="assetmanager" data-' + kendo.ns + 'bind="value: url"></div>');
                 // var assetManagerWidget = dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets).data('kendoAssetManager');
-                dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets);
+                var assetManagerWidget = dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets).data('kendoAssetManager');
                 // Bind viewModel
                 kendo.bind(dialogWidget.element, dialogWidget.viewModel);
                 // Log
@@ -171,23 +173,28 @@
                     if (hasScheme) {
                         // Select an asset which is already in our store
                         onOKAction.bind(e.sender)(e);
-                    } else if (window.app && window.app.rapi && RX_URL.match(url)) {
-                        // Upload the asset to our store before selecting it
-                        // Note: it be have been nicer to have some sort of dependency injection to refer to window.app.rapi
-                        // In this case, we simply test that window.app.rapi is available to create a loose dependency
-                        // TODO how to we restrict the content type to an asset type?
-                        window.app.rapi.v1.content.importFile(url)
-                            .done(function (result) {
-                                debugger;
-                                // e.sender.viewModel.set('url');
+                    } else if (RX_URL.test(url) && Array.isArray(assets.collections) && assets.collections[0] && assets.collections[0].transport && $.isFunction(assets.collections[0].transport.import)) {
+                        // Import the asset before selecting it
+                        assets.collections[0].transport.import({
+                            data: {
+                                url: url
+                            },
+                            success: function (response) {
+                                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                                assert.instanceof(kendo.ui.Dialog, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
+                                assert.isUndefined(e.sender.viewModel, assert.format(assert.messages.isUndefined.default, 'e.sender.viewModel'));
+                                // At this stage, the dialog is closed and e.sender.viewModel has been reset to undefined.
+                                // e.sender.viewModel.set('url', response.data[0].url); won't work
+                                // We need to restore the viewModel and let onOKAction reset it once again to undefined
+                                e.sender.viewModel = kendo.observable({
+                                    url: response.data[0].url
+                                });
                                 onOKAction.bind(e.sender)(e);
-                            })
-                            .fail(function (error) {
-                                debugger;
-                            });
-                    } else {
-                        // Oops, this is an invalid url
-                        debugger;
+                                // Make sure it is reset to undefined after executing onOKAction
+                                assert.isUndefined(e.sender.viewModel, assert.format(assert.messages.isUndefined.default, 'e.sender.viewModel'));
+                            },
+                            error: $.noop // assets.collections[0].transport.import
+                        });
                     }
                 };
             }

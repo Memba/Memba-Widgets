@@ -970,30 +970,22 @@
                 };
             },
             showDialog: function (options/*, e*/) {
-                var that = this;
-                var dialogWidget = that.getDialog(options);
-                // Create viewModel (Cancel shall not save changes to main model)
-                dialogWidget.viewModel = kendo.observable({
-                    url: options.model.get(options.field)
-                });
-                // Prepare UI
-                dialogWidget.title(options.title);
-                dialogWidget.content('<div ' +
-                    'data-' + kendo.ns + 'role="assetmanager" ' +
-                    'data-' + kendo.ns + 'bind="value: url"/>');
                 assert.instanceof(PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
                 assert.instanceof(ToolAssets, assets[options.model.tool], kendo.format(assert.messages.instanceof.default, 'assets[options.model.tool]', 'kidoju.ToolAssets'));
-                var assetManagerWidget = dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets[options.model.tool]).data('kendoAssetManager');
-                kendo.bind(dialogWidget.element, dialogWidget.viewModel);
-                dialogWidget.element.addClass(NO_PADDING_CLASS);
-                // Show dialog
-                assetManagerWidget.tabStrip.activateTab(0);
-                dialogWidget.open();
-            },
-            onOkAction: function (options, e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
-                options.model.set(options.field, e.sender.viewModel.get('url'));
+                kidoju.dialogs.showAssetManager(
+                    assets[options.model.tool],
+                    options.model.get(options.field),
+                    {
+                        title: options.title
+                    },
+                    function (e) {
+                        assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                        assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
+                        options.model.set(options.field, e.sender.viewModel.get('url'));
+                        // Considering we might have restored the viewModel in kidoju,dialogs.wrapWithUploader, we need to make sure it is now undefined
+                        e.sender.viewModel = undefined;
+                    }
+                );
             }
         });
 

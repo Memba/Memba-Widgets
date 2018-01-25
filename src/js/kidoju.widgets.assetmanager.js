@@ -38,6 +38,7 @@
         var DropDownList = kendo.ui.DropDownList;
         var ListView = kendo.ui.ListView;
         var Pager = kendo.ui.Pager;
+        var ProgressBar = kendo.ui.ProgressBar;
         var TabStrip = kendo.ui.TabStrip;
         var Window = kendo.ui.Window;
         // var deepExtend = kendo.deepExtend;
@@ -361,7 +362,7 @@
              * @returns {*}
              */
             progress: function (progress) {
-                if (this.progressBar instanceof kendo.ui.ProgressBar) {
+                if (this.progressBar instanceof ProgressBar) {
                     return this.progressBar.value(progress);
                 }
             },
@@ -558,7 +559,6 @@
                         dataTextField: 'name',
                         dataValueField: 'name',
                         change: that._onDropDownListChange.bind(that)
-                        // dataBound: that._onDropDownListDataBound.bind(that)
                     })
                     .data('kendoDropDownList');
                 assert.instanceof(DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
@@ -574,10 +574,10 @@
                         }
                     })
                     .data('kendoProgressBar');
-                assert.instanceof(kendo.ui.ProgressBar, that.progressBar, kendo.format(assert.messages.instanceof.default, 'this.progressBar', 'kendo.ui.ProgressBar'));
+                assert.instanceof(ProgressBar, that.progressBar, kendo.format(assert.messages.instanceof.default, 'this.progressBar', 'kendo.ui.ProgressBar'));
 
                 // Event handler used to report upload transport progress in app.assets.js
-                if (that.progressBar instanceof kendo.ui.ProgressBar) {
+                if (that.progressBar instanceof ProgressBar) {
                     $(document).on(PROGRESS + NS, function (e, value, status) {
                         that.progressBar.value(value);
                         if (status === 'complete') {
@@ -653,7 +653,7 @@
                 this.toolbar.find('.k-toolbar-wrap >.k-button').has('.k-i-file-add').toggle(tools.indexOf('create') > -1);
                 this.toolbar.find('.k-toolbar-wrap >.k-button').has('.k-i-track-changes-enable').toggle(tools.indexOf('edit') > -1);
                 this.toolbar.find('.k-toolbar-wrap >.k-button').has('.k-i-delete').toggle(tools.indexOf('destroy') > -1);
-                // this.toolbar.find('div.k-tiles-arrange .k-progressbar').hide();
+                this.toolbar.find('div.k-tiles-arrange .k-progressbar').toggle(!!tools.length);
 
                 // Change data source
                 this.listView.setDataSource(collection.dataSource);
@@ -853,23 +853,6 @@
             },
 
             /**
-             * Converts a dataURI into a Blob
-             * // TODO: this is a candidate method for app.image
-             * @see https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
-             */
-            _dataUri2Blob: function (dataUri) {
-                assert.type(STRING, dataUri, kendo.format(assert.messages.type.default, 'dataUri', STRING));
-                var parts = dataUri.split(';base64,');
-                var contentType = parts[0].substr(5); // 5 is length of data:
-                var base64 = window.atob(parts[1]);
-                var array = new window.Uint8Array(base64.length);
-                for (var idx = 0; idx < base64.length; idx++) {
-                    array[idx] = base64.charCodeAt(idx);
-                }
-                return new Blob([array.buffer], { type: contentType });
-            },
-
-            /**
              * Upload one file or blob
              * @param file
              * @private
@@ -881,56 +864,30 @@
                 assert.type(STRING, file.name, kendo.format(assert.messages.type.default, 'file.name', STRING));
                 assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
                 assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
+                assert.isPlainObject(this.listView.dataSource.transport, assert.format(assert.messages.isPlainObject.default, 'this.listView.dataSource.transport'));
+                assert.isFunction(this.listView.dataSource.transport.upload, assert.format(assert.messages.isFunction.default, 'this.listView.dataSource.transport.upload'));
                 var that = this;
                 var dfd = $.Deferred();
-                var upload = that.listView.dataSource.transport && that.listView.dataSource.transport.upload;
-                if ($.isFunction(upload)) {
-                    // Let us replicate the way kendo.data.DataSource transports work
-                    upload({
-                        data: {
-                            file: file
-                        },
-                        success: function (response) {
-                            assert.type(OBJECT, response, kendo.format(assert.messages.type.default, 'response', OBJECT));
-                            assert.isArray(response.data, kendo.format(assert.messages.isArray.default, 'reponse.data'));
-                            assert.equal(1, response.data.length, kendo.format(assert.messages.equal.default, 'response.data.length', 1));
-                            // Upon successful upload, add a new dataItem to the listview dataSource
-                            var model = that._createDataItem(response.data[0]);
-                            assert.equal(model.name$(), response.data[0].name, kendo.format(assert.messages.equal.default, 'response.data[0].name', 'model.name$()'));
-                            that._insertDataItem(model);
-                            dfd.resolve(model);
-                        },
-                        error: function (xhr, status, error) {
-                            dfd.reject(xhr, status, error);
-                            that._xhrErrorHandler(xhr, status, error);
-                        }
-                    });
-                }
-                return dfd.promise();
-            },
-
-            /**
-             * Import an external url
-             * @param file
-             * @private
-             */
-            _importUrl: function (url) {
-                assert.type(STRING, url, kendo.format(assert.messages.type.default, 'url', STRING));
-                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
-                var that = this;
-                var dfd = $.Deferred();
-                var upload = that.listView.dataSource.transport && that.listView.dataSource.transport.upload;
-                if ($.isFunction(upload)) {
-                    // Let us replicate the way kendo.data.DataSource transports work
-                    upload({
-                        data: {
-                            url: url // TODO
-                        },
-                        success: dfd.resolve,
-                        error: dfd.reject
-                    });
-                }
+                // Call the transport defined in app.assets.js
+                that.listView.dataSource.transport.upload({
+                    data: {
+                        file: file
+                    },
+                    success: function (response) {
+                        assert.type(OBJECT, response, kendo.format(assert.messages.type.default, 'response', OBJECT));
+                        assert.isArray(response.data, kendo.format(assert.messages.isArray.default, 'reponse.data'));
+                        assert.equal(1, response.data.length, kendo.format(assert.messages.equal.default, 'response.data.length', 1));
+                        // Upon successful upload, add a new dataItem to the listview dataSource
+                        var model = that._createDataItem(response.data[0]);
+                        assert.equal(model.name$(), response.data[0].name, kendo.format(assert.messages.equal.default, 'response.data[0].name', 'model.name$()'));
+                        that._insertDataItem(model);
+                        dfd.resolve(model);
+                    },
+                    error: function (xhr, status, error) {
+                        dfd.reject(xhr, status, error);
+                        that._xhrErrorHandler(xhr, status, error);
+                    }
+                });
                 return dfd.promise();
             },
 
@@ -1128,7 +1085,7 @@
                     .data('kendoListView');
                 assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
 
-                // Build teh page
+                // Build the page
                 this.pager = $('<div class="k-pager-wrap"></div>')
                     .appendTo(this.fileBrowser)
                     .kendoPager({
@@ -1154,16 +1111,20 @@
             },
 
             /**
-             * Event handler triggered when data binding a new collection
+             * Compute size and update progress bar
              * @private
              */
-            /*
-            _onListViewDataBinding: function () {
-                assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
-                this.toolbar.find('.k-i-close').parent().addClass('k-state-disabled').hide();
-                this.toolbar.find('div.k-tiles-arrange .k-progressbar').hide();
+            _computeStorageSize: function () {
+                // Note: might be called before this.listView is assigned because the ListView constructor triggers a dataBound event
+                if (this.listView instanceof ListView && this.progressBar instanceof ProgressBar) {
+                    var size = 0;
+                    var data = this.listView.dataSource.data();
+                    for (var i = 0, length = data.length; i < length; i++) {
+                        size += data[i].size;
+                    }
+                    this.progressBar.value(size / 100000); // TODO Total Size + use sizeFormatter to display text
+                }
             },
-            */
 
             /**
              * Event handler triggered after data binding a new collection
@@ -1174,6 +1135,7 @@
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
                 assert.instanceof(ListView, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.ListView'));
                 var listView = e.sender; // Do not use this.listView because it might not yet have been assigned.
+                this._computeStorageSize();
                 if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
                     listView._dataBoundUid = e.items[e.items.length - 1].uid;
                 } else if (e.action === 'sync' && $.type(listView._dataBoundUid) === STRING) {

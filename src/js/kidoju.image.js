@@ -26,6 +26,7 @@
         var assert = window.assert;
         var logger = new window.Logger('kidoju.image');
         var kidoju = window.kidoju = window.kidoju || {};
+        var STRING = 'string';
         kidoju.image = kidoju.image || {};
 
         /*****************************************************************************************************
@@ -792,7 +793,7 @@
          * @param options
          * @constructor
          */
-        function PNGEncoder (quality) {
+        function PNGEncoder (options) {
 
             var PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
             var TYPE_IHDR = 0x49484452;
@@ -955,28 +956,38 @@
                 var filtered = filterData(imgData, colorType);// this._filterData(imgData);
                 var compressed = pako.deflate(filtered, Object.assign({
                     /**
-                     * // compression level 0-9
+                     * Compression level 0-9
                      * #define Z_NO_COMPRESSION         0
-                     #define Z_BEST_SPEED             1
-                     #define Z_BEST_COMPRESSION       9
+                     * #define Z_BEST_SPEED             1
+                     * #define Z_BEST_COMPRESSION       9
                      */
-                    level: 4,
+                    level: 6, // Apparently 6 is the default compression level in GIMP
                     /**
-                     * The windowBits parameter is the base two logarithm of the window size (the size of the history buffer). It should be in the range 8..15 for this version of the library. Larger values of this parameter result in better compression at the expense of memory usage. The default value is 15 if deflateInit is used instead.
-                     windowBits can also be –8..–15 for raw deflate. In this case, -windowBits determines the window size. deflate() will then generate raw deflate data with no zlib header or trailer, and will not compute an adler32 check value.
+                     * The windowBits parameter is the base two logarithm of the window size (the size of the history buffer).
+                     * It should be in the range 8..15 for this version of the library. Larger values of this parameter result in better compression at the expense of memory usage.
+                     * The default value is 15 if deflateInit is used instead.
+                     * windowBits can also be –8..–15 for raw deflate. In this case, -windowBits determines the window size.
+                     * deflate() will then generate raw deflate data with no zlib header or trailer, and will not compute an adler32 check value.
                      */
                     windowBits: 15,
                     /**
-                     * - chunk size used for deflating data chunks, this should be power of 2 and must not be less than 256 and more than 32 * 1024
+                     * Chunk size used for deflating data chunks, this should be power of 2 and must not be less than 256 and more than 32 * 1024
                      */
                     chunkSize: 32 * 1024,
                     /**
                      * var Z_FILTERED            = 1;
-                     var Z_HUFFMAN_ONLY        = 2;
-                     var Z_RLE                 = 3;
-                     var Z_FIXED               = 4;
-                     var Z_DEFAULT_STRATEGY    = 0;
-                     The strategy parameter is used to tune the compression algorithm. Use the value Z_DEFAULT_STRATEGY for normal data, Z_FILTERED for data produced by a filter (or predictor), Z_HUFFMAN_ONLY to force Huffman encoding only (no string match), or Z_RLE to limit match distances to one (run-length encoding). Filtered data consists mostly of small values with a somewhat random distribution. In this case, the compression algorithm is tuned to compress them better. The effect of Z_FILTERED is to force more Huffman coding and less string matching; it is somewhat intermediate between Z_DEFAULT_STRATEGY and Z_HUFFMAN_ONLY. Z_RLE is designed to be almost as fast as Z_HUFFMAN_ONLY, but give better compression for PNG image data. The strategy parameter only affects the compression ratio but not the correctness of the compressed output even if it is not set appropriately. Z_FIXED prevents the use of dynamic Huffman codes, allowing for a simpler decoder for special applications.
+                     * var Z_HUFFMAN_ONLY        = 2;
+                     * var Z_RLE                 = 3;
+                     * var Z_FIXED               = 4;
+                     * var Z_DEFAULT_STRATEGY    = 0;
+                     * The strategy parameter is used to tune the compression algorithm. Use the value Z_DEFAULT_STRATEGY for normal data,
+                     * Z_FILTERED for data produced by a filter (or predictor), Z_HUFFMAN_ONLY to force Huffman encoding only (no string match),
+                     * or Z_RLE to limit match distances to one (run-length encoding). Filtered data consists mostly of small values with a somewhat random distribution.
+                     * In this case, the compression algorithm is tuned to compress them better. The effect of Z_FILTERED is to force more Huffman coding and less string matching;
+                     * it is somewhat intermediate between Z_DEFAULT_STRATEGY and Z_HUFFMAN_ONLY.
+                     * Z_RLE is designed to be almost as fast as Z_HUFFMAN_ONLY, but give better compression for PNG image data.
+                     * The strategy parameter only affects the compression ratio but not the correctness of the compressed output even if it is not set appropriately.
+                     * Z_FIXED prevents the use of dynamic Huffman codes, allowing for a simpler decoder for special applications.
                      */
                     strategy: 3
                 }, options)); // as Uint8Array;
@@ -1013,7 +1024,28 @@
          * @returns {*}
          */
         kidoju.image.inflate = function (data) {
+            logger.debug({
+                method: 'kidoju.image.inflate',
+                message: 'Inflating with pako',
+                data: data
+            });
             return window.pako.inflate(data);
+        };
+
+        /**
+         * Converts a dataURI into a Blob
+         * @see https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
+         */
+        kidoju.image.dataUri2Blob = function (dataUri) {
+            assert.type(STRING, dataUri, kendo.format(assert.messages.type.default, 'dataUri', STRING));
+            var parts = dataUri.split(';base64,');
+            var contentType = parts[0].substr(5); // 5 is length of data:
+            var base64 = window.atob(parts[1]);
+            var array = new window.Uint8Array(base64.length);
+            for (var idx = 0; idx < base64.length; idx++) {
+                array[idx] = base64.charCodeAt(idx);
+            }
+            return new Blob([array.buffer], { type: contentType });
         };
 
         /**
@@ -1038,6 +1070,11 @@
          * @param quality
          */
         kidoju.image.jpegEncode = function (imgData, quality) {
+            logger.debug({
+                method: 'kidoju.image.jpegEncode',
+                message: 'Encoding as jpeg',
+                data: { quality: quality }
+            });
             var encoder = new JPEGEncoder(quality);
             return encoder.encode(imgData);
         };
@@ -1045,9 +1082,14 @@
         /**
          * PNG encoding of imgData
          * @param imgData
-         * @param options
+         * @param options include colorType and pako options, especially level
          */
         kidoju.image.pngEncode = function (imgData, options) {
+            logger.debug({
+                method: 'kidoju.image.pngEncode',
+                message: 'Encoding as png',
+                data: { options: options }
+            });
             var encoder = new PNGEncoder(options);
             return encoder.encode(imgData);
         };

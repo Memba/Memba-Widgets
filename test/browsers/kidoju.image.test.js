@@ -41,7 +41,7 @@
             ctx.fillStyle = 'red';
             ctx.fillRect(10, 10, 50, 50);
             var imgData = ctx.getImageData(0, 0, c.width, c.height);
-            var jpeg = kidoju.image.jpegEncode(imgData, 5);
+            var jpeg = kidoju.image.jpegEncode(imgData, 10);
             var img = $('<img/>');
             img.attr({
                 src: jpeg,
@@ -100,20 +100,20 @@
 
         it('We expect to encode an image as PNG', function (done) {
             $('<img/>')
-            .on('load', function (e) {
-                var imgData = kidoju.image.getImageData(e.target);
-                var png = kidoju.image.pngEncode(imgData);
-                var img = $('<img/>');
-                img.attr({
-                    src: png,
-                    height: imgData.height,
-                    width: imgData.width
-                });
-                fixtures.append(img);
-                done();
-            })
-            .attr('src', '../data/images/miscellaneous/rainbow.png')
-            // .attr('src', '../data/images/miscellaneous/Elvis.jpg')
+                .on('load', function (e) {
+                    var imgData = kidoju.image.getImageData(e.target);
+                    var png = kidoju.image.pngEncode(imgData);
+                    var img = $('<img/>');
+                    img.attr({
+                        src: png,
+                        height: imgData.height,
+                        width: imgData.width
+                    });
+                    fixtures.append(img);
+                    done();
+                })
+                .attr('src', '../data/images/miscellaneous/rainbow.png')
+                // .attr('src', '../data/images/miscellaneous/Elvis.jpg')
                 .appendTo(fixtures);
         });
 

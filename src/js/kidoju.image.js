@@ -32,6 +32,7 @@
         /*****************************************************************************************************
          * The following is an adaptation of https://github.com/eugeneware/jpeg-js/blob/master/lib/encoder.js
          * Note there is also https://github.com/mozilla/pdf.js/blob/master/src/core/jpg.js
+         * And a very comprehensive https://github.com/oliver-moran/jimp
          *****************************************************************************************************/
 
         /* This function has too many statements. */

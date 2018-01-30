@@ -9,7 +9,7 @@
 (function (f, define) {
     'use strict';
     define([
-        './vendor/katex/katex', // Keep at the top considering function parameter below
+        './vendor/khan/katex', // Keep at the top considering function parameter below
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',

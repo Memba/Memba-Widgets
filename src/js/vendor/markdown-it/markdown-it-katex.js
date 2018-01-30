@@ -3,7 +3,7 @@
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
         define([
-            '../katex/katex'
+            '../khan/katex'
         ], function (katex) {
             return (root.markdownItKatex = factory(katex));
         });
@@ -11,7 +11,7 @@
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like environments that support module.exports,
         // like Node.
-        module.exports = factory(require('../katex/katex'));
+        module.exports = factory(require('../khan/katex'));
     } else {
         // Browser globals
         root.markdownItKatex = factory(root.katex);

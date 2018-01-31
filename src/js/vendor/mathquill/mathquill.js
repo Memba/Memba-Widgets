@@ -1065,6 +1065,15 @@ function getInterface(v) {
       if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
       return this;
     };
+    _.empty = function() {
+      var root = this.__controller.root, cursor = this.__controller.cursor;
+      root.eachChild('postOrder', 'dispose');
+      root.ends[L] = root.ends[R] = 0;
+      root.jQ.empty();
+      delete cursor.selection;
+      cursor.insAtRightEnd(root);
+      return this;
+    };
     _.cmd = function(cmd) {
       var ctrlr = this.__controller.notify(), cursor = ctrlr.cursor;
       if (/^\\[a-z]+$/i.test(cmd)) {
@@ -1949,11 +1958,15 @@ Controller.open(function(_) {
   _.ctrlDeleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
-    if (!cursor[L] || cursor.selection) return this.deleteDir();
+    if (!cursor[dir] || cursor.selection) return this.deleteDir(dir);
 
     this.notify('edit');
-    Fragment(cursor.parent.ends[L], cursor[L]).remove();
-    cursor.insAtDirEnd(L, cursor.parent);
+    if (dir === L) {
+      Fragment(cursor.parent.ends[L], cursor[L]).remove();
+    } else {
+      Fragment(cursor[R], cursor.parent.ends[R]).remove();
+    };
+    cursor.insAtDirEnd(dir, cursor.parent);
 
     if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
     if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
@@ -2957,7 +2970,7 @@ var TextBlock = P(Node, function(_, super_) {
   _.latex = function() {
     var contents = this.textContents();
     if (contents.length === 0) return '';
-    return '\\text{' + contents + '}';
+    return '\\text{' + contents.replace(/\\/g, '\\backslash ').replace(/[{}]/g, '\\$&') + '}';
   };
   _.html = function() {
     return (
@@ -4339,6 +4352,8 @@ LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
 LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
 LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
+LatexCmds.overleftrightarrow = bind(Style, '\\overleftrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-both"');
+LatexCmds.overarc = bind(Style, '\\overarc', 'span', 'class="mq-non-leaf mq-overarc"');
 LatexCmds.dot = P(MathCommand, function(_, super_) {
     _.init = function() {
         super_.init.call(this, '\\dot', '<span class="mq-non-leaf"><span class="mq-dot-recurring-inner">'
@@ -4586,6 +4601,15 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
     super_.finalizeTree.call(this);
   };
+  _.reflow = function() {
+     var $block = this.jQ;//mq-supsub
+
+     var h = $block.prev().innerHeight() ;
+     h *= 0.6 ;
+
+     $block.css( 'vertical-align',  h + 'px' ) ;
+
+  } ;
 });
 
 var SummationNotation = P(MathCommand, function(_, super_) {
@@ -5560,7 +5584,7 @@ var MatrixCell = P(MathBlock, function(_, super_) {
         });
     }
 });
-// END: Added by JLC - https://github.com/mathquill/mathquill/pull/642;
+// END: Added by JLC - https://github.com/mathquill/mathquill/pull/642
 /****************************************
  * Input box to type backslash commands
  ***************************************/
@@ -5596,12 +5620,7 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
       if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createLeftOf(cursor);
       else {
         this.parent.renderCommand(cursor);
-        // BEGIN Removed by JLC - https://github.com/mathquill/mathquill/commit/5c7bfe5749bbf0ffec897367cd198ed4337e73f8
-        // if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
-        // END Removed by JLC - https://github.com/mathquill/mathquill/commit/5c7bfe5749bbf0ffec897367cd198ed4337e73f8
-        // BEGIN Added by JLC - https://github.com/mathquill/mathquill/commit/5c7bfe5749bbf0ffec897367cd198ed4337e73f8
         if (ch !== '\\' || !this.isEmpty()) cursor.parent.write(cursor, ch);
-        // END Added by JLC - https://github.com/mathquill/mathquill/commit/5c7bfe5749bbf0ffec897367cd198ed4337e73f8
       }
     };
     this.ends[L].keystroke = function(key, e, ctrlr) {

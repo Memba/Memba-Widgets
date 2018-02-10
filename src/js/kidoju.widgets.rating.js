@@ -146,9 +146,11 @@
                     if (parseFloat(input.val()) !== value) {
                         // update input element
                         input.val(value);
+                        // refresh
+                        that.refresh();
                         // also trigger the DOM change event so any subscriber gets notified
                         // http://stackoverflow.com/questions/4672505/why-does-the-jquery-change-event-not-trigger-when-i-set-the-value-of-a-select-us
-                        input.trigger(CHANGE + NS);
+                        // input.trigger(CHANGE + NS);
                     }
                 } else {
                     throw new RangeError(kendo.format('Expecting a number between {0} and {1}', options.min, options.max));
@@ -167,11 +169,13 @@
                 that._clear();
                 input.wrap('<span class="kj-rating"/>');
                 input.hide();
+                /*
                 input.on(CHANGE + NS, function () {
                     // update widget
                     that.refresh();
                     that.trigger(CHANGE, { value: parseFloat(input.val()) });
                 });
+                */
                 // We need that.wrapper for visible/invisible bindings
                 that.wrapper = input.parent();
                 // Calculate the number of stars
@@ -259,7 +263,9 @@
                 var i = parseFloat($(e.currentTarget).attr(kendo.attr(STAR)));
                 var value = options.min + i * options.step;
                 e.preventDefault();
-                that.value(value);
+                if (!that.trigger(CHANGE, { value: value })) {
+                    that.value(value);
+                }
             },
 
             /**

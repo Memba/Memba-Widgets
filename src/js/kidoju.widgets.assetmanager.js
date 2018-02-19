@@ -549,7 +549,7 @@
                     accept: (options.extensions || []).join(','), // @see http://www.w3schools.com/tags/att_input_accept.asp
                     messages: options.messages
                 })).appendTo(that.fileBrowser);
-                assert.instanceof($, that.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'window.jQuery'));
+                assert.instanceof($, that.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
 
                 // Collection drop down list
                 // that.dropDownList = that.toolbar.find('div.k-toolbar-wrap select')
@@ -591,7 +591,7 @@
 
                 // Search
                 that.searchInput = that.toolbar.find('input.k-input');
-                assert.instanceof($, that.searchInput, kendo.format(assert.messages.instanceof.default, 'this.searchInput', 'window.jQuery'));
+                assert.instanceof($, that.searchInput, kendo.format(assert.messages.instanceof.default, 'this.searchInput', 'jQuery'));
 
                 // Other events
                 that.toolbar
@@ -694,8 +694,8 @@
              * @private
              */
             _onFileInputChange: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
-                assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'HTMLInputElement'));
                 // Note: Set multiple attribute onto html file input tag for multiple uploads
                 var fileList = e.target.files;
                 if (fileList instanceof window.FileList && fileList.length) {
@@ -709,7 +709,7 @@
              * @private
              */
             _uploadFileList: function (fileList) {
-                assert.instanceof(window.FileList, fileList, kendo.format(assert.messages.instanceof.default, 'fileList', 'window.FileList'));
+                assert.instanceof(window.FileList, fileList, kendo.format(assert.messages.instanceof.default, 'fileList', 'FileList'));
 
                 function execUpload() {
                     var promises = [];
@@ -859,8 +859,8 @@
              */
             _uploadFile: function (file) {
                 // Note a window.File is a sort of window.Blob with a name
-                // assert.instanceof(window.File, file, kendo.format(assert.messages.instanceof.default, 'file', 'window.File'));
-                assert.instanceof(window.Blob, file, kendo.format(assert.messages.instanceof.default, 'file', 'window.Blob'));
+                // assert.instanceof(window.File, file, kendo.format(assert.messages.instanceof.default, 'file', 'File'));
+                assert.instanceof(window.Blob, file, kendo.format(assert.messages.instanceof.default, 'file', 'Blob'));
                 assert.type(STRING, file.name, kendo.format(assert.messages.type.default, 'file.name', STRING));
                 assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
                 assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
@@ -1022,8 +1022,8 @@
              * @private
              */
             _onSearchInputChange: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
-                assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'HTMLInputElement'));
                 assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
                 assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.data.DataSource'));
                 var filter = getDataSourceFilter(this.options.extensions);
@@ -1053,7 +1053,7 @@
              */
             _onSearchClearClick: function () {
                 var searchInput = this.searchInput;
-                assert.instanceof($, searchInput, kendo.format(assert.messages.instanceof.default, 'this.searchInput', 'window.jQuery'));
+                assert.instanceof($, searchInput, kendo.format(assert.messages.instanceof.default, 'this.searchInput', 'jQuery'));
                 if (searchInput.val() !== '') {
                     searchInput.val('').trigger(CHANGE + NS);
                 }

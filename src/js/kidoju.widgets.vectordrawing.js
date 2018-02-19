@@ -1650,7 +1650,7 @@
              * @private
              */
             _openFile: function (file) {
-                assert.instanceof(window.File, file, assert.format(assert.messages.instanceof.default, 'file', 'window.File'));
+                assert.instanceof(window.File, file, assert.format(assert.messages.instanceof.default, 'file', 'File'));
                 var that = this;
                 var dfd = $.Deferred();
                 if ((file.type || '').match(/^image\//)) {

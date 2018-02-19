@@ -147,7 +147,7 @@
 
                 // Add toolbar from template
                 that.toolbar = $(kendo.format(TOOLBAR, options.messages.toolbar.add)).appendTo(that.element);
-                assert.instanceof($, that.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'window.jQuery'));
+                assert.instanceof($, that.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
 
                 // Add click event handler for the Add button
                 $('.k-button', that.toolbar).on(CLICK + NS, function (e) {

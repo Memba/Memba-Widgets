@@ -264,7 +264,7 @@
                 var that = this;
                 var options = that.options;
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', '$.Event'));
-                assert.instanceof(window.HTMLAnchorElement, e.currentTarget, kendo.format(assert.messages.instanceof.default, 'e.currentTarget', 'window.HTMLAnchorElement'));
+                assert.instanceof(window.HTMLAnchorElement, e.currentTarget, kendo.format(assert.messages.instanceof.default, 'e.currentTarget', 'HTMLAnchorElement'));
                 e.preventDefault();
 
                 // Read open graph metadata

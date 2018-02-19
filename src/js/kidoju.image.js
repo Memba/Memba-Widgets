@@ -1069,7 +1069,7 @@
          * @see https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
          */
         kidoju.image.dataUri2Blob = function (dataUri) {
-            assert.type(STRING, dataUri, kendo.format(assert.messages.type.default, 'dataUri', STRING));
+            assert.type(STRING, dataUri, assert.format(assert.messages.type.default, 'dataUri', STRING));
             var parts = dataUri.split(';base64,');
             var contentType = parts[0].substr(5); // 5 is length of data:
             var base64 = window.atob(parts[1]);

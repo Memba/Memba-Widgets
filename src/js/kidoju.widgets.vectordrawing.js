@@ -35,8 +35,8 @@
         var Class = kendo.Class;
         var drawing = kendo.drawing;
         var createPromise = drawing.util.createPromise;
-        var encodeBase64 = drawing.util.encodeBase64;
         var defined = drawing.util.defined;
+        var encodeBase64 = drawing.util.encodeBase64;
         var geometry = kendo.geometry;
         var Transformation = geometry.Transformation;
         var RootNode = drawing.svg.RootNode;
@@ -298,11 +298,22 @@
 
         /**
          * Vector Shape
+         * Note: Specialized diagram.Shape for displaying text in TextBlock and for Polyline tool
          */
         var VectorShape = Shape.extend({
+
+            /**
+             * Constructor
+             */
             init: function (options, diagram) {
                 Shape.fn.init.call(this, options, diagram);
             },
+
+            /**
+             * _visualOptions
+             * @param options
+             * @private
+             */
             _visualOptions: function (options) {
                 return {
                     // From Shape.fn._visualOptions
@@ -311,6 +322,7 @@
                     hover: options.hover,
                     fill: options.fill,
                     stroke: options.stroke,
+                    // BEGIN Added by JLC
                     // For text blocks
                     text: options.text,
                     // color: options.content.color,
@@ -322,13 +334,29 @@
                     points: options.points,
                     startCap: options.startCap,
                     endCap: options.endCap
+                    // END Added by JLC
                 };
-                // return options;
+            },
+
+            /**
+             * clone
+             */
+            clone: function () {
+                var json = this.serialize();
+                json.options.id = diagram.randomId();
+                if (this.diagram && this.diagram._isEditable && defined(this.dataItem)) {
+                    json.options.dataItem = cloneDataItem(this.dataItem);
+                }
+                // return new Shape(json.options);
+                return new VectorShape(json.options);
             },
 
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
+            /**
+             * createShapeVisual
+             */
             createShapeVisual: function () {
                 /* jshint maxcomplexity: 8 */
                 var options = this.options;
@@ -351,10 +379,11 @@
                     shapeVisual = new TextBlock(visualOptions);
                 } else if (type === 'image') {
                     shapeVisual = new Image(visualOptions);
-                // BEGIN Added polyline
+                // BEGIN Added by JLC
+                // polyline
                 } else if (type === 'polyline') {
                     shapeVisual = new Polyline(visualOptions);
-                    // END Added polyline
+                    // END Added by JLC
                 } else {
                     shapeVisual = new Path(visualOptions);
                 }
@@ -508,7 +537,7 @@
         });
 
         /**
-         * PolyLine tool
+         * Polyline tool
          */
         var PolylineTool = Class.extend({
             init: function (toolService) {
@@ -669,8 +698,8 @@
                 var pos = this._truncateDistance(p);
                 // var connector = toolService._hoveredConnector;
                 // var connection = diagram._createConnection({}, connector._c, p);
-                var shape = diagram._createShape({}, deepExtend(
-                    this.toolService.options || {},
+                var shape = diagram._createShape({}, deepExtend({},
+                    this.toolService.options,
                     {
                         x: pos.x,
                         y: pos.y,
@@ -787,6 +816,7 @@
 
         /**
          * VectorToolService
+         * Note Specialized diagram.ToolService to add new tools
          */
         var VectorToolService = ToolService.extend({
 
@@ -803,14 +833,14 @@
             },
 
             /**
-             * The base class _activeTool functoin only determines the tool to be used form mous e event corrdinates and keyboard options (meta ctrlKey, shiftKey, altKey)
+             * The base class _activateTool method only determines the tool to be used form mouse event coordinates and keyboard options (meta ctrlKey, shiftKey, altKey)
              * We need to enrich meta with the the selected tool and configuration from the toolbar
              * @param p
              * @param meta
              * @private
              */
             _activateTool: function (p, meta) {
-                meta = meta || {};
+                meta = deepExtend({}, meta);
 
                 ToolService.fn._activateTool.call(this, p, meta);
             },
@@ -820,7 +850,9 @@
              * @private
              */
             _resetTool: function () {
-                // TODO
+                // Note: there would have been a better way if the toolbar state was an observable
+                // but we not only need to reset the tool but also change the toolbar selection accordingly
+                this.diagram.toolBar.element.find('a[' + kendo.attr('tool') + '="select"]').click();
             }
         });
 
@@ -1164,6 +1196,7 @@
             _createShape: function (dataItem, options) {
                 options = deepExtend({}, this.options.shapeDefaults, options);
                 options.dataItem = dataItem;
+                // var shape = new Shape(options, this);
                 var shape = new VectorShape(options, this);
                 return shape;
             },
@@ -1177,10 +1210,12 @@
             addShape: function (item, undoable) {
                 var shape;
                 var shapeDefaults = this.options.shapeDefaults;
-                if (item instanceof Shape) {
+                // if (item instanceof Shape) {
+                if (item instanceof VectorShape) {
                     shape = item;
                 } else if (!(item instanceof kendo.Class)) {
                     shapeDefaults = deepExtend({}, shapeDefaults, item || {});
+                    // shape = new Shape(shapeDefaults, this);
                     shape = new VectorShape(shapeDefaults, this);
                 } else {
                     return;
@@ -1218,6 +1253,7 @@
                 }
                 var options = deepExtend({}, this.options.shapeDefaults);
                 options.dataItem = dataItem;
+                // shape = new Shape(options, this);
                 shape = new VectorShape(options, this);
                 this.addShape(shape, undoable !== false);
                 this._dataMap[dataItem.id] = shape;
@@ -1240,6 +1276,7 @@
                 }
                 var options = deepExtend({}, this.options.shapeDefaults);
                 options.dataItem = dataItem;
+                // shape = new Shape(options, this);
                 shape = new VectorShape(options, this);
                 this.addShape(shape);
                 this._dataMap[dataItem.uid] = shape;
@@ -1411,8 +1448,18 @@
                     extension = extension.slice(0, -1);
                 }
                 var exportFile = (extension === 'jpg' || extension === 'png') ? this.exportImage : this.exportSVG;
+                logger.debug({
+                    message: 'Saving file',
+                    method: '_onToolbarSave',
+                    data: { name: name, ext: extension }
+                });
                 exportFile.bind(this)({ json: json }) // json: true only applies to exportSVG
                     .done(function (dataUri) {
+                        logger.debug({
+                            message: 'exporFile successful',
+                            method: '_onToolbarSave',
+                            data: { name: name, ext: extension }
+                        });
                         // Important: dataUri is actually the result of getImageData for exportImage and it needs to be encoded to make a dataUri
                         // Beware any error here will be caught in the try/catch of kendo.drawing.canvas.Surface.prototype.getImageData defined in kidoju.widgets.vectordrawing.js
                         if (extension === 'jpg') {
@@ -1426,6 +1473,14 @@
                             dataURI: dataUri,
                             fileName: name + '.' + extension
                         });
+                    })
+                    .fail(function (error) {
+                        logger.error({
+                            message: 'exportFile failed',
+                            method: '_onToolbarSave',
+                            data: { name: name, ext: extension },
+                            error: error
+                        });
                     });
             },
 
@@ -1437,6 +1492,22 @@
             _onDrawingToolChange: function (params) {
                 // the tool to be used is set by this.toolService._activateTool which is triggered by mouse events
                 this.toolService.selectedTool = params.value;
+                this.toolService.options = params.options;
+                // when adding an image or a text, we need to force a mousedown event to create the shape
+                if (this.toolService.selectedTool === 'ShapeTool' && (params.options.type === 'Image' || params.options.type === 'Text')) {
+                    var start = new diagram.Point(10, 10);
+                    var end = new diagram.Point(110, 110);
+                    var meta = {
+                        ctrlKey: false,
+                        metaKey: false,
+                        altKey: false,
+                        shiftKey: false,
+                        type: 'mousedown'
+                    };
+                    this.toolService.start(start, meta);
+                    this.toolService.move(end, meta);
+                    this.toolService.end(end);
+                }
             },
 
             /**
@@ -1709,7 +1780,8 @@
             },
 
             /**
-             * Open dataUri)
+             * Open dataUri
+             * // TODO: a function for kidoju.image
              * @param dataUri or url
              * @private
              */
@@ -1732,14 +1804,12 @@
                             width: img.width()
                         };
                         if (RX_URL.test(dataUri)) {
-                            // TODO: a function for kidoju.image
                             var canvas = document.createElement('canvas');
                             canvas.height =  meta.height;
                             canvas.width =  meta.width;
                             var ctx = canvas.getContext('2d');
                             ctx.drawImage(img.get(0), canvas.width, canvas.height);
                             meta.dataUri = canvas.toDataURL();
-                            debugger;
                         }
                         img.off().remove();
                         dfd.resolve(meta);
@@ -1771,7 +1841,11 @@
                     json = that._extractJSON(window.atob(parts[1]));
                 }
                 if (json) {
-                    that.load(JSON.parse(json)); // TODO: does that.clear which is not what we want
+                    // that.load((JSON.parse(json)); starts with this.clear();
+                    // TODO Make sure we add and not replace
+                    this.setOptions(JSON.parse(json));
+                    this._createShapes();
+                    this._createConnections();
                 } else {
                     that.addShape({
                         type: 'image',

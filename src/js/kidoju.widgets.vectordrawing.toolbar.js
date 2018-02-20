@@ -565,7 +565,7 @@
                             .outerHeight(openButton.outerHeight())
                             .outerWidth(openButton.outerWidth())
                             .insertAfter(openButton)
-                            // Chnage the state of the covered openButton
+                            // Change the state of the covered openButton
                             .hover(function (e) {
                                 openButton.toggleClass('k-state-hover', e.type === 'mouseenter');
                             })
@@ -733,7 +733,7 @@
                     var overflow = tool.overflow;
                     if (toolbar && toolbar.enable) {
                         toolbar.enable(value);
-                        // TODO: not sufficient, popups drop down
+                        // TODO: not sufficient, dilogs popup when elements are overflown
                     }
                     if (overflow && overflow.enable) {
                         overflow.enable(value);
@@ -861,7 +861,7 @@
                 return this.element.find('[' + kendo.attr('property') + ']').toArray().map(function (element) {
                     element = $(element);
                     return {
-                        property: element.attr('data-property'),
+                        property: element.attr(kendo.attr('property')),
                         tool: this._getItem(element)
                     };
                 }.bind(this));
@@ -872,7 +872,7 @@
              */
             destroy: function () {
                 this._destroyFileInput();
-                this.element.find('[data-command],.k-button').each(function () {
+                this.element.find('[' + kendo.attr('command') + '],.k-button').each(function () {
                     var element = $(this);
                     var instance = element.data('instance');
                     if (instance && instance.destroy) {
@@ -1070,7 +1070,9 @@
         });
         var ShapeButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'vectorShape' });
+                if (this.options.enable) {
+                    this.toolbar.dialog({name: 'vectorShape'});
+                }
             }
         });
         kendo.toolbar.registerComponent('vectorShape', ShapeTool, ShapeButton);
@@ -1283,13 +1285,15 @@
                 OverflowDialogButton.fn.init.call(this, options, toolbar);
             },
             _click: function () {
-                this.toolbar.dialog({
-                    name: 'vectorColorPicker',
-                    options: {
-                        title: this.options.property,
-                        property: this.options.property
-                    }
-                });
+                if (this.options.enable) {
+                    this.toolbar.dialog({
+                        name: 'vectorColorPicker',
+                        options: {
+                            title: this.options.property,
+                            property: this.options.property
+                        }
+                    });
+                }
             }
         });
         kendo.toolbar.registerComponent('vectorColorPicker', ColorPicker, ColorPickerButton);
@@ -1351,7 +1355,9 @@
         });
         var OpacityButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'vectorOpacity' });
+                if (this.options.enable) {
+                    this.toolbar.dialog({name: 'vectorOpacity'});
+                }
             }
         });
         kendo.toolbar.registerComponent('vectorOpacity', OpacityTool, OpacityButton);
@@ -1408,7 +1414,9 @@
         });
         var StrokeWidthButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'vectorStrokeWidth' });
+                if (this.options.enable) {
+                    this.toolbar.dialog({name: 'vectorStrokeWidth'});
+                }
             }
         });
         kendo.toolbar.registerComponent('vectorStrokeWidth', StrokeWidthTool, StrokeWidthButton);
@@ -1512,7 +1520,9 @@
         });
         var StrokeDashTypeButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'vectorStrokeDashType' });
+                if (this.options.enable) {
+                    this.toolbar.dialog({name: 'vectorStrokeDashType'});
+                }
             }
         });
         kendo.toolbar.registerComponent('vectorStrokeDashType', StrokeDashTypeTool, StrokeDashTypeButton);
@@ -1592,7 +1602,9 @@
         });
         var StartCapTypeButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'vectorStartCapType' });
+                if (this.options.enable) {
+                    this.toolbar.dialog({name: 'vectorStartCapType'});
+                }
             }
         });
         kendo.toolbar.registerComponent('vectorStartCapType', StartCapTypeTool, StartCapTypeButton);
@@ -1672,7 +1684,9 @@
         });
         var EndCapTypeButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'vectorEndCapType' });
+                if (this.options.enable) {
+                    this.toolbar.dialog({name: 'vectorEndCapType'});
+                }
             }
         });
         kendo.toolbar.registerComponent('vectorEndCapType', EndCapTypeTool, EndCapTypeButton);
@@ -1742,13 +1756,15 @@
         });
         var FontSizeButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({
-                    name: 'vectorFontSize',
-                    options: {
-                        sizes: FONT_SIZES,
-                        defaultSize: toolDefaults.fontSize.value
-                    }
-                });
+                if (this.options.enable) {
+                    this.toolbar.dialog({
+                        name: 'vectorFontSize',
+                        options: {
+                            sizes: FONT_SIZES,
+                            defaultSize: toolDefaults.fontSize.value
+                        }
+                    });
+                }
             },
             update: function (value) {
                 this._value = value || toolDefaults.fontSize.value;
@@ -1786,13 +1802,15 @@
         });
         var FontFamilyButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({
-                    name: 'vectorFontFamily',
-                    options: {
-                        fonts: FONT_FAMILIES,
-                        defaultFont: toolDefaults.fontFamily.value
-                    }
-                });
+                if (this.options.enable) {
+                    this.toolbar.dialog({
+                        name: 'vectorFontFamily',
+                        options: {
+                            fonts: FONT_FAMILIES,
+                            defaultFont: toolDefaults.fontFamily.value
+                        }
+                    });
+                }
             },
             update: function (value) {
                 this._value = value || toolDefaults.fontFamily.value;
@@ -1867,7 +1885,9 @@
         });
         var ArrangeButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'vectorArrange' });
+                if (this.options.enable) {
+                    this.toolbar.dialog({name: 'vectorArrange'});
+                }
             }
         });
         kendo.toolbar.registerComponent('vectorArrange', ArrangeTool, ArrangeButton);
@@ -1924,7 +1944,9 @@
         });
         var GuidesButton = OverflowDialogButton.extend({
             _click: function () {
-                this.toolbar.dialog({ name: 'vectorGuides' });
+                if (this.options.enable) {
+                    this.toolbar.dialog({name: 'vectorGuides'});
+                }
             }
         });
         kendo.toolbar.registerComponent('vectorGuides', GuidesTool, GuidesButton);
@@ -2285,7 +2307,7 @@
                                 property: 'tool',
                                 value: 'ShapeTool',
                                 options: {
-                                    type: 'image',
+                                    type: 'Image',
                                     source: model.url
                                 }
                             }
@@ -2336,7 +2358,7 @@
                                 property: 'tool',
                                 value: 'ShapeTool',
                                 options: {
-                                    type: 'text',
+                                    type: 'Text',
                                     text: model.text
                                 }
                             }

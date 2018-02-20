@@ -868,6 +868,10 @@
                 assert.isFunction(this.listView.dataSource.transport.upload, assert.format(assert.messages.isFunction.default, 'this.listView.dataSource.transport.upload'));
                 var that = this;
                 var dfd = $.Deferred();
+                logger.debug({
+                    message: 'Uploading file',
+                    method: '_uploadFile'
+                });
                 // Call the transport defined in app.assets.js
                 that.listView.dataSource.transport.upload({
                     data: {
@@ -1245,7 +1249,7 @@
              * @private
              */
             _xhrErrorHandler: function (xhr, status, error) {
-                // TODO
+                // TODO Raise an error event - see _dataError
             },
 
             /**

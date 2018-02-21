@@ -986,7 +986,7 @@
         var LatexDialog = MarkEditorDialog.extend({
             options: {
                 template: '<div data-role="mathinput" data-bind="value: latex" data-toolbar="{&quot;resizable&quot;:true,&quot;tools&quot;:[&quot;keypad&quot;,&quot;basic&quot;,&quot;greek&quot;,&quot;operators&quot;,&quot;expressions&quot;,&quot;sets&quot;,&quot;matrices&quot;,&quot;statistics&quot;]}"/></div>' +
-                    '<div>' +
+                    '<div class="k-edit-form-container">' +
                     '<div class="k-edit-label">#: messages.latexDialog.labels.display #:</div>' +
                     '<div class="k-edit-field"><input id="markeditor_latex_inline" type="checkbox" class="k-checkbox" data-bind="checked: inline"><label class="k-checkbox-label" for="markeditor_latex_inline">&nbsp;#: messages.latexDialog.labels.inline #</label></div>' +
                     '</div>' +

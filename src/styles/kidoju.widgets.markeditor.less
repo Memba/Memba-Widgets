@@ -16,6 +16,7 @@
                 }
             }
             .k-action-buttons {
+                position: static;
                 bottom: 0;
                 border: 0;
                 margin: 0;
@@ -32,6 +33,12 @@
     .kj-mathinput {
         height: 5em;
         width: 100%;
+    }
+    .k-edit-form-container {
+        padding-top: .5em;
+        .k-edit-label, .k-edit-field {
+            line-height: normal;
+        }
     }
     // This fixes .k-spreadsheet-window .k-edit-label (27% is too large)
     .k-edit-label {

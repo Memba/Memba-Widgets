@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -14116,9 +14116,10 @@
                 }
             },
             _resize: function () {
+                var actionBar = $(this.formulaBar.element).parents('.k-spreadsheet-action-bar');
                 var outerHeight = kendo._outerHeight;
                 var tabstripHeight = this.tabstrip ? outerHeight(this.tabstrip.element) : 0;
-                var formulaBarHeight = this.formulaBar ? outerHeight(this.formulaBar.element) : 0;
+                var formulaBarHeight = actionBar ? outerHeight(actionBar) : 0;
                 var sheetsBarHeight = this.sheetsbar ? outerHeight(this.sheetsbar.element) : 0;
                 this.wrapper.height(this.element.height() - (tabstripHeight + formulaBarHeight + sheetsBarHeight));
                 if (this.tabstrip) {

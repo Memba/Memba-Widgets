@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -43,7 +43,9 @@
                 'isnull',
                 'isnotnull',
                 'isempty',
-                'isnotempty'
+                'isnotempty',
+                'isnullorempty',
+                'isnotnullorempty'
             ];
         function isNonValueFilter(filter) {
             var operator = typeof filter === 'string' ? filter : filter.operator;
@@ -151,6 +153,7 @@
                     that.initSuggestDataSource(options);
                 }
                 if (options.inputWidth !== null) {
+                    input.addClass('k-sized-input');
                     input.width(options.inputWidth);
                 }
                 input.attr('aria-label', that._getColumnTitle());
@@ -414,7 +417,9 @@
                         isnull: 'Is null',
                         isnotnull: 'Is not null',
                         isempty: 'Is empty',
-                        isnotempty: 'Is not empty'
+                        isnotempty: 'Is not empty',
+                        isnullorempty: 'Has no value',
+                        isnotnullorempty: 'Has value'
                     },
                     number: {
                         eq: EQ,

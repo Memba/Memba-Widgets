@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -225,7 +225,9 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "isnull": "Is null",
     "isnotnull": "Is not null",
     "isempty": "Is empty",
-    "isnotempty": "Is not empty"
+    "isnotempty": "Is not empty",
+    "isnullorempty": "Has no value",
+    "isnotnullorempty": "Has value"
   },
   "number": {
     "eq": "Is equal to",
@@ -290,7 +292,9 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "isnull": "Is null",
     "isnotnull": "Is not null",
     "isempty": "Is empty",
-    "isnotempty": "Is not empty"
+    "isnotempty": "Is not empty",
+    "isnullorempty": "Has no value",
+    "isnotnullorempty": "Has value"
   },
   "number": {
     "eq": "Is equal to",

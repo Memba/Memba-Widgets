@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -156,6 +156,18 @@
             },
             registerFormat: function (formatName, format) {
                 Editor.fn.options.formats[formatName] = format;
+            },
+            cacheComments: function (content, comments) {
+                for (var index in comments) {
+                    content = content.replace(comments[index], '{' + index + '}');
+                }
+                return content;
+            },
+            retrieveComments: function (content, comments) {
+                for (var index in comments) {
+                    content = content.replace('{' + index + '}', comments[index]);
+                }
+                return content;
             }
         };
         var messages = {
@@ -300,7 +312,7 @@
         };
         var Editor = Widget.extend({
             init: function (element, options) {
-                var that = this, value, editorNS = kendo.ui.editor, toolbarContainer, toolbarOptions, type;
+                var that = this, value, editorNS = kendo.ui.editor, toolbarContainer, toolbarOptions, type, comments;
                 var domElement;
                 var dom = editorNS.Dom;
                 if (!supportedBrowser) {
@@ -355,7 +367,10 @@
                     if (that.options.encoded && $.trim(domElement.defaultValue).length) {
                         value = domElement.defaultValue;
                     }
+                    comments = dom.getAllComments($('<div></div>').html(value)[0]);
+                    value = EditorUtils.cacheComments(value, comments);
                     value = value.replace(/[\r\n\v\f\t ]+/gi, ' ');
+                    value = EditorUtils.retrieveComments(value, comments);
                 } else {
                     value = domElement.innerHTML;
                 }
@@ -517,7 +532,7 @@
                 if (value != old) {
                     this.trigger('change');
                     if (textarea) {
-                        $(textarea.get(0).ownerDocument).trigger('change');
+                        textarea.trigger('change');
                     }
                 }
             },
@@ -1569,6 +1584,18 @@
                     }
                 }
                 return node;
+            },
+            getAllComments: function (rootElem) {
+                var comments = [];
+                var iterator = document.createNodeIterator(rootElem, NodeFilter.SHOW_COMMENT, function () {
+                    return NodeFilter.FILTER_ACCEPT;
+                }, false);
+                var curNode = iterator.nextNode();
+                while (curNode) {
+                    comments.push(curNode.nodeValue);
+                    curNode = iterator.nextNode();
+                }
+                return comments;
             },
             getNodeLength: function (node) {
                 return Dom.isDataNode(node) ? node.length : node.childNodes.length;
@@ -4630,9 +4657,10 @@
             },
             updateGroups: function () {
                 $(this.element).children().each(function () {
+                    $(this).addClass('k-state-disabled');
                     $(this).children().filter(function () {
                         return !$(this).hasClass('k-state-disabled');
-                    }).removeClass('k-group-end').first().addClass('k-group-start').end().last().addClass('k-group-end').end();
+                    }).removeClass('k-group-end').first().addClass('k-group-start').end().last().addClass('k-group-end').end().parent().removeClass('k-state-disabled');
                 });
             },
             decorateFrom: function (body) {
@@ -4941,7 +4969,7 @@
     define('editor/plugins/viewhtml', ['editor/command'], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, extend = $.extend, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate;
+        var kendo = window.kendo, extend = $.extend, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, dom = Editor.Dom;
         var ViewHtmlCommand = Command.extend({
             init: function (options) {
                 var cmd = this;
@@ -4951,9 +4979,12 @@
                 cmd.async = true;
             },
             exec: function () {
-                var that = this, editor = that.editor, options = editor.options, messages = editor.options.messages, dialog = $(kendo.template(ViewHtmlCommand.template)(messages)).appendTo(document.body), textarea = '.k-editor-textarea', content;
+                var that = this, editor = that.editor, options = editor.options, messages = editor.options.messages, dialog = $(kendo.template(ViewHtmlCommand.template)(messages)).appendTo(document.body), textarea = '.k-editor-textarea', content, comments;
                 options.serialization.immutables = editor.immutables;
-                content = ViewHtmlCommand.indent(editor.value());
+                comments = dom.getAllComments(editor.body);
+                content = EditorUtils.cacheComments(editor.value(), comments);
+                content = ViewHtmlCommand.indent(content);
+                content = EditorUtils.retrieveComments(content, comments);
                 options.serialization.immutables = undefined;
                 function apply(e) {
                     options.deserialization.immutables = editor.immutables;
@@ -7917,7 +7948,7 @@
                         previous = previous.firstChild;
                     }
                     next = parent.nextSibling;
-                    this.clean(previous);
+                    this.clean(previous, { links: true });
                     this.clean(next, { links: true });
                     if (dom.is(next, 'li') && next.firstChild && !dom.is(next.firstChild, 'br')) {
                         next = next.firstChild;

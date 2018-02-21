@@ -40,11 +40,15 @@ table.k-editor
 
 .k-editor-inline
 {
-    border-width: 2px;
     padding: .3em .5em;
     word-wrap: break-word;
     overflow: auto;
     position: relative;
+    transition: border-color 0.5s;
+
+    &.k-editor {
+        border: 1px solid transparent;
+    }
 }
 
 .k-editortoolbar-dragHandle
@@ -152,11 +156,6 @@ table.k-editor
     vertical-align: middle;
 }
 
-.k-button-group
-{
-    white-space: nowrap;
-}
-
 .k-button-group .k-tool {
     display: inline-block;
     vertical-align: middle;
@@ -240,9 +239,10 @@ table.k-editor
 
 .k-editor-toolbar {
 
-    .k-button-group .k-state-disabled
+    .k-button-group .k-state-disabled,
+    .k-button-group.k-state-disabled
     {
-        display: none;
+        display: none !important;
     }
 
     .k-button-group .k-state-hover,
@@ -523,6 +523,23 @@ a.k-tool {
             display: none;
             opacity: 0.8;
         }
+    }
+}
+
+.k-editor-inline .k-table {
+    width: 100%;
+    border-spacing: 0;
+    margin: 0 0 1em;
+
+    &,
+    & td {
+        outline: 0;
+        border: 1px dotted #ccc;
+    }
+
+    td {
+        min-width: 1px;
+        padding: .2em .3em;
     }
 }
 

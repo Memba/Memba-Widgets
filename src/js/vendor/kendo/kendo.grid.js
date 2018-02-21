@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2299,6 +2299,12 @@
                     this.wrapper.addClass('k-editable');
                     var mode = that._editMode();
                     if (mode === 'incell') {
+                        that.table.add(that.lockedTable).on(kendo.support.touch ? 'touchstart' + NS : 'mousedown' + NS, NAVROW + '>' + NAVCELL, function (e) {
+                            var target = $(e.target);
+                            if (that._editMode() === 'incell' && target.hasClass('k-checkbox-label') && target.prev().attr(kendo.attr('bind'))) {
+                                e.preventDefault();
+                            }
+                        });
                         if (editable.update !== false) {
                             that.wrapper.on(CLICK + NS, 'tr:not(.k-grouping-row) > td', function (e) {
                                 var td = $(this), isLockedCell = that.lockedTable && td.closest('table')[0] === that.lockedTable[0];
@@ -4916,7 +4922,7 @@
                         };
                     });
                     selectable = that.options.selectable;
-                    if (selectable && row.hasClass('k-state-selected')) {
+                    if ((selectable || that._checkBoxSelection) && row.hasClass('k-state-selected')) {
                         that.select(tmp);
                     }
                     originalCells = selectableRow.children(':not(.k-group-cell,.k-hierarchy-cell)');
@@ -7086,9 +7092,6 @@
             }
             if (target.is('a.k-i-expand, a.k-i-collapse')) {
                 return;
-            }
-            if (this._editMode() === 'incell' && target.hasClass('k-checkbox-label') && target.prev().attr(kendo.attr('bind'))) {
-                e.preventDefault();
             }
             if (this.options.navigatable) {
                 this._setCurrent(currentTarget);

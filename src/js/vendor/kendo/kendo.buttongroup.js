@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -171,20 +171,22 @@
             },
             badge: function (item, value) {
                 var buttongroup = this.element;
+                var button = !isNaN(item) ? buttongroup.children().eq(item) : buttongroup.find(item);
+                var validValue = value || value === 0;
                 var badge;
-                value = kendo.htmlEncode(value);
-                if (!isNaN(item)) {
-                    item = buttongroup.children().get(item);
+                if (!button.length) {
+                    return;
                 }
-                item = buttongroup.find(item);
-                badge = $(item.children('.k-badge')[0] || createBadge(value, item));
-                if (value || value === 0) {
-                    badge.html(value);
-                    return this;
+                badge = button.children('.k-badge').eq(0);
+                if (!badge.length && validValue) {
+                    createBadge(kendo.htmlEncode(value), button);
+                    return kendo.htmlEncode(value);
                 }
-                if (value === false) {
+                if (validValue) {
+                    badge.html(kendo.htmlEncode(value));
+                } else if (value === false) {
                     badge.empty().remove();
-                    return this;
+                    return;
                 }
                 return badge.html();
             },

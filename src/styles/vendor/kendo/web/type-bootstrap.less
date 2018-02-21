@@ -104,7 +104,6 @@
 @error-text-color: lighten(@normal-text-color, 22%);
 @error-background-color: darken(@base, 3%);
 @error-border-color: darken(@background, 14%);
-@disabled-text-color: darken(@base, 29%);
 @notification-info-background-color: @info;
 @notification-info-text-color: darken(@info, 50%);
 @notification-info-border-color: darken(@info, 10%);
@@ -188,6 +187,7 @@
 @window-shadow-style: 1px 1px 7px 1px;
 @filter-menu-content-background: @background;
 @icon-background-color: transparent;
+@disabled-text-color: darken(@base, 29%);
 @disabled-background-color: @background;
 @disabled-border-color: darken(@base, 12%);
 @disabled-gradient: none;
@@ -1046,11 +1046,6 @@ div.k-filebrowser-dropzone em
     color: @error-text-color;
 }
 
-.k-state-disabled
-{
-    opacity: .7;
-}
-
 .k-ie11,
 .k-edge {
     .k-select,
@@ -1591,12 +1586,17 @@ div.k-filebrowser-dropzone em
     border-radius: @border-radius 0 0 @border-radius;
 }
 
-.k-toolbar:not(.k-spreadsheet-toolbar) .k-button-group {
+.k-overflow-container {
 
-    .k-button:focus {
-        border-color: @button-focused-border-color;
+    .k-button-group .k-button {
+        border-radius: @border-radius;
+    }
+
+    .k-separator {
+        border-color: @secondary-border-color;
     }
 }
+
 
 .k-group-start.k-group-end.k-tool
 {
@@ -2111,6 +2111,15 @@ html .km-pane-wrapper .km-widget,
     box-shadow: inset 0 1px 0 lighten(@secondary-border-color, 30%);
 }
 
+.k-toolbar:not(.k-spreadsheet-toolbar) {
+
+     .k-button-group .k-button:focus,
+     .k-button.k-state-disabled:focus {
+        border-color: @button-focused-border-color;
+        .box-shadow(@button-focused-shadow);
+    }
+}
+
 .k-column-menu .k-separator
 {
     border-color: @secondary-border-color;
@@ -2200,20 +2209,6 @@ html .km-pane-wrapper .km-widget,
 .k-scheduler-table .k-state-hover .k-icon
 {
     background-color: transparent;
-}
-
-.k-split-button:focus {
-    outline: none;
-}
-
-.k-split-button:focus {
-    background-color: @button-background-color;
-    box-shadow: 0 0 8px 0 lighten(@accent, 13%);
-}
-
-.k-split-button:focus > .k-button {
-    background: transparent;
-    border-color: @button-focused-border-color;
 }
 
 .k-editor .k-tool:focus
@@ -2687,15 +2682,11 @@ thead.k-grid-header th.k-header:last-child
     .box-shadow(inset @focused-shadow);
 }
 
-.k-split-container .k-button.k-state-active:hover,
-.k-overflow-container .k-button.k-state-active:hover,
 .k-panelbar > li > .k-link.k-state-selected
 {
     color: @selected-text-color;
 }
 
-.k-split-container .k-button.k-state-active,
-.k-overflow-container .k-button.k-state-active,
 .k-panelbar .k-link.k-state-selected.k-state-hover
 {
     color: @hover-text-color;
@@ -3198,8 +3189,6 @@ td.k-state-focused.k-state-selected,
         }
     }
     a.k-dialog-action.k-dialog-close {
-        width: 2em;
-        height: 2em;
         cursor: pointer;
         z-index: 10000;
     }
@@ -3217,36 +3206,15 @@ td.k-state-focused.k-state-selected,
     }
     .k-dialog-buttongroup {
         &.k-dialog-button-layout-stretched {
-            width: 100%;
             .k-button {
-                display: inline-block;
-                padding: 0.9em 0 0.9em 0;
-                border-radius: 0;
-                border-bottom: 0;
-                border-width: 1px 0 0 1px;
+                padding: 12px;
                 border-color: @button-hover-background-color;
-            }
-            .k-button:first-child {
-            border-bottom-left-radius: @border-radius;
-            border-left: 0;
-            }
-            .k-button:last-child {
-                border-bottom-right-radius: @border-radius;
-                border-right: 0;
             }
         }
         &.k-dialog-button-layout-normal {
-            width: auto;
-            padding: 1em;
-            text-align: right;
             border-top: 1px solid @button-hover-background-color;
+            border-radius: @border-radius;
             // border-top: 1px solid @widget-border-color;
-            .k-button {
-                margin-left: 0.5em;
-                &:first-child {
-                margin-left: 0;
-                }
-            }
         }
     }
 }

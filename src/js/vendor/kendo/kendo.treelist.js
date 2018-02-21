@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -162,6 +162,7 @@
         var LASTITEMROW = 'tr:not(.k-footer-template):visible:last';
         var HEADERCELL = 'th:visible';
         var isRtl = false;
+        var HEIGHT = 'height';
         var classNames = {
             wrapper: 'k-treelist k-grid k-widget k-display-block',
             header: 'k-header',
@@ -1045,7 +1046,7 @@
                 var toolbar = element.find(DOT + classNames.gridToolbar);
                 var height;
                 var scrollbar = kendo.support.scrollbar();
-                element.height(this.options.height);
+                element.css(HEIGHT, this.options.height);
                 var isHeightSet = function (el) {
                     var initialHeight, newHeight;
                     if (el[0].style.height) {
@@ -1422,20 +1423,30 @@
                 }
             },
             _handleExpand: function (current) {
+                var that = this;
                 var row = current.parent();
+                var model = that.dataItem(row);
                 if (current.hasClass('k-header')) {
                     return false;
                 }
-                this.expand(row);
-                return true;
+                if (model && model.hasChildren && !model.expanded && !that.trigger(EXPAND, { model: model })) {
+                    this.expand(row);
+                    return true;
+                }
+                return false;
             },
             _handleCollapse: function (current) {
+                var that = this;
                 var row = current.parent();
+                var model = that.dataItem(row);
                 if (current.hasClass('k-header')) {
                     return false;
                 }
-                this.collapse(row);
-                return true;
+                if (model && model.hasChildren && model.expanded && !that.trigger(COLLAPSE, { model: model })) {
+                    that.collapse(row);
+                    return true;
+                }
+                return false;
             },
             _handleHome: function (current, ctrl) {
                 var row = current.parent();

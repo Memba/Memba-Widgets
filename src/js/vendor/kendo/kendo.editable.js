@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -44,6 +44,7 @@
     };
     (function ($, undefined) {
         var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, oldIE = kendo.support.browser.msie && kendo.support.browser.version < 9, isFunction = kendo.isFunction, isPlainObject = $.isPlainObject, inArray = $.inArray, nameSpecialCharRegExp = /("|\%|'|\[|\]|\$|\.|\,|\:|\;|\+|\*|\&|\!|\#|\(|\)|<|>|\=|\?|\@|\^|\{|\}|\~|\/|\||`)/g, ERRORTEMPLATE = '<div class="k-widget k-tooltip k-tooltip-validation" style="margin:0.5em"><span class="k-icon k-i-warning"> </span>' + '#=message#<div class="k-callout k-callout-n"></div></div>', CHANGE = 'change';
+        var EQUAL_SET = 'equalSet';
         var specialRules = [
             'url',
             'email',
@@ -202,6 +203,7 @@
                 });
                 Widget.fn.destroy.call(that);
                 that.options.model.unbind('set', that._validateProxy);
+                that.options.model.unbind(EQUAL_SET, that._validateProxy);
                 kendo.unbind(that.element);
                 if (that.validatable) {
                     that.validatable.destroy();
@@ -248,6 +250,8 @@
                 kendo.bind(container, that.options.model);
                 that.options.model.unbind('set', that._validateProxy);
                 that.options.model.bind('set', that._validateProxy);
+                that.options.model.unbind(EQUAL_SET, that._validateProxy);
+                that.options.model.bind(EQUAL_SET, that._validateProxy);
                 that.validatable = new kendo.ui.Validator(container, {
                     validateOnBlur: false,
                     errorTemplate: that.options.errorTemplate || undefined,

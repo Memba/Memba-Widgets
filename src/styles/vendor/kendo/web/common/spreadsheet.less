@@ -107,7 +107,6 @@
         border-width: 0 0 1px;
         border-style: solid;
         position: relative;
-        .force-font();
 
         display: table;
         width: 100%;
@@ -115,6 +114,7 @@
         .k-spreadsheet-name-editor,
         .k-spreadsheet-formula-bar {
             display: table-cell;
+            vertical-align: middle;
         }
 
         .k-spreadsheet-name-editor {
@@ -179,9 +179,6 @@
 
         .k-spreadsheet-formula-input {
             overflow: hidden;
-            height: (@input-height + .354em);
-            max-height: (@input-height + .354em);
-            line-height: @input-height;
             text-indent: @input-indent;
             border: 0;
             margin: 0;
@@ -505,8 +502,6 @@ div.k-spreadsheet-window {
 
     .k-list-wrapper {
         padding: .15em 0;
-        border-width: 1px;
-        border-style: solid;
         height: 190px;
     }
 
@@ -528,7 +523,9 @@ div.k-spreadsheet-window {
     }
 
     .k-action-buttons {
-        padding: 1em;
+        top: 10px;
+        padding: 10px;
+        margin-bottom: calc(10px - 1em);
     }
 
     .k-edit-label {
@@ -888,6 +885,7 @@ div.k-spreadsheet-window {
 .k-spreadsheet-sheets-bar .k-spreadsheet-sheets-remove {
     padding: 0;
     margin: .5em .5em .5em -.5em;
+    vertical-align: middle;
 
     .k-button-icon {
         padding: 2px;

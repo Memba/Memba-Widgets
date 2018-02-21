@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -240,7 +240,7 @@
                     };
                 var defaultFilters = [that._defaultFilter()];
                 var defaultOperator = that._defaultFilter().operator;
-                if (that.options.extra || defaultOperator !== 'isnull' && defaultOperator !== 'isnotnull') {
+                if (that.options.extra || defaultOperator !== 'isnull' && defaultOperator !== 'isnullorempty' && defaultOperator !== 'isnotnullorempty' && defaultOperator !== 'isnotnull') {
                     defaultFilters.push(that._defaultFilter());
                 }
                 that.filterModel = kendo.observable({
@@ -303,7 +303,7 @@
             },
             _stripFilters: function (filters) {
                 return $.grep(filters, function (filter) {
-                    return filter.value !== '' && filter.value != null || (filter.operator === 'isnull' || filter.operator === 'isnotnull' || filter.operator === 'isempty' || filter.operator === 'isnotempty');
+                    return filter.value !== '' && filter.value != null || (filter.operator === 'isnull' || filter.operator === 'isnotnull' || filter.operator === 'isempty' || filter.operator === 'isnotempty' || filter.operator == 'isnullorempty' || filter.operator == 'isnotnullorempty');
                 });
             },
             _merge: function (expression) {
@@ -401,11 +401,11 @@
                 var operator;
                 if (expression.filters[0]) {
                     operator = expression.filters[0].operator;
-                    firstNullOrEmpty = operator == 'isnull' || operator == 'isnotnull' || operator == 'isnotempty' || operator == 'isempty';
+                    firstNullOrEmpty = operator == 'isnull' || operator == 'isnotnull' || operator == 'isnotempty' || operator == 'isempty' || operator == 'isnullorempty' || operator == 'isnotnullorempty';
                 }
                 if (expression.filters[1]) {
                     operator = expression.filters[1].operator;
-                    secondNullOrEmpty = operator == 'isnull' || operator == 'isnotnull' || operator == 'isnotempty' || operator == 'isempty';
+                    secondNullOrEmpty = operator == 'isnull' || operator == 'isnotnull' || operator == 'isnotempty' || operator == 'isempty' || operator == 'isnullorempty' || operator == 'isnotnullorempty';
                 }
                 return !this.options.extra && firstNullOrEmpty || this.options.extra && (firstNullOrEmpty || secondNullOrEmpty);
             },
@@ -477,7 +477,9 @@
                         isnull: 'Is null',
                         isnotnull: 'Is not null',
                         isempty: 'Is empty',
-                        isnotempty: 'Is not empty'
+                        isnotempty: 'Is not empty',
+                        isnullorempty: 'Has no value',
+                        isnotnullorempty: 'Has value'
                     },
                     number: {
                         eq: EQ,

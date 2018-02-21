@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -11923,6 +11923,7 @@
                 this._instance.applyOptions(options, this._getThemeOptions(options));
                 this.options = this._instance.options;
                 this._tooltip.setOptions(this.options.tooltip);
+                this._seriesVisibility.setOptions(this.options);
                 this._sourceSeries = null;
                 if (dataSource) {
                     chart.setDataSource(dataSource);
@@ -12039,6 +12040,7 @@
             _initChart: function () {
                 this._createChart(this.options, this._getThemeOptions(this.options));
                 this.options = this._instance.options;
+                this._seriesVisibility.setOptions(this.options);
             },
             _createChart: function (options, themeOptions) {
                 this._instance = new KendoChart(this.element[0], options, themeOptions, {
@@ -12167,6 +12169,7 @@
             },
             _bindData: function (e) {
                 var chart = this, options = chart.options, series = chart._sourceSeries || options.series, seriesIx, seriesLength = series.length, data = chart.dataSource.view(), grouped = (chart.dataSource.group() || []).length > 0, processedSeries = [], seriesVisibility = this._seriesVisibility, currentSeries, groupedSeries;
+                seriesVisibility.read();
                 for (seriesIx = 0; seriesIx < seriesLength; seriesIx++) {
                     currentSeries = series[seriesIx];
                     if (chart._isBindable(currentSeries) && grouped) {
@@ -12326,9 +12329,10 @@
             init: function () {
                 this.groups = {};
                 this.index = {};
+                this.options = {};
             },
             applyByGroup: function (series, e) {
-                if (e && e.action) {
+                if (e && e.action || this.options.persistSeriesVisibility) {
                     for (var idx = 0; idx < series.length; idx++) {
                         if (this.groups[series[idx]._groupValue] === false) {
                             series[idx].visible = false;
@@ -12339,7 +12343,7 @@
                 }
             },
             applyByIndex: function (series, e) {
-                if (e && e.action) {
+                if (e && e.action || this.options.persistSeriesVisibility) {
                     if (this.index[series.index] === false) {
                         series.visible = false;
                     }
@@ -12351,6 +12355,27 @@
                 if (!series) {
                     return;
                 }
+                if (this.options.persistSeriesVisibility) {
+                    this.options.series[series.index].visible = series.visible;
+                } else {
+                    this.saveState(series);
+                }
+            },
+            setOptions: function (options) {
+                this.options = options;
+                this.groups = {};
+                this.index = {};
+            },
+            read: function () {
+                var options = this.options;
+                if (options.persistSeriesVisibility) {
+                    var series = options.series;
+                    for (var idx = 0; idx < series.length; idx++) {
+                        this.saveState(series[idx]);
+                    }
+                }
+            },
+            saveState: function (series) {
                 if (defined(series._groupValue)) {
                     this.groups[series._groupValue] = series.visible;
                 } else {

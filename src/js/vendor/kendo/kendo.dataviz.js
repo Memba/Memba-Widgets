@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2018.1.117'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2018.1.221'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -2237,7 +2237,7 @@
                 value = true;
             } else if (value === 'false') {
                 value = false;
-            } else if (numberRegExp.test(value)) {
+            } else if (numberRegExp.test(value) && option != 'mask') {
                 value = parseFloat(value);
             } else if (jsonRegExp.test(value) && !jsonFormatRegExp.test(value)) {
                 value = new Function('return (' + value + ')')();
@@ -6249,6 +6249,11 @@
                                 that.dirtyFields[field] = false;
                             }
                         }
+                    } else {
+                        that.trigger('equalSet', {
+                            field: field,
+                            value: value
+                        });
                     }
                 }
             },
@@ -6555,6 +6560,12 @@
                 },
                 isnotnull: function (a) {
                     return '(' + a + ' != null)';
+                },
+                isnullorempty: function (a) {
+                    return '(' + a + ' === null) || (' + a + ' === \'\')';
+                },
+                isnotnullorempty: function (a) {
+                    return '(' + a + ' !== null) && (' + a + ' !== \'\')';
                 }
             };
         }();
@@ -8133,6 +8144,9 @@
                         return;
                     }
                     that._total = that.reader.total(data);
+                    if (that._pageSize > that._total) {
+                        that._pageSize = that._total;
+                    }
                     if (that._aggregate && options.serverAggregates) {
                         that._aggregateResult = that._readAggregates(data);
                     }
@@ -8684,39 +8698,12 @@
                 this._currentRequestTimeStamp = this._timeStamp();
                 this._skipRequestsInProgress = true;
                 skip = math.min(skip || 0, this.total());
+                callback = isFunction(callback) ? callback : noop;
                 var that = this, pageSkip = math.max(math.floor(skip / take), 0) * take, size = math.min(pageSkip + take, that.total()), data;
                 data = that._findRange(skip, math.min(skip + take, that.total()));
-                if (data.length) {
-                    that._pending = undefined;
-                    that._skip = skip > that.skip() ? math.min(size, (that.totalPages() - 1) * that.take()) : pageSkip;
-                    that._currentRangeStart = skip;
-                    that._take = take;
-                    var paging = that.options.serverPaging;
-                    var sorting = that.options.serverSorting;
-                    var filtering = that.options.serverFiltering;
-                    var aggregates = that.options.serverAggregates;
-                    try {
-                        that.options.serverPaging = true;
-                        if (!that._isServerGrouped() && !(that.group() && that.group().length)) {
-                            that.options.serverSorting = true;
-                        }
-                        that.options.serverFiltering = true;
-                        that.options.serverPaging = true;
-                        that.options.serverAggregates = true;
-                        if (paging) {
-                            that._detachObservableParents();
-                            that._data = data = that._observe(data);
-                        }
-                        that._process(data);
-                    } finally {
-                        that.options.serverPaging = paging;
-                        that.options.serverSorting = sorting;
-                        that.options.serverFiltering = filtering;
-                        that.options.serverAggregates = aggregates;
-                    }
-                    if (isFunction(callback)) {
-                        callback();
-                    }
+                if (data.length || that.total() === 0) {
+                    that._processRangeData(data, skip, take, pageSkip, size);
+                    callback();
                     return;
                 }
                 if (take !== undefined) {
@@ -8794,6 +8781,36 @@
                     return data.concat(temp);
                 }
                 return data.concat(range.slice(skip, take));
+            },
+            _processRangeData: function (data, skip, take, pageSkip, size) {
+                var that = this;
+                that._pending = undefined;
+                that._skip = skip > that.skip() ? math.min(size, (that.totalPages() - 1) * that.take()) : pageSkip;
+                that._currentRangeStart = skip;
+                that._take = take;
+                var paging = that.options.serverPaging;
+                var sorting = that.options.serverSorting;
+                var filtering = that.options.serverFiltering;
+                var aggregates = that.options.serverAggregates;
+                try {
+                    that.options.serverPaging = true;
+                    if (!that._isServerGrouped() && !(that.group() && that.group().length)) {
+                        that.options.serverSorting = true;
+                    }
+                    that.options.serverFiltering = true;
+                    that.options.serverPaging = true;
+                    that.options.serverAggregates = true;
+                    if (paging) {
+                        that._detachObservableParents();
+                        that._data = data = that._observe(data);
+                    }
+                    that._process(data);
+                } finally {
+                    that.options.serverPaging = paging;
+                    that.options.serverSorting = sorting;
+                    that.options.serverFiltering = filtering;
+                    that.options.serverAggregates = aggregates;
+                }
             },
             skip: function () {
                 var that = this;
@@ -13797,7 +13814,7 @@
             },
             _focusableElements: function () {
                 var elements = this.element.find(focusableNodesSelector).filter(function (i, item) {
-                    return item.tabIndex >= 0 && $(item).is(':visible') && !$(item).is(':disabled');
+                    return item.tabIndex >= 0 && $(item).is(':visible') && !$(item).is('[disabled]');
                 });
                 if (this.element.is('[tabindex]')) {
                     elements.push(this.element[0]);
@@ -44249,6 +44266,7 @@
                 this._instance.applyOptions(options, this._getThemeOptions(options));
                 this.options = this._instance.options;
                 this._tooltip.setOptions(this.options.tooltip);
+                this._seriesVisibility.setOptions(this.options);
                 this._sourceSeries = null;
                 if (dataSource) {
                     chart.setDataSource(dataSource);
@@ -44365,6 +44383,7 @@
             _initChart: function () {
                 this._createChart(this.options, this._getThemeOptions(this.options));
                 this.options = this._instance.options;
+                this._seriesVisibility.setOptions(this.options);
             },
             _createChart: function (options, themeOptions) {
                 this._instance = new KendoChart(this.element[0], options, themeOptions, {
@@ -44493,6 +44512,7 @@
             },
             _bindData: function (e) {
                 var chart = this, options = chart.options, series = chart._sourceSeries || options.series, seriesIx, seriesLength = series.length, data = chart.dataSource.view(), grouped = (chart.dataSource.group() || []).length > 0, processedSeries = [], seriesVisibility = this._seriesVisibility, currentSeries, groupedSeries;
+                seriesVisibility.read();
                 for (seriesIx = 0; seriesIx < seriesLength; seriesIx++) {
                     currentSeries = series[seriesIx];
                     if (chart._isBindable(currentSeries) && grouped) {
@@ -44652,9 +44672,10 @@
             init: function () {
                 this.groups = {};
                 this.index = {};
+                this.options = {};
             },
             applyByGroup: function (series, e) {
-                if (e && e.action) {
+                if (e && e.action || this.options.persistSeriesVisibility) {
                     for (var idx = 0; idx < series.length; idx++) {
                         if (this.groups[series[idx]._groupValue] === false) {
                             series[idx].visible = false;
@@ -44665,7 +44686,7 @@
                 }
             },
             applyByIndex: function (series, e) {
-                if (e && e.action) {
+                if (e && e.action || this.options.persistSeriesVisibility) {
                     if (this.index[series.index] === false) {
                         series.visible = false;
                     }
@@ -44677,6 +44698,27 @@
                 if (!series) {
                     return;
                 }
+                if (this.options.persistSeriesVisibility) {
+                    this.options.series[series.index].visible = series.visible;
+                } else {
+                    this.saveState(series);
+                }
+            },
+            setOptions: function (options) {
+                this.options = options;
+                this.groups = {};
+                this.index = {};
+            },
+            read: function () {
+                var options = this.options;
+                if (options.persistSeriesVisibility) {
+                    var series = options.series;
+                    for (var idx = 0; idx < series.length; idx++) {
+                        this.saveState(series[idx]);
+                    }
+                }
+            },
+            saveState: function (series) {
                 if (defined(series._groupValue)) {
                     this.groups[series._groupValue] = series.visible;
                 } else {
@@ -52611,7 +52653,8 @@
                     visible: true
                 },
                 tooltip: { visible: true },
-                legend: { visible: false }
+                legend: { visible: false },
+                persistSeriesVisibility: true
             },
             _createChart: function (options, themeOptions) {
                 this._initNavigatorOptions(options);
@@ -52669,13 +52712,20 @@
                     }
                 }
             },
-            _onNavigatorDataChanged: function () {
-                var chart = this, instance = chart._instance, series = chart.options.series, seriesIx, seriesLength = series.length, categoryAxes = chart.options.categoryAxis, axisIx, axesLength = categoryAxes.length, data = chart._navigatorDataSource.view(), currentSeries, currentAxis, naviCategories;
+            _bindNavigatorSeries: function (series, data) {
+                var seriesIx, currentSeries, seriesLength = series.length;
                 for (seriesIx = 0; seriesIx < seriesLength; seriesIx++) {
                     currentSeries = series[seriesIx];
-                    if (currentSeries.axis == NAVIGATOR_AXIS && chart._isBindable(currentSeries)) {
+                    if (currentSeries.axis == NAVIGATOR_AXIS && this._isBindable(currentSeries)) {
                         currentSeries.data = data;
                     }
+                }
+            },
+            _onNavigatorDataChanged: function () {
+                var chart = this, instance = chart._instance, categoryAxes = chart.options.categoryAxis, axisIx, axesLength = categoryAxes.length, data = chart._navigatorDataSource.view(), currentAxis, naviCategories;
+                this._bindNavigatorSeries(chart.options.series, data);
+                if (chart._sourceSeries) {
+                    this._bindNavigatorSeries(chart._sourceSeries, data);
                 }
                 for (axisIx = 0; axisIx < axesLength; axisIx++) {
                     currentAxis = categoryAxes[axisIx];
@@ -64548,13 +64598,16 @@
                 this.element.remove();
             },
             toggle: function () {
-                this.popup.toggle();
+                if (this.options.enable || this.popup.visible()) {
+                    this.popup.toggle();
+                }
             },
             enable: function (isEnabled) {
                 if (isEnabled === undefined) {
                     isEnabled = true;
                 }
                 this.mainButton.enable(isEnabled);
+                this.element.toggleClass(STATE_DISABLED, !isEnabled);
                 this.options.enable = isEnabled;
             },
             focus: function () {
@@ -64702,7 +64755,9 @@
             return element.hasClass('km-actionsheet') ? element.closest('.km-popup-wrapper') : element.addClass('km-widget km-actionsheet').wrap('<div class="km-actionsheet-wrapper km-actionsheet-tablet km-widget km-popup"></div>').parent().wrap('<div class="km-popup-wrapper k-popup"></div>').parent();
         }
         function preventClick(e) {
-            e.preventDefault();
+            if ($(e.target).closest('a.k-button').length) {
+                e.preventDefault();
+            }
         }
         function findFocusableSibling(element, dir) {
             var getSibling = dir === 'next' ? $.fn.next : $.fn.prev;
@@ -64781,6 +64836,7 @@
                     for (var i = 0; i < options.items.length; i++) {
                         that.add(options.items[i]);
                     }
+                    that._shrink(that.element.innerWidth());
                 }
                 that.userEvents = new kendo.UserEvents(document, {
                     threshold: 5,
@@ -64881,13 +64937,7 @@
                         tool = new component.toolbar(options, that);
                     }
                     if (tool) {
-                        if (that.options.resizable) {
-                            tool.element.appendTo(that.element).css('visibility', 'hidden');
-                            that._shrink(that.element.innerWidth());
-                            tool.element.css('visibility', 'visible');
-                        } else {
-                            tool.element.appendTo(that.element);
-                        }
+                        tool.element.appendTo(that.element);
                         that.angular('compile', function () {
                             return { elements: tool.element.get() };
                         });
@@ -65148,9 +65198,10 @@
             },
             _navigatable: function () {
                 var that = this;
-                that.element.attr('tabindex', 0).focus(function () {
+                that.element.attr('tabindex', 0).on('focusin', function (ev) {
+                    var target = $(ev.target);
                     var element = $(this).find(':kendoFocusable:first');
-                    if (element.length === 0) {
+                    if (!target.is('.' + TOOLBAR) || element.length === 0) {
                         return;
                     }
                     if (element.is('.' + OVERFLOW_ANCHOR)) {
@@ -65951,7 +66002,7 @@
                         return +that._validateValue(new Date(value.setHours(0, 0, 0, 0))) === +value;
                     }
                 });
-                that._selectDates = validSelectedDates.length > 0 ? validSelectedDates : that._selectDates;
+                that._selectDates = validSelectedDates.length > 0 ? validSelectedDates : datesUnique.length === 0 ? datesUnique : that._selectDates;
                 that._visualizeSelectedDatesInView();
             },
             value: function (value) {
@@ -67814,7 +67865,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, parse = kendo.parseDate, keys = kendo.keys, template = kendo.template, activeElement = kendo._activeElement, DIV = '<div />', SPAN = '<span />', ns = '.kendoDatePicker', CLICK = 'click' + ns, OPEN = 'open', CLOSE = 'close', CHANGE = 'change', DISABLED = 'disabled', READONLY = 'readonly', DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', STATEDISABLED = 'k-state-disabled', HOVER = 'k-state-hover', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, MOUSEDOWN = 'mousedown' + ns, ID = 'id', MIN = 'min', MAX = 'max', MONTH = 'month', ARIA_DISABLED = 'aria-disabled', ARIA_EXPANDED = 'aria-expanded', ARIA_HIDDEN = 'aria-hidden', calendar = kendo.calendar, isInRange = calendar.isInRange, restrictValue = calendar.restrictValue, isEqualDatePart = calendar.isEqualDatePart, extend = $.extend, proxy = $.proxy, DATE = Date;
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, parse = kendo.parseDate, keys = kendo.keys, support = kendo.support, template = kendo.template, activeElement = kendo._activeElement, DIV = '<div />', SPAN = '<span />', ns = '.kendoDatePicker', CLICK = 'click' + ns, UP = support.mouseAndTouchPresent ? kendo.applyEventMap('up', ns.slice(1)) : CLICK, OPEN = 'open', CLOSE = 'close', CHANGE = 'change', DISABLED = 'disabled', READONLY = 'readonly', DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', STATEDISABLED = 'k-state-disabled', HOVER = 'k-state-hover', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, MOUSEDOWN = 'mousedown' + ns, ID = 'id', MIN = 'min', MAX = 'max', MONTH = 'month', ARIA_DISABLED = 'aria-disabled', ARIA_EXPANDED = 'aria-expanded', ARIA_HIDDEN = 'aria-hidden', calendar = kendo.calendar, isInRange = calendar.isInRange, restrictValue = calendar.restrictValue, isEqualDatePart = calendar.isEqualDatePart, extend = $.extend, proxy = $.proxy, DATE = Date;
         function normalize(options) {
             var parseFormats = options.parseFormats, format = options.format;
             calendar.normalize(options);
@@ -68099,7 +68150,7 @@
                     element.removeAttr(DISABLED).removeAttr(READONLY).attr(ARIA_DISABLED, false).on('keydown' + ns, proxy(that._keydown, that)).on('focusout' + ns, proxy(that._blur, that)).on('focus' + ns, function () {
                         that._inputWrapper.addClass(FOCUSED);
                     });
-                    icon.on(CLICK, proxy(that._click, that)).on(MOUSEDOWN, preventDefault);
+                    icon.on(UP, proxy(that._click, that)).on(MOUSEDOWN, preventDefault);
                 } else {
                     wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);
                     element.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable);
@@ -68162,10 +68213,14 @@
                 }
                 that._inputWrapper.removeClass(FOCUSED);
             },
-            _click: function () {
-                var that = this, element = that.element;
+            _click: function (e) {
+                var that = this;
                 that.dateView.toggle();
-                if (!kendo.support.touch && element[0] !== activeElement()) {
+                that._focusElement(e.type);
+            },
+            _focusElement: function (eventType) {
+                var element = this.element;
+                if ((!support.touch || support.mouseAndTouchPresent && !(eventType || '').match(/touch/i)) && element[0] !== activeElement()) {
                     element.focus();
                 }
             },
@@ -68324,7 +68379,6 @@
                 options = that.options;
                 element = that.element.on('focusout' + ns, proxy(that._focusout, that)).attr('role', 'spinbutton');
                 options.placeholder = options.placeholder || element.attr('placeholder');
-                that._initialOptions = extend({}, options);
                 min = that.min(element.attr('min'));
                 max = that.max(element.attr('max'));
                 step = that._parse(element.attr('step'));
@@ -68337,6 +68391,7 @@
                 if (!isStep && step !== NULL) {
                     options.step = step;
                 }
+                that._initialOptions = extend({}, options);
                 that._reset();
                 that._wrapper();
                 that._arrows();
@@ -68427,6 +68482,22 @@
                     disable: !(enable = enable === undefined ? true : enable)
                 });
             },
+            setOptions: function (options) {
+                var that = this;
+                Widget.fn.setOptions.call(that, options);
+                that._arrowsWrap.toggle(that.options.spinners);
+                that._inputWrapper.toggleClass('k-expand-padding', !that.options.spinners);
+                that._text.prop('placeholder', that.options.placeholder);
+                that._placeholder(that.options.placeholder);
+                that.element.attr({
+                    'aria-valuemin': that.options.min !== NULL ? that.options.min * that.options.factor : that.options.min,
+                    'aria-valuemax': that.options.max !== NULL ? that.options.max * that.options.factor : that.options.max
+                });
+                that.options.format = extractFormat(that.options.format);
+                if (options.value !== undefined) {
+                    that.value(options.value);
+                }
+            },
             destroy: function () {
                 var that = this;
                 that.element.add(that._text).add(that._upArrow).add(that._downArrow).add(that._inputWrapper).off(ns);
@@ -68482,7 +68553,7 @@
                 arrows = element.siblings('.' + CLASS_ICON);
                 if (!arrows[0]) {
                     arrows = $(buttonHtml('increase', options.upArrowText) + buttonHtml('decrease', options.downArrowText)).insertAfter(element);
-                    arrows.wrapAll('<span class="k-select"/>');
+                    that._arrowsWrap = arrows.wrapAll('<span class="k-select"/>').parent();
                 }
                 if (!spinners) {
                     arrows.parent().toggle(spinners);
@@ -68663,7 +68734,7 @@
                 if (precision === NULL) {
                     precision = numberFormat.decimals;
                 }
-                if (precision === 0) {
+                if (precision === 0 && that.options.restrictDecimals) {
                     return INTEGER_REGEXP;
                 }
                 if (that.options.restrictDecimals) {
@@ -69173,6 +69244,7 @@
     };
     (function ($, undefined) {
         var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, oldIE = kendo.support.browser.msie && kendo.support.browser.version < 9, isFunction = kendo.isFunction, isPlainObject = $.isPlainObject, inArray = $.inArray, nameSpecialCharRegExp = /("|\%|'|\[|\]|\$|\.|\,|\:|\;|\+|\*|\&|\!|\#|\(|\)|<|>|\=|\?|\@|\^|\{|\}|\~|\/|\||`)/g, ERRORTEMPLATE = '<div class="k-widget k-tooltip k-tooltip-validation" style="margin:0.5em"><span class="k-icon k-i-warning"> </span>' + '#=message#<div class="k-callout k-callout-n"></div></div>', CHANGE = 'change';
+        var EQUAL_SET = 'equalSet';
         var specialRules = [
             'url',
             'email',
@@ -69331,6 +69403,7 @@
                 });
                 Widget.fn.destroy.call(that);
                 that.options.model.unbind('set', that._validateProxy);
+                that.options.model.unbind(EQUAL_SET, that._validateProxy);
                 kendo.unbind(that.element);
                 if (that.validatable) {
                     that.validatable.destroy();
@@ -69377,6 +69450,8 @@
                 kendo.bind(container, that.options.model);
                 that.options.model.unbind('set', that._validateProxy);
                 that.options.model.bind('set', that._validateProxy);
+                that.options.model.unbind(EQUAL_SET, that._validateProxy);
+                that.options.model.bind(EQUAL_SET, that._validateProxy);
                 that.validatable = new kendo.ui.Validator(container, {
                     validateOnBlur: false,
                     errorTemplate: that.options.errorTemplate || undefined,
@@ -70844,7 +70919,7 @@
                     filters: [],
                     logic: 'and'
                 };
-                if (isValidFilterExpr(filter)) {
+                if (isValidFilterExpr(filter) && $.trim(filter.value).length) {
                     newExpression.filters.push(filter);
                 }
                 if (isValidFilterExpr(expression)) {
@@ -71003,6 +71078,11 @@
                     if (!this._isFilterEnabled()) {
                         this._searchByWord(word);
                     } else {
+                        if ($.trim(word).length && this.listView) {
+                            this.listView._emptySearch = false;
+                        } else {
+                            this.listView._emptySearch = true;
+                        }
                         this._filter({
                             word: word,
                             open: true
@@ -71123,10 +71203,10 @@
                     trigger = true;
                 }
                 if (trigger) {
-                    if (that._old === null) {
-                        that._old = value;
+                    if (that._old === null || value === '') {
+                        that._valueBeforeCascade = that._old = value;
                     } else {
-                        that._old = that.dataItem() ? that.dataItem()[that.options.dataValueField] : null;
+                        that._valueBeforeCascade = that._old = that.dataItem() ? that.dataItem()[that.options.dataValueField] : null;
                     }
                     that._oldIndex = index;
                     if (!that._typing) {
@@ -71212,7 +71292,8 @@
                 list.css({
                     fontFamily: wrapper.css('font-family'),
                     width: this.options.autoWidth ? 'auto' : width,
-                    minWidth: width
+                    minWidth: width,
+                    whiteSpace: this.options.autoWidth ? 'nowrap' : 'normal'
                 }).data(WIDTH, width);
                 return true;
             },
@@ -71308,7 +71389,8 @@
             },
             _triggerCascade: function () {
                 var that = this;
-                if (!that._cascadeTriggered || that.value() !== unifyType(that._old, typeof that.value())) {
+                if (!that._cascadeTriggered || that.value() !== unifyType(that._cascadedValue, typeof that.value())) {
+                    that._cascadedValue = that.value();
                     that._cascadeTriggered = true;
                     that.trigger(CASCADE, { userTriggered: that._userTriggered });
                 }
@@ -71389,7 +71471,7 @@
                     return that.selectedIndex;
                 } else {
                     return that._select(candidate).done(function () {
-                        that._old = that._accessor();
+                        that._cascadeValue = that._old = that._accessor();
                         that._oldIndex = that.selectedIndex;
                     });
                 }
@@ -71558,10 +71640,10 @@
                             if (!that.popup.visible()) {
                                 that._blur();
                             }
-                            if (that._old === null) {
-                                that._old = that.value();
+                            if (that._cascadedValue === null) {
+                                that._cascadedValue = that.value();
                             } else {
-                                that._old = that.dataItem() ? that.dataItem()[that.options.dataValueField] : null;
+                                that._cascadedValue = that.dataItem() ? that.dataItem()[that.options.dataValueField] : null;
                             }
                         });
                     }
@@ -71719,6 +71801,9 @@
                     } else {
                         parent.one('dataBound', function () {
                             that._toggleCascadeOnFocus();
+                            if (parent.popup.visible()) {
+                                parent._focused.focus();
+                            }
                         });
                         if (!parent.value()) {
                             that.enable(false);
@@ -72321,7 +72406,7 @@
                     return;
                 }
                 var visibleItem = this._firstVisibleItem();
-                if (visibleItem) {
+                if (visibleItem && visibleItem.group) {
                     this.header.html(template(visibleItem.group));
                 }
             },
@@ -72421,7 +72506,7 @@
                             that.value(that._getValues(result.unchanged));
                         }
                     }
-                } else if (that.isFiltered() || that._skipUpdate) {
+                } else if (that.isFiltered() || that._skipUpdate || that._emptySearch) {
                     that.focus(0);
                     if (that._skipUpdate) {
                         that._skipUpdate = false;
@@ -73834,6 +73919,7 @@
                 that._ignoreCase();
                 that._filterHeader();
                 that._aria();
+                that.wrapper.attr('aria-live', 'polite');
                 that._enable();
                 that._oldIndex = that.selectedIndex = -1;
                 if (index !== undefined) {
@@ -73843,6 +73929,11 @@
                 that.requireValueMapper(that.options);
                 that._initList();
                 that._cascade();
+                that.one('set', function (e) {
+                    if (!e.sender.listView.bound() && that.hasOptionLabel()) {
+                        that._textAccessor(that._optionLabelText());
+                    }
+                });
                 if (options.autoBind) {
                     that.dataSource.fetch();
                 } else if (that.selectedIndex === -1) {
@@ -73890,7 +73981,8 @@
                 valueTemplate: null,
                 optionLabelTemplate: null,
                 groupTemplate: '#:data#',
-                fixedGroupTemplate: '#:data#'
+                fixedGroupTemplate: '#:data#',
+                autoWidth: false
             },
             events: [
                 'open',

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -79,6 +79,7 @@
                 that._ignoreCase();
                 that._filterHeader();
                 that._aria();
+                that.wrapper.attr('aria-live', 'polite');
                 that._enable();
                 that._oldIndex = that.selectedIndex = -1;
                 if (index !== undefined) {
@@ -88,6 +89,11 @@
                 that.requireValueMapper(that.options);
                 that._initList();
                 that._cascade();
+                that.one('set', function (e) {
+                    if (!e.sender.listView.bound() && that.hasOptionLabel()) {
+                        that._textAccessor(that._optionLabelText());
+                    }
+                });
                 if (options.autoBind) {
                     that.dataSource.fetch();
                 } else if (that.selectedIndex === -1) {
@@ -135,7 +141,8 @@
                 valueTemplate: null,
                 optionLabelTemplate: null,
                 groupTemplate: '#:data#',
-                fixedGroupTemplate: '#:data#'
+                fixedGroupTemplate: '#:data#',
+                autoWidth: false
             },
             events: [
                 'open',

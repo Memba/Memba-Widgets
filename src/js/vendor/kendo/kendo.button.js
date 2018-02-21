@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -79,7 +79,11 @@
                 }
             },
             _blur: function () {
-                this.element.removeClass(FOCUSEDSTATE);
+                var that = this;
+                that.element.removeClass(FOCUSEDSTATE);
+                setTimeout(function () {
+                    that.element.removeClass(SELECTEDSTATE);
+                });
             },
             _keydown: function (e) {
                 var that = this;

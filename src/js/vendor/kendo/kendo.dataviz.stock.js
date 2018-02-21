@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -910,7 +910,8 @@
                     visible: true
                 },
                 tooltip: { visible: true },
-                legend: { visible: false }
+                legend: { visible: false },
+                persistSeriesVisibility: true
             },
             _createChart: function (options, themeOptions) {
                 this._initNavigatorOptions(options);
@@ -968,13 +969,20 @@
                     }
                 }
             },
-            _onNavigatorDataChanged: function () {
-                var chart = this, instance = chart._instance, series = chart.options.series, seriesIx, seriesLength = series.length, categoryAxes = chart.options.categoryAxis, axisIx, axesLength = categoryAxes.length, data = chart._navigatorDataSource.view(), currentSeries, currentAxis, naviCategories;
+            _bindNavigatorSeries: function (series, data) {
+                var seriesIx, currentSeries, seriesLength = series.length;
                 for (seriesIx = 0; seriesIx < seriesLength; seriesIx++) {
                     currentSeries = series[seriesIx];
-                    if (currentSeries.axis == NAVIGATOR_AXIS && chart._isBindable(currentSeries)) {
+                    if (currentSeries.axis == NAVIGATOR_AXIS && this._isBindable(currentSeries)) {
                         currentSeries.data = data;
                     }
+                }
+            },
+            _onNavigatorDataChanged: function () {
+                var chart = this, instance = chart._instance, categoryAxes = chart.options.categoryAxis, axisIx, axesLength = categoryAxes.length, data = chart._navigatorDataSource.view(), currentAxis, naviCategories;
+                this._bindNavigatorSeries(chart.options.series, data);
+                if (chart._sourceSeries) {
+                    this._bindNavigatorSeries(chart._sourceSeries, data);
                 }
                 for (axisIx = 0; axisIx < axesLength; axisIx++) {
                     currentAxis = categoryAxes[axisIx];

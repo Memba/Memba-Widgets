@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -550,15 +550,15 @@ table.k-editor {
 
 .k-toolbar {
     padding: 0.42857143em;
-    @toolbar-button-padding: 14px;
 
     .k-button {
-        padding: @toolbar-button-padding 14px;
+        padding: @button-padding-x @button-padding-y;
+        border-radius: 0;
     }
     .k-button,
     .k-split-button {
-        margin-top: -0.42857143em;
-        margin-bottom: -0.42857143em;
+        margin-top: ~"calc(-0.42857143em - 1px)";
+        margin-bottom: ~"calc(-0.42857143em - 1px)";
     }
     .k-split-button .k-button {
         margin-top: 0;
@@ -567,8 +567,11 @@ table.k-editor {
 
     .k-button-icon,
     .k-split-button-arrow {
-        height: ~"calc(1.28571428em + (2*@{toolbar-button-padding}) + 2px)"; // ensure inline-flex height
-        width: ~"calc(1.28571428em + (2*@{toolbar-button-padding}) + 2px)";
+        height: ~"calc(1.28571428em + (2*@{button-padding-x}) + 2px)"; // ensure inline-flex height
+    }
+
+    .k-button-icon {
+        width: ~"calc(1.28571428em + (2*@{button-padding-x}) + 2px)";
     }
 
     & > .k-button:first-child:not(.k-overflow-anchor),
@@ -588,7 +591,7 @@ table.k-editor {
 }
 
 .k-toolbar .k-overflow-anchor {
-    border-width: 0;
+    border-width: 1px;
     width: 3.42em;
     padding: 0;
     margin: 0;
@@ -673,7 +676,8 @@ span.k-tooltip
 }
 
 .k-window-titlebar .k-window-actions {
-    right: 0.6em;
+    top: 0.3em;
+    right: 0.8em;
 }
 
 div.k-window {
@@ -681,8 +685,7 @@ div.k-window {
 }
 
 .k-window-title {
-    right: 1.143em;
-    left: 1.143em;
+    padding: 0 12px;
 }
 
 div.k-window-content {
@@ -997,7 +1000,8 @@ form.k-filter-menu .k-textbox {
 @checkbox-size: 16px;
 
 .k-checkbox-label,
-.k-radio-label {
+.k-radio-label,
+.k-checkbox-wrapper {
     line-height: 18px;
 }
 
@@ -1209,6 +1213,9 @@ div.k-spreadsheet-window {
         .k-task-draghandle {
             border-radius: 50% 0 50% 50%;
         }
+    }
+    .k-popup-edit-form .k-primary {
+        float: left;
     }
 }
 

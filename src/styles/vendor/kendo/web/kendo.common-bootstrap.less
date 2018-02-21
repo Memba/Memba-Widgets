@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -52,7 +52,7 @@
 }
 
 .k-tabstrip-items .k-link {
-    padding: .65em .92em;
+    padding: 8px .92em;
 }
 
 .k-tabstrip > .k-button {
@@ -61,6 +61,11 @@
     &.k-bare {
         top: 0;
     }
+}
+
+.k-tabstrip-bottom > .k-button.k-bare
+{
+    top: auto;
 }
 
 .k-tabstrip > .k-content,
@@ -218,7 +223,7 @@ input.k-textbox {
     bottom: 4px;
 }
 
-.k-spreadsheet .k-spreadsheet-sheets-bar {
+.k-spreadsheet .k-spreadsheet-sheets-bar .k-tabstrip-items {
     padding-bottom: 4px;
 }
 

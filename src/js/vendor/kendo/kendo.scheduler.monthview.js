@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2018.1.117 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2018.1.221 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2018 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -856,7 +856,7 @@
                         var collection = slotRange.collection;
                         var slot = collection.at(slotIndex);
                         if (slot.more) {
-                            return;
+                            continue;
                         }
                         slot.more = $(MORE_BUTTON_TEMPLATE({
                             ns: kendo.ns,

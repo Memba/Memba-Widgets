@@ -63,8 +63,8 @@
 
         // iterate all steps in the transform array
         for (idx = 0; idx < transform.length; idx++) {
-          // clone transform so our scan and replace can operate directly on cloned transform
-          clonedStep = JSON.parse(JSON.stringify(transform[idx]));
+          // clone transform so our scan/replace can operate directly on cloned transform
+          clonedStep = clone(transform[idx], "shallow-recurse-objects");
           resolvedTransform.push(Utils.resolveTransformObject(clonedStep, params));
         }
 
@@ -399,6 +399,7 @@
         return aeqHelper(a, b);
       },
 
+      // loki comparisons: return identical unindexed results as indexed comparisons
       $gt: function (a, b) {
         return gtHelper(a, b, false);
       },
@@ -415,10 +416,32 @@
         return ltHelper(a, b, true);
       },
 
+      // lightweight javascript comparisons
+      $jgt: function (a, b) {
+        return a > b;
+      },
+
+      $jgte: function (a, b) {
+        return a >= b;
+      },
+
+      $jlt: function (a, b) {
+        return a < b;
+      },
+
+      $jlte: function (a, b) {
+        return a <= b;
+      },
+
       // ex : coll.find({'orderCount': {$between: [10, 50]}});
       $between: function (a, vals) {
         if (a === undefined || a === null) return false;
         return (gtHelper(a, vals[0], true) && ltHelper(a, vals[1], true));
+      },
+
+      $jbetween: function (a, vals) {
+        if (a === undefined || a === null) return false;
+        return (a >= vals[0] && a <= vals[1]);
       },
 
       $in: function (a, b) {
@@ -575,6 +598,17 @@
         // should be supported by newer environments/browsers
         cloned = Object.create(data.constructor.prototype);
         Object.assign(cloned, data);
+        break;
+      case "shallow-recurse-objects":
+        // shallow clone top level properties
+        cloned = clone(data, "shallow");
+        var keys = Object.keys(data);
+        // for each of the top level properties which are object literals, recursively shallow copy
+        keys.forEach(function(key) {
+          if (typeof data[key] === "object" && data[key].constructor.name === "Object")  {
+            cloned[key] = clone(data[key], "shallow-recurse-objects");
+          }
+        });
         break;
       default:
         break;
@@ -990,15 +1024,39 @@
      * @param {array=} [options.exact=[]] - array of property names to define exact constraints for
      * @param {array=} [options.indices=[]] - array property names to define binary indexes for
      * @param {boolean} [options.asyncListeners=false] - whether listeners are called asynchronously
+     * @param {boolean} [options.disableMeta=false] - set to true to disable meta property on documents
      * @param {boolean} [options.disableChangesApi=true] - set to false to enable Changes Api
+     * @param {boolean} [options.disableDeltaChangesApi=true] - set to false to enable Delta Changes API (requires Changes API, forces cloning)
      * @param {boolean} [options.autoupdate=false] - use Object.observe to update objects automatically
      * @param {boolean} [options.clone=false] - specify whether inserts and queries clone to/from user
      * @param {string} [options.cloneMethod='parse-stringify'] - 'parse-stringify', 'jquery-extend-deep', 'shallow, 'shallow-assign'
-     * @param {int} options.ttlInterval - time interval for clearing out 'aged' documents; not set by default.
+     * @param {int=} options.ttl - age of document (in ms.) before document is considered aged/stale.
+     * @param {int=} options.ttlInterval - time interval for clearing out 'aged' documents; not set by default.
      * @returns {Collection} a reference to the collection which was just added
      * @memberof Loki
      */
     Loki.prototype.addCollection = function (name, options) {
+      var i,
+        len = this.collections.length;
+
+      if (options && options.disableMeta === true) {
+        if (options.disableChangesApi === false) {
+          throw new Error("disableMeta option cannot be passed as true when disableChangesApi is passed as false");
+        }
+        if (options.disableDeltaChangesApi === false) {
+          throw new Error("disableMeta option cannot be passed as true when disableDeltaChangesApi is passed as false");
+        }
+        if (typeof options.ttl === "number" && options.ttl > 0) {
+          throw new Error("disableMeta option cannot be passed as true when ttl is enabled");
+        }
+      }
+
+      for (i = 0; i < len; i += 1) {
+        if (this.collections[i].name === name) {
+          return this.collections[i];
+        }
+      }
+
       var collection = new Collection(name, options);
       this.collections.push(collection);
 
@@ -1053,6 +1111,11 @@
       return c;
     };
 
+    /**
+     * Returns a list of collections in the database.
+     * @returns {object[]} array of objects containing 'name', 'type', and 'count' properties.
+     * @memberof Loki
+     */
     Loki.prototype.listCollections = function () {
 
       var i = this.collections.length,
@@ -1524,12 +1587,6 @@
 
       this.name = dbObject.name;
 
-      // restore database version
-      //this.databaseVersion = 1.0;
-      //if (dbObject.hasOwnProperty('databaseVersion')) {
-      //  this.databaseVersion = dbObject.databaseVersion;
-      //}
-
       // restore save throttled boolean only if not defined in options
       if (dbObject.hasOwnProperty('throttledSaves') && options && !options.hasOwnProperty('throttledSaves')) {
         this.throttledSaves = dbObject.throttledSaves;
@@ -1557,7 +1614,7 @@
       for (i; i < len; i += 1) {
         coll = dbObject.collections[i];
 
-        copyColl = this.addCollection(coll.name, { disableChangesApi: coll.disableChangesApi, disableDeltaChangesApi: coll.disableDeltaChangesApi });
+        copyColl = this.addCollection(coll.name, { disableChangesApi: coll.disableChangesApi, disableDeltaChangesApi: coll.disableDeltaChangesApi, disableMeta: coll.disableMeta });
 
         copyColl.adaptiveBinaryIndices = coll.hasOwnProperty('adaptiveBinaryIndices')?(coll.adaptiveBinaryIndices === true): false;
         copyColl.transactional = coll.transactional;
@@ -2519,8 +2576,10 @@
         }
         // otherwise just pass the serialized database to adapter
         else {
+          // persistenceAdapter might be asynchronous, so we must clear `dirty` immediately
+          // or autosave won't work if an update occurs between here and the callback
+          self.autosaveClearFlags();
           this.persistenceAdapter.saveDatabase(this.filename, self.serialize(), function saveDatabasecallback(err) {
-            self.autosaveClearFlags();
             cFun(err);
           });
         }
@@ -2737,6 +2796,8 @@
      * @param {int} qty - The number of documents to return.
      * @returns {Resultset} Returns a copy of the resultset, limited by qty, for subsequent chain ops.
      * @memberof Resultset
+     * // find the two oldest users
+     * var result = users.chain().simplesort("age", true).limit(2).data();
      */
     Resultset.prototype.limit = function (qty) {
       // if this has no filters applied, we need to populate filteredrows first
@@ -2756,6 +2817,8 @@
      * @param {int} pos - Number of documents to skip; all preceding documents are filtered out.
      * @returns {Resultset} Returns a copy of the resultset, containing docs starting at 'pos' for subsequent chain ops.
      * @memberof Resultset
+     * // find everyone but the two oldest users
+     * var result = users.chain().simplesort("age", true).offset(2).data();
      */
     Resultset.prototype.offset = function (pos) {
       // if this has no filters applied, we need to populate filteredrows first
@@ -2799,6 +2862,21 @@
      * @param parameters {object=} - (Optional) object property hash of parameters, if the transform requires them.
      * @returns {Resultset} either (this) resultset or a clone of of this resultset (depending on steps)
      * @memberof Resultset
+     * @example
+     * users.addTransform('CountryFilter', [
+     *   {
+     *     type: 'find',
+     *     value: {
+     *       'country': { $eq: '[%lktxp]Country' }
+     *     }
+     *   },
+     *   {
+     *     type: 'simplesort',
+     *     property: 'age',
+     *     options: { desc: false}
+     *   }
+     * ]);
+     * var results = users.chain().transform("CountryFilter", { Country: 'fr' }).data();
      */
     Resultset.prototype.transform = function (transform, parameters) {
       var idx,
@@ -2832,7 +2910,7 @@
           rs.where(step.value);
           break;
         case "simplesort":
-          rs.simplesort(step.property, step.desc);
+          rs.simplesort(step.property, step.desc || step.options);
           break;
         case "compoundsort":
           rs.compoundsort(step.value);
@@ -2907,25 +2985,46 @@
      *    Sorting based on the same lt/gt helper functions used for binary indices.
      *
      * @param {string} propname - name of property to sort by.
-     * @param {bool=} isdesc - (Optional) If true, the property will be sorted in descending order
+     * @param {object|bool=} options - boolean to specify if isdescending, or options object
+     * @param {boolean} [options.desc=false] - whether to sort descending
+     * @param {boolean} [options.disableIndexIntersect=false] - whether we should explicity not use array intersection.
+     * @param {boolean} [options.forceIndexIntersect=false] - force array intersection (if binary index exists).
+     * @param {boolean} [options.useJavascriptSorting=false] - whether results are sorted via basic javascript sort.
      * @returns {Resultset} Reference to this resultset, sorted, for future chain operations.
      * @memberof Resultset
+     * @example
+     * var results = users.chain().simplesort('age').data();
      */
-    Resultset.prototype.simplesort = function (propname, isdesc) {
-      if (typeof (isdesc) === 'undefined') {
-        isdesc = false;
+    Resultset.prototype.simplesort = function (propname, options) {
+      var eff, 
+        dc = this.collection.data.length, 
+        frl = this.filteredrows.length,
+        hasBinaryIndex = this.collection.binaryIndices.hasOwnProperty(propname);
+
+      if (typeof (options) === 'undefined' || options === false) {
+        options = { desc: false };
+      }
+      if (options === true) {
+        options = { desc: true };
       }
 
-      // if this has no filters applied, just we need to populate filteredrows first
-      if (!this.filterInitialized && this.filteredrows.length === 0) {
-        // if we have a binary index and no other filters applied, we can use that instead of sorting (again)
+      // if nothing in filtered rows array...
+      if (frl === 0) {
+        // if the filter is initialized to be empty resultset, do nothing
+        if (this.filterInitialized) {
+          return this;
+        }
+        
+        // otherwise no filters applied implies all documents, so we need to populate filteredrows first
+        
+        // if we have a binary index, we can just use that instead of sorting (again)
         if (this.collection.binaryIndices.hasOwnProperty(propname)) {
           // make sure index is up-to-date
           this.collection.ensureIndex(propname);
           // copy index values into filteredrows
           this.filteredrows = this.collection.binaryIndices[propname].values.slice(0);
 
-          if (isdesc) {
+          if (options.desc) {
             this.filteredrows.reverse();
           }
 
@@ -2934,10 +3033,56 @@
         }
         // otherwise initialize array for sort below
         else {
+          // build full document index (to be sorted subsequently)
           this.filteredrows = this.collection.prepareFullDocIndex();
         }
       }
+      // otherwise we had results to begin with, see if we qualify for index intercept optimization
+      else {
 
+        // If already filtered, but we want to leverage binary index on sort.
+        // This will use custom array intection algorithm.
+        if (!options.disableIndexIntersect && hasBinaryIndex) {
+
+          // calculate filter efficiency
+          eff = dc/frl;
+
+          // anything more than ratio of 10:1 (total documents/current results) should use old sort code path
+          // So we will only use array intersection if you have more than 10% of total docs in your current resultset.
+          if (eff <= 10 || options.forceIndexIntersect) {
+            var idx, fr=this.filteredrows;
+            var io = {};
+            // set up hashobject for simple 'inclusion test' with existing (filtered) results
+            for(idx=0; idx<frl; idx++) {
+              io[fr[idx]] = true;
+            }
+            // grab full sorted binary index array
+            var pv = this.collection.binaryIndices[propname].values;
+
+            // filter by existing results
+            this.filteredrows = pv.filter(function(n) { return io[n]; });
+
+            if (options.desc) {
+              this.filteredrows.reverse();
+            }
+
+            return this;
+          }
+        }
+      }
+
+      // at this point, we will not be able to leverage binary index so we will have to do an array sort
+      
+      // if we have opted to use simplified javascript comparison function...
+      if (options.useJavascriptSorting) {
+        return this.sort(function(obj1, obj2) {
+          if (obj1[propname] === obj2[propname]) return 0;
+          if (obj1[propname] > obj2[propname]) return 1;
+          if (obj1[propname] < obj2[propname]) return -1;
+        });
+      }
+
+      // otherwise use loki sort which will return same results if column is indexed or not
       var wrappedComparer =
         (function (prop, desc, data) {
           var val1, val2, arr;
@@ -2952,7 +3097,7 @@
             }
             return sortHelper(val1, val2, desc);
           };
-        })(propname, isdesc, this.collection.data);
+        })(propname, options.desc, this.collection.data);
 
       this.filteredrows.sort(wrappedComparer);
 
@@ -3085,6 +3230,8 @@
      * @param {boolean=} firstOnly - (Optional) Used by collection.findOne()
      * @returns {Resultset} this resultset for further chain ops.
      * @memberof Resultset
+     * @example
+     * var over30 = users.chain().find({ age: { $gte: 30 } }).data();
      */
     Resultset.prototype.find = function (query, firstOnly) {
       if (this.collection.data.length === 0) {
@@ -3316,6 +3463,8 @@
      * @param {function} fun - A javascript function used for filtering current results by.
      * @returns {Resultset} this resultset for further chain ops.
      * @memberof Resultset
+     * @example
+     * var over30 = users.chain().where(function(obj) { return obj.age >= 30; }.data();
      */
     Resultset.prototype.where = function (fun) {
       var viewFunction,
@@ -3366,6 +3515,8 @@
      *
      * @returns {number} The number of documents in the resultset.
      * @memberof Resultset
+     * @example
+     * var over30Count = users.chain().find({ age: { $gte: 30 } }).count();
      */
     Resultset.prototype.count = function () {
       if (this.filterInitialized) {
@@ -3386,6 +3537,8 @@
      *
      * @returns {array} Array of documents in the resultset
      * @memberof Resultset
+     * @example
+     * var resutls = users.chain().find({ age: 34 }).data();
      */
     Resultset.prototype.data = function (options) {
       var result = [],
@@ -3464,6 +3617,10 @@
      * @param {function} updateFunction - User supplied updateFunction(obj) will be executed for each document object.
      * @returns {Resultset} this resultset for further chain ops.
      * @memberof Resultset
+     * @example
+     * users.chain().find({ country: 'de' }).update(function(user) {
+     *   user.phoneFormat = "+49 AAAA BBBBBB";
+     * });
      */
     Resultset.prototype.update = function (updateFunction) {
 
@@ -3495,6 +3652,9 @@
      *
      * @returns {Resultset} this (empty) resultset for further chain ops.
      * @memberof Resultset
+     * @example
+     * // remove users inactive since 1/1/2001
+     * users.chain().find({ lastActive: { $lte: new Date("1/1/2001").getTime() } }).remove();
      */
     Resultset.prototype.remove = function () {
 
@@ -3517,6 +3677,19 @@
      * @param {function} reduceFunction - this function accepts many (array of map outputs) and returns single value
      * @returns {value} The output of your reduceFunction
      * @memberof Resultset
+     * @example
+     * var db = new loki("order.db");
+     * var orders = db.addCollection("orders");
+     * orders.insert([{ qty: 4, unitCost: 100.00 }, { qty: 10, unitCost: 999.99 }, { qty: 2, unitCost: 49.99 }]);
+     *
+     * function mapfun (obj) { return obj.qty*obj.unitCost };
+     * function reducefun(array) {
+     *   var grandTotal=0;
+     *   array.forEach(function(orderTotal) { grandTotal += orderTotal; });
+     *   return grandTotal;
+     * }
+     * var grandOrderTotal = orders.chain().mapReduce(mapfun, reducefun);
+     * console.log(grandOrderTotal);
      */
     Resultset.prototype.mapReduce = function (mapFunction, reduceFunction) {
       try {
@@ -3539,6 +3712,40 @@
      * @param {string} dataOptions.forceCloneMethod - Allows overriding the default or collection specified cloning method.
      * @returns {Resultset} A resultset with data in the format [{left: leftObj, right: rightObj}]
      * @memberof Resultset
+     * @example
+     * var db = new loki('sandbox.db');
+     *
+     * var products = db.addCollection('products');
+     * var orders = db.addCollection('orders');
+     *
+     * products.insert({ productId: "100234", name: "flywheel energy storage", unitCost: 19999.99 });
+     * products.insert({ productId: "140491", name: "300F super capacitor", unitCost: 129.99 });
+     * products.insert({ productId: "271941", name: "fuel cell", unitCost: 3999.99 });
+     * products.insert({ productId: "174592", name: "390V 3AH lithium bank", unitCost: 4999.99 });
+     *
+     * orders.insert({ orderDate : new Date("12/1/2017").getTime(), prodId: "174592", qty: 2, customerId: 2 });
+     * orders.insert({ orderDate : new Date("4/15/2016").getTime(), prodId: "271941", qty: 1, customerId: 1 });
+     * orders.insert({ orderDate : new Date("3/12/2017").getTime(), prodId: "140491", qty: 4, customerId: 4 });
+     * orders.insert({ orderDate : new Date("7/31/2017").getTime(), prodId: "100234", qty: 7, customerId: 3 });
+     * orders.insert({ orderDate : new Date("8/3/2016").getTime(), prodId: "174592", qty: 3, customerId: 5 });
+     *
+     * var mapfun = function(left, right) {
+     *   return {
+     *     orderId: left.$loki,
+     *     orderDate: new Date(left.orderDate) + '',
+     *     customerId: left.customerId,
+     *     qty: left.qty,
+     *     productId: left.prodId,
+     *     prodName: right.name,
+     *     prodCost: right.unitCost,
+     *     orderTotal: +((right.unitCost * left.qty).toFixed(2))
+     *   };
+     * };
+     *
+     * // join orders with relevant product info via eqJoin
+     * var orderSummary = orders.chain().eqJoin(products, "prodId", "productId", mapfun).data();
+     * 
+     * console.log(orderSummary);     
      */
     Resultset.prototype.eqJoin = function (joinData, leftJoinKey, rightJoinKey, mapFun, dataOptions) {
 
@@ -3607,6 +3814,14 @@
      * @param {boolean} dataOptions.forceClones - forcing the return of cloned objects to your map object
      * @param {string} dataOptions.forceCloneMethod - Allows overriding the default or collection specified cloning method.
      * @memberof Resultset
+     * @example
+     * var orders.chain().find({ productId: 32 }).map(function(obj) {
+     *   return {
+     *     orderId: $loki,
+     *     productId: productId,
+     *     quantity: qty
+     *   };
+     * });
      */
     Resultset.prototype.map = function (mapFun, dataOptions) {
       var data = this.data(dataOptions).map(mapFun);
@@ -3757,6 +3972,25 @@
      * @param {object=} parameters - optional parameters (if optional transform requires them)
      * @returns {Resultset} A copy of the internal resultset for branched queries.
      * @memberof DynamicView
+     * @example
+     * var db = new loki('test');
+     * var coll = db.addCollection('mydocs');
+     * var dv = coll.addDynamicView('myview');
+     * var tx = [
+     *   {
+     *     type: 'offset',
+     *     value: '[%lktxp]pageStart'
+     *   },
+     *   {
+     *     type: 'limit',
+     *     value: '[%lktxp]pageSize'
+     *   }
+     * ];
+     * coll.addTransform('viewPaging', tx);
+     * 
+     * // add some records
+     * 
+     * var results = dv.branchResultset('viewPaging', { pageStart: 10, pageSize: 10 }).data();     
      */
     DynamicView.prototype.branchResultset = function (transform, parameters) {
       var rs = this.resultset.branch();
@@ -3848,13 +4082,17 @@
      * dv.applySimpleSort("name");
      *
      * @param {string} propname - Name of property by which to sort.
-     * @param {boolean=} isdesc - (Optional) If true, the sort will be in descending order.
+     * @param {object|boolean=} options - boolean for sort descending or options object
+     * @param {boolean} [options.desc=false] - whether we should sort descending.
+     * @param {boolean} [options.disableIndexIntersect=false] - whether we should explicity not use array intersection.
+     * @param {boolean} [options.forceIndexIntersect=false] - force array intersection (if binary index exists).
+     * @param {boolean} [options.useJavascriptSorting=false] - whether results are sorted via basic javascript sort.
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
-    DynamicView.prototype.applySimpleSort = function (propname, isdesc) {
+    DynamicView.prototype.applySimpleSort = function (propname, options) {
       this.sortCriteria = [
-        [propname, isdesc || false]
+        [propname, options || false]
       ];
       this.sortFunction = null;
 
@@ -4382,13 +4620,15 @@
      * @param {array=} [options.indices=[]] - array property names to define binary indexes for
      * @param {boolean} [options.adaptiveBinaryIndices=true] - collection indices will be actively rebuilt rather than lazily
      * @param {boolean} [options.asyncListeners=false] - whether listeners are invoked asynchronously
+     * @param {boolean} [options.disableMeta=false] - set to true to disable meta property on documents
      * @param {boolean} [options.disableChangesApi=true] - set to false to enable Changes API
      * @param {boolean} [options.disableDeltaChangesApi=true] - set to false to enable Delta Changes API (requires Changes API, forces cloning)
      * @param {boolean} [options.autoupdate=false] - use Object.observe to update objects automatically
      * @param {boolean} [options.clone=false] - specify whether inserts and queries clone to/from user
      * @param {boolean} [options.serializableIndices=true[]] - converts date values on binary indexed properties to epoch time
      * @param {string} [options.cloneMethod='parse-stringify'] - 'parse-stringify', 'jquery-extend-deep', 'shallow', 'shallow-assign'
-     * @param {int} options.ttlInterval - time interval for clearing out 'aged' documents; not set by default.
+     * @param {int=} options.ttl - age of document (in ms.) before document is considered aged/stale.
+     * @param {int=} options.ttlInterval - time interval for clearing out 'aged' documents; not set by default.
      * @see {@link Loki#addCollection} for normal creation of collections
      */
     function Collection(name, options) {
@@ -4461,6 +4701,9 @@
 
       // option to make event listeners async, default is sync
       this.asyncListeners = options.hasOwnProperty('asyncListeners') ? options.asyncListeners : false;
+
+      // if set to true we will not maintain a meta property for a document
+      this.disableMeta = options.hasOwnProperty('disableMeta') ? options.disableMeta : false;
 
       // disable track changes
       this.disableChangesApi = options.hasOwnProperty('disableChangesApi') ? options.disableChangesApi : true;
@@ -4618,7 +4861,7 @@
       function insertMeta(obj) {
         var len, idx;
 
-        if (!obj) {
+        if (self.disableMeta || !obj) {
           return;
         }
 
@@ -4648,7 +4891,7 @@
       }
 
       function updateMeta(obj) {
-        if (!obj) {
+        if (self.disableMeta || !obj) {
           return;
         }
         obj.meta.updated = (new Date()).getTime();
@@ -4938,12 +5181,154 @@
       this.dirty = true; // for autosave scenarios
     };
 
-    Collection.prototype.getSequencedIndexValues = function (property) {
+    /**
+     * Perform checks to determine validity/consistency of all binary indices
+     * @param {object=} options - optional configuration object
+     * @param {boolean} [options.randomSampling=false] - whether (faster) random sampling should be used
+     * @param {number} [options.randomSamplingFactor=0.10] - percentage of total rows to randomly sample
+     * @param {boolean} [options.repair=false] - whether to fix problems if they are encountered
+     * @returns {string[]} array of index names where problems were found.
+     * @memberof Collection
+     * // check all indices on a collection, returns array of invalid index names
+     * var result = coll.checkAllIndexes({ repair: true, randomSampling: true, randomSamplingFactor: 0.15 });
+     * if (result.length > 0) {
+     *   results.forEach(function(name) { 
+     *     console.log('problem encountered with index : ' + name); 
+     *   });
+     * }     
+     */
+    Collection.prototype.checkAllIndexes = function (options) {
+      var key, bIndices = this.binaryIndices;
+      var results = [], result;
+
+      for (key in bIndices) {
+        if (hasOwnProperty.call(bIndices, key)) {
+          result = this.checkIndex(key, options);
+          if (!result) {
+            results.push(key);
+          }
+        }
+      }
+
+      return results;
+    };
+
+    /**
+     * Perform checks to determine validity/consistency of a binary index
+     * @param {string} property - name of the binary-indexed property to check
+     * @param {object=} options - optional configuration object
+     * @param {boolean} [options.randomSampling=false] - whether (faster) random sampling should be used
+     * @param {number} [options.randomSamplingFactor=0.10] - percentage of total rows to randomly sample
+     * @param {boolean} [options.repair=false] - whether to fix problems if they are encountered
+     * @returns {boolean} whether the index was found to be valid (before optional correcting).
+     * @memberof Collection
+     * @example
+     * // full test
+     * var valid = coll.checkIndex('name');
+     * // full test with repair (if issues found)
+     * valid = coll.checkIndex('name', { repair: true });
+     * // random sampling (default is 10% of total document count)
+     * valid = coll.checkIndex('name', { randomSampling: true });
+     * // random sampling (sample 20% of total document count)
+     * valid = coll.checkIndex('name', { randomSampling: true, randomSamplingFactor: 0.20 });
+     * // random sampling (implied boolean)
+     * valid = coll.checkIndex('name', { randomSamplingFactor: 0.20 });
+     * // random sampling with repair (if issues found)
+     * valid = coll.checkIndex('name', { repair: true, randomSampling: true });
+     */
+    Collection.prototype.checkIndex = function (property, options) {
+      options = options || {};
+      // if 'randomSamplingFactor' specified but not 'randomSampling', assume true
+      if (options.randomSamplingFactor && options.randomSampling !== false) {
+        options.randomSampling = true;
+      }
+      options.randomSamplingFactor = options.randomSamplingFactor || 0.1;
+      if (options.randomSamplingFactor < 0 || options.randomSamplingFactor > 1) {
+        options.randomSamplingFactor = 0.1;
+      }
+
+      var valid=true, idx, iter, pos, len, biv;
+
+      // make sure we are passed a valid binary index name
+      if (!this.binaryIndices.hasOwnProperty(property)) {
+        throw new Error("called checkIndex on property without an index: " + property);
+      }
+
+      // if lazy indexing, rebuild only if flagged as dirty
+      if (!this.adaptiveBinaryIndices) {
+        this.ensureIndex(property);
+      }
+
+      biv = this.binaryIndices[property].values;
+      len = biv.length;
+
+      // if the index has an incorrect number of values
+      if (len !== this.data.length) {
+        if (options.repair) {
+          this.ensureIndex(property, true);
+        }
+        return false;
+      }
+
+      if (len === 0) {
+        return true;
+      }
+
+      if (len === 1) {
+        valid = (biv[0] === 0);
+      }
+
+      if (options.randomSampling) {
+        // validate first and last
+        if (!LokiOps.$lte(this.data[biv[0]][property], this.data[biv[1]][property])) {
+          valid=false;
+        }
+        if (!LokiOps.$lte(this.data[biv[len-2]][property], this.data[biv[len-1]][property])) {
+          valid=false;
+        }
+
+        // if first and last positions are sorted correctly with their nearest neighbor,
+        // continue onto random sampling phase...
+        if (valid) {
+          // # random samplings = total count * sampling factor
+          iter = Math.floor((len-1) * options.randomSamplingFactor);
+
+          // for each random sampling, validate that the binary index is sequenced properly
+          // with next higher value.
+          for(idx=0; idx<len-1; idx++) {
+            // calculate random position
+            pos = Math.floor(Math.random() * (len-1));
+            if (!LokiOps.$lte(this.data[biv[pos]][property], this.data[biv[pos+1]][property])) {
+              valid=false;
+              break;
+            }
+          }
+        }
+      }
+      else {
+        // validate that the binary index is sequenced properly
+        for(idx=0; idx<len-1; idx++) {
+          if (!LokiOps.$lte(this.data[biv[idx]][property], this.data[biv[idx+1]][property])) {
+            valid=false;
+            break;
+          }
+        }
+      }
+
+      // if incorrectly sequenced and we are to fix problems, rebuild index
+      if (!valid && options.repair) {
+        this.ensureIndex(property, true);
+      }
+
+      return valid;
+    };
+
+    Collection.prototype.getBinaryIndexValues = function (property) {
       var idx, idxvals = this.binaryIndices[property].values;
-      var result = "";
+      var result = [];
 
       for (idx = 0; idx < idxvals.length; idx++) {
-        result += " [" + idx + "] " + this.data[idxvals[idx]][property];
+        result.push(this.data[idxvals[idx]][property]);
       }
 
       return result;
@@ -4968,6 +5353,8 @@
 
     /**
      * Ensure all binary indices
+     * @param {boolean} force - whether to force rebuild of existing lazy binary indices
+     * @memberof Collection
      */
     Collection.prototype.ensureAllIndexes = function (force) {
       var key, bIndices = this.binaryIndices;
@@ -4978,6 +5365,9 @@
       }
     };
 
+    /**
+     * Internal method used to flag all lazy index as dirty
+     */
     Collection.prototype.flagBinaryIndexesDirty = function () {
       var key, bIndices = this.binaryIndices;
       for (key in bIndices) {
@@ -4987,6 +5377,9 @@
       }
     };
 
+    /**
+     * Internal method used to flag a lazy index as dirty
+     */
     Collection.prototype.flagBinaryIndexDirty = function (index) {
       if (this.binaryIndices[index])
         this.binaryIndices[index].dirty = true;
@@ -5173,7 +5566,7 @@
       // if configured to clone, do so now... otherwise just use same obj reference
       var obj = this.cloneObjects ? clone(doc, this.cloneMethod) : doc;
 
-      if (typeof obj.meta === 'undefined') {
+      if (!this.disableMeta && typeof obj.meta === 'undefined') {
         obj.meta = {
           revision: 0,
           created: 0
@@ -5202,7 +5595,7 @@
     /**
      * Empties the collection.
      * @param {object=} options - configure clear behavior
-     * @param {bool=} options.removeIndices - (default: false)
+     * @param {bool=} [options.removeIndices=false] - whether to remove indices in addition to data
      * @memberof Collection
      */
     Collection.prototype.clear = function (options) {
@@ -5260,9 +5653,25 @@
       if (Array.isArray(doc)) {
         var k = 0,
           len = doc.length;
+
+        // if not cloning, disable adaptive binary indices for the duration of the batch update,
+        // followed by lazy rebuild and re-enabling adaptive indices after batch update.
+        var adaptiveBatchOverride = !this.cloneObjects &&
+          this.adaptiveBinaryIndices && Object.keys(this.binaryIndices).length > 0;
+
+        if (adaptiveBatchOverride) {
+          this.adaptiveBinaryIndices = false;
+        }
+
         for (k; k < len; k += 1) {
           this.update(doc[k]);
         }
+
+        if (adaptiveBatchOverride) {
+          this.ensureAllIndexes();
+          this.adaptiveBinaryIndices = true;
+        }
+
         return;
       }
 
@@ -5362,7 +5771,10 @@
         }
 
         obj.$loki = this.maxId;
-        obj.meta.version = 0;
+
+        if (!this.disableMeta) {
+          obj.meta.version = 0;
+        }
 
         var key, constrUnique = this.constraints.unique;
         for (key in constrUnique) {
@@ -6053,7 +6465,7 @@
      * Chain method, used for beginning a series of chained find() and/or view() operations
      * on a collection.
      *
-     * @param {array=} transform - Ordered array of transform step objects similar to chain
+     * @param {string|array=} transform - named transform or array of transform steps
      * @param {object=} parameters - Object containing properties representing parameters to substitute
      * @returns {Resultset} (this) resultset, or data array if any map or join functions where called
      * @memberof Collection

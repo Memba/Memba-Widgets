@@ -29,6 +29,21 @@
         var STRING = 'string';
         kidoju.image = kidoju.image || {};
 
+        /*********************************************************************************
+         * Helpers
+         *********************************************************************************/
+
+        /**
+         * This is a prerequisite for _downloadFile
+         * @see http://api.jquery.com/jquery.ajaxprefilter/
+         * @see https://github.com/jquery/jquery/blob/master/test/unit/ajax.js#L1767
+         */
+        $.ajaxPrefilter('arraybuffer', function (s) {
+            s.xhrFields = { responseType: 'arraybuffer' };
+            s.responseFields.arraybuffer = 'response';
+            s.converters['binary arraybuffer'] = true;
+        });
+
         /*****************************************************************************************************
          * The following is an adaptation of https://github.com/eugeneware/jpeg-js/blob/master/lib/encoder.js
          * Note there is also https://github.com/mozilla/pdf.js/blob/master/src/core/jpg.js
@@ -1065,6 +1080,18 @@
         };
 
         /**
+         * Converts a $.get response into a dataURI
+         */
+        kidoju.image.response2DataUri = function (response, contentType) {
+            var binary = '';
+            var bytes = new window.Uint8Array(response);
+            for (var idx = 0, len = bytes.byteLength; idx < len; idx++) {
+                binary += String.fromCharCode(bytes[idx]);
+            }
+            return 'data:' + contentType + ';base64,' + window.btoa(binary);
+        };
+
+        /**
          * Converts a dataURI into a Blob
          * @see https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
          */
@@ -1081,18 +1108,75 @@
         };
 
         /**
-         * Get image data from an IMG Element
-         * @param idOrElement
-         * @returns {*}
+         * getDataUriAndSize
+         * @param source (dataUri or url)
+         * @private
          */
-        kidoju.image.getImageData = function (idOrElement) {
-            var imgElement = (typeof(idOrElement) === 'string') ? document.getElementById(idOrElement) : idOrElement;
-            var c = document.createElement('canvas');
-            c.width = imgElement.width;
-            c.height = imgElement.height;
-            var ctx = c.getContext('2d');
-            ctx.drawImage(imgElement, 0, 0);
-            return ctx.getImageData(0, 0, c.width, c.height);
+        kidoju.image.getDataUriAndSize = function (source) {
+            assert.type(STRING, source, assert.format(assert.messages.type.default, 'source', STRING));
+            var dfd = $.Deferred();
+            var img = $('<img />')
+                .attr('crossOrigin', 'Anonymous') // crossOrigin prevents Uncaught DOMException: Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported.
+                .css({
+                    position: 'absolute',
+                    top: 0,
+                    left: -10000
+                })
+                .appendTo('body')
+                .on('load', function () {
+                    var canvas = document.createElement('canvas');
+                    canvas.height =  img.height();
+                    canvas.width =  img.width();
+                    var ctx = canvas.getContext('2d');
+                    ctx.drawImage(img.get(0), 0, 0);
+                    var dataUri = canvas.toDataURL('image/png');
+                    img.off().remove();
+                    dfd.resolve({
+                        dataUri: dataUri,
+                        height: canvas.height,
+                        width: canvas.width
+                    });
+                })
+                .on('error', function (err) {
+                    img.off().remove();
+                    dfd.reject(err);
+                })
+                .attr('src', source);
+            return dfd.promise();
+        };
+
+        /**
+         * getImageData
+         * @param source (dataUri or url)
+         * @private
+         */
+        kidoju.image.getImageData = function (source) {
+            assert.type(STRING, source, assert.format(assert.messages.type.default, 'source', STRING));
+            var dfd = $.Deferred();
+            var img = $('<img />')
+            .attr('crossOrigin', 'Anonymous') // crossOrigin prevents Uncaught DOMException: Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported.
+                .css({
+                    position: 'absolute',
+                    top: 0,
+                    left: -10000
+                })
+                .appendTo('body')
+                .on('load', function () {
+                    var canvas = document.createElement('canvas');
+                    canvas.height =  img.height();
+                    canvas.width =  img.width();
+                    var ctx = canvas.getContext('2d');
+                    ctx.drawImage(img.get(0), 0, 0);
+                    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    img.off().remove();
+                    dfd.resolve(imageData);
+                })
+                .on('error', function (err) {
+                    img.off().remove();
+                    dfd.reject(err);
+                })
+                .attr('src', source);
+            return dfd.promise();
         };
 
         /**

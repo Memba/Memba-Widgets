@@ -82,6 +82,18 @@
         };
 
         /**
+         * Get a random pastel color to draw connections
+         * @returns {string}
+         */
+        util.getRandomColor = function ()
+        {
+            var r = (Math.round(Math.random() * 127) + 127).toString(16);
+            var g = (Math.round(Math.random() * 127) + 127).toString(16);
+            var b = (Math.round(Math.random() * 127) + 127).toString(16);
+            return '#' + r + g + b;
+        };
+
+        /**
          * Get the rotation angle (in degrees) of an element's CSS transformation
          * @param element
          * @returns {Number|number}

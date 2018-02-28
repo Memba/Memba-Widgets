@@ -72,7 +72,6 @@
                 logger.debug({ method: 'init', message: 'widget initialized' });
                 that._dataSource();
                 that._layout();
-                that._initDraggables();
                 that.enable(that.options.enable);
                 kendo.notify(that);
             },
@@ -111,7 +110,7 @@
                     assert.instanceof($, container, assert.format(assert.messages.instanceof.default, 'this.container', 'jQuery'));
                     assert.hasLength(container, assert.format(assert.messages.hasLength.default, 'this.container'));
                     var ret = [];
-                    if ($.isArray(that._ids)) {
+                    if (Array.isArray(that._ids)) {
                         $.each(that._ids, function (index, id) {
                             var val = container.find(assert.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), id)).attr(kendo.attr(kendo.toHyphens(VALUE)));
                             ret.push(val);
@@ -145,8 +144,9 @@
                 var that = this;
                 assert.type(BOOLEAN, enable, assert.format(assert.messages.type.default, 'enable', BOOLEAN));
                 that._enabled = enable;
-                // Yield some time for all drop zones to get enabled/disabled before we init event handlers
+                // Yield some time for all drop zones and stage elements to actually be loaded and configured
                 setTimeout(function () {
+                    that._initDraggables();
                     $.proxy(that._initMouseEvents, that)();
                 }, 100);
             },
@@ -167,10 +167,8 @@
                 var scale = util.getTransformScale(scaler);
                 // find stageElements containing images or labels with attribute [data-draggable=true]
                 var draggableStageElements = container.children(options.draggable);
-                draggableStageElements.each(function (index, htmlElement) {
-                    setTimeout(function () {
-                        that._checkHit($(htmlElement), scale);
-                    }, 0);
+                draggableStageElements.each(function(index, htmlElement) {
+                    that._checkHit($(htmlElement), scale);
                 });
             },
 
@@ -462,7 +460,7 @@
                 var that = this;
                 var container = that.container;
                 var items = that.dataSource.view(); // dataSource is filtered
-                if ($.isPlainObject(e) && $.isArray(e.items)) {
+                if ($.isPlainObject(e) && Array.isArray(e.items)) {
                     items = e.items;
                 }
                 $.each(items, function (index, item) {

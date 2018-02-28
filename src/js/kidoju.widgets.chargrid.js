@@ -13,7 +13,8 @@
         './window.logger',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.color',
-        './vendor/kendo/kendo.drawing'
+        './vendor/kendo/kendo.drawing',
+        './kidoju.util'
     ], f);
 })(function () {
 
@@ -30,6 +31,7 @@
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.chargrid');
+        var util = window.kidoju.util;
         var STRING = 'string';
         // var BOOLEAN = 'boolean';
         var NUMBER = 'number';
@@ -50,94 +52,9 @@
         var RX_WHITELIST = '^[{0}]$';
         var STROKE_WIDTH = 2;
 
-        /*********************************************************************************
-         * Helpers
-         *********************************************************************************/
-
-        var util = {
-
-            /**
-             * Check array or observable array
-             * @param arr
-             * @returns {*|boolean}
-             */
-            isArray: function (arr) {
-                return $.isArray(arr) || arr instanceof kendo.data.ObservableArray;
-            },
-
-            /**
-             * Get the mouse (or touch) position
-             * @param e
-             * @param stage
-             * @returns {{x: *, y: *}}
-             */
-            getMousePosition: function (e, stage) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                assert.instanceof($, stage, kendo.format(assert.messages.instanceof.default, 'stage', 'jQuery'));
-                // See http://www.jacklmoore.com/notes/mouse-position/
-                // See http://www.jqwidgets.com/community/topic/dragend-event-properties-clientx-and-clienty-are-undefined-on-ios/
-                // See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
-                // ATTENTION: e.originalEvent.changedTouches instanceof TouchList, not Array
-                var originalEvent = e.originalEvent;
-                var clientX = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientX : e.clientX;
-                var clientY = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientY : e.clientY;
-                // IMPORTANT: Position is relative to the stage and e.offsetX / e.offsetY do not work in Firefox
-                // var stage = $(e.target).closest('.kj-stage').find(kendo.roleSelector('stage'));
-                var ownerDocument = $(stage.get(0).ownerDocument);
-                var stageOffset = stage.offset();
-                var mouse = {
-                    x: clientX - stageOffset.left + ownerDocument.scrollLeft(),
-                    y: clientY - stageOffset.top + ownerDocument.scrollTop()
-                };
-                return mouse;
-            },
-
-            /**
-             * Get the position of the center of an element
-             * @param element
-             * @param stage
-             * @param scale
-             */
-            getElementCenter: function (element, stage, scale) {
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
-                assert.instanceof($, stage, kendo.format(assert.messages.instanceof.default, 'stage', 'jQuery'));
-                assert.type(NUMBER, scale, kendo.format(assert.messages.type.default, 'scale', NUMBER));
-                // We need getBoundingClientRect to especially account for rotation
-                var rect = element[0].getBoundingClientRect();
-                var ownerDocument = $(stage.get(0).ownerDocument);
-                var stageOffset = stage.offset();
-                return {
-                    left: (rect.left - stageOffset.left + rect.width / 2  + ownerDocument.scrollLeft()) / scale,
-                    top: (rect.top - stageOffset.top + rect.height / 2 + ownerDocument.scrollTop()) / scale
-                };
-            },
-
-            /**
-             * Get the scale of an element's CSS transformation
-             * Note: the same function is used in kidoju.widgets.stage
-             * @param element
-             * @returns {Number|number}
-             */
-            getTransformScale: function (element) {
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
-                // $(element).css('transform') returns a matrix, so we have to read the style attribute
-                var match = (element.attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
-                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
-            },
-
-            /**
-             * Get the rotation angle (in degrees) of an element's CSS transformation
-             * @param element
-             * @returns {Number|number}
-             */
-            getTransformRotation: function (element) {
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
-                // $(element).css('transform') returns a matrix, so we have to read the style attribute
-                var match = (element.attr('style') || '').match(/rotate\([\s]*([0-9\.]+)[deg\s]*\)/);
-                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 0 : 0;
-            }
-
-        };
+        function isAnyArray(arr) {
+            return Array.isArray(arr) || arr instanceof kendo.data.ObservableArray
+        }
 
         /*********************************************************************************
          * Widget
@@ -219,9 +136,9 @@
                 for (var r = 0; r < rowTotal; r++) {
                     that._value.push(new Array(rowTotal));
                     for (var c = 0; c < colTotal; c++) {
-                        if (util.isArray(locked) && util.isArray(locked[r]) && locked[r][c]) {
+                        if (isAnyArray(locked) && isAnyArray(locked[r]) && locked[r][c]) {
                             that._value[r][c] = '' + locked[r][c];
-                        } else if (util.isArray(value) && util.isArray(value[r]) && rx.test('' + value[r][c])) {
+                        } else if (isAnyArray(value) && isAnyArray(value[r]) && rx.test('' + value[r][c])) {
                             that._value[r][c] = '' + value[r][c];
                         } else {
                             that._value[r][c] = null;
@@ -241,14 +158,14 @@
              */
             _compareValues: function (value1, value2) {
                 /* jshint maxcomplexity: 10 */
-                if (!util.isArray(value1) || !util.isArray(value2)) {
+                if (!isAnyArray(value1) || !isAnyArray(value2)) {
                     return false;
                 }
                 if (value1.length !== value2.length) {
                     return false;
                 }
                 for (var r = 0, rowTotal = value1.length; r < rowTotal; r++) {
-                    if (!util.isArray(value1[r]) || !util.isArray(value2[r])) {
+                    if (!isAnyArray(value1[r]) || !isAnyArray(value2[r])) {
                         return false;
                     }
                     if (value1[r].length !== value2[r].length) {
@@ -292,15 +209,15 @@
              */
             cellValue: function (r, c, value) {
                 /* jshint maxcomplexity: 9 */
-                assert.type(NUMBER, r, kendo.format(assert.messages.type.default, 'r', NUMBER));
-                assert.type(NUMBER, c, kendo.format(assert.messages.type.default, 'c', NUMBER));
+                assert.type(NUMBER, r, assert.format(assert.messages.type.default, 'r', NUMBER));
+                assert.type(NUMBER, c, assert.format(assert.messages.type.default, 'c', NUMBER));
                 var that = this;
                 var options = that.options;
                 var whitelist = (options.whitelist || '').trim();
                 var rx = new RegExp(kendo.format(RX_WHITELIST, whitelist), 'i');
                 var row = that._value[r];
                 if ($.type(value) === UNDEFINED) {
-                    if (util.isArray(row) && rx.test(row[c])) {
+                    if (isAnyArray(row) && rx.test(row[c])) {
                         return row[c];
                     }
                 } else if ($.type(value) === NULL) {
@@ -331,8 +248,8 @@
              * @param c
              */
             isLocked: function (r, c) {
-                assert.type(NUMBER, r, kendo.format(assert.messages.type.default, 'r', NUMBER));
-                assert.type(NUMBER, c, kendo.format(assert.messages.type.default, 'c', NUMBER));
+                assert.type(NUMBER, r, assert.format(assert.messages.type.default, 'r', NUMBER));
+                assert.type(NUMBER, c, assert.format(assert.messages.type.default, 'c', NUMBER));
                 var that = this;
                 var options = that.options;
                 var colTotal = options.columns;
@@ -340,7 +257,7 @@
                 var blank = options.blank;
                 var locked = options.locked;
                 return r >= 0 && r < rowTotal && c >= 0 && c < colTotal &&
-                    util.isArray(locked) && util.isArray(locked[r]) && !!locked[r][c] &&
+                    isAnyArray(locked) && isAnyArray(locked[r]) && !!locked[r][c] &&
                     that.cellValue(r, c) !== blank;
             },
 
@@ -532,7 +449,7 @@
                 // columns
                 for (var r = 0; r < rowTotal; r++) {
                     var row = that._value[r];
-                    if (util.isArray(row)) {
+                    if (isAnyArray(row)) {
                         for (var c = 0; c < colTotal; c++) {
                             if (row[c] === options.blank) { // the value is a blank
                                 var blank = that._getCellRect(r, c, options.blankFill);
@@ -564,7 +481,7 @@
              * Redraw everything
              */
             refresh: function () {
-                assert.instanceof(drawing.Surface, this.surface, kendo.format(assert.messages.instanceof.default, 'this.surface', 'kendo.drawing.Surface'));
+                assert.instanceof(drawing.Surface, this.surface, assert.format(assert.messages.instanceof.default, 'this.surface', 'kendo.drawing.Surface'));
                 this.surface.clear();
                 this._drawGrid();
                 this._drawSelectedCell();
@@ -577,8 +494,8 @@
              * @param c
              */
             select: function (r, c) {
-                assert.type(NUMBER, r, kendo.format(assert.messages.type.default, 'r', NUMBER));
-                assert.type(NUMBER, c, kendo.format(assert.messages.type.default, 'c', NUMBER));
+                assert.type(NUMBER, r, assert.format(assert.messages.type.default, 'r', NUMBER));
+                assert.type(NUMBER, c, assert.format(assert.messages.type.default, 'c', NUMBER));
                 var that = this;
                 var options = that.options;
                 var rowTotal = options.rows;
@@ -623,7 +540,7 @@
                 var rowTotal = options.rows;
                 var colTotal = options.columns;
                 var container = that.element.closest(options.container);
-                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, 'container'));
+                assert.hasLength(container, assert.format(assert.messages.hasLength.default, 'container'));
                 var rotator = that.element.closest(options.rotator);
                 var rotate = util.getTransformRotation(rotator) * Math.PI / 180;
                 var scaler = that.element.closest(options.scaler);
@@ -657,7 +574,7 @@
              */
             _onKeyDown: function (e) {
                 /* jshint maxcomplexity: 10 */
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 assert.ok(this.input.is(':focus'), '`this.input` is expected to have focus');
                 // Note: on Android devices most keys would send keyCode 229, but backspace sends 8 as expected
                 var that = this;
@@ -701,7 +618,7 @@
              * @private
              */
             _onKeyPress: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 assert.ok(this.input.is(':focus'), '`this.input` is expected to have focus');
                 var that = this;
                 var options = that.options;
@@ -731,7 +648,7 @@
              * @private
              */
             _onInput: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 assert.ok(this.input.is(':focus'), '`this.input` is expected to have focus');
                 var value = $(e.currentTarget).val();
                 if (value.length) {
@@ -789,9 +706,9 @@
          * @private
          */
         CharGrid._getCharGridArray = function (rowTotal, colTotal, whitelist, layout, data) {
-            assert.type(NUMBER, rowTotal, kendo.format(assert.messages.type.default, 'rowTotal', NUMBER));
-            assert.type(NUMBER, colTotal, kendo.format(assert.messages.type.default, 'colTotal', NUMBER));
-            assert.type(STRING, whitelist, kendo.format(assert.messages.type.default, 'whitelist', STRING));
+            assert.type(NUMBER, rowTotal, assert.format(assert.messages.type.default, 'rowTotal', NUMBER));
+            assert.type(NUMBER, colTotal, assert.format(assert.messages.type.default, 'colTotal', NUMBER));
+            assert.type(STRING, whitelist, assert.format(assert.messages.type.default, 'whitelist', STRING));
             var ret = [];
             var rx = new RegExp(kendo.format(RX_WHITELIST, whitelist), 'i');
             for (var r = 0; r < rowTotal; r++) {
@@ -799,11 +716,11 @@
                 for (var c = 0; c < colTotal; c++) {
                     ret[r][c] = null;
                     // First fill with data assuming values are whitelisted
-                    if (util.isArray(data) && util.isArray(data[r]) && rx.test(data[r][c])) {
+                    if (isAnyArray(data) && isAnyArray(data[r]) && rx.test(data[r][c])) {
                         ret[r][c] = data[r][c];
                     }
                     // Then impose layout
-                    if (util.isArray(layout) && util.isArray(layout[r]) && $.type(layout[r][c]) === STRING) {
+                    if (isAnyArray(layout) && isAnyArray(layout[r]) && $.type(layout[r][c]) === STRING) {
                         ret[r][c] = layout[r][c];
                     }
                 }

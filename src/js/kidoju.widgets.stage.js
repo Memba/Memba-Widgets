@@ -12,6 +12,7 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
+        './kidoju.util',
         './kidoju.data',
         './kidoju.tools'
     ], f);
@@ -38,6 +39,7 @@
         var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.stage');
+        var util = window.kidoju.util;
         var STRING = 'string';
         var NUMBER = 'number';
         var NULL = null;
@@ -707,7 +709,9 @@
                 var wrapper = that.wrapper;
 
                 // Clear
-                util.removeDebugVisualElements(wrapper);
+                if ($.isFunction(that._removeDebugVisualElements)) {
+                    that._removeDebugVisualElements(wrapper);
+                }
                 $(document).off(NS);
                 wrapper.children(DOT + HANDLE_BOX_CLASS).remove();
 
@@ -733,7 +737,9 @@
                         .on(MOUSEUP, $.proxy(that._onMouseUp, that));
 
                     // Add debug visual elements
-                    util.addDebugVisualElements(wrapper);
+                    if ($.isFunction(that._addDebugVisualElements)) {
+                        that._addDebugVisualElements(wrapper);
+                    }
                 }
             },
 
@@ -1227,13 +1233,15 @@
                             y: bounds.top + bounds.height / 2
                         };
 
-                    util.updateDebugVisualElements({
-                        wrapper: that.wrapper,
-                        mouse: mouse,
-                        center: center,
-                        bounds: bounds,
-                        scale: startState.scale
-                    });
+                    if ($.isFunction(that._updateDebugVisualElements)) {
+                        that._updateDebugVisualElements({
+                            wrapper: that.wrapper,
+                            mouse: mouse,
+                            center: center,
+                            bounds: bounds,
+                            scale: startState.scale
+                        });
+                    }
 
                     if (startState.command === COMMANDS.MOVE) {
                         item.set(LEFT, util.snap(startState.left + (mouse.x - startState.mouseX) / startState.scale, that._snapGrid));
@@ -1299,7 +1307,9 @@
                     $(document.body).css(CURSOR, '');
 
                     // Hide debug visual elements
-                    util.hideDebugVisualElements(that.wrapper);
+                    if ($.isFunction(that._hideDebugVisualElements)) {
+                        that._hideDebugVisualElements(that.wrapper);
+                    }
 
                 }
             },
@@ -1538,191 +1548,53 @@
          * Helpers
          *********************************************************************************/
 
-        /**
-         * Utility functions
-         */
-        var util = {
-
-            /**
-             * Test valid guid
-             * @param value
-             * @returns {boolean}
-             */
-            isGuid: function (value) {
-                // http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
-                return ($.type(value) === STRING) && (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value));
-            },
-
-            /**
-             * Convert radians to degrees
-             * @param deg
-             * @returns {number}
-             */
-            deg2rad: function (deg) {
-                return deg * Math.PI / 180;
-            },
-
-            /**
-             * Convert degrees to radians
-             * @param rad
-             * @returns {number}
-             */
-            rad2deg: function (rad) {
-                return rad * 180 / Math.PI;
-            },
-
-            /**
-             * Snapping consists in rounding the value to the closest multiple of snapValue
-             * @param value
-             * @param snapValue
-             * @returns {*}
-             */
-            snap: function (value, snapValue) {
-                assert.type(NUMBER, snapValue, assert.messages.type.default, 'snapValue', NUMBER);
-                snapValue = Math.round(snapValue);
-                if (snapValue) {
-                    return value % snapValue < snapValue / 2 ? value - value % snapValue : value + snapValue - value % snapValue;
-                } else {
-                    return Math.round(value);
-                }
-            },
-
-            /**
-             * Get the rotation angle (in degrees) of an element's CSS transformation
-             * @param element
-             * @returns {Number|number}
-             */
-            getTransformRotation: function (element) {
-                // $(element).css('transform') returns a matrix, so we have to read the style attribute
-                var match = ($(element).attr('style') || '').match(/rotate\([\s]*([0-9\.]+)[deg\s]*\)/);
-                return $.isArray(match) && match.length > 1 ? parseInt(match[1], 10) || 0 : 0;
-            },
-
-            /**
-             * Get the scale of an element's CSS transformation
-             * Note: the same function is used in kidoju.widgets.connector
-             * @param element
-             * @returns {Number|number}
-             */
-            getTransformScale: function (element) {
-                // $(element).css('transform') returns a matrix, so we have to read the style attribute
-                var match = ($(element).attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
-                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
-            },
-
-            /**
-             * Get the mouse (or touch) position
-             * @param e
-             * @param stage
-             * @returns {{x: *, y: *}}
-             */
-            getMousePosition: function (e, stage) {
-                // See http://www.jacklmoore.com/notes/mouse-position/
-                // See http://www.jqwidgets.com/community/topic/dragend-event-properties-clientx-and-clienty-are-undefined-on-ios/
-                // See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
-                // ATTENTION: e.originalEvent.touches instanceof TouchList, not Array
-                var clientX = e.originalEvent && e.originalEvent.touches ? e.originalEvent.touches[0].clientX : e.clientX;
-                var clientY = e.originalEvent && e.originalEvent.touches ? e.originalEvent.touches[0].clientY : e.clientY;
-                // IMPORTANT: Position is relative to the stage and e.offsetX / e.offsetY do not work in Firefox
-                // var stage = $(e.target).closest('.kj-stage').find(kendo.roleSelector('stage'));
-                var mouse = {
-                        x: clientX - stage.offset().left + $(stage.get(0).ownerDocument).scrollLeft(),
-                        y: clientY - stage.offset().top + $(stage.get(0).ownerDocument).scrollTop()
-                    };
-                return mouse;
-            },
-
-            /**
-             * Rotate a point by an angle around a center
-             * @param point
-             * @param center
-             * @param radians
-             * @returns {*}
-             */
-            getRotatedPoint: function (point, center, radians) {
-                if ($.isPlainObject(point) && $.type(point.x) === 'number' && $.type(point.y) === 'number' &&
-                    $.isPlainObject(center) && $.type(center.x) === 'number' && $.type(center.y) === 'number' &&
-                    $.type(radians) === 'number') {
-                    return {
-                        // See http://stackoverflow.com/questions/786472/rotate-a-point-by-another-point-in-2d
-                        // See http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
-                        x: center.x + (point.x - center.x) * Math.cos(radians) - (point.y - center.y) * Math.sin(radians),
-                        y: center.y + (point.x - center.x) * Math.sin(radians) + (point.y - center.y) * Math.cos(radians)
-                    };
-                }
-            },
-
-            /**
-             * Calculate the angle between two points rotated around a center
-             * @param center
-             * @param p1
-             * @param p2
-             * @returns {*}
-             */
-            getRadiansBetween2Points: function (center, p1, p2) {
-                if ($.isPlainObject(center) && $.type(center.x) === 'number' && $.type(center.y) === 'number' &&
-                    $.isPlainObject(p1) && $.type(p1.x) === 'number' && $.type(p1.y) === 'number' &&
-                    $.isPlainObject(p2) && $.type(p2.x) === 'number' && $.type(p2.y) === 'number') {
-                    // See http://www.euclideanspace.com/maths/algebra/vectors/angleBetween/
-                    // See http://stackoverflow.com/questions/7586063/how-to-calculate-the-angle-between-a-line-and-the-horizontal-axis
-                    // See http://code.tutsplus.com/tutorials/euclidean-vectors-in-flash--active-8192
-                    // See http://gamedev.stackexchange.com/questions/69649/using-atan2-to-calculate-angle-between-two-vectors
-                    return Math.atan2(p2.y - center.y, p2.x - center.x) - Math.atan2(p1.y - center.y, p1.x - center.x);
-                }
-            },
+        if (window.app && window.app.DEBUG) {
 
             /**
              * Add debug visual eleemnts
              * @param wrapper
              */
-            addDebugVisualElements: function (wrapper) {
-                if (window.app && window.app.DEBUG) {
+            Stage.fn._addDebugVisualElements = function(wrapper) {
 
-                    // Add bounding rectangle
-                    $(DEBUG_BOUNDS)
-                        .css({
-                            position: ABSOLUTE,
-                            border: '1px dashed #FF00FF',
-                            display: NONE
-                        })
-                        .appendTo(wrapper);
+                // Add bounding rectangle
+                $(DEBUG_BOUNDS).css({
+                    position: ABSOLUTE,
+                    border: '1px dashed #FF00FF',
+                    display: NONE
+                }).appendTo(wrapper);
 
-                    // Add center of rotation
-                    $(DEBUG_CENTER)
-                        .css({
-                            position: ABSOLUTE,
-                            height: '20px',
-                            width: '20px',
-                            marginTop: '-10px',
-                            marginLeft: '-10px',
-                            borderRadius: '50%',
-                            backgroundColor: '#FF00FF',
-                            display: NONE
-                        })
-                        .appendTo(wrapper);
+                // Add center of rotation
+                $(DEBUG_CENTER).css({
+                    position: ABSOLUTE,
+                    height: '20px',
+                    width: '20px',
+                    marginTop: '-10px',
+                    marginLeft: '-10px',
+                    borderRadius: '50%',
+                    backgroundColor: '#FF00FF',
+                    display: NONE
+                }).appendTo(wrapper);
 
-                    // Add calculated mouse position
-                    $(DEBUG_MOUSE_DIV)
-                        .css({
-                            position: ABSOLUTE,
-                            height: '20px',
-                            width: '20px',
-                            marginTop: '-10px',
-                            marginLeft: '-10px',
-                            borderRadius: '50%',
-                            backgroundColor: '#00FFFF',
-                            display: NONE
-                        })
-                        .appendTo(wrapper);
-                }
-            },
+                // Add calculated mouse position
+                $(DEBUG_MOUSE_DIV).css({
+                    position: ABSOLUTE,
+                    height: '20px',
+                    width: '20px',
+                    marginTop: '-10px',
+                    marginLeft: '-10px',
+                    borderRadius: '50%',
+                    backgroundColor: '#00FFFF',
+                    display: NONE
+                }).appendTo(wrapper);
+            };
 
             /**
              * Update debug visual elements
              * @param options
              */
-            updateDebugVisualElements: function (options) {
-                if (window.app && window.app.DEBUG && $.isPlainObject(options) && options.scale > 0) {
+            Stage.fn._updateDebugVisualElements = function(options) {
+
+                if ($.isPlainObject(options) && options.scale > 0) {
 
                     // Display center of rotation
                     options.wrapper.children(DOT + DEBUG_CENTER_CLASS).css({
@@ -1747,32 +1619,33 @@
                         top: Math.round(options.mouse.y / options.scale)
                     });
                 }
-            },
+            };
 
             /**
              * Hide debug visual elements
              * @param wrapper
              */
-            hideDebugVisualElements: function (wrapper) {
+            Stage.fn._hideDebugVisualElements = function(wrapper) {
                 if (window.app && window.app.DEBUG) {
-                    wrapper.children(DOT + DEBUG_CENTER_CLASS).css({ display: NONE });
-                    wrapper.children(DOT + DEBUG_BOUNDS_CLASS).css({ display: NONE });
-                    wrapper.children(DOT + DEBUG_MOUSE_CLASS).css({ display: NONE });
+                    wrapper.children(DOT + DEBUG_CENTER_CLASS).css({display: NONE});
+                    wrapper.children(DOT + DEBUG_BOUNDS_CLASS).css({display: NONE});
+                    wrapper.children(DOT + DEBUG_MOUSE_CLASS).css({display: NONE});
                 }
-            },
+            };
 
             /**
              * Remove debug visual elements
              * @param wrapper
              */
-            removeDebugVisualElements: function (wrapper) {
+            Stage.fn._removeDebugVisualElements = function(wrapper) {
                 if (window.app && window.app.DEBUG) {
                     wrapper.children(DOT + DEBUG_CENTER_CLASS).remove();
                     wrapper.children(DOT + DEBUG_BOUNDS_CLASS).remove();
                     wrapper.children(DOT + DEBUG_MOUSE_CLASS).remove();
                 }
-            }
-        };
+            };
+
+        }
 
     }(window.jQuery));
 

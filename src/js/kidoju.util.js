@@ -36,6 +36,24 @@
          *********************************************************************************/
 
         /**
+         * Convert radians to degrees
+         * @param deg
+         * @returns {number}
+         */
+        util.deg2rad = function (deg) {
+            return deg * Math.PI / 180;
+        };
+
+        /**
+         * Convert degrees to radians
+         * @param rad
+         * @returns {number}
+         */
+        util.rad2deg = function (rad) {
+            return rad * 180 / Math.PI;
+        };
+
+        /**
          * Get the position of the center of an element
          * @param element
          * @param stage
@@ -69,6 +87,8 @@
             // See http://www.devinrolsen.com/basic-jquery-touchmove-event-setup/
             // ATTENTION: e.originalEvent.changedTouches instanceof TouchList, not Array
             var originalEvent = e.originalEvent;
+            // var clientX = originalEvent && originalEvent.touches ? originalEvent.touches[0].clientX : e.clientX;
+            // var clientY = originalEvent && originalEvent.touches ? originalEvent.touches[0].clientY : e.clientY;
             var clientX = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientX : e.clientX;
             var clientY = originalEvent && originalEvent.changedTouches ? originalEvent.changedTouches[0].clientY : e.clientY;
             // IMPORTANT: Position is relative to the stage and e.offsetX / e.offsetY do not work in Firefox
@@ -79,6 +99,45 @@
                 y: clientY - stageOffset.top + ownerDocument.scrollTop()
             };
             return mouse;
+        };
+
+        /**
+         * Rotate a point by an angle around a center
+         * @param point
+         * @param center
+         * @param radians
+         * @returns {*}
+         */
+        util.getRotatedPoint = function (point, center, radians) {
+            if ($.isPlainObject(point) && $.type(point.x) === 'number' && $.type(point.y) === 'number' &&
+                $.isPlainObject(center) && $.type(center.x) === 'number' && $.type(center.y) === 'number' &&
+                $.type(radians) === 'number') {
+                return {
+                    // See http://stackoverflow.com/questions/786472/rotate-a-point-by-another-point-in-2d
+                    // See http://www.felixeve.co.uk/how-to-rotate-a-point-around-an-origin-with-javascript/
+                    x: center.x + (point.x - center.x) * Math.cos(radians) - (point.y - center.y) * Math.sin(radians),
+                    y: center.y + (point.x - center.x) * Math.sin(radians) + (point.y - center.y) * Math.cos(radians)
+                };
+            }
+        };
+
+        /**
+         * Calculate the angle between two points rotated around a center
+         * @param center
+         * @param p1
+         * @param p2
+         * @returns {*}
+         */
+        util.getRadiansBetween2Points = function (center, p1, p2) {
+            if ($.isPlainObject(center) && $.type(center.x) === 'number' && $.type(center.y) === 'number' &&
+                $.isPlainObject(p1) && $.type(p1.x) === 'number' && $.type(p1.y) === 'number' &&
+                $.isPlainObject(p2) && $.type(p2.x) === 'number' && $.type(p2.y) === 'number') {
+                // See http://www.euclideanspace.com/maths/algebra/vectors/angleBetween/
+                // See http://stackoverflow.com/questions/7586063/how-to-calculate-the-angle-between-a-line-and-the-horizontal-axis
+                // See http://code.tutsplus.com/tutorials/euclidean-vectors-in-flash--active-8192
+                // See http://gamedev.stackexchange.com/questions/69649/using-atan2-to-calculate-angle-between-two-vectors
+                return Math.atan2(p2.y - center.y, p2.x - center.x) - Math.atan2(p1.y - center.y, p1.x - center.x);
+            }
         };
 
         /**
@@ -99,8 +158,9 @@
          * @returns {Number|number}
          */
         util.getTransformRotation = function (element) {
+            assert.instanceof($, element, assert.format(assert.messages.instanceof.default, 'element', 'jQuery'));
             // $(element).css('transform') returns a matrix, so we have to read the style attribute
-            var match = ($(element).attr('style') || '').match(/rotate\([\s]*([0-9\.]+)[deg\s]*\)/);
+            var match = (element.attr('style') || '').match(/rotate\([\s]*([0-9\.]+)[deg\s]*\)/); // TODO: Do we need $
             return Array.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 0 : 0;
         };
 
@@ -118,6 +178,16 @@
         };
 
         /**
+         * Test valid guid
+         * @param value
+         * @returns {boolean}
+         */
+        util.isGuid = function (value) {
+            // http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
+            return ($.type(value) === STRING) && (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value));
+        };
+
+        /**
          * Get a random id
          * @returns {string}
          */
@@ -131,6 +201,7 @@
          * @returns {string}
          */
         util.randomString = function (length) {
+            assert.type(NUMBER, length, assert.messages.type.default, 'length', NUMBER);
             var s = new Array(length + 1).join('x');
             return s.replace(/x/g, function (c) {
                 /* jshint -W016 */
@@ -172,10 +243,14 @@
          * @returns {*}
          */
         util.snap = function (value, snapValue) {
+            assert.type(NUMBER, value, assert.messages.type.default, 'value', NUMBER);
+            assert.type(NUMBER, snapValue, assert.messages.type.default, 'snapValue', NUMBER);
+            snapValue = Math.round(snapValue);
             if (snapValue) {
                 return value % snapValue < snapValue / 2 ? value - value % snapValue : value + snapValue - value % snapValue;
             } else {
-                return value;
+                // return value;
+                return Math.round(value);
             }
         };
 

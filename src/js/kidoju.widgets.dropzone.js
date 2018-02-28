@@ -113,7 +113,7 @@
                     var ret = [];
                     if (Array.isArray(that._ids)) {
                         $.each(that._ids, function (index, id) {
-                            var val = container.find(assert.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), id)).attr(kendo.attr(kendo.toHyphens(VALUE)));
+                            var val = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), id)).attr(kendo.attr(kendo.toHyphens(VALUE)));
                             ret.push(val);
                         });
                     }
@@ -315,7 +315,7 @@
                     that._setDataItem(startState.id, left, top);
 
                     // Check drop zone hits
-                    var stageElement = container.find(assert.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), startState.id)).closest(that.options.draggable);
+                    var stageElement = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), startState.id)).closest(that.options.draggable);
                     setTimeout(function () {
                         that._checkHit(stageElement, scale);
                     }, 0);
@@ -472,7 +472,7 @@
                     items = e.items;
                 }
                 $.each(items, function (index, item) {
-                    var stageElement = container.find(assert.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), item.id)).closest(that.options.draggable);
+                    var stageElement = container.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), item.id)).closest(that.options.draggable);
                     stageElement.css({
                         left: item.data.left,
                         top: item.data.top

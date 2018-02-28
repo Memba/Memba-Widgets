@@ -89,6 +89,7 @@
                 container: 'div.kj-stage>div[data-' + kendo.ns + 'role="stage"]', // that.stage in kidoju.widgets.stage
                 draggable: 'div.kj-element:has([data-' + kendo.ns + 'draggable="true"])', // a stageElement in kidoju.widgets.stage
                 center: false,
+                empty: '', // to force a value when empty
                 enable: true
             },
 
@@ -115,6 +116,9 @@
                             var val = container.find(assert.format(ATTRIBUTE_SELECTOR, kendo.attr(ID), id)).attr(kendo.attr(kendo.toHyphens(VALUE)));
                             ret.push(val);
                         });
+                    }
+                    if (ret.length === 0 && that.options.empty) {
+                        ret.push(that.options.empty);
                     }
                     return ret;
                 }
@@ -159,6 +163,10 @@
                 var that = this;
                 var options = that.options;
                 var container = that.container;
+                // Trigger a change to update the value in data bindings if the drop zone has an empty value
+                if (that.options.empty) {
+                    that.trigger(CHANGE);
+                }
                 assert.instanceof($, container, assert.format(assert.messages.instanceof.default, 'this.container', 'jQuery'));
                 assert.hasLength(container, assert.format(assert.messages.hasLength.default, 'this.container'));
                 var scaler = that.scaler;

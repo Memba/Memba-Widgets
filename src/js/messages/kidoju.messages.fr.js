@@ -893,7 +893,8 @@
                     // Attributes
                     attributes = tools.dropzone.constructor.prototype.attributes;
                     attributes.center.title = 'Centrer';
-                    attributes.text.defaultValue = false;
+                    attributes.center.defaultValue = false;
+                    attributes.empty.title = 'Vide';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Texte';
                     attributes.text.defaultValue = 'Veuillez déposer ici.';

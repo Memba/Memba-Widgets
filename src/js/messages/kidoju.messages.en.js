@@ -896,7 +896,8 @@
                     // Attributes
                     attributes = tools.dropzone.constructor.prototype.attributes;
                     attributes.center.title = 'Centre';
-                    attributes.text.defaultValue = false;
+                    attributes.center.defaultValue = false;
+                    attributes.empty.title = 'Empty';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Text';
                     attributes.text.defaultValue = 'Please drop here.';

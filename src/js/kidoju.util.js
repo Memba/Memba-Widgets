@@ -25,7 +25,7 @@
         var logger = new window.Logger('kidoju.util');
         // var BOOLEAN = 'boolean';
         var NUMBER = 'number';
-        // var STRING = 'string';
+        var STRING = 'string';
         // var UNDEFINED = 'undefined';
 
         var kidoju = window.kidoju = window.kidoju || {};
@@ -106,6 +106,14 @@
         };
 
         /**
+         * Get a random id
+         * @returns {string}
+         */
+        util.randomId = function () {
+            return 'id_' + util.randomString(6);
+        };
+
+        /**
          * Build a random hex string of length characters
          * @param length
          * @returns {string}
@@ -120,6 +128,32 @@
         };
 
         /**
+         * Fisher-Yates shuffle
+         * @see https://bost.ocks.org/mike/shuffle/
+         * @param array
+         * @returns {*}
+         */
+        util.shuffle = function (array) {
+            var m = array.length;
+            var t;
+            var i;
+
+            // While there remain elements to shuffle…
+            while (m) {
+
+                // Pick a remaining element…
+                i = Math.floor(Math.random() * m--);
+
+                // And swap it with the current element.
+                t = array[m];
+                array[m] = array[i];
+                array[i] = t;
+            }
+
+            return array;
+        };
+
+        /**
          * Snapping consists in rounding the value to the closest multiple of snapValue
          * @param value
          * @param snapValue
@@ -130,6 +164,34 @@
                 return value % snapValue < snapValue / 2 ? value - value % snapValue : value + snapValue - value % snapValue;
             } else {
                 return value;
+            }
+        };
+
+        /**
+         * Style string to css object
+         * allows to get a string from style="color: #ff0000; background: #ffffff;" and turn it into an object that can be used with jQuery.css
+         * @param style
+         * @returns {*}
+         */
+        util.styleString2CssObject = function (style) {
+            if ($.isPlainObject(style)) {
+                return style;
+            } else if ($.type(style) === STRING) {
+                var ret = {};
+                var styleArray = style.split(';');
+                for (var i = 0; i < styleArray.length; i++) {
+                    var styleKeyValue = styleArray[i].split(':');
+                    if ($.isArray(styleKeyValue) && styleKeyValue.length === 2) {
+                        var key = $.camelCase(styleKeyValue[0].trim());
+                        var value = styleKeyValue[1].trim();
+                        if (key.length && value.length) {
+                            ret[key] = value;
+                        }
+                    }
+                }
+                return ret;
+            } else {
+                return {};
             }
         };
 

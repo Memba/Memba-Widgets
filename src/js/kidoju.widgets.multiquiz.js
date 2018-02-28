@@ -12,7 +12,8 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
-        './vendor/kendo/kendo.multiselect'
+        './vendor/kendo/kendo.multiselect',
+        './kidoju.util'
     ], f);
 })(function () {
 
@@ -31,6 +32,7 @@
         var ObservableArray = kendo.data.ObservableArray;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.multiquiz');
+        var util = window.kidoju.util;
         var NS = '.kendoMultiQuiz';
         var STRING = 'string';
         var NULL = 'null';
@@ -61,102 +63,6 @@
             MULTISELECT: 'multiselect'
         };
         var CHECKED = 'checked';
-
-        /*********************************************************************************
-         * Helpers
-         *********************************************************************************/
-
-        var util = {
-
-            /**
-             * Build a random hex string of length characters
-             * @param length
-             * @returns {string}
-             */
-            randomString: function (length)
-            {
-                var s = new Array(length + 1).join('x');
-                return s.replace(/x/g, function (c) {
-                    /* jshint -W016 */
-                    return (Math.random() * 16 | 0).toString(16);
-                    /* jshint +W016 */
-                });
-            },
-
-            /**
-             * Get a random id
-             * @returns {string}
-             */
-            randomId: function () {
-                return 'id_' + util.randomString(6);
-            },
-
-            /**
-             * Format style
-             * @param style
-             * @returns {*}
-             */
-            formatStyle: function (style) {
-                if ($.isPlainObject(style)) {
-                    return style;
-                } else if ($.type(style) === STRING) {
-                    var ret = {};
-                    var styleArray = style.split(';');
-                    for (var i = 0; i < styleArray.length; i++) {
-                        var styleKeyValue = styleArray[i].split(':');
-                        if ($.isArray(styleKeyValue) && styleKeyValue.length === 2) {
-                            var key = styleKeyValue[0].trim();
-                            var value = styleKeyValue[1].trim();
-                            if (key.length && value.length) {
-                                ret[key] = value;
-                            }
-                        }
-                    }
-                    return ret;
-                } else {
-                    return {};
-                }
-            },
-
-            /**
-             * Fisher-Yates shuffle
-             * @see https://bost.ocks.org/mike/shuffle/
-             * @param array
-             * @returns {*}
-             */
-            shuffle: function (array) {
-                var m = array.length;
-                var t;
-                var i;
-
-                // While there remain elements to shuffle…
-                while (m) {
-
-                    // Pick a remaining element…
-                    i = Math.floor(Math.random() * m--);
-
-                    // And swap it with the current element.
-                    t = array[m];
-                    array[m] = array[i];
-                    array[i] = t;
-                }
-
-                return array;
-            },
-
-            /**
-             * Get the scale of an element's CSS transformation
-             * Note: the same function is used in kidoju.widgets.stage
-             * @param element
-             * @returns {Number|number}
-             */
-            getTransformScale: function (element) {
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
-                // element.css('transform') returns a matrix, so we have to read the style attribute
-                var match = (element.attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
-                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
-            }
-        };
 
         /*********************************************************************************
          * Widget
@@ -229,9 +135,9 @@
                 var that = this;
                 Widget.fn.setOptions.call(that, options);
                 options = that.options;
-                options.groupStyle = util.formatStyle(options.groupStyle);
-                options.itemStyle = util.formatStyle(options.itemStyle);
-                options.selectedStyle = util.formatStyle(options.selectedStyle);
+                options.groupStyle = util.styleString2CssObject(options.groupStyle);
+                options.itemStyle = util.styleString2CssObject(options.itemStyle);
+                options.selectedStyle = util.styleString2CssObject(options.selectedStyle);
                 that._buttonTemplate = kendo.template(kendo.format(options.buttonTemplate, options.textField, options.imageField));
                 that._checkboxTemplate = kendo.template(kendo.format(options.checkboxTemplate, options.textField, options.imageField, util.randomId()));
                 that._imageTemplate = kendo.template(kendo.format(options.imageTemplate, options.textField, options.imageField));
@@ -256,7 +162,7 @@
             value: function (value) {
                 var that = this;
                 var options = that.options;
-                if ($.isArray(value) || value instanceof ObservableArray) {
+                if (Array.isArray(value) || value instanceof ObservableArray) {
                     if (that.dataSource instanceof DataSource) {
                         // finder is used to satisfy jshint which would otherwise complain about making functions within loops
                         var finder = function (value) {
@@ -338,9 +244,9 @@
              * @private
              */
             _onMultiSelectChange: function () {
-                assert.instanceof(MultiSelect, this.multiSelect, kendo.format(assert.messages.instanceof.default, 'this.multiSelect', 'kendo.ui.MultiSelect'));
+                assert.instanceof(MultiSelect, this.multiSelect, assert.format(assert.messages.instanceof.default, 'this.multiSelect', 'kendo.ui.MultiSelect'));
                 var value = this.multiSelect.value();
-                if ($.isArray(value) || value instanceof ObservableArray) {
+                if (Array.isArray(value) || value instanceof ObservableArray) {
                     this._value = value;
                 } else {
                     this._value = null;
@@ -392,11 +298,11 @@
              * @private
              */
             _onCheckBoxClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
                 var checkbox = $(e.currentTarget);
                 var value = checkbox.val();
-                if (!$.isArray(that._value) && !(that._value instanceof ObservableArray)) {
+                if (!Array.isArray(that._value) && !(that._value instanceof ObservableArray)) {
                     that._value = [];
                 }
                 var index = that._value.indexOf(value);
@@ -418,11 +324,11 @@
              * @private
              */
             _onButtonClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
                 var button = $(e.currentTarget);
                 var value = button.attr(kendo.attr('value'));
-                if (!$.isArray(that._value) && !(that._value instanceof ObservableArray)) {
+                if (!Array.isArray(that._value) && !(that._value instanceof ObservableArray)) {
                     that._value = [];
                 }
                 var index = that._value.indexOf(value);
@@ -443,11 +349,11 @@
              * @private
              */
             _onImageClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
                 var image = $(e.currentTarget);
                 var value = image.attr(kendo.attr('value'));
-                if (!$.isArray(that._value) && !(that._value instanceof ObservableArray)) {
+                if (!Array.isArray(that._value) && !(that._value instanceof ObservableArray)) {
                     that._value = [];
                 }
                 var index = that._value.indexOf(value);
@@ -468,11 +374,11 @@
              * @private
              */
             _onLinkClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
                 var link = $(e.currentTarget);
                 var value = link.attr(kendo.attr('value'));
-                if (!$.isArray(that._value) && !(that._value instanceof ObservableArray)) {
+                if (!Array.isArray(that._value) && !(that._value instanceof ObservableArray)) {
                     that._value = [];
                 }
                 var index = that._value.indexOf(value);
@@ -522,7 +428,7 @@
                     .removeClass(STATE_SELECTED)
                     .attr('style', '')
                     .css(options.itemStyle);
-                if ($.isArray(that._value) || that._value instanceof ObservableArray) {
+                if (Array.isArray(that._value) || that._value instanceof ObservableArray) {
                     $.each(that._value, function (index, value) {
                         element.find(BUTTON_SELECTOR + kendo.format(ATTRIBUTE_SELECTOR, kendo.attr('value'), value))
                             .addClass(STATE_SELECTED)
@@ -548,7 +454,7 @@
                     .parent()
                     .attr('style', '')
                     .css(options.itemStyle);
-                if ($.isArray(that._value) || that._value instanceof ObservableArray) {
+                if (Array.isArray(that._value) || that._value instanceof ObservableArray) {
                     $.each(that._value, function (index, value) {
                         element.find(CHECKBOX_SELECTOR + kendo.format(ATTRIBUTE_SELECTOR, 'value', value))
                             .prop(CHECKED, true)
@@ -571,7 +477,7 @@
                     .removeClass(STATE_SELECTED)
                     .attr('style', '')
                     .css(options.itemStyle);
-                if ($.isArray(that._value) || that._value instanceof ObservableArray) {
+                if (Array.isArray(that._value) || that._value instanceof ObservableArray) {
                     $.each(that._value, function (index, value) {
                         element.find(IMAGE_SELECTOR + kendo.format(ATTRIBUTE_SELECTOR, kendo.attr('value'), value))
                             .addClass(STATE_SELECTED)
@@ -593,7 +499,7 @@
                     .removeClass(STATE_SELECTED)
                     .attr('style', '')
                     .css(options.itemStyle);
-                if ($.isArray(that._value) || that._value instanceof ObservableArray) {
+                if (Array.isArray(that._value) || that._value instanceof ObservableArray) {
                     $.each(that._value, function (index, value) {
                         element.find(LINK_SELECTOR + kendo.format(ATTRIBUTE_SELECTOR, kendo.attr('value'), value))
                             .addClass(STATE_SELECTED)
@@ -608,7 +514,7 @@
              * @private
              */
             _toggleMultiSelect: function () {
-                assert.instanceof(MultiSelect, this.multiSelect, kendo.format(assert.messages.instanceof.default, 'this.multiSelect', 'kendo.ui.MultiSelect'));
+                assert.instanceof(MultiSelect, this.multiSelect, assert.format(assert.messages.instanceof.default, 'this.multiSelect', 'kendo.ui.MultiSelect'));
                 this.multiSelect.value(this._value);
             },
 
@@ -662,9 +568,9 @@
                 var that = this;
                 var element = that.element;
                 var options = that.options;
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
+                assert.instanceof($, element, assert.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 if (options.mode === MODES.MULTISELECT) {
-                    assert.instanceof(MultiSelect, that.multiSelect, kendo.format(assert.messages.instanceof.default, 'that.multiSelect', 'kendo.ui.MultiSelect'));
+                    assert.instanceof(MultiSelect, that.multiSelect, assert.format(assert.messages.instanceof.default, 'that.multiSelect', 'kendo.ui.MultiSelect'));
                     that.multiSelect.refresh(e); // Note: shuffle does not apply here.
                 } else {
                     var items = that.dataSource.data();
@@ -745,7 +651,7 @@
             _enableButtons: function (enable) {
                 var that = this;
                 var element = that.element;
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
+                assert.instanceof($, element, assert.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 element.off(NS);
                 if (enable) {
                     element
@@ -762,7 +668,7 @@
             _enableCheckBoxes: function (enable) {
                 var that = this;
                 var element = that.element;
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
+                assert.instanceof($, element, assert.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 element.off(NS);
                 if (enable) {
                     element
@@ -798,7 +704,7 @@
             _enableImages: function (enable) {
                 var that = this;
                 var element = that.element;
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
+                assert.instanceof($, element, assert.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 element.off(NS);
                 if (enable) {
                     element
@@ -815,7 +721,7 @@
             _enableLinks: function (enable) {
                 var that = this;
                 var element = that.element;
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
+                assert.instanceof($, element, assert.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 element.off(NS);
                 if (enable) {
                     element
@@ -830,7 +736,7 @@
              * @private
              */
             _enableMultiSelect: function (enable) {
-                assert.instanceof(MultiSelect, this.multiSelect, kendo.format(assert.messages.instanceof.default, 'this.multiSelect', 'kendo.ui.MultiSelect'));
+                assert.instanceof(MultiSelect, this.multiSelect, assert.format(assert.messages.instanceof.default, 'this.multiSelect', 'kendo.ui.MultiSelect'));
                 this.multiSelect.enable(enable);
             },
 

@@ -12,7 +12,8 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
-        './vendor/kendo/kendo.dropdownlist'
+        './vendor/kendo/kendo.dropdownlist',
+        './kidoju.util'
     ], f);
 })(function () {
 
@@ -30,6 +31,7 @@
         var DataSource = kendo.data.DataSource;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.quiz');
+        var util = window.kidoju.util;
         var NS = '.kendoQuiz';
         var NULL = 'null';
         var STRING = 'string';
@@ -59,102 +61,6 @@
                 RADIO: 'radio'
             };
         var CHECKED = 'checked';
-
-        /*********************************************************************************
-         * Helpers
-         *********************************************************************************/
-
-        var util = {
-
-            /**
-             * Build a random hex string of length characters
-             * @param length
-             * @returns {string}
-             */
-            randomString: function (length)
-            {
-                var s = new Array(length + 1).join('x');
-                return s.replace(/x/g, function (c) {
-                    /* jshint -W016 */
-                    return (Math.random() * 16 | 0).toString(16);
-                    /* jshint +W016 */
-                });
-            },
-
-            /**
-             * Get a random id
-             * @returns {string}
-             */
-            randomId: function () {
-                return 'id_' + util.randomString(6);
-            },
-
-            /**
-             * Format style
-             * @param style
-             * @returns {*}
-             */
-            formatStyle: function (style) {
-                if ($.isPlainObject(style)) {
-                    return style;
-                } else if ($.type(style) === STRING) {
-                    var ret = {};
-                    var styleArray = style.split(';');
-                    for (var i = 0; i < styleArray.length; i++) {
-                        var styleKeyValue = styleArray[i].split(':');
-                        if ($.isArray(styleKeyValue) && styleKeyValue.length === 2) {
-                            var key = styleKeyValue[0].trim();
-                            var value = styleKeyValue[1].trim();
-                            if (key.length && value.length) {
-                                ret[key] = value;
-                            }
-                        }
-                    }
-                    return ret;
-                } else {
-                    return {};
-                }
-            },
-
-            /**
-             * Fisher-Yates shuffle
-             * @see https://bost.ocks.org/mike/shuffle/
-             * @param array
-             * @returns {*}
-             */
-            shuffle: function (array) {
-                var m = array.length;
-                var t;
-                var i;
-
-                // While there remain elements to shuffle…
-                while (m) {
-
-                    // Pick a remaining element…
-                    i = Math.floor(Math.random() * m--);
-
-                    // And swap it with the current element.
-                    t = array[m];
-                    array[m] = array[i];
-                    array[i] = t;
-                }
-
-                return array;
-            },
-
-            /**
-             * Get the scale of an element's CSS transformation
-             * Note: the same function is used in kidoju.widgets.stage
-             * @param element
-             * @returns {Number|number}
-             */
-            getTransformScale: function (element) {
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'element', 'jQuery'));
-                // element.css('transform') returns a matrix, so we have to read the style attribute
-                var match = (element.attr('style') || '').match(/scale\([\s]*([0-9\.]+)[\s]*\)/);
-                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 1 : 1;
-            }
-        };
 
         /*********************************************************************************
          * Widget
@@ -227,9 +133,9 @@
                 var that = this;
                 Widget.fn.setOptions.call(that, options);
                 options = that.options;
-                options.groupStyle = util.formatStyle(options.groupStyle);
-                options.itemStyle = util.formatStyle(options.itemStyle);
-                options.selectedStyle = util.formatStyle(options.selectedStyle);
+                options.groupStyle = util.styleString2CssObject(options.groupStyle);
+                options.itemStyle = util.styleString2CssObject(options.itemStyle);
+                options.selectedStyle = util.styleString2CssObject(options.selectedStyle);
                 that._buttonTemplate = kendo.template(kendo.format(options.buttonTemplate, options.textField, options.imageField));
                 that._dropDownTemplate = kendo.format(options.dropDownTemplate, options.textField, options.imageField); // ! not a compiled template
                 that._imageTemplate = kendo.template(kendo.format(options.imageTemplate, options.textField, options.imageField));
@@ -318,7 +224,7 @@
              * @private
              */
             _onDropDownListChange: function () {
-                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(DropDownList, this.dropDownList, assert.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                 var value = this.dropDownList.value();
                 if ($.type(value) === STRING && value.length) {
                     this._value = value;
@@ -372,7 +278,7 @@
              * @private
              */
             _onButtonClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
                 var button = $(e.currentTarget);
                 var value = button.attr(kendo.attr('value'));
@@ -392,7 +298,7 @@
              * @private
              */
             _onImageClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
                 var image = $(e.currentTarget);
                 var value = image.attr(kendo.attr('value'));
@@ -412,7 +318,7 @@
              * @private
              */
             _onLinkClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
                 var link = $(e.currentTarget);
                 var value = link.attr(kendo.attr('value'));
@@ -432,7 +338,7 @@
              * @private
              */
             _onRadioClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
                 var radio = $(e.currentTarget);
                 var value = radio.val();
@@ -494,7 +400,7 @@
              * @private
              */
             _toggleDropDownList: function () {
-                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(DropDownList, this.dropDownList, assert.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                 this.dropDownList.value(this._value);
             },
 
@@ -613,9 +519,9 @@
                 var that = this;
                 var element = that.element;
                 var options = that.options;
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
+                assert.instanceof($, element, assert.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 if (options.mode === MODES.DROPDOWN) {
-                    assert.instanceof(DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'that.dropDownList', 'kendo.ui.DropDownList'));
+                    assert.instanceof(DropDownList, that.dropDownList, assert.format(assert.messages.instanceof.default, 'that.dropDownList', 'kendo.ui.DropDownList'));
                     that.dropDownList.refresh(e); // Note: shuffle does not apply here.
                 } else {
                     var items = that.dataSource.data();
@@ -696,7 +602,7 @@
             _enableButtons: function (enable) {
                 var that = this;
                 var element = that.element;
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
+                assert.instanceof($, element, assert.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 element.off(NS);
                 if (enable) {
                     element
@@ -711,7 +617,7 @@
              * @private
              */
             _enableDropDownList: function (enable) {
-                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+                assert.instanceof(DropDownList, this.dropDownList, assert.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
                 this.dropDownList.enable(enable);
             },
 
@@ -723,7 +629,7 @@
             _enableImages: function (enable) {
                 var that = this;
                 var element = that.element;
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
+                assert.instanceof($, element, assert.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 element.off(NS);
                 if (enable) {
                     element
@@ -740,7 +646,7 @@
             _enableLinks: function (enable) {
                 var that = this;
                 var element = that.element;
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
+                assert.instanceof($, element, assert.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 element.off(NS);
                 if (enable) {
                     element
@@ -757,7 +663,7 @@
             _enableRadios: function (enable) {
                 var that = this;
                 var element = that.element;
-                assert.instanceof($, element, kendo.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
+                assert.instanceof($, element, assert.format(assert.messages.instanceof.default, 'this.element', 'jQuery'));
                 element.off(NS);
                 if (enable) {
                     element

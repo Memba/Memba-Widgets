@@ -10,7 +10,8 @@
     'use strict';
     define([
         './window.assert',
-        './window.logger'
+        './window.logger',
+        './vendor/kendo/kendo.data'
     ], f);
 })(function () {
 
@@ -21,6 +22,7 @@
 
     (function ($, undefined) {
 
+        var kendo = window.kendo;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.util');
         // var BOOLEAN = 'boolean';
@@ -34,6 +36,25 @@
         /*********************************************************************************
          * Helpers
          *********************************************************************************/
+
+        /**
+         *
+         * @param a
+         * @returns {*|boolean}
+         */
+        util.isAnyArray = function (a) {
+            return Array.isArray(a) || a instanceof kendo.data.ObservableArray;
+        };
+
+        /**
+         * Compare string arrays
+         * @param a
+         * @param b
+         * @returns {arg is Array<any> | boolean}
+         */
+        util.compareStringArrays = function (a, b) {
+            return util.isAnyArray(a) && util.isAnyArray(b) && a.length === b.length && a.join(';') === b.join(';');
+        };
 
         /**
          * Convert radians to degrees
@@ -150,6 +171,71 @@
             var g = (Math.round(Math.random() * 127) + 127).toString(16);
             var b = (Math.round(Math.random() * 127) + 127).toString(16);
             return '#' + r + g + b;
+        };
+
+        /**
+         * Gets the selection
+         * @param htmlElement
+         * @private
+         */
+        util.getSelection = function (htmlElement) {
+            assert.instanceof(HTMLDivElement, htmlElement, assert.format(assert.messages.instanceof.default, 'htmlElement', 'HTMLDivElement'));
+            assert.ok(htmlElement.childNodes.length === 1 && htmlElement.childNodes[0].nodeType === 3, '`htmlElement` should only have on child node of type #Text');
+            var cursor = {};
+            // document.selection && document.selection.createRange were used in IE < 9
+            // All modern browsers support the HTML Selection API, but Safari does not support selection events
+            // @see https://caniuse.com/#feat=selection-api
+            var selection = window.getSelection();
+            if (selection.rangeCount) {
+                var range = selection.getRangeAt(0);
+                if (range.commonAncestorContainer.parentNode === htmlElement) {
+                    cursor.start = range.startOffset;
+                    cursor.end = range.endOffset;
+                }
+            }
+            return cursor;
+        };
+
+        /**
+         * Sets the selection
+         * @param htmlElement
+         * @private
+         */
+        util.setSelection = function (htmlElement, cursor) {
+            assert.instanceof(HTMLDivElement, htmlElement, assert.format(assert.messages.instanceof.default, 'htmlElement', 'HTMLDivElement'));
+            assert.ok(htmlElement.childNodes.length === 1 && htmlElement.childNodes[0].nodeType === 3, '`htmlElement` should only have on child node of type #Text');
+            assert.isPlainObject(cursor, assert.format(assert.messages.isPlainObject.default, 'cursor'));
+            assert.type(NUMBER, cursor.start, assert.format(assert.messages.type.default, 'cursor.start', NUMBER));
+            assert.type(NUMBER, cursor.end, assert.format(assert.messages.type.default, 'cursor.end', NUMBER));
+            // document.selection && document.selection.createRange were used in IE < 9
+            // All modern browsers support the HTML Selection API, but Safari does not support selection events
+            // @see https://caniuse.com/#feat=selection-api
+            var selection = window.getSelection();
+            var range = document.createRange();
+            range.setStart(htmlElement.childNodes[0], cursor.start);
+            range.setEnd(htmlElement.childNodes[0], cursor.end);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        };
+
+        /**
+         * Replaces the selection with alternate text
+         * @param htmlElement
+         * @param cursor
+         * @param text
+         * @private
+         */
+        util.replaceSelection = function (htmlElement, text) {
+            assert.instanceof(HTMLDivElement, htmlElement, assert.format(assert.messages.instanceof.default, 'htmlElement', 'HTMLDivElement'));
+            assert.ok(htmlElement.childNodes.length === 1 && htmlElement.childNodes[0].nodeType === 3, '`htmlElement` should only have on child node of type #Text');
+            assert.type(STRING, text, assert.format(assert.messages.type.default, 'cursor.end', NUMBER));
+            var selection = window.getSelection();
+            var range = document.createRange();
+
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
         };
 
         /**

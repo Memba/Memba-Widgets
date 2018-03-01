@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kidoju.widgets.textgaps</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.textgaps stylesheet -->
+    <link href="./styles/kidoju.widgets.textgaps.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.3.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.textgaps.js').then(function (kendo) {
+                var viewModel = kendo.observable({
+                    value: [],
+                    visible: true,
+                    enabled: true,
+                    value$: function() {
+                        return this.get('value').join(', ');
+                    }
+                });
+                $(function () {
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>kidoju.widgets.textgaps</h1>
+<h2>textgaps with value attribute</h2>
+<div data-role="textgaps" data-value="[&quot;chat&quot;]" data-text="le petit [] est mort"></div>
+<h2>textgaps bound to observable</h2>
+<div id="test" data-role="textgaps" data-bind="value: value, visible: visible, enabled: enabled" data-text="The quick [] fox jumped over the lazy []."></div>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled
+</div>
+<pre>
+    {
+        value: [<span data-bind="text: value$"></span>],
+        visible: <span data-bind="text: visible"></span>,
+        enabled: <span data-bind="text: enabled"></span>,
+    }
+</pre>
+</body>
+</html>

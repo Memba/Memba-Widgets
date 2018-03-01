@@ -12,9 +12,7 @@
         './vendor/khan/katex', // Keep at the top considering function parameter below
         './window.assert',
         './window.logger',
-        './vendor/kendo/kendo.binder',
-        './vendor/kendo/kendo.userevents',
-        './vendor/kendo/kendo.draganddrop'
+        './vendor/kendo/kendo.binder'
     ], f);
 })(function (katX) {
 

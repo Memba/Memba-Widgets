@@ -146,8 +146,7 @@
              */
             enable: function (enable) {
                 var that = this;
-                assert.type(BOOLEAN, enable, assert.format(assert.messages.type.default, 'enable', BOOLEAN));
-                that._enabled = enable;
+                that._enabled = $.type(enable) === UNDEFINED ? true : !!enable;
                 // Yield some time for all drop zones and stage elements to actually be loaded and configured
                 setTimeout(function () {
                     that._initDraggables();
@@ -160,24 +159,26 @@
              * @private
              */
             _initDraggables: function () {
-                var that = this;
-                var options = that.options;
-                var container = that.container;
-                // Trigger a change to update the value in data bindings if the drop zone has an empty value
-                if (that.options.empty) {
-                    that.trigger(CHANGE);
+                if (this._enabled) {
+                    var that = this;
+                    var options = that.options;
+                    var container = that.container;
+                    // Trigger a change to update the value in data bindings if the drop zone has an empty value
+                    if (that.options.empty) {
+                        that.trigger(CHANGE);
+                    }
+                    assert.instanceof($, container, assert.format(assert.messages.instanceof.default, 'this.container', 'jQuery'));
+                    assert.hasLength(container, assert.format(assert.messages.hasLength.default, 'this.container'));
+                    var scaler = that.scaler;
+                    assert.instanceof($, scaler, assert.format(assert.messages.instanceof.default, 'this.scaler', 'jQuery'));
+                    assert.hasLength(scaler, assert.format(assert.messages.hasLength.default, 'this.scaler'));
+                    var scale = util.getTransformScale(scaler);
+                    // find stageElements containing images or labels with attribute [data-draggable=true]
+                    var draggableStageElements = container.children(options.draggable);
+                    draggableStageElements.each(function(index, htmlElement) {
+                        that._checkHit($(htmlElement), scale);
+                    });
                 }
-                assert.instanceof($, container, assert.format(assert.messages.instanceof.default, 'this.container', 'jQuery'));
-                assert.hasLength(container, assert.format(assert.messages.hasLength.default, 'this.container'));
-                var scaler = that.scaler;
-                assert.instanceof($, scaler, assert.format(assert.messages.instanceof.default, 'this.scaler', 'jQuery'));
-                assert.hasLength(scaler, assert.format(assert.messages.hasLength.default, 'this.scaler'));
-                var scale = util.getTransformScale(scaler);
-                // find stageElements containing images or labels with attribute [data-draggable=true]
-                var draggableStageElements = container.children(options.draggable);
-                draggableStageElements.each(function(index, htmlElement) {
-                    that._checkHit($(htmlElement), scale);
-                });
             },
 
             /**
@@ -311,6 +312,7 @@
                     // var boundaries = startState.boundaries;
                     var left = util.snap(startState.left + (mouse.x - startState.mouseX) / startState.scale, startState.snapGrid);
                     var top = util.snap(startState.top + (mouse.y - startState.mouseY) / startState.scale, startState.snapGrid);
+
                     // Set the data source and let the refresh method position the element
                     that._setDataItem(startState.id, left, top);
 
@@ -369,8 +371,8 @@
                                 // TODO: not sure this works when the stage element is rotated
                                 that._setDataItem(
                                     id,
-                                    left + dropZoneStageElementCenter.left - stageElementCenter.left,
-                                    top + dropZoneStageElementCenter.top - stageElementCenter.top
+                                    dropZoneStageElementCenter.left - stageElement.width() / 2, // left + dropZoneStageElementCenter.left - stageElementCenter.left,
+                                    dropZoneStageElementCenter.top - stageElement.height() / 2 // top + dropZoneStageElementCenter.top - stageElementCenter.top
                                 );
                             }
                             // If the draggable enters the drop zone, add the value

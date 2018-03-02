@@ -59,7 +59,7 @@
                 logger.debug({ method: 'init', message: 'widget initialized' });
                 that._layout();
                 that.value(that.options.value);
-                that.enable(that.options.enabled);
+                that.enable(that.options.enable);
                 // see http://www.telerik.com/forums/kendo-notify()
                 kendo.notify(that);
             },
@@ -74,7 +74,7 @@
                 text: '',
                 input: '\\[\\]', // backslahes are required for regular expressions, but this should be read []
                 inputStyle: '',
-                enabled: true
+                enable: true
             },
 
             /**

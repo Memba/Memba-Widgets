@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kidoju.widgets.highlighter</title>
+    <script>
+        window.app = { DEBUG: true };
+    </script>
+    <link href="./styles/vendor/kendo/web/kendo.common.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.min.css" rel="stylesheet">
+    <link href="./styles/vendor/kendo/web/kendo.default.mobile.min.css" rel="stylesheet">
+    <!-- kidoju.widgets.highlighter stylesheet -->
+    <link href="./styles/kidoju.widgets.highlighter.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../test/vendor/system.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.config({
+                baseURL: './js',
+                defaultJSExtensions: true,
+                paths: {
+                    'jquery': './js/vendor/jquery/jquery-3.3.1.min.js',
+                    'kendo.*': './js/vendor/kendo/kendo.*.js'
+                },
+                meta: {
+                    './js/vendor/kendo/kendo.*.js': { format: 'amd' }
+                }
+            });
+            SystemJS.import('./js/kidoju.widgets.highlighter.js').then(function (kendo) {
+                var viewModel = kendo.observable({
+                    value: '4-5,7-10',
+                    visible: true,
+                    enabled: true
+                });
+                $(function () {
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>kidoju.widgets.highlighter</h1>
+<h2>highlighter with value and match attributes</h2>
+<div data-role="highlighter" data-value="4,6-8,10-12" data-text="Lorem Ipsum is (simply) dummy <text> of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum." data-highlight-style="background:#FF00FF"></div>
+<h2>highlighter bound to observable</h2>
+<div id="test" data-role="highlighter" data-bind="value: value, visible: visible, enabled: enabled" data-text="Vingt-cinq mille démissions considérées comme « légitimes » ont ainsi donné droit au chômage en 2016, selon l’Unédic, auxquelles s’ajoutaient entre 20.000 et 30.000 demandes qui « ouvrent un droit suite à examen à quatre mois ». Soit 50.000 personnes concernées par an environ. En résumé, l’« ouverture » du droit au chômage aux démissionnaires promise par Emmanuel Macron concernera moins de personnes que les dispositifs préexistants auquel elle s’ajoutera. Concrètement, on passerait d’environ 50.000 auparavant à entre 70.000 et 80.000 démissionnaires indemnisés par Pôle emploi chaque année. L’esprit de la réforme détaillé dans le programme du candidat d’« [inciter] les entreprises à investir pour améliorer la qualité de vie au travail afin de conserver leurs salariés » y a également laissé des plumes."></div>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />Enabled
+</div>
+<pre>
+    {
+        value: [<span data-bind="text: value"></span>],
+        visible: <span data-bind="text: visible"></span>,
+        enabled: <span data-bind="text: enabled"></span>,
+    }
+</pre>
+</body>
+</html>

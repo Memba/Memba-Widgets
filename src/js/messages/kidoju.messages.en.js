@@ -913,6 +913,28 @@
                     properties.disabled.title = 'Disable';
                 }
 
+                if (tools.highlighter instanceof Tool) {
+                    // Description
+                    tools.highlighter.constructor.prototype.description = 'Highlighter';
+                    // Attributes
+                    attributes = tools.highlighter.constructor.prototype.attributes;
+                    attributes.highlightStyle.title = 'Highlight';
+                    attributes.style.title = 'Style';
+                    attributes.text.title = 'Text';
+                    attributes.text.defaultValue = 'Some text you can highlight.';
+                    attributes.words.title = 'Words';
+                    // Properties
+                    properties = tools.highlighter.constructor.prototype.properties;
+                    properties.name.title = 'Name';
+                    properties.question.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Success';
+                    properties.failure.title = 'Failure';
+                    properties.omit.title = 'Omit';
+                    properties.disabled.title = 'Disable';
+                }
+
                 if (tools.image instanceof Tool) {
                     // Description
                     tools.image.constructor.prototype.description = 'Image';
@@ -1075,6 +1097,27 @@
                     attributes.style.title = 'Style';
                     // Properties
                     properties = tools.textbox.constructor.prototype.properties;
+                    properties.name.title = 'Name';
+                    properties.question.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Success';
+                    properties.failure.title = 'Failure';
+                    properties.omit.title = 'Omit';
+                    properties.disabled.title = 'Disable';
+                }
+
+                if (tools.textgaps instanceof Tool) {
+                    // Description
+                    tools.textgaps.constructor.prototype.description = 'Text gaps';
+                    // Attributes
+                    attributes = tools.textgaps.constructor.prototype.attributes;
+                    attributes.inputStyle.title = 'Input Style';
+                    attributes.style.title = 'Style';
+                    attributes.text.title = 'Text';
+                    attributes.text.defaultValue = 'Some text with gaps like [] to fill.';
+                    // Properties
+                    properties = tools.textgaps.constructor.prototype.properties;
                     properties.name.title = 'Name';
                     properties.question.title = 'Question';
                     properties.solution.title = 'Solution';

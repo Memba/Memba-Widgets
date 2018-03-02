@@ -239,6 +239,26 @@
                 }
             },
 
+            highlighter: {
+                description: 'Highlighter',
+                attributes: {
+                    highlightStyle: { title: 'Highlight' },
+                    style: { title: 'Style' },
+                    text: { title: 'Text', defaultValue: 'Some text you can highlight.' },
+                    words: { title: 'Words' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    question: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' },
+                    disabled: { title: 'Disabled' }
+                }
+            },
+
             image: {
                 description: 'Image',
                 attributes: {
@@ -411,6 +431,25 @@
                 attributes: {
                     mask: { title: 'Mask' },
                     style: { title: 'Style' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    question: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' },
+                    disabled: { title: 'Disabled' }
+                }
+            },
+
+            textgaps: {
+                description: 'Text gaps',
+                attributes: {
+                    inputStyle: { title: 'Input Style' },
+                    style: { title: 'Style' },
+                    text: { title: 'Text', defaultValue: 'Some text with gaps like [] to fill.' }
                 },
                 properties: {
                     name: { title: 'Name' },
@@ -1338,6 +1377,41 @@
                 this.attributes[kendo.attr('role')] = 'dropdownlist';
                 this.attributes[kendo.attr('source')] = JSON.stringify(options && options.enum ? options.enum : []); // kendo.htmlEncode??
             }
+        });
+
+        /**
+         * HighLighter adapter
+         */
+        adapters.HighLighterAdapter = BaseAdapter.extend({
+            init: function (options, attributes) {
+                var that = this;
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+                this.editor = function (container, settings) {
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
+                    var highlighter = $('<div/>')
+                        .css({
+                            width: '100%',
+                            fontSize: '1em',
+                            minHeight: '4.6em'
+                        })
+                        .attr($.extend(binding, attributes))
+                        .appendTo(container);
+                    var highlighter = highlighter.kendoHighLighter({
+                        text: settings.model.get('attributes.text'),
+                        words: settings.model.get('attributes.words')
+                    });
+                };
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).trim() === String(solution).trim();')
+                }
+            ],
+            libraryDefault: 'equal'
         });
 
         /**
@@ -2707,7 +2781,7 @@
                 center: new adapters.BooleanAdapter({ title: i18n.dropzone.attributes.center.title, defaultValue: i18n.dropzone.attributes.center.defaultValue }),
                 empty: new adapters.StringAdapter({ title: i18n.dropzone.attributes.empty.title }),
                 text: new adapters.StringAdapter({ title: i18n.dropzone.attributes.text.title, defaultValue: i18n.dropzone.attributes.text.defaultValue }),
-                style: new adapters.StyleAdapter({ title: i18n.dropzone.attributes.style.title, defaultValue: 'font-size: 30px; border: dashed 3px #e1e1e1;' })
+                style: new adapters.StyleAdapter({ title: i18n.dropzone.attributes.style.title, defaultValue: 'font-size:30px;border:dashed 3px #e1e1e1;' })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.dropzone.properties.name.title }),
@@ -2789,6 +2863,147 @@
 
         });
         tools.register(DropZone);
+
+        var HIGHLIGHTER = '<div class="kj-interactive" data-#= ns #role="highlighter" data-#= ns #text="#: attributes.text #" data-#= ns #words="#: attributes.words #"  data-#= ns #highlight-style="#: attributes.highlightStyle #" style="#: attributes.style #" {0}></div>';
+        /**
+         * @class HighLighter tool
+         * @type {void|*}
+         */
+        var HighLighter = Tool.extend({
+            id: 'highlighter',
+            icon: 'marker',
+            description: i18n.highlighter.description,
+            cursor: CURSOR_CROSSHAIR,
+            weight: 1,
+            templates: {
+                design: kendo.format(HIGHLIGHTER, 'data-#= ns #enable="false"'),
+                play: kendo.format(HIGHLIGHTER, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
+                review: kendo.format(HIGHLIGHTER, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + Tool.fn.showResult()
+            },
+            height: 250,
+            width: 250,
+            attributes: {
+                highlightStyle: new adapters.StyleAdapter({ title: i18n.highlighter.attributes.highlightStyle.title }),
+                style: new adapters.StyleAdapter({ title: i18n.highlighter.attributes.style.title, defaultValue: 'font-size:32px;' }),
+                text: new adapters.TextAdapter({ title: i18n.highlighter.attributes.text.title, defaultValue: i18n.highlighter.attributes.text.defaultValue }),
+                words: new adapters.BooleanAdapter({ title: i18n.highlighter.attributes.words.title, defaultValue: true })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.highlighter.properties.name.title }),
+                question: new adapters.QuestionAdapter({ title: i18n.highlighter.properties.question.title }),
+                solution: new adapters.HighLighterAdapter({ title: i18n.highlighter.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({ title: i18n.highlighter.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.highlighter.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.highlighter.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.highlighter.properties.omit.title, defaultValue: 0 }),
+                disabled: new adapters.DisabledAdapter({ title: i18n.highlighter.properties.disabled.title, defaultValue: false })
+            },
+
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(HighLighter, that, kendo.format(assert.messages.instanceof.default, 'this', 'HighLighter'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                var template = kendo.template(that.templates[mode]);
+                return template($.extend(component, { ns: kendo.ns }));
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+                    // if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
+                    /*
+                     * We make a best guess for the number of lines as follows
+                     * Let's suppose the height (line-height, not font-size) and width of a character are respectively y and x
+                     * We have y = x * sizeRatio
+                     * How many of these character rectangles (x, y) can we fit in the content div (width, height)?
+                     *
+                     * the label only takes 1 line, if we have:
+                     * y = height and length <= width/x, that is length <= width*sizeRatio/y or y = height <= length*sizeRatio/width, which is length >= width*sizeRatio/height
+                     *
+                     * the label takes 2 lines, if we have:
+                     * y = height/2 and length <= width/x, that is length <= 2*width*sizeRatio/y or y = height/2 <= length*sizeRatio/width, which is length >= 4*width*sizeRatio/height
+                     *
+                     * the label takes n lines if we have sqrt((length*height)/sizeRatio*width) <= lines < sqrt(((length + 1)*height)/sizeRatio*width)
+                     *
+                     */
+                    // var length = component.attributes.text.length;
+                    // var sizeRatio = 1.6; // font-size being the height, this is the line-height/char-width ratio
+                    // var lines = Math.max(1, Math.floor(Math.sqrt((length * component.height) / (width * sizeRatio))));
+                    // We can now make a best guess for the font size
+                    // var fontRatio = 1.2; // this is the line-height/font-size ration
+                    // content.css('font-size', Math.floor(component.height / lines / fontRatio));
+                    // Note: in previous versions, we have tried to iterate through a hidden clone
+                    // to find that font size that does not trigger an overflow but it is too slow
+                    // }
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                /* jshint maxcomplexity: 12 */
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (!component.attributes ||
+                    !component.attributes.text ||
+                    (component.attributes.text === i18n.label.attributes.text.defaultValue) ||
+                    !RX_TEXT.test(component.attributes.text)) {
+                    ret.push({
+                        type: WARNING,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidText, description, pageIdx + 1)
+                    });
+                }
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                    // TODO: test small font-size incompatible with mobile devices
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
+                }
+                // TODO: We should also check that there is a dropZone on the page if draggable
+                return ret;
+            }
+
+            /* jshint +W074 */
+
+        });
+        tools.register(HighLighter);
 
         /**
          * @class Image tool
@@ -3115,7 +3330,7 @@
                     { title:i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue },
                     { rows: 2, style: 'resize:vertical; width: 100%;' }
                 ),
-                style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size: 60px;' })
+                style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size:60px;' })
             },
             properties: {
                 draggable: new adapters.BooleanAdapter({ title: i18n.label.properties.draggable.title, defaultValue: false }),
@@ -3251,7 +3466,7 @@
                 inline: new adapters.BooleanAdapter (
                     { title: i18n.mathexpression.attributes.inline.title, defaultValue: i18n.mathexpression.attributes.inline.defaultValue }
                 ),
-                style: new adapters.StyleAdapter({ title: i18n.mathexpression.attributes.style.title, defaultValue: 'font-size: 50px;' })
+                style: new adapters.StyleAdapter({ title: i18n.mathexpression.attributes.style.title, defaultValue: 'font-size:50px;' })
             },
             properties: {
                 draggable: new adapters.BooleanAdapter({ title: i18n.image.properties.draggable.title, defaultValue: false }),
@@ -3371,7 +3586,7 @@
                 sets: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.sets.title, defaultValue: false }),
                 matrices: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.matrices.title, defaultValue: false }),
                 statistics: new adapters.BooleanAdapter({ title: i18n.mathinput.attributes.statistics.title, defaultValue: false }),
-                style: new adapters.StyleAdapter({ title: i18n.mathinput.attributes.style.title, defaultValue: 'font-size: 50px;' })
+                style: new adapters.StyleAdapter({ title: i18n.mathinput.attributes.style.title, defaultValue: 'font-size:50px;' })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.mathinput.properties.name.title }),
@@ -3524,7 +3739,7 @@
                     { style: 'width: 100%;' }
                 ),
                 shuffle: new adapters.BooleanAdapter({ title: i18n.multiquiz.attributes.shuffle.title }),
-                groupStyle: new adapters.StyleAdapter({ title: i18n.multiquiz.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
+                groupStyle: new adapters.StyleAdapter({ title: i18n.multiquiz.attributes.groupStyle.title, defaultValue: 'font-size:60px;' }),
                 itemStyle: new adapters.StyleAdapter({ title: i18n.multiquiz.attributes.itemStyle.title }),
                 selectedStyle: new adapters.StyleAdapter({ title: i18n.multiquiz.attributes.selectedStyle.title }),
                 data: new adapters.ImageListBuilderAdapter({ title: i18n.multiquiz.attributes.data.title, defaultValue: i18n.multiquiz.attributes.data.defaultValue })
@@ -3711,7 +3926,7 @@
                     { style: 'width: 100%;' }
                 ),
                 shuffle: new adapters.BooleanAdapter({ title: i18n.quiz.attributes.shuffle.title }),
-                groupStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
+                groupStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.groupStyle.title, defaultValue: 'font-size:60px;' }),
                 itemStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.itemStyle.title }),
                 selectedStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.selectedStyle.title }),
                 data: new adapters.ImageListBuilderAdapter({ title: i18n.quiz.attributes.data.title, defaultValue: i18n.quiz.attributes.data.defaultValue })
@@ -4054,7 +4269,7 @@
             height: 300,
             width: 500,
             attributes: {
-                style: new adapters.StyleAdapter({ title: i18n.textarea.attributes.style.title, defaultValue: 'font-size:40px; resize:none;' })
+                style: new adapters.StyleAdapter({ title: i18n.textarea.attributes.style.title, defaultValue: 'font-size:40px;resize:none;' })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.textarea.properties.name.title }),
@@ -4243,6 +4458,163 @@
 
         });
         tools.register(Textbox);
+
+        var TEXTGAPS = '<div data-#= ns #role="textgaps" data-#= ns #text="#: attributes.text #" data-#= ns #input-style="#: attributes.inputStyle #" style="#: attributes.style #" {0}></div>';
+        /**
+         * TextGaps tool
+         * @class MultiQuiz
+         * @type {void|*}
+         */
+        var TextGaps = Tool.extend({
+            id: 'textgaps',
+            icon: 'form',
+            description: i18n.textgaps.description,
+            cursor: CURSOR_CROSSHAIR,
+            weight: 1,
+            templates: {
+                design: kendo.format(TEXTGAPS, 'data-#= ns #enable="false"'),
+                play: kendo.format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
+                review: kendo.format(TEXTGAPS, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+            },
+            height: 150,
+            width: 420,
+            attributes: {
+                inputStyle: new adapters.StyleAdapter({ title: i18n.textgaps.attributes.inputStyle.title }),
+                style: new adapters.StyleAdapter({ title: i18n.textgaps.attributes.style.title, defaultValue: 'font-size:32px;' }),
+                text: new adapters.StringAdapter({ title: i18n.textgaps.attributes.text.title, defaultValue: i18n.textgaps.attributes.text.defaultValue })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.textgaps.properties.name.title }),
+                question: new adapters.QuestionAdapter({ title: i18n.textgaps.properties.question.title }),
+                solution: new adapters.StringArrayAdapter({ title: i18n.textgaps.properties.solution.title, defaultValue: [] }),
+                validation: new adapters.ValidationAdapter({ title: i18n.textgaps.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.textgaps.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.textgaps.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.textgaps.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(TextGaps, that, kendo.format(assert.messages.instanceof.default, 'this', 'TextGaps'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                var template = kendo.template(that.templates[mode]);
+                return template($.extend(component, { ns: kendo.ns }));
+            },
+
+            /**
+             * Improved display of value in score grid
+             * @param testItem
+             */
+            value$: function (testItem) {
+                var ret = (testItem.value || []).slice();
+                for (var i = 0; i < ret.length; i++) {
+                    ret[i] = kendo.htmlEncode(ret[i]);
+                }
+                return ret.join('<br/>');
+            },
+
+            /**
+             * Improved display of solution in score grid
+             * @param testItem
+             */
+            solution$: function (testItem) {
+                var ret = (testItem.solution || []).slice();
+                for (var i = 0; i < ret.length; i++) {
+                    ret[i] = kendo.htmlEncode(ret[i]);
+                }
+                return ret.join('<br/>');
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                /* jshint maxcomplexity: 8 */
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div' + kendo.roleSelector('textgaps'));
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+                }
+                /*
+                 // Auto-resize algorithm is not great so let's wait until we find a better solution
+                 var data = component.attributes.data;
+                 var length = data.trim().split('\n').length || 1;
+                 switch (component.attributes.mode) {
+                 case 'button':
+                 content.css('font-size', Math.floor(0.57 * component.height));
+                 break;
+                 case 'dropdown':
+                 content.css('font-size', Math.floor(0.5 * component.height));
+                 break;
+                 case 'radio':
+                 var h = component.height / (length || 1);
+                 content.css('font-size', Math.floor(0.9 * h));
+                 content.find('input')
+                 .height(0.6 * h)
+                 .width(0.6 * h);
+                 break;
+                 }
+                 */
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                /* jshint maxcomplexity: 8 */
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle))) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
+                }
+                if (!component.attributes ||
+                    !component.attributes.data ||
+                    !RX_DATA.test(component.attributes.data)) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidData, description, pageIdx + 1)
+                    });
+                }
+                return ret;
+            }
+
+            /* jshint +W074 */
+
+        });
+        tools.register(TextGaps);
 
         /**
          * Video tool

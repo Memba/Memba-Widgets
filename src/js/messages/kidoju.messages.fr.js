@@ -910,6 +910,28 @@
                     properties.disabled.title = 'Désactivé';
                 }
 
+                if (tools.highlighter instanceof Tool) {
+                    // Description
+                    tools.highlighter.constructor.prototype.description = 'Surligneur';
+                    // Attributes
+                    attributes = tools.highlighter.constructor.prototype.attributes;
+                    attributes.highlightStyle.title = 'Surligne';
+                    attributes.style.title = 'Style';
+                    attributes.text.title = 'Texte';
+                    attributes.text.defaultValue = 'Un peu de texte à surligner.';
+                    attributes.words.title = 'Mots';
+                    // Properties
+                    properties = tools.highlighter.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.question.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Échec';
+                    properties.omit.title = 'Omission';
+                    properties.disabled.title = 'Désactivé';
+                }
+
                 if (tools.image instanceof Tool) {
                     // Description
                     tools.image.constructor.prototype.description = 'Image';
@@ -1072,6 +1094,27 @@
                     attributes.style.title = 'Style';
                     // Properties
                     properties = tools.textbox.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.question.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Échec';
+                    properties.omit.title = 'Omission';
+                    properties.disabled.title = 'Désactivé';
+                }
+
+                if (tools.textgaps instanceof Tool) {
+                    // Description
+                    tools.textgaps.constructor.prototype.description = 'Texte à trous';
+                    // Attributes
+                    attributes = tools.textgaps.constructor.prototype.attributes;
+                    attributes.inputStyle.title = 'Style saisie';
+                    attributes.style.title = 'Style';
+                    attributes.text.title = 'Texte';
+                    attributes.text.defaultValue = 'Un peu de texte avec un trou comme [] à remplir.';
+                    // Properties
+                    properties = tools.textgaps.constructor.prototype.properties;
                     properties.name.title = 'Nom';
                     properties.question.title = 'Question';
                     properties.solution.title = 'Solution';

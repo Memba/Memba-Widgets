@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>marker icon</title>
+	<desc>marker icon from the IconExperience.com O-Collection. Copyright by INCORS GmbH (www.incors.com).</desc>
+	<path id="curve2" fill="#ED9A56" d="M3095 8839l-273 273c-62,62 -138,94 -226,94l-1655 0c-132,0 -245,-76 -296,-198 -50,-122 -24,-255 69,-348l1101 -1101 1280 1280z"/>
+	<path id="curve1" fill="#808080" d="M5655 7879l-234 234c-203,203 -511,241 -753,113 -253,-134 -551,-89 -753,113l-434 434 -1600 -1600 434 -434c202,-202 247,-500 113,-753 -128,-242 -91,-550 113,-753l234 -234 2880 2880z"/>
+	<path id="curve0" fill="#ED9A56" d="M8167 1417l1070 1070c498,498 498,1312 0,1810 -1119,1119 -2237,2237 -3356,3356l-2880 -2880c1119,-1119 2237,-2237 3356,-3356 498,-499 1312,-499 1810,0z"/>
+</svg>
